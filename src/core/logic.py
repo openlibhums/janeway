@@ -289,6 +289,20 @@ def get_settings_to_edit(display_group, journal):
                     'general',
                     'file_submission_guidelines', journal
                 ),
+            },
+            {
+                'name': 'manuscript_file_submission_instructions',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'manuscript_file_submission_instructions', journal
+                ),
+            },
+            {
+                'name': 'data_figure_file_submission_instructions',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'data_figure_file_submission_instructions', journal
+                ),
             }
         ]
         setting_group = 'general'
