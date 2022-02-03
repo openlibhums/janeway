@@ -20,7 +20,7 @@
         <div class="row expanded">
             <div class="large-12 columns">
 
-                <p>{{ file_submission_guidelines }}</p>
+                {{ journal_settings.general.file_submission_guidelines|safe }}
 
                 <div class="title-area">
                     <h2>{{ request.journal.submissionconfiguration.submission_file_text }}</h2>

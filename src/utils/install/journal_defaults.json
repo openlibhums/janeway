@@ -3330,6 +3330,36 @@
         }
     },
     {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Instruction text for manuscript file upload pop-up window.",
+            "is_translatable": true,
+            "name": "manuscript_file_submission_instructions",
+            "pretty_name": "Manuscript File Submission Instructions",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Instruction text for data and figure file upload pop-up window.",
+            "is_translatable": true,
+            "name": "data_figure_file_submission_instructions",
+            "pretty_name": "Data and Figure File Submission Instructions",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
           "group": {
             "name": "email_subject"
         },

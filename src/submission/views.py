@@ -488,17 +488,11 @@ def submit_files(request, article_id):
 
     template = "admin/submission/submit_files.html"
 
-    guidelines = request.journal.get_setting(
-        'general',
-        'file_submission_guidelines'
-    )
-
     context = {
         'article': article,
         'error': error,
         'form': form,
         'modal': modal,
-        'file_submission_guidelines': guidelines,
     }
 
     return render(request, template, context)

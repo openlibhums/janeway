@@ -9,10 +9,7 @@
         <div class="card-section">
             <small>{% include "elements/forms/errors.html" with form=form %}</small>
             {% if modaltype == 'manuscript' %}
-                {% if journal_settings.general.limit_manuscript_types %}
-                    <p>{% trans "File types limited to Doc, Docx, RTF, and ODT." %}</p>
-                {% endif %}
-
+                {{ journal_settings.general.manuscript_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
@@ -43,6 +40,7 @@
                     </button>
                 </form>
             {% else %}
+                {{ journal_settings.general.data_figure_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
