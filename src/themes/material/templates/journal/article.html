@@ -448,8 +448,11 @@
             $('.scrollspy').scrollSpy();
         });
         $(document).scroll(function () {
+            var infobar_y = document.querySelector('nav').offsetHeight
+                + document.querySelector('.card-image').offsetHeight
+                + document.querySelector('.m4').offsetHeight
             var y = $(this).scrollTop();
-            if (y > 1000) {
+            if (y > infobar_y) {
                 $('#toc-card').fadeIn();
             } else {
                 $('#toc-card').fadeOut();
