@@ -3163,5 +3163,50 @@
         "value": {
             "default": "Please supply information below to support your request to make a submission to this journal."
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Email address of the access request contact.",
+            "is_translatable": true,
+            "name": "submission_access_request_contact",
+            "pretty_name": "Submission Access Request Contact",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the submission access request contact when a new request is added.",
+            "is_translatable": true,
+            "name": "submission_access_request_notification",
+            "pretty_name": "Submission Access Request Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>A new submission access request has been added.</p><p>{{ description }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Submission Access Request Notification.",
+            "is_translatable": true,
+            "name": "subject_submission_access_request_notification",
+            "pretty_name": "Submission Access Request Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "New Submission Access Request"
+        }
     }
 ]

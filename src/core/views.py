@@ -44,6 +44,7 @@ from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
 from repository import models as rm
+from events import logic as events_logic
 
 
 logger = get_logger(__name__)
@@ -2047,7 +2048,15 @@ def request_submission_access(request):
             role=role,
         )
         if form.is_valid():
-            form.save()
+            access_request = form.save()
+            event_kwargs = {
+                'request': request,
+                'access_request': access_request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request',
+                **event_kwargs,
+            )
             messages.add_message(
                 request,
                 messages.SUCCESS,

@@ -17,6 +17,7 @@
     without the author role attempts to make a submission they will be directed to a page where they can request this.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.limit_access_to_submission %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_access_request_text %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_access_request_contact %}
 </div>
 
 {% include "admin/elements/forms/table_multi_select_user.html" with field=edit_form.editors_for_notification queryset=request.journal.editors %}

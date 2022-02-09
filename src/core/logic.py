@@ -226,6 +226,9 @@ def get_settings_to_edit(group, journal):
             {'name': 'submission_access_request_text',
              'object': setting_handler.get_setting('general', 'submission_access_request_text', journal)
              },
+            {'name': 'submission_access_request_contact',
+             'object': setting_handler.get_setting('general', 'submission_access_request_contact', journal)
+             },
             {'name': 'abstract_required',
              'object': setting_handler.get_setting(
                  'general',

@@ -1485,3 +1485,33 @@ def send_draft_decision_declined(**kwargs):
         context=kwargs,
         log_dict=log_dict,
     )
+
+
+def access_request_notification(**kwargs):
+    request = kwargs.get('request')
+    access_request = kwargs.get('access_request')
+    description = '{} has requested the {} role for {}'.format(
+        request.user,
+        access_request.role.name,
+        request.site_type.name,
+    )
+
+    if request.journal:
+        contact = request.journal.get_setting('general', 'submission_access_request_contact')
+    else:
+        contact = request.repository.submission_access_contact
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Access Request',
+        'target': request.site_type,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'submission_access_request_notification',
+        'subject_submission_access_request_notification',
+        contact,
+        context={'description': description},
+        log_dict=log_dict,
+    )

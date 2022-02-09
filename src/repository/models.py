@@ -182,6 +182,11 @@ class Repository(model_utils.AbstractSiteModel):
         help_text='Describe any supporting information you want users to supply when requesting'
                   'access permissions for this repository. Linked to Limit Access to Submissions.',
     )
+    submission_access_contact = models.EmailField(
+        blank=True,
+        null=True,
+        help_text='Will be notified of new submission access requests.',
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
