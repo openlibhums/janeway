@@ -43,6 +43,7 @@ from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
+from repository import models as rm
 
 
 logger = get_logger(__name__)
@@ -2012,19 +2013,60 @@ def set_session_timezone(request):
 
 @login_required
 def request_submission_access(request):
-    from repository import models as rm
     if request.repository:
         check = rm.RepositoryRole.objects.filter(
             repository=request.repository,
             user=request.user,
-            role='author',
+            role__slug='author',
         ).exists()
     elif request.journal:
         check = request.user.is_author(request)
     else:
-        raise Http404('Page is only accessible on Repository and Journal sites.')
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_request = models.AccessRequest.objects.filter(
+        user=request.user,
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    ).first()
+    role = models.Role.objects.get(slug='author')
+    form = forms.AccessRequestForm(
+        journal=request.journal,
+        repository=request.repository,
+        user=request.user,
+        role=role,
+    )
+
+    if request.POST and not active_request:
+        form = forms.AccessRequestForm(
+            request.POST,
+            journal=request.journal,
+            repository=request.repository,
+            user=request.user,
+            role=role,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Sent.',
+            )
+            return redirect(
+                reverse(
+                    'request_submission_access'
+                )
+            )
 
     template = 'admin/core/request_submission_access.html'
     context = {
-
+        'check': check,
+        'active_request': active_request,
+        'form': form,
     }
+    return render(
+        request,
+        template,
+        context,
+    )

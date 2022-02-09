@@ -436,12 +436,15 @@ class RepositorySite(RepositoryBase):
             'favicon',
             'footer',
             'login_text',
+            'limit_access_to_submission',
+            'submission_access_request_text',
             'custom_js_code',
         )
         widgets = {
             'about': SummernoteWidget,
             'footer': SummernoteWidget,
             'login_text': SummernoteWidget,
+            'submission_access_request_text': SummernoteWidget,
         }
 
 

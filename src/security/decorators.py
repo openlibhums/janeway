@@ -1179,17 +1179,23 @@ def submission_authorised(func):
             if not preprint_models.RepositoryRole.objects.filter(
                 repository=request.repository,
                 user=request.user,
-                role='author',
+                role__slug='author',
             ).exists():
-                # TODO: Redirect here to the request page.
-                deny_access(request)
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
 
         if request.journal and request.journal.get_setting('general', 'limit_access_to_submission'):
             if not request.user.is_author(
-                request.journal,
+                request,
             ):
-                # TODO: Redirect here to the request page
-                deny_access(request)
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
 
         return func(request, *args, **kwargs)
 

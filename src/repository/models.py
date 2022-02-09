@@ -55,12 +55,6 @@ def width_choices():
     )
 
 
-def roles():
-    return (
-        ('author', 'Author'),
-    )
-
-
 fs_path = os.path.join('files/')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
 preprint_media_store = JanewayFileSystemStorage()
@@ -182,6 +176,12 @@ class Repository(model_utils.AbstractSiteModel):
         default=False,
         help_text='If enabled, users need to request access to submit preprints.',
     )
+    submission_access_request_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Describe any supporting information you want users to supply when requesting'
+                  'access permissions for this repository. Linked to Limit Access to Submissions.',
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -250,9 +250,9 @@ class RepositoryRole(models.Model):
         'core.Account',
         on_delete=models.CASCADE,
     )
-    role = models.CharField(
-        max_length=20,
-        choices=roles(),
+    role = models.ForeignKey(
+        'core.Role',
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):

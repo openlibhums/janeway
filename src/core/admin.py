@@ -205,6 +205,11 @@ class LoginAttemptAdmin(admin.ModelAdmin):
     list_filter = ('ip_address',)
 
 
+class AccessRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'journal', 'repository', 'role', 'requested', 'processed')
+    list_filter = ('journal', 'repository', 'role', 'processed')
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -232,6 +237,7 @@ admin_list = [
     (models.LoginAttempt, LoginAttemptAdmin),
     (models.Contacts, ContactsAdmin),
     (models.Contact, ContactAdmin),
+    (models.AccessRequest, AccessRequestAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

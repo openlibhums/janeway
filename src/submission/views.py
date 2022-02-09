@@ -20,6 +20,7 @@ from security.decorators import (
     article_edit_user_required,
     production_user_or_editor_required,
     editor_user_required,
+    submission_authorised,
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
@@ -31,6 +32,7 @@ from utils.shared import create_language_override_redirect
 
 @login_required
 @decorators.submission_is_enabled
+@submission_authorised
 def start(request, type=None):
     """
     Starts the submission process, presents various checkboxes
@@ -98,6 +100,7 @@ def submit_submissions(request):
 @decorators.submission_is_enabled
 @decorators.funding_is_enabled
 @article_edit_user_required
+@submission_authorised
 def submit_funding(request, article_id):
     """
     Presents a form for the user to complete with article information
@@ -148,6 +151,7 @@ def submit_funding(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_edit_user_required
+@submission_authorised
 def submit_info(request, article_id):
     """
     Presents a form for the user to complete with article information
@@ -218,6 +222,7 @@ def publisher_notes_order(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_edit_user_required
+@submission_authorised
 def submit_authors(request, article_id):
     """
     Allows the submitting author to add other authors to the submission.
@@ -399,6 +404,7 @@ def delete_author(request, article_id, author_id):
 @login_required
 @decorators.submission_is_enabled
 @article_edit_user_required
+@submission_authorised
 def submit_files(request, article_id):
     """
     Allows the submitting author to upload files and links them to the submission
@@ -494,6 +500,7 @@ def submit_files(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_edit_user_required
+@submission_authorised
 def submit_review(request, article_id):
     """
     A page that allows the user to review a submission.

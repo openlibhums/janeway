@@ -3148,5 +3148,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Text to accompany access requests. Linked to Limit Access to Submission",
+            "is_translatable": true,
+            "name": "submission_access_request_text",
+            "pretty_name": "Submission Access Request Text",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Please supply information below to support your request to make a submission to this journal."
+        }
     }
 ]
