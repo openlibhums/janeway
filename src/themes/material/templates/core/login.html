@@ -18,8 +18,10 @@
                     {% csrf_token %}
                     <div class="card-content">
                         <span class="card-title">{% trans "Login" %}</span>
-                        {% if journal_settings.general.display_login_page_notice %}
-                        {{ journal_settings.general.login_page_notice|safe }}
+                        {% if request.repository and request.repository.login_text %}
+                            {{ request.repository.login_text|safe }}
+                        {% elif journal_settings.general.display_login_page_notice %}
+                            {{ journal_settings.general.login_page_notice|safe }}
                         {% endif %}
                         <div class="input-field col s12">
                             {{ form.user_name }}

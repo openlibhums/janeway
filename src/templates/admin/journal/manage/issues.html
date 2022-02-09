@@ -35,12 +35,13 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% if not issue %}
-                        <button name="sort" value="date_sort_desc" class="button">
-                            <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
-                        </button>
-                        <button name="sort" value="date_sort_asc" class="button">
-                            <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
-                        </button>
+                             <p class="small">You can drag and drop Issues into the desired order or use the order by buttons below. Ordering Issues from this interface changes the public display order of Issues, changes will take effect immediately.</p>
+                            <button name="sort" value="date_sort_desc" class="button">
+                                <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
+                            </button>
+                            <button name="sort" value="date_sort_asc" class="button">
+                                <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
+                            </button>
                         {% endif %}
                     </form>
                     <table class="scroll">

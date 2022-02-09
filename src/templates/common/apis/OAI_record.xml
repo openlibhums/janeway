@@ -11,7 +11,7 @@
       <dc:articleTitle>{{article.title}}</dc:articleTitle>
       <dc:title>{{article.title}}</dc:title>
       {% for author in article.frozenauthor_set.all %}
-      <dc:creator>{{author.citation_name}}</dc:creator>
+      <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
       <dc:date>{{article.date_published|date:"c"}}</dc:date>

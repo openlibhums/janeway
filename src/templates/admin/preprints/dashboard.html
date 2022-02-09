@@ -2,11 +2,11 @@
 
 {% block title %}Preprints Dashboard{% endblock %}
 {% block title-section %}Preprints Dashboard{% endblock %}
-{% block title-sub %}Displays a list of the preprints that you are registered as an author for.{% endblock %}
+{% block title-sub %}Listed below are the preprints for which you are registered as the submitting author.{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+    <li><a href="{% url 'repository_dashboard' %}">Preprints Dashboard</a></li>
 {% endblock %}
 
 {% block body %}
@@ -32,7 +32,7 @@
                 {% for preprint in preprints %}
                     <tr>
                         <td>{{ preprint.pk }}</td>
-                        <td><a href="{% url 'preprints_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
+                        <td><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
                         <td>{{ preprint.date_submitted }}</td>
                         <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>

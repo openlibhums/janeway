@@ -263,9 +263,9 @@
                         </div>
                     </div>
                 </div>
-                <aside class="large-4 columns" data-sticky-container>
+                <aside class="large-4 columns " data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
-                         data-sticky data-anchor="content">
+                          data-anchor="content" data-sticky-on="large">
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal.disable_article_images %}
@@ -411,11 +411,11 @@
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
     {% include "elements/journal/summary_modal.html" %}
+    {% for table in tables_in_galley %}
+        {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
+    {% endfor %}
     <div class="hline"></div>
     <br/>
-
-    </div>
-
 
 {% endblock body %}
 
@@ -423,4 +423,10 @@
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     {% hook 'article_js_block' %}
+    <script>
+    $('.table-expansion').each(function(){
+        var child = $(this).children(":first")
+        child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
+    });
+    </script>
 {% endblock js %}

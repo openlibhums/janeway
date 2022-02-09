@@ -1,0 +1,9 @@
+{% for subject in subjects %}
+    <li>{% if subject.children.count > 0 %}<span class="caret"></span><strong>{% endif %}<input type="checkbox" name="subject" value={{ subject.pk }}{% if subject in preprint.subject.all %} checked{% endif %}> {% if subject.children.count > 0 %}</strong> {% endif %}{{ subject }}
+    {% if subject.children.count > 0 %}
+        <ul class="nested tree">
+            {% include "admin/elements/repository/tree.html" with subjects=subject.children.all %}
+        </ul>
+    {% endif %}
+    </li>
+{% endfor %}

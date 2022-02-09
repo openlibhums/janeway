@@ -1,5 +1,20 @@
+.. _articles_issues_guidelines:
+
 Articles and Issues
 ===================
+
+
+Article Display Settings
+------------------------
+The Article Display Settings page has settings for controlling the way articles look and for deciding how metrics are displayed.
+
+- Disable Article Images
+- Display Guest Editors
+- Suppress How to Cite
+- View PDF Option
+- Disable Metrics Display
+- Suppress Citation Metrics
+
 
 Article Images Manager
 ----------------------

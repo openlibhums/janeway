@@ -3,7 +3,7 @@
         <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
             <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout"
                  data-equalizer-watch>
-                <p><small><a href="{% url 'preprints_article' preprint.pk %}">{{ preprint.title|safe }}</a></small></p>
+                <p><small><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></small></p>
                 <p><small><i>{% for author in preprint.authors.all %}{{ author.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</i></small></p>
                 <p><small><i class="fa fa-calendar">&nbsp;</i>{{ preprint.date_published|date:"Y-m-d" }}</small></p>
             </div>

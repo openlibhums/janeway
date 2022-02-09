@@ -41,7 +41,7 @@ from security.decorators import article_stage_accepted_or_later_required, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
     editor_user_required, keyword_page_enabled
 from submission import models as submission_models
-from utils import models as utils_models, shared
+from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
 from events import logic as event_logic
 
@@ -381,6 +381,29 @@ def collection(request, collection_id, show_sidebar=True):
     return issue(request, collection_id, show_sidebar)
 
 
+@has_journal
+@decorators.frontend_enabled
+def collection_by_code(request, collection_code):
+    """
+    A proxy view for an issue or collection by its code
+    :param request: request object
+    :param collection_code: alphanumeric string matching an Issue.code
+    :return: a rendered template
+    """
+    issue = get_object_or_404(
+        models.Issue,
+        code=collection_code,
+        journal=request.journal,
+    )
+    if issue.issue_type.code == "issue":
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk},
+        ))
+    return redirect(reverse(
+        "journal_collection", kwargs={"collection_id": issue.pk},
+    ))
+
+
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
@@ -394,24 +417,18 @@ def article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    content = None
+    content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
+        tables_in_galley = logic.get_all_tables_from_html(content)
     else:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
         ) + (article_object.abstract or "")
-
-    if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
-        article_object.large_image_file = core_models.File()
-        # assign the default image with a hacky patch
-        # TODO: this should be set to a journal-wide setting
-        article_object.large_image_file.uuid_filename = "carousel1.png"
-        article_object.large_image_file.is_remote = True
 
     if article_object.is_published:
         store_article_access(request, article_object, 'view')
@@ -423,6 +440,7 @@ def article(request, identifier_type, identifier):
         'identifier_type': identifier_type,
         'identifier': identifier,
         'article_content': content,
+        'tables_in_galley': tables_in_galley,
     }
 
     return render(request, template, context)
@@ -456,7 +474,8 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = get_galley_content(article_object, galleys)
+        content = get_galley_content(article_object, galleys, recover=True)
+
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -475,7 +494,7 @@ def print_article(request, identifier_type, identifier):
         'galleys': galleys,
         'identifier_type': identifier_type,
         'identifier': identifier,
-        'article_content': content
+        'article_content': content,
     }
 
     return render(request, template, context)
@@ -549,7 +568,7 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article.allarticles,
+    article = get_object_or_404(submission_models.Article,
                                 pk=article_id,
                                 journal=request.journal,
                                 date_published__lte=timezone.now(),
@@ -582,7 +601,7 @@ def view_galley(request, article_id, galley_id):
     :return: an HttpResponse with a PDF attachment
     """
     article_to_serve = get_object_or_404(
-        submission_models.Article.allarticles,
+        submission_models.Article,
         pk=article_id,
         journal=request.journal,
         date_published__lte=timezone.now(),
@@ -754,7 +773,7 @@ def submit_files_info(request, article_id, file_id):
     :param file_id: the file ID for which to submit information
     :return: a rendered template to submit file information
     """
-    article_object = get_object_or_404(submission_models.Article.allarticlesd, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     form = review_forms.ReplacementFileDetails(instance=file_object)
@@ -790,7 +809,7 @@ def file_history(request, article_id, file_id):
     if request.POST:
         return redirect(request.GET['return'])
 
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     template = "journal/file_history.html"
@@ -831,7 +850,7 @@ def file_delete(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     file_object.delete()
@@ -849,7 +868,7 @@ def article_file_make_galley(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     logic.create_galley_from_file(file_object, article_object, owner=request.user)
@@ -1760,7 +1779,6 @@ def become_reviewer(request):
     return render(request, template, context)
 
 
-@decorators.frontend_enabled
 def contact(request):
     """
     Displays a form that allows a user to contact admins or editors.
@@ -1791,7 +1809,10 @@ def contact(request):
             )
             return redirect(reverse('contact'))
 
-    template = 'journal/contact.html'
+    if request.journal and request.journal.disable_front_end:
+        template = 'admin/journal/contact.html'
+    else:
+        template = 'journal/contact.html'
     context = {
         'contact_form': contact_form,
         'contacts': contacts,
@@ -2123,7 +2144,7 @@ def download_table(request, identifier_type, identifier, table_name):
 
 
 def download_supp_file(request, article_id, supp_file_id):
-    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+    article = get_object_or_404(submission_models.Article, pk=article_id,
                                 stage=submission_models.STAGE_PUBLISHED)
     supp_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
 
@@ -2308,3 +2329,70 @@ def serve_article_xml(request, identifier_type, identifier):
         xml_galley.file.get_file(article_object),
         content_type=xml_galley.file.mime_type,
     )
+
+
+@editor_user_required
+def manage_languages(request):
+    active_languages = request.journal.get_setting(
+        'general', 'journal_languages',
+    )
+    if request.POST:
+        if 'default' in request.POST:
+            new_default = request.POST.get('default')
+            if new_default in active_languages:
+                setting_handler.save_setting(
+                    setting_group_name='general',
+                    setting_name='default_journal_language',
+                    journal=request.journal,
+                    value=new_default,
+                )
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Default language now set to {}'.format(new_default),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    '{} is not an active language for this journal.'.format(new_default),
+                )
+        if 'enable' in request.POST:
+            lang_to_enable = request.POST.get('enable')
+            active_languages.append(lang_to_enable)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                '{} enabled.'.format(lang_to_enable),
+            )
+        if 'disable' in request.POST:
+            lang_to_delete = request.POST.get('disable')
+            active_languages.remove(lang_to_delete)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                '{} disabled.'.format(lang_to_delete),
+            )
+        active_languages.append(settings.LANGUAGE_CODE)
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='journal_languages',
+            journal=request.journal,
+            value=active_languages,
+        )
+        return redirect(
+            reverse(
+                'manage_languages',
+            )
+        )
+
+    template = 'admin/journal/manage/languages.html'
+    context = {
+        'active_languages': active_languages,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+

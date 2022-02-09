@@ -111,6 +111,17 @@ def parse_authors(soup):
     return author_list
 
 
+def add_keywords(soup, article):
+    keywords = soup.find_all('kwd')
+
+    for keyword in keywords:
+        if keyword.text not in [None, '', ' ']:
+            obj, c = models.Keyword.objects.get_or_create(
+                word=str(keyword.text).strip(),
+            )
+            article.keywords.add(obj)
+
+
 def import_from_jats_xml(path, journal, first_author_is_primary=False):
     with open(path) as file:
         soup = BeautifulSoup(file, 'lxml-xml')
@@ -158,6 +169,8 @@ def import_from_jats_xml(path, journal, first_author_is_primary=False):
         if first_author_is_primary and article.authors.all():
             article.correspondence_author = article.authors.all().first()
             article.save()
+
+        add_keywords(soup, article)
 
         return article
 

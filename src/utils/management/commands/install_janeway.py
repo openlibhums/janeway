@@ -82,8 +82,7 @@ class Command(BaseCommand):
                 journal.code = "journal"
             else:
                 journal.code = input('Journal #1 code: ')
-                if settings.URL_CONFIG == 'domain':
-                    journal.domain = input('Journal #1 domain: ')
+                    journal.domain = input('Journal #1 domain: (Optional)')
             journal.save()
             print("Installing issue types fixtures... ", end="")
             update_issue_types(journal, management_command=False)
@@ -119,7 +118,7 @@ class Command(BaseCommand):
             print('Open your browser to your new journal domain '
                 '{domain}/install/ to continue this setup process.'.format(
                     domain=journal.domain
-                        if settings.URL_CONFIG == 'domain'
+                        if journal.domain
                         else '{}/{}'.format(
                             press.domain, journal.code)
                 )

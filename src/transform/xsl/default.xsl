@@ -430,18 +430,18 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
-        <li>
+        <xsl:variable name="fn-number">
+            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+        </xsl:variable>
+        <li id="fn{$fn-number}">
+            <span id="n{$fn-number}"></span>
             <xsl:apply-templates/>
+            [<a class="footnotemarker"  href="#nm{$fn-number}"><sup>^</sup></a>]
         </li>
     </xsl:template>
 
     <xsl:template match="fn-group/fn/p">
-        <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
-        </xsl:variable>
-        <span class="footnotemarker" id="fn{$fn-number}"></span>
         <xsl:apply-templates/>
-        [<span class="footnotemarker" id="n{$fn-number}"><a href="#nm{$fn-number}"><sup>^</sup></a></span>]
     </xsl:template>
 
     <xsl:template match="author-notes/fn[@fn-type='con']/p">
@@ -813,7 +813,7 @@
 
     <!-- No need to proceed sec-type="additional-information", sec-type="supplementary-material" and sec-type="datasets"-->
     <xsl:template match="sec[not(@sec-type='additional-information')][not(@sec-type='datasets')][not(@sec-type='supplementary-material')]">
-        <div>
+        <div class="article-section">
             <xsl:if test="@sec-type">
                 <xsl:attribute name="class">
                     <xsl:value-of select="concat('section ', ./@sec-type)"/>
@@ -826,6 +826,8 @@
     <xsl:template match="sec[not(@sec-type='datasets')]/title | boxed-text/caption/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h{count(ancestor::sec) + 1}">
+              <xsl:if test="preceding-sibling::label">
+                <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
                 <xsl:apply-templates select="@* | node()"/>
             </xsl:element>
         </xsl:if>
@@ -945,6 +947,14 @@
     </xsl:template>
     <!-- END handling citation objects -->
 
+    <!-- START Array handling -->
+    <xsl:template match="array">
+        <table class="array-table">
+            <xsl:apply-templates/>
+        </table>
+    </xsl:template>
+    <!-- END Array handling -->
+
     <!-- START Table Handling -->
     <xsl:template match="table-wrap">
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
@@ -995,7 +1005,7 @@
             </xsl:attribute>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:attribute name="class">striped</xsl:attribute>
+            <xsl:attribute name="class">article-table unstriped</xsl:attribute>
           </xsl:otherwise>
          </xsl:choose>
          <xsl:apply-templates/>
@@ -1014,7 +1024,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="tbody">
+    <xsl:template match="tbody" name="tbody">
         <xsl:copy>
             <xsl:apply-templates/>
         </xsl:copy>
@@ -1037,6 +1047,9 @@
             <xsl:variable name="class">
                 <xsl:if test="@align">
                     <xsl:value-of select="concat(' table-', @align)"/>
+                </xsl:if>
+                <xsl:if test="@valign">
+                    <xsl:value-of select="concat(' table-', @valign)"/>
                 </xsl:if>
                 <xsl:if test="@style and starts-with(@style, 'author-callout-style-b')">
                     <xsl:value-of select="concat(' ', @style)"/>
@@ -1582,17 +1595,17 @@
   <xsl:template match="ref">
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
+          <p id="{parent::*/@id}">
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{@id}">
-            <xsl:if test="parent::ref/label">
-              <xsl:apply-templates select="parent::ref/label"/>
-            </xsl:if>
-            <xsl:apply-templates select="."/>
+            <p id="{parent::*/@id}">
+                <xsl:if test="parent::ref/label">
+                  <xsl:apply-templates select="parent::ref/label"/>
+                </xsl:if>
+                <xsl:apply-templates select="."/>
             </p>
         </xsl:for-each>
       </xsl:otherwise>
@@ -1639,12 +1652,10 @@
   </xsl:template>
 
   <xsl:template match="mixed-citation">
-    <p id="{parent::*/@id}">
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
-    </p>
   </xsl:template>
 
 
@@ -2428,12 +2439,8 @@
   </xsl:template>
 
   <xsl:template match="comment" mode="nscitation">
-    <xsl:if test="not(self::node()='.')">
-      <br/>
-      <small>
-        <xsl:apply-templates/>
-      </small>
-    </xsl:if>
+      <xsl:apply-templates/>
+      <xsl:apply-templates select="ext-link" mode="nscitation"/>
   </xsl:template>
 
   <xsl:template match="conf-name | conf-date" mode="conf">
@@ -3317,24 +3324,24 @@
         <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
+    <xsl:template match="bio//title">
+        <h2>
+            <xsl:value-of select="node()"/>
+        </h2>
+    </xsl:template>
+
     <xsl:template name="appendices-main-text">
         <xsl:apply-templates select="//back/app-group/app" mode="testing"/>
     </xsl:template>
 
-    <xsl:template match="app" mode="testing">
-        <div class="section app">
-            <xsl:if test="@id">
-                <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
-            </xsl:if>
-            <xsl:if test="label">
-                <h2><xsl:value-of select="label"/></h2>
-            </xsl:if>
-            <xsl:apply-templates mode="testing"/>
+    <xsl:template match="app">
+        <div id="{@id}">
+            <xsl:apply-templates />
         </div>
     </xsl:template>
 
     <xsl:template match="app//title">
-        <h2>
+        <h2 id="{@id}">
             <xsl:if test="preceding-sibling::label">
                 <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
             <xsl:value-of select="node()"/>
@@ -3347,7 +3354,6 @@
             <xsl:value-of select="node()"/>
         </h3>
     </xsl:template>
-
     <!-- START - general format -->
 
     <!-- list elements start-->
@@ -3577,8 +3583,8 @@
     <!-- nodes to remove -->
     <xsl:template match="aff/label"/>
     <xsl:template match="app/label"/>
-    <xsl:template match="sec/label"/>
     <xsl:template match="fn/label"/>
+    <xsl:template match="sec/label"/>
     <xsl:template match="disp-formula/label"/>
     <xsl:template match="fn-group[@content-type='competing-interest']/title"/>
     <xsl:template match="permissions/copyright-year | permissions/copyright-holder"/>
@@ -4200,7 +4206,7 @@
         <div>
           <xsl:call-template name="a-id"/>
           <div>
-            <table class="striped">
+            <table class="article-table unstriped">
               <xsl:if test="string(tei:head)">
                 <xsl:call-template name="tableHead"/>
               </xsl:if>
@@ -4274,7 +4280,7 @@
       <xsl:call-template name="a-id"/>
       <!-- Type only changes if a project needs different formatting-->
       <div>
-        <table class="striped">
+        <table class="article-table unstriped">
           <xsl:if test="string(tei:head)">
             <xsl:call-template name="tableHead"/>
           </xsl:if>

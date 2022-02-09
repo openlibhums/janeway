@@ -1,0 +1,57 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_available_languages as LANGUAGES %}
+
+{% block title %}Languages{% endblock title %}
+{% block title-section %}Languages{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'manage_languages' %}">Languages</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <p>{% blocktrans %}
+                 This interface allows you to override the press level languages and set the languages that are available for this journal.
+                 {% endblocktrans %}</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="table scroll">
+                        <tr>
+                            <th>Language</th>
+                            <th>Code</th>
+                            <th>Enabled</th>
+                            <th>Enable/Disable</th>
+                            <th>Default</th>
+                        </tr>
+                        {% for lang in LANGUAGES %}
+                        <tr>
+                            <td>{{ lang.1 }}</td>
+                            <td>{{ lang.0 }}</td>
+                            <td>{% if lang.0 in active_languages %}{{ True|bool_fa }}{% else %}{{ False|bool_fa }}{% endif  %}</td>
+                            <td>
+                                {% if lang.0 in active_languages %}
+                                    <button name="disable" value="{{ lang.0 }}" class="small alert button">Disable</button>
+                                {% else %}
+                                    <button name="enable" value="{{ lang.0 }}" class="small success button">Enable</button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lang.0 == request.default_language %}Current Default{% endif %}
+                                {% if not lang.0 == request.default_language and lang.0 in active_languages %}<button name="default" value="{{ lang.0 }}" class="small button warning">Mark as Default</button>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -37,13 +37,12 @@
                                     </small>
                                 </p>
                             {% endif %}
-                            <p>
                             {% include "elements/journal/editorial_social_content.html" with user=member.user %}
-                            </p>
-
                         </div>
                     </div>
                 </div>
+                {% if forloop.counter|divisibleby:4 %}</div>
+                <div class="row">{% endif %}
             {% endfor %}
         </div>
     {% endfor %}
