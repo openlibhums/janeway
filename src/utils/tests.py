@@ -152,7 +152,7 @@ class TestForms(TestCase):
         with self.assertRaises(NotImplementedError):
             form.save()
 
-    def test_keyword_form_empty_string(self):
+    def test_keyword_form(self):
 
         class KeywordTestForm(KeywordModelForm):
             class Meta:
