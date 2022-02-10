@@ -168,12 +168,12 @@ LIST_RECORDS_DATA_DC = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="ListRecords" id="" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+    <request verb="ListRecords" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
     <ListRecords>
         <record>
         <header>
     <identifier>id:1</identifier>
-    <datestamp>1986-07-12T15:00:00+00:00</datestamp>
+    <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
     <oai_dc:dc
@@ -186,7 +186,7 @@ LIST_RECORDS_DATA_DC = """
         <dc:title>A Test Article</dc:title>
         <dc:creator>User, Author A</dc:creator>
         <dc:description>A Test article abstract</dc:description>
-        <dc:date>1986-07-12T15:00:00+00:00</dc:date>
+        <dc:date>1986-07-12T15:00:00Z</dc:date>
         <dc:type>info:eu-repo/semantics/article</dc:type>
         <dc:volume>1</dc:volume>
         <dc:issue>1</dc:issue>
@@ -211,12 +211,12 @@ LIST_RECORDS_DATA_JATS = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="ListRecords" id="" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+    <request verb="ListRecords" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
     <ListRecords>
         <record>
         <header>
     <identifier>id:1</identifier>
-    <datestamp>1986-07-12T15:00:00+00:00</datestamp>
+    <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
     <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -281,14 +281,14 @@ GET_RECORD_DATA_DC = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="GetRecord" id="" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+    <request verb="GetRecord" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
 
     <GetRecord>
         <record>
 
         <header>
     <identifier>id:1</identifier>
-    <datestamp>1986-07-12T15:00:00+00:00</datestamp>
+    <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
     <oai_dc:dc
@@ -301,7 +301,7 @@ GET_RECORD_DATA_DC = """
         <dc:title>A Test Article</dc:title>
         <dc:creator>User, Author A</dc:creator>
         <dc:description>A Test article abstract</dc:description>
-        <dc:date>1986-07-12T15:00:00+00:00</dc:date>
+        <dc:date>1986-07-12T15:00:00Z</dc:date>
         <dc:type>info:eu-repo/semantics/article</dc:type>
         <dc:volume>1</dc:volume>
         <dc:issue>1</dc:issue>
@@ -325,12 +325,12 @@ GET_RECORD_DATA_JATS = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="GetRecord" id="" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+    <request verb="GetRecord" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
     <GetRecord>
             <record>
         <header>
     <identifier>id:1</identifier>
-    <datestamp>1986-07-12T15:00:00+00:00</datestamp>
+    <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
     <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -339,7 +339,7 @@ GET_RECORD_DATA_JATS = """
                 <journal-id journal-id-type="issn">0000-0000</journal-id>
                 <journal-title-group>
                     <journal-title>Journal One</journal-title>
-                </journal-title-group>
+                </journal-title-group1986-07-12T15:00:00Z>
                 <issn pub-type="epub">0000-0000</issn>
                 <publisher>
                     <publisher-name></publisher-name>
@@ -394,7 +394,7 @@ LIST_IDENTIFIERS_JATS = """
   xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
     http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
  <responseDate>2012-01-14T00:00:00Z</responseDate>
-  <request verb="ListIdentifiers" id="" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+  <request verb="ListIdentifiers" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
 
 <ListRecords>
 
@@ -403,7 +403,7 @@ LIST_IDENTIFIERS_JATS = """
 
     <header>
   <identifier>id:1</identifier>
-  <datestamp>1986-07-12T15:00:00+00:00</datestamp>
+  <datestamp>1986-07-12T15:00:00Z</datestamp>
 </header>
 
     <metadata>
@@ -476,7 +476,7 @@ IDENTIFY_DATA_DC = """
   xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
     http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
  <responseDate>2012-01-14T00:00:00Z</responseDate>
-  <request verb="Identify" id="" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+  <request verb="Identify" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
 
     <Identify>
         <repositoryName></repositoryName>
@@ -512,7 +512,7 @@ LIST_SETS_DATA_DC = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="ListSets" id="" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+    <request verb="ListSets" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
 
         <ListSets>
 
