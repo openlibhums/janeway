@@ -14,7 +14,7 @@
       <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
-      <dc:date>{{article.date_published|date:"c"}}</dc:date>
+      <dc:date>{{article.date_published|date:"Y-m-d\TH:i:s\Z"}}</dc:date>
       {% if journal.is_conference %}
       <dc:type>info:eu-repo/semantics/conferenceObject</dc:type>
       {% else %}
