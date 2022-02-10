@@ -47,13 +47,29 @@
                 <month>{{ article.date_published|date:"m" }}</month>
                 <year>{{ article.date_published|date:"Y" }}</year>
             </pub-date>
-            <volume>{{ article.issue.volume }}</volume>
+            <volume seq="{{ article.issue.order }}">{{ article.issue.volume }}</volume>
             <issue>{{ article.issue.issue }}</issue>
+            <issue-id>{{ article.issue.pk }}</issue-id>
+            {% if article.issue.title %}
+            <issue-title xml:lang="en">{{ article.issue.title }}</issue-id>
+            {% endif %}
             <permissions>
                 <copyright-statement>Copyright: © {{ article.date_published|date:"Y" }} The Author(s)</copyright-statement>
                 <copyright-year>{{ article.date_published|date:"Y" }}</copyright-year>
             </permissions>
-            <self-uri xlink:href="{{ article.url }}"/>
+            <self-uri content-type="text/html" xlink:href="{{ article.url }}"/>
+            {% if article.pdfs.exists %}
+            <self-uri content-type="application/pdf" xlink:href="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
+            {% endif %}
+            <abstract>{{ article.abstract }}</abstract>
+            {% if article.keywords.exists %}
+            <kwd-group xml:lang="en">
+                <title>Keywords</title>
+                {% for keyword in article.keywords.all %}
+                <kwd>{{ keyword.word }}</kwd
+                {% endfor %}
+            </kwd-group>
+            {% endif %}
         </article-meta>
     </front>
 </article>
