@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 
 from freezegun import freeze_time
+from lxml import etree
 
 from submission import models as sm_models
 from utils.testing import helpers
@@ -38,6 +39,14 @@ class TestOAIViews(TestCase):
         )
         cls.article.primary_issue = cls.issue
         cls.article.save()
+
+    @classmethod
+    def validate_oai_schema(cls, xml):
+        xml_schema = etree.XMLSchema(
+            "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        )
+        xml_dom = etree.XML(xml)
+        return xml_schema.validate(xml_dom)
 
 
     @override_settings(URL_CONFIG="domain")
@@ -138,7 +147,6 @@ class TestOAIViews(TestCase):
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
         )
-
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")

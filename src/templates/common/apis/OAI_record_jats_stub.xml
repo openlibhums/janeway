@@ -72,7 +72,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <kwd-group xml:lang="en">
                 <title>Keywords</title>
                 {% for keyword in article.keywords.all %}
-                <kwd>{{ keyword.word }}</kwd
+                <kwd>{{ keyword.word }}</kwd>
                 {% endfor %}
             </kwd-group>
             {% endif %}
