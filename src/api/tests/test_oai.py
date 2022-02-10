@@ -144,7 +144,7 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_list_sets(self):
-        expected = IDENTIFY_DATA_DC
+        expected = LIST_SETS_DATA_DC
 
         path = reverse('OAI_list_records')
         query_params = dict(
@@ -157,7 +157,6 @@ class TestOAIViews(TestCase):
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
         )
-        from nose.tools import set_trace; set_trace()
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -233,7 +232,7 @@ LIST_RECORDS_DATA_JATS = """
                 </publisher>
             </journal-meta>
             <article-meta>
-                <article-id pub-id-type="doi">None</article-id>
+                <article-id pub-id-type="publisher-id">1</article-id>
                 <article-categories>
                     <subj-group>
                         <subject>Article</subject>
@@ -347,7 +346,7 @@ GET_RECORD_DATA_JATS = """
                 </publisher>
             </journal-meta>
             <article-meta>
-                <article-id pub-id-type="doi">None</article-id>
+                <article-id pub-id-type="publisher-id">1</article-id>
                 <article-categories>
                     <subj-group>
                         <subject>Article</subject>
@@ -421,7 +420,7 @@ LIST_IDENTIFIERS_JATS = """
             </publisher>
         </journal-meta>
         <article-meta>
-            <article-id pub-id-type="doi">None</article-id>
+            <article-id pub-id-type="publisher-id">1</article-id>
             <article-categories>
                 <subj-group>
                     <subject>Article</subject>
@@ -507,6 +506,7 @@ IDENTIFY_DATA_DC = """
 """
 
 LIST_SETS_DATA_DC = """
+<?xml version="1.0" encoding="UTF-8"?>
     <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/

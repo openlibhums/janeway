@@ -15,7 +15,10 @@
             </publisher>
         </journal-meta>
         <article-meta>
+          {% if article.get_doi %}
             <article-id pub-id-type="doi">{{ article.get_doi }}</article-id>
+          {% endif %}
+            <article-id pub-id-type="publisher-id">{{ article.pk}}</article-id>
             <article-categories>
                 <subj-group>
                     <subject>{{ article.section.name }}</subject>
