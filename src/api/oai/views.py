@@ -198,7 +198,8 @@ class OAIIdentify(TemplateView):
 
         if self.request.journal:
             articles = articles.filter(
-                journal=self.request.journal
+                journal=self.request.journal,
+                stage=submission_models.STAGE_PUBLISHED,
             )
 
         context['earliest_article'] = articles.earliest('date_published')
