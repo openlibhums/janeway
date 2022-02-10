@@ -2079,3 +2079,71 @@ def request_submission_access(request):
         template,
         context,
     )
+
+
+@staff_member_required
+def manage_access_requests(request):
+    # If we don't have a journal or repository return a 404.
+    if not request.journal and not request.repository:
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_requests = models.AccessRequest.objects.filter(
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    )
+    if request.POST:
+        if 'approve' in request.POST:
+            pk = request.POST.get('approve')
+            access_request = active_requests.get(pk=pk)
+            decision = 'approve'
+
+            if request.journal:
+                access_request.user.add_account_role(
+                    access_request.role.slug,
+                    request.journal,
+                )
+            elif request.repository:
+                rm.RepositoryRole.objects.get_or_create(
+                    repository=access_request.repository,
+                    user=access_request.user,
+                    role=access_request.role
+                )
+        elif 'reject' in request.POST:
+            pk = request.POST.get('reject')
+            access_request = active_requests.get(pk=pk)
+            decision = 'reject'
+
+        if access_request:
+            eval_note = request.POST.get('eval_note')
+            access_request.evaluation_note = eval_note
+            access_request.processed = True
+            access_request.save()
+            event_kwargs = {
+                'decision': decision,
+                'access_request': access_request,
+                'request': request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request_complete',
+                **event_kwargs,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Processed.',
+            )
+        return redirect(
+            reverse(
+                'manage_access_requests',
+            )
+        )
+    template = 'admin/core/manage_access_requests.html'
+    context = {
+        'active_requests': active_requests,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )

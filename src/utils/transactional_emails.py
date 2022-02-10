@@ -1507,11 +1507,40 @@ def access_request_notification(**kwargs):
         'types': 'Access Request',
         'target': request.site_type,
     }
+    if contact:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'submission_access_request_notification',
+            'subject_submission_access_request_notification',
+            contact,
+            context={'description': description},
+            log_dict=log_dict,
+        )
+
+
+def access_request_complete(**kwargs):
+    request = kwargs.get('request')
+    access_request = kwargs.get('access_request')
+    decision = kwargs.get('decision')
+    description = "Access request from {} evaluated by {}: {}".format(
+        access_request.user.full_name,
+        request.user,
+        decision,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Access Request',
+        'target': request.site_type,
+    }
     notify_helpers.send_email_with_body_from_setting_template(
         request,
-        'submission_access_request_notification',
-        'subject_submission_access_request_notification',
-        contact,
-        context={'description': description},
+        'submission_access_request_complete',
+        'subject_submission_access_request_complete',
+        access_request.user.email,
+        context={
+            'access_request': access_request,
+            'decision': decision,
+        },
         log_dict=log_dict,
     )

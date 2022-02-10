@@ -3208,5 +3208,36 @@
         "value": {
             "default": "New Submission Access Request"
         }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when a Access Request is evaluated by a staff member.",
+            "is_translatable": true,
+            "name": "submission_access_request_complete",
+            "pretty_name": "Submission Access Request Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ access_request.user.full_name }},</p>Your request to be granted the {{ access_request.role.name }} role on {% if access_request.journal %}{{ access_request.journal.name }}{% else %}{{ access_request.repository.name }}{% endif %} has been evaluated.</p><p>The decision made was: {{ decision }}.</p><p>The following note was provided by the staff member evaluating your request: {{ access_request.evaluation_note }}</p><p>Kind Regards,</p><p>{{ request.user.full_name }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Submission Access Request Complete.",
+            "is_translatable": true,
+            "name": "subject_submission_access_request_complete",
+            "pretty_name": "Submission Access Request Complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Your Submission Access Request"
+        }
     }
+
 ]

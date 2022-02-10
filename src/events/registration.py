@@ -137,6 +137,11 @@ event_logic.Events.register_for_event(
     transactional_emails.access_request_notification,
 )
 
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_ACCESS_REQUEST_COMPLETE,
+    transactional_emails.access_request_complete,
+)
+
 # wire up task-creation events
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       workflow_tasks.assign_editors)

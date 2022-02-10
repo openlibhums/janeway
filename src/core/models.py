@@ -1385,6 +1385,10 @@ class AccessRequest(models.Model):
         blank=True,
         null=True,
     )
+    evaluation_note = models.TextField(
+        null=True,
+        help_text='This note will be sent to the requester when you approve or decline their request.',
+    )
 
     def __str__(self):
         return 'User {} requested {} permission for {}'.format(

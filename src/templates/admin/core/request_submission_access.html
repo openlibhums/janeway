@@ -16,7 +16,7 @@
             {% else %}
                 {% blocktrans %}You are already enrolled as an author.{% endblocktrans %}
             {% endif %}
-            {% if not active_request %}
+            {% if not active_request and not check %}
                 {% if request.journal %}
                     {{ journal_settings.general.submission_access_request_text|safe }}
                 {% elif request.repository %}
@@ -28,7 +28,7 @@
                     {{ form }}
                     <button class="info button">Send Access Request</button>
                 </form>
-            {% else %}
+            {% elif active_request %}
                 <p>
                     {% trans 'You have an active access request that was submitted on: ' %}{{ active_request.requested|date:"Y-m-d" }} at {{ active_request.requested|date:"H:i" }}
                 </p>
