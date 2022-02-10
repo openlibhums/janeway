@@ -6,7 +6,9 @@
         <baseURL>{% journal_url 'OAI_list_records' %}</baseURL>
         <protocolVersion>2.0</protocolVersion>
         <adminEmail>{{ request.press.main_contact }}</adminEmail>
+        {% if earliest_article %}
         <earliestDatestamp>{{ earliest_article.date_published|date:"Y-m-d\TH:i:s\Z"  }}</earliestDatestamp>
+        {% endif %}
         <deletedRecord>no</deletedRecord>
         <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
         <description>
