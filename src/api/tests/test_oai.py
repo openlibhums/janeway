@@ -257,13 +257,15 @@ LIST_RECORDS_DATA_JATS = """
                     <month>07</month>
                     <year>1986</year>
                 </pub-date>
-                <volume>1</volume>
+                <volume seq="0">1</volume>
                 <issue>1</issue>
+                <issue-id>1</issue-id>
                 <permissions>
                     <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
                     <copyright-year>1986</copyright-year>
                 </permissions>
-                <self-uri xlink:href="http://testserver/article/id/1/"/>
+                <self-uri content-type="text/html" xlink:href="http://testserver/article/id/1/"/>
+                <abstract>A Test article abstract</abstract>
             </article-meta>
         </front>
     </article>
@@ -371,13 +373,15 @@ GET_RECORD_DATA_JATS = """
                     <month>07</month>
                     <year>1986</year>
                 </pub-date>
-                <volume>1</volume>
+                <volume seq="0">1</volume>
                 <issue>1</issue>
+                <issue-id>1</issue-id>
                 <permissions>
                     <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
                     <copyright-year>1986</copyright-year>
                 </permissions>
-                <self-uri xlink:href="http://testserver/article/id/1/"/>
+                <self-uri content-type="text/html" xlink:href="http://testserver/article/id/1/"/>
+                <abstract>A Test article abstract</abstract>
             </article-meta>
         </front>
     </article>
@@ -449,13 +453,15 @@ LIST_IDENTIFIERS_JATS = """
                 <month>07</month>
                 <year>1986</year>
             </pub-date>
-            <volume>1</volume>
+            <volume seq="0">1</volume>
             <issue>1</issue>
+            <issue-id>1</issue-id>
             <permissions>
                 <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
                 <copyright-year>1986</copyright-year>
             </permissions>
-            <self-uri xlink:href="http://testserver/article/id/1/"/>
+            <self-uri content-type="text/html" xlink:href="http://testserver/article/id/1/"/>
+            <abstract>A Test article abstract</abstract>
         </article-meta>
     </front>
 </article>
