@@ -72,7 +72,7 @@ class TestOAIViews(TestCase):
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="oai_dc",
-            identifier="id:1",
+            identifier="oai:TST:id:1",
         )
         query_string = urlencode(query_params)
 
@@ -92,7 +92,7 @@ class TestOAIViews(TestCase):
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="oai_jats",
-            identifier="id:1",
+            identifier="oai:TST:id:1",
         )
         query_string = urlencode(query_params)
 
@@ -172,7 +172,7 @@ LIST_RECORDS_DATA_DC = """
     <ListRecords>
         <record>
         <header>
-    <identifier>id:1</identifier>
+    <identifier>oai:TST:id:1</identifier>
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
@@ -215,7 +215,7 @@ LIST_RECORDS_DATA_JATS = """
     <ListRecords>
         <record>
         <header>
-    <identifier>id:1</identifier>
+    <identifier>oai:TST:id:1</identifier>
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
@@ -287,7 +287,7 @@ GET_RECORD_DATA_DC = """
         <record>
 
         <header>
-    <identifier>id:1</identifier>
+    <identifier>oai:TST:id:1</identifier>
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
@@ -329,7 +329,7 @@ GET_RECORD_DATA_JATS = """
     <GetRecord>
             <record>
         <header>
-    <identifier>id:1</identifier>
+    <identifier>oai:TST:id:1</identifier>
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
@@ -402,7 +402,7 @@ LIST_IDENTIFIERS_JATS = """
     <record>
 
     <header>
-  <identifier>id:1</identifier>
+  <identifier>oai:TST:id:1</identifier>
   <datestamp>1986-07-12T15:00:00Z</datestamp>
 </header>
 

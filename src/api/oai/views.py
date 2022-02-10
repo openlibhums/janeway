@@ -172,19 +172,19 @@ class OAIGetRecord(TemplateView):
     def get_article(self):
         id_param = self.request.GET.get("identifier")
         try:
-            id_type, id = id_param.split(":")
+           _, site_code, id_type, identifier = id_param.split(":")
         except (ValueError, AttributeError):
             raise exceptions.OAIBadArgument()
 
         try:
             if id_type == "id":
                 article = submission_models.Article.objects.get(
-                    id=id,
+                    id=identifier,
                     stage=submission_models.STAGE_PUBLISHED,
                 )
             else:
                 article = Identifier.objects.get(
-                    id_type=id_type, identifier=id,
+                    id_type=id_type, identifier=identifier,
                     article__stage=submission_models.STAGE_PUBLISHED,
                 ).article
         except (
