@@ -44,19 +44,6 @@ class OAIListRecords(OAIPagedModelView):
     queryset = submission_models.Article.objects.all()
     paginate_by = 50
 
-    def get_template_names(self):
-        """
-        This is the ridiculous way that you have to override template
-        selection in CBVs
-        @return: the correct template
-        """
-        if self.request.GET.get('metadataPrefix') == 'oai_jats':
-            # OAI_JATS output
-            return "apis/OAI_ListRecordsJats.xml"
-        else:
-            # default to OAI_DC
-            return "apis/OAI_ListRecords.xml"
-
     def get_queryset(self):
         queryset = submission_models.Article.objects.filter(
             date_published__isnull=False,
@@ -119,19 +106,6 @@ class OAIListRecords(OAIPagedModelView):
 class OAIGetRecord(TemplateView):
     template_name = "apis/OAI_GetRecord.xml"
     content_type = "application/xml"
-
-    def get_template_names(self):
-        """
-        This is the ridiculous way that you have to override template
-        selection in CBVs
-        @return: the correct template
-        """
-        if self.request.GET.get('metadataPrefix') == 'oai_jats':
-            # OAI_JATS output
-            return "apis/OAI_GetRecordJats.xml"
-        else:
-            # default to OAI_DC
-            return "apis/OAI_GetRecord.xml"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)

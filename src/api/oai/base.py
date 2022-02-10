@@ -18,7 +18,7 @@ metadata_formats = [
         'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
     },
     {
-        'prefix': 'oai_jats',
+        'prefix': 'jats',
         'schema': 'https://jats.nlm.nih.gov/publishing/0.4/xsd/JATS-journalpublishing0.xsd',
         'metadataNamespace': 'http://jats.nlm.nih.gov',
     }

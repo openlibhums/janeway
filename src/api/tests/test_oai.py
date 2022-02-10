@@ -54,7 +54,7 @@ class TestOAIViews(TestCase):
         path = reverse('OAI_list_records')
         query_params = dict(
             verb="ListRecords",
-            metadataPrefix="oai_jats",
+            metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
         response = self.client.get(
@@ -91,7 +91,7 @@ class TestOAIViews(TestCase):
         path = reverse('OAI_list_records')
         query_params = dict(
             verb="GetRecord",
-            metadataPrefix="oai_jats",
+            metadataPrefix="jats",
             identifier="oai:TST:id:1",
         )
         query_string = urlencode(query_params)
@@ -111,7 +111,7 @@ class TestOAIViews(TestCase):
         path = reverse('OAI_list_records')
         query_params = dict(
             verb="ListIdentifiers",
-            metadataPrefix="oai_jats",
+            metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
 
@@ -211,7 +211,7 @@ LIST_RECORDS_DATA_JATS = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="ListRecords" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+    <request verb="ListRecords" metadataPrefix="jats">http://testserver/api/oai/</request>
     <ListRecords>
         <record>
         <header>
@@ -327,7 +327,7 @@ GET_RECORD_DATA_JATS = """
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>2012-01-14T00:00:00Z</responseDate>
-    <request verb="GetRecord" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+    <request verb="GetRecord" metadataPrefix="jats">http://testserver/api/oai/</request>
     <GetRecord>
             <record>
         <header>
@@ -392,87 +392,21 @@ GET_RECORD_DATA_JATS = """
 """
 
 LIST_IDENTIFIERS_JATS = """
-<?xml version="1.0" encoding="UTF-8"?>
- <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
-    http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
- <responseDate>2012-01-14T00:00:00Z</responseDate>
-  <request verb="ListIdentifiers" metadataPrefix="oai_jats">http://testserver/api/oai/</request>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+        http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+    <responseDate>2012-01-14T00:00:00Z</responseDate>
+    <request verb="ListIdentifiers" metadataPrefix="jats">http://testserver/api/oai/</request>
+    <ListIdentifiers>
+        <header>
+    <identifier>oai:TST:id:1</identifier>
+    <datestamp>1986-07-12T15:00:00Z</datestamp>
+    </header>
+    </ListIdentifiers>
 
-<ListRecords>
-
-
-    <record>
-
-    <header>
-  <identifier>oai:TST:id:1</identifier>
-  <datestamp>1986-07-12T15:00:00Z</datestamp>
-</header>
-
-    <metadata>
-<article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:"https://jats.nlm.nih.gov/publishing/1.2/" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <front>
-        <journal-meta>
-            <journal-id journal-id-type="issn">0000-0000</journal-id>
-            <journal-title-group>
-                <journal-title>Journal One</journal-title>
-            </journal-title-group>
-            <issn pub-type="epub">0000-0000</issn>
-            <publisher>
-                <publisher-name></publisher-name>
-            </publisher>
-        </journal-meta>
-        <article-meta>
-            <article-id pub-id-type="publisher-id">1</article-id>
-            <article-categories>
-                <subj-group>
-                    <subject>Article</subject>
-                </subj-group>
-            </article-categories>
-            <title-group>
-                <article-title>A Test Article</article-title>
-            </title-group>
-            <contrib-group>
-
-                <contrib contrib-type="author">
-                    <name>
-                        <surname>User</surname>
-                        <given-names>Author A</given-names>
-                    </name>
-                    <email>authoruser@martineve.com</email>
-                    <xref ref-type="aff" rid="aff-1"/>
-                </contrib>
-
-            </contrib-group>
-
-            <aff id="aff-1">Author institution Author Department</aff>
-
-            <pub-date date-type="pub" iso-8601-date="1986-07-12" publication-format="electronic">
-                <day>12</day>
-                <month>07</month>
-                <year>1986</year>
-            </pub-date>
-            <volume seq="0">1</volume>
-            <issue>1</issue>
-            <issue-id>1</issue-id>
-            <permissions>
-                <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
-                <copyright-year>1986</copyright-year>
-            </permissions>
-            <self-uri content-type="text/html" xlink:href="http://testserver/article/id/1/"/>
-            <abstract>A Test article abstract</abstract>
-        </article-meta>
-    </front>
-</article>
-    </metadata>
-</record>
-
-
-
-</ListRecords>
-
-</OAI-PMH>
+    </OAI-PMH>
 """
 
 IDENTIFY_DATA_DC = """

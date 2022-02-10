@@ -1,6 +1,11 @@
 {% extends "apis/OAI_base.xml" %}
 {% block body %}
 <GetRecord>
-    {% include "apis/OAI_record.xml" with article=article %}
+    {% if metadataPrefix == 'jats' %}
+        {% include "apis/OAI_record_jats_stub.xml" with article=article %}
+    {% elif metadataPrefix == 'oai_dc' %}
+        {% include "apis/OAI_record.xml" with article=article %}
+
+    {% endif %}
 </GetRecord>
 {% endblock body %}
