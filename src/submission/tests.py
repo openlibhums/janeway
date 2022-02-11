@@ -20,7 +20,7 @@ from submission import (
     models,
 )
 
-from utils.install import update_xsl_files, update_settings
+from utils.install import update_xsl_files, update_settings, update_issue_types
 
 
 # Create your tests here.
@@ -42,6 +42,7 @@ class SubmissionTests(TestCase):
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.title = "Test Journal: A journal of tests"
         journal_one.save()
+        update_issue_types(journal_one)
 
         return journal_one
 
@@ -403,3 +404,33 @@ class SubmissionTests(TestCase):
             )
             form = forms.ArticleInfoSubmit(instance=article)
             self.assertTrue(section not in form.fields["section"].queryset)
+
+    def test_article_issue_title(self):
+        from utils.testing import helpers
+        issue = helpers.create_issue(
+            self.journal_one,
+            vol=5,
+            number=4,
+        )
+
+        date_time_str = '2025-11-01 12:00:00'
+        date_time = dateparser.parse(date_time_str)
+        from django.utils.timezone import make_aware
+        issue.date = make_aware(date_time)
+        issue.issue_title = 'Fall 2025'
+        issue.save()
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: A test of page numbers",
+            first_page=3, # This should be overridden in issue_title by article.page_numbers
+            last_page=5, # This should be overridden too
+            page_numbers='x–ix',
+            primary_issue=issue,
+        )
+
+        article.primary_issue = issue
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; x–ix'
+
+        self.assertEqual(expected_article_issue_title, article.issue_title)

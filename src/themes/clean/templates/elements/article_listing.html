@@ -32,7 +32,7 @@
                     {% if article.issue %}
                     <span class="fa fa-book"></span>
                     <a href="{% url 'journal_issue' article.issue.pk %}">
-                        {{ article.issue.display_title }}
+                        {{ article.issue_title }}
                     </a>
                     {% endif %}
                 </p>

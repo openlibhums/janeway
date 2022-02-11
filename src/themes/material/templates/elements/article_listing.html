@@ -34,7 +34,7 @@
                 {% if article.issue %}
                     <i class="fa fa-book"></i>
                     <a class="issue-link" href="{% url 'journal_issue' article.issue.pk %}">
-                        {{ article.issue.display_title }}
+                        {{ article.issue_title }}
                     </a>
                 {% endif %}
                 {% if article.issues.count > 1 %}

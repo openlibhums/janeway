@@ -591,7 +591,7 @@ class Article(models.Model):
         if self.page_numbers:
             return self.page_numbers
         if self.first_page and self.last_page:
-            return "{}-{}".format(self.first_page, self.last_page)
+            return mark_safe("{}&ndash;{}".format(self.first_page, self.last_page))
         return self.first_page
 
     @property
@@ -995,6 +995,20 @@ class Article(models.Model):
             return None
 
         return issues
+
+    @property
+    def issue_title(self):
+        issue_display = self.issue.display_title
+        if self.page_range:
+            page_numbers = self.page_range
+        elif self.total_pages:
+            page_numbers = "{} page".format(self.total_pages)
+            if self.total_pages > 1:
+                page_numbers += 's'
+        else:
+            page_numbers = None
+        issue_title_elements = [self.issue.display_title, self.page_range]
+        return mark_safe(" &bull; ".join((filter(None, issue_title_elements))))
 
     def author_list(self):
         if self.is_accepted():
