@@ -52,6 +52,14 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     if replyto:
         reply_to = replyto
 
+    if not reply_to:
+        custom_reply_to = setting_handler.get_setting(
+            'general', 'replyto_address', journal,
+        ).value
+        if custom_reply_to:
+            reply_to = (custom_reply_to,)
+
+
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")
 
