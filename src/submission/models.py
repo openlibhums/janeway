@@ -415,7 +415,7 @@ class Article(models.Model):
 
     article_number = models.PositiveIntegerField(
         blank=True, null=True,
-        help_text="Optional article number to be rendered in 'how to cite'"
+        help_text="Optional article number to be displayed on issue and article pages"
     )
 
     # Files
