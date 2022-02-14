@@ -15,4 +15,10 @@
         <changefreq>monthly</changefreq>
     </url>
     {% endfor%}
+    {% for preprint in preprints %}
+    <url>
+        <loc>{{ preprint.url }}</loc>
+        <lastmod>{{ preprint.date_published|date:"Y-m-d" }}</lastmod>
+    </url>
+    {% endfor%}
 </urlset>

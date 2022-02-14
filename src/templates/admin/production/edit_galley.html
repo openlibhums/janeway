@@ -9,9 +9,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% if article.is_preprint %}
-        {% include "elements/breadcrumbs/preprints_galley.html" %}
-    {% elif request.resolver_match.view_name == 'pm_edit_galley' %}
+    {% if request.resolver_match.view_name == 'pm_edit_galley' %}
         {% include "elements/breadcrumbs/production_manager_base.html" %}
     {% else %}
         {% include "elements/breadcrumbs/typesetter_base.html" %}

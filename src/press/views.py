@@ -13,19 +13,26 @@ from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
 
+from cms import models as cms_models
 from core import (
     files,
     models as core_models,
     plugin_loader,
     logic as core_logic,
 )
-from core.model_utils import merge_models
-from journal import models as journal_models, views as journal_views, forms as journal_forms
-from press import models as press_models, forms
+
+from journal import (
+    models as journal_models,
+    views as journal_views,
+    forms as journal_forms,
+)
+from press import models as press_models, forms, decorators
 from security.decorators import press_only
 from submission import models as submission_models
 from utils import install
 from utils.logic import get_janeway_version
+from repository import views as repository_views, models
+from core.model_utils import merge_models
 
 
 def index(request):
@@ -37,6 +44,10 @@ def index(request):
     if request.journal is not None:
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
+
+    if request.repository is not None:
+        # if there is a repository we return the repository homepage.
+        return repository_views.repository_home(request)
 
     homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
         request,
@@ -60,12 +71,39 @@ def index(request):
     return render(request, template, context)
 
 
+def sitemap(request):
+    """
+    Renders an XML sitemap based on articles and pages available to the press
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+
+    if request.journal is not None:
+        # if there's a journal, then we render the _journal_ sitemap, not the press
+        return journal_views.sitemap(request)
+
+    if request.repository is not None:
+        # if there is a repository we return the repository sitemap.
+        return repository_views.repository_sitemap(request)
+
+    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
+
+    template = 'journal/sitemap.xml'
+
+    context = {
+        'cms_pages': cms_pages,
+    }
+    return render(request, template, context, content_type="application/xml")
+
+
+@decorators.journals_enabled
 def journals(request):
     """
     Displays a filterable list of journals that are not marked as hidden
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+
     template = "press/press_journals.html"
 
     journal_objects = journal_models.Journal.objects.filter(
@@ -113,7 +151,7 @@ def manager_index(request):
             form = journal_forms.JournalForm(request.POST)
             modal = 'new_journal'
             if form.is_valid():
-                new_journal = form.save(request=request)
+                new_journal = form.save()
                 new_journal.sequence = request.press.next_journal_order()
                 new_journal.save()
                 call_command('install_plugins')
@@ -124,11 +162,18 @@ def manager_index(request):
                         path=reverse(
                             'core_edit_settings_group',
                             kwargs={
-                                'group': 'journal',
+                                'display_group': 'journal',
                             }
                         )
                     )
                 )
+
+    support_message = core_logic.render_nested_setting(
+        'support_contact_message_for_staff',
+        'general',
+        [('support_email','general')],
+        request
+    )
 
     template = 'press/press_manager_index.html'
     context = {
@@ -139,7 +184,9 @@ def manager_index(request):
             stage=submission_models.STAGE_PUBLISHED
         ).select_related('journal')[:50],
         'version': version,
+        'repositories': models.Repository.objects.all(),
         'url_config': settings.URL_CONFIG,
+        'support_message': support_message,
     }
 
     return render(request, template, context)
@@ -253,13 +300,13 @@ def journal_domain(request, journal_id):
     if request.POST:
         new_domain = request.POST.get('domain', None)
 
+        journal.domain = new_domain
+        journal.save()
+        return redirect(reverse('core_manager_index'))
         if new_domain:
-            journal.domain = new_domain
-            journal.save()
             messages.add_message(request, messages.SUCCESS, 'Domain updated')
-            return redirect(reverse('core_manager_index'))
         else:
-            messages.add_message(request, messages.WARNING, 'No new domain supplied.')
+            messages.add_message(request, messages.WARNING, 'No domain set')
 
     template = 'press/journal_domain.html'
     context = {

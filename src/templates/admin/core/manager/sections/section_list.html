@@ -19,13 +19,18 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Journal Sections</h2>
+                <h2>Sections</h2>
                 <a href="{% url 'core_manager_section_add' %}" class="button">Add New Section</a>
             </div>
             <div class="content">
                 <p>{% blocktrans %}
-                    You can create and edit article section types below. To quickly re-order sections, drag and drop the {% endblocktrans %}<i class="fa fa-sort"> </i> {% trans "handles on the left of each row" %}.
-                    {% blocktrans %}This will change the order that the author sees these on the submission page - so you may want to move the most popular or current sections to the top.{% endblocktrans %}
+									Here you can create and edit the sections that make up a typical issue. You can also think of these as article types, since authors will choose one on submission. To quickly re-order sections, drag and drop the 
+									{% endblocktrans %}
+									<i class="fa fa-sort"> </i> 
+									{% trans "handles on the left of each row" %}.
+                  {% blocktrans %}
+										This will change the order that the author sees these on the submission page - so you may want to move the most popular or current sections to the top.
+									{% endblocktrans %}
                 </p>
                 <p>
                     <strong>NB.</strong> {% blocktrans %}You cannot delete a Section that contains articles. Remove the articles from the section if you want to delete it.{% endblocktrans %}

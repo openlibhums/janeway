@@ -9,10 +9,6 @@
     {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' and page %}
         <li><a href="{% url 'cms_page_edit' page.pk %}">{% trans 'Edit Page' %}</a></li>
     {% endif %}
-    {% if request.press.enable_preprints %}
-        <li><a href="{% url 'preprints_dashboard' %}">{% trans 'Preprints Dashboard' %}</a>
-        </li>
-    {% endif %}
     <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
     <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
 </ul>

@@ -4530,6 +4530,7 @@ header #main-menu {
     background-color: var(--topbar-background-color); }
   header .top-bar-image {
     max-height: 90px;
+    min-height: 90px;
     max-width: 330px;
     padding: 5px;
     margin-top: -20px; } }
@@ -5301,12 +5302,50 @@ button.list-group-item-danger.active:focus {
 .reveal {
   user-select: text; }
 
+.table-foot .table-footnotes li.fn {
+  list-style-type: none; }
+
 .article-table {
   display: block;
   overflow-x: scroll; }
 
 .article-table thead tr {
-  background-color: transparent !important; }
+  background-color: transparent; }
 
 .article-table tbody tr {
-  background-color: transparent !important; }
+  background-color: transparent; }
+
+#journal-title {
+  padding: 0px;
+  height: 100%; }
+  @media screen and (max-width: 74.9375em) {
+    #journal-title {
+      max-width: 550px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.5vw; } }
+  @media screen and (max-width: 63.9375em) {
+    #journal-title {
+      max-width: 80%;
+      padding-top: 0.7rem; }
+      #journal-title h1 {
+        font-size: 100%; } }
+  @media screen and (min-width: 64em) {
+    #journal-title {
+      float: right; } }
+  @media screen and (min-width: 75em) {
+    #journal-title {
+      max-width: 800px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.6vw; } }
+  @media screen and (min-width: 90em) {
+    #journal-title {
+      max-width: 1000px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.70rem; } }
+
+#search-menu {
+  max-width: 200px;
+  float: right; }

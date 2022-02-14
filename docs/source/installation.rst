@@ -3,7 +3,7 @@ Installation Guide
 There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR. A Lando configuration is also included.
 
 Running Janeway with Docker and docker-compose
----------
+----------------------------------------------
 1. Install ``docker``, ``docker-compose`` and ``GNU Make``.
 2. From the /path/to/janeway directory run ``make install``.
 3. A docker environment will be provisioned, and shortly after the janeway isntall script will run. Follow the instructions on screen to complete the installation.
@@ -34,7 +34,6 @@ The Makefile can be configured with a number of variables to change the way in w
 * The ``JANEWAY_PORT`` variable allows you to change the port to which the Janeway development server will be bound to on your host (set this if port 8000 is already in use by another service on your host)
 
 If you want to install custom python libraries for development, you can drop them into the dev_requirements.txt file and run ``make rebuild``. Rebuilding the container takes some time, so it is also possible to install python libraries in development mode. When installed in this manner, the library is mounted as a volume into the janeway container when you first run `make rebuild` and  you will be able to make changes to the library without having to run ``make rebuild``. In order to install a library in development mode, copy the code to ``/path/to/janeway/lib/`` and run ``make rebuild`` once.
-
 
 
 Using Lando for a development environment (optional)

@@ -1,0 +1,16 @@
+<div class="thread-callout{% if thread == active_thread %} thread-active{% endif %}">
+    <div class="row expanded">
+        <div class="large-2 columns avatar-column">
+            {% include "admin/discussion/avatar.html" with user=thread.owner %}
+        </div>
+        <div class="large-8 columns">
+            <h2>
+                <a href="{% url 'discussion_thread' object_type object.pk thread.pk %}">{{ thread.subject }}</a>
+            </h2>
+            <p class="subheader">Posted by {{ thread.owner.full_name }}<br/> Started on {{ thread.started|date:"Y-m-d H:i" }}<br /> Updated on {{ thread.last_updated|date:"Y-m-d H:i" }}</p>
+        </div>
+        <div class="large-1 columns">
+            <h3 class="float-right subheader"><span class="fa fa-comment-o" aria-hidden="true"></span> {{ thread.posts.count }}</h3>
+        </div>
+    </div>
+</div>

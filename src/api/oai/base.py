@@ -11,12 +11,29 @@ from django.views.generic.base import TemplateResponseMixin
 
 from api.oai import exceptions
 
+metadata_formats = [
+    {
+        'prefix': 'oai_dc',
+        'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+        'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+    },
+    {
+        'prefix': 'jats',
+        'schema': 'https://jats.nlm.nih.gov/publishing/0.4/xsd/JATS-journalpublishing0.xsd',
+        'metadataNamespace': 'http://jats.nlm.nih.gov',
+    }
+]
+
 
 class OAIModelView(BaseListView, TemplateResponseMixin):
     """ Base class for OAI views generated from model Querysets """
     content_type = "application/xml"
-    # `oai_dc` is the only required metadata format by OAI spec
-    metadata_formats = {"oai_dc"}
+
+    metadata_prefix = 'oai_dc'
+
+    metadata_formats_set = {
+        format.get('prefix') for format in metadata_formats
+    }
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -34,9 +51,15 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
         return qs
 
     def validate_metadata_format(self):
-        prefix = self.request.GET.get("metadataPrefix")
-        if prefix and prefix not in self.metadata_formats:
+        if self.metadata_prefix \
+                and self.metadata_prefix not in self.metadata_formats_set:
             raise exceptions.OAIUnsupportedMetadataFormat()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["metadata_prefix"] = self.request.GET.get("metadataPrefix",
+                                                          "oai_dc")
+        return context
 
 
 class OAIPaginationMixin():

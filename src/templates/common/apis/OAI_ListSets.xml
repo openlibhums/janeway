@@ -1,0 +1,23 @@
+{% extends "apis/OAI_base.xml" %}
+{% block body %}
+    <ListSets>
+        {% for journal in journals %}
+            <set>
+                <setSpec>{{ journal.code }}</setSpec>
+                <setName>{{ journal.name }}</setName>
+            </set>
+        {% endfor %}
+        {% for issue in all_issues %}
+            <set>
+                <setSpec>{{ issue.journal.code }}:{{ issue.issue_type.code }}:{{ issue.pk }}</setSpec>
+                <setName>{{ issue.non_pretty_issue_identifier }}</setName>
+            </set>
+        {% endfor %}
+        {% for section in sections %}
+            <set>
+                <setSpec>{{ section.journal.code }}:section:{{ section.pk }}</setSpec>
+                <setName>{{ section.name.strip }}</setName>
+            </set>
+        {% endfor %}
+    </ListSets>
+{% endblock body %}

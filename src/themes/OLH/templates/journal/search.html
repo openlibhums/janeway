@@ -12,16 +12,19 @@
 
 {% block body %}
 
-    
+
 
     <section id="content">
 
         <div class="row">
             {% if search_term %}
                 <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
-            {% elif keyword %}
+                {% elif keyword %}
                 <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
             {% endif %}
+            <div class="hide-for-large columns">
+                {% include "elements/journal/search_form.html" %}
+            </div>
             <div class="large-8 columns border-right">
                 <h2>{% trans "Articles" %}</h2>
 
@@ -30,36 +33,18 @@
                 {% endfor %}
 
             </div>
-            <aside class="large-4 columns" data-sticky-container>
-                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="section">
-                             {% if not keyword %}
-                                {{ form.article_search.errors }}
-                                <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords, and authors</label>
-                                {{ form.article_search }}
-                            {% else %}
-                                {% trans 'You are currently browsing by keyword' %}. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
-                            {% endif %}
-                        </div>
-                        <div class="section">
-                            <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
-                                {{ form.sort.errors }}
-                                {{ form.sort }}
-                        </div>
-                        <div class="section">
-                            <button type="submit" class="button">{% trans "Filter" %}</button>
-                        </div>
-                    </form>
+            <aside class="large-4 columns show-for-large" data-sticky-container>
+                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content" data-sticky-on="large">
+                    {% include "elements/journal/search_form.html" %}
                     <div class="section">
-                            <label>{% trans "Keywords" %}</label>
+                        <label>{% trans "Keywords" %}</label>
 
-                                {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
+                        {% for keyword in all_keywords %}
+                            <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
 
-                        </div>
+                    </div>
                 </div>
             </aside>
         </div>
