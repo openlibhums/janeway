@@ -147,6 +147,11 @@
         },
         "value": {
             "default": "janeway@voyager.com"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
         },
         "setting": {
             "description": "Addres set as the 'Reply-to' for system emails.",
