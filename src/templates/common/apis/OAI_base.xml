@@ -4,6 +4,6 @@
   xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
     http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
  <responseDate>{% now "Y-m-d\TH:i:s\Z" %}</responseDate>
-  <request verb="ListRecords" id="{{ journal_settings.general.publisher_name }}" metadataPrefix="oai_dc">{% journal_url 'OAI_list_records' %}</request>
+  <request verb="{{ verb }}" metadataPrefix="{{ metadataPrefix }}">{% journal_url 'OAI_list_records' %}</request>
     {% block body %}{% endblock body %}
 </OAI-PMH>

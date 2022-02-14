@@ -2331,6 +2331,23 @@ def serve_article_xml(request, identifier_type, identifier):
     )
 
 
+def serve_article_pdf(request, identifier_type, identifier):
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        raise Http404
+
+    pdf = article_object.pdfs.first()
+    if not pdf:
+        raise Http404
+
+    return files.serve_file(request, pdf.file, article_object, public=True)
+
+
 @editor_user_required
 def manage_languages(request):
     active_languages = request.journal.get_setting(

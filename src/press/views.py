@@ -151,7 +151,7 @@ def manager_index(request):
             form = journal_forms.JournalForm(request.POST)
             modal = 'new_journal'
             if form.is_valid():
-                new_journal = form.save(request=request)
+                new_journal = form.save()
                 new_journal.sequence = request.press.next_journal_order()
                 new_journal.save()
                 call_command('install_plugins')
