@@ -464,7 +464,8 @@ def send_revisions_request(**kwargs):
         )
         notify_helpers.send_slack(
             request,
-            description,['slack_editors'],
+            description,
+            ['slack_editors'],
         )
 
 
@@ -490,6 +491,38 @@ def send_revisions_complete(**kwargs):
     util_models.LogEntry.add_entry(
         types='Revisions Complete', description=action_text, level='Info',
         request=request, target=revision.article,
+    )
+
+
+def send_revisions_author_receipt(**kwargs):
+    request = kwargs['request']
+    revision = kwargs['revision']
+
+    description = '{0} has completed revisions for {1}'.format(
+        request.user.full_name(),
+        revision.article.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Revisions Complete',
+        'target': revision.article,
+    }
+    context = {
+        'revision': revision,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'revisions_complete_receipt',
+        'subject_revisions_complete_receipt',
+        revision.article.correspondence_author.email,
+        context,
+        log_dict=log_dict,
+    )
+    notify_helpers.send_slack(
+        request,
+        description,
+        ['slack_editors'],
     )
 
 
@@ -1114,19 +1147,24 @@ def send_author_publication_notification(**kwargs):
     # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'section_editor_pub_notification',
-                                                                      'Article set for publication',
-                                                                      editor.email,
-                                                                      {'article': article, 'editor': editor})
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'section_editor_pub_notification',
+                'Article set for publication',
+                editor.email,
+                {'article': article, 'editor': editor},
+            )
 
     if peer_reviewers:
-        for reviewer in article.peer_reviewers():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'peer_reviewer_pub_notification',
-                                                                      'Article set for publication',
-                                                                      reviewer.email,
-                                                                      {'article': article, 'reviewer': reviewer})
+        reviewers = {review_assignment.reviewer for review_assignment in article.completed_reviews_with_decision}
+        for reviewer in reviewers:
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'peer_reviewer_pub_notification',
+                'Article set for publication',
+                reviewer.email,
+                {'article': article, 'reviewer': reviewer},
+            )
 
 
 def review_sec_override_notification(**kwargs):

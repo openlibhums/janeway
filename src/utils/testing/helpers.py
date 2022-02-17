@@ -17,13 +17,18 @@ from core import (
 )
 from journal import models as journal_models
 from press import models as press_models
-from utils.install import update_xsl_files, update_settings
+from submission import models as sm_models
+from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 
 
-def create_user(username, roles=None, journal=None):
+def create_user(username, roles=None, journal=None, **attrs):
     """
     Creates a user with the specified permissions.
+    :username: A unique username to set the user username and email
+    :roles: A list[str] of roles to be granted to the user
+    :journal: The Journal object to which the above roles will be linked
+    :attrs: key/value pairs of further attributes to set on the user object
     :return: a user with the specified permissions
     """
     # check this way to avoid mutable default argument
@@ -34,8 +39,15 @@ def create_user(username, roles=None, journal=None):
     user = core_models.Account.objects.create_user(email=username, **kwargs)
 
     for role in roles:
-        resolved_role = core_models.Role.objects.get(name=role)
+        try:
+            resolved_role = core_models.Role.objects.get(name=role)
+        except core_models.Role.DoesNotExist:
+            create_roles(roles)
+            resolved_role = core_models.Role.objects.get(name=role)
         core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
+
+    for attr, value in attrs.items():
+        setattr(user, attr, value)
 
     user.save()
 
@@ -70,12 +82,24 @@ def create_journals():
 
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'
+    update_issue_types(journal_one)
 
     return journal_one, journal_two
 
 
 def create_press():
     return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+
+def create_issue(journal, vol=0, number=0, articles=None):
+    issue = journal_models.Issue.objects.create(
+        journal=journal,
+        issue=number,
+        volume=vol,
+        issue_type=journal_models.IssueType.objects.get(code="issue"),
+    )
+    if articles:
+        issue.articles.add(*articles)
+    return issue
 
 
 def create_regular_user():
@@ -100,10 +124,50 @@ def create_editor(journal):
 
 
 def create_author(journal):
-    author = create_user("authoruser@martineve.com", ["author"], journal=journal)
+    attrs = {
+        "first_name": "Author",
+        "middle_name": "A",
+        "last_name": "User",
+        "institution": "Author institution",
+        "department": "Author Department",
+        "biography": "Author test biography"
+    }
+    author = create_user(
+        "authoruser@martineve.com", ["author"],
+        journal=journal,
+        **attrs,
+    )
     author.is_active = True
     author.save()
     return author
+
+
+def create_submission(
+    owner=None,
+    title='A Test Article',
+    abstract='A Test article abstract',
+    journal_id=1,
+    stage=sm_models.STAGE_UNASSIGNED,
+    authors=None,
+    **kwargs,
+):
+
+    section, _ = sm_models.Section.objects.get_or_create(
+        journal__id=journal_id, name="Article",
+    )
+    article = sm_models.Article.objects.create(
+        owner=owner,
+        title=title,
+        abstract=abstract,
+        journal_id=journal_id,
+        stage=stage,
+        section=section,
+        **kwargs
+    )
+    if authors:
+        article.authors.add(*authors)
+        article.snapshot_authors()
+    return article
 
 
 def create_test_file(test_case, file):

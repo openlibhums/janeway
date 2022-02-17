@@ -48,6 +48,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_REVISIONS_REQUESTED_
                                       transactional_emails.send_revisions_request)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVISIONS_COMPLETE,
                                       transactional_emails.send_revisions_complete)
+event_logic.Events.register_for_event(event_logic.Events.ON_REVISIONS_COMPLETE,
+                                      transactional_emails.send_revisions_author_receipt)
 
 # Copyediting
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_ASSIGNMENT,

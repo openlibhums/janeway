@@ -20,9 +20,8 @@
         <div class="row expanded">
             <div class="large-12 columns">
 
-                <p><strong>{% trans "Submission guidelines" %}</strong>: {% blocktrans %}To upload a file, select it
-                    using one of the 'Choose file' buttons, then upload it with the 'Upload file' button next to it. You
-                    will then be asked for some additional information (label, description etc.){% endblocktrans %}</p>
+                <p>{{ file_submission_guidelines }}</p>
+
                 <div class="title-area">
                     <h2>{{ request.journal.submissionconfiguration.submission_file_text }}</h2>
                 </div>
@@ -30,9 +29,8 @@
                     <div class="large-3 columns">
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <h4></h4>
-                            <a href="#" data-open="manuscript" class="button success" name="data"><i
-                                    class="fa fa-upload">&nbsp;</i>{% trans "Upload" %}
+                            <a href="#" data-open="manuscript" class="button success" name="data">
+                              <i class="fa fa-upload">&nbsp;</i>{% trans "Upload" %}
                             </a>
                         </form>
                     </div>
@@ -51,8 +49,9 @@
                                         <td>{{ file.label }}</td>
                                         <td>{{ file }}</td>
                                         <td>
-                                            <button name="delete" type="submit" value="{{ file.pk }}"><i
-                                                    class="fa fa-trash"></i></button>
+                                            <button name="delete" type="submit" value="{{ file.pk }}">
+                                              <i class="fa fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                     {% empty %}

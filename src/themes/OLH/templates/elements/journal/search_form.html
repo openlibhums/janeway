@@ -1,0 +1,22 @@
+<form method="POST">
+    {% csrf_token %}
+    <div class="section">
+        {% if not keyword %}
+            {{ form.article_search.errors }}
+            <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords,
+                and authors</label>
+            {{ form.article_search }}
+        {% else %}
+            {% trans 'You are currently browsing by keyword' %}.
+            <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
+        {% endif %}
+    </div>
+    <div class="section">
+        <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+        {{ form.sort.errors }}
+        {{ form.sort }}
+    </div>
+    <div class="section">
+        <button type="submit" class="button">{% trans "Filter" %}</button>
+    </div>
+</form>

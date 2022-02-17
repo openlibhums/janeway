@@ -49,12 +49,10 @@
     {% if article.language %}<meta name="citation_language" content="{{ article.language }}"/>{% endif %}
 
     {% if article.keywords.count > 0 %}
-        <meta name="citation_keywords" xml:lang="en" content="{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
+    <meta name="citation_keywords" xml:lang="en" content="{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
     {% endif %}
 
-    {% for galley in galleys %}
-        {% if galley.type == 'pdf' or galley.type == 'PDF' %}
-        <meta name="citation_pdf_url" content="{% journal_url 'article_download_galley' article.id galley.id %}"/>
-        {% endif %}
-    {% endfor %}
+    {% if article.pdfs.exists %}
+    <meta name="citation_pdf_url" content="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
+    {% endif %}
     {% include "elements/journal/social_meta.html" %}

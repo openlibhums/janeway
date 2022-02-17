@@ -1186,6 +1186,21 @@
     },
     {
         "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme)",
+            "is_translatable": false,
+            "name": "display_journal_title",
+            "pretty_name": "Enable Journal title in Navbar",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -1211,7 +1226,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ reset_token.account.full_name }},<br/><br/>A password reset for your account has been requested. You can reset your password at the following link:</p><p>{{ core_reset_password_url }} br/><br/></p>"
+            "default": "<p>Dear {{ reset_token.account.full_name }},<br/><br/>A password reset for your account has been requested. You can reset your password at the following link:</p><p>{{ core_reset_password_url }}</p>"
         }
     },
     {
@@ -3149,6 +3164,21 @@
             "default": ""
         }
     },
+  {
+    "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Support email address for editors and staff users.",
+            "is_translatable": false,
+            "name": "support_email",
+            "pretty_name": "Support Email",
+            "type": "char"
+        },
+        "value": {
+            "default": "--No support email set--"
+        }
+    },
     {
         "group": {
             "name": "general"
@@ -3162,6 +3192,21 @@
         },
         "value": {
             "default": "Please supply information below to support your request to make a submission to this journal."
+        }
+      },
+      {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to an article's correspondence author when revisions are completed.",
+            "is_translatable": true,
+            "name": "revisions_complete_receipt",
+            "pretty_name": "Revisions Complete Receipt",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
         }
     },
     {
@@ -3177,6 +3222,21 @@
         },
         "value": {
             "default": ""
+        }
+    },
+  {
+    "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Support message to display to editors and staff on Manager page.",
+            "is_translatable": true,
+            "name": "support_contact_message_for_staff",
+            "pretty_name": "Janeway Support Contact for Staff",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
         }
     },
     {
@@ -3238,6 +3298,67 @@
         "value": {
             "default": "Your Submission Access Request"
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Describe what files you expect at the time of submission.",
+            "is_translatable": true,
+            "name": "file_submission_guidelines",
+            "pretty_name": "File Submission Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Please upload the latest manuscript file. Separately upload any figures or data files needed during peer review.</p>"
+        }
+    },
+    {
+          "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Receipt",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_receipt",
+            "pretty_name": "Subject Revisions Complete Receipt",
+            "type": "text"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        }
+    },
+    {
+	    "group": {
+	        "name": "general"
+    	},
+        "setting": {
+    	    "description": "Support email address for editors and staff users.",
+    	    "is_translatable": false,
+    	    "name": "support_email",
+    	    "pretty_name": "Support Email",
+    	    "type": "char"
+    	},
+    	"value": {
+    	    "default": "--No support email set--"
+    	}
+    },
+    {
+    	"group": {
+    	    "name": "general"
+    	},
+    	"setting": {
+    	    "description": "Support message to display to editors and staff on Manager page.",
+    	    "is_translatable": false,
+    	    "name": "support_contact_message_for_staff",
+    	    "pretty_name": "Janeway Support Contact for Staff",
+    	    "type": "rich-text"
+    	},
+    	"value": {
+    	    "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+    	}
     }
 
 ]
+

@@ -14,6 +14,16 @@
     <section id="content">
         <div class="row">
             <div class="large-8 columns border-right">
+                <div class="hide-for-large">
+                    <ul class="accordion" data-accordion data-allow-all-closed="true">
+                        <li class="accordion-item" data-accordion-item>
+                            <a href="#" class="accordion-title">Show Filter Options</a>
+                             <div class="accordion-content" data-tab-content>
+                                {% include "elements/journal/article_filter_form.html" %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
                 <h1>{% trans 'Pinned Articles' %}</h1>
                     {% for article in pinned_articles %}
@@ -43,49 +53,15 @@
                     </ul>
                 </div>
             </div>
-            <aside class="large-4 columns" data-sticky-container>
-                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="section">
-                            <label>{% trans "Show" %}
-                                <select name="show">
-                                    <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
-                                    <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
-                                    <option value="50"{% if show == 50 %} selected="selected"{% endif %}>50</option>
-                                    <option value="100"{% if show == 100 %} selected="selected"{% endif %}>100</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="section">
-                            <label>{% trans "Sort" %}
-                                <select name="sort">
-                                    <option value="-date_published"{% if sort == "date_published" %}
-                                            selected="selected"{% endif %}>{% trans "Date" %}</option>
-                                    <option value="title"{% if sort == "title" %}
-                                            selected="selected"{% endif %}>{% trans "Title" %}</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="section">
-                            <label>{% trans "Filter" %}</label>
-                            {% for section in sections %}
-                                <label for="section-{{ section.id }}"><input id="section-{{ section.id }}"
-                                                                             value="{{ section.id }}" type="checkbox"
-                                                                             name="filter[]"
-                                                                             {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
-                                </label>
-                            {% endfor %}
-                            <button type="submit" class="button">{% trans "Filter" %}</button>
-                            {% if active_filters %}<button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
-                        </div>
-                    </form>
+           <aside class="large-4 columns show-for-large" data-sticky-container>
+                    <div class="sticky" data-sticky data-margin-top="0"
+                         data-anchor="content" data-sticky-on="large">
+                    {% include "elements/journal/article_filter_form.html" %}
                 </div>
-            </aside>
+           </aside>
         </div>
 
     </section>
-
 {% endblock body %}
 
 {% block js %}

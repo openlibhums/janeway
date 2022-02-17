@@ -6,11 +6,13 @@
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
 {% block body %}
-	<section id="content">
-		<div class="row column">
-            <h1>{{ page.display_name }}</h1>
-            <hr />
-            {{ page.content|safe }}
-		</div>
-	</section>
+    <section id="content">
+      <div class="row column">
+        <h1 id="cms-title">{{ page.display_name }}</h1>
+        <hr />
+        <div id="cms">
+          {{ page.content|safe }}
+        </div>
+      </div>
+    </section>
 {% endblock body %}
