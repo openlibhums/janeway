@@ -51,10 +51,12 @@ class KeywordModelForm(ModelForm):
             field.initial = ",".join(current_keywords)
 
     def save(self, commit=True, *args, **kwargs):
+        posted_keywords = self.cleaned_data.get( 'keywords', '')
+        self.data["keywords"] = self.cleaned_data["keywords"] = ""
+
         instance = super().save(commit=commit, *args, **kwargs)
         instance.keywords.clear()
-        posted_keywords = self.cleaned_data.get(
-            'keywords', '')
+
         if posted_keywords:
             keyword_list = posted_keywords.split(",")
             for i, keyword in enumerate(keyword_list):
@@ -63,6 +65,7 @@ class KeywordModelForm(ModelForm):
                 instance.keywords.add(obj)
         if commit:
             instance.save()
+        self.data["keywords"] = self.cleaned_data["keywords"] = posted_keywords
         return instance
 
 
