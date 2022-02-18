@@ -506,6 +506,12 @@ class Article(models.Model):
             " Only relevant to migrated articles from a different publisher"
         )
     )
+    ISSN_override = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Original ISSN of this article's journal when published"
+            " Only relevant for back content published under a different title"
+        )
+    )
 
     # iThenticate ID
     ithenticate_id = models.TextField(blank=True, null=True)
@@ -613,11 +619,16 @@ class Article(models.Model):
             or self.article_number
             or self.publisher_name
             or self.publication_title
+            or self.ISSN_override
         )
 
     @property
     def journal_title(self):
         return self.publication_title or self.journal.name
+
+    @property
+    def journal_issn(self):
+        return self.ISSN_override or self.journal.issn
 
     @property
     def publisher(self):
