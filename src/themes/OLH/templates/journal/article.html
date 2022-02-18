@@ -339,6 +339,9 @@
                                  {% if article.publication_title %}
                                  <li>{% trans "Original Publication" %}: {{ article.publication_title }}</li>
                                  {% endif %}
+                                 {% if article.publication_title %}
+                                 <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
+                                 {% endif %}
                              </ul>
                          </div>
                          {% endif %}
