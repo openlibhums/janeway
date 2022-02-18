@@ -132,6 +132,7 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
 
 TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
+SUMMERNOTE_SENTINEL = '<p><br></p>'
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
@@ -667,6 +668,8 @@ class SettingValue(models.Model):
                 return 0
         elif self.setting.types == 'json' and self.value:
             return json.loads(self.value)
+        elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
+            return ''
         else:
             return self.value
 
