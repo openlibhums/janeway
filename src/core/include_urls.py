@@ -191,7 +191,9 @@ urlpatterns = [
     # Public Profiles
     url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),
 
+    url(r'^robots.txt$', press_views.robots, name='website_robots'),
     url(r'^sitemap.xml$', press_views.sitemap, name='website_sitemap'),
+    url(r'^(?P<issue_id>\d+)_sitemap.xml$', journal_views.sitemap, name='website_sitemap'),
 
     url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
 

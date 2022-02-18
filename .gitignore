@@ -76,6 +76,7 @@ src/core/settings.py
 /src/media/*
 /src/collected-static
 /src/files/robots/**
+/src/files/sitemaps/**
 mydatabase
 node_modules/
 src/plugins/*

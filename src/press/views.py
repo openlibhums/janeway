@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,7 +12,6 @@ from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
 
-from cms import models as cms_models
 from core import (
     files,
     models as core_models,
@@ -73,7 +71,7 @@ def index(request):
 
 def sitemap(request):
     """
-    Renders an XML sitemap based on articles and pages available to the press
+    Serves an XML sitemap.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -86,14 +84,19 @@ def sitemap(request):
         # if there is a repository we return the repository sitemap.
         return repository_views.repository_sitemap(request)
 
-    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
+    return files.serve_sitemap_file(['sitemap.xml'])
 
-    template = 'journal/sitemap.xml'
 
-    context = {
-        'cms_pages': cms_pages,
-    }
-    return render(request, template, context, content_type="application/xml")
+def robots(request):
+    """
+    Serves a generated robots.txt.
+    """
+    if settings.URL_CONFIG == 'domain':
+        if request.journal and request.journal.domain:
+            return files.serve_robots_file(journal=request.journal)
+        elif request.repository and request.repository.domain:
+            return files.serve_robots_file(repository=request.repository)
+    return files.serve_robots_file()
 
 
 @decorators.journals_enabled

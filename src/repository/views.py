@@ -59,22 +59,31 @@ def repository_home(request):
     return render(request, template, context)
 
 
-def repository_sitemap(request):
+def repository_sitemap(request, subject_id):
     """
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = models.Preprint.objects.filter(
-        repository=request.repository,
-        date_published__lte=timezone.now(),
-        stage=models.STAGE_PREPRINT_PUBLISHED,
-    ).order_by('-date_published')
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
+        path_parts = [
+            request.repository.code,
+            '{}_sitemap.xml'.format(subject.pk),
+        ]
+    else:
+        path_parts = [
+            request.repository.code,
+            'sitemap.xml',
+        ]
 
-    template = 'journal/sitemap.xml'
-    context = {
-        'preprints': preprints,
-    }
-    return render(request, template, context, content_type="application/xml")
+    if path_parts:
+        return files.serve_sitemap_file(path_parts)
+
+    return Http404
 
 
 @login_required
