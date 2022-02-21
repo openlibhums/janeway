@@ -59,29 +59,32 @@ def repository_home(request):
     return render(request, template, context)
 
 
-def repository_sitemap(request, subject_id):
+def repository_sitemap(request, subject_id=None):
     """
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    if subject_id:
-        subject = get_object_or_404(
-            models.Subject,
-            pk=subject_id,
-            repository=request.repository,
-        )
-        path_parts = [
-            request.repository.code,
-            '{}_sitemap.xml'.format(subject.pk),
-        ]
-    else:
-        path_parts = [
-            request.repository.code,
-            'sitemap.xml',
-        ]
+    try:
+        if subject_id:
+            subject = get_object_or_404(
+                models.Subject,
+                pk=subject_id,
+                repository=request.repository,
+            )
+            path_parts = [
+                request.repository.code,
+                '{}_sitemap.xml'.format(subject.pk),
+            ]
+        else:
+            path_parts = [
+                request.repository.code,
+                'sitemap.xml',
+            ]
 
-    if path_parts:
-        return files.serve_sitemap_file(path_parts)
+        if path_parts:
+            return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        pass  # 404 raised below.
 
     return Http404
 

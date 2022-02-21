@@ -75,28 +75,33 @@ def sitemap(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    try:
+        if request.journal is not None:
+            # if there's a journal, then we render the _journal_ sitemap, not the press
+            return journal_views.sitemap(request)
 
-    if request.journal is not None:
-        # if there's a journal, then we render the _journal_ sitemap, not the press
-        return journal_views.sitemap(request)
+        if request.repository is not None:
+            # if there is a repository we return the repository sitemap.
+            return repository_views.repository_sitemap(request)
 
-    if request.repository is not None:
-        # if there is a repository we return the repository sitemap.
-        return repository_views.repository_sitemap(request)
-
-    return files.serve_sitemap_file(['sitemap.xml'])
+        return files.serve_sitemap_file(['sitemap.xml'])
+    except FileNotFoundError:
+        raise Http404
 
 
 def robots(request):
     """
     Serves a generated robots.txt.
     """
-    if settings.URL_CONFIG == 'domain':
-        if request.journal and request.journal.domain:
-            return files.serve_robots_file(journal=request.journal)
-        elif request.repository and request.repository.domain:
-            return files.serve_robots_file(repository=request.repository)
-    return files.serve_robots_file()
+    try:
+        if settings.URL_CONFIG == 'domain':
+            if request.journal and request.journal.domain:
+                return files.serve_robots_file(journal=request.journal)
+            elif request.repository and request.repository.domain:
+                return files.serve_robots_file(repository=request.repository)
+        return files.serve_robots_file()
+    except FileNotFoundError():
+        raise Http404
 
 
 @decorators.journals_enabled

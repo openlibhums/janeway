@@ -1866,25 +1866,28 @@ def sitemap(request, issue_id=None):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    path_parts = None
-    if issue_id:
-        issue = get_object_or_404(
-            models.Issue,
-            pk=issue_id,
-            journal=request.journal,
-        )
-        path_parts = [
-            request.journal.code,
-            '{}_sitemap.xml'.format(issue.pk),
-        ]
-    else:
-        path_parts = [
-            request.journal.code,
-            'sitemap.xml',
-        ]
+    try:
+        path_parts = None
+        if issue_id:
+            issue = get_object_or_404(
+                models.Issue,
+                pk=issue_id,
+                journal=request.journal,
+            )
+            path_parts = [
+                request.journal.code,
+                '{}_sitemap.xml'.format(issue.pk),
+            ]
+        else:
+            path_parts = [
+                request.journal.code,
+                'sitemap.xml',
+            ]
 
-    if path_parts:
-        return files.serve_sitemap_file(path_parts)
+        if path_parts:
+            return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        pass  # 404 raised below.
 
     return Http404
 
