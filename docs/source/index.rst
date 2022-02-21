@@ -17,9 +17,10 @@ This guide has been written to avoid using language like "easy", "just" or "simp
    faq
    workflow
    manager
+   published
    imports
    styling
-   published
+   robotsandsitemaps
    installation
    changelog
 

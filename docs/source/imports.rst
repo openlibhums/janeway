@@ -1,7 +1,7 @@
 Import, Export, Update
 ======================
 
-The Import / Export / Update tool lets perform batch actions in Janeway. You can import and export article metadata and files, and you can update some fields of existing articles.
+The Import / Export / Update tool lets perform batch actions in Janeway, it is available through the Imports plugin. You can import and export article metadata and files, and you can update some fields of existing articles.
 
 Importing
 ---------
