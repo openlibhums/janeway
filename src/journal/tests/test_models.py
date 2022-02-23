@@ -80,7 +80,7 @@ class TestJournalSite(TestCase):
         path = reverse("website_index")
         result = self.journal.site_url(path)
 
-        expected = "http://" + self.journal.domain + path
+        expected = f"http://{self.journal.domain}/"
 
         self.assertEqual(expected, result)
 
