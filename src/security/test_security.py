@@ -3421,6 +3421,83 @@ class TestSecurity(TestCase):
         self.assertFalse(func.called,
                          "press_only decorator doesn't redirect when request.journal is found")
 
+    def test_submission_authorised_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the author role is found",
+        )
+
+    def test_submission_authorised_with_good_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.author,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author role",
+        )
+
+    def test_submission_authorised_with_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # force disable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator blocks access when the setting is disabled",
+        )
+
     # General helper functions
 
     @staticmethod
@@ -3559,6 +3636,10 @@ class TestSecurity(TestCase):
                                                 journal=self.journal_one)
         self.second_reviewer.is_active = True
         self.second_reviewer.save()
+
+        self.user_with_no_roles = self.create_user("no_roles@martineve.com", [], journal=self.journal_one)
+        self.user_with_no_roles.is_active = True
+        self.user_with_no_roles.save()
 
         self.public_file = core_models.File(mime_type="A/FILE",
                                             original_filename="blah.txt",
