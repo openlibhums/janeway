@@ -1786,6 +1786,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Use cookieless GA 4 instead of traditional analytics.",
+            "is_translatable": false,
+            "name": "use_ga_four",
+            "pretty_name": "Use Google Analytics 4",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {
