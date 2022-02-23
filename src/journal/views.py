@@ -381,6 +381,29 @@ def collection(request, collection_id, show_sidebar=True):
     return issue(request, collection_id, show_sidebar)
 
 
+@has_journal
+@decorators.frontend_enabled
+def collection_by_code(request, collection_code):
+    """
+    A proxy view for an issue or collection by its code
+    :param request: request object
+    :param collection_code: alphanumeric string matching an Issue.code
+    :return: a rendered template
+    """
+    issue = get_object_or_404(
+        models.Issue,
+        code=collection_code,
+        journal=request.journal,
+    )
+    if issue.issue_type.code == "issue":
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk},
+        ))
+    return redirect(reverse(
+        "journal_collection", kwargs={"collection_id": issue.pk},
+    ))
+
+
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
@@ -1756,7 +1779,6 @@ def become_reviewer(request):
     return render(request, template, context)
 
 
-@decorators.frontend_enabled
 def contact(request):
     """
     Displays a form that allows a user to contact admins or editors.
@@ -1787,7 +1809,10 @@ def contact(request):
             )
             return redirect(reverse('contact'))
 
-    template = 'journal/contact.html'
+    if request.journal and request.journal.disable_front_end:
+        template = 'admin/journal/contact.html'
+    else:
+        template = 'journal/contact.html'
     context = {
         'contact_form': contact_form,
         'contacts': contacts,
@@ -2304,6 +2329,23 @@ def serve_article_xml(request, identifier_type, identifier):
         xml_galley.file.get_file(article_object),
         content_type=xml_galley.file.mime_type,
     )
+
+
+def serve_article_pdf(request, identifier_type, identifier):
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        raise Http404
+
+    pdf = article_object.pdfs.first()
+    if not pdf:
+        raise Http404
+
+    return files.serve_file(request, pdf.file, article_object, public=True)
 
 
 @editor_user_required

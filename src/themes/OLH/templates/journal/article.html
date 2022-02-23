@@ -118,7 +118,7 @@
                         </div>
                         <div class="large-6 columns">
                             <ul class="menu vertical medium-horizontal align-right"
-                                data-responsive-menu="drilldown medium-dropdown">
+                                data-responsive-menu="dropdown">
                                 {% hook 'article_buttons' %}
                                 <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
                                 <li><a href="javascript:resizeText(-1)">A-</a></li>
@@ -127,7 +127,7 @@
                                 <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
-                                    <ul class="menu">
+                                    <ul class="menu vertical">
                                         <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
                                         <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
                                         <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
@@ -263,9 +263,9 @@
                         </div>
                     </div>
                 </div>
-                <aside class="large-4 columns" data-sticky-container>
+                <aside class="large-4 columns " data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
-                         data-sticky data-anchor="content">
+                          data-anchor="content" data-sticky-on="large">
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal.disable_article_images %}

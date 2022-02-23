@@ -151,7 +151,7 @@ def manager_index(request):
             form = journal_forms.JournalForm(request.POST)
             modal = 'new_journal'
             if form.is_valid():
-                new_journal = form.save(request=request)
+                new_journal = form.save()
                 new_journal.sequence = request.press.next_journal_order()
                 new_journal.save()
                 call_command('install_plugins')
@@ -162,11 +162,18 @@ def manager_index(request):
                         path=reverse(
                             'core_edit_settings_group',
                             kwargs={
-                                'group': 'journal',
+                                'display_group': 'journal',
                             }
                         )
                     )
                 )
+
+    support_message = core_logic.render_nested_setting(
+        'support_contact_message_for_staff',
+        'general',
+        [('support_email','general')],
+        request
+    )
 
     template = 'press/press_manager_index.html'
     context = {
@@ -179,6 +186,7 @@ def manager_index(request):
         'version': version,
         'repositories': models.Repository.objects.all(),
         'url_config': settings.URL_CONFIG,
+        'support_message': support_message,
     }
 
     return render(request, template, context)
@@ -292,13 +300,13 @@ def journal_domain(request, journal_id):
     if request.POST:
         new_domain = request.POST.get('domain', None)
 
+        journal.domain = new_domain
+        journal.save()
+        return redirect(reverse('core_manager_index'))
         if new_domain:
-            journal.domain = new_domain
-            journal.save()
             messages.add_message(request, messages.SUCCESS, 'Domain updated')
-            return redirect(reverse('core_manager_index'))
         else:
-            messages.add_message(request, messages.WARNING, 'No new domain supplied.')
+            messages.add_message(request, messages.WARNING, 'No domain set')
 
     template = 'press/journal_domain.html'
     context = {

@@ -513,8 +513,7 @@ def serve_review_file(assignment):
     elements = assignment.form.elements.all()
     document = Document()
     document.add_heading('Review #{pk}'.format(pk=assignment.pk), 0)
-    document.add_heading('Review of `{article_title}` by {reviewer}'.format(article_title=assignment.article.title,
-                                                                            reviewer=assignment.reviewer.full_name()),
+    document.add_heading('Review of `{article_title}`'.format(article_title=assignment.article.title),
                          level=1)
     document.add_paragraph()
     document.add_paragraph('Complete the form below, then upload it under the "FILE UPLOAD" section on your review page'

@@ -404,21 +404,14 @@ class RepositoryInitial(RepositoryBase):
             'object_name_plural',
             'publisher',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(RepositoryInitial, self).__init__(*args, **kwargs)
-
-        if settings.URL_CONFIG == 'path':
-            del(self.fields['domain'])
+        help_texts = {
+            'domain': 'Using a custom domain requires configuring DNS. '
+                'The repository will always be available under the /code path',
+        }
 
     def save(self, commit=True):
         repository = super(RepositoryInitial, self).save(commit=False)
         repository.press = self.press
-
-        if settings.URL_CONFIG:
-            repository.domain = '{short_name}.domain.com'.format(
-                short_name=repository.short_name,
-            )
 
         if commit:
             repository.save()

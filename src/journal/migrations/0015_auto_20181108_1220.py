@@ -17,7 +17,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='disable_article_images',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False,
+                help_text='When checked, articles will not have header imagesor thumbnail images. Does not affect figures andtables within an article.',
+            ),
         ),
         migrations.AlterField(
             model_name='issue',

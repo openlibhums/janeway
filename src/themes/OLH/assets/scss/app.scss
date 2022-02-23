@@ -224,6 +224,7 @@ header {
 
     .top-bar-image {
       max-height: $topbar-height;
+      min-height: $topbar-height;
       max-width:330px;
       padding: 5px;
       margin-top:-20px;
@@ -1218,15 +1219,67 @@ button.list-group-item-danger.active:focus {
   user-select: text;
 }
 
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+}
+
 .article-table {
   display: block;
   overflow-x: scroll;
 }
 
 .article-table thead tr {
-  background-color: transparent !important;
+  background-color: transparent;
 }
 
 .article-table tbody tr {
-  background-color:transparent !important;
+  background-color:transparent;
+}
+
+#journal-title {
+    padding: 0px;
+    height:100%;
+    @include breakpoint(large down){
+      max-width: 550px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.5vw;
+      }
+    }
+    @include breakpoint(medium down){
+      max-width:80%; // Avoid running over the search and burger menus
+      padding-top: 0.7rem;
+      h1 {
+        font-size: 100%;
+      }
+    }
+    @include breakpoint(large){
+      float: right; // Aligns title to the right of the logo
+    }
+    @include breakpoint(xlarge){
+      max-width: 800px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.6vw;
+      }
+    }
+    @include breakpoint(xxlarge){
+      max-width: 1000px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.70rem;
+      }
+    }
+}
+
+#search-menu {
+  max-width: 200px;
+  float:right;
+}
+
+.is-drilldown{overflow-y: scroll}
+
+.homepage-element-about {
+  margin-top: 30px;
 }

@@ -27,13 +27,13 @@
                 </div>
                 <div class="content">
                     <small>
-                        <p>Help for internal navigation items:</p>
+                        <strong><p><i class="fa fa-info-circle"></i> Help for internal navigation items:</p></strong>
                         <ul>
-                            <li>{% if settings.URL_CONFIG == 'path' and request.journal %}If you are linking to a custom CMS page, prefix the link with /{{ request.journal.code }}{% endif %}/site/</li>
+                            <li>If you are linking to a custom CMS page, prefix the link with {% if request.journal and not request.journal.domain %}/{{ request.journal.code }}{% endif %}/site/</li>
                             <li>Add the URL Name of the page eg. about</li>
-                            <li>An example: {% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with /{{ request.journal.code }}{% endif %}/site/about/</li>
+                            <li>An example for linking to a CMS page with the name 'about': {% if request.journal and not request.journal.domain %}/{{ request.journal.code }}{% endif %}/site/about/</li>
                             <li>Link Name is the text that will appear in the nav bar. eg. 'About' or 'Research Integrity'</li>
-                            <li>For top level nav items that should behave as a button (you don't want them to appear in the dropdown menu) leave the Link field empty.</li>
+                            <li>For top level nav items that should behave as a button to enable the dropdown but but not lonk to a page, leave the Link field empty.</li>
                         </ul>
                     </small>
                     {% include "admin/elements/forms/errors.html" %}

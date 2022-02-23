@@ -31,65 +31,45 @@ logger = get_logger(__name__)
 def get_site_resources(request):
     """ Attempts to match the relevant resources for the request url
 
-    Result depends on the value of settings.URL_CONFIG
+    Each site type is given a chance to resolve the url by domain or path
     :param request: A Django HttpRequest
     :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
     """
-    journal = repository = press = redirect_obj = None
-    try:  # try journal site
-        if settings.URL_CONFIG == 'path':
-            code = request.path.split('/')[1]
-            journal = journal_models.Journal.objects.get(code=code)
-            press = journal.press
-        elif settings.URL_CONFIG == 'domain':
-            journal = journal_models.Journal.get_by_request(request)
-            press = journal.press
+    # Match a journal
+    journal = repository = press = redirect_obj = site_path = None
+    journal, site_path = journal_models.Journal.get_by_request(request)
+    if journal:
+        press = journal.press
+    else:
+        # Match a Repository
+        repository, site_path = repository_models.Repository.get_by_request(request)
+        if repository:
+            press = repository.press
         else:
-            raise ImproperlyConfigured(
-                    "'%s' is not a valid value for settings.URL_CONFIG"
-                    "" % settings.URL_CONFIG
-            )
-    except (journal_models.Journal.DoesNotExist, IndexError):
-        try: # try repository site
-            if settings.URL_CONFIG == 'path':
-                short_name = request.path.split('/')[1]
-                repository = repository_models.Repository.objects.get(
-                    short_name=short_name,
-                    live=True,
-                )
-                press = repository.press
-            elif settings.URL_CONFIG == 'domain':
-                repository = repository_models.Repository.get_by_request(
-                    request,
-                )
-                press = repository.press
-            else:
-                raise ImproperlyConfigured(
-                        "'%s' is not a valid value for settings.URL_CONFIG"
-                        "" % settings.URL_CONFIG
-                )
-        except (repository_models.Repository.DoesNotExist, IndexError):
-            try: # try press site
-                press = press_models.Press.get_by_request(request)
-            except press_models.Press.DoesNotExist:
-                try: # try alias
-                    alias = core_models.DomainAlias.get_by_request(request)
-                    if alias.redirect:
-                        logger.debug("Matched a redirect: %s" % alias.redirect_url)
-                        redirect_obj = redirect(
-                            alias.build_redirect_url(path=request.path))
-                    else:
-                        journal = alias.journal
-                        press = journal.press if journal else alias.press
-                except core_models.DomainAlias.DoesNotExist:
-                    # Give up
-                    logger.warning(
-                        "Couldn't match a resource for %s, redirecting to %s"
-                        "" % (request.path, settings.DEFAULT_HOST)
-                        )
-                    redirect_obj = redirect(settings.DEFAULT_HOST)
+            # Match the press site
+            press, path_mode = press_models.Press.get_by_request(request)
 
-    return journal, repository, press, redirect_obj
+    # Match a Domain Alias
+    if not press:
+        alias, site_path = core_models.DomainAlias.get_by_request(request)
+        if alias and alias.redirect:
+            logger.debug("Matched a redirect: %s" % alias.redirect_url)
+            redirect_obj = redirect(
+                alias.build_redirect_url(path=request.path))
+        elif alias:
+            journal = alias.journal
+            press = journal.press if journal else alias.press
+
+
+    #  Couldn't match any resources
+    if not press and not redirect_obj:
+        logger.warning(
+            "Couldn't match a resource for %s, redirecting to default: %s"
+            "" % (request.path, settings.DEFAULT_HOST)
+            )
+        redirect_obj = redirect(settings.DEFAULT_HOST)
+
+    return journal, repository, press, redirect_obj, site_path
 
 
 class SiteSettingsMiddleware(object):
@@ -97,19 +77,14 @@ class SiteSettingsMiddleware(object):
     def process_request(request):
         """ This middleware class sets a series of variables for templates
         and views to access inside the request object. It defines what site
-        is being requested based on the domain:
-
-        if settings.URL_CONFIG is set to 'domain':
-            matches alias, journal, press  models by domain (in that order)
-        if settings.URL_CONFIG is set to 'domain':
-            matches the press by domain and journal by path. If no journal code
-            is present it assumes a press site.
+        is being requested based on the domain and/or path
 
         :param request: the current request
         :return: None or an http 404 error in the event of catastrophic failure
         """
 
-        journal, repository, press, redirect_obj = get_site_resources(request)
+        journal, repository, press, redirect_obj, site_path = get_site_resources(
+            request)
 
         if redirect_obj is not None:
             return redirect_obj
@@ -127,12 +102,6 @@ class SiteSettingsMiddleware(object):
                     journal)
             request.repository = None
 
-            if settings.URL_CONFIG == 'path':
-                prefix = "/" + journal.code
-                logger.debug("Setting script prefix to %s" % prefix)
-                set_script_prefix(prefix)
-                request.path_info = request.path_info[len(prefix):]
-
         elif repository is not None:
             logger.set_prefix(repository.short_name)
             request.repository = repository
@@ -141,12 +110,6 @@ class SiteSettingsMiddleware(object):
             request.model_content_type = ContentType.objects.get_for_model(
                 repository,
             )
-
-            if settings.URL_CONFIG == 'path':
-                prefix = "/" + repository.short_name
-                logger.debug("Setting script prefix to %s" % prefix)
-                set_script_prefix(prefix)
-                request.path_info = request.path_info[len(prefix):]
 
         elif press is not None:
             logger.set_prefix("press")
@@ -158,15 +121,20 @@ class SiteSettingsMiddleware(object):
         else:
             raise Http404()
 
+        # Set the script prefix if the site is in path mode
+        if site_path:
+            prefix = "/" + site_path
+            logger.debug("Setting script prefix to %s" % prefix)
+            set_script_prefix(prefix)
+            request.path_info = request.path_info[len(prefix):]
+
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
             if (
-                    request.journal
-                    and request.journal.is_secure
+                    request.site_type
+                    and request.site_type.is_secure
                     and not settings.DEBUG
             ):
-                return redirect("https://{0}{1}".format(request.get_host(), request.path))
-            elif request.press.is_secure and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
 

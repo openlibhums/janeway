@@ -316,6 +316,7 @@ class EditFrozenAuthor(forms.ModelForm):
             'name_suffix',
             'institution',
             'department',
+            'frozen_biography',
             'country',
             'is_corporate',
             'frozen_email',

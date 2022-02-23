@@ -85,7 +85,7 @@ urlpatterns = [
     url(r'^manager/settings/group/(?P<setting_group>[-\w.: ]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_default_setting'),
-    url(r'^manager/settings/(?P<group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
+    url(r'^manager/settings/(?P<display_group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
     url(r'^manager/settings/(?P<plugin>[-\w.:]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
         core_views.edit_plugin_settings_groups, name='core_edit_plugin_settings_groups'),
 

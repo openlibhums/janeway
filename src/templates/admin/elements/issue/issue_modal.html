@@ -23,8 +23,23 @@
                         {{ form.date|foundation }}
                     </div>
                     <div class="large-6 columns">
+                        {{ form.code|foundation }}
+                    </div>
+                    <div class="large-8 columns">
                         {{ form.cover_image|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        {% if issue.cover_image %}
+                        <img src="{{ issue.cover_image.url }}" class="thumbnail float-right">
+                        {% endif %}
+                    </div>
+                    <div class="large-8 columns">
                         {{ form.large_image|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        {% if issue.large_image %}
+                        <img src="{{ issue.large_image.url }}" class="thumbnail float-right">
+                        {% endif %}
                     </div>
                     <div class="large-12 columns">
                         {{ form.short_description|foundation }}

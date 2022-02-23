@@ -1,0 +1,29 @@
+{% extends "apis/OAI_base.xml" %}
+{% block body %}
+    <Identify>
+        <repositoryName>{% if request.journal %}{{ journal_settings.general.publisher_name }}{% else %}
+            {{ request.press.name }}{% endif %}</repositoryName>
+        <baseURL>{% journal_url 'OAI_list_records' %}</baseURL>
+        <protocolVersion>2.0</protocolVersion>
+        <adminEmail>{{ request.press.main_contact }}</adminEmail>
+        {% if earliest_article %}
+        <earliestDatestamp>{{ earliest_article.date_published|date:"Y-m-d\TH:i:s\Z"  }}</earliestDatestamp>
+        {% endif %}
+        <deletedRecord>no</deletedRecord>
+        <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+        <description>
+            <toolkit
+                    xmlns="http://oai.dlib.vt.edu/OAI/metadata/toolkit"
+                    xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit
+					http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd">
+                <title>Janeway</title>
+                <author>
+                    <name>Birkbeck, University of London</name>
+                    <email>olh-tech@bbk.ac.uk</email>
+                </author>
+                <version>{{ version.number }}</version>
+                <URL>http://janeway.systems/</URL>
+            </toolkit>
+        </description>
+    </Identify>
+{% endblock body %}

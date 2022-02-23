@@ -1,4 +1,5 @@
 <record>
+    {{ prefix }}
     {% include "apis/OAI_record_header.xml" with article=article %}
     <metadata>
   <oai_dc:dc
@@ -7,13 +8,13 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
       http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-      <dc:articleTitle>{{article.title|striptags}}</dc:articleTitle>
-      <dc:title>{{article.title|striptags}}</dc:title>
+      <dc:articleTitle>{{article.title}}</dc:articleTitle>
+      <dc:title>{{article.title}}</dc:title>
       {% for author in article.frozenauthor_set.all %}
       <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
-      <dc:date>{{article.date_published|date:"c"}}</dc:date>
+      <dc:date>{{article.date_published|date:"Y-m-d\TH:i:s\Z"}}</dc:date>
       {% if journal.is_conference %}
       <dc:type>info:eu-repo/semantics/conferenceObject</dc:type>
       {% else %}

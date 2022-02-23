@@ -54,6 +54,18 @@ class ReviewTests(TestCase):
             review_field_text,
         )
 
+    def test_total_review_count(self):
+        self.assertEqual(
+            self.article_review_completed.reviewassignment_set.all().count(),
+            2,
+        )
+
+    def test_completed_reviews_with_decision_count(self):
+        self.assertEqual(
+            self.article_review_completed.completed_reviews_with_decision.count(),
+            1,
+        )
+
     @staticmethod
     def create_user(username, roles=None, journal=None):
         """
@@ -264,6 +276,14 @@ class ReviewTests(TestCase):
             required=True,
         )
         self.review_form.elements.add(self.review_form_element)
+        self.second_review_form_element, c = review_models.ReviewFormElement.objects.get_or_create(
+            name='Second Review Form Element',
+            kind='text',
+            order=2,
+            width='full',
+            required=True,
+        )
+        self.review_form.elements.add(self.second_review_form_element)
         setting_handler.save_setting(
             'general',
             'enable_save_review_progress',
@@ -271,15 +291,39 @@ class ReviewTests(TestCase):
             'On',
         )
 
-        self.review_assignment_complete = review_models.ReviewAssignment(article=self.article_review_completed,
-                                                                         reviewer=self.regular_user,
-                                                                         editor=self.editor,
-                                                                         date_due=datetime.datetime.now(),
-                                                                         form=self.review_form,
-                                                                         is_complete=True,
-                                                                         date_complete=timezone.now())
+        self.round_one = review_models.ReviewRound.objects.create(
+            article=self.article_review_completed,
+            round_number=1,
+        )
+        self.round_two = review_models.ReviewRound.objects.create(
+            article=self.article_review_completed,
+            round_number=2,
+        )
+
+        self.review_assignment_complete = review_models.ReviewAssignment(
+            article=self.article_review_completed,
+            review_round=self.round_one,
+            reviewer=self.regular_user,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            date_complete=timezone.now(),
+            decision='accept',
+        )
 
         self.review_assignment_complete.save()
+
+        self.review_assignment_withdrawn = review_models.ReviewAssignment.objects.create(
+            article=self.article_review_completed,
+            review_round=self.round_two,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            decision='withdrawn',
+        )
 
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,

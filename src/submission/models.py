@@ -15,18 +15,14 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from django.db.models.signals import pre_delete
 from django.db.models.signals import pre_delete, m2m_changed
-from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
 
-from core import workflow
 from core.file_system import JanewayFileSystemStorage
-from core import workflow, model_utils
 from core.model_utils import M2MOrderedThroughField
-from core import workflow, model_utils
+from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
@@ -673,7 +669,7 @@ class Article(models.Model):
             return self.render_galley
 
         ret = self.galley_set.filter(
-            file__mime_type="application/xml"
+            file__mime_type__in=files.XML_MIMETYPES,
         ).order_by(
             "sequence",
         )
@@ -685,7 +681,7 @@ class Article(models.Model):
 
     @property
     def xml_galleys(self):
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
+        ret = self.galley_set.filter(file__mime_type__in=files.XML_MIMETYPES).order_by(
             "sequence")
 
         return ret
@@ -1052,10 +1048,11 @@ class Article(models.Model):
 
     @property
     def completed_reviews_with_decision(self):
-        return self.reviewassignment_set.filter(is_complete=True,
-                                                date_declined__isnull=True,
-                                                review_round=self.current_review_round_object()
-                                                ).exclude(decision='withdrawn')
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_declined__isnull=True,
+            decision__isnull=False,
+        ).exclude(decision='withdrawn')
 
     def active_review_request_for_user(self, user):
         try:
@@ -1390,6 +1387,17 @@ class FrozenAuthor(models.Model):
 
     institution = models.CharField(max_length=1000)
     department = models.CharField(max_length=300, null=True, blank=True)
+    frozen_biography = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Frozen Biography'),
+        help_text=_("The author's biography at the time they published"
+                    " the linked article. For this article only, it overrides"
+                    " any main biography attached to the author's account."
+                    " If Frozen Biography is left blank, any main biography"
+                    " for the account will be populated instead."
+                   ),
+    )
     country = models.ForeignKey('core.Country', null=True, blank=True)
 
     order = models.PositiveIntegerField(default=1)
@@ -1477,6 +1485,15 @@ class FrozenAuthor(models.Model):
         if self.department:
             name = "{}, {}".format(self.department, name)
         return name
+
+    @property
+    def biography(self):
+        if self.frozen_biography:
+            return self.frozen_biography
+        elif self.author:
+            return self.author.biography
+        return None
+
 
     def citation_name(self):
         if self.is_corporate:

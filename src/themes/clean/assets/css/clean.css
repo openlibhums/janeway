@@ -350,6 +350,9 @@ footer svg {
     display: inline-block;
 }
 
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+
 .article-table {
   display: block;
   overflow-x: scroll;}
