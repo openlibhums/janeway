@@ -3498,6 +3498,82 @@ class TestSecurity(TestCase):
             "submission_authorised decorator blocks access when the setting is disabled",
         )
 
+    def test_submission_authorised_with_bad_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the repo author role is found",
+        )
+
+    def test_submission_authorised_with_good_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        role = core_models.Role.objects.get(
+            slug='author',
+        )
+        repo_role = repository_models.RepositoryRole.objects.create(
+            user=self.user_with_no_roles,
+            repository=self.repository,
+            role=role,
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role",
+        )
+
+        # Delete the repo role once we're done with it
+        repo_role.delete()
+
+    def test_submission_authorised_with_repo_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = False
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role when off",
+        )
+
     # General helper functions
 
     @staticmethod
