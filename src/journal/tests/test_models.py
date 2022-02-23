@@ -97,3 +97,17 @@ class TestJournalSite(TestCase):
         expected = "http://" + self.journal.domain
 
         self.assertEqual(expected, result)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_domain_mode_site_url_while_browsing_path_mode(self):
+        journal_code = "test"
+        journal = make_test_journal(
+            code=journal_code,
+            domain="ojwithdomain.org",
+        )
+        path = f'/{journal_code}/issues/'
+        result = journal.site_url(path=path)
+
+        expected = f"http://{journal.domain}/issues/"
+
+        self.assertEqual(expected, result)
