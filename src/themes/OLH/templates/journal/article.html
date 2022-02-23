@@ -118,7 +118,7 @@
                         </div>
                         <div class="large-6 columns">
                             <ul class="menu vertical medium-horizontal align-right"
-                                data-responsive-menu="drilldown medium-dropdown">
+                                data-responsive-menu="dropdown">
                                 {% hook 'article_buttons' %}
                                 <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
                                 <li><a href="javascript:resizeText(-1)">A-</a></li>
@@ -127,7 +127,7 @@
                                 <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
-                                    <ul class="menu">
+                                    <ul class="menu vertical">
                                         <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
                                         <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
                                         <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
@@ -338,6 +338,9 @@
                                  {% endif %}
                                  {% if article.publication_title %}
                                  <li>{% trans "Original Publication" %}: {{ article.publication_title }}</li>
+                                 {% endif %}
+                                 {% if article.publication_title %}
+                                 <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                                  {% endif %}
                              </ul>
                          </div>

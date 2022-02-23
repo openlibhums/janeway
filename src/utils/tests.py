@@ -9,7 +9,7 @@ from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
 from utils import merge_settings, transactional_emails
-from utils.forms import FakeModelForm
+from utils.forms import FakeModelForm, KeywordModelForm
 from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
@@ -132,11 +132,18 @@ class TestMergeSettings(TestCase):
 
 class TestForms(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        helpers.create_press()
+        helpers.create_journals()
+
+        update_xsl_files()
+        cls.journal = journal_models.Journal.objects.get(code="TST", domain="testserver")
+
     def test_fake_model_form(self):
 
         class FakeTestForm(FakeModelForm):
             class Meta:
-                update_xsl_files()
                 model = journal_models.Journal
                 exclude = tuple()
 
@@ -144,4 +151,37 @@ class TestForms(TestCase):
 
         with self.assertRaises(NotImplementedError):
             form.save()
+
+    def test_keyword_form(self):
+
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                update_xsl_files()
+                model = journal_models.Journal
+                fields = ("keywords",)
+                exclude = tuple()
+        expected = "Expected Keyword"
+        data = {
+            "keywords": "Keyword, another one, and another one,%s" % expected
+        }
+        form = KeywordTestForm(data, instance=self.journal)
+        form.is_valid()
+        journal = form.save()
+        self.assertTrue(journal.keywords.filter(word=expected).exists())
+
+
+    def test_keyword_form_empty_string(self):
+
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                update_xsl_files()
+                model = journal_models.Journal
+                fields = ('keywords', )
+                exclude = tuple()
+
+        data = {"keywords": ""}
+        form = KeywordTestForm(data, instance=self.journal)
+        form.is_valid()
+        journal = form.save()
+        self.assertFalse(journal.keywords.exists())
 

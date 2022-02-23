@@ -151,6 +151,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Addres set as the 'Reply-to' for system emails.",
+            "is_translatable": false,
+            "name": "replyto_address",
+            "pretty_name": "Reply-To Address",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {
@@ -3116,7 +3131,7 @@
             "type": "text"
         },
         "value": {
-            "default": ""
+            "default": "656"
         }
     },
     {
