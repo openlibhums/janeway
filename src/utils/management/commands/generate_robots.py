@@ -11,9 +11,9 @@ from repository import models as repo_models
 
 
 class Command(BaseCommand):
-    """Turns off Subtitle field for all journals."""
+    """Generates robots.txt files."""
 
-    help = "Turns off the Subtitle field for all journals."
+    help = "Generates robots.txt files."
 
     def handle(self, *args, **options):
 

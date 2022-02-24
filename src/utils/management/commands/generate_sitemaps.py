@@ -9,9 +9,9 @@ from repository import models as repo_models
 
 
 class Command(BaseCommand):
-    """Turns off Subtitle field for all journals."""
+    """Generates sitemaps files."""
 
-    help = "Turns off the Subtitle field for all journals."
+    help = "Generates sitemaps files."
 
     def handle(self, *args, **options):
 
