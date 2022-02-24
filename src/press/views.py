@@ -85,8 +85,8 @@ def sitemap(request):
             return repository_views.repository_sitemap(request)
 
         return files.serve_sitemap_file(['sitemap.xml'])
-    except FileNotFoundError:
-        raise Http404
+    except FileNotFoundError():
+        raise Http404()
 
 
 def robots(request):
@@ -94,14 +94,17 @@ def robots(request):
     Serves a generated robots.txt.
     """
     try:
-        if settings.URL_CONFIG == 'domain':
+        if settings.URL_CONFIG == 'domain' and request.journal or request.repository:
             if request.journal and request.journal.domain:
                 return files.serve_robots_file(journal=request.journal)
             elif request.repository and request.repository.domain:
                 return files.serve_robots_file(repository=request.repository)
+            else:
+                # raising a 404 here if you browse to this url in path mode.
+                raise Http404()
         return files.serve_robots_file()
     except FileNotFoundError():
-        raise Http404
+        raise Http404()
 
 
 @decorators.journals_enabled
