@@ -415,7 +415,7 @@ class Article(models.Model):
 
     article_number = models.PositiveIntegerField(
         blank=True, null=True,
-        help_text="Optional article number to be displayed on issue and article pages"
+        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID."
     )
 
     # Files
@@ -998,17 +998,12 @@ class Article(models.Model):
 
     @property
     def issue_title(self):
-        issue_display = self.issue.display_title
-        if self.page_range:
-            page_numbers = self.page_range
-        elif self.total_pages:
-            page_numbers = "{} page".format(self.total_pages)
-            if self.total_pages > 1:
-                page_numbers += 's'
+        if self.issue.issue_type.code != 'issue':
+            return self.issue.issue_title
         else:
-            page_numbers = None
-        issue_title_elements = [self.issue.display_title, self.page_range]
-        return mark_safe(" &bull; ".join((filter(None, issue_title_elements))))
+            return mark_safe(" &bull; ".join(
+                (filter(None, self.issue.issue_title_parts(article=self))))
+            )
 
     def author_list(self):
         if self.is_accepted():
