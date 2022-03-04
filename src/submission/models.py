@@ -1445,14 +1445,15 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
+        name_elements = [
+            self.name_prefix,
+            self.first_name,
+            self.middle_name,
+            self.last_name,
+            self.name_suffix
+        ]
+        return " ".join([each for each in name_elements if each])
         full_name = u"%s %s" % (self.first_name, self.last_name)
-        if self.middle_name:
-            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        if self.name_prefix:
-            full_name = "%s %s" % (_(self.name_prefix), full_name)
-        if self.name_suffix:
-            full_name = "%s %s" % (full_name, self.name_suffix)
-        return full_name
 
     @property
     def dc_name_string(self):
