@@ -403,3 +403,17 @@ class SubmissionTests(TestCase):
             )
             form = forms.ArticleInfoSubmit(instance=article)
             self.assertTrue(section not in form.fields["section"].queryset)
+
+class FrozenAuthorModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.frozen_author = models.FrozenAuthor.objects.create(
+            name_prefix='Dr.',
+            first_name='S.',
+            middle_name='Bella',
+            last_name='Rogers',
+            name_suffix='Esq.',
+        )
+
+    def test_full_name(self):
+        self.assertEqual('Dr. S. Bella Rogers Esq.', self.frozen_author.full_name())
