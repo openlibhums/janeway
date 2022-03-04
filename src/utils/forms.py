@@ -52,7 +52,6 @@ class KeywordModelForm(ModelForm):
 
     def save(self, commit=True, *args, **kwargs):
         posted_keywords = self.cleaned_data.get( 'keywords', '')
-        self.data["keywords"] = self.cleaned_data["keywords"] = ""
 
         instance = super().save(commit=commit, *args, **kwargs)
         instance.keywords.clear()
@@ -65,7 +64,6 @@ class KeywordModelForm(ModelForm):
                 instance.keywords.add(obj)
         if commit:
             instance.save()
-        self.data["keywords"] = self.cleaned_data["keywords"] = posted_keywords
         return instance
 
 

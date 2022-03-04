@@ -158,14 +158,16 @@ class TestForms(TestCase):
             class Meta:
                 update_xsl_files()
                 model = journal_models.Journal
-                fields = ("keywords",)
+                fields = ("code",)
                 exclude = tuple()
         expected = "Expected Keyword"
         data = {
-            "keywords": "Keyword, another one, and another one,%s" % expected
+            "keywords": "Keyword, another one, and another one,%s" % expected,
+            "code": self.journal.code,
         }
         form = KeywordTestForm(data, instance=self.journal)
-        form.is_valid()
+        valid = form.is_valid()
+
         journal = form.save()
         self.assertTrue(journal.keywords.filter(word=expected).exists())
 
