@@ -283,10 +283,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                   self.middle_name if self.middle_name is not None else '')
 
     def full_name(self):
-        if self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        name_elements = [
+            self.first_name,
+            self.middle_name,
+            self.last_name
+        ]
+        return " ".join([name for name in name_elements if name])
 
     def salutation_name(self):
         if self.salutation:
