@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='article',
             name='subtitle',
-            field=models.CharField(blank=True, help_text='Subtitle of the article display format; Title: Subtitle', max_length=999, null=True),
+            field=models.CharField(blank=True, help_text='Do not use--deprecated in version 1.4.1 and later.', max_length=999, null=True),
         ),
         migrations.AlterField(
             model_name='article',
