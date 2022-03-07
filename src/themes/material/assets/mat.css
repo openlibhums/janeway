@@ -626,3 +626,41 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     width: 75%;
     max-height: 75%;
 }
+
+.card-full-height {
+    height: 100%;
+}
+
+.journal-button-block {
+    margin-top: 10px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.row.grid .cell {
+  // flex: auto;
+  // flex: 0;
+  // flex: 1;
+  margin-left: 0;
+}
+
+.card .journal-card-content {
+    padding: 24px 24px 0 24px;
+}
+
+.card .journal-card-content p {
+    padding-bottom: 0;
+}
+
+.journal-card {
+    margin-bottom: 10px;
+}
+
+footer svg {
+    height: 90%;
+    width: 90%;
+}

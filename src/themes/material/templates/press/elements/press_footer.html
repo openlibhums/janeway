@@ -1,0 +1,13 @@
+{% load svg from press_url %}
+<div class="row expanded">
+    <div class="col m2">
+        {% if request.journal.press_image_override %}
+            {% svg request.journal_cover %}
+        {% else %}
+            {% svg request.press_cover %}
+        {% endif %}
+    </div>
+    <div class="col m10">
+        <p><small>{{ press.footer_description|safe }}</small></p>
+    </div>
+</div>

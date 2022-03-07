@@ -1,0 +1,69 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load settings i18n %}
+
+{% block navbar %}
+    {% include "press/nav.html" %}
+{% endblock navbar %}
+
+{% block title %}{{ request.press.name }} | {% trans 'Journals' %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="m12">
+            <h2>Journals</h2>
+        </div>
+        <div class="col l8 m10">
+            {% for current_journal in journals %}
+                {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
+                <div class="row journal-div">
+                    <div class="col l3 m4">
+                        <img class="responsive-img"
+                             src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
+                             alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}">
+                    </div>
+                    <div class="col l9 m8 journal-description-box">
+                        <span class="hide">{{ current_journal.name|lower }}</span>
+                        <h2>{{ current_journal.name }}</h2>
+                        <span>{{ current_journal|setting:'journal_description'|safe }}</span>
+                        <div class="journal-button-block">
+                            {% if current_journal.is_remote %}
+                                {% if not submission_disabled %}
+                                    <a href="{{ current_journal.remote_submit_url }}"
+                                       class="btn"><span>{% trans 'Submit' %}</span></a>
+                                {% endif %}
+                                <a href="{{ current_journal.remote_view_url }}"
+                                   class="btn"><span>{% trans 'View' %}</span></a>
+                            {% else %}
+                                {% if not submission_disabled %}
+                                    <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
+                                       class="btn"><span>{% trans 'Submit' %}</span></a>
+                                {% endif %}
+                                <a href="{% journal_base_url current_journal %}"
+                                   class="btn"><span>{% trans 'View' %}</span></a>
+                                {% if current_journal.current_issue %}
+                                    <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
+                                       class="btn"><span>{% trans 'Current Issue' %}</span></a>
+                                    {% elif current_journal.serial_issues.count > 0 %}
+                                    <a href="{% journal_base_url current_journal %}{% url 'journal_issues' %}"
+                                       class="btn"><span>{{ current_journal.issue_type_plural_name }}</span></a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col l4 m2">
+            <label>{% trans "Filter" %}
+                <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
+            </label>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static 'common/js/journal_filter.js' %}"></script>
+{% endblock %}

@@ -3,28 +3,15 @@
 {% load i18n %}
 {% load hooks %}
 
-
-
-<nav class="navbar navbar-toggleable-md bg-faded navbar-light">
+<nav class="navbar navbar-dark navbar-expand-lg navbar-custom">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
             data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="/">
-        {% if request.journal %}
-            {% if request.journal.header_image %}
-                <a href="/"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
-            {% else %}
-                <a href="/">{% svg request.press_cover %}</a>
-            {% endif %}
-        {% else %}
-            <a href="/">{% svg request.press_cover %}</a>
-        {% endif %}
-    </a>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto font-weight-bold">
-                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
             {% if journal_settings.general.enable_news_display %}
                 <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
 
@@ -36,7 +23,8 @@
                             {{ item.link_name }}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
-                            {% if item.link %}<a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
+                            {% if item.link %}
+                                <a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
                             {% for subnav in item.sub_nav_items %}
                                 <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
                             {% endfor %}
@@ -45,25 +33,27 @@
                 {% else %}
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
-            {% endfor %}
-                {% if request.press.enable_preprints %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" id="preprints"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Preprints
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="preprints">
-                                <a href="{% url 'preprints_home' %}" class="dropdown-item">Preprints Home</a>
-                                <a href="{% url 'preprints_list' %}" class="dropdown-item">All Preprints</a>
-                                <a href="{% url 'preprints_about' %}" class="dropdown-item">About Preprints</a>
-                            {% if display_preprint_editors == 'On' %}<a href="{% url 'preprints_editors' %}" class="dropdown-item">Preprint Editors</a>{% endif %}
-                                <a href="{% url 'preprints_submit' %}" class="dropdown-item">Submit Preprint</a>
-                        </div>
-                    </li>
-                    <li class="nav-item"></li>
-                {% endif %}
-                <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
-                {% hook 'nav_block' %}
+            {% endfor %}{% if request.press.publishes_journals and not request.press.disable_journals %}
+            <li class="nav-item"><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+        {% endif %}
+            {% if request.press.enable_preprints %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="" id="preprints"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% trans 'Repositories' %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="preprints">
+                        {% for repo in request.press.live_repositories %}
+                            <a href="{{ repo.site_url }}" class="dropdown-item">{{ repo.name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+                <li class="nav-item"></li>
+            {% endif %}
+            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+            {% hook 'nav_block' %}
+        </ul>
+        <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" id="user"
@@ -89,12 +79,5 @@
                     &nbsp;</i>Register</a></li>
             {% endif %}
         </ul>
-
-        <form method="POST" action="/search/" class="form-inline mt-2 mt-md-0">
-            {% csrf_token %}
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="article_search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-
     </div>
 </nav>

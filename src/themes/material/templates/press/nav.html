@@ -16,11 +16,6 @@
         </a>
         <ul class="right hide-on-med-and-down">
             <li><a href="/">{% trans "Home" %}</a></li>
-            {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints">{% trans "Preprints" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
-            {% endif %}
-
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li><a class="dropdown-button" href="#!"
@@ -30,6 +25,17 @@
                     <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
+
+            {% if request.press.publishes_journals and not request.press.disable_journals %}
+                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+            {% endif %}
+
+            {% if request.press.enable_preprints %}
+                <li><a class="dropdown-button" href="#!" data-activates="preprints">{% trans "Repositories" %}<i
+                        class="material-icons right">arrow_drop_down</i></a></li>
+            {% endif %}
+
+            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
@@ -43,10 +49,6 @@
 
         <ul class="side-nav" id="nav-mobile">
             <li><a href="/">{% trans "Home" %}</a></li>
-            {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">{% trans "Preprints" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
-            {% endif %}
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li><a class="dropdown-button" href="#!"
@@ -56,6 +58,14 @@
                     <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
+            {% if request.press.publishes_journals and not request.press.disable_journals %}
+                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+            {% endif %}
+            {% if request.press.enable_preprints %}
+                <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">{% trans "Repositories" %}<i
+                        class="material-icons right">arrow_drop_down</i></a></li>
+            {% endif %}
+            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
             {% if request.user.is_authenticated %}
                 <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
