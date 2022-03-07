@@ -350,8 +350,10 @@ footer svg {
     display: inline-block;
 }
 
+
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
+}
 
 .article-table {
   display: block;
@@ -359,4 +361,32 @@ footer svg {
 
 .table-caption {
     margin-bottom: 8px;
+}
+
+.journal-card-title {
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.row-smaller-gutters {
+    margin-left: -9px;
+    margin-right: -9px;
+}
+.row-smaller-gutters > div[class^="col"] {
+    padding-left: 9px;
+    padding-right: 9px;
+}
+header svg {
+    max-height: 120px;
+    max-width: 100%;
+}
+.journal-div {
+    padding-bottom:15px;
+}
+.journal-name {
+    font-size: 1.4rem;
+}
+.journal-button-block {
+    margin-top: 4px;
+    margin-bottom: 4px;
 }

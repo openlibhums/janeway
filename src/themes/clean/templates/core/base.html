@@ -1,7 +1,5 @@
 {% load static %}
-{% load i18n %}
-{% load hooks %}
-
+{% load i18n hooks press_url %}
 {% get_current_language as current_language %}
 <!DOCTYPE html>
 <html lang="{{ current_language }}">
@@ -41,21 +39,38 @@
     <header class="site-header" role="banner">
         <div id="journal-title">
             <div class="row">
-                {% if request.journal.header_image %}
-                <div class="col-md-2">
-                    <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}"
-                                                              class="img-fluid header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>
-                </div>
-                {% endif %}
-                {% if journal_settings.styling.display_journal_title %}
-                <div class="col-md-10">
-                    <p class="journal-name">{{ request.journal.name }}</p>
-                </div>
-                {% endif %}
+                {% if request.journal and request.journal.header_image %}
+                    <div class="col-md-2">
+                        <a href="{{ request.journal.site_url }}">
+                            <img src="{{ request.journal.header_image.url }}"
+                                 class="img-fluid header-image top-bar-image"
+                                 alt="{{ request.journal.name }} logo">
+                        </a>
+                    </div>
+
+                    {% if journal_settings.styling.display_journal_title %}
+                    <div class="col-md-10">
+                        <p class="journal-name">{{ request.journal.name }}</p>
+                    </div>
+                    {% endif %}
+            {% elif request.press and not request.journal %}
+                    <div class="col-md-2">
+                        {% if 'svg' in request.press_cover %}
+                            {% svg request.press_cover %}
+                        {% else %}
+                            <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
+                                             alt="{{ request.press.name }} logo">
+                        {% endif %}
+                    </div>
+            {% endif %}
             </div>
 
         </div>
-      {% include "core/nav.html" %}
+        {% if request.journal %}
+            {% include "core/nav.html" %}
+        {% elif request.press %}
+            {% include "press/nav.html" %}
+        {% endif %}
     </header>
     <main id="main">
         {% for message in messages %}

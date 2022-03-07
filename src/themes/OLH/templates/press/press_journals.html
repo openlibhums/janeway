@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
-{% load settings %}
-{% load i18n %}
+{% load settings i18n %}
+{% load static from staticfiles %}
 
 {% block page_title %}{% trans "Journals" %}{% endblock page_title %}
 
@@ -105,21 +105,5 @@
 {% endblock body %}
 
 {% block js %}
-    <script>
-        jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
-            return function( elem ) {
-                return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-            };
-        });
-        var journals = $('.journal-div');
-        $('#filter').keyup(function () {
-            var filter = $("#filter").val();
-            if (filter) {
-                var $found = journals.find('> .box > .row > .large-12 > .content > .row > .title-div > .journal-description-box span:contains("' + filter.toLowerCase() + '")').closest('.journal-div').show();
-                journals.not($found).hide()
-            } else {
-                journals.show();
-            }
-        });
-    </script>
+    <script src="{% static 'common/js/journal_filter.js' %}"></script>
 {% endblock %}
