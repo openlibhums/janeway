@@ -374,7 +374,7 @@ class Article(models.Model):
         max_length=999,
         blank=True,
         null=True,
-        help_text=_('Subtitle of the article display format; Title: Subtitle')
+        help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
     abstract = models.TextField(
         blank=True,
