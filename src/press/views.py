@@ -18,7 +18,6 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
-
 from journal import (
     models as journal_models,
     views as journal_views,
@@ -27,10 +26,13 @@ from journal import (
 from press import models as press_models, forms, decorators
 from security.decorators import press_only
 from submission import models as submission_models
-from utils import install
+from utils import install, logger
 from utils.logic import get_janeway_version
 from repository import views as repository_views, models
 from core.model_utils import merge_models
+
+
+logger = logger.get_logger(__name__)
 
 
 def index(request):
@@ -85,7 +87,8 @@ def sitemap(request):
             return repository_views.repository_sitemap(request)
 
         return files.serve_sitemap_file(['sitemap.xml'])
-    except FileNotFoundError():
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.press.name))
         raise Http404()
 
 
@@ -104,6 +107,7 @@ def robots(request):
                 raise Http404()
         return files.serve_robots_file()
     except FileNotFoundError():
+        logger.warning('Robots file not found.')
         raise Http404()
 
 

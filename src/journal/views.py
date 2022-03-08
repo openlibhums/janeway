@@ -1887,9 +1887,9 @@ def sitemap(request, issue_id=None):
         if path_parts:
             return files.serve_sitemap_file(path_parts)
     except FileNotFoundError:
-        pass  # 404 raised below.
+        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
 
-    return Http404
+    raise Http404()
 
 
 @decorators.frontend_enabled
