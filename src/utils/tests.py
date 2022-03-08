@@ -184,12 +184,13 @@ class UtilsTests(TestCase):
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <url>
-        <loc>http://localhost/TST/article/id/{article_id}/</loc>
+        <loc>{article_url}</loc>
         <lastmod>{date_published}</lastmod>
         <changefreq>monthly</changefreq>
     </url>
     
 </urlset>""".format(
+            article_url=self.article_one.url,
             article_id=self.article_one.pk,
             date_published=self.article_one.date_published.strftime("%Y-%m-%d"),
         )
