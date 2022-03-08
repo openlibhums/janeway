@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import io
+
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
@@ -10,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils import merge_settings, transactional_emails
 from utils.forms import FakeModelForm
+from utils.logic import generate_sitemap
 from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
@@ -21,8 +24,8 @@ class UtilsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        helpers.create_press()
-        helpers.create_journals()
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
         helpers.create_roles(['reviewer', 'editor', 'author'])
 
         update_xsl_files()
@@ -64,6 +67,31 @@ class UtilsTests(TestCase):
             'skip': False,
         }
 
+        # Setup issues for sitemap testing
+        cls.issue_one, created = journal_models.Issue.objects.get_or_create(
+            journal=cls.journal_one,
+            volume='1',
+            issue='1',
+            issue_title='V 1 I 1',
+        )
+        cls.section, create = submission_models.Section.objects.get_or_create(
+            journal=cls.journal_one,
+            name='Test Section',
+        )
+        cls.article_one, created = submission_models.Article.objects.get_or_create(
+            journal=cls.journal_one,
+            owner=cls.author,
+            title='This is a test article',
+            abstract='This is an abstract',
+            stage=submission_models.STAGE_PUBLISHED,
+            section=cls.section,
+            defaults={
+                'date_accepted': timezone.now(),
+                'date_published': timezone.now(),
+            }
+        )
+        cls.issue_one.articles.add(cls.article_one)
+
     def test_send_reviewer_withdrawl_notice(self):
         kwargs = {
             'review_assignment': self.review_assignment,
@@ -101,6 +129,80 @@ class UtilsTests(TestCase):
         transactional_emails.send_article_decision(**kwargs)
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_sitemap_generation(self):
+
+        expected_press_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+    <sitemap>
+        <loc>http://localhost/TST/sitemap.xml</loc>
+    </sitemap>
+    
+    <sitemap>
+        <loc>http://localhost/TSA/sitemap.xml</loc>
+    </sitemap>
+    
+
+    
+</sitemapindex>"""
+
+        file = io.StringIO()
+        generate_sitemap(
+            file=file,
+            press=self.press,
+        )
+        self.assertEqual(
+            expected_press_sitemap,
+            file.getvalue(),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_sitemap_generation(self):
+        expected_journal_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+    <sitemap>
+        <loc>http://localhost/TST/{}_sitemap.xml</loc>
+    </sitemap>
+    
+</sitemapindex>""".format(self.issue_one.pk)
+        file = io.StringIO()
+        generate_sitemap(
+            file=file,
+            journal=self.journal_one,
+        )
+        self.assertEqual(
+            expected_journal_sitemap,
+            file.getvalue(),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_sitemap_generation(self):
+        expected_issue_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+    <url>
+        <loc>http://localhost/TST/article/id/{article_id}/</loc>
+        <lastmod>{date_published}</lastmod>
+        <changefreq>monthly</changefreq>
+    </url>
+    
+</urlset>""".format(
+            article_id=self.article_one.pk,
+            date_published=self.article_one.date_published.strftime("%Y-%m-%d"),
+        )
+        file = io.StringIO()
+        generate_sitemap(
+            file=file,
+            issue=self.issue_one,
+        )
+        self.assertEqual(
+            expected_issue_sitemap,
+            file.getvalue(),
+        )
+
 
 class TestMergeSettings(TestCase):
 
@@ -144,4 +246,3 @@ class TestForms(TestCase):
 
         with self.assertRaises(NotImplementedError):
             form.save()
-
