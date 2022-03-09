@@ -83,6 +83,7 @@ def create_journals():
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'
     update_issue_types(journal_one)
+    update_issue_types(journal_two)
 
     return journal_one, journal_two
 
@@ -290,3 +291,84 @@ class request_context(ContextDecorator):
 
     def __exit__(self, *exc):
         middleware._threadlocal.request = None
+
+
+def create_review_form(journal):
+    from review import models as review_models
+    return review_models.ReviewForm.objects.create(
+        name="A Form",
+        slug="A Slug",
+        intro="i",
+        thanks="t",
+        journal=journal
+    )
+
+def create_review_assignment(
+        journal=None,
+        article=None,
+        reviewer=None,
+        editor=None,
+        due_date=None,
+        review_form=None,
+    ):
+    if not journal:
+        journal, _journal_two = create_journals()
+    if not article:
+        article = create_submission(
+            owner=create_regular_user(),
+            journal_id=journal.pk,
+            stage=sm_models.STAGE_UNDER_REVIEW
+        )
+    if not reviewer:
+        reviewer = create_second_user(journal)
+    if not editor:
+        editor = create_editor(journal)
+    if not due_date:
+        from django.utils import timezone
+        import datetime
+        due_date = timezone.now() + datetime.timedelta(days=3)
+    if not review_form:
+        review_form = create_review_form(journal)
+
+    from review import models as review_models
+    return review_models.ReviewAssignment.objects.create(
+        article=article,
+        reviewer=reviewer,
+        editor=editor,
+        date_due=due_date,
+        form=review_form
+    )
+
+
+def create_reminder(journal=None, reminder_type=None):
+    from cron.models import Reminder
+    if not journal:
+        journal, _journal_two = create_journals()
+    if not reminder_type:
+        reminder_type='review'
+    reminder = Reminder.objects.create(
+        journal=journal,
+        type='review',
+        run_type='before',
+        days=3,
+        template_name='test_reminder_'+reminder_type,
+        subject='Test reminder subject',
+    )
+
+    from utils import setting_handler
+    setting_handler.create_setting(
+        'email',
+        reminder.template_name,
+        'rich-text',
+        reminder.subject,
+        '',
+        is_translatable=True
+    )
+    setting_handler.save_setting(
+        'email',
+        reminder.template_name,
+        journal,
+        'Test body'
+    )
+
+    return reminder
