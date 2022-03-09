@@ -1175,6 +1175,13 @@ def submission_authorised(func):
 
     @base_check_required
     def submission_authorised_wrapper(request, *args, **kwargs):
+        if (
+                request.user.is_staff or
+                (request.journal and request.user in request.journal.editors()) or
+                (request.repository and request.user in request.repository.managers.all())
+        ):
+            return func(request, *args, **kwargs)
+
         if request.repository and request.repository.limit_access_to_submission:
             if not preprint_models.RepositoryRole.objects.filter(
                 repository=request.repository,

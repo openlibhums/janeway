@@ -3575,6 +3575,73 @@ class TestSecurity(TestCase):
             "submission_authorised decorator doesn't allow access to a user with the author repo role when off",
         )
 
+    def test_submission_authorised_staff(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.staff_member,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a staff user.",
+        )
+
+    def test_submission_authorised_repo_manager(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.repo_manager,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a repo manager.",
+        )
+
+    def test_submission_authorised_journal_editor(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.editor,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a journal editor.",
+        )
+
     @override_settings(URL_CONFIG="domain")
     def test_get_author_role(self):
         role = core_models.Role.objects.get(
@@ -3764,6 +3831,10 @@ class TestSecurity(TestCase):
         self.staff_member.is_active = True
         self.staff_member.is_staff = True
         self.staff_member.save()
+
+        self.repo_manager = self.create_user("repomanager@janeway.systems")
+        self.repo_manager.is_active = True
+        self.repo_manager.save()
 
         self.public_file = core_models.File(mime_type="A/FILE",
                                             original_filename="blah.txt",
@@ -4021,7 +4092,7 @@ class TestSecurity(TestCase):
 
         self.repository, self.repository_subject = create_repository(
             self.press,
-            [self.admin_user, self.editor],
+            [self.admin_user, self.editor, self.repo_manager],
             [self.proofing_manager],
         )
         self.preprint = create_preprint(
