@@ -253,13 +253,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def use_crossref(self):
-        try:
-            return setting_handler.get_setting('Identifiers',
-                                               'crossref_prefix',
-                                               self,
-                                               default=True).processed_value
-        except IndexError:
-            return False
+        return setting_handler.get_setting('Identifiers', 'use_crossref', self, default=True).processed_value
 
     @issn.setter
     def issn(self, value):

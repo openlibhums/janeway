@@ -1290,6 +1290,10 @@ class Article(models.Model):
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
 
+    @property
+    def registration_preview(self):
+        return id_logic.preview_registration_information(self)
+
     def close_core_workflow_objects(self):
         from review import models as review_models
         from copyediting import models as copyedit_models

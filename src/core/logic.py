@@ -353,6 +353,10 @@ def get_settings_to_edit(display_group, journal):
                 'name': 'hide_review_metadata_from_authors',
                 'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
             },
+            {
+                'name': 'accept_article_warning',
+                'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
+            },
         ]
         setting_group = 'general'
 
@@ -855,26 +859,34 @@ def get_homepage_elements(request):
 
     return homepage_elements, homepage_element_names
 
+
 def render_nested_setting(
         setting_name,
         setting_group,
-        nested_settings,
-        request
+        request,
+        article=None,
+        nested_settings=None,
     ):
 
     setting = setting_handler.get_setting(
         setting_group,
         setting_name,
         request.journal,
-    ).value
+    ).processed_value
 
     setting_context = {}
+
+    if article:
+        setting_context['article'] = article
+
+    if not nested_settings:
+        nested_settings=[]
     for name, group in nested_settings:
         setting_context[name] = setting_handler.get_setting(
             group,
             name,
             request.journal
-        ).value
+        ).processed_value
 
     rendered_string = render_template.get_message_content(
         request,

@@ -159,3 +159,29 @@ def get_log_entries(object):
         content_type=content_type,
         object_id=object.pk,
     )
+
+
+def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
+    """
+    Takes any ISO 8601 compliant date or datetime string
+    and returns an aware datetime object.
+    If no time information passed,
+    noon UTC is assumed.
+    """
+
+    import re
+    from dateutil import parser as dateparser
+    from django.utils.timezone import is_aware, make_aware
+
+    if use_noon_if_no_time and re.fullmatch(
+        '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        unparsed_string
+    ):
+        unparsed_string += ' 12:00'
+
+    parsed_datetime = dateparser.parse(unparsed_string)
+
+    if is_aware(parsed_datetime):
+        return parsed_datetime
+    else:
+        return make_aware(parsed_datetime)

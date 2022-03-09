@@ -18,7 +18,23 @@
                 <h2>Article Decision</h2>
             </div>
             <div class="content">
-                <p>Are you sure you want to {{ decision }} {{ article.title }}? You can provide some information to the Authors below: </p>
+                <p>Are you sure you want to {{ decision }} {{ article.title }}?</p>
+                {% if decision == 'accept' %}
+                    {% if article.journal.use_crossref %}
+                        <div class="bs-callout">
+                        <p>This journal is set to use Crossref for DOI registration. Article metadata is sent upon acceptance and resent upon publication.</p>
+                        </div>
+                    {% else %}
+                        <div class="bs-callout bs-callout-danger">
+                        <p>Note: DOI registration is not configured.</p>
+                        </div>
+                    {% endif %}
+                    {% if accept_article_warning %}
+                        <div class="bs-callout">
+                        {{ accept_article_warning|safe }}
+                        </div>
+                    {% endif %}
+                {% endif %}
                 {% if article.hidden_completed_reviews %}
                     <div class="bs-callout bs-callout-danger">
                         <p>{% trans 'Note: This article has completed reviews that have not been made available to the author:' %}</p>
@@ -30,6 +46,7 @@
                     </div>
                     <br />
                 {% endif %}
+                <p>You can provide some information to the authors below:</p>
                 <form method="POST">
                     {% csrf_token %}
                     <div class="card">
