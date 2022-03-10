@@ -29,7 +29,23 @@ def add_user_as_author(user, article, give_role=True):
     :param give_role: If true, the user is given the author role in the journal
     """
     if give_role:
-        user.add_account_role("author", article.journal)
+        submission_requires_authorisation = article.journal.get_setting(
+            group_name='general',
+            setting_name='limit_access_to_submission',
+        )
+        if submission_requires_authorisation and not user.check_role(article.journal, 'author'):
+            role = core_models.Role.objects.get(
+                slug='author',
+            )
+            core_models.AccessRequest.objects.get_or_create(
+                journal=article.journal,
+                user=user,
+                role=role,
+                text='Automatic request as author added to an article.',
+            )
+        else:
+            user.add_account_role("author", article.journal)
+
     article.authors.add(user)
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
