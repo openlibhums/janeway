@@ -21,42 +21,97 @@ import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
+from submission import models as submission_models
 
 logger = get_logger(__name__)
 
 
 def register_crossref_doi(identifier):
-    from utils import setting_handler
-
     domain = identifier.article.journal.domain
+    journal = identifier.article.journal
+
+    # Remove this
     pingback_url = urlencode({'pingback': 'http://{0}{1}'.format(domain, reverse('crossref_pingback'))})
 
-    use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
-                                               identifier.article.journal).processed_value
+    use_crossref, test_mode = check_crossref_settings(journal)
+    add_doi_logs(test_mode, [identifier.article])
 
-    if not use_crossref:
-        logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+    if use_crossref:
+        return send_crossref_deposit(test_mode, [identifier])
+    else:
         return 'Crossref Disabled', 'Disabled'
 
+
+def check_crossref_settings(journal):
+    use_crossref = setting_handler.get_setting(
+        'Identifiers',
+        'use_crossref',
+        article.journal
+    ).processed_value
+
+    if not use_crossref:
+        logger.info("[DOI] Not using Crossref DOIs on this journal. " \
+                    "Aborting registration.")
+
     test_mode = setting_handler.get_setting(
-            'Identifiers', 'crossref_test', identifier.article.journal
+        'Identifiers',
+        'crossref_test',
+        article.journal
     ).processed_value or settings.DEBUG
 
-    if test_mode:
-        util_models.LogEntry.add_entry('Submission', "DOI registration running in test mode", 'Info',
-                                       target=identifier.article)
-    else:
-        util_models.LogEntry.add_entry('Submission', "DOI registration running in live mode", 'Info',
-                                       target=identifier.article)
+    return use_crossref, test_mode
 
-    return send_crossref_deposit(test_mode, identifier)
+
+def add_doi_logs(test_mode, articles):
+    for article in articles:
+        if test_mode:
+            util_models.LogEntry.add_entry(
+                'Submission',
+                "DOI registration running in test mode",
+                'Info',
+                target=article
+            )
+        else:
+            util_models.LogEntry.add_entry(
+                'Submission',
+                "DOI registration running in live mode",
+                'Info',
+                target=article
+            )
+
+
+def register_batch_of_crossref_dois(articles):
+    journals = set([article.journal for article in articles])
+    if len(journals) > 1:
+        logger.debug('Articles must all be from the same journal')
+        return
+    else:
+        journal = journals[0]
+
+    use_crossref, test_mode = check_crossref_settings(journal)
+    add_doi_logs(test_mode, articles)
+
+    if use_crossref:
+
+        identifiers = []
+        for article in articles:
+            try:
+                identifier = article.get_identifier('doi', object=True)
+                if not identifier:
+                    identifier = identifier_logic.generate_crossref_doi_with_pattern(article)
+                identifiers.append(identifier)
+            except AttributeError as e:
+                logger.debug(f'Error with article {article.pk}: {e}')
+
+        return send_crossref_deposit(test_mode, identifiers, journal)
+    else:
+        return 'Crossref Disabled', 'Disabled'
 
 
 def register_crossref_component(article, xml, supp_file):
-    from utils import setting_handler
-
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
                                                article.journal).processed_value
 
@@ -102,13 +157,69 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=article)
 
 
-def create_crossref_context(article, identifier=None):
-    timestamp_suffix = article.journal.get_setting(
+def create_crossref_doi_batch_context(journal, identifiers):
+    timestamp_suffix = journal.get_setting(
         'crossref',
         'crossref_date_suffix',
     )
 
-    from utils import setting_handler
+    if is_conference:
+        pass
+    else:
+
+        crossref_issues = []
+
+        # First pull out and handle any articles with ISSN overrides
+        # Also any with custom publication titles
+        for identifier in identifiers:
+            if identifier.article.ISSN_override:
+                print("Oh no")
+            if identifier.article.publication_title:
+                print("Oh no")
+
+        for issue in set([identifier.article.issue for identifier in identifiers]):
+            crossref_issue = {}
+            crossref_issue['journal'] = create_crossref_journal_context(journal)
+            crossref_issue['issue'] = issue
+
+            crossref_issue['articles'] = []
+            for identifier in identifiers:
+                article = identifier.article
+                if article.issue == issue:
+                    article_context = create_crossref_article_context(article, identifier)
+                    crossref_issue['articles'].append(article_context)
+
+        crossref_issues.append(crossref_issue)
+
+    template_context = {
+        'batch_id': uuid4(),
+        'now': timezone.now(),
+        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
+        'timestamp_suffix': timestamp_suffix,
+        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
+                                                      journal).processed_value,
+        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
+                                                       journal).processed_value,
+        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
+                                                  journal).processed_value,
+        'is_conference': journal.is_conference,
+        'crossref_issues': crossref_issues,
+    }
+
+    return template_context
+
+
+def create_crossref_journal_context(journal):
+    return {
+        'journal_title': (
+            article.publication_title
+            or article.journal.name
+        ),
+        'journal_issn': journal.issn,
+        'print_issn': journal.print_issn or '',
+    }
+
+def create_crossref_article_context(article, identifier=None):
     template_context = {
         'article_title': '{0}{1}{2}'.format(
             article.title,
@@ -122,23 +233,6 @@ def create_crossref_context(article, identifier=None):
         'date_published': article.date_published,
         'license': article.license.url if article.license else '',
         'pages': article.page_numbers,
-        'issue': article.issue,
-        'journal_title': (
-            article.publication_title
-            or article.journal.name
-        ),
-        'journal_issn': article.journal.issn,
-        'print_issn': article.journal.print_issn or '',
-        'batch_id': uuid4(),
-        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-        'now': timezone.now(),
-        'timestamp_suffix': timestamp_suffix,
-        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                      article.journal).processed_value,
-        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                       article.journal).processed_value,
-        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                  article.journal).processed_value,
     }
 
     # append citations for i4oc compatibility
@@ -193,25 +287,25 @@ def extract_citations_for_crossref(article):
     return citations
 
 
-def get_crossref_template(item):
-    if item.journal.is_conference:
-        return 'common/identifiers/crossref_conference.xml'
-    else:
-        return 'common/identifiers/crossref_article.xml'
-
-
-def send_crossref_deposit(test_mode, identifier):
+def send_crossref_deposit(test_mode, identifiers, journal=None):
     # todo: work out whether this is acceptance or publication
     # if it's acceptance, then we use "0" for volume and issue
     # if publication, then use real values
     # the code here is for acceptance
 
-    from utils import setting_handler
-    article = identifier.article
+    # Backwards compatibility
+    if isinstance(identifiers, models.Identifier):
+        identifiers = [identifiers]
+    if not journal:
+        journal = identifiers[0].article.journal
+
     error = False
 
-    template = get_crossref_template(article)
-    template_context = create_crossref_context(article, identifier)
+    template_context = create_crossref_doi_batch_context(journal, identifiers)
+
+    for identifier in identifiers:
+        article = identifier.article
+        template_context = create_crossref_context(article, identifier)
     rendered = render_to_string(template, template_context)
 
     logger.debug(rendered)
@@ -280,8 +374,6 @@ def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi
     :return:
     """
 
-    from utils import setting_handler
-
     if doi_suffix is None:
         doi_suffix = article.id
 
@@ -309,8 +401,6 @@ def generate_crossref_doi_with_pattern(article):
     :return: returns a DOI
     """
 
-    from utils import setting_handler, render_template
-
     doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal).value
     doi_suffix = render_template.get_requestless_content({'article': article},
                                                          article.journal,
@@ -330,8 +420,6 @@ def generate_crossref_doi_with_pattern(article):
 
 @cache(600)
 def render_doi_from_pattern(article):
-    from utils import setting_handler, render_template
-
     doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal).value
     doi_suffix = render_template.get_requestless_content({'article': article},
                                                          article.journal,
