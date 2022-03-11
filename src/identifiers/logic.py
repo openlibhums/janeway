@@ -163,34 +163,6 @@ def create_crossref_doi_batch_context(journal, identifiers):
         'crossref_date_suffix',
     )
 
-    if is_conference:
-        pass
-    else:
-
-        crossref_issues = []
-
-        # First pull out and handle any articles with ISSN overrides
-        # Also any with custom publication titles
-        for identifier in identifiers:
-            if identifier.article.ISSN_override:
-                print("Oh no")
-            if identifier.article.publication_title:
-                print("Oh no")
-
-        for issue in set([identifier.article.issue for identifier in identifiers]):
-            crossref_issue = {}
-            crossref_issue['journal'] = create_crossref_journal_context(journal)
-            crossref_issue['issue'] = issue
-
-            crossref_issue['articles'] = []
-            for identifier in identifiers:
-                article = identifier.article
-                if article.issue == issue:
-                    article_context = create_crossref_article_context(article, identifier)
-                    crossref_issue['articles'].append(article_context)
-
-        crossref_issues.append(crossref_issue)
-
     template_context = {
         'batch_id': uuid4(),
         'now': timezone.now(),
@@ -203,19 +175,85 @@ def create_crossref_doi_batch_context(journal, identifiers):
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   journal).processed_value,
         'is_conference': journal.is_conference,
-        'crossref_issues': crossref_issues,
     }
 
+    # Conference
+    if journal.is_conference:
+        return
+
+
+    # Not a conference, a journal
+    template_context['crossref_issues'] = create_crossref_issues_context(journal, identifiers)
     return template_context
 
 
-def create_crossref_journal_context(journal):
+def create_crossref_issues_context(journal, identifiers):
+    crossref_issues = []
+
+    # First pull out and handle individually any articles with
+    # ISSN overrides or custom publication_titles
+    identifiers_covered = set()
+    for identifier in identifiers:
+        article = identifier.article
+        if article.ISSN_override or article.publication_title:
+            special_identifier_set = set([identifier])
+            identifiers_covered.add(identifier)
+            issue = article.issue
+            crossref_issue = create_crossref_issue_context(
+                journal,
+                special_identifier_set,
+                issue,
+                ISSN_override=article.ISSN_override,
+                publication_title=article.publication_title,
+            )
+            crossref_issues.append(crossref_issue)
+    identifiers -= identifiers_covered
+
+    # Then handle the rest
+    for issue in set([identifier.article.issue for identifier in identifiers]):
+        crossref_issue = create_crossref_issue_context(
+            journal,
+            identifiers,
+            issue,
+        )
+        crossref_issues.append(crossref_issue)
+
+    return crossref_issues
+
+
+def create_crossref_issue_context(
+    journal,
+    identifiers,
+    issue,
+    ISSN_override=None,
+    publication_title=None,
+):
+    crossref_issue = {}
+    crossref_issue['journal'] = create_crossref_journal_context(
+        journal,
+        ISSN_override,
+        publication_title,
+    )
+    crossref_issue['issue'] = issue
+
+    crossref_issue['articles'] = []
+    for identifier in identifiers:
+        article = identifier.article
+        if article.issue == issue:
+            article_context = create_crossref_article_context(article, identifier)
+            crossref_issue['articles'].append(article_context)
+
+    return crossref_issue
+
+
+def create_crossref_journal_context(
+    journal,
+    ISSN_override=None,
+    publication_title=None
+):
     return {
-        'journal_title': (
-            article.publication_title
-            or article.journal.name
-        ),
-        'journal_issn': journal.issn,
+        'journal_title': publication_title or journal.name,
+        'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn or '',
     }
 
@@ -301,11 +339,8 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     error = False
 
+    template = 'common/identifiers/crossref_doi_batch_context.xml'
     template_context = create_crossref_doi_batch_context(journal, identifiers)
-
-    for identifier in identifiers:
-        article = identifier.article
-        template_context = create_crossref_context(article, identifier)
     rendered = render_to_string(template, template_context)
 
     logger.debug(rendered)
@@ -441,7 +476,7 @@ def preview_registration_information(article):
             doi = identifier_models.Identifier.objects.get(id_type='doi', article=article)
         except identifier_models.Identifier.DoesNotExist:
             doi = None
-        crossref_context = create_crossref_context(article, doi)
+        crossref_context = create_crossref_article_context(article, doi)
 
         exclude = ['batch_id', 'timestamp', 'depositor_email', 'registrant',
                    'now', 'timestamp_suffix', 'print_issn', 'citation_list']

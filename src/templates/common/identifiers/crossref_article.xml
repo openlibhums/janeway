@@ -2,11 +2,11 @@
 
 <journal_article publication_type="full_text">
     <titles>
-        <title>{{ article_title }}</title>
+        <title>{{ article.article_title }}</title>
     </titles>
-    {% if authors %}
+    {% if article.authors %}
     <contributors>
-      {% for author in authors %}
+      {% for author in article.authors %}
         {% if author.is_corporate %}
         <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
             {{ author.corporate_name }}
@@ -26,40 +26,46 @@
       {% endfor %}
     </contributors>
     {% endif %}
-    {% if abstract %}
-    <jats:abstract><jats:p>{{ abstract }}</jats:p></jats:abstract>
+    {% if article.abstract %}
+    <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
     {% endif %}
     <publication_date media_type="online">
-        <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
-        <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
-        <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
+    {% if article.date_published %}
+        <month>{{ article.date_published.month }}</month>
+        <day>{{ article.date_published.day }}</day>
+        <year>{{ article.date_published.year }}</year>
+    {% else %}
+        <month>{{ article.now.month }}</month>
+        <day>{{ article.now.day }}</day>
+        <year>{{ article.now.year }}</year>
+    {% endif %}
     </publication_date>
-    {% if date_accepted %}
+    {% if article.date_accepted %}
     <acceptance_date media_type="online">
-        <month>{{ date_accepted.month }}</month>
-        <day>{{ date_accepted.day }}</day>
-        <year>{{ date_accepted.year }}</year>
+        <month>{{ article.date_accepted.month }}</month>
+        <day>{{ article.date_accepted.day }}</day>
+        <year>{{ article.date_accepted.year }}</year>
     </acceptance_date>
     {% endif %}
-    {% if license %}
+    {% if article.license %}
     <ai:program name="AccessIndicators">
-        <ai:license_ref>{{ license }}</ai:license_ref>
+        <ai:license_ref>{{ article.license }}</ai:license_ref>
     </ai:program>
     {% endif %}
     <doi_data>
-        <doi>{{ doi }}</doi>
-        <resource>{{ article_url }}</resource>
+        <doi>{{ article.doi }}</doi>
+        <resource>{{ article.article_url }}</resource>
         <collection property="crawler-based">
             <item crawler="iParadigms">
-                {% if pdf_url %}
-                    <resource>{{ pdf_url }}</resource>
+                {% if article.pdf_url %}
+                    <resource>{{ article.pdf_url }}</resource>
                 {% else %}
-                    <resource>{{ article_url }}</resource>
+                    <resource>{{ article.article_url }}</resource>
                 {% endif %}
             </item>
         </collection>
     </doi_data>
-    {% if citation_list %}
-        {{ citation_list|safe }}
+    {% if article.citation_list %}
+        {{ article.citation_list|safe }}
     {% endif %}
 </journal_article>

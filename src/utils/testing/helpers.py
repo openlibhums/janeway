@@ -167,7 +167,7 @@ def create_section(journal):
     )
     return section
 
-def create_issue(journal):
+def create_issue(journal, volume=None, issue_number=None):
 
     issue_type, created = journal_models.IssueType.objects.get_or_create(
         code="issue",
@@ -176,8 +176,8 @@ def create_issue(journal):
     issue_datetime = get_aware_datetime('2022-01-01')
     issue, created = journal_models.Issue.objects.get_or_create(
         journal=journal,
-        volume=5,
-        issue=3,
+        volume=volume or 5,
+        issue=issue_number or 3,
         defaults={
             'issue_title': ('Test Issue from Utils Testing Helpers'),
             'issue_type': issue_type,
