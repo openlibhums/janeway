@@ -473,8 +473,7 @@ def preview_registration_information(article):
             doi = None
         crossref_context = create_crossref_article_context(article, doi)
 
-        exclude = ['batch_id', 'timestamp', 'depositor_email', 'registrant',
-                   'now', 'timestamp_suffix', 'print_issn', 'citation_list']
+        exclude = ['citation_list']
         for k in exclude:
             crossref_context.pop(k)
 
