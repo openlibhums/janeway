@@ -52,7 +52,12 @@ class TestLogic(TestCase):
         cls.article_two.save()
 
         cls.article_three = helpers.create_article(cls.journal_one)
-        cls.doi_three = logic.generate_crossref_doi_with_pattern(cls.article_three)
+        doi_options = {
+            'id_type': 'doi',
+            'identifier': '10.1234/custom',
+            'article': cls.article_three,
+        }
+        cls.doi_three = models.Identifier.objects.create(**doi_options)
         cls.issue_six_one.articles.add(cls.article_three)
         cls.article_three.primary_issue = cls.issue_six_one
         cls.article_three.save()
@@ -203,11 +208,4 @@ class TestLogic(TestCase):
 
     def test_preview_registration_information_when_custom_doi(self):
         clear_cache()
-        save_setting('Identifiers', 'use_crossref', self.journal_one, True)
-        doi_options = {
-            'id_type': 'doi',
-            'identifier': 'https://doi.org/10.1234/custom',
-            'article': self.article_one,
-        }
-        doi = models.Identifier.objects.create(**doi_options)
-        self.assertTrue(doi_options['identifier'] in self.article_one.registration_preview)
+        self.assertTrue(self.doi_three.identifier in self.article_three.registration_preview)
