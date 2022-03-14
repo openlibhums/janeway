@@ -202,11 +202,8 @@ class Journal(AbstractSiteModel):
     display_article_number = models.BooleanField(
         default=False,
         help_text=ugettext(
-            "Some journals give each article in a volume its own number rather than " \
-            "subdividing the volume into issues. If you display article numbers, it is " \
-            "recommended to turn off display of issue numbers. " \
-            "Note that article number is an optional field separate from article ID and can " \
-            "be set in Edit Metadata.",
+            "Whether to display article numbers. Article numbers are distinct " \
+            "from article ID and can be set in Edit Metadata.",
         )
     )
     display_article_page_numbers = models.BooleanField(default=True)
@@ -606,10 +603,13 @@ class Issue(models.Model):
             if article.page_range:
                 page_numbers = article.page_range
             elif article.total_pages:
-                if article.total_pages > 1:
-                    page_numbers = str(self.total_pages) + ugettext('pages')
+                if article.total_pages != 1:
+                    label = ugettext('pages')
                 else:
-                    page_numbers = str(self.total_pages) + ugettext('page')
+                    label = ugettext('page')
+                num_pages = str(article.total_pages)
+                page_numbers = f'{num_pages} {label}'
+
         return [volume, issue, year, issue_title, article_number, page_numbers]
 
     @property

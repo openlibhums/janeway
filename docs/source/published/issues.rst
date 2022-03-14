@@ -40,7 +40,7 @@ Here are a few example issue displays:
     If you want to display a totally custom issue title, disable everything except issue title, and use that field to form the issue display for each issue.
 
 .. tip::
-    Some journals give each article in a volume its own number rather than subdividing the volume into issues. If you display article numbers, it is recommended to turn off display of issue numbers. Note that article number is an optional field separate from article ID and can be set in Edit Metadata.
+    You can use the article number field to set an arbitrary number for each article, whether to distinguish articles within each volume or issue or to number articles across volumes and issues. Article number is an optional field separate from article ID and can be set in Edit Metadata.
 
 Creating and Editing Issue Details
 ----------------------------------

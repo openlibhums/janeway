@@ -423,14 +423,24 @@ class SubmissionTests(TestCase):
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test article: A test of page numbers",
-            first_page=3, # This should be overridden in issue_title by article.page_numbers
-            last_page=5, # This should be overridden too
-            page_numbers='x–ix',
+            first_page=3,
+            last_page=5,
             primary_issue=issue,
         )
 
-        article.primary_issue = issue
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; 3&ndash;5'
+        self.assertEqual(expected_article_issue_title, article.issue_title)
+
+        article.page_numbers='x–ix'
         expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
                                        '2025 &bull; Fall 2025 &bull; x–ix'
+        self.assertEqual(expected_article_issue_title, article.issue_title)
 
+        article.first_page = None
+        article.last_page = None
+        article.page_numbers = None
+        article.total_pages = 1
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)

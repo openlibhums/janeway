@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='display_article_number',
-            field=models.BooleanField(default=False, help_text='Some journals give each article in a volume its own number rather than subdividing the volume into issues. If you display article numbers, it is recommended to turn off display of issue numbers. Note that article number is an optional field separate from article ID and can be set in Edit Metadata.'),
+            field=models.BooleanField(default=False, help_text='Whether to display article numbers. Article numbers are distinct from article ID and can be set in Edit Metadata.'),
         ),
         migrations.AddField(
             model_name='journal',
