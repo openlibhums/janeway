@@ -38,7 +38,7 @@ class JournalForm(forms.ModelForm):
         }
 
 
-class ContactForm(CaptchaForm):
+class ContactForm(forms.ModelForm, CaptchaForm):
 
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop('subject', None)

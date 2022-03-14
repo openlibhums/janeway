@@ -4,13 +4,14 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from dateutil import parser as dateparser
 from mock import Mock
+import os
 
 from django.http import Http404
 from django.test import TestCase
 from django.utils import translation
+from django.conf import settings
 
 from core.models import Account
-from identifiers import logic as id_logic
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -25,7 +26,13 @@ from utils.install import update_xsl_files, update_settings
 
 # Create your tests here.
 class SubmissionTests(TestCase):
-    fixtures = ["src/utils/install/roles.json"]
+    roles_path = os.path.join(
+        settings.BASE_DIR,
+        'utils',
+        'install',
+        'roles.json'
+    )
+    fixtures = [roles_path]
 
     def test_new_journals_has_submission_configuration(self):
         if not self.journal_one.submissionconfiguration:
