@@ -419,12 +419,9 @@ class SubmissionTests(TestCase):
             vol=5,
             number=4,
         )
-
-        date_time_str = '2025-11-01 12:00:00'
-        date_time = dateparser.parse(date_time_str)
-        from django.utils.timezone import make_aware
-        issue.date = make_aware(date_time)
         issue.issue_title = 'Fall 2025'
+        from utils.logic import get_aware_datetime
+        issue.date = get_aware_datetime('2025-10-01')
         issue.save()
 
         article = models.Article.objects.create(
@@ -440,6 +437,7 @@ class SubmissionTests(TestCase):
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
         article.page_numbers='x–ix'
+        article.save()
         expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
                                        '2025 &bull; Fall 2025 &bull; x–ix'
         self.assertEqual(expected_article_issue_title, article.issue_title)
@@ -448,6 +446,7 @@ class SubmissionTests(TestCase):
         article.last_page = None
         article.page_numbers = None
         article.total_pages = 1
+        article.save()
         expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
                                        '2025 &bull; Fall 2025 &bull; 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
