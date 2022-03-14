@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='article',
             name='article_number',
-            field=models.PositiveIntegerField(blank=True, help_text="Optional article number to be rendered in 'how to cite'", null=True),
+            field=models.PositiveIntegerField(blank=True, help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID.", null=True),
         ),
         migrations.AddField(
             model_name='article',

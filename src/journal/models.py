@@ -199,6 +199,14 @@ class Journal(AbstractSiteModel):
     display_issue_number = models.BooleanField(default=True)
     display_issue_year = models.BooleanField(default=True)
     display_issue_title = models.BooleanField(default=True)
+    display_article_number = models.BooleanField(
+        default=False,
+        help_text=ugettext(
+            "Whether to display article numbers. Article numbers are distinct " \
+            "from article ID and can be set in Edit Metadata.",
+        )
+    )
+    display_article_page_numbers = models.BooleanField(default=True)
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -580,20 +588,12 @@ class Issue(models.Model):
     def display_title(self):
         if self.issue_type.code != 'issue':
             return self.issue_title
+        else:
+            return self.pretty_issue_identifier
 
+    def issue_title_parts(self, article=None):
         journal = self.journal
-        issue_identifier = self.pretty_issue_identifier
-
-        title = "{}".format(
-            self.issue_title) if journal.display_issue_title else ""
-
-        title_list = [issue_identifier, title]
-
-        return mark_safe(" &bull; ".join((filter(None, title_list))))
-
-    def issue_title_parts(self):
-        journal = self.journal
-        volume = issue = year = ''
+        volume = issue = year = issue_title = article_number = page_numbers = ''
 
         if journal.display_issue_volume and self.volume:
             volume = ugettext("Volume") + " {}".format(self.volume)
@@ -601,8 +601,22 @@ class Issue(models.Model):
             issue = ugettext("Issue") + " {}".format(self.issue)
         if journal.display_issue_year and self.date:
             year = "{}".format(self.date.year)
+        if journal.display_issue_title:
+            issue_title = self.issue_title
+        if journal.display_article_number and article and article.article_number:
+            article_number = ugettext("Article") + " {}".format(article.article_number)
+        if journal.display_article_page_numbers and article:
+            if article.page_range:
+                page_numbers = article.page_range
+            elif article.total_pages:
+                if article.total_pages != 1:
+                    label = ugettext('pages')
+                else:
+                    label = ugettext('page')
+                num_pages = str(article.total_pages)
+                page_numbers = f'{num_pages} {label}'
 
-        return [volume, issue, year]
+        return [volume, issue, year, issue_title, article_number, page_numbers]
 
     @property
     def pretty_issue_identifier(self):
@@ -611,7 +625,6 @@ class Issue(models.Model):
     @property
     def non_pretty_issue_identifier(self):
         return " ".join((filter(None, self.issue_title_parts())))
-
 
     @property
     def manage_issue_list(self):

@@ -420,7 +420,7 @@ class Article(models.Model):
 
     article_number = models.PositiveIntegerField(
         blank=True, null=True,
-        help_text="Optional article number to be rendered in 'how to cite'"
+        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID."
     )
 
     # Files
@@ -602,7 +602,7 @@ class Article(models.Model):
         if self.page_numbers:
             return self.page_numbers
         if self.first_page and self.last_page:
-            return "{}-{}".format(self.first_page, self.last_page)
+            return mark_safe("{}&ndash;{}".format(self.first_page, self.last_page))
         return self.first_page
 
     @property
@@ -1011,6 +1011,15 @@ class Article(models.Model):
             return None
 
         return issues
+
+    @property
+    def issue_title(self):
+        if self.issue.issue_type.code != 'issue':
+            return self.issue.issue_title
+        else:
+            return mark_safe(" &bull; ".join(
+                (filter(None, self.issue.issue_title_parts(article=self))))
+            )
 
     def author_list(self):
         if self.is_accepted():

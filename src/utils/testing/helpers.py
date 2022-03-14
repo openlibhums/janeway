@@ -93,11 +93,20 @@ def create_press():
     return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
 
 def create_issue(journal, vol=0, number=0, articles=None):
-    issue = journal_models.Issue.objects.create(
+    issue_type, created = journal_models.IssueType.objects.get_or_create(
+        code="issue",
+        journal=journal,
+    )
+    issue_datetime = get_aware_datetime('2022-01-01')
+    issue, created = journal_models.Issue.objects.get_or_create(
         journal=journal,
         issue=number,
         volume=vol,
-        issue_type=journal_models.IssueType.objects.get(code="issue"),
+        defaults={
+            'issue_title': ('Test Issue from Utils Testing Helpers'),
+            'issue_type': issue_type,
+            'date': issue_datetime,
+        },
     )
     if articles:
         issue.articles.add(*articles)
@@ -166,26 +175,6 @@ def create_section(journal):
         plural='Articles'
     )
     return section
-
-def create_issue(journal):
-
-    issue_type, created = journal_models.IssueType.objects.get_or_create(
-        code="issue",
-        journal=journal,
-    )
-    issue_datetime = get_aware_datetime('2022-01-01')
-    issue, created = journal_models.Issue.objects.get_or_create(
-        journal=journal,
-        volume=5,
-        issue=3,
-        defaults={
-            'issue_title': ('Test Issue from Utils Testing Helpers'),
-            'issue_type': issue_type,
-            'date': issue_datetime,
-        }
-    )
-    return issue
-
 
 def create_submission(
     owner=None,

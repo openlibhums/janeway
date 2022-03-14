@@ -21,17 +21,26 @@ Display Settings
 ----------------
 In the top right of the Issue Management page there is the Edit Display Settings button. This allows you to configure how issue titles are displayed.
 
-- Volume
-- Issue Number
-- Year
-- Custom Title
+You can turn these elements on or off:
 
-These will display in the front end in this order eg. `Volume 1 Issue 1 2019 - A Custom Issue Title`.
+- Volume number
+- Issue number
+- Issue year
+- Issue title
+- Article number
+- Article page numbers
 
-If you disable issue number display it will display as: Volume 1 2019 - A Custom Issue Title.
+Here are a few example issue displays:
+
+- Volume 6 • Issue 3 • Fall 2015 • 5–17
+- Winter 2009 • 19 pages
+- Volume 35 • 2021 • Number 49
 
 .. tip::
-    If you want to display a totally custom issue title disable volume, sssue number and year and then insert whatever format you'd like the titles to be into the title field of the issue.
+    If you want to display a totally custom issue title, disable everything except issue title, and use that field to form the issue display for each issue.
+
+.. tip::
+    You can use the article number field to set an arbitrary number for each article, whether to distinguish articles within each volume or issue or to number articles across volumes and issues. Article number is an optional field separate from article ID and can be set in Edit Metadata.
 
 Creating and Editing Issue Details
 ----------------------------------

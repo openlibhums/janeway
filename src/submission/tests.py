@@ -21,7 +21,7 @@ from submission import (
     models,
 )
 
-from utils.install import update_xsl_files, update_settings
+from utils.install import update_xsl_files, update_settings, update_issue_types
 
 
 # Create your tests here.
@@ -49,6 +49,7 @@ class SubmissionTests(TestCase):
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.title = "Test Journal: A journal of tests"
         journal_one.save()
+        update_issue_types(journal_one)
 
         return journal_one
 
@@ -410,6 +411,46 @@ class SubmissionTests(TestCase):
             )
             form = forms.ArticleInfoSubmit(instance=article)
             self.assertTrue(section not in form.fields["section"].queryset)
+
+    def test_article_issue_title(self):
+        from utils.testing import helpers
+        issue = helpers.create_issue(
+            self.journal_one,
+            vol=5,
+            number=4,
+        )
+        issue.issue_title = 'Fall 2025'
+        from utils.logic import get_aware_datetime
+        issue.date = get_aware_datetime('2025-10-01')
+        issue.save()
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: A test of page numbers",
+            first_page=3,
+            last_page=5,
+            primary_issue=issue,
+        )
+
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; 3&ndash;5'
+        self.assertEqual(expected_article_issue_title, article.issue_title)
+
+        article.page_numbers='x–ix'
+        article.save()
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; x–ix'
+        self.assertEqual(expected_article_issue_title, article.issue_title)
+
+        article.first_page = None
+        article.last_page = None
+        article.page_numbers = None
+        article.total_pages = 1
+        article.save()
+        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
+                                       '2025 &bull; Fall 2025 &bull; 1 page'
+        self.assertEqual(expected_article_issue_title, article.issue_title)
+
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod
