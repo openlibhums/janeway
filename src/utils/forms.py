@@ -1,7 +1,12 @@
-from django.forms import CharField, ModelForm, DateInput
+from django.forms import CharField, ModelForm, DateInput, HiddenInput, Form
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 from modeltranslation import forms as mt_forms, translator
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from simplemathcaptcha.fields import MathCaptchaField
+from hcaptcha.fields import hCaptchaField
 
 from submission import models as submission_models
 
@@ -73,3 +78,23 @@ class HTMLDateInput(DateInput):
     def __init__(self, **kwargs):
         kwargs["format"] = "%Y-%m-%d"
         super().__init__(**kwargs)
+
+
+class CaptchaForm(Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Used by simple math captcha
+        self.question_template = None
+
+        if settings.CAPTCHA_TYPE == 'simple_math':
+            self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+            captcha = MathCaptchaField(label=_('Answer this question: '))
+        elif settings.CAPTCHA_TYPE == 'recaptcha':
+            captcha = ReCaptchaField(widget=ReCaptchaWidget())
+        elif settings.CAPTCHA_TYPE == 'hcaptcha':
+            captcha = hCaptchaField()
+        else:
+            captcha = CharField(widget=HiddenInput, required=False)
+
+        self.fields["captcha"] = captcha
