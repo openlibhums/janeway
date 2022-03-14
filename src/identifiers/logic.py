@@ -424,9 +424,7 @@ def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi
         'article': article
     }
 
-    from identifiers import models as identifier_models
-
-    return identifier_models.Identifier.objects.create(**doi_options)
+    return models.Identifier.objects.create(**doi_options)
 
 
 def generate_crossref_doi_with_pattern(article):
@@ -448,9 +446,7 @@ def generate_crossref_doi_with_pattern(article):
         'article': article
     }
 
-    from identifiers import models as identifier_models
-
-    return identifier_models.Identifier.objects.create(**doi_options)
+    return models.Identifier.objects.create(**doi_options)
 
 
 @cache(600)
@@ -471,10 +467,9 @@ def preview_registration_information(article):
     to register the DOI with Crossref.
     """
     if article.journal.use_crossref:
-        from identifiers import models as identifier_models
         try:
-            doi = identifier_models.Identifier.objects.get(id_type='doi', article=article)
-        except identifier_models.Identifier.DoesNotExist:
+            doi = models.Identifier.objects.get(id_type='doi', article=article)
+        except models.Identifier.DoesNotExist:
             doi = None
         crossref_context = create_crossref_article_context(article, doi)
 
