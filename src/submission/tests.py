@@ -4,13 +4,14 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from dateutil import parser as dateparser
 from mock import Mock
+import os
 
 from django.http import Http404
 from django.test import TestCase
 from django.utils import translation
+from django.conf import settings
 
 from core.models import Account
-from identifiers import logic as id_logic
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -25,7 +26,13 @@ from utils.install import update_xsl_files, update_settings, update_issue_types
 
 # Create your tests here.
 class SubmissionTests(TestCase):
-    fixtures = ["src/utils/install/roles.json"]
+    roles_path = os.path.join(
+        settings.BASE_DIR,
+        'utils',
+        'install',
+        'roles.json'
+    )
+    fixtures = [roles_path]
 
     def test_new_journals_has_submission_configuration(self):
         if not self.journal_one.submissionconfiguration:
@@ -444,3 +451,18 @@ class SubmissionTests(TestCase):
         expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
                                        '2025 &bull; Fall 2025 &bull; 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
+
+
+class FrozenAuthorModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.frozen_author = models.FrozenAuthor.objects.create(
+            name_prefix='Dr.',
+            first_name='S.',
+            middle_name='Bella',
+            last_name='Rogers',
+            name_suffix='Esq.',
+        )
+
+    def test_full_name(self):
+        self.assertEqual('Dr. S. Bella Rogers Esq.', self.frozen_author.full_name())

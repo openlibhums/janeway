@@ -8,11 +8,17 @@ DEFAULT_HOST = 'https://www.example.org'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 LOGIN_REDIRECT_URL = '/user/profile/'
 
-# CATCHA_TYPE should be either 'simple_math' or 'recaptcha' to enable captcha
+# CATCHA_TYPE should be either 'simple_math', 'recaptcha' or 'hcaptcha' to enable captcha
 #fields, otherwise disabled
 CAPTCHA_TYPE = 'recaptcha'
+
+# If using recaptcha complete the following
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_PUBLIC_KEY = ''
+
+# If using hcaptcha complete the following:
+HCAPTCHA_SITEKEY = ''
+HCAPTCHA_SECRET = ''
 
 # ORCID Settings
 ENABLE_ORCID = True

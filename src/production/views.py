@@ -1110,6 +1110,11 @@ def supp_file_doi(request, article_id, supp_file_id):
         core_models.SupplementaryFile,
         pk=supp_file_id,
     )
+    timestamp_suffix = article.journal.get_setting(
+        'crossref',
+        'crossref_date_suffix',
+    )
+
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
 
     if not article.get_doi():
@@ -1119,7 +1124,7 @@ def supp_file_doi(request, article_id, supp_file_id):
     xml_context = {'supp_file': supplementary_file,
                    'article': article,
                    'batch_id': uuid.uuid4(),
-                   'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
+                   'timestamp_suffix': timestamp_suffix,
                    'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
                                                                  article.journal).processed_value,
                    'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',

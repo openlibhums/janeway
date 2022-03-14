@@ -27,7 +27,9 @@ Under review settings we can control how peer review operates for the given jour
     - If enabled, reviewers will be able to save the progress in a peer-review assignment and come back later to complete it later (Only recommended for journals using custom review forms that are particularly long)
 - Enable Peer Review Data Block
     - When this setting is enabled authors will have access to view more information about the reviews for their article (requested, due, and complete dates). If it is left off they will only have access to the review comments.
-    
+- Accept Article Warning
+    - This is a block of text displayed to the editor before they accept an article, prompting initial DOI and metadata registration with Crossref if the journal or press is set to use Crossref. You can use the setting to provide a readout of current metadata so the editor can do a quick check of what will be sent to Crossref. To show registration information, populate the setting with ``{{ article.registration_preview|safe }}``
+
 Review Forms
 ------------
 Janeway allows you to generate as many review forms as you like. When a new journal is created a default review form is generated automatically (called Default Form) it has one element: a text area called "Review".

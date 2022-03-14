@@ -10,7 +10,7 @@ class TestLogic(TestCase):
         self.press.save()
         self.journal_one, self.journal_two = helpers.create_journals()
         self.request = helpers.Request()
-        self.request.press = self.press 
+        self.request.press = self.press
         self.request.journal = self.journal_one
         self.request.site_type = self.journal_one
 
@@ -19,7 +19,7 @@ class TestLogic(TestCase):
         rendered_setting = logic.render_nested_setting(
             'support_contact_message_for_staff',
             'general',
-            [('support_email','general')],
-            self.request
+            self.request,
+            nested_settings=[('support_email','general')],
         )
         self.assertEqual(expected_rendered_setting, rendered_setting)

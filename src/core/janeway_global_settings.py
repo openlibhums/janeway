@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'simplemathcaptcha',
     'hijack',
     'compat',
+    'hcaptcha',
 
     # Forms
     'django.forms',

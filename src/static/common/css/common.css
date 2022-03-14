@@ -238,3 +238,22 @@ ol.gloss-word {
 .table-middle {
     vertical-align: middle;
 }
+
+article ol .list-ord {
+    list-style-type: decimal;
+}
+article ul .list-unord {
+    list-style-type: disc;
+}
+article ol .list-alphalower {
+    list-style-type: lower-alpha;
+}
+article ol .list-alphaupper {
+    list-style-type: upper-alpha;
+}
+article ol .list-romanlower {
+    list-style-type: lower-roman;
+}
+article ol .list-romanupper {
+    list-style-type: upper-roman;
+}

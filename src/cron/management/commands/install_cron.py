@@ -47,6 +47,11 @@ class Command(BaseCommand):
                 'time': 30,
                 'task': 'store_ithenticate_scores',
             },
+            {
+                'name': '{}_janeway_sitemaps_job'.format(cwd),
+                'time': 30,
+                'task': 'generate_sitemaps',
+            },
         ]
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:

@@ -293,6 +293,12 @@
                                 <td>{{ article.publication_title }}</td>
                             </tr>
                             {% endif %}
+                            {% if article.ISSN_override %}
+                            <tr>
+                                <th>{% trans "Original ISSN" %}</th>
+                                <td>{{ article.ISSN_override}}</td>
+                            </tr>
+                            {% endif %}
                         </table>
                     </div>
                     <div class="spacer">

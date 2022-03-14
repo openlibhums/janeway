@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 journal.code = "journal"
             else:
                 journal.code = input('Journal #1 code: ')
-                    journal.domain = input('Journal #1 domain: (Optional)')
+                journal.domain = input('Journal #1 domain (Optional): ')
             journal.save()
             print("Installing issue types fixtures... ", end="")
             update_issue_types(journal, management_command=False)
@@ -151,4 +151,3 @@ JANEWAY_ASCII = """
 ===   =    =====   ,   ==   ====   ===   ============   ====        ====  ===       ====   ============       =====     =====    ====         ===     ===
 =================  ,   ==   ==== =====     ========    ====          ==== ===         ==   ============        ===       ===    ====          ====    ===
 """
-

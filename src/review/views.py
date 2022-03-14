@@ -20,7 +20,7 @@ from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 
-from core import models as core_models, files, forms as core_forms
+from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
 from security.decorators import (
@@ -1473,11 +1473,19 @@ def review_decision(request, article_id, decision):
         messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
 
+    accept_article_warning = core_logic.render_nested_setting(
+        'accept_article_warning',
+        'general',
+        request,
+        article=article,
+    )
+
     template = 'review/decision.html'
     context = {
         'article': article,
         'decision': decision,
         'email_content': email_content,
+        'accept_article_warning': accept_article_warning,
     }
 
     return render(request, template, context)
