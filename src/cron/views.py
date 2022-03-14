@@ -128,3 +128,29 @@ def create_template(request, reminder_id, template_name):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def reminders_dashboard(request):
+    """
+    Displays information on reminders.
+    """
+    reminders = models.Reminder.objects.filter(journal=request.journal)
+
+    template = 'cron/reminders_dashboard.html'
+    context = {
+        'reminders': reminders,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@editor_user_required
+def reminders_past(request):
+    """
+    Shows reminders were sent in the past.
+    """
+    pass

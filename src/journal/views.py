@@ -1909,7 +1909,8 @@ def search(request):
             (
                     Q(title__icontains=search_term) |
                     Q(keywords__word__iregex=search_regex) |
-                    Q(subtitle__icontains=search_term)
+                    Q(subtitle__icontains=search_term) |
+                    Q(abstract__icontains=search_term)
             )
             |
             (

@@ -1042,7 +1042,7 @@ class XSLFile(models.Model):
 
     def __str__(self):
         return "%s(%s@%s)" % (
-            self.__class__.__name__, self.label, self.file.path)
+            self.__class__.__name__, self.label, self.file.path if self.file else '')
 
 
 def default_xsl():
