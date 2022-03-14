@@ -326,6 +326,13 @@ class Journal(AbstractSiteModel):
     def serial_issues(self):
         return Issue.objects.filter(journal=self, issue_type__code='issue')
 
+    @property
+    def published_issues(self):
+        return Issue.objects.filter(
+            journal=self,
+            date__lte=timezone.now(),
+        )
+
     def editors(self):
         """ Returns all users enrolled as editors for the journal
         :return: A queryset of core.models.Account

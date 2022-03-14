@@ -819,3 +819,49 @@ def checksum(file_path):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+
+def serve_sitemap_file(path_parts):
+    file_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'sitemaps',
+        *path_parts,
+    )
+    return StreamingHttpResponse(
+        FileWrapper(
+            open(file_path, 'rb'),
+            8192,
+        ),
+        content_type='application/xml',
+    )
+
+
+def serve_robots_file(journal=None, repository=None):
+    base_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'robots',
+    )
+    if journal:
+        file_path = os.path.join(
+            base_path,
+            'journal_{}_robots.txt'.format(journal.code),
+        )
+    elif repository:
+        file_path = os.path.join(
+            base_path,
+            'repo_{}_robots.txt'.format(repository.code),
+        )
+    else:
+        file_path = os.path.join(
+            base_path,
+            'robots.txt',
+        )
+    return StreamingHttpResponse(
+        FileWrapper(
+            open(file_path, 'rb'),
+            8192,
+        ),
+        content_type='text/plain',
+    )

@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
-from functools import reduce
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -20,16 +19,17 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
-from cms import models as cms_models
 from core import models as core_models, files
-from metrics.logic import store_article_access
-from utils import shared as utils_shared, logic as utils_logic, models as utils_models
+from utils import shared as utils_shared, logic as utils_logic, models as utils_models, logger
 from events import logic as event_logic
 from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
     is_repository_manager,
 )
+
+
+logger = logger.get_logger(__name__)
 
 
 def repository_home(request):
@@ -59,22 +59,34 @@ def repository_home(request):
     return render(request, template, context)
 
 
-def repository_sitemap(request):
+def repository_sitemap(request, subject_id=None):
     """
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = models.Preprint.objects.filter(
-        repository=request.repository,
-        date_published__lte=timezone.now(),
-        stage=models.STAGE_PREPRINT_PUBLISHED,
-    ).order_by('-date_published')
+    try:
+        if subject_id:
+            subject = get_object_or_404(
+                models.Subject,
+                pk=subject_id,
+                repository=request.repository,
+            )
+            path_parts = [
+                request.repository.code,
+                '{}_sitemap.xml'.format(subject.pk),
+            ]
+        else:
+            path_parts = [
+                request.repository.code,
+                'sitemap.xml',
+            ]
 
-    template = 'journal/sitemap.xml'
-    context = {
-        'preprints': preprints,
-    }
-    return render(request, template, context, content_type="application/xml")
+        if path_parts:
+            return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.repository.name))
+
+    raise Http404()
 
 
 @login_required
