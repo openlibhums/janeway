@@ -172,6 +172,21 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Article',
         blank=True,
     )
+    limit_access_to_submission = models.BooleanField(
+        default=False,
+        help_text='If enabled, users need to request access to submit preprints.',
+    )
+    submission_access_request_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Describe any supporting information you want users to supply when requesting'
+                  'access permissions for this repository. Linked to Limit Access to Submissions.',
+    )
+    submission_access_contact = models.EmailField(
+        blank=True,
+        null=True,
+        help_text='Will be notified of new submission access requests.',
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -222,6 +237,25 @@ class Repository(model_utils.AbstractSiteModel):
     @property
     def code(self):
         return self.short_name
+
+
+class RepositoryRole(models.Model):
+    repository = models.ForeignKey(Repository)
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        'core.Role',
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return 'User {} registered as {} on Repo {}'.format(
+            self.user.full_name,
+            self.get_role_display(),
+            self.repository.name,
+        )
 
 
 class RepositoryField(models.Model):

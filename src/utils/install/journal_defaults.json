@@ -3169,7 +3169,21 @@
             "name": "general"
         },
         "setting": {
-
+            "description": "If enabled users must request the author role before they are allowed to submit.",
+            "is_translatable": false,
+            "name": "limit_access_to_submission",
+            "pretty_name": "Limit Access to Submission",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+  {
+    "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Support email address for editors and staff users.",
             "is_translatable": false,
             "name": "support_email",
@@ -3181,6 +3195,21 @@
         }
     },
     {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Text to accompany access requests. Linked to Limit Access to Submission",
+            "is_translatable": true,
+            "name": "submission_access_request_text",
+            "pretty_name": "Submission Access Request Text",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Please supply information below to support your request to make a submission to this journal."
+        }
+      },
+      {
         "group": {
             "name": "email"
         },
@@ -3200,6 +3229,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "Email address of the access request contact.",
+            "is_translatable": true,
+            "name": "submission_access_request_contact",
+            "pretty_name": "Submission Access Request Contact",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+  {
+    "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Support message to display to editors and staff on Manager page.",
             "is_translatable": true,
             "name": "support_contact_message_for_staff",
@@ -3208,6 +3252,66 @@
         },
         "value": {
             "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the submission access request contact when a new request is added.",
+            "is_translatable": true,
+            "name": "submission_access_request_notification",
+            "pretty_name": "Submission Access Request Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>A new submission access request has been added.</p><p>{{ description }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Submission Access Request Notification.",
+            "is_translatable": true,
+            "name": "subject_submission_access_request_notification",
+            "pretty_name": "Submission Access Request Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "New Submission Access Request"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when a Access Request is evaluated by a staff member.",
+            "is_translatable": true,
+            "name": "submission_access_request_complete",
+            "pretty_name": "Submission Access Request Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ access_request.user.full_name }},</p>Your request to be granted the {{ access_request.role.name }} role on {% if access_request.journal %}{{ access_request.journal.name }}{% else %}{{ access_request.repository.name }}{% endif %} has been evaluated.</p><p>The decision made was: {{ decision }}.</p><p>The following note was provided by the staff member evaluating your request: {{ access_request.evaluation_note }}</p><p>Kind Regards,</p><p>{{ request.user.full_name }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Submission Access Request Complete.",
+            "is_translatable": true,
+            "name": "subject_submission_access_request_complete",
+            "pretty_name": "Submission Access Request Complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Your Submission Access Request"
         }
     },
     {
@@ -3255,5 +3359,6 @@
             "default": "{{ article.registration_preview|safe }}"
         }
     }
+
 ]
 

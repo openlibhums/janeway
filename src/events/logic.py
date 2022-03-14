@@ -240,6 +240,14 @@ class Events:
     # raised when a view or download passes COUNTER-style compliance checks
     ON_ARTICLE_ACCESS = 'on_article_access'
 
+    # kwargs: request, access_request
+    # raised when a user requests access to submit an article to a journal or repo.
+    ON_ACCESS_REQUEST = 'on_access_request'
+
+    # kwargs: request
+    # raised when a user access request is evaluated by staff.
+    ON_ACCESS_REQUEST_COMPLETE = 'on_access_request_complete'
+
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """

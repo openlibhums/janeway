@@ -1164,3 +1164,46 @@ def keyword_page_enabled(func):
             return func(request, *args, **kwargs)
 
     return keyword_page_enabled_wrapper
+
+
+def submission_authorised(func):
+    """
+    Checks if roles are required to access submission page.
+    :param func:
+    :return:
+    """
+
+    @base_check_required
+    def submission_authorised_wrapper(request, *args, **kwargs):
+        if (
+                request.user.is_staff or
+                (request.journal and request.user in request.journal.editors()) or
+                (request.repository and request.user in request.repository.managers.all())
+        ):
+            return func(request, *args, **kwargs)
+
+        if request.repository and request.repository.limit_access_to_submission:
+            if not preprint_models.RepositoryRole.objects.filter(
+                repository=request.repository,
+                user=request.user,
+                role__slug='author',
+            ).exists():
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
+
+        if request.journal and request.journal.get_setting('general', 'limit_access_to_submission'):
+            if not request.user.is_author(
+                request,
+            ):
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
+
+        return func(request, *args, **kwargs)
+
+    return submission_authorised_wrapper

@@ -11,11 +11,12 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.test import TestCase
 from django.utils import timezone
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.core.management import call_command
 from mock import Mock
 
-from core import models as core_models
+from core import models as core_models, forms as core_forms
 from journal import models as journal_models
 from production import models as production_models
 from security import decorators
@@ -3421,6 +3422,268 @@ class TestSecurity(TestCase):
         self.assertFalse(func.called,
                          "press_only decorator doesn't redirect when request.journal is found")
 
+    def test_submission_authorised_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the author role is found",
+        )
+
+    def test_submission_authorised_with_good_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.author,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author role",
+        )
+
+    def test_submission_authorised_with_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # force disable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator blocks access when the setting is disabled",
+        )
+
+    def test_submission_authorised_with_bad_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the repo author role is found",
+        )
+
+    def test_submission_authorised_with_good_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        role = core_models.Role.objects.get(
+            slug='author',
+        )
+        repo_role = repository_models.RepositoryRole.objects.create(
+            user=self.user_with_no_roles,
+            repository=self.repository,
+            role=role,
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role",
+        )
+
+        # Delete the repo role once we're done with it
+        repo_role.delete()
+
+    def test_submission_authorised_with_repo_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = False
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role when off",
+        )
+
+    def test_submission_authorised_staff(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.staff_member,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a staff user.",
+        )
+
+    def test_submission_authorised_repo_manager(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.repo_manager,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a repo manager.",
+        )
+
+    def test_submission_authorised_journal_editor(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.editor,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a journal editor.",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_author_role(self):
+        role = core_models.Role.objects.get(
+            slug='author',
+        )
+
+        # test the access request form
+        form = core_forms.AccessRequestForm(
+            journal=self.journal_one,
+            user=self.user_with_no_roles,
+            role=role,
+            data={
+                'text': 'Here is my access request.',
+            }
+        )
+        access_request = form.save()
+
+        # test view for approving access
+        data = {
+            'approve': access_request.pk,
+        }
+        self.client.force_login(self.staff_member)
+        self.client.post(
+            reverse('manage_access_requests'),
+            data=data,
+            SERVER_NAME="journal1.localhost",
+        )
+
+        # try to find an author role for this user
+        account_role = core_models.AccountRole.objects.filter(
+            user=self.user_with_no_roles,
+            journal=self.journal_one,
+            role=role,
+        )
+        self.assertTrue(
+            account_role.exists(),
+            'No account role was created during the post action on the manage_access_requests view',
+        )
+
+        # delete the account role once we are done with it
+        account_role.delete()
+
     # General helper functions
 
     @staticmethod
@@ -3559,6 +3822,19 @@ class TestSecurity(TestCase):
                                                 journal=self.journal_one)
         self.second_reviewer.is_active = True
         self.second_reviewer.save()
+
+        self.user_with_no_roles = self.create_user("no_roles@janeway.systems", [], journal=self.journal_one)
+        self.user_with_no_roles.is_active = True
+        self.user_with_no_roles.save()
+
+        self.staff_member = self.create_user("staff@janeway.systems", [], journal=self.journal_one)
+        self.staff_member.is_active = True
+        self.staff_member.is_staff = True
+        self.staff_member.save()
+
+        self.repo_manager = self.create_user("repomanager@janeway.systems")
+        self.repo_manager.is_active = True
+        self.repo_manager.save()
 
         self.public_file = core_models.File(mime_type="A/FILE",
                                             original_filename="blah.txt",
@@ -3816,7 +4092,7 @@ class TestSecurity(TestCase):
 
         self.repository, self.repository_subject = create_repository(
             self.press,
-            [self.admin_user, self.editor],
+            [self.admin_user, self.editor, self.repo_manager],
             [self.proofing_manager],
         )
         self.preprint = create_preprint(

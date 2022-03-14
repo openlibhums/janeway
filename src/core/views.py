@@ -43,6 +43,8 @@ from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
+from repository import models as rm
+from events import logic as events_logic
 
 
 logger = get_logger(__name__)
@@ -2015,4 +2017,141 @@ def set_session_timezone(request):
             content=json.dumps(response_data),
             content_type='application/json',
             status=200,
+    )
+
+
+@login_required
+def request_submission_access(request):
+    if request.repository:
+        check = rm.RepositoryRole.objects.filter(
+            repository=request.repository,
+            user=request.user,
+            role__slug='author',
+        ).exists()
+    elif request.journal:
+        check = request.user.is_author(request)
+    else:
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_request = models.AccessRequest.objects.filter(
+        user=request.user,
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    ).first()
+    role = models.Role.objects.get(slug='author')
+    form = forms.AccessRequestForm(
+        journal=request.journal,
+        repository=request.repository,
+        user=request.user,
+        role=role,
+    )
+
+    if request.POST and not active_request:
+        form = forms.AccessRequestForm(
+            request.POST,
+            journal=request.journal,
+            repository=request.repository,
+            user=request.user,
+            role=role,
+        )
+        if form.is_valid():
+            access_request = form.save()
+            event_kwargs = {
+                'request': request,
+                'access_request': access_request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request',
+                **event_kwargs,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Sent.',
+            )
+            return redirect(
+                reverse(
+                    'request_submission_access'
+                )
+            )
+
+    template = 'admin/core/request_submission_access.html'
+    context = {
+        'check': check,
+        'active_request': active_request,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@staff_member_required
+def manage_access_requests(request):
+    # If we don't have a journal or repository return a 404.
+    if not request.journal and not request.repository:
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_requests = models.AccessRequest.objects.filter(
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    )
+    if request.POST:
+        if 'approve' in request.POST:
+            pk = request.POST.get('approve')
+            access_request = active_requests.get(pk=pk)
+            decision = 'approve'
+
+            if request.journal:
+                access_request.user.add_account_role(
+                    access_request.role.slug,
+                    request.journal,
+                )
+            elif request.repository:
+                rm.RepositoryRole.objects.get_or_create(
+                    repository=access_request.repository,
+                    user=access_request.user,
+                    role=access_request.role
+                )
+        elif 'reject' in request.POST:
+            pk = request.POST.get('reject')
+            access_request = active_requests.get(pk=pk)
+            decision = 'reject'
+
+        if access_request:
+            eval_note = request.POST.get('eval_note')
+            access_request.evaluation_note = eval_note
+            access_request.processed = True
+            access_request.save()
+            event_kwargs = {
+                'decision': decision,
+                'access_request': access_request,
+                'request': request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request_complete',
+                **event_kwargs,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Processed.',
+            )
+        return redirect(
+            reverse(
+                'manage_access_requests',
+            )
+        )
+    template = 'admin/core/manage_access_requests.html'
+    context = {
+        'active_requests': active_requests,
+    }
+    return render(
+        request,
+        template,
+        context,
     )

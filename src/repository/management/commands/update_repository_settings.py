@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from repository import install, models
 
+
 class Command(BaseCommand):
     """ A management command to update repository settings."""
 

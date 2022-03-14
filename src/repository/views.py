@@ -20,12 +20,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files
-from utils import shared as utils_shared, logic as utils_logic, models as utils_models, logger
+
+
+from utils import (
+  logger,
+  logic as utils_logic,
+  models as utils_models,
+  shared as utils_shared,
+)
 from events import logic as event_logic
 from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
     is_repository_manager,
+    submission_authorised,
 )
 
 
@@ -495,7 +503,7 @@ def preprints_editors(request):
     return render(request, template, context)
 
 
-@login_required
+@submission_authorised
 def repository_submit(request, preprint_id=None):
     """
     Handles initial steps of generating a preprints submission.
@@ -536,7 +544,7 @@ def repository_submit(request, preprint_id=None):
     return render(request, template, context)
 
 
-@login_required
+@submission_authorised
 def repository_authors(request, preprint_id):
     """
     Handles submission of new authors. Allows users to search
@@ -631,7 +639,7 @@ def repository_authors(request, preprint_id):
     return render(request, template, context)
 
 
-@login_required
+@submission_authorised
 def repository_files(request, preprint_id):
     """
     Allows authors to upload files to their preprint.
@@ -734,7 +742,7 @@ def repository_files(request, preprint_id):
     return render(request, template, context)
 
 
-@login_required
+@submission_authorised
 def repository_review(request, preprint_id):
     """
     Presents information for the user to review before completing

@@ -1359,6 +1359,50 @@ class LoginAttempt(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
 
+class AccessRequest(models.Model):
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    repository = models.ForeignKey(
+        'repository.Repository',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        'core.Role',
+        on_delete=models.CASCADE,
+    )
+    requested = models.DateTimeField(
+        default=timezone.now,
+    )
+    processed = models.BooleanField(
+        default=False,
+    )
+    text = models.TextField(
+        blank=True,
+        null=True,
+    )
+    evaluation_note = models.TextField(
+        null=True,
+        help_text='This note will be sent to the requester when you approve or decline their request.',
+    )
+
+    def __str__(self):
+        return 'User {} requested {} permission for {}'.format(
+            self.user.full_name(),
+            self.journal.name if self.journal else self.repository.name,
+            self.role.name,
+        )
+
+
 @receiver(post_save, sender=Account)
 def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
@@ -1423,6 +1467,7 @@ def log_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
         request=request,
         target=hijacked
     )
+
 
 hijack_started.connect(log_hijack_started)
 hijack_ended.connect(log_hijack_ended)

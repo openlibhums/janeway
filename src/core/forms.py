@@ -467,3 +467,32 @@ class XSLFileForm(forms.ModelForm):
             instance.save()
 
         return instance
+
+
+class AccessRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = models.AccessRequest
+        fields = ('text',)
+        labels = {
+            'text': 'Supporting Information',
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        self.repository = kwargs.pop('repository', None)
+        self.user = kwargs.pop('user')
+        self.role = kwargs.pop('role')
+        super(AccessRequestForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        access_request = super().save(commit=False)
+        access_request.journal = self.journal
+        access_request.repository = self.repository
+        access_request.user = self.user
+        access_request.role = self.role
+
+        if commit:
+            access_request.save()
+
+        return access_request

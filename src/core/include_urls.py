@@ -200,6 +200,8 @@ urlpatterns = [
     url(r'^set-timezone/$', core_views.set_session_timezone, name='set_timezone'),
 
     url(r'^jsi18n/$', cache_page(60 * 60, key_prefix='jsi18n_catalog')(JavaScriptCatalog.as_view()), name='javascript-catalog'),
+    url(r'permission/submit/$', core_views.request_submission_access, name='request_submission_access'),
+    url(r'permission/requests/$', core_views.manage_access_requests, name='manage_access_requests'),
 ]
 
 # Journal homepage block loading
