@@ -20,6 +20,7 @@ from press import models as press_models
 from submission import models as sm_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
+from utils.logic import get_aware_datetime
 
 
 def create_user(username, roles=None, journal=None, **attrs):
@@ -83,6 +84,7 @@ def create_journals():
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'
     update_issue_types(journal_one)
+    update_issue_types(journal_two)
 
     return journal_one, journal_two
 
@@ -140,6 +142,49 @@ def create_author(journal):
     author.is_active = True
     author.save()
     return author
+
+
+def create_article(journal):
+    from submission import models as submission_models
+
+    article = submission_models.Article.objects.create(
+        journal=journal,
+        title='Test Article from Utils Testing Helpers',
+        article_agreement='Test Article',
+        section=create_section(journal),
+    )
+    article.save()
+    return article
+
+def create_section(journal):
+    from submission import models as submission_models
+
+    section, created = submission_models.Section.objects.get_or_create(
+        journal=journal,
+        number_of_reviewers=2,
+        name='Article',
+        plural='Articles'
+    )
+    return section
+
+def create_issue(journal):
+
+    issue_type, created = journal_models.IssueType.objects.get_or_create(
+        code="issue",
+        journal=journal,
+    )
+    issue_datetime = get_aware_datetime('2022-01-01')
+    issue, created = journal_models.Issue.objects.get_or_create(
+        journal=journal,
+        volume=5,
+        issue=3,
+        defaults={
+            'issue_title': ('Test Issue from Utils Testing Helpers'),
+            'issue_type': issue_type,
+            'date': issue_datetime,
+        }
+    )
+    return issue
 
 
 def create_submission(
@@ -290,3 +335,84 @@ class request_context(ContextDecorator):
 
     def __exit__(self, *exc):
         middleware._threadlocal.request = None
+
+
+def create_review_form(journal):
+    from review import models as review_models
+    return review_models.ReviewForm.objects.create(
+        name="A Form",
+        slug="A Slug",
+        intro="i",
+        thanks="t",
+        journal=journal
+    )
+
+def create_review_assignment(
+        journal=None,
+        article=None,
+        reviewer=None,
+        editor=None,
+        due_date=None,
+        review_form=None,
+    ):
+    if not journal:
+        journal, _journal_two = create_journals()
+    if not article:
+        article = create_submission(
+            owner=create_regular_user(),
+            journal_id=journal.pk,
+            stage=sm_models.STAGE_UNDER_REVIEW
+        )
+    if not reviewer:
+        reviewer = create_second_user(journal)
+    if not editor:
+        editor = create_editor(journal)
+    if not due_date:
+        from django.utils import timezone
+        import datetime
+        due_date = timezone.now() + datetime.timedelta(days=3)
+    if not review_form:
+        review_form = create_review_form(journal)
+
+    from review import models as review_models
+    return review_models.ReviewAssignment.objects.create(
+        article=article,
+        reviewer=reviewer,
+        editor=editor,
+        date_due=due_date,
+        form=review_form
+    )
+
+
+def create_reminder(journal=None, reminder_type=None):
+    from cron.models import Reminder
+    if not journal:
+        journal, _journal_two = create_journals()
+    if not reminder_type:
+        reminder_type='review'
+    reminder = Reminder.objects.create(
+        journal=journal,
+        type='review',
+        run_type='before',
+        days=3,
+        template_name='test_reminder_'+reminder_type,
+        subject='Test reminder subject',
+    )
+
+    from utils import setting_handler
+    setting_handler.create_setting(
+        'email',
+        reminder.template_name,
+        'rich-text',
+        reminder.subject,
+        '',
+        is_translatable=True
+    )
+    setting_handler.save_setting(
+        'email',
+        reminder.template_name,
+        journal,
+        'Test body'
+    )
+
+    return reminder

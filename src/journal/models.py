@@ -253,13 +253,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def use_crossref(self):
-        try:
-            return setting_handler.get_setting('Identifiers',
-                                               'crossref_prefix',
-                                               self,
-                                               default=True).processed_value
-        except IndexError:
-            return False
+        return setting_handler.get_setting('Identifiers', 'use_crossref', self, default=True).processed_value
 
     @issn.setter
     def issn(self, value):
@@ -299,6 +293,11 @@ class Journal(AbstractSiteModel):
 
     def site_url(self, path=""):
         if self.domain and not settings.URL_CONFIG == 'path':
+
+            # Handle domain journal being browsed in path mode
+            site_path = f'/{self.code}'
+            if path and path.startswith(site_path):
+                path = path[len(site_path):]
             return logic.build_url(
                     netloc=self.domain,
                     scheme=self.SCHEMES[self.is_secure],

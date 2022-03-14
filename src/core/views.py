@@ -630,8 +630,8 @@ def manager_index(request):
     support_message = logic.render_nested_setting(
         'support_contact_message_for_staff',
         'general',
-        [('support_email','general')],
-        request
+        request,
+        nested_settings=[('support_email','general')],
     )
 
     context = {

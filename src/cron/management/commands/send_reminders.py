@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         action = options.get('action')
-        journals = journal_models.Journal.objects.filter(code="olh")
+        journals = journal_models.Journal.objects.all()
 
         for journal in journals:
             print("Processing reminders for journal {0}: {1}".format(journal.pk, journal.name))
