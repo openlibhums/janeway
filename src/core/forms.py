@@ -8,22 +8,18 @@ import copy
 
 from django import forms
 from django.forms.fields import Field
-from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 
 from django_summernote.widgets import SummernoteWidget
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-from simplemathcaptcha.fields import MathCaptchaField
 
 from core import models, validators
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm
 from utils.logger import get_logger
 from submission import models as submission_models
 
@@ -110,23 +106,12 @@ class PasswordResetForm(forms.Form):
         return password_2
 
 
-class RegistrationForm(forms.ModelForm):
+class RegistrationForm(CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if settings.CAPTCHA_TYPE == 'simple_math':
-            question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-            are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
-        elif settings.CAPTCHA_TYPE == 'recaptcha':
-            are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
-        else:
-            are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
-        self.fields["are_you_a_robot"] = are_you_a_robot
 
     class Meta:
         model = models.Account
@@ -428,7 +413,7 @@ class QuickUserForm(forms.ModelForm):
         fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
 
 
-class LoginForm(forms.Form):
+class LoginForm(CaptchaForm):
     user_name = forms.CharField(max_length=255, label="Email")
     user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
 
@@ -440,30 +425,8 @@ class LoginForm(forms.Form):
                 "[FAILED_LOGIN:%s][FAILURES: %s]"
                 "" % (self.fields["user_name"], bad_logins),
             )
-        if bad_logins > 3:
-            self.fields['captcha'] = self.captcha_field
-        else:
+        if bad_logins <= 3:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
-
-    @property
-    def captcha_field(self):
-        if settings.CAPTCHA_TYPE == 'simple_math':
-            self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-            return MathCaptchaField(label=_('Anti-spam captcha'))
-        elif settings.CAPTCHA_TYPE == 'recaptcha':
-            field = ReCaptchaField(widget=ReCaptchaWidget())
-            field.label = "Anti-spam captcha"
-            return field
-        else:
-            logger.warning(
-                    "Unknown CAPTCHA_TYPE in settings: %s"
-            "" % settings.CAPTCHA_TYPE
-            )
-            return self.no_cacptcha_field
-
-    @property
-    def no_captcha_field(self):
-        return forms.CharField(widget=forms.HiddenInput(), required=False)
 
 
 class FileUploadForm(forms.Form):

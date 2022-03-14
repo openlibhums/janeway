@@ -13,9 +13,11 @@ from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django_summernote.widgets import SummernoteWidget
+from hcaptcha.fields import hCaptchaField
 
 from core import models as core_models
 from journal import models as journal_models, logic
+from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
         ('title', 'Titles A-Z'),
@@ -36,15 +38,7 @@ class JournalForm(forms.ModelForm):
         }
 
 
-class ContactForm(forms.ModelForm):
-
-    if settings.CAPTCHA_TYPE == 'simple_math':
-        question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-        are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
-    elif settings.CAPTCHA_TYPE == 'recaptcha':
-        are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
-    else:
-        are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
+class ContactForm(CaptchaForm):
 
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop('subject', None)
