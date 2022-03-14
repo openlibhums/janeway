@@ -106,7 +106,7 @@ class PasswordResetForm(forms.Form):
         return password_2
 
 
-class RegistrationForm(CaptchaForm):
+class RegistrationForm(forms.ModelForm, CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""
 
