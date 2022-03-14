@@ -149,8 +149,17 @@ def reminders_dashboard(request):
 
 
 @editor_user_required
-def reminders_past(request):
+def reminders_sent(request):
     """
     Shows reminders were sent in the past.
     """
-    pass
+    sent_reminders = models.SentReminder.objects.all()
+    template = 'cron/reminders_sent.html'
+    context = {
+        'sent_reminders': sent_reminders,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
