@@ -141,7 +141,7 @@ Once you have accessed the revision request you will be able to view available p
  
 
 Copyediting
---------
+-----------
 Editors and authors are encouraged to undertake as many rounds of copyediting as is necessary to ensure that the text is ready to go into production. 
 
 It is important that all stylistic changes are made at this stage. As many errors as possible should be corrected at this point, and by the end of copyediting there should be a final manuscript which requires no further changes. The typesetters will then use this final manuscript to create the finished article, which will be sent back for checking in the form of typeset proofs. 
@@ -166,7 +166,9 @@ Please accept all tracked changes you agree with and address any queries the cop
 To complete a Copyediting Review: 
 
 1. Upload your revisions to the copyedited manuscript. You can do so by replacing the copyeditor's version of the file with your own updated version.
+
  .. figure:: /nstatic/author_copyedit_2.png
+
 2. Fill in the Note to the Editor with any additional information
 3. Select a Decision (either ‘Accept’ or ‘Corrections Required’)
 4. Click ‘Complete Copyedit Task’

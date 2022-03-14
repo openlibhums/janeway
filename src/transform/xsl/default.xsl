@@ -970,7 +970,7 @@
         <xsl:text> </xsl:text>
     </xsl:template>
 
-    <xsl:template match="caption">
+    <xsl:template match="caption" name="caption">
         <xsl:choose>
             <!-- if article-title exists, make it as title.
                      Otherwise, make source -->
@@ -3340,20 +3340,30 @@
         </div>
     </xsl:template>
 
+
     <xsl:template match="app//title">
-        <h2 id="{@id}">
+      <xsl:choose>
+        <xsl:when test="name(parent::*) = 'caption'" >
+          <strong><xsl:value-of select="node()"/></strong>
+        </xsl:when>
+        <xsl:otherwise>
+          <h2 id="{@id}">
             <xsl:if test="preceding-sibling::label">
-                <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-            <xsl:value-of select="node()"/>
-        </h2>
+              <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
+              <xsl:value-of select="node()"/>
+          </h2>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
 
     <xsl:template match="app//sec//title">
         <h3>
             <xsl:if test="preceding-sibling::label"><xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-            <xsl:value-of select="node()"/>
+            
         </h3>
     </xsl:template>
+   
+  
     <!-- START - general format -->
 
     <!-- list elements start-->

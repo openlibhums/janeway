@@ -188,6 +188,15 @@ class TestAccount(TestCase):
             msg="Failed to merge user models",
         )
 
+    def test_full_name(self):
+        author = models.Account.objects.create(
+            email='test@example.com',
+            first_name='',
+            middle_name='',
+            last_name='Sky',
+        )
+        self.assertEqual('Sky', author.full_name())
+
 
 class TestSVGImageFormField(TestCase):
     def test_upload_svg_to_svg_image_form_field(self):

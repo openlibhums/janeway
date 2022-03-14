@@ -369,8 +369,13 @@ class Article(models.Model):
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=999, help_text=_('Your article title'))
-    subtitle = models.CharField(max_length=999, blank=True, null=True,
-                                help_text=_('Subtitle of the article display format; Title: Subtitle'))
+    subtitle = models.CharField(
+        # Note: subtitle is deprecated as of version 1.4.2
+        max_length=999,
+        blank=True,
+        null=True,
+        help_text=_('Do not use--deprecated in version 1.4.1 and later.')
+    )
     abstract = models.TextField(
         blank=True,
         null=True,
@@ -415,7 +420,7 @@ class Article(models.Model):
 
     article_number = models.PositiveIntegerField(
         blank=True, null=True,
-        help_text="Optional article number to be rendered in 'how to cite'"
+        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID."
     )
 
     # Files
@@ -506,6 +511,12 @@ class Article(models.Model):
             " Only relevant to migrated articles from a different publisher"
         )
     )
+    ISSN_override = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Original ISSN of this article's journal when published"
+            " Only relevant for back content published under a different title"
+        )
+    )
 
     # iThenticate ID
     ithenticate_id = models.TextField(blank=True, null=True)
@@ -591,7 +602,7 @@ class Article(models.Model):
         if self.page_numbers:
             return self.page_numbers
         if self.first_page and self.last_page:
-            return "{}-{}".format(self.first_page, self.last_page)
+            return mark_safe("{}&ndash;{}".format(self.first_page, self.last_page))
         return self.first_page
 
     @property
@@ -613,11 +624,16 @@ class Article(models.Model):
             or self.article_number
             or self.publisher_name
             or self.publication_title
+            or self.ISSN_override
         )
 
     @property
     def journal_title(self):
         return self.publication_title or self.journal.name
+
+    @property
+    def journal_issn(self):
+        return self.ISSN_override or self.journal.issn
 
     @property
     def publisher(self):
@@ -996,6 +1012,15 @@ class Article(models.Model):
 
         return issues
 
+    @property
+    def issue_title(self):
+        if self.issue.issue_type.code != 'issue':
+            return self.issue.issue_title
+        else:
+            return mark_safe(" &bull; ".join(
+                (filter(None, self.issue.issue_title_parts(article=self))))
+            )
+
     def author_list(self):
         if self.is_accepted():
             return ", ".join([author.full_name() for author in self.frozen_authors()])
@@ -1279,6 +1304,10 @@ class Article(models.Model):
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
 
+    @property
+    def registration_preview(self):
+        return id_logic.preview_registration_information(self)
+
     def close_core_workflow_objects(self):
         from review import models as review_models
         from copyediting import models as copyedit_models
@@ -1434,14 +1463,15 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
+        name_elements = [
+            self.name_prefix,
+            self.first_name,
+            self.middle_name,
+            self.last_name,
+            self.name_suffix
+        ]
+        return " ".join([each for each in name_elements if each])
         full_name = u"%s %s" % (self.first_name, self.last_name)
-        if self.middle_name:
-            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        if self.name_prefix:
-            full_name = "%s %s" % (_(self.name_prefix), full_name)
-        if self.name_suffix:
-            full_name = "%s %s" % (full_name, self.name_suffix)
-        return full_name
 
     @property
     def dc_name_string(self):

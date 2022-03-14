@@ -17,10 +17,12 @@ This guide has been written to avoid using language like "easy", "just" or "simp
    faq
    workflow
    manager
+   published
    imports
    styling
-   published
+   robotsandsitemaps
    installation
+   configuration
    changelog
 
 Janeway is developed and maintained and supported by a team at Birkbeck, University of London and the Open Library of Humanities.

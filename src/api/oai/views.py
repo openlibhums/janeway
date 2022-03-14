@@ -48,6 +48,8 @@ class OAIListRecords(OAIPagedModelView):
         queryset = submission_models.Article.objects.filter(
             date_published__isnull=False,
         )
+        if self.request.journal:
+            queryset = queryset.filter(journal=self.request.journal)
         set_filter = self.request.GET.get('set')
         issue_type_list = [issue_type.code for issue_type in journal_models.IssueType.objects.all()]
 

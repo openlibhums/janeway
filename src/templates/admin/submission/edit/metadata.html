@@ -26,11 +26,8 @@
                     {% include "elements/forms/errors.html" with form=info_form %}
                     {% csrf_token %}
                     <div class="row expanded">
-                        <div class="large-6 columns">
+                        <div class="large-12 columns">
                             {{ info_form.title|foundation }}
-                        </div>
-                        <div class="large-6 columns">
-                            {{ info_form.subtitle|foundation }}
                         </div>
                         <div class="large-10 columns end">
                             {{ info_form.abstract|foundation }}

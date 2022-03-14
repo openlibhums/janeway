@@ -905,11 +905,14 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
-    def published_preprints_count(self):
+    def published_preprints(self):
         return self.preprint_set.filter(
             repository=self.repository,
             stage=STAGE_PREPRINT_PUBLISHED,
-        ).count()
+        )
+
+    def published_preprints_count(self):
+        return self.published_preprints().count()
 
 
 def version_choices():

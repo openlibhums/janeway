@@ -31,7 +31,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% if not keyword %}
-                            <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords, and authors</label>
+                            <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
                         {% endif %}
                         <div class="input-field">
                         {% if not keyword %}

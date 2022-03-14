@@ -224,8 +224,8 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}"
                                 class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
                             {% if author.institution  and author.institution != " " %}
-                                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
-                                    <span itemprop="name">({{ author.institution }})
+                                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity"></span>
+                                <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                 <a itemprop="email" href="mailto:{{ author.email }}"
@@ -291,6 +291,12 @@
                             <tr>
                                 <th>{% trans "Publication" %}</th>
                                 <td>{{ article.publication_title }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if article.ISSN_override %}
+                            <tr>
+                                <th>{% trans "Original ISSN" %}</th>
+                                <td>{{ article.ISSN_override}}</td>
                             </tr>
                             {% endif %}
                         </table>

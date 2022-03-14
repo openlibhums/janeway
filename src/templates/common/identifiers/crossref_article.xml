@@ -9,7 +9,7 @@
 >
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{% now "YmdHis" %}{% if timestamp_suffix %}{{ timestamp_suffix }}{% endif %}</timestamp>
+        <timestamp>{% now "YmdHis" %}{{ timestamp_suffix }}</timestamp>
         <depositor>
             <depositor_name>{{ depositor_name }}</depositor_name>
             <email_address>{{ depositor_email }}</email_address>
@@ -23,7 +23,9 @@
                 {% if print_issn and print_issn != '0000-0000' %}
                 <issn media_type="print">{{ print_issn }}</issn>
                 {% endif %}
-                {% if journal_issn and journal_issn != '0000-0000' %}
+                {% if article.ISSN_override %}
+                <issn media_type="electronic">{{ article.ISSN_override }}</issn>
+                {% elif journal_issn and journal_issn != '0000-0000' %}
                 <issn media_type="electronic">{{ journal_issn }}</issn>
                 {% endif %}
             </journal_metadata>

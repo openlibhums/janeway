@@ -6,7 +6,7 @@
        class="box-link"></a>
        <div class="clearfix">
         {% if not journal.disable_article_images %}
-         <div class="large-2 columns show-for-large-only">
+         <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
             <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
                  alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
@@ -22,7 +22,7 @@
            {% include "elements/journal/authors_block.html" %}
             <p><span class="date"><i
                     class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                    class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue.display_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
+                    class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
             {% if article.issues.count > 1 %}
               <p><strong><i class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
               {% for other in article.issues.all %}

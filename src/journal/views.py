@@ -1860,22 +1860,36 @@ def author_list(request):
     return render(request, template, context)
 
 
-def sitemap(request):
+def sitemap(request, issue_id=None):
     """
     Renders an XML sitemap based on articles and pages available to the journal.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    articles = submission_models.Article.objects.filter(date_published__lte=timezone.now(), journal=request.journal)
-    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
+    try:
+        path_parts = None
+        if issue_id:
+            issue = get_object_or_404(
+                models.Issue,
+                pk=issue_id,
+                journal=request.journal,
+            )
+            path_parts = [
+                request.journal.code,
+                '{}_sitemap.xml'.format(issue.pk),
+            ]
+        else:
+            path_parts = [
+                request.journal.code,
+                'sitemap.xml',
+            ]
 
-    template = 'journal/sitemap.xml'
+        if path_parts:
+            return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
 
-    context = {
-        'articles': articles,
-        'cms_pages': cms_pages,
-    }
-    return render(request, template, context, content_type="application/xml")
+    raise Http404()
 
 
 @decorators.frontend_enabled

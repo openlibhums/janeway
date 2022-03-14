@@ -4,13 +4,15 @@ __author__ = "Mauro Sanchez"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.test import TestCase, override_settings
+from urllib.parse import unquote_plus
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.http import urlencode
 
 from freezegun import freeze_time
 from lxml import etree
 
+from api.oai.base import OAIPaginationMixin
 from submission import models as sm_models
 from utils.testing import helpers
 
@@ -167,6 +169,53 @@ class TestOAIViews(TestCase):
         )
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
+
+    @override_settings(URL_CONFIG="domain")
+    def test_oai_resumption_token_decode(self):
+        expected = {"custom-param": "custom-value"}
+        encoded = {"resumptionToken": urlencode(expected)}
+        class TestView(OAIPaginationMixin):
+            pass
+
+        query_params = dict(
+            verb="ListRecords",
+            **encoded,
+        )
+        request = RequestFactory().get("/api/oai", query_params)
+        TestView.as_view()(request)
+        self.assertEqual(
+            request.GET.get("custom-param"), expected["custom-param"],
+            "Parameters not being encoded by resumptionToken correctly",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    @freeze_time("1980-01-01")
+    def test_oai_resumption_token_encode(self):
+        expected = {"custom-param": "custom-value"}
+        expected_encoded = urlencode(expected) 
+        for i in range(1,102):
+            helpers.create_submission(
+                journal_id=self.journal.pk,
+                stage=sm_models.STAGE_PUBLISHED,
+                date_published="1986-07-12T17:00:00.000+0200",
+                authors=[self.author],
+            )
+
+        path = reverse('OAI_list_records')
+        query_params = dict(
+            verb="ListRecords",
+            metadataPrefix="jats",
+            **expected,
+        )
+        query_string = urlencode(query_params)
+        response = self.client.get(
+            f'{path}?{query_string}',
+            SERVER_NAME="testserver"
+        )
+        self.assertTrue(
+            expected_encoded in unquote_plus(response.context["resumption_token"]),
+            "Query parameter has not been encoded into resumption_token",
+        )
 
 
 LIST_RECORDS_DATA_DC = """

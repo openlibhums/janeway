@@ -3,7 +3,7 @@
            xsi:schemaLocation="http://www.crossref.org/schema/4.3.7 http://www.crossref.org/schema/deposit/crossref4.3.7.xsd">
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{{ timestamp }}</timestamp>
+        <timestamp>{% now "YmdHis" %}{{ timestamp_suffix }}</timestamp>
         <depositor>
             <depositor_name>{{ depositor_name }}</depositor_name>
             <email_address>{{ depositor_email }}</email_address>

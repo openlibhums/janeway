@@ -151,6 +151,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Addres set as the 'Reply-to' for system emails.",
+            "is_translatable": false,
+            "name": "replyto_address",
+            "pretty_name": "Reply-To Address",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {
@@ -3116,7 +3131,7 @@
             "type": "text"
         },
         "value": {
-            "default": ""
+            "default": "656"
         }
     },
     {
@@ -3330,34 +3345,19 @@
         }
     },
     {
-	    "group": {
-	        "name": "general"
-    	},
+        "group": {
+            "name": "general"
+        },
         "setting": {
-    	    "description": "Support email address for editors and staff users.",
-    	    "is_translatable": false,
-    	    "name": "support_email",
-    	    "pretty_name": "Support Email",
-    	    "type": "char"
-    	},
-    	"value": {
-    	    "default": "--No support email set--"
-    	}
-    },
-    {
-    	"group": {
-    	    "name": "general"
-    	},
-    	"setting": {
-    	    "description": "Support message to display to editors and staff on Manager page.",
-    	    "is_translatable": false,
-    	    "name": "support_contact_message_for_staff",
-    	    "pretty_name": "Janeway Support Contact for Staff",
-    	    "type": "rich-text"
-    	},
-    	"value": {
-    	    "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
-    	}
+            "description": "A warning displayed warning Editors what will happen when they accept an article.",
+            "is_translatable": true,
+            "name": "accept_article_warning",
+            "pretty_name": "Accept Article Warning",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "{{ article.registration_preview|safe }}"
+        }
     }
 
 ]
