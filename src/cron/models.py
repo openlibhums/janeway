@@ -75,6 +75,10 @@ class SentReminder(models.Model):
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     object_id = models.PositiveIntegerField()
     sent = models.DateField(default=timezone.now)
+    reminder = models.ForeignKey(
+        'Reminder',
+        null=True,
+    )
 
 
 class Reminder(models.Model):
@@ -171,7 +175,11 @@ class Reminder(models.Model):
                     message,
                 )
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
-                SentReminder.objects.create(type=self.type, object_id=item.pk)
+                SentReminder.objects.create(
+                    type=self.type,
+                    object_id=item.pk,
+                    reminder=self,
+                )
                 print('Reminder sent for {0}'.format(object))
             elif test:
                 print("[TEST] reminder for {} due on {}".format(item, item.date_due))

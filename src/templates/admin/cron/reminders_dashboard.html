@@ -34,19 +34,21 @@
                     </div>
                     <p>Sent {{ reminder.days }} days {{ reminder.run_type }} {{ reminder.get_type_display }} is
                         due. Currently targeting reviews due on <strong>{{ reminder.target_date|date:"Y-m-d" }}</strong>.</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button class="small button" name="send_reminders" value="{{ reminder.pk }}">Send Reminder Emails</button>
+                        </form>
                     <table>
                         <tr>
                             <th>Article</th>
                             <th>Review ID</th>
                             <th>Review Due</th>
-                            <th>Reminder Sent?</th>
                         </tr>
                         {% for review_assignment in reminder.items_for_reminder %}
                             <tr>
-                                <td>{{ review_assignment.article.title }}</td>
+                                <td><a href={% url 'review_in_review' review_assignment.article.pk %}">{{ review_assignment.article.title }}</a></td>
                                 <td>{{ review_assignment.pk }}</td>
                                 <td>{{ review_assignment.date_due|date:"Y-m-d" }}</td>
-                                <td>TODO: Check if reminder has been sent.</td>
                             </tr>
                             {% empty %}
                             <tr>

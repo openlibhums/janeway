@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^reminders/(?P<reminder_id>\d+)/template/(?P<template_name>.*)/$', views.create_template,
         name='cron_create_template'),
     url(r'^reminders/dashboard/$', views.reminders_dashboard, name='cron_reminders_dashboard'),
+    url(r'^reminders/sent/$', views.reminders_sent, name='cron_reminders_sent'),
 ]

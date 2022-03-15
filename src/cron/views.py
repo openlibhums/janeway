@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 
 from cron import models, forms, logic
 from core import models as core_models
@@ -136,6 +137,20 @@ def reminders_dashboard(request):
     Displays information on reminders.
     """
     reminders = models.Reminder.objects.filter(journal=request.journal)
+
+    if request.POST:
+        reminder_id = request.POST.get('send_reminders')
+        reminder = get_object_or_404(
+            models.Reminder,
+            pk=reminder_id,
+            journal=request.journal,
+        )
+        reminder.send_reminder()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Reminders sent.',
+        )
 
     template = 'cron/reminders_dashboard.html'
     context = {
