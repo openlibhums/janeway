@@ -254,7 +254,7 @@ def create_crossref_journal_context(
     return {
         'journal_title': publication_title or journal.name,
         'journal_issn': ISSN_override or journal.issn,
-        'print_issn': journal.print_issn or '',
+        'print_issn': journal.print_issn,
     }
 
 def create_crossref_article_context(article, identifier=None):
@@ -333,25 +333,27 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     # Backwards compatibility
     if isinstance(identifiers, models.Identifier):
-        identifiers = [identifiers]
+        identifiers = set([identifiers])
+    elif isinstance(identifiers, list):
+        identifiers = set(identifiers)
     if not journal:
-        journal = identifiers[0].article.journal
+        journal = identifiers.pop().article.journal
 
     error = False
 
-    template = 'common/identifiers/crossref_doi_batch_context.xml'
+    template = 'common/identifiers/crossref_doi_batch.xml'
     template_context = create_crossref_doi_batch_context(journal, identifiers)
     rendered = render_to_string(template, template_context)
 
     logger.debug(rendered)
 
-    util_models.LogEntry.add_entry('Submission', "Sending request: {0}".format(rendered),
-                                   'Info',
-                                   target=identifier.article)
-    doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal)
-    username = setting_handler.get_setting('Identifiers', 'crossref_username', identifier.article.journal).processed_value
-    password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                           identifier.article.journal).processed_value
+    description = "Sending request: {0}".format(rendered)
+    articles = set([identifier.article for identifier in identifiers])
+    util_models.LogEntry.bulk_add_simple_entry('Submission', description, 'Info', targets=articles)
+
+    doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', journal).processed_value
+    username = setting_handler.get_setting('Identifiers', 'crossref_username', journal).processed_value
+    password = setting_handler.get_setting('Identifiers', 'crossref_password', journal).processed_value
 
     filename = uuid4()
 
@@ -364,39 +366,28 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
             depositor.get_endpoint(verb='deposit'),
             e,
         )
-        util_models.LogEntry.add_entry(
-            'Error',
-            status,
-            'Debug',
-            target=identifier.article,
-        )
+        util_models.LogEntry.bulk_add_simple_entry('Error', status, 'Debug', targets=articles)
         logger.error(status)
         return status, error
 
-    logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(identifier.article.id))
-    logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))
+    pks = ",".join([str(article.pk) for article in articles])
+    logger.debug(f"[CROSSREF:DEPOSIT:{pks}] Sending")
+    logger.debug(f"[CROSSREF:DEPOSIT:{pks}] Response code {response.status_code}")
 
     if response.status_code != 200:
-        util_models.LogEntry.add_entry('Error',
-                                       "Error depositing: {0}. {1}".format(response.status_code, response.text),
-                                       'Debug',
-                                       target=identifier.article)
-
-        status = "Error depositing: {code}, {text}".format(
-            code=response.status_code,
-            text=response.text
-        )
+        status = "Error depositing: {0}. {1}".format(response.status_code, response.text)
+        util_models.LogEntry.bulk_add_simple_entry('Error', status, 'Debug', targets=articles)
         logger.error(status)
         error = True
     else:
         status = "Deposited DOI"
-        util_models.LogEntry.add_entry('Submission', status, 'Info', target=identifier.article)
-        logger.info(status)
+        # util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
+        # logger.info(status)
 
-        crd = models.CrossrefDeposit(identifier=identifier, file_name=filename)
-        crd.save()
+        # crd = models.CrossrefDeposit(identifiers=identifiers, file_name=filename)
+        # crd.save()
 
-        crd.poll()
+        # crd.poll()
 
     return status, error
 
