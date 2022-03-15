@@ -1,35 +1,33 @@
-{% extends "common/identifiers/crossref_doi_batch.xml" %}
+{% spaceless %}<journal_metadata>{% endspaceless %}
+                <full_title>{{ crossref_issue.journal.journal_title }}</full_title>
+                {% if crossref_issue.journal.print_issn and crossref_issue.journal.print_issn != '0000-0000' %}
+                <issn media_type="print">{{ crossref_issue.journal.print_issn }}</issn>
+                {% endif %}
+                {% if crossref_issue.journal.journal_issn and crossref_issue.journal.journal_issn != '0000-0000' %}
+                <issn media_type="electronic">{{ crossref_issue.journal.journal_issn }}</issn>
+                {% endif %}
+            </journal_metadata>
 
-<journal_metadata>
-    <full_title>{{ crossref_issue.journal_title }}</full_title>
-    {% if crossref_issue.print_issn and crossref_issue.print_issn != '0000-0000' %}
-    <issn media_type="print">{{ crossref_issue.print_issn }}</issn>
-    {% endif %}
-    {% if crossref_issue.journal_issn and crossref_issue.journal_issn != '0000-0000' %}
-    <issn media_type="electronic">{{ crossref_issue.journal_issn }}</issn>
-    {% endif %}
-</journal_metadata>
+            {% if crossref_issue.issue and crossref_issue.issue.date %}
+            <journal_issue>
+                {% if crossref_issue.issue.issue_title %}
+                <titles>
+                    <title>{{ crossref_issue.issue.issue_title }}</title>
+                </titles>
+                {% endif %}
+                <publication_date media_type="online">
+                    <month>{{ crossref_issue.issue.date.month }}</month>
+                    <day>{{ crossref_issue.issue.date.day }}</day>
+                    <year>{{ crossref_issue.issue.date.year }}</year>
+                </publication_date>
 
-{% if crossref_issue.issue and crossref_issue.issue.date %}
-<journal_issue>
-    {% if crossref_issue.issue.issue_title %}
-    <titles>
-        <title>{{ crossref_issue.issue.issue_title }}</title>
-    </titles>
-    {% endif %}
-    <publication_date media_type="online">
-        <month>{{ crossref_issue.issue.date.month }}</month>
-        <day>{{ crossref_issue.issue.date.day }}</day>
-        <year>{{ crossref_issue.issue.date.year }}</year>
-    </publication_date>
+                <journal_volume>
+                    <volume>{{ crossref_issue.issue.volume }}</volume>
+                </journal_volume>
+                <issue>{{ crossref_issue.issue.issue }}</issue>
+            </journal_issue>
+            {% endif %}
 
-    <journal_volume>
-        <volume>{{ crossref_issue.issue.volume }}</volume>
-    </journal_volume>
-    <issue>{{ crossref_issue.issue.issue }}</issue>
-</journal_issue>
-{% endif %}
-
-{% for article in crossref_issue.articles %}
-    {% include "common/identifiers/crossref_article.xml" with article=article %}
-{% endfor %}
+            {% for article in crossref_issue.articles %}
+                {% include "common/identifiers/crossref_article.xml" with article=article %}
+            {% endfor %}
