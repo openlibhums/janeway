@@ -106,7 +106,7 @@ def robots(request):
                 # raising a 404 here if you browse to this url in path mode.
                 raise Http404()
         return files.serve_robots_file()
-    except FileNotFoundError():
+    except FileNotFoundError:
         logger.warning('Robots file not found.')
         raise Http404()
 
