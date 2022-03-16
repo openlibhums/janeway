@@ -148,8 +148,13 @@ def reminders_dashboard(request):
         reminder.send_reminder()
         messages.add_message(
             request,
-            messages.SUCCESS,
-            'Reminders sent.',
+            messages.INFO,
+            'Reminders processed.',
+        )
+        return redirect(
+            reverse(
+                'cron_reminders_dashboard',
+            )
         )
 
     template = 'cron/reminders_dashboard.html'

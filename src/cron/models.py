@@ -12,6 +12,7 @@ from datetime import timedelta
 from cron import logic
 from journal import models as journal_models
 from utils import render_template, notify_helpers
+from review import models as review_models
 
 
 class CronTask(models.Model):
@@ -56,12 +57,18 @@ class CronTask(models.Model):
 
         task.save()
 
-
-REMINDER_CHOICES = (
+REVIEW_REMINDER_TYPES = {
     ('review', 'Review (Invited)'),
     ('accepted-review', 'Review (Accepted)'),
+}
+REVISION_REMINDER_TYPES = {
     ('revisions', 'Revision'),
-)
+}
+
+REMINDER_CHOICES = {
+    REVIEW_REMINDER_TYPES,
+    REVISION_REMINDER_TYPES,
+}
 
 RUN_TYPE_CHOICES = (
     # Before the event
@@ -79,6 +86,16 @@ class SentReminder(models.Model):
         'Reminder',
         null=True,
     )
+
+    def object(self):
+        if self.type in ['review', 'accepted-review']:
+            return review_models.ReviewAssignment.objects.get(
+                pk=self.object_id,
+            )
+        elif type in ['revisions']:
+            return review_models.RevisionRequest.objects.get(
+                pk=self.object_id,
+            )
 
 
 class Reminder(models.Model):
