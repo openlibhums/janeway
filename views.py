@@ -142,6 +142,24 @@ def typesetting_article(request, article_id):
                 kwargs={'article_id': article.pk},
             )
         )
+    elif request.POST and 'edit-label' in request.POST:
+        label = request.POST.get('edit-label', 'Supplementary File')
+        supp_file = get_object_or_404(
+            core_models.SupplementaryFile,
+            id=int(request.POST.get("supp-id", 0)),
+        )
+        file_obj = supp_file.file
+        # Cope with file not having foreign key to article
+        if file_obj.article != article:
+            raise Http404()
+        file_obj.label = label
+        file_obj.save()
+
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Label updated: %s' % label,
+        )
 
     template = 'typesetting/typesetting_article.html'
     context = {
@@ -1479,4 +1497,3 @@ def mint_supp_doi(request, supp_file_id):
             )
 
     return redirect(request.META.get('HTTP_REFERER'))
-
