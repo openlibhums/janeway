@@ -95,20 +95,23 @@ def register_batch_of_crossref_dois(articles):
     add_doi_logs(test_mode, articles)
 
     if use_crossref:
-
-        identifiers = []
-        for article in articles:
-            try:
-                identifier = article.get_identifier('doi', object=True)
-                if not identifier:
-                    identifier = identifier_logic.generate_crossref_doi_with_pattern(article)
-                identifiers.append(identifier)
-            except AttributeError as e:
-                logger.debug(f'Error with article {article.pk}: {e}')
-
+        identifiers = get_doi_identifiers_for_articles(articles)
         return send_crossref_deposit(test_mode, identifiers, journal)
     else:
         return 'Crossref Disabled', 'Disabled'
+
+
+def get_doi_identifiers_for_articles(articles):
+    identifiers = []
+    for article in articles:
+        try:
+            identifier = article.get_identifier('doi', object=True)
+            if not identifier:
+                identifier = generate_crossref_doi_with_pattern(article)
+            identifiers.append(identifier)
+        except AttributeError as e:
+            logger.debug(f'Error with article {article.pk}: {e}')
+    return identifiers
 
 
 def register_crossref_component(article, xml, supp_file):

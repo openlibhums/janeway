@@ -49,9 +49,16 @@ class CrossrefDeposit(models.Model):
     2. If success is False, then all other flags except queued should be disregarded as non-useful.
     3. If success is True but citation_success is False, then the deposit succeeded, but Crossref had trouble
     parsing some references for unknown reasons.
+
+    The identifiers must all be for the same journal.
     """
 
-    identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
+    identifiers = models.ManyToManyField("identifiers.Identifier")
+    deposit = models.TextField(
+        null=True,
+        blank=True,
+        help_text='The deposit document with rendered XML for the DOI batch.'
+    )
     has_result = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
     queued = models.BooleanField(default=False)
@@ -61,16 +68,34 @@ class CrossrefDeposit(models.Model):
     date_time = models.DateTimeField(default=timezone.now)
     polling_attempts = models.PositiveIntegerField(default=0)
 
+    # Note: CrossrefDeposit.identifier is deprecated from version 1.4.2
+    identifier = models.ForeignKey(
+        "identifiers.Identifier",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='deposit_identifier', # Required to avoid reverse accessor clashes
+    )
+
+    @property
+    def journal(self):
+        journals = set([identifier.article.journal for identifier in identifiers])
+        if journals.count() > 1:
+            error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
+            logger.debug(error)
+        else:
+            return journals.pop()
+
     def poll(self):
         self.polling_attempts += 1
         self.save()
         test_mode = setting_handler.get_setting('Identifiers',
                                                 'crossref_test',
-                                                self.identifier.article.journal).processed_value or settings.DEBUG
+                                                self.journal).processed_value or settings.DEBUG
         username = setting_handler.get_setting('Identifiers', 'crossref_username',
-                                               self.identifier.article.journal).processed_value
+                                               self.journal).processed_value
         password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                               self.identifier.article.journal).processed_value
+                                               self.journal).processed_value
 
         if test_mode:
             test_var = 'test'
