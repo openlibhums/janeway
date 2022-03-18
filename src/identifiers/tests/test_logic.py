@@ -209,3 +209,9 @@ class TestLogic(TestCase):
     def test_preview_registration_information_when_custom_doi(self):
         clear_cache()
         self.assertTrue(self.doi_three.identifier in self.article_three.registration_preview)
+
+    def test_send_crossref_deposit(self):
+        identifiers = set([identifier for identifier in models.Identifier.objects.all()])
+        test_mode = True
+        status, error = logic.send_crossref_deposit(test_mode, identifiers)
+        pass
