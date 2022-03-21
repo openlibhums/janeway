@@ -405,12 +405,14 @@ class AbstractLastModifiedModel(models.Model):
                 related_filter = {remote_field: self}
                 objects = manager.through.objects.filter(**related_filter)
             elif field.one_to_many:
-                accessor = getattr(self, field.get_accessor_name())
+                remote_field = field.remote_field.name
+                accessor_name = field.get_accessor_name()
+                accessor = getattr(self, accessor_name)
                 objects = accessor.all()
 
-            for object in objects:
-                if hasattr(object, 'last_modified'):
-                    dates.append(getattr(object, 'last_modified'))
+            for obj in objects:
+                if hasattr(obj, 'last_modified'):
+                    dates.append(getattr(obj, 'last_modified'))
 
         return max(dates)
 

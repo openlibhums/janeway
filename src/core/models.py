@@ -711,7 +711,7 @@ class SettingValue(models.Model):
         super().save(*args, **kwargs)
 
 
-class File(models.Model):
+class File(AbstractLastModifiedModel):
     article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
 
     mime_type = models.CharField(max_length=255)
@@ -724,7 +724,6 @@ class File(models.Model):
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
 
     date_uploaded = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
 
     is_galley = models.BooleanField(default=False)
 
@@ -732,7 +731,10 @@ class File(models.Model):
     is_remote = models.BooleanField(default=False)
     remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
 
-    history = models.ManyToManyField('FileHistory')
+    history = models.ManyToManyField(
+        'FileHistory',
+        blank=True,
+    )
 
     class Meta:
         ordering = ('sequence', 'pk')
