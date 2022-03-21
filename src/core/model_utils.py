@@ -377,7 +377,6 @@ class AbstractLastModifiedModelManager(models.Manager):
 class AbstractLastModifiedModel(models.Model):
     last_modified = models.DateTimeField(
         auto_now=True,
-        auto_now_add=False,
         editable=True
     )
     objects = AbstractLastModifiedModelManager()
