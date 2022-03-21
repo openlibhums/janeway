@@ -17,4 +17,9 @@ class Migration(migrations.Migration):
             name='last_modified',
             field=models.DateTimeField(auto_now=True),
         ),
+        migrations.RenameField(
+            model_name='file',
+            old_name='date_modified',
+            new_name='last_modified',
+        ),
     ]
