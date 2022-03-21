@@ -25,8 +25,10 @@ from django.db.models.fields.related_descriptors import (
 )
 from django.http.request import split_domain_port
 from django.utils.functional import cached_property
-from django.utils import translation
+from django.utils import translation, timezone
 from django.conf import settings
+from django.db.models.query import QuerySet
+
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
 from PIL import Image
@@ -358,3 +360,59 @@ def is_svg(f):
     except et.ParseError:
         pass
     return tag == '{http://www.w3.org/2000/svg}svg'
+
+
+class AbstractLastModifiedModelQuerySet(models.query.QuerySet):
+    def update(self, *args, **kwargs):
+        kwargs['last_modified'] = timezone.now()
+        super().update(*args, **kwargs)
+
+
+class AbstractLastModifiedModelManager(models.Manager):
+    def get_queryset(self):
+        # this is to use your custom queryset methods
+        return AbstractLastModifiedModelQuerySet(self.model, using=self._db)
+
+
+class AbstractLastModifiedModel(models.Model):
+    last_modified = models.DateTimeField(
+        auto_now=True,
+        auto_now_add=False,
+        editable=True
+    )
+    objects = AbstractLastModifiedModelManager()
+
+    class Meta:
+        abstract = True
+
+    def best_last_modified_date(self):
+        """
+        Grabs related objects and checks for last_modified dates.
+        Returns the soonest date.
+        """
+        dates = [self.last_modified]
+
+        fields = self._meta.get_fields()
+        for field in fields:
+            objects = []
+            if field.many_to_many:
+                if isinstance(field, models.Field):
+                    related_model = field.related_model
+                    remote_field = field.remote_field.name
+                    manager = getattr(self, field.get_attname())
+                else:
+                    manager = getattr(self, field.get_accessor_name())
+                remote_field = manager.source_field_name
+                related_filter = {remote_field: self}
+                objects = manager.through.objects.filter(**related_filter)
+            elif field.one_to_many:
+                accessor = getattr(self, field.get_accessor_name())
+                objects = accessor.all()
+
+            for object in objects:
+                if hasattr(object, 'last_modified'):
+                    dates.append(getattr(object, 'last_modified'))
+
+        return max(dates)
+
+

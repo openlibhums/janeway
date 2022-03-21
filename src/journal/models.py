@@ -28,7 +28,7 @@ from core import (
         workflow,
 )
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, SVGImageField
+from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
 from press import models as press_models
 from submission import models as submission_models
 from utils import setting_handler, logic, install
@@ -486,7 +486,7 @@ class PinnedArticle(models.Model):
 ISSUE_CODE_RE = re.compile("^[a-zA-Z0-9-_]+$")
 
 
-class Issue(models.Model):
+class Issue(AbstractLastModifiedModel):
     journal = models.ForeignKey(Journal)
 
     # issue metadata

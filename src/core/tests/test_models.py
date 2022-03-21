@@ -2,11 +2,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.forms import Form
 from django.test import TestCase
+from django.utils import timezone
 
 from core import forms, models
 from core.model_utils import merge_models, SVGImageFieldForm
 from journal import models as journal_models
 from utils.testing import helpers
+from submission import models as submission_models
 
 
 class TestAccount(TestCase):
@@ -250,3 +252,34 @@ class TestSVGImageFormField(TestCase):
         )
         form = TestForm({}, {"file": image_file})
         self.assertTrue(form.is_valid())
+
+
+class TestModelUtils(TestCase):
+
+    def setUp(self):
+        self.press = helpers.create_press()
+        self.press.save()
+        self.journal_one, self.journal_two = helpers.create_journals()
+
+        self.article, c = submission_models.Article.objects.get_or_create(
+            title='Test Model Utils Article',
+        )
+
+    def test_abstract_last_mod_save(self):
+        test_abstract_text = 'The Phantom Menace Sucks'
+        self.article.abstract = test_abstract_text
+        self.article.save()
+
+        self.assertEqual(
+            self.article.abstract,
+            test_abstract_text
+        )
+
+    def test_abstract_last_mod_update_doesnt_die(self):
+        article_last_mod = self.article.last_modified
+
+        articles = submission_models.Article.objects.filter(
+            pk=self.article.pk
+        ).update(
+            title='You\'re Wrong About the Phantom Menace'
+        )

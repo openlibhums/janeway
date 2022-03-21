@@ -26,7 +26,7 @@ from django.urls import reverse
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
+from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField, AbstractLastModifiedModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
@@ -895,7 +895,7 @@ def galley_type_choices():
     )
 
 
-class Galley(models.Model):
+class Galley(AbstractLastModifiedModel):
     # Local Galley
     article = models.ForeignKey('submission.Article', null=True)
     file = models.ForeignKey(File)

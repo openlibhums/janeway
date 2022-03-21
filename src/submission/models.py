@@ -21,7 +21,7 @@ from django.core import exceptions
 from django.utils.html import mark_safe
 
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import M2MOrderedThroughField
+from core.model_utils import M2MOrderedThroughField, AbstractLastModifiedModel
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
@@ -293,7 +293,7 @@ class ArticleStageLog(models.Model):
                                                                                             date_time=self.date_time)
 
 
-class PublisherNote(models.Model):
+class PublisherNote(AbstractLastModifiedModel):
     text = models.TextField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
     creator = models.ForeignKey('core.Account', default=None)
@@ -364,7 +364,7 @@ class DynamicChoiceField(models.CharField):
                     raise
 
 
-class Article(models.Model):
+class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
@@ -1397,7 +1397,7 @@ class Article(models.Model):
         )
 
 
-class FrozenAuthor(models.Model):
+class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
@@ -1573,7 +1573,7 @@ class FrozenAuthor(models.Model):
             return True
 
 
-class Section(models.Model):
+class Section(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal')
     number_of_reviewers = models.IntegerField(default=2)
 
@@ -1650,7 +1650,7 @@ class Section(models.Model):
         return self.name
 
 
-class Licence(models.Model):
+class Licence(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True, on_delete=models.SET_NULL)
     press = models.ForeignKey('press.Press', null=True, blank=True, on_delete=models.SET_NULL)
 
