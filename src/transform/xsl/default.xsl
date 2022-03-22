@@ -978,7 +978,7 @@
                 <xsl:if test="following-sibling::graphic">
                     <xsl:variable name="caption" select="parent::table-wrap/label/text()"/>
                     <xsl:variable name="graphics" select="following-sibling::graphic/@xlink:href"/>
-                    <div class="fig-inline-img">
+                    <div class="fig-inline-img-set">
                         <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
                             <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
                         </a>
@@ -1415,16 +1415,18 @@
         </xsl:variable>
         <xsl:variable name="graphics" select="graphic/@xlink:href"/>
         <div id="{$id}" class="fig-inline-img-set">
+	  <xsl:for-each select="graphic">
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
+                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}">
+				<img data-img="{$graphics}" src="{@xlink:href}" alt="{$caption}" class="responsive-img" />
                         </a>
                     </div>
-                    <xsl:apply-templates/>
                 </div>
             </div>
+	    </xsl:for-each>
+            <xsl:apply-templates/>
         </div>
     </xsl:template>
 
