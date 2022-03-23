@@ -2313,7 +2313,6 @@
 
 
   <xsl:template match="year" mode="nscitation">
-    <xsl:text> </xsl:text>
     <xsl:apply-templates/>
   </xsl:template>
 
