@@ -4,11 +4,10 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from contextlib import ContextDecorator
-import sys
+from mock import Mock
 
-from django.core.management import call_command
 from django.utils import translation, timezone
-from django.utils.six import StringIO
+from django.http import HttpRequest
 
 from core import (
     middleware,
@@ -405,3 +404,38 @@ def create_reminder(journal=None, reminder_type=None):
     )
 
     return reminder
+
+
+def test_prepare_request_with_user(user, journal=None, press=None, repository=None):
+    """
+    Build a basic request dummy object with the journal set to journal
+    and the user having editor permissions.
+    :param user: the user to use
+    :param journal: the journal to use
+    :param press: the press to use
+    :param repository: the repository to use
+    :return: an object with user and properties
+    """
+    request = Mock(HttpRequest)
+    request.user = user
+    request.GET = Mock()
+    request.GET.get = test_get_method
+    request.journal = journal
+    request._messages = Mock()
+    request._messages.add = test_mock_messages_add
+    request.path = '/a/fake/path/'
+    request.path_info = '/a/fake/path/'
+    request.press = press
+    request.repository = repository
+
+    return request
+
+
+@staticmethod
+def test_mock_messages_add(level, message, extra_tags):
+    pass
+
+
+@staticmethod
+def test_get_method(field):
+    return None

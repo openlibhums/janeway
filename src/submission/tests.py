@@ -10,6 +10,8 @@ from django.http import Http404
 from django.test import TestCase
 from django.utils import translation
 from django.conf import settings
+from django.shortcuts import reverse
+from django.test.utils import override_settings
 
 from core.models import Account
 from identifiers import logic as id_logic
@@ -22,6 +24,7 @@ from submission import (
 )
 
 from utils.install import update_xsl_files, update_settings, update_issue_types
+from utils.testing import helpers
 
 
 # Create your tests here.
@@ -84,6 +87,8 @@ class SubmissionTests(TestCase):
         :return: None
         """
         self.journal_one = self.create_journal()
+        self.editor = helpers.create_editor(self.journal_one)
+        self.press = helpers.create_press()
 
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(journal=self.journal_one)
@@ -410,6 +415,58 @@ class SubmissionTests(TestCase):
             )
             form = forms.ArticleInfoSubmit(instance=article)
             self.assertTrue(section not in form.fields["section"].queryset)
+
+    @override_settings(URL_CONFIG='domain')
+    def test_submit_info_view_form_selection_editor(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: a test of sections",
+        )
+        with translation.override("en"):
+            section = models.Section.objects.create(
+                journal=self.journal_one,
+                name="section",
+                public_submissions=False,
+            )
+        self.client.force_login(
+            self.editor,
+        )
+        response = self.client.get(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article.pk}
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, section.__str__())
+
+    @override_settings(URL_CONFIG='domain')
+    def test_submit_info_view_form_selection_author(self):
+        author_1, author_2 = self.create_authors()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: a test of author sections",
+            owner=author_1,
+        )
+        with translation.override("en"):
+            section = models.Section.objects.create(
+                journal=self.journal_one,
+                name="section",
+                public_submissions=False,
+            )
+        self.client.force_login(
+            author_1,
+        )
+        response = self.client.get(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article.pk}
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, section.__str__())
 
     def test_article_issue_title(self):
         from utils.testing import helpers
