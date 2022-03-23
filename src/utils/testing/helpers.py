@@ -4,10 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from contextlib import ContextDecorator
-from mock import Mock
 
 from django.utils import translation, timezone
-from django.http import HttpRequest
 
 from core import (
     middleware,
