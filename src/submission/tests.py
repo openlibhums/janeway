@@ -175,7 +175,6 @@ class SubmissionTests(TestCase):
         self.assertTrue(func.called,
             "Funding pages not available when they should be")
 
-
     def test_funding_is_enabled_decorator_disabled(self):
         request = Mock()
         journal = self.journal_one
@@ -276,7 +275,7 @@ class SubmissionTests(TestCase):
 
         self.assertTrue(frozen.full_name().startswith(prefix))
 
-    def test_frozen_author_prefix(self):
+    def test_frozen_author_suffix(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test article: a test article",
@@ -386,7 +385,7 @@ class SubmissionTests(TestCase):
     def test_edit_section(self):
         """ Ensures editors can select sections that are not submissible"""
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of sections",
         )
         with translation.override("en"):
@@ -400,7 +399,7 @@ class SubmissionTests(TestCase):
 
     def test_select_disabled_section_submit(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of sections",
         )
         with translation.override("en"):

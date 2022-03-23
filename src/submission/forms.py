@@ -223,6 +223,11 @@ class ArticleInfoSubmit(ArticleInfo):
     FILTER_PUBLIC_FIELDS = True
 
 
+class EditorArticleInfoSubmit(ArticleInfo):
+    # Used when an editor is making a submission.
+    FILTER_PUBLIC_FIELDS = False
+
+
 class AuthorForm(forms.ModelForm):
 
     class Meta:
