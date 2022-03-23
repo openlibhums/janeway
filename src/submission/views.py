@@ -167,7 +167,13 @@ def submit_info(request, article_id):
             'submission_summary',
             request.journal,
         ).processed_value
-        form = forms.ArticleInfoSubmit(
+
+        # Determine the form to use depending on whether the user is an editor.
+        article_info_form = forms.ArticleInfoSubmit
+        if request.user.is_editor(request):
+            article_info_form = forms.EditorArticleInfoSubmit
+
+        form = article_info_form(
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
@@ -175,7 +181,7 @@ def submit_info(request, article_id):
         )
 
         if request.POST:
-            form = forms.ArticleInfoSubmit(
+            form = article_info_form(
                 request.POST,
                 instance=article,
                 additional_fields=additional_fields,
