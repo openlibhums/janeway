@@ -37,8 +37,8 @@ DATABASES = {
     'default': {
         #Example ENGINEs:
         #   sqlite:     'django.db.backends.sqlite
-        #   mysql:      'django.db.backends.sqlite
-        #   postgres:   'django.db.backends.postgres
+        #   mysql:      'django.db.backends.mysql
+        #   postgres:   'django.db.backends.postgresql
         'ENGINE': 'django.db.backends.mysql',
         'NAME': '',
         'USER': '',
@@ -48,4 +48,3 @@ DATABASES = {
         'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
     }
 }
-
