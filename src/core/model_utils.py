@@ -389,10 +389,10 @@ class AbstractLastModifiedModel(models.Model):
         Grabs related objects and checks for last_modified dates.
         Returns the soonest date.
         """
-        dates = [self.last_modified]
+        last_mod_date = self.last_modified
 
-        fields = self._meta.get_fields()
-        for field in fields:
+        obj_fields = self._meta.get_fields()
+        for field in obj_fields:
             objects = []
             if field.many_to_many:
                 if isinstance(field, models.Field):
@@ -410,10 +410,16 @@ class AbstractLastModifiedModel(models.Model):
                 accessor = getattr(self, accessor_name)
                 objects = accessor.all()
 
+            if self.__class__.__name__ == "Galley":
+                pass #import pdb;pdb.set_trace()
             for obj in objects:
-                if hasattr(obj, 'last_modified'):
-                    dates.append(getattr(obj, 'last_modified'))
+                if isinstance(obj, AbstractLastModifiedModel):
+                    obj_modified = obj.best_last_modified_date()
+                    if (not last_mod_date
+                        or obj_modified and obj_modified > last_mod_date
+                    ):
+                        last_mod_date = obj_modified
 
-        return max(dates)
+        return last_mod_date
 
 
