@@ -384,12 +384,18 @@ class AbstractLastModifiedModel(models.Model):
     class Meta:
         abstract = True
 
-    def best_last_modified_date(self):
-        """
-        Grabs related objects and checks for last_modified dates.
+    def best_last_modified_date(self, ignore_fields=None):
+        """ Determines the last modified date considering all related objects
+        Any relationship which is an instance of this class will have its
+        `last_modified` date considered for calculating the last_modified date
+        for the instance from which this method is called
+        :param ingore_rels: A iterable of relationships to ignore. It avoids
+            infinite recursion when 2 models have a circualar relationship
         Returns the soonest date.
         """
         last_mod_date = self.last_modified
+        if ignore_fields is None:
+            ignore_fields = set()
 
         obj_fields = self._meta.get_fields()
         for field in obj_fields:
@@ -409,10 +415,11 @@ class AbstractLastModifiedModel(models.Model):
                 accessor_name = field.get_accessor_name()
                 accessor = getattr(self, accessor_name)
                 objects = accessor.all()
+            ignore_fields.add(field)
 
             for obj in objects:
                 if isinstance(obj, AbstractLastModifiedModel):
-                    obj_modified = obj.best_last_modified_date()
+                    obj_modified = obj.best_last_modified_date(ignore_fields)
                     if (not last_mod_date
                         or obj_modified and obj_modified > last_mod_date
                     ):
