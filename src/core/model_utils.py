@@ -400,6 +400,8 @@ class AbstractLastModifiedModel(models.Model):
         obj_fields = self._meta.get_fields()
         for field in obj_fields:
             objects = []
+            if field in ignore_fields:
+                continue
             if field.many_to_many:
                 if isinstance(field, models.Field):
                     related_model = field.related_model
