@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.forms import Form
 from django.test import TestCase
 from django.utils import timezone
+from freezegun import freeze_time
 
 from core import forms, models
 from core.model_utils import merge_models, SVGImageFieldForm
@@ -254,12 +257,13 @@ class TestSVGImageFormField(TestCase):
         self.assertTrue(form.is_valid())
 
 
-class TestModelUtils(TestCase):
+class TestLastModifiedModel(TestCase):
 
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
         self.journal_one, self.journal_two = helpers.create_journals()
+        self.issue = helpers.create_issue(self.journal_one)
 
         self.article, c = submission_models.Article.objects.get_or_create(
             title='Test Model Utils Article',
@@ -283,3 +287,45 @@ class TestModelUtils(TestCase):
         ).update(
             title='You\'re Wrong About the Phantom Menace'
         )
+
+    def test_last_modified_model(self):
+        # prepare
+        with freeze_time("2021-01-02"):
+            issue_date = self.issue.last_modified = (
+                timezone.now() - timedelta(days=1)
+            )
+            self.issue.save()
+        with freeze_time("2021-01-01"):
+            self.article.last_modified = (
+                timezone.now() - timedelta(days=2)
+            )
+            self.article.save()
+
+        # Test
+        self.assertEqual(self.article.best_last_modified_date(), issue_date)
+
+    def test_last_modified_model_recursive(self):
+        # prepare
+
+        with freeze_time("2021-01-03"):
+            file_obj = models.File.objects.create()
+            file_date = file_obj.las_modified = (
+                timezone.now() - timedelta(days=1)
+            )
+            file_obj.save()
+
+        with freeze_time("2021-01-02"):
+            galley = helpers.create_galley(self.article, file_obj)
+            galley.last_modified = (
+                timezone.now() - timedelta(days=2)
+            )
+            galley.save()
+
+        with freeze_time("2021-01-01"):
+            self.article.last_modified = (
+                timezone.now() - timedelta(days=3)
+            )
+            self.article.save()
+
+        # Test
+        self.assertEqual(self.article.best_last_modified_date(), file_date)
