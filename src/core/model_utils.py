@@ -410,8 +410,6 @@ class AbstractLastModifiedModel(models.Model):
                 accessor = getattr(self, accessor_name)
                 objects = accessor.all()
 
-            if self.__class__.__name__ == "Galley":
-                pass #import pdb;pdb.set_trace()
             for obj in objects:
                 if isinstance(obj, AbstractLastModifiedModel):
                     obj_modified = obj.best_last_modified_date()
