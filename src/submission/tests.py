@@ -9,6 +9,7 @@ import os
 from django.http import Http404
 from django.test import TestCase
 from django.utils import translation
+from django.urls.base import clear_script_prefix
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test.utils import override_settings
@@ -25,6 +26,7 @@ from submission import (
 
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.testing import helpers
+from utils.testing.helpers import request_context
 
 
 # Create your tests here.
@@ -431,11 +433,9 @@ class SubmissionTests(TestCase):
         self.client.force_login(
             self.editor,
         )
+        clear_script_prefix()
         response = self.client.get(
-            reverse(
-                'submit_info',
-                kwargs={'article_id': article.pk}
-            ),
+            reverse('submit_info', kwargs={'article_id': article.pk}),
             SERVER_NAME="testserver",
         )
         self.assertEqual(response.status_code, 200)
@@ -458,11 +458,9 @@ class SubmissionTests(TestCase):
         self.client.force_login(
             author_1,
         )
+        clear_script_prefix()
         response = self.client.get(
-            reverse(
-                'submit_info',
-                kwargs={'article_id': article.pk}
-            ),
+            reverse('submit_info', kwargs={'article_id': article.pk}),
             SERVER_NAME="testserver",
         )
         self.assertEqual(response.status_code, 200)
