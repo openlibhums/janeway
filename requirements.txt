@@ -51,4 +51,4 @@ user-agents==1.0.1
 django-hijack==2.1.10
 geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4
-freezegun
+freezegun==1.2.0

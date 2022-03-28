@@ -35,6 +35,9 @@ from PIL import Image
 import xml.etree.cElementTree as et
 
 from utils import logic
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class AbstractSiteModel(models.Model):
@@ -362,16 +365,16 @@ def is_svg(f):
     return tag == '{http://www.w3.org/2000/svg}svg'
 
 
-class AbstractLastModifiedModelQuerySet(models.query.QuerySet):
+class LastModifiedModelQuerySet(models.query.QuerySet):
     def update(self, *args, **kwargs):
         kwargs['last_modified'] = timezone.now()
         super().update(*args, **kwargs)
 
 
-class AbstractLastModifiedModelManager(models.Manager):
+class LastModifiedModelManager(models.Manager):
     def get_queryset(self):
         # this is to use your custom queryset methods
-        return AbstractLastModifiedModelQuerySet(self.model, using=self._db)
+        return LastModifiedModelQuerySet(self.model, using=self._db)
 
 
 class AbstractLastModifiedModel(models.Model):
@@ -379,7 +382,7 @@ class AbstractLastModifiedModel(models.Model):
         auto_now=True,
         editable=True
     )
-    objects = AbstractLastModifiedModelManager()
+    objects = LastModifiedModelManager()
 
     class Meta:
         abstract = True
@@ -389,22 +392,22 @@ class AbstractLastModifiedModel(models.Model):
         Any relationship which is an instance of this class will have its
         `last_modified` date considered for calculating the last_modified date
         for the instance from which this method is called
-        :param ingore_rels: A iterable of relationships to ignore. It avoids
-            infinite recursion when 2 models have a circualar relationship
-        Returns the soonest date.
+        :param ingore_rels: A set() of relationships to ignore. It avoids
+            infinite recursion when 2 models have are circularly related
+        :return: The most recent last_modified date of all related models.
         """
         last_mod_date = self.last_modified
+        logger.debug("Calculating last_mod for %s: %s", self.__class__, self)
         if ignore_fields is None:
             ignore_fields = set()
 
         obj_fields = self._meta.get_fields()
         for field in obj_fields:
-            objects = []
             if field in ignore_fields:
                 continue
+            objects = []
             if field.many_to_many:
                 if isinstance(field, models.Field):
-                    related_model = field.related_model
                     remote_field = field.remote_field.name
                     manager = getattr(self, field.get_attname())
                 else:
@@ -417,16 +420,18 @@ class AbstractLastModifiedModel(models.Model):
                 accessor_name = field.get_accessor_name()
                 accessor = getattr(self, accessor_name)
                 objects = accessor.all()
-            ignore_fields.add(field)
+            elif field.many_to_one:
+                objects = [getattr(self, field.name)]
+
+            ignore_fields.add(field.remote_field)
 
             for obj in objects:
                 if isinstance(obj, AbstractLastModifiedModel):
                     obj_modified = obj.best_last_modified_date(ignore_fields)
-                    if (not last_mod_date
+                    if (
+                        not last_mod_date
                         or obj_modified and obj_modified > last_mod_date
                     ):
                         last_mod_date = obj_modified
 
         return last_mod_date
-
-
