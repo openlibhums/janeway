@@ -1,3 +1,4 @@
+
 .. _imageguidelines:
 
 Image guidelines
@@ -78,6 +79,17 @@ The large image has a maximum height of 260px for the material theme and 400px f
 .. tip::
     The article images can be disabled entirely in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`.
 
+Issue Images
+------------
+The Issue page uses the Cover Image file of an Issue and, if it's not available, the default cover image for its parent journal and displays them in portrait for the Material and OLH themes. The Clean theme does not have images on the Issue page.
+
+
+Collection Images
+-----------------
+The Collection page uses the Large Image file of an Issue and, if it's not available, the default large image for its parent journal. In all three core themes landscape images are best here.
+
+.. tip::
+    Whilst there are recommended image sizes for the Issue and Collection pages consistency is more important. If you load images of 300x200 for a Collection you should consistently load images with the same aspect ratio.
 
 Favicon
 -------
