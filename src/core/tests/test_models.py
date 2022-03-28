@@ -309,22 +309,37 @@ class TestLastModifiedModel(TestCase):
 
         with freeze_time("2021-01-03"):
             file_obj = models.File.objects.create()
-            file_date = file_obj.las_modified = (
-                timezone.now() - timedelta(days=1)
-            )
+            file_date = file_obj.las_modified = timezone.now()
             file_obj.save()
 
         with freeze_time("2021-01-02"):
             galley = helpers.create_galley(self.article, file_obj)
-            galley.last_modified = (
-                timezone.now() - timedelta(days=2)
-            )
+            galley.last_modified = timezone.now()
             galley.save()
 
         with freeze_time("2021-01-01"):
-            self.article.last_modified = (
-                timezone.now() - timedelta(days=3)
-            )
+            self.article.last_modified = timezone.now()
+            self.article.save()
+
+        # Test
+        self.assertEqual(self.article.best_last_modified_date(), file_date)
+
+    def test_last_modified_model_recursive_circular(self):
+        # prepare
+
+        with freeze_time("2021-01-03"):
+            file_obj = models.File.objects.create()
+            file_date = file_obj.las_modified = timezone.now()
+            file_obj.save()
+
+        with freeze_time("2021-01-02"):
+            galley = helpers.create_galley(self.article, file_obj)
+            galley.article = self.article
+            galley.last_modified = timezone.now()
+            galley.save()
+
+        with freeze_time("2021-01-01"):
+            self.article.last_modified = timezone.now()
             self.article.save()
 
         # Test
