@@ -19,8 +19,11 @@
                         <div class="box collection " data-equalizer-watch>
                             <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
                             <img
-                            src="{{ collection.hero_image_url }}"
-                            alt="{{ collection.issue_title }}" class="img-fluid">
+                                src="{{ collection.hero_image_url }}"
+                                alt="{{ collection.issue_title }}"
+                                class="img-fluid"
+                                onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
+                            >
                             <div class="content">
                                 <p>Collection<br/>
                                     <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>

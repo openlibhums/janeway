@@ -15,7 +15,9 @@
                     <img
                         class="card-img-top img-fluid"
                         src="{{ collection.hero_image_url }}"
-                        alt="{{ collection.issue_title }}">
+                        alt="{{ collection.issue_title }}"
+                        onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
+                    >
                     <div class="card-block">
                         <a href="{% url 'journal_collection' collection.pk %}">
                             <h4 class="card-title">{{ collection.issue_title }}</h4>

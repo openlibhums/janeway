@@ -16,7 +16,9 @@
                         <img
                             class="issue_image img-fluid"
                             src="{{ collection.hero_image_url }}"
-                            alt="{{ collection.issue_title }}">
+                            alt="{{ collection.issue_title }}"
+                            onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
+                        >
                             <a href="{% url 'journal_collection' collection.id %}" class="carousel-text-wrapper card-title" style="width:100%">{{ collection.issue_title }}</a>
                     </div>
                         <div class="card-content scroll-y">
