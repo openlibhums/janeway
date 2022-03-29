@@ -10,7 +10,7 @@
       {% else %}
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
-        <li><a href="/sitemap">{% trans "Sitemap" %}</a></li>
+        <li><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">{% trans 'Login' %}</a></li>{% endif %}
     </ul>
