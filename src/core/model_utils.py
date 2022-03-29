@@ -387,23 +387,29 @@ class AbstractLastModifiedModel(models.Model):
     class Meta:
         abstract = True
 
-    def best_last_modified_date(self, ignore_fields=None):
+    @property
+    def model_key(self):
+        return (type(self), self.pk)
+
+    def best_last_modified_date(self, visited_nodes=None):
         """ Determines the last modified date considering all related objects
         Any relationship which is an instance of this class will have its
         `last_modified` date considered for calculating the last_modified date
         for the instance from which this method is called
-        :param ingore_rels: A set() of relationships to ignore. It avoids
-            infinite recursion when 2 models have are circularly related
+        :param visited_nodes: A set of visited objects to ignore. It avoids
+            infinite recursion when 2 models have are circularly related.
+            encoded as set of pairs of object model and PK
         :return: The most recent last_modified date of all related models.
         """
         last_mod_date = self.last_modified
         logger.debug("Calculating last_mod for %s: %s", self.__class__, self)
-        if ignore_fields is None:
-            ignore_fields = set()
+        if visited_nodes is None:
+            visited_nodes = set()
+        visited_nodes.add(self.model_key)
 
         obj_fields = self._meta.get_fields()
         for field in obj_fields:
-            if field in ignore_fields:
+            if field in visited_nodes:
                 continue
             objects = []
             if field.many_to_many:
@@ -423,11 +429,14 @@ class AbstractLastModifiedModel(models.Model):
             elif field.many_to_one:
                 objects = [getattr(self, field.name)]
 
-            ignore_fields.add(field.remote_field)
+            visited_nodes.add(field.remote_field)
 
             for obj in objects:
-                if isinstance(obj, AbstractLastModifiedModel):
-                    obj_modified = obj.best_last_modified_date(ignore_fields)
+                if (
+                    isinstance(obj, AbstractLastModifiedModel)
+                    and obj.model_key not in visited_nodes
+                ):
+                    obj_modified = obj.best_last_modified_date(visited_nodes)
                     if (
                         not last_mod_date
                         or obj_modified and obj_modified > last_mod_date
