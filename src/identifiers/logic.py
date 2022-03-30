@@ -461,10 +461,7 @@ def preview_registration_information(article):
     to register the DOI with Crossref.
     """
     if article.journal.use_crossref:
-        try:
-            doi = models.Identifier.objects.get(id_type='doi', article=article)
-        except models.Identifier.DoesNotExist:
-            doi = None
+        doi = article.get_identifier('doi', object=True)
         crossref_context = create_crossref_article_context(article, doi)
 
         exclude = ['citation_list']
