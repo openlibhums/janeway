@@ -257,3 +257,17 @@ article ol .list-romanlower {
 article ol .list-romanupper {
     list-style-type: upper-roman;
 }
+
+.orcid-green {
+    rgb(166, 206, 57)
+}
+
+.orcid-button {
+    background-color: rgb(166, 206, 57);
+    color: #fff;
+}
+
+.orcid-button:hover, .orcid-button:focus {
+  background-color: rgb(138, 178, 22);
+  color: #fff;
+}
