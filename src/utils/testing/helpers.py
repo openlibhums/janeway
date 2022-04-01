@@ -34,7 +34,10 @@ def create_user(username, roles=None, journal=None, **attrs):
         roles = []
 
     kwargs = {'username': username}
-    user = core_models.Account.objects.create_user(email=username, **kwargs)
+    try:
+        user = core_models.Account.objects.get(email=username)
+    except core_models.Account.DoesNotExist:
+        user = core_models.Account.objects.create_user(email=username, **kwargs)
 
     for role in roles:
         try:
