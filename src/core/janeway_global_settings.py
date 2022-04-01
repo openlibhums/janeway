@@ -82,8 +82,8 @@ INSTALLED_APPS = [
     'install',
     'workflow',
 
-
     # 3rd Party
+    'mozilla_django_oidc',
     'django_summernote',
     'markdown_deux',
     'raven.contrib.django.raven_compat',
@@ -180,6 +180,8 @@ SETTINGS_EXPORT = [
     'LANGUAGE_CODE',
     'URL_CONFIG',
     'HIJACK_USERS_ENABLED',
+    'ENABLE_OIDC',
+    'OIDC_SERVICE_NAME',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -412,7 +414,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-LOGIN_REDIRECT_URL = '/user/profile/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -515,3 +517,10 @@ if (
 # A potentially dangerous feature, this allows superusers to hijack and control a user's account.
 HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+# OIDC
+ENABLE_OIDC = False
+OIDC_SERVICE_NAME = 'OIDC Service Name'
+OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
+OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
+OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
