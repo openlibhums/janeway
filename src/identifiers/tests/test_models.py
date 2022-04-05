@@ -12,6 +12,11 @@ class TestLogic(TestCase):
 
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        from utils.setting_handler import save_setting
+        save_setting('general', 'journal_issn', cls.journal_one, '1234-5678')
+        save_setting('general', 'print_issn', cls.journal_one, '8765-4321')
+        save_setting('Identifiers', 'use_crossref', cls.journal_one, True)
+        save_setting('Identifiers', 'crossref_prefix', cls.journal_one, '10.0000')
         cls.ten_articles = [helpers.create_article(cls.journal_one) for i in range(10)]
         cls.ten_identifiers = logic.get_doi_identifiers_for_articles(cls.ten_articles)
 
@@ -23,8 +28,7 @@ class TestLogic(TestCase):
             set(self.ten_identifiers)
         )
         deposit = logic.render_to_string(template, template_context)
-        crd = models.CrossrefDeposit(
-            [identifier.pk for identifier in self.ten_identifiers],
-            deposit=deposit,
-        )
-        pass
+        crd = models.CrossrefDeposit.objects.create(deposit=deposit)
+        crd.identifiers.add(*self.ten_identifiers)
+        crd.save()
+        self.assertTrue('10.0000/TST.9' in str(crd))

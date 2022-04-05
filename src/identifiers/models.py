@@ -79,7 +79,7 @@ class CrossrefDeposit(models.Model):
 
     @property
     def journal(self):
-        journals = set([identifier.article.journal for identifier in identifiers])
+        journals = set([identifier.article.journal for identifier in self.identifiers])
         if journals.count() > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
@@ -123,10 +123,11 @@ class CrossrefDeposit(models.Model):
             logger.error(self)
 
     def __str__(self):
-        return ("[Deposit:{self.identifier.identifier}:{self.file_name}]"
+        return ("[Deposit:{identifiers}:{self.file_name}]"
             "[queued:{self.queued}]"
             "[success:{self.success}]"
             "[citation_success:{citation_success}]".format(
+                identifiers=''.join([identifier.identifier for identifier in self.identifiers.all()]),
                 self=self,
                 #Citation success only to be considered for succesful deposits
                 citation_success=self.citation_success if self.success else None,
