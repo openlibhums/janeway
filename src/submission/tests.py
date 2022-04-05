@@ -486,14 +486,14 @@ class SubmissionTests(TestCase):
             primary_issue=issue,
         )
 
-        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
-                                       '2025 &bull; Fall 2025 &bull; 3&ndash;5'
+        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
+                                       '2025 • Fall 2025 • 3–5'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
         article.page_numbers='x–ix'
         article.save()
-        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
-                                       '2025 &bull; Fall 2025 &bull; x–ix'
+        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
+                                       '2025 • Fall 2025 • x–ix'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
         article.first_page = None
@@ -501,8 +501,8 @@ class SubmissionTests(TestCase):
         article.page_numbers = None
         article.total_pages = 1
         article.save()
-        expected_article_issue_title = 'Volume 5 &bull; Issue 4 &bull; ' \
-                                       '2025 &bull; Fall 2025 &bull; 1 page'
+        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
+                                       '2025 • Fall 2025 • 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
 

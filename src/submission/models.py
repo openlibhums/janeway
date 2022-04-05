@@ -602,7 +602,7 @@ class Article(AbstractLastModifiedModel):
         if self.page_numbers:
             return self.page_numbers
         if self.first_page and self.last_page:
-            return mark_safe("{}&ndash;{}".format(self.first_page, self.last_page))
+            return "{}–{}".format(self.first_page, self.last_page)
         return self.first_page
 
     @property
@@ -1014,12 +1014,17 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
+        if not self.issue:
+            return ''
+
         if self.issue.issue_type.code != 'issue':
             return self.issue.issue_title
         else:
-            return mark_safe(" &bull; ".join(
-                (filter(None, self.issue.issue_title_parts(article=self))))
-            )
+            return " • ".join([
+                    title_part
+                    for title_part in self.issue.issue_title_parts(article=self)
+                    if title_part
+            ])
 
     def author_list(self):
         if self.is_accepted():
