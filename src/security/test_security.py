@@ -3684,6 +3684,40 @@ class TestSecurity(TestCase):
         # delete the account role once we are done with it
         account_role.delete()
 
+    def test_article_is_not_submitted_complete(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {
+            'article_id': self.article_unassigned.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+        )
+
+        with self.assertRaises(Http404):
+            decorated_func(request, **kwargs)
+
+    def test_article_is_not_submitted_unsubmitted(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {
+            'article_id': self.article_unsubmitted.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, **kwargs)
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "article_is_not_submitted incorrectly raises a 404 when article is unsubmitted.",
+        )
+
     # General helper functions
 
     @staticmethod
@@ -3896,7 +3930,8 @@ class TestSecurity(TestCase):
         self.article_unassigned = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                             abstract="An abstract",
                                                             stage=submission_models.STAGE_UNASSIGNED,
-                                                            journal_id=self.journal_one.id)
+                                                            journal_id=self.journal_one.id,
+                                                            date_submitted=timezone.now())
         self.article_unassigned.save()
 
         self.article_assigned = submission_models.Article(owner=self.regular_user, title="A Test Article",
