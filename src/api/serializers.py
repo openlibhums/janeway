@@ -107,7 +107,10 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = core_models.Account
-        fields = ('pk', 'email',)
+        fields = (
+            'pk', 'email', 'first_name', 'middle_name', 'last_name',
+            'salutation', 'orcid', 'is_active',
+        )
 
 
 class AccountRoleSerializer(serializers.ModelSerializer):

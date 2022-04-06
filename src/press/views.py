@@ -333,7 +333,11 @@ def journal_domain(request, journal_id):
 
 @staff_member_required
 def merge_users(request):
-    users = core_models.Account.objects.all()
+    users = core_models.Account.objects.none()
+
+    get_from = request.GET.get('from')
+    get_to = request.GET.get('to')
+
     if request.POST:
         from_id = request.POST["from"]
         to_id = request.POST["to"]

@@ -12,6 +12,7 @@ router.register(r'issues', views.IssueViewSet, 'issue')
 router.register(r'articles', views.ArticleViewSet, 'article')
 router.register(r'licences', views.LicenceViewSet, 'licence')
 router.register(r'keywords', views.KeywordsViewSet, 'keywords')
+router.register(r'accounts', views.AccountViewSet, 'accounts')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
