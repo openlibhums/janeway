@@ -1207,3 +1207,23 @@ def submission_authorised(func):
         return func(request, *args, **kwargs)
 
     return submission_authorised_wrapper
+
+
+def article_is_not_submitted(func):
+    """
+    Checks that an article is not already submitted.
+    """
+    @wraps(func)
+    def article_is_not_submitted(request, *args, **kwargs):
+        article_id = kwargs.get('article_id')
+        try:
+            article = models.Article.objects.get(
+                pk=article_id,
+                journal=request.journal,
+                date_submitted__isnull=True,
+            )
+            return func(request, *args, **kwargs)
+        except models.Article.DoesNotExist:
+            raise Http404('This article has already been submitted.')
+
+    return article_is_not_submitted
