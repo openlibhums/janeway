@@ -113,10 +113,12 @@ class OAIPaginationMixin(View):
         }
 
     def encode_token(self, context):
-        token_data = self.get_token_context(context)
+        token_data = {}
         for key, value in self.request.GET.items():
-            if key != "verb":  # verb is an exception as per OAI spec
+            # verb is an exception as per OAI spec
+            if key not in {'resumptionToken', "verb"}:
                 token_data[key] = value
+        token_data.update(self.get_token_context(context))
 
         return quote(urlencode(token_data))
 
