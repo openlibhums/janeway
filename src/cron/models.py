@@ -128,7 +128,7 @@ class Reminder(models.Model):
 
         target_date = self.target_date()
         if target_date:
-            objects = model.objects.filter(date_due=target_date).filter(query)
+            objects = model.objects.filter(date_due=target_date).filter(query, article__journal=self.journal)
 
         return objects
 
