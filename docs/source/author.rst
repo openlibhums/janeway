@@ -108,87 +108,87 @@ Here you can upload your manuscript and any figure or data files that go along w
 
  .. figure:: /nstatic/upload_files.png
 
-    You can upload your Manuscript and seperately any files that go along with your paper
+    You can upload your manuscript and seperately any files that go along with your paper
 
-Select one of the Upload buttons and a popup will appear, you can select the file using the "Choose file". You are required to add a label but the description field is optional.
+Select one of the Upload buttons and a pop-up will appear giving you the option Choose File. You are required to add a label but the description field is optional.
 
  .. figure:: /nstatic/submit_ms.png
 
-    Submitting a Manuscript file
+    Submitting a manuscript file
     
-You can only add one Manuscript file but can repeat the upload process for figures and date files. The label of figure files should match the image in the manuscript (figure 1, figure 2 etc).
+You can only add one manuscript file but can repeat the upload process for figures and data files. The label of figure files should match the image in the manuscript (figure 1, figure 2 etc).
 
 Review
 ------
-The review page displays a run down of the article you've submitted, metadata, files and authors. Once you have reviewed your submission you can complete or jump back to other stages to make changes.
+The review page displays a rundown of the article you've submitted with metadata, files and authors. Once you have reviewed your submission you can complete or jump back to other stages to make changes.
 
  .. figure:: /nstatic/article_review.png
 
     The review page for the article
 
-
 Revisions
 ---------
-Editors may request that authors revise their files based on recommendations from reviewers. There are two types of Revision decision:
+Editors may request that authors revise their files based on recommendations from reviewers. There are two types of revision decision:
 
-1. Minor Revisions.
-2. Major Revisions.
+1. Minor revisions
+2. Major revisions
 
-With Major Revisions you may find that the Editor will send the paper for a second round of review once you have completed your revisions.
+With major revisions, you may find that the editor will send the paper for a second round of review once you have completed your revisions.
 
-When an Editor request revisions there are two ways to start this process:
+When an editor requests revisions, there are two ways to access the request in Janeway:
 
 1. Click the link in the email sent to you.
-2. Via the Journal Dashboard:
-    1. Login to the Journal
-    2. Go to the journal Dashboard
-    3. Scroll down to "Submitted Articles"
-    4. Click the "Revision Request" button next to the article.
+2. Go to your dashboard for the journal:
+    1. Log in to the journal
+    2. Go to Dashboard
+    3. Scroll down to Submitted Articles
+    4. Select the Revision Request button next to the article
 
-Once you have accessed the revision request you will be able to view available peer reviews and download, revise or upload new files. Once you've uploaded a revised manuscript and any additional image files you can fill in the covering letter and save the revision.
+Note: you must be logged in with the same email address to which the editor sent the request. Otherwise you will see a page reading "Permission denied".
+
+Once you have accessed the revision request, you will be able to view available peer reviews and download, revise and upload new files. Once you've uploaded a revised manuscript and any additional image files, you can fill in the covering letter and save the revision.
 
  .. figure:: /nstatic/review_do_revisions.gif
- 
 
 Copyediting
 -----------
-Editors and authors are encouraged to undertake as many rounds of copyediting as is necessary to ensure that the text is ready to go into production. 
+Editors and authors are encouraged to undertake as many rounds of copyediting as is necessary to ensure that the text is ready to go into production.
 
-It is important that all stylistic changes are made at this stage. As many errors as possible should be corrected at this point, and by the end of copyediting there should be a final manuscript which requires no further changes. The typesetters will then use this final manuscript to create the finished article, which will be sent back for checking in the form of typeset proofs. 
+It is important that all stylistic changes are made at this stage. As many errors as possible should be corrected at this point, and by the end of copyediting there should be a final manuscript which requires no further changes. The typesetters will then use this final manuscript to create the finished article, which will be sent back for checking in the form of typeset proofs.
 
-Typeset proofs are not an opportunity to make changes to the content or style of a manuscript: the file that goes into production is final. It is expected that only a handful (less than 10) of very minor changes should be requested at the proofing stage, if any.
+Typeset proofs are not an opportunity to make changes to the content or style of a manuscript: the file that goes into production is final. It is expected that only a handful of very minor changes (fewer than ten) should be requested at the proofing stage, if any.
 
-When an Editor requests an Author Revision following a copyedit:
+When an editor requests an author revision following a copyedit, there are two ways for the author to access the request.
 
-1. Click the link in the email sent to you to access the file.
-2. Alternatively, to access this via the Journal Dashboard:
-    1. Login to the Journal 
-    2. Go to the Journal Dashboard 
-    3. Scroll down to “Submitted Articles” 
-    4. Click the “Copyediting Review” button next to the article
+1. Click the link in the email sent to you
+2. Alternatively, access it via the journal dashboard:
+    1. Log in to the journal 
+    2. Go to Dashboard 
+    3. Scroll down to Submitted Articles 
+    4. Select the Copyediting Review button next to the article
 
 .. figure:: /nstatic/author_copyedit_1.png
 
-Once you have accessed the Copyediting Review request you will be able to view requested copyedits and download the copyedited file. Copyedits are made as tracked changes.
+Note: you must be logged in with the same email address to which the editor sent the request. Otherwise you will see a page reading "Permission denied".
 
-Please accept all tracked changes you agree with and address any queries the copyeditor has made in the comments. Check your manuscript carefully to ensure you have not introduced any new errors before uploading your revised file back into the system. 
+Once you have accessed the Copyediting Review request, you will be able to view requested copyedits and download the copyedited file. Copyedits are often made as tracked changes, though workflows vary: be sure to follow any instructions provided by the journal.
 
-To complete a Copyediting Review: 
+To complete a Copyediting Review request
 
-1. Upload your revisions to the copyedited manuscript. You can do so by replacing the copyeditor's version of the file with your own updated version.
+1. Upload your revisions to the copyedited manuscript. You can do so by replacing the copyeditor's version of the file with your own updated version. (Editors will still have access to older versions.)
 
  .. figure:: /nstatic/author_copyedit_2.png
 
 2. Fill in the Note to the Editor with any additional information
-3. Select a Decision (either ‘Accept’ or ‘Corrections Required’)
-4. Click ‘Complete Copyedit Task’
+3. Select a Decision (either Accept or Corrections Required)
+4. Select Complete Copyedit Task
 
  .. figure:: /nstatic/author_copyedit_3.png
 
 
 Proofing
 --------
-After your paper has been accepted and copyediting, the editors might send you a request to proof the 'Typesetting Files'.
+After your paper has been accepted and gone through copyediting, the editors might send you a request to proof the Typesetting Files.
 These files are the final finals that will be made publicly available once the article gets published on the journal.
 
 For journals that publish content in multiple media formats (HTML, PDF, XML...) It is important that you check all these files before publication. Authors are not expected to be able to open and read XML/HTML code. Instead, Janeway provides a 'preview' button were you will be able to previsualise the article as it will be rendered once it gets published.
