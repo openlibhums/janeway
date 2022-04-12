@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.crossref.org/clinicaltrials.xsd" xmlns="http://www.crossref.org/clinicaltrials.xsd">
+
+    <xsd:annotation>
+        <xsd:documentation>  
+         Linked Clinical Trials is a CrossRef initiative helping to connect the published literature to registered clinical trials associated with the research,
+         
+            - version 1.0 (initial release) September 24, 2015
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="program">
+        <xsd:annotation>
+            <xsd:documentation>Accommodates deposit of linked clincal trials metadata. The clinical-trial-number value will
+                be a string that must match a specific pattern appropriate for a given clinical trial registry. The
+                registry is identified in the required attribute 'registry' and must be the DOI of a recognized registry
+                (see http://dx.doi.org/10.18810/registries)
+            </xsd:documentation>
+        </xsd:annotation>
+        
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="clinical-trial-number" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="clinical-trial-number">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="registry" use="required">
+                <xsd:annotation>
+                    <xsd:documentation> The clinical trial identifier related to the article.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:maxLength value="200"/>
+                        <xsd:minLength value="12"/>
+                        <xsd:pattern value="10.18810/[a-z-]+"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="type" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation> Used to identify the article publication date in relation to the issuance of the trial results
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="preResults"/>
+                        <xsd:enumeration value="results"/>
+                        <xsd:enumeration value="postResults"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

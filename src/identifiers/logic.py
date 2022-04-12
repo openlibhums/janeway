@@ -348,7 +348,7 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
     template_context = create_crossref_doi_batch_context(journal, identifiers)
     rendered = render_to_string(template, template_context)
 
-    logger.debug(rendered)
+    # logger.debug(rendered)
 
     description = "Sending request: {0}".format(rendered)
     articles = set([identifier.article for identifier in identifiers])
