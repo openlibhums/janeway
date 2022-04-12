@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.crossref.org/AccessIndicators.xsd" xmlns="http://www.crossref.org/AccessIndicators.xsd" version="1.2">
+    
+    <xsd:annotation>
+        <xsd:documentation> 
+            
+Version 1.2: updated to include stm-asf value for @applies_to attribute 
+
+Version 1.1 notes:
+
+This is CrossRef's schema for defining the applicable licenses for a given item. This schema was available and in use prior to the completion  of the NISO working group Access and License Indicators (http://www.niso.org/publications/rp/rp-22-2015). That effort produced a schema (http://www.niso.org/schemas/ali/1.0/ali.xsd) that extended the CrossRef definition but at the same time omitted necessary CrossRef features. This schema will continue as the basis for CrossRef metadata deposits, but will incorporate the NISO work where possible.
+    Change history: 2/23/15 CSK added Niso free_to_read element 
+    4/21/15 CSK added start and end attributes to the free-to-read element as in the Niso ALI schema but will make both attributes optional.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="program">
+        <xsd:annotation>
+            <xsd:documentation>Accommodates deposit of license metadata. The license_ref value will be a URL. Values for the "applies_to" attribute are vor (version of record),am (accepted manuscript), tdm (text and data mining), and stm-asf (STM Article Sharing Framework license).</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="free_to_read" minOccurs="0"/>
+                <xsd:element ref="license_ref" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" fixed="AccessIndicators"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="license_ref">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="license_ref_t">
+                    <xsd:attribute name="start_date" type="xsd:date" use="optional"/>
+                    <xsd:attribute name="applies_to" use="optional">
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:NMTOKEN">
+                                <xsd:enumeration value="vor"/>
+                                <xsd:enumeration value="am"/>
+                                <xsd:enumeration value="tdm"/>
+                                <xsd:enumeration value="stm-asf"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:simpleType name="license_ref_t">
+        <xsd:restriction base="xsd:anyURI">
+            <xsd:minLength value="10"/>
+            <xsd:pattern value="([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]|[fF][tT][pP])://.*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="free_to_read">
+        <xsd:complexType>
+            <xsd:attribute name="end_date" use="optional" type="xsd:date"/>
+            <xsd:attribute name="start_date" use="optional" type="xsd:date"/>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
