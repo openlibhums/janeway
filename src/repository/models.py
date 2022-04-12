@@ -1077,6 +1077,83 @@ class VersionQueue(models.Model):
             return _('Declined')
 
 
+def review_status_choices():
+    return (
+        ('new', 'New'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('complete', 'Complete'),
+        ('withdrawn', 'Withdrawn'),
+    )
+
+
+class InvitedComment(models.Model):
+    preprint = models.ForeignKey(
+        'Preprint',
+        on_delete=models.CASCADE,
+    )
+    manager = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='review_manager',
+        help_text='The manager making the review request.',
+    )
+    reviewer = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='review_reviewer',
+    )
+    date_assigned = models.DateTimeField(
+        blank=True,
+        null=True,
+        auto_now_add=True,
+    )
+    date_accepted = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    date_completed = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=review_status_choices(),
+    )
+    access_code = models.UUIDField(
+        default=uuid.uuid4,
+    )
+    comment = models.OneToOneField('Comment')
+
+    def accept(self):
+        self.date_accepted = timezone.now()
+        self.status = 'accepted'
+        self.save()
+
+    def decline(self):
+        self.date_completed = timezone.now()
+        self.status = 'declined'
+        self.save()
+
+    def complete(self):
+        self.date_completed = timezone.now()
+        self.status = 'complete'
+        self.save()
+
+    def withdraw(self):
+        self.date_completed = timezone.now()
+        self.status = 'withdrawn'
+        self.save()
+
+    def reset(self):
+        self.date_accepted = None
+        self.date_completed = None
+        self.status = 'new'
+        self.save()
+
+
 @receiver(models.signals.post_delete, sender=PreprintFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
