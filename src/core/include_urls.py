@@ -46,6 +46,7 @@ urlpatterns = [
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
     url(r'^journals/$', press_views.journals, name='press_journals'),
+    url(r'^article_list/$', core_views.FilteredArticlesListView.as_view(), name='article_list'),
     url(r'^conferences/$', press_views.conferences, name='press_conferences'),
     url(r'^kanban/$', core_views.kanban, name='kanban'),
     url(r'^login/$', core_views.user_login, name='core_login'),
