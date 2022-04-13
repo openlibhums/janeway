@@ -1,0 +1,19 @@
+{% load pages %}
+
+<div class="pagination-block">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="arrow"><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in page_obj|slice_pages:3 %}
+            <li class="{% if page_obj.number == page.number %}current{% endif %}">
+                <a href="?page={{ page.number }}">{{ page.number }}</a>
+            </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="arrow"><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>

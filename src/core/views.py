@@ -29,6 +29,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
 from security.decorators import editor_user_required, article_author_required, has_journal
@@ -2155,3 +2157,10 @@ def manage_access_requests(request):
         template,
         context,
     )
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class FilteredArticlesListView(generic.ListView):
+    model = submission_models.Article
+    template_name = 'core/article_list.html'
+    paginate_by = 10
