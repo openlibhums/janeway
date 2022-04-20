@@ -258,6 +258,16 @@ a:hover .article-title {
     font-weight: 300;
 }
 
+.article-body h5 {
+    font-size: 17px;
+    font-weight: 300;
+}
+
+.article-body h6 {
+    font-size: 16px;
+    font-weight: 300;
+}
+
 .article-body a {
     word-break: break-word;
 }
