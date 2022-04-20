@@ -1087,7 +1087,7 @@ def review_status_choices():
     )
 
 
-class InvitedComment(models.Model):
+class Review(models.Model):
     preprint = models.ForeignKey(
         'Preprint',
         on_delete=models.CASCADE,
