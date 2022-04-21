@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:fr="http://www.crossref.org/fundref.xsd" xmlns:ct="http://www.crossref.org/clinicaltrials.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:fr="http://www.crossref.org/fundref.xsd"
+	xmlns:ct="http://www.crossref.org/clinicaltrials.xsd"
+	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+	xmlns:mml="http://www.w3.org/1998/Math/MathML">
 
 
 	<!--*************************************************************
@@ -14,10 +18,13 @@ Prior updates are noted as comments within previous schema versions.
 	
   -->
 
-	<xsd:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
+	<xsd:import namespace="http://www.w3.org/1998/Math/MathML"
+		schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
-	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd" schemaLocation="AccessIndicators.xsd"/>
-	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd"
+		schemaLocation="AccessIndicators.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd"
+		schemaLocation="clinicaltrials.xsd"/>
 
 
 	<xsd:complexType name="xrefFaces" mixed="true">
@@ -599,7 +606,8 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 		<xsd:restriction base="xsd:string">
 			<xsd:maxLength value="1024"/>
 			<xsd:minLength value="4"/>
-			<xsd:pattern value="[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*"/>
+			<xsd:pattern
+				value="[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 
@@ -999,13 +1007,15 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 							<xsd:element ref="std_family_designator" minOccurs="0" maxOccurs="1"/>
 							<xsd:choice>
 								<xsd:element ref="std_set_designator" minOccurs="0" maxOccurs="1"/>
-								<xsd:element ref="std_undated_designator" minOccurs="0" maxOccurs="1"/>
+								<xsd:element ref="std_undated_designator" minOccurs="0"
+									maxOccurs="1"/>
 							</xsd:choice>
 						</xsd:choice>
 					</xsd:sequence>
 					<xsd:sequence>
 						<xsd:element ref="std_as_published" minOccurs="0" maxOccurs="1"/>
-						<xsd:element ref="std_alt_as_published" minOccurs="0" maxOccurs="unbounded"/>
+						<xsd:element ref="std_alt_as_published" minOccurs="0" maxOccurs="unbounded"
+						/>
 					</xsd:sequence>
 				</xsd:choice>
 				<xsd:element ref="std_supersedes" minOccurs="0" maxOccurs="unbounded"/>
@@ -1264,9 +1274,12 @@ MathML may also be included using the 'mml' namespace prefix.</xsd:documentation
 					<xsd:enumeration value="application/vnd.ms-asf"/>
 					<xsd:enumeration value="application/vnd.ms-excel"/>
 					<xsd:enumeration value="application/vnd.ms-powerpoint"/>
-					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
-					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-					<xsd:enumeration value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+					<xsd:enumeration
+						value="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
+					<xsd:enumeration
+						value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+					<xsd:enumeration
+						value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
 					<xsd:enumeration value="application/epub+zip"/>
 					<xsd:enumeration value="application/regex.clinical-trial-number"/>
 					<xsd:enumeration value="image/fits"/>

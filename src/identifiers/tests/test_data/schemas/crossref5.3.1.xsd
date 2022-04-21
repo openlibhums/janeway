@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="http://www.crossref.org/schema/5.3.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.crossref.org/schema/5.3.1" xmlns:fr="http://www.crossref.org/fundref.xsd" xmlns:ct="http://www.crossref.org/clinicaltrials.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:rel="http://www.crossref.org/relations.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1">
+<xsd:schema xmlns="http://www.crossref.org/schema/5.3.1"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.crossref.org/schema/5.3.1"
+	xmlns:fr="http://www.crossref.org/fundref.xsd"
+	xmlns:ct="http://www.crossref.org/clinicaltrials.xsd"
+	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+	xmlns:rel="http://www.crossref.org/relations.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML"
+	xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1">
 
 	<!--*************************************************************
 	Crossref Metadata Input Schema v. 5.3.1 
@@ -16,11 +23,15 @@ Prior updates are noted as comments within previous schema versions.  -->
 	<xsd:include schemaLocation="common5.3.1.xsd"/>
 
 	<!-- imported schema -->
-	<xsd:import namespace="http://www.ncbi.nlm.nih.gov/JATS1" schemaLocation="JATS-journalpublishing1-3d2-mathml3.xsd"/>
-	<xsd:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
+	<xsd:import namespace="http://www.ncbi.nlm.nih.gov/JATS1"
+		schemaLocation="JATS-journalpublishing1-3d2-mathml3.xsd"/>
+	<xsd:import namespace="http://www.w3.org/1998/Math/MathML"
+		schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
-	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
-	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd" schemaLocation="AccessIndicators.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd"
+		schemaLocation="clinicaltrials.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd"
+		schemaLocation="AccessIndicators.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/relations.xsd" schemaLocation="relations.xsd"/>
 
 	<!-- *** Head elements (used when processing submission XML) -->
@@ -1770,7 +1781,7 @@ Prior updates are noted as comments within previous schema versions.  -->
 	</xsd:element>
 	<xsd:element name="update_date">
 		<xsd:annotation>
-			<xsd:documentation>The date a pre-print was posted to a repository.</xsd:documentation>
+			<xsd:documentation>The date a dataset or database was last updated.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
