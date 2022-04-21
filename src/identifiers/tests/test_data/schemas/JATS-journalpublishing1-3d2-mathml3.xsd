@@ -1,5 +1,5 @@
 <?xml-stylesheet href="xsd.xsl" type="text/xsl"?>
-<xsd:schema xmlns:mtl="http://www.mulberrytech.com/taglib"
+<xsd:schema xmlns="http://www.ncbi.nlm.nih.gov/JATS1" targetNamespace="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mtl="http://www.mulberrytech.com/taglib"
             xmlns:c="http://www.w3.org/ns/xproc-step"
             xmlns:mml="http://www.w3.org/1998/Math/MathML"
             xmlns:ali="http://www.niso.org/schemas/ali/1.0/"

@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 
 from identifiers import logic, models
 from core.models import SettingGroup
@@ -218,6 +219,19 @@ class TestLogic(TestCase):
     def test_deposit_xml_document_is_valid(self):
         self.maxDiff = None
 
+        schema_base_path = os.path.join(
+            settings.BASE_DIR,
+            'identifiers',
+            'tests',
+            'test_data',
+            'schemas',
+        )
+
+        with open(os.path.join(schema_base_path,'crossref5.3.1.xsd')) as fileref:
+            xml_schema_doc = etree.parse(fileref)
+        xml_schema = etree.XMLSchema(xml_schema_doc)
+
+        # Generate batch and validate against schema
         template = 'common/identifiers/crossref_doi_batch.xml'
         identifiers = set([identifier for identifier in models.Identifier.objects.all()])
         template_context = logic.create_crossref_doi_batch_context(
@@ -225,39 +239,11 @@ class TestLogic(TestCase):
             identifiers,
         )
 
-        test_run_dir = os.getcwd()
-        test_data_path = os.path.join(
-            test_run_dir,
-            'src',
-            'identifiers',
-            'tests',
-            'test_data',
-            'schemas',
-            'xml.xsd',
-        )
-        os.chdir(os.path.dirname(test_data_path))
-
-        # Load deposit document into etree
         deposit = logic.render_to_string(template, template_context)
         deposit_bytes = BytesIO(str.encode(deposit))
-        root = etree.parse(deposit_bytes).getroot()
+        doc = etree.parse(deposit_bytes)
 
-        # Get filename for Crossref schema version declared
-        xsd_predicate = '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation'
-        xsd_object = root.get(xsd_predicate)
-        schema_file_name = xsd_object.split('/')[-1]
-
-        # Open and load corresponding locally saved schema file
-        # with open(schema_file_name, 'r') as fileref:
-        schema_root = etree.parse(schema_file_name).getroot()
-        schema = etree.XMLSchema(schema_root)
-        parser = etree.XMLParser(schema=schema)
-        deposit_root = etree.fromstring(deposit, parser)
-        from nose.tools import set_trace; set_trace()
-        os.chdir(test_run_dir)
-
-        # Validate the deposit document
-        self.assertTrue(xml_schema.validate(root))
+        self.assertTrue(xml_schema.validate(doc))
 
 
     def test_deposit_xml_document_has_basically_correct_components(self):
