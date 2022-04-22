@@ -33,9 +33,9 @@
                     <day>{{ article.date_published.day }}</day>
                     <year>{{ article.date_published.year }}</year>
                 {% else %}
-                    <month>{{ article.now.month }}</month>
-                    <day>{{ article.now.day }}</day>
-                    <year>{{ article.now.year }}</year>
+                    <month>{{ now.month }}</month>
+                    <day>{{ now.day }}</day>
+                    <year>{{ now.year }}</year>
                 {% endif %}
                 </publication_date>
                 {% if article.date_accepted %}
