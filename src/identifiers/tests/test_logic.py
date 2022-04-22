@@ -19,13 +19,21 @@ class TestLogic(TestCase):
     @classmethod
     def setUpTestData(cls):
 
+        # Create press and journals
         cls.press = helpers.create_press()
         cls.press.save()
         cls.journal_one, cls.journal_two = helpers.create_journals()
+
+        # Configure settings
         save_setting('general', 'journal_issn', cls.journal_one, '1234-5678')
         save_setting('general', 'print_issn', cls.journal_one, '8765-4321')
         save_setting('Identifiers', 'use_crossref', cls.journal_one, True)
         save_setting('Identifiers', 'crossref_prefix', cls.journal_one, '10.0000')
+        save_setting('Identifiers', 'crossref_email', cls.journal_one, 'sample_email@example.com')
+        save_setting('Identifiers', 'crossref_name', cls.journal_one, 'Journal One')
+        save_setting('Identifiers', 'crossref_registrant', cls.journal_one, 'registrant')
+
+        # Make mock request
         cls.request = helpers.Request()
         cls.request.press = cls.press
         cls.request.journal = cls.journal_one
@@ -86,22 +94,14 @@ class TestLogic(TestCase):
 
         cls.issue_six_one.save()
 
+
     def test_create_crossref_doi_batch_context(self):
         self.maxDiff = None
         expected_data = {}
 
         expected_data['depositor_email'] = 'sample_email@example.com'
-        save_setting('Identifiers', 'crossref_email',
-                     self.journal_one, 'sample_email@example.com')
-
         expected_data['depositor_name'] = 'Journal One'
-        save_setting('Identifiers', 'crossref_name',
-                     self.journal_one, 'Journal One')
-
         expected_data['registrant'] = 'registrant'
-        save_setting('Identifiers', 'crossref_registrant',
-                     self.journal_one, 'registrant')
-
         expected_data['is_conference'] = self.journal_one.is_conference
 
         context = logic.create_crossref_doi_batch_context(
@@ -242,7 +242,7 @@ class TestLogic(TestCase):
         deposit = logic.render_to_string(template, template_context)
         deposit_bytes = BytesIO(str.encode(deposit))
         doc = etree.parse(deposit_bytes)
-
+        xml_schema.assertValid(doc)
         self.assertTrue(xml_schema.validate(doc))
 
 
