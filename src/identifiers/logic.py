@@ -384,13 +384,14 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
         error = True
     else:
         status = "Deposited DOI"
-        # util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
-        # logger.info(status)
+        util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
+        logger.info(status)
 
-        # crd = models.CrossrefDeposit(identifiers=identifiers, file_name=filename)
-        # crd.save()
+        crd = models.CrossrefDeposit.objects.create(deposit=deposit, file_name=filename)
+        crd.identifiers.add(*identifiers)
+        crd.save()
 
-        # crd.poll()
+        crd.poll()
 
     return status, error
 
