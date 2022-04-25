@@ -45,9 +45,8 @@ class OAIListRecords(OAIPagedModelView):
     paginate_by = 50
 
     def get_queryset(self):
-        queryset = submission_models.Article.objects.filter(
-            date_published__isnull=False,
-        )
+        queryset = super().get_queryset()
+
         if self.request.journal:
             queryset = queryset.filter(journal=self.request.journal)
         else:
