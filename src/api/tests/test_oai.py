@@ -1,4 +1,3 @@
-
 __copyright__ = "Copyright 2022 Birkbeck, University of London"
 __author__ = "Mauro Sanchez"
 __license__ = "AGPL v3"
@@ -87,6 +86,41 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
+        response = self.client.get(
+            f'{path}?{query_string}',
+            SERVER_NAME="testserver"
+        )
+
+        self.assertEqual(str(response.rendered_content).split(), expected.split())
+
+    @override_settings(URL_CONFIG="domain")
+    @freeze_time("1976-01-02")
+    def test_get_records_until(self):
+        expected = GET_RECORD_DATA_UNTIL
+
+        path = reverse('OAI_list_records')
+        query_params = dict(
+            verb="ListRecords",
+            metadataPrefix="oai_dc",
+            until="1976-01-02",
+        )
+        query_string = urlencode(query_params)
+
+        # Create article that will be returned
+        helpers.create_submission(
+            journal_id=self.journal.pk,
+            stage=sm_models.STAGE_PUBLISHED,
+            date_published="1975-01-01T17:00:00.000+0200",
+            authors=[self.author],
+        )
+
+        # Create article that will not be returned
+        helpers.create_submission(
+            journal_id=self.journal.pk,
+            stage=sm_models.STAGE_PUBLISHED,
+            date_published="1977-01-01T17:00:00.000+0200",
+            authors=[self.author],
+        )
         response = self.client.get(
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
@@ -376,6 +410,46 @@ GET_RECORD_DATA_DC = """
     </GetRecord>
     </OAI-PMH>
 """
+GET_RECORD_DATA_UNTIL = """
+<?xml version="1.0" encoding="UTF-8"?>
+ <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+    http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+ <responseDate>1976-01-02T00:00:00Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+<ListRecords>
+<record>
+  <header>
+  <identifier>oai:TST:id:2</identifier>
+  <datestamp>1975-01-01T15:00:00Z</datestamp>
+</header>
+    <metadata>
+  <oai_dc:dc
+      xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
+      http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+      <dc:articleTitle>A Test Article</dc:articleTitle>
+      <dc:title>A Test Article</dc:title>
+      <dc:creator>User, Author A</dc:creator>
+      <dc:description>A Test article abstract</dc:description>
+      <dc:date>1975-01-01T15:00:00Z</dc:date>
+      <dc:type>info:eu-repo/semantics/article</dc:type>
+      <dc:publisher>Press</dc:publisher>
+      <dc:journalTitle>Journal One</dc:journalTitle>
+      <dc:identifier>http://testserver/article/id/2/</dc:identifier>
+      <dc:fullTextUrl>http://testserver/article/id/2/</dc:fullTextUrl>
+      <dc:source>0000-0000</dc:source>
+      <dc:format.extent>1</dc:format.extent>
+  </oai_dc:dc>
+    </metadata>
+</record>
+</ListRecords>
+</OAI-PMH>
+"""
+
 
 GET_RECORD_DATA_JATS = """
     <?xml version="1.0" encoding="UTF-8"?>
