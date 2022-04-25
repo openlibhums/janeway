@@ -2163,4 +2163,4 @@ def manage_access_requests(request):
 class FilteredArticlesListView(generic.ListView):
     model = submission_models.Article
     template_name = 'core/article_list.html'
-    paginate_by = 10
+    paginate_by = 25
