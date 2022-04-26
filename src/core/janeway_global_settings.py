@@ -519,8 +519,16 @@ HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
 
 # OIDC
-ENABLE_OIDC = False
+ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
 OIDC_SERVICE_NAME = 'OIDC Service Name'
 OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
 OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
 OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
+
+OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_ID')
+OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_CLIENT_SECRET')
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT')
+OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
+OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
+OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
