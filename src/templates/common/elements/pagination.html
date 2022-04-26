@@ -9,7 +9,7 @@
                         <li><button name="page" value="{{ page_obj.previous_page_number }}">&laquo;</button></li>
                     {% endif %}
 
-                    {% for page in page_obj|slice_pages_with_first_last_ellipsis:3 %}
+                    {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                         {% if page == '...' %}
                             <li>...</li>
                         {% else %}
