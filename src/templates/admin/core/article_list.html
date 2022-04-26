@@ -13,7 +13,7 @@
         <h2>{{ press }} Articles</h2>
     </div>
     <div class="content">
-        <table class="small scroll" id="unassigned">
+        <table class="small scroll">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -53,9 +53,7 @@
         </table>
     </div>
 
-    {% if is_paginated %}
-        {% include "common/elements/pagination.html" %}
-    {% endif %}
+    {% include "common/elements/pagination.html" %}
 
 </div>
 {% endblock body %}
