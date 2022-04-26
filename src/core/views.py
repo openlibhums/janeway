@@ -2163,4 +2163,15 @@ def manage_access_requests(request):
 class FilteredArticlesListView(generic.ListView):
     model = submission_models.Article
     template_name = 'core/article_list.html'
-    paginate_by = 25
+    paginate_by = '25'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["paginate_by"] = self.get_paginate_by(self.get_queryset())
+        return context
+
+    def get_paginate_by(self, queryset):
+        self.paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
+        if self.paginate_by == 'all':
+            self.paginate_by = len(queryset)
+        return self.paginate_by

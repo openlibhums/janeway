@@ -1,19 +1,39 @@
 {% load pages %}
 
-<div class="pagination-block">
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-            <li class="arrow"><a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-        {% endif %}
+<div class="pagination-block input-group">
+    <form method="GET">
+        <div class="input-group-field small-8 columns">
+            {% if is_paginated %}
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="arrow"><button name="page" value="{{ page_obj.previous_page_number }}">&laquo;</button></li>
+                    {% endif %}
 
-        {% for page in page_obj|slice_pages:3 %}
-            <li class="{% if page_obj.number == page.number %}current{% endif %}">
-                <a href="?page={{ page.number }}">{{ page.number }}</a>
-            </li>
-        {% endfor %}
+                    {% for page in page_obj|slice_pages:3 %}
+                        <li class="{% if page_obj.number == page.number %}current{% endif %}">
+                            <button name="page" value="{{ page.number }}">{{ page.number }}</button>
+                        </li>
+                    {% endfor %}
 
-        {% if page_obj.has_next %}
-            <li class="arrow"><a href="{{ request.path }}?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
+                    {% if page_obj.has_next %}
+                        <li class="arrow"><button name="page" value="{{ page_obj.next_page_number }}">&raquo;</button></li>
+                    {% endif %}
+                </ul>
+            {% endif %}
+        </div>
+        <div class="small-2 columns">
+            <select class="input-group-field" onchange="this.form.submit()" name="paginate_by">
+                <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
+                <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
+                <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
+                <option value="100" {% if paginate_by == "100" %}selected{% endif %}>100</option>
+                <option value="{{ page_obj.paginator.count }}" {% if paginate_by == "all" %}selected{% endif %}>all</option>
+            </select>
+        </div>
+        <div class="small-2 columns">
+            <label labelfor="paginate_by">
+                records per page
+            </label>
+        </div>
+    </form>
 </div>
