@@ -524,7 +524,7 @@ OIDC_SERVICE_NAME = 'OIDC Service Name'
 OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
 OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
 OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
-
+OIDC_LOGOUT_URL = os.environ.get('OIDC_LOGOUT_URL')
 OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
 OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_ID')
 OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_CLIENT_SECRET')
@@ -532,3 +532,10 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT'
 OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
 OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
 OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
+
+
+if ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS = (
+        'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+        'django.contrib.auth.backends.ModelBackend',
+    )
