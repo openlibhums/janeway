@@ -6,13 +6,17 @@
             {% if is_paginated %}
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
-                        <li class="arrow"><button name="page" value="{{ page_obj.previous_page_number }}">&laquo;</button></li>
+                        <li><button name="page" value="{{ page_obj.previous_page_number }}">&laquo;</button></li>
                     {% endif %}
 
-                    {% for page in page_obj|slice_pages:3 %}
-                        <li class="{% if page_obj.number == page.number %}current{% endif %}">
-                            <button name="page" value="{{ page.number }}">{{ page.number }}</button>
-                        </li>
+                    {% for page in page_obj|slice_pages_with_first_last_ellipsis:3 %}
+                        {% if page == '...' %}
+                            <li>...</li>
+                        {% else %}
+                            <li class="{% if page_obj.number == page.number %}current{% endif %}">
+                                <button name="page" value="{{ page.number }}">{{ page.number }}</button>
+                            </li>
+                        {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
