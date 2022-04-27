@@ -12,8 +12,6 @@
 	Crossref Metadata Input Schema v. 5.3.1 
 	*************************************************************
 
-This document was created by Crossref as explained below. It is licensed under a CC-BY 4.0 license: https://creativecommons.org/licenses/by/4.0/ . The Open Library of Humanities changed the document by adding this attribution line.
-
 This is the latest iteration of the Crossref Metadata Input Schema, used to register metadata records with Crossref. This schema was originally developed for Crossref by Inera (http://www.inera.com) and is currently maintained by Crossref staff.
 
 As of version 4.5.0 all changes are noted in the release notes for the schema repository in GitLab:  https://gitlab.com/crossref/schema/-/releases
