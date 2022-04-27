@@ -313,4 +313,3 @@ class TestModels(TestCase):
         log_entries = models.LogEntry.objects.filter(types='Submission')
         articles = [entry.target for entry in log_entries]
         self.assertEqual(self.ten_articles, articles)
->>>>>>> #2734 Batch template rendering and batch log entry creation
