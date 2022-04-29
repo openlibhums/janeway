@@ -496,3 +496,80 @@ class AccessRequestForm(forms.ModelForm):
             access_request.save()
 
         return access_request
+
+
+class CBVFacetForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        # This form populates the facets that users can filter results on
+        # If you pass a separate facet_queryset into kwargs, the form is
+        # the same regardless of how the result queryset changes
+        # To have the facets dynamically contract based on the result queryset,
+        # do not pass anything for facet_queryset into kwargs.
+
+        self.id = 'facet_form'
+        self.queryset = kwargs.pop('queryset')
+        self.facets = kwargs.pop('facets')
+        self.facet_queryset = kwargs.pop('facet_queryset', None)
+        if not self.facet_queryset:
+            self.facet_queryset = self.queryset
+        self.fields = {}
+
+        super().__init__(*args, **kwargs)
+
+        for facet in self.facets:
+
+            if facet['type'] == 'foreign_key':
+
+                # Note: This retrieval is written to work even for sqlite3.
+                # It might be rewritten differently if sqlite3 support isn't needed.
+                if self.facet_queryset:
+                    fk_column = self.facet_queryset.values_list(facet['lookup'], flat=True)
+                else:
+                    fk_column = self.queryset.values_list(facet['lookup'], flat=True)
+                fks = list(filter(bool, fk_column))
+                choice_queryset = facet['model'].objects.filter(pk__in=fks)
+
+                if facet.get('order_by'):
+                    choice_queryset = self.order_by(choice_queryset, facet, fks)
+
+                choices = []
+                for each in choice_queryset:
+                    label = getattr(each, facet["choice_label_field"])
+                    count = fks.count(each.pk)
+                    label_with_count = f'{label} ({count})'
+                    choices.append((each.pk, label_with_count))
+                self.fields[facet['lookup']] = forms.ChoiceField(
+                    widget=forms.widgets.CheckboxSelectMultiple,
+                    choices=choices,
+                    required=False,
+                )
+
+            # To do:
+            elif facet['type'] == 'date':
+                pass
+            elif facet['type'] == 'boolean':
+                pass
+
+            self.fields[facet['lookup']].label = facet['field_label']
+
+    def order_by(self, queryset, facet, fks):
+        order_by = facet.get('order_by')
+        if order_by != 'facet_count' and order_by in facet['model']._meta.get_fields():
+            queryset = queryset.order_by(order_by)
+        elif order_by == 'facet_count':
+            sorted_fk_tuples = sorted(
+                [(fk, fks.count(fk)) for fk in fks],
+                key=lambda x:x[1]
+            )
+            sorted_fks = [tup[0] for tup in sorted_fk_tuples]
+            queryset = sorted(
+                queryset,
+                key=lambda x: sorted_fks.index(x.pk)
+            )
+
+        # Note: There is no way yet to sort on the result of a 
+        # function property like journal.name
+
+        return queryset
+

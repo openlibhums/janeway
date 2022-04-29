@@ -1,0 +1,81 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Article List{% endblock title %}
+{% block title-section %}Article List{% endblock %}
+{% block title-sub %}A list of articles that can be filtered to perform batch actions.{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+{% endblock %}
+
+{% block body %}
+<div class="box">
+    <div class="content">
+        {% if facet_form.fields %}
+            <section>
+                <div class="small columns input-group">
+                    <h3>Filters</h3>
+                    <form method="GET" id={{ facet_form.id }}>
+                        {{ facet_form.as_table }}
+                        <input type="submit" value="Apply">
+                    </form>
+                </div>
+            </section>
+        {% endif %}
+        <section>
+            <div class="small columns input-group">
+                <h3>Actions</h3>
+            </div>
+        </section>
+        <section>
+            {% block filtered_list_results %}
+                <div class="small columns">
+                    <h3>Results</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th style="width: 25%">Title</th>
+                                <th style="width: 25%">Authors</th>
+                                <th>Journal</th>
+                                <th>Stage</th>
+                                <th>Pub Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in article_list %}
+                            <tr>
+                                <td>{{ article.pk }}</td>
+                                <td>
+                                    {% if article.stage != 'Rejected' and article.stage != 'Published' %}
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    {% else %}
+                                     <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.author_list }}</td>
+                                <td>{{ article.journal.name }}</td>
+                                <td>{{ article.stage }}</td>
+                                <td>
+                                    {% if article.stage == 'Published' %}
+                                        {{ article.date_published }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="10">No articles to show.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endblock %}
+        </section>
+    </div>
+
+    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+
+</div>
+{% endblock body %}

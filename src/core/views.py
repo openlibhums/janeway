@@ -2162,16 +2162,72 @@ def manage_access_requests(request):
 @method_decorator(staff_member_required, name='dispatch')
 class FilteredArticlesListView(generic.ListView):
     model = submission_models.Article
-    template_name = 'core/article_list.html'
+    template_name = 'core/manager/article_list.html'
     paginate_by = '25'
+    facets = {}
+
+    def get_paginate_by(self, queryset):
+        paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginate_by == 'all' and queryset:
+            paginate_by = len(queryset)
+        return paginate_by
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["paginate_by"] = self.get_paginate_by(self.get_queryset())
+        context['paginate_by'] = self.request.GET.get('paginate_by', self.paginate_by)
+        context['facet_form'] = forms.CBVFacetForm(
+            queryset=self.get_queryset(),
+            facet_queryset=self.get_facet_queryset(),
+            facets=self.get_facets(),
+            initial=dict(self.request.GET.lists()),
+        )
         return context
 
-    def get_paginate_by(self, queryset):
-        self.paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
-        if self.paginate_by == 'all':
-            self.paginate_by = len(queryset)
-        return self.paginate_by
+    def get_queryset(self):
+        self.queryset = super().get_queryset()
+        q_stack = []
+        facet_lookups = [facet['lookup'] for facet in self.get_facets()]
+        for keyword, value_list in self.request.GET.lists():
+            if keyword in facet_lookups and value_list and value_list[0]:
+                predicates = [(keyword, value) for value in value_list]
+                query = Q()
+                for predicate in predicates:
+                    query |= Q(predicate)
+                q_stack.append(query)
+        return self.order_queryset(
+            self.filter_queryset_if_journal(
+                self.queryset.filter(*q_stack)
+            )
+        )
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('-date_published', 'title')
+
+    def get_facets(self):
+        facets = []
+        return self.filter_facets_if_journal(facets)
+
+    def get_facet_queryset(self):
+        # A separate queryset is needed unless you want the facets
+        # to change when the result list changes.
+        # An example:
+        # return self.filter_queryset_if_journal(self.model.objects.all())
+        return None
+
+    def filter_queryset_if_journal(self, queryset):
+        if self.request.journal:
+            return queryset.filter(journal=self.request.journal)
+        else:
+            return queryset
+
+    def filter_facets_if_journal(self, facets):
+        if self.request.journal:
+            journal_facet = next(
+                (i for i, facet in enumerate(facets) if facet["lookup"] == "journal__pk"),
+                None
+            )
+            if isinstance(journal_facet, int):
+                facets.pop(journal_facet)
+            return facets
+        else:
+            return facets
