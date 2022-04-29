@@ -560,7 +560,8 @@ class CBVFacetForm(forms.Form):
         elif order_by == 'facet_count':
             sorted_fk_tuples = sorted(
                 [(fk, fks.count(fk)) for fk in fks],
-                key=lambda x:x[1]
+                key=lambda x:x[1],
+                reverse=True,
             )
             sorted_fks = [tup[0] for tup in sorted_fk_tuples]
             queryset = sorted(
