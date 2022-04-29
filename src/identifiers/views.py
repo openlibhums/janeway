@@ -6,11 +6,14 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.http import HttpResponse
 from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
 from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
 
 from identifiers import models, forms
 from submission import models as submission_models
+from core import views as core_views
+from journal import models as journal_models
 
-from security.decorators import production_user_or_editor_required
+from security.decorators import production_user_or_editor_required, editor_user_required
 from identifiers import logic
 
 import datetime
@@ -279,3 +282,33 @@ def delete_identifier(request, article_id, identifier_id):
             kwargs={'article_id': article.pk},
         )
     )
+
+
+@method_decorator(editor_user_required, name='dispatch')
+class IdentifierManager(core_views.FilteredArticlesListView):
+    template_name = 'core/manager/identifier_manager.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_facets(self):
+        facets = [
+            {
+                'type': 'foreign_key',
+                'lookup': 'journal__pk',
+                'model': journal_models.Journal,
+                'field_label': 'Journal',
+                'choice_label_field': 'name',
+                'order_by': 'facet_count',
+            },
+            {
+                'type': 'foreign_key',
+                'lookup': 'primary_issue__pk',
+                'model': journal_models.Issue,
+                'field_label': 'Issue',
+                'choice_label_field': 'display_title',
+                'order_by': 'facet_count',
+            }
+        ]
+        return self.filter_facets_if_journal(facets)

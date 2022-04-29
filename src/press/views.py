@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
+from django.utils.decorators import method_decorator
 
 from core import (
     files,
@@ -30,7 +31,7 @@ from utils import install, logger
 from utils.logic import get_janeway_version
 from repository import views as repository_views, models
 from core.model_utils import merge_models
-
+from identifiers import views as identifier_views
 
 logger = logger.get_logger(__name__)
 
@@ -369,3 +370,7 @@ def merge_users(request):
     }
     return render(request, template, context)
 
+
+@method_decorator(staff_member_required, name='dispatch')
+class IdentifierManager(identifier_views.IdentifierManager):
+    template_name = 'core/manager/identifier_manager.html'

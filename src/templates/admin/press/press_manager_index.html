@@ -26,6 +26,7 @@
                         <a class="button" href="{% url 'core_default_settings_index' %}">Edit journal default settings</a>
                         <a class="button" href="{% url 'home_settings_index' %}">Homepage Elements</a>
                         <a class="button" href="{% url 'merge_users' %}">Merge Users</a>
+                        <a class="button" href="{% url 'press_identifier_manager' %}">DOI Manager</a>
                         {% if request.user.is_superuser %}
                         <a class="button" href="{% url 'core_flush_cache' %}">Clear Cache</a>
                         {% endif %}
