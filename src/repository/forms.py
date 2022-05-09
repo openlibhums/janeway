@@ -626,3 +626,78 @@ class ReviewCommentForm(forms.Form):
             self.review.anonymous = self.cleaned_data.get('anonymous', False)
             self.review.comment = comment
             self.review.save()
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = (
+            'reviewer',
+            'date_due',
+        )
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput()
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        self.manager = kwargs.pop('manager')
+        super(ReviewForm, self).__init__(*args, **kwargs)
+        self.fields['reviewer'].queryset = core_models.Account.objects.filter(
+            repository__repositoryrole__role__slug='reviewer',
+        )
+
+    def save(self, commit=True):
+        review = super(ReviewForm, self).save(commit=False)
+        review.preprint = self.preprint
+        review.manager = self.manager
+        review.status = 'new'
+
+        if commit:
+            review.save()
+
+        return review
+
+
+class ReviewDueDateForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = ('date_due',)
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput()
+        }
+
+
+class ReviewCommentForm(forms.Form):
+    body = forms.CharField(
+        widget=SummernoteWidget(),
+        label="Comments"
+    )
+    anonymous = forms.BooleanField(
+        help_text='Check if you want your comments to be displayed anonymously.',
+        label="Comment Anonymously",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.review = kwargs.pop('review')
+        super(ReviewCommentForm, self).__init__(*args, **kwargs)
+        if self.review.comment:
+            self.fields['body'].initial = self.review.comment.body
+            self.fields['anonymous'].initial = self.review.anonymous
+
+    def save(self):
+        if self.cleaned_data:
+            if self.review.comment:
+                comment = self.review.comment
+            else:
+                comment = models.Comment()
+
+            comment.author = self.review.reviewer
+            comment.preprint = self.review.preprint
+            comment.body = self.cleaned_data.get('body')
+            comment.save()
+
+            self.review.anonymous = self.cleaned_data.get('anonymous', False)
+            self.review.comment = comment
+            self.review.save()

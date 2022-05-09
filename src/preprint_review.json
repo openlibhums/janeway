@@ -1,0 +1,14 @@
+[
+  {
+    "type": "model",
+    "context_name": "review",
+    "app": "repository",
+    "model": "Review",
+    "pk": 5
+  },
+  {
+    "type": "variable",
+    "context_name": "status_change",
+    "var": "withdraw"
+  }
+]
