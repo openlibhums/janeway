@@ -232,6 +232,14 @@ class Events:
     # raised when an PreprintVersion is approved or declined
     ON_PREPRINT_VERSION_UPDATE = 'on_preprint_version_update'
 
+    # kwargs: request, preprint, review, message
+    # raised when an Review invite is sent
+    ON_PREPRINT_REVIEW_NOTIFICATION = 'on_preprint_review_notification'
+
+    # kwargs: request, review, status_change [accept, delcine, withdraw, complete]
+    # raised when a Review changes status
+    ON_PREPRINT_REVIEW_STATUS_CHANGE = 'on_preprint_review_status_change'
+
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'

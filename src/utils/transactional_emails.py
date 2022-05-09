@@ -1249,7 +1249,6 @@ def send_author_copyedit_complete(**kwargs):
     )
 
 
-
 def preprint_submission(**kwargs):
     """
     Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author
@@ -1582,5 +1581,83 @@ def access_request_complete(**kwargs):
             'access_request': access_request,
             'decision': decision,
         },
+        log_dict=log_dict,
+    )
+
+
+def preprint_review_notification(**kwargs):
+    request = kwargs.get('request')
+    preprint = kwargs.get('preprint')
+    review = kwargs.get('review')
+    message = kwargs.get('message')
+    skip = kwargs.get('skip', None)
+
+    if not skip:
+        description = 'Review of {} requested from {} by {}.'.format(
+            preprint.title,
+            review.reviewer.full_name(),
+            review.manager.full_name(),
+        )
+        log_dict = {
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Review',
+            'target': preprint,
+        }
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Review Invitation'.format(request.repository.object_name),
+            review.reviewer.email,
+            message,
+            log_dict=log_dict,
+        )
+
+
+def preprint_review_status_change(**kwargs):
+    request = kwargs.get('request')
+    review = kwargs.get('review')
+    status_change = kwargs.get('status_change')
+
+    description = "Status of review {} by {} is now: {}".format(
+        review.pk,
+        review.reviewer.full_name(),
+        status_change,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Review',
+        'target': review.preprint,
+    }
+
+    if status_change in ['accept', 'decline', 'complete']:
+        to = review.manager.email
+        template = request.repository.manager_review_status_change
+    else:  # withdraw
+        to = review.reviewer.email
+        template = request.repository.reviewer_review_status_change
+
+    context = {
+        'review': review,
+        'status_change': status_change,
+        'url': request.repository.site_url(path=reverse(
+            'repository_review_detail',
+            kwargs={
+                'preprint_id': review.preprint.pk,
+                'review_id': review.pk
+            }
+        ))
+    }
+    email_text = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Review Invitation Status'.format(request.repository.object_name),
+        to,
+        email_text,
         log_dict=log_dict,
     )

@@ -1,0 +1,61 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{{ request.repository.name }} | Reviewers{% endblock %}
+{% block title-section %}{{ request.repository.name }} Reviewers{% endblock %}
+{% block title-sub %}Lists and manage reviewers for {{ request.repository.name }}.{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li>Reviewers</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Search for Users</h2>
+                </div>
+                <div class="content">
+                    TODO: Sarch form goes here.
+                </div>
+                <div class="title-area">
+                    <h2>Current Reviewers</h2>
+                </div>
+                <div class="content">
+                    <table class="table" id="reviewer_table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Interests</th>
+                                <td>Review History</td>
+                                <td>Remove</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reviewer in reviewers %}
+                                <tr>
+                                    <td>{{ reviewer.pk }}</td>
+                                    <td>{{ reviewer.full_name }}</td>
+                                    <td>{{ reviewer.email }}</td>
+                                    <td>{{ reviewer.interest }}</td>
+                                    <td>TODO: Link</td>
+                                    <td>TODO: Button</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">{{ request.repository.name }} has no current reviewers.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
