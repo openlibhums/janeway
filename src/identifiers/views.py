@@ -19,7 +19,6 @@ from identifiers import logic
 import datetime
 from uuid import uuid4
 
-
 from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
@@ -141,10 +140,12 @@ def show_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    template_context = logic.create_crossref_context(article, identifier)
-
-    template = logic.get_crossref_template(article)
-    return render_to_response(template, template_context, content_type="application/xml")
+    if identifier.deposit:
+        return HttpResponse(identifier.deposit.deposit, content_type="application/xml")
+    else:
+        template_context = logic.create_crossref_doi_batch_context(request.journal, identifier)
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        return render_to_response(template, template_context, content_type="application/xml")
 
 
 @production_user_or_editor_required
@@ -206,6 +207,8 @@ def poll_doi_output(request, article_id, identifier_id):
 
     if not identifier.deposit:
         return HttpResponse('Error: no deposit found')
+    elif 'doi_batch' not in identifier.deposit.result_text:
+        return HttpResponse(identifier.deposit.result_text)
     else:
         resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
         resp['Content-Disposition'] = 'inline;'
@@ -288,10 +291,6 @@ def delete_identifier(request, article_id, identifier_id):
 class IdentifierManager(core_views.FilteredArticlesListView):
     template_name = 'core/manager/identifier_manager.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
     def get_facets(self):
         facets = [
             {
@@ -309,6 +308,20 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'field_label': 'Issue',
                 'choice_label_field': 'display_title',
                 'order_by': 'facet_count',
-            }
+            },
         ]
         return self.filter_facets_if_journal(facets)
+
+    def get_actions(self):
+        return [
+            {
+                'name': 'register_dois',
+                'value': 'Register DOIs',
+                'action': logic.register_batch_of_crossref_dois,
+            },
+            {
+                'name': 'poll_doi_status',
+                'value': 'Poll Crossref and update status',
+                'action': logic.poll_dois_for_articles,
+            },
+        ]

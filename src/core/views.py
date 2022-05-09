@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -2174,20 +2174,26 @@ class FilteredArticlesListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
         context['paginate_by'] = self.request.GET.get('paginate_by', self.paginate_by)
         context['facet_form'] = forms.CBVFacetForm(
-            queryset=self.get_queryset(),
+            queryset=queryset,
             facet_queryset=self.get_facet_queryset(),
             facets=self.get_facets(),
             initial=dict(self.request.GET.lists()),
         )
+
+        context['actions'] = self.get_actions()
+        context['params_string'] = self.request.GET.urlencode()
         return context
 
-    def get_queryset(self):
+    def get_queryset(self, params_querydict=None):
+        if not params_querydict:
+            params_querydict = self.request.GET
         self.queryset = super().get_queryset()
         q_stack = []
         facet_lookups = [facet['lookup'] for facet in self.get_facets()]
-        for keyword, value_list in self.request.GET.lists():
+        for keyword, value_list in params_querydict.lists():
             if keyword in facet_lookups and value_list and value_list[0]:
                 predicates = [(keyword, value) for value in value_list]
                 query = Q()
@@ -2208,11 +2214,32 @@ class FilteredArticlesListView(generic.ListView):
         return self.filter_facets_if_journal(facets)
 
     def get_facet_queryset(self):
-        # A separate queryset is needed unless you want the facets
-        # to change when the result list changes.
+        # The default behavior is for the facets to change
+        # dynamically when a filter is chosen.
+        # A separate queryset is needed to turn off this behavior.
         # An example:
         # return self.filter_queryset_if_journal(self.model.objects.all())
         return None
+
+    def get_actions(self):
+        return []
+
+    def post(self, request, *args, **kwargs):
+
+        params_string = request.POST.get('params_string')
+        params_querydict = QueryDict(params_string)
+        actions = self.get_actions()
+        if actions:
+            for action in actions:
+                if action.get('name') in request.POST:
+                    queryset = self.get_queryset(params_querydict=params_querydict)
+                    action.get('action')(queryset)
+
+        if params_string:
+            return redirect(f'{request.path}?{params_string}')
+        else:
+            return redirect(request.path)
+
 
     def filter_queryset_if_journal(self, queryset):
         if self.request.journal:

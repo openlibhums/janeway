@@ -789,6 +789,13 @@ class Article(AbstractLastModifiedModel):
             return ident.get_doi_url()
         return None
 
+    def get_doi_object(self):
+        return self.get_identifier('doi', object=True)
+
+    @property
+    def doi_pattern_preview(self):
+        return id_logic.render_doi_from_pattern(self)
+
     @property
     def identifiers(self):
         from identifiers import models as identifier_models

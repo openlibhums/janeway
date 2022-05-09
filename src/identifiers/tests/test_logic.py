@@ -39,9 +39,9 @@ class TestLogic(TestCase):
         cls.request.journal = cls.journal_one
 
         # Issue 5.3 has one article
-        cls.issue_five_three = helpers.create_issue(cls.journal_one, volume=5, issue_number=3)
+        cls.issue_five_three = helpers.create_issue(cls.journal_one, vol=5, number=3)
 
-        cls.article_one = helpers.create_article(cls.journal_one)
+        cls.article_one = helpers.create_article(cls.journal_one, with_author=True)
         cls.doi_one = logic.generate_crossref_doi_with_pattern(cls.article_one)
         cls.issue_five_three.articles.add(cls.article_one)
         cls.article_one.primary_issue = cls.issue_five_three
@@ -57,15 +57,15 @@ class TestLogic(TestCase):
 
         # Issue 6.1 has two articles that should be registered together
         # in a single Crossref journal issue block
-        cls.issue_six_one = helpers.create_issue(cls.journal_one, volume=6, issue_number=1)
+        cls.issue_six_one = helpers.create_issue(cls.journal_one, vol=6, number=1)
 
-        cls.article_two = helpers.create_article(cls.journal_one)
+        cls.article_two = helpers.create_article(cls.journal_one, with_author=True)
         cls.doi_two = logic.generate_crossref_doi_with_pattern(cls.article_two)
         cls.issue_six_one.articles.add(cls.article_two)
         cls.article_two.primary_issue = cls.issue_six_one
         cls.article_two.save()
 
-        cls.article_three = helpers.create_article(cls.journal_one)
+        cls.article_three = helpers.create_article(cls.journal_one, with_author=True)
         doi_options = {
             'id_type': 'doi',
             'identifier': '10.1234/custom',
@@ -78,14 +78,14 @@ class TestLogic(TestCase):
 
         # But issue 6.1 also has another couple articles that should be registered individually
         # because they have special attributes
-        cls.article_four = helpers.create_article(cls.journal_one)
+        cls.article_four = helpers.create_article(cls.journal_one, with_author=True)
         cls.article_four.ISSN_override = '5555-5555'
         cls.doi_four = logic.generate_crossref_doi_with_pattern(cls.article_four)
         cls.issue_six_one.articles.add(cls.article_four)
         cls.article_four.primary_issue = cls.issue_six_one
         cls.article_four.save()
 
-        cls.article_five = helpers.create_article(cls.journal_one)
+        cls.article_five = helpers.create_article(cls.journal_one, with_author=True)
         cls.article_five.publication_title = 'A Very Special Old Publication'
         cls.doi_five = logic.generate_crossref_doi_with_pattern(cls.article_five)
         cls.issue_six_one.articles.add(cls.article_five)
@@ -227,10 +227,6 @@ class TestLogic(TestCase):
             'schemas',
         )
 
-        with open(os.path.join(schema_base_path,'crossref5.3.1.xsd')) as fileref:
-            xml_schema_doc = etree.parse(fileref)
-        xml_schema = etree.XMLSchema(xml_schema_doc)
-
         # Generate batch and validate against schema
         template = 'common/identifiers/crossref_doi_batch.xml'
         identifiers = set([identifier for identifier in models.Identifier.objects.all()])
@@ -238,8 +234,15 @@ class TestLogic(TestCase):
             self.journal_one,
             identifiers,
         )
-
         deposit = logic.render_to_string(template, template_context)
+
+        soup = BeautifulSoup(deposit, 'lxml')
+        version = soup.find('doi_batch')['version']
+        schema_filename = f'crossref{version}.xsd'
+        with open(os.path.join(schema_base_path, schema_filename)) as fileref:
+            xml_schema_doc = etree.parse(fileref)
+        xml_schema = etree.XMLSchema(xml_schema_doc)
+
         deposit_bytes = BytesIO(str.encode(deposit))
         doc = etree.parse(deposit_bytes)
         xml_schema.assertValid(doc)
@@ -263,10 +266,3 @@ class TestLogic(TestCase):
         self.assertEqual(4, len(soup.find_all('journal_metadata')))
         # There should be five articles
         self.assertEqual(5, len(soup.find_all('journal_article')))
-
-    def test_send_crossref_deposit(self):
-        identifiers = set([identifier for identifier in models.Identifier.objects.all()])
-        test_mode = True
-        status, error = logic.send_crossref_deposit(test_mode, identifiers)
-        pass
-

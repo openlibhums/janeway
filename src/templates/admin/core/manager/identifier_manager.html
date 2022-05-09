@@ -23,11 +23,22 @@
                 </div>
             </section>
         {% endif %}
-        <section>
-            <div class="small columns input-group">
-                <h3>Actions</h3>
-            </div>
-        </section>
+        {% if actions %}
+            <section>
+                <div class="small columns input-group">
+                    <h3>Actions</h3>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                            <input type="hidden" name="params_string" value="{{ params_string }}"/>
+                        {% for action in actions %}
+                            <button action="" class="button" type="submit" name="{{ action.name }}">
+                                {{ action.value }}
+                            </button>
+                        {% endfor %}
+                    </form>
+                </div>
+            </section>
+        {% endif %}
         <section>
             <div class="small columns">
                 <h3>Results</h3>
@@ -35,12 +46,14 @@
                     <thead>
                         <tr>
                             <th>Article ID</th>
-                            <th style="width: 20%">Title</th>
-                            <th style="width: 20%">Authors</th>
-                            <th style="width: 20%">DOI</th>
-                            <th style="width: 20%">Status</th>
+                            <th>Title</th>
+                            <th>Authors</th>
+                            <th>DOI</th>
+                            <th>Status</th>
+                            <th>Deposit XML</th>
+                            <th>Response XML</th>
                             {% if not journal %}
-                                <th style="width: 20%">Journal</th>
+                                <th>Journal</th>
                             {% endif %}
                             <th>Stage</th>
                             <th>Pub Date</th>
@@ -50,35 +63,60 @@
                     <tbody>
                         {% for article in article_list %}
                         <tr>
-                            <td>{{ article.pk }}</td>
-                            <td>
-                                {% if article.stage != 'Rejected' and article.stage != 'Published' %}
-                                <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
-                                {% else %}
-                                 <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <td>{{ article.pk }}</td>
+                                <td>
+                                    {% if article.stage != 'Rejected' and article.stage != 'Published' %}
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    {% else %}
+                                     <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.author_list }}</td>
+                                <td>
+                                    {% if article.get_doi %}
+                                        {{ article.get_doi }}
+                                    {% else %}
+                                        {{ article.doi_pattern_preview }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.get_doi %}
+                                        {% if article.get_doi_object.deposit %}
+                                            {{ article.get_doi_object.deposit.status }}
+                                        {% else %}
+                                            Ready to register
+                                        {% endif %}
+                                    {% else %}
+                                        Ready to register from pattern
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.get_doi_object.deposit %}
+                                        <a class="small success button" href="{% url 'show_doi' article.pk article.get_doi_object.pk %}">
+                                            View Deposit
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if article.get_doi_object.deposit %}
+                                        <a class="small success button" href="{% url 'poll_doi_output' article.pk article.get_doi_object.pk %}">
+                                            View Response
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                {% if not journal %}
+                                    <td>{{ article.journal.name }}</td>
                                 {% endif %}
-                            </td>
-                            <td>{{ article.author_list }}</td>
-                            <td>
-                                {% if article.get_doi %}
-                                    {{ article.get_doi }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if article.identifier %}
-                                    Message about status
-                                {% endif %}
-                            </td>
-                            {% if not journal %}
-                                <td>{{ article.journal.name }}</td>
-                            {% endif %}
-                            <td>{{ article.stage }}</td>
-                            <td>
-                                {% if article.date_published %}
-                                    {{ article.date_published }}
-                                {% endif %}
-                            </td>
-                            <td>{{ article.last_modified }}</td>
+                                <td>{{ article.stage }}</td>
+                                <td>
+                                    {% if article.date_published %}
+                                        {{ article.date_published }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.last_modified }}</td>
+                            </form>
                         </tr>
                         {% empty %}
                             <tr>

@@ -67,6 +67,13 @@ class CrossrefDeposit(models.Model):
     file_name = models.CharField(blank=False, null=False, max_length=255)
     date_time = models.DateTimeField(default=timezone.now)
     polling_attempts = models.PositiveIntegerField(default=0)
+    status = models.CharField(
+        blank=True,
+        null=False,
+        default='Unknown',
+        max_length=255,
+        help_text='A user-friendly message about the status of registration with Crossref.',
+    )
 
     # Note: CrossrefDeposit.identifier is deprecated from version 1.4.2
     identifier = models.ForeignKey(
@@ -79,8 +86,8 @@ class CrossrefDeposit(models.Model):
 
     @property
     def journal(self):
-        journals = set([identifier.article.journal for identifier in self.identifiers])
-        if journals.count() > 1:
+        journals = set([identifier.article.journal for identifier in self.identifiers.all()])
+        if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
         else:
@@ -112,6 +119,7 @@ class CrossrefDeposit(models.Model):
             self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
             self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
             self.citation_success = not ' status="error"' in self.result_text
+            self.update_status()
             self.save()
             logger.debug(self)
         except requests.RequestException as e:
@@ -134,6 +142,20 @@ class CrossrefDeposit(models.Model):
             )
         )
 
+    def update_status(self):
+        if not self.deposit:
+            self.status = 'Created, ready to register'
+        elif self.queued:
+            self.status = 'Queued at Crossref'
+        elif self.success:
+            if not self.citation_success:
+                self.status = 'Successfully registered (but some citations not correctly parsed)'
+            else:
+                self.status = 'Successfully registered'
+        elif self.has_result:
+            self.status = 'Registration with Crossref failed'
+        else:
+            self.status = 'Unknown'
 
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)

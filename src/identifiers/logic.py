@@ -8,6 +8,7 @@ import datetime
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
+from time import sleep
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -49,7 +50,7 @@ def check_crossref_settings(journal):
     use_crossref = setting_handler.get_setting(
         'Identifiers',
         'use_crossref',
-        article.journal
+        journal
     ).processed_value
 
     if not use_crossref:
@@ -59,7 +60,7 @@ def check_crossref_settings(journal):
     test_mode = setting_handler.get_setting(
         'Identifiers',
         'crossref_test',
-        article.journal
+        journal
     ).processed_value or settings.DEBUG
 
     return use_crossref, test_mode
@@ -86,33 +87,48 @@ def add_doi_logs(test_mode, articles):
 def register_batch_of_crossref_dois(articles):
     journals = set([article.journal for article in articles])
     if len(journals) > 1:
-        logger.debug('Articles must all be from the same journal')
-        return
+        status = 'Error'
+        error = 'Articles must all be from the same journal'
+        logger.debug(error)
+        return status, error
     else:
-        journal = journals[0]
+        journal = journals.pop()
 
     use_crossref, test_mode = check_crossref_settings(journal)
     add_doi_logs(test_mode, articles)
 
     if use_crossref:
-        identifiers = get_doi_identifiers_for_articles(articles)
+        identifiers = get_doi_identifiers_for_articles(articles, create=True)
         return send_crossref_deposit(test_mode, identifiers, journal)
     else:
         return 'Crossref Disabled', 'Disabled'
 
 
-def get_doi_identifiers_for_articles(articles):
+def get_doi_identifiers_for_articles(articles, create=False):
     identifiers = []
     for article in articles:
         try:
             identifier = article.get_identifier('doi', object=True)
-            if not identifier:
+            if not identifier and create:
                 identifier = generate_crossref_doi_with_pattern(article)
-            identifiers.append(identifier)
+            if identifier:
+                identifiers.append(identifier)
         except AttributeError as e:
             logger.debug(f'Error with article {article.pk}: {e}')
     return identifiers
 
+
+def poll_dois_for_articles(articles):
+    identifiers = get_doi_identifiers_for_articles(articles)
+    polled = set()
+    for identifier in identifiers:
+        if identifier.deposit and identifier.deposit not in polled:
+            try:
+                sleep(1)
+                identifier.deposit.poll()
+                polled.add(identifier.deposit)
+            except:
+                continue
 
 def register_crossref_component(article, xml, supp_file):
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
@@ -177,11 +193,11 @@ def create_crossref_doi_batch_context(journal, identifiers):
                                                        journal).processed_value,
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   journal).processed_value,
-        'is_conference': journal.is_conference,
+        'is_conference': journal.is_conference or False,
     }
 
     # Conference
-    if journal.is_conference:
+    if journal and journal.is_conference:
         return
 
 
@@ -346,11 +362,15 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     template = 'common/identifiers/crossref_doi_batch.xml'
     template_context = create_crossref_doi_batch_context(journal, identifiers)
-    rendered = render_to_string(template, template_context)
+    deposit = render_to_string(template, template_context)
 
-    # logger.debug(rendered)
+    filename = uuid4()
 
-    description = "Sending request: {0}".format(rendered)
+    crossref_deposit = models.CrossrefDeposit.objects.create(deposit=deposit, file_name=filename)
+    crossref_deposit.identifiers.add(*identifiers)
+    crossref_deposit.save()
+
+    description = "Sending request: {0}".format(crossref_deposit.deposit)
     articles = set([identifier.article for identifier in identifiers])
     util_models.LogEntry.bulk_add_simple_entry('Submission', description, 'Info', targets=articles)
 
@@ -358,17 +378,17 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
     username = setting_handler.get_setting('Identifiers', 'crossref_username', journal).processed_value
     password = setting_handler.get_setting('Identifiers', 'crossref_password', journal).processed_value
 
-    filename = uuid4()
-
     depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
 
     try:
-        response = depositor.register_doi(submission_id=filename, request_xml=rendered)
+        response = depositor.register_doi(submission_id=filename, request_xml=crossref_deposit.deposit)
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
         status = 'Error depositing. Could not connect to Crossref ({0}). Error: {1}'.format(
             depositor.get_endpoint(verb='deposit'),
             e,
         )
+        crossref_deposit.result_text = status
+        crossref_deposit.save()
         util_models.LogEntry.bulk_add_simple_entry('Error', status, 'Debug', targets=articles)
         logger.error(status)
         return status, error
@@ -379,6 +399,8 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     if response.status_code != 200:
         status = "Error depositing: {0}. {1}".format(response.status_code, response.text)
+        crossref_deposit.result_text = status
+        crossref_deposit.save()
         util_models.LogEntry.bulk_add_simple_entry('Error', status, 'Debug', targets=articles)
         logger.error(status)
         error = True
@@ -386,12 +408,7 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
         status = "Deposited DOI"
         util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
         logger.info(status)
-
-        crd = models.CrossrefDeposit.objects.create(deposit=deposit, file_name=filename)
-        crd.identifiers.add(*identifiers)
-        crd.save()
-
-        crd.poll()
+        crossref_deposit.poll()
 
     return status, error
 
