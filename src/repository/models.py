@@ -244,6 +244,15 @@ class Repository(model_utils.AbstractSiteModel):
     def code(self):
         return self.short_name
 
+    def reviewer_accounts(self):
+        reviewer_ids = RepositoryRole.objects.filter(
+            repository=self,
+            role__slug='reviewer',
+        ).values_list('user__id')
+        return core_models.Account.objects.filter(
+            pk__in=reviewer_ids,
+        )
+
 
 class RepositoryRole(models.Model):
     repository = models.ForeignKey(Repository)
