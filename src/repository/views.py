@@ -2157,9 +2157,27 @@ def edit_review_comment(request, preprint_id, review_id):
 
 @is_repository_manager
 def manage_reviewers(request):
-    reviewers = core_models.Account.objects.filter(
-        repository__repositoryrole__role__slug='reviewer',
-    )
+    role = core_models.Role.objects.get(slug='reviewer')
+    user_search = []
+    first_name = request.GET.get('first_name', '')
+    last_name = request.GET.get('last_name', '')
+    email = request.GET.get('email', '')
+
+    if first_name or last_name or email:
+        filters = {}
+        if first_name and len(first_name) >= 2:
+            filters['first_name__icontains'] = first_name
+        if last_name and len(last_name) >= 2:
+            filters['last_name__icontains'] = last_name
+        if email and len(email) >= 2:
+            filters['email__icontains'] = email
+
+        user_search = core_models.Account.objects.filter(
+            **filters, is_active=True,
+        ).difference(
+            request.repository.reviewer_accounts(),
+        )
+
     if request.POST and ('add_reviewer' in request.POST or 'remove_reviewer' in request.POST):
         if 'add_reviewer' in request.POST:
             account_id = request.POST.get('add_reviewer')
@@ -2171,7 +2189,7 @@ def manage_reviewers(request):
             role, created = models.RepositoryRole.objects.get_or_create(
                 repository=request.repository,
                 user=account,
-                role__slug='reviewer',
+                role=role,
             )
             messages.add_message(
                 request,
@@ -2187,10 +2205,10 @@ def manage_reviewers(request):
                 pk=account_id,
                 is_active=True,
             )
-            models.RepositoryRole.objects.filter(
+            roles = models.RepositoryRole.objects.filter(
                 repository=request.repository,
                 user=account,
-                role__slug='reviewer',
+                role=role,
             ).delete()
             messages.add_message(
                 request,
@@ -2207,7 +2225,11 @@ def manage_reviewers(request):
 
     template = 'repository/review/manage_reviewers.html'
     context = {
-        'reviewers': reviewers,
+        'reviewers': request.repository.reviewer_accounts(),
+        'user_search': user_search,
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
     }
     return render(
         request,
