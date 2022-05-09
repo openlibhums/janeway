@@ -1,0 +1,35 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Review Comment{% endblock %}
+{% block title-section %}Edit Review Comment{% endblock %}
+{% block title-sub %}Invite a new reviewer for {{ request.repository.object_name }} #{{ preprint.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li><a href="{% url 'repository_list_reviews' preprint.pk %}">Invited Reviews</a></li>
+    <li><a href="{% url 'repository_review_detail' preprint.pk review.pk %}">Review #{{ review.pk }}</a></li>
+    <li>Edit Review Comment</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Select a Reviewer</h2>
+            <a class="button"><i class="fa fa-user"></i> Manage Reviewers</a>
+        </div>
+        <div class="content">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|foundation }}
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <button name="submit" class="button">Edit Comment</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

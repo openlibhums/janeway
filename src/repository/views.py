@@ -965,6 +965,9 @@ def repository_manager_article(request, preprint_id):
             date_decision__isnull=True,
         ),
         'modal': modal,
+        'comment_count': preprint.comment_set.filter(
+            review__isnull=True,
+        ).count()
     }
 
     return render(request, template, context)
@@ -1197,8 +1200,14 @@ def repository_comments(request, preprint_id):
     template = 'admin/repository/comments.html'
     context = {
         'preprint': preprint,
-        'new_comments': preprint.comment_set.filter(is_reviewed=False),
-        'old_comments': preprint.comment_set.filter(is_reviewed=True)
+        'new_comments': preprint.comment_set.filter(
+            is_reviewed=False,
+            review__isnull=True,
+        ),
+        'old_comments': preprint.comment_set.filter(
+            is_reviewed=True,
+            review__isnull=True,
+        )
     }
 
     return render(request, template, context)
@@ -1797,4 +1806,411 @@ def delete_preprint_author(request, preprint_id):
             'repository_manager_article',
             kwargs={'preprint_id': preprint.pk},
         )
+    )
+
+
+# Repository Review
+def list_reviews(request, preprint_id):
+    """
+    For a given preprint list active reviews.
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    active_reviews = models.Review.objects.filter(
+        preprint=preprint,
+    ).exclude(
+        status__in=['declined', 'withdrawn']
+    )
+    inactive_reviews = models.Review.objects.filter(
+        preprint=preprint,
+        status__in=['declined', 'withdrawn']
+    )
+    template = 'repository/review/list_reviews.html'
+    context = {
+        'preprint': preprint,
+        'active_reviews': active_reviews,
+        'inactive_reviews': inactive_reviews,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def review_detail(request, preprint_id, review_id):
+    """
+    Displays detailed information about a review.
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    review = get_object_or_404(
+        models.Review,
+        pk=review_id,
+        preprint=preprint,
+    )
+    form = forms.ReviewDueDateForm(instance=review)
+
+    if request.POST:
+        fire_redirect = True
+        if 'reset' in request.POST:
+            review.reset(user=request.user)
+            messages.add_message(request, messages.SUCCESS, 'Review reset.')
+        if 'withdraw' in request.POST:
+            reason = request.POST.get('withdraw_reason', 'No reason supplied.')
+            review.withdraw(reason, request)
+            messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
+        if 'accept' in request.POST:
+            review.accept(request)
+            messages.add_message(request, messages.SUCCESS, 'Marked as Accepted')
+        if 'publish' in request.POST:
+            review.publish(user=request.user)
+            messages.add_message(request, messages.SUCCESS, 'Review comment published')
+        if 'unpublish' in request.POST:
+            review.unpublish(user=request.user)
+            messages.add_message(request, messages.SUCCESS, 'Review comment unpublished')
+        if 'edit' in request.POST:
+            form = forms.ReviewDueDateForm(
+                request.POST,
+                instance=review,
+            )
+            if form.is_valid():
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Due Date updated.',
+                )
+            else:
+                fire_redirect = False
+
+        if fire_redirect:
+            return redirect(
+                reverse(
+                    'repository_review_detail',
+                    kwargs={
+                        'preprint_id': preprint_id,
+                        'review_id': review.pk,
+                    }
+                )
+            )
+
+    template = 'repository/review/review_detail.html'
+    context = {
+        'review': review,
+        'preprint': preprint,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def manage_review(request, preprint_id):
+    """
+    Allows an editor to create and edit a review.
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    form = forms.ReviewForm(
+        preprint=preprint,
+        manager=request.user,
+    )
+    if request.POST:
+        form = forms.ReviewForm(
+            request.POST,
+            preprint=preprint,
+            manager=request.user,
+        )
+        if form.is_valid:
+            review = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Review saved.',
+            )
+            return redirect(
+                reverse(
+                    'repository_notify_reviewer',
+                    kwargs={
+                        'preprint_id': preprint.pk,
+                        'review_id': review.pk,
+                    },
+                )
+            )
+
+    reviewers = core_models.Account.objects.filter(
+        repository__repositoryrole__role__slug='reviewer',
+    )
+
+    template = 'repository/review/manage_review.html'
+    context = {
+        'form': form,
+        'preprint': preprint,
+        'reviewers': reviewers,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def notify_reviewer(request, preprint_id, review_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    review = get_object_or_404(
+        models.Review,
+        pk=review_id,
+        preprint=preprint,
+    )
+    message = repository_logic.get_review_notification(request, preprint, review)
+    if request.POST:
+        message = request.POST.get('message')
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_REVIEW_NOTIFICATION,
+            **{
+                'request': request,
+                'preprint': preprint,
+                'review': review,
+                'message': message,
+                'skip': True if 'skip' in request.POST else False,
+            }
+        )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Invited review notification sent.',
+        )
+        if 'skip' not in request.POST:
+            review.notification_sent = True
+            review.save()
+        return redirect(
+            reverse(
+                'repository_list_reviews',
+                kwargs={'preprint_id': preprint.pk},
+            )
+        )
+
+    template = 'repository/review/notify_reviewer.html'
+    context = {
+        'preprint': preprint,
+        'review': review,
+        'message': message,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+def submit_review(request, review_id, access_code):
+    """
+    Allows a reviewer to submit their review.
+    """
+    # Fetch a review where review_id and access code match and the review is
+    # currently new or accepted.
+    review = get_object_or_404(
+        models.Review,
+        pk=review_id,
+        access_code=access_code,
+        status__in=['new', 'accepted']
+    )
+    form = forms.ReviewCommentForm(
+        review=review,
+    )
+    if request.POST:
+        fire_redirect = True
+        if 'accept' in request.POST:
+            review.accept(request)
+        if 'decline' in request.POST:
+            review.decline(request)
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Thanks for letting us know you cannot add a review comment.',
+            )
+        else:
+            form = forms.ReviewCommentForm(
+                request.POST,
+                review=review,
+            )
+            if form.is_valid():
+                form.save()
+                review.complete(request)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Review saved. Thank you for your contribution',
+                )
+            else:
+                fire_redirect = False
+
+        if fire_redirect:
+            if request.user.is_authenticated:
+                return redirect(
+                    reverse(
+                        'repository_dashboard',
+                    )
+                )
+            return redirect(
+                reverse(
+                    'website_index',
+                )
+            )
+    template = 'repository/review/submit_review.html'
+    context = {
+        'review': review,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+def download_review_file(request, review_id, access_code):
+    """
+    Returns the latest version file for a given preprint.
+    """
+    review = get_object_or_404(
+        models.Review,
+        pk=review_id,
+        access_code=access_code,
+        status__in=['new', 'accepted']
+    )
+    file = review.preprint.current_version.file
+    return files.serve_any_file(
+        request,
+        file,
+        path_parts=(file.path_parts(),)
+    )
+
+
+@is_repository_manager
+def edit_review_comment(request, preprint_id, review_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    review = get_object_or_404(
+        models.Review,
+        pk=review_id,
+        preprint=preprint,
+    )
+    form = forms.ReviewCommentForm(
+        review=review,
+    )
+    if request.POST:
+        form = forms.ReviewCommentForm(
+            request.POST,
+            review=review,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Review comment saved.',
+            )
+            return redirect(
+                reverse(
+                    'repository_review_detail',
+                    kwargs={
+                        'preprint_id': preprint.pk,
+                        'review_id': review.pk,
+                    }
+                )
+            )
+    template = 'repository/review/edit_review_comment.html'
+    context = {
+        'preprint': preprint,
+        'review': review,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def manage_reviewers(request):
+    reviewers = core_models.Account.objects.filter(
+        repository__repositoryrole__role__slug='reviewer',
+    )
+    if request.POST and ('add_reviewer' in request.POST or 'remove_reviewer' in request.POST):
+        if 'add_reviewer' in request.POST:
+            account_id = request.POST.get('add_reviewer')
+            account = get_object_or_404(
+                core_models.Account,
+                pk=account_id,
+                is_active=True,
+            )
+            role, created = models.RepositoryRole.objects.get_or_create(
+                repository=request.repository,
+                user=account,
+                role__slug='reviewer',
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                '{} now has the Reviewer role.'.format(
+                    account.full_name(),
+                )
+            )
+        if 'remove_reviewer' in request.POST:
+            account_id = request.POST.get('remove_reviewer')
+            account = get_object_or_404(
+                core_models.Account,
+                pk=account_id,
+                is_active=True,
+            )
+            models.RepositoryRole.objects.filter(
+                repository=request.repository,
+                user=account,
+                role__slug='reviewer',
+            ).delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                '{} no longer has the reviewer role.'.format(
+                    account.full_name(),
+                )
+            )
+        return redirect(
+            reverse(
+                'repository_manage_reviewers',
+            )
+        )
+
+    template = 'repository/review/manage_reviewers.html'
+    context = {
+        'reviewers': reviewers,
+    }
+    return render(
+        request,
+        template,
+        context,
     )

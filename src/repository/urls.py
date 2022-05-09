@@ -113,6 +113,35 @@ urlpatterns = [
         views.delete_preprint_author,
         name='repository_manager_delete_author'),
 
+    # Review
+    url(r'^manager/reviewers/$',
+        views.manage_reviewers,
+        name='repository_manage_reviewers'),
+    url(r'^manager/(?P<preprint_id>\d+)/review/$',
+        views.list_reviews,
+        name='repository_list_reviews'),
+    url(r'^manager/(?P<preprint_id>\d+)/review/new/$',
+        views.manage_review,
+        name='repository_new_review'),
+    url(r'^manager/(?P<preprint_id>\d+)/review/(?P<review_id>\d+)/detail/$',
+        views.review_detail,
+        name='repository_review_detail'),
+    url(r'^manager/(?P<preprint_id>\d+)/review/(?P<review_id>\d+)/notify/$',
+        views.notify_reviewer,
+        name='repository_notify_reviewer'),
+    url(r'^manager/(?P<preprint_id>\d+)/review/(?P<review_id>\d+)/edit_comment/$',
+        views.edit_review_comment,
+        name='repository_edit_review_comment'),
+
+    url(r'^review/(?P<review_id>\d+)/access_code/(?P<access_code>[0-9a-f-]+)/$',
+        views.submit_review,
+        name='repository_submit_review'),
+
+    url(r'^review/(?P<review_id>\d+)/access_code/(?P<access_code>[0-9a-f-]+)/download/$',
+        views.download_review_file,
+        name='repository_download_review_file'),
+
+
 
     url(r'^manager/(?P<preprint_id>\d+)/download/(?P<file_id>\d+)/$',
         views.repository_download_file,
