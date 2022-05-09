@@ -12,7 +12,7 @@
     <ul class="vertical menu">
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
 
-        {% if request.press.enable_preprints and request.repository %}
+        {% if request.press.enable_preprints and request.repository and request.user.is_authenticated %}
             {% is_repository_manager as repository_manager %}
             <li class="subtitle"><a href="#">Preprints</a></li>
             <li><a href="{% url 'repository_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Author Dashboard</a></li>

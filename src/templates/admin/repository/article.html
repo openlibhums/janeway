@@ -109,7 +109,12 @@
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     <li><a href="{% url 'repository_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
-                        ({{ preprint.comment_set.all|length }})</a></li>
+                        ({{ comment_count }})</a></li>
+                    <li>
+                        <a href="{% url 'repository_list_reviews' preprint.pk %}">
+                            <i class="fa fa-commenting" aria-hidden="true">&nbsp;</i>Invited Comments ({{ preprint.review_set.count }})
+                        </a>
+                    </li>
                     <li>
                         <a target="_blank" href="{% url 'discussion_threads' 'preprint' preprint.pk %}">
                             <i class="fa fa-align-justify" aria-hidden="true">&nbsp;</i>

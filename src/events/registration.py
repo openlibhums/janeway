@@ -144,6 +144,16 @@ event_logic.Events.register_for_event(
     transactional_emails.access_request_complete,
 )
 
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PREPRINT_REVIEW_NOTIFICATION,
+    transactional_emails.preprint_review_notification,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
+    transactional_emails.preprint_review_status_change,
+)
+
 # wire up task-creation events
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       workflow_tasks.assign_editors)

@@ -1,0 +1,209 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load admin_urls %}
+
+{% block title %}Invited Review #{{ review.pk }}{% endblock %}
+{% block title-section %}Invited Review #{{ review.pk }}{% endblock %}
+{% block title-sub %}Details and controls for Invited Review #{{ review.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li><a href="{% url 'repository_list_reviews' preprint.pk %}">Invited Reviews</a></li>
+    <li>Review #{{ review.pk }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-8 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Details</h2>
+                    <a href="{% url 'admin:repository_review_change' review.id %}" class="button">Edit in Admin</a>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Reviewer</th>
+                            <th>Manager</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td>{{ review.pk }}</td>
+                            <td>{{ review.reviewer.full_name }}{% if request.user.is_admin %}
+                                <a target="_blank" href="/admin/core/account/{{ review.reviewer.pk }}/change/"><i
+                                        class="fa fa-cogs"></i></a>{% endif %}</td>
+                            <td>{{ review.manager.full_name }}{% if request.user.is_admin %}
+                                <a target="_blank" href="/admin/core/account/{{ review.manager.pk }}/change/"><i
+                                        class="fa fa-cogs"></i></a>{% endif %}</td>
+                            <td>{{ review.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date Assigned</th>
+                            <th>Date Due</th>
+                            <th>Date Accepted</th>
+                            <th>Date Completed</th>
+                        </tr>
+                        <tr>
+                            <td>{{ review.date_assigned|date:"Y-m-d" }}</td>
+                            <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                            <td>{{ review.date_accepted|date:"Y-m-d" }}{% if not review.date_accepted %}
+                                --{% endif %}</td>
+                            <td>{{ review.date_completed|date:"Y-m-d" }}{% if not review.date_completed %}
+                                --{% endif %}</td>
+                        </tr>
+                        {% if review.status == 'declined' or review.status == 'withdrawn' %}
+                            <tr>
+                                <th colspan="4">Status Reason</th>
+                            </tr>
+                            <tr>
+                                <td colspan="4">{{ review.status_reason|safe }}</td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% if not review.status == 'complete' %}
+                    <div class="title-area">
+                        <h2>Edit Due Date</h2>
+                    </div>
+                    <div class="content">
+                        <p>A notification will be sent to the reviewer noting the new due date once it is changed.</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <button class="button" name="edit">Update Due Date</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+                {% if review.status == 'complete' and review.comment %}
+                    <div class="title-area">
+                        <h2>Review</h2>
+                    </div>
+                    <div class="content">
+                        <p><strong>Comment: </strong></p>
+                        {{ review.comment.body|safe }}
+                        <p><strong>Anonymity: </strong>
+                            <br/>
+                            {% if review.anonymous %}Reviewer wishes to remain anonymous{% else %} Reviewer would like their name attached to the review{% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="large-4 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Controls</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <ul id="review_controls" class="menu vertical actions">
+                            {% if not review.date_completed %}
+                                <li>
+                                    <a class="expanded"
+                                       href="{% url 'repository_submit_review' review.pk review.access_code %}"><i
+                                            class="fa fa-edit"></i>
+                                        View Review Form
+                                    </a>
+                                </li>
+                                {% if not review.date_accepted %}
+                                <li>
+                                    <button class="expanded" name="accept"><i class="fa fa-check"></i> Mark as Accepted
+                                    </button>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a class="expanded" href="#" data-open="withdraw"><i class="fa fa-times-circle"></i>
+                                        Withdraw Review
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if review.date_completed and not review.comment %}
+                                <li>
+                                    <button class="expanded" name="reset"><i class="fa fa-refresh"></i> Reset and
+                                        Reopen Review
+                                    </button>
+                                </li>
+                            {% endif %}
+                            {% if not review.notification_sent %}
+                                <li>
+                                    <a class="expanded" href="{% url 'repository_notify_reviewer' preprint.pk review.pk %}"><i class="fa fa-envelope"></i>
+                                        Notify Reviewer
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if review.date_completed and review.comment %}
+                                <li>
+                                    <a href="{% url 'repository_edit_review_comment' preprint.pk review.pk %}"
+                                       class="expanded"><i class="fa fa-edit"></i> Edit Comment
+                                    </a>
+                                </li>
+                                {% if not review.comment.is_public %}
+                                    <li>
+                                        <button class="expanded" name="publish"><i class="fa fa-check-circle"></i>
+                                            Publish Review
+                                        </button>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <button class="expanded" name="unpublish"><i class="fa fa-times-circle"></i>
+                                            Unpublish Review
+                                        </button>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        </ul>
+                    </form>
+                    <p>
+                        <strong><small>Potential Statuses:</small></strong>
+                    </p>
+                    <ul>
+                        <li><small><strong>New</strong> - totally new assignment, has not been accepted, declined, withdrawn or
+                            completed.</small>
+                        </li>
+                        <li><small><strong>Accepted</strong> - the invited reviewer has agreed to write a comment but has not
+                            yet added it.</small>
+                        </li>
+                        <li><small><strong>Declined</strong> - the invited reviewer has declined to write a comment.</small></li>
+                        <li><small><strong>Complete</strong> - the invited reviewer has written and submitted their comment.</small>
+                        </li>
+                        <li><small><strong>Withdrawn</strong> - the invited review has been withdrawn by Repository staff.</small></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="reveal small" id="withdraw" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-circle-o">&nbsp;</i>Withdraw Invite</h4>
+            </div>
+            <div class="card-section">
+                <p>Please add a note detailing the reason for withdrawing this invite. It will be sent to the
+                    reviewer.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <label for="withdraw_reason">Withdrawl Reason:</label>
+                    <textarea id="withdraw_reason" name="withdraw_reason"></textarea>
+                    <button type="submit" class="button warning" name="withdraw">Withdraw
+                        Invite
+                    </button>
+                </form>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+{% endblock %}
+

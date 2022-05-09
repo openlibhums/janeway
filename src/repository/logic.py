@@ -512,3 +512,29 @@ def store_preprint_access(request, preprint, file=None):
                 identifier=identifier,
                 country=country,
             )
+
+
+def get_review_notification(request, preprint, review):
+    url = request.repository.site_url(
+        path=reverse(
+            'repository_submit_review',
+            kwargs={
+                'review_id': review.pk,
+                'access_code': review.access_code,
+            }
+        )
+    )
+    context = {
+        'preprint': preprint,
+        'request': request,
+        'review': review,
+        'url': url,
+    }
+    template = request.repository.review_invitation
+    email_content = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    return email_content
