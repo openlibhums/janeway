@@ -2021,15 +2021,11 @@ def manage_review(request, preprint_id):
                 )
             )
 
-    reviewers = core_models.Account.objects.filter(
-        repository__repositoryrole__role__slug='reviewer',
-    )
-
     template = 'repository/review/manage_review.html'
     context = {
         'form': form,
         'preprint': preprint,
-        'reviewers': reviewers,
+        'reviewers': request.repository.reviewer_accounts(),
     }
     return render(
         request,
