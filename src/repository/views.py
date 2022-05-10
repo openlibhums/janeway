@@ -1879,6 +1879,7 @@ def send_preprint_to_journal(request, preprint_id, journal_id=None):
     )
 
 # Repository Review
+@is_repository_manager
 def list_reviews(request, preprint_id):
     """
     For a given preprint list active reviews.
