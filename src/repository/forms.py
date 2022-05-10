@@ -636,7 +636,7 @@ class ReviewForm(forms.ModelForm):
             'date_due',
         )
         widgets = {
-            'date_due': utils_forms.HTMLDateInput()
+            'date_due': utils_forms.HTMLDateInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -664,14 +664,14 @@ class ReviewDueDateForm(forms.ModelForm):
         model = models.Review
         fields = ('date_due',)
         widgets = {
-            'date_due': utils_forms.HTMLDateInput()
+            'date_due': utils_forms.HTMLDateInput(),
         }
 
 
 class ReviewCommentForm(forms.Form):
     body = forms.CharField(
         widget=SummernoteWidget(),
-        label="Comments"
+        label="Comments",
     )
     anonymous = forms.BooleanField(
         help_text='Check if you want your comments to be displayed anonymously.',
