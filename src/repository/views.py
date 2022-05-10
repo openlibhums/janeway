@@ -1810,6 +1810,7 @@ def delete_preprint_author(request, preprint_id):
 
 
 # Repository Review
+@is_repository_manager
 def list_reviews(request, preprint_id):
     """
     For a given preprint list active reviews.
