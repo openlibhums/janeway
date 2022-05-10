@@ -36,6 +36,14 @@
                             </button>
                         {% endfor %}
                     </form>
+                    {% if action_error %}
+                        <p>Error</p>
+                        {% if action_status %}
+                            {% for status in action_status %}
+                                <p>{{ status }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
                 </div>
             </section>
         {% endif %}

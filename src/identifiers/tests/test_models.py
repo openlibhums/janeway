@@ -19,7 +19,7 @@ class TestLogic(TestCase):
         save_setting('Identifiers', 'use_crossref', cls.journal_one, True)
         save_setting('Identifiers', 'crossref_prefix', cls.journal_one, '10.0000')
         cls.ten_articles = [helpers.create_article(cls.journal_one) for i in range(10)]
-        cls.ten_identifiers = logic.get_doi_identifiers_for_articles(cls.ten_articles, create=True)
+        cls.ten_identifiers = logic.get_dois_for_articles(cls.ten_articles, create=True)
 
 
     def test_crossref_deposit(self):

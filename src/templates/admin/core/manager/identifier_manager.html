@@ -36,6 +36,14 @@
                             </button>
                         {% endfor %}
                     </form>
+                    {% if action_error %}
+                        <p>Error</p>
+                        {% if action_status %}
+                            {% for status in action_status %}
+                                <p>{{ status }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
                 </div>
             </section>
         {% endif %}
@@ -50,8 +58,8 @@
                             <th>Authors</th>
                             <th>DOI</th>
                             <th>Status</th>
-                            <th>Deposit XML</th>
-                            <th>Response XML</th>
+                            <th>Deposit</th>
+                            <th>Response</th>
                             {% if not journal %}
                                 <th>Journal</th>
                             {% endif %}
@@ -95,14 +103,14 @@
                                 <td>
                                     {% if article.get_doi_object.deposit %}
                                         <a class="small success button" href="{% url 'show_doi' article.pk article.get_doi_object.pk %}">
-                                            View Deposit
+                                            View XML
                                         </a>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if article.get_doi_object.deposit %}
                                         <a class="small success button" href="{% url 'poll_doi_output' article.pk article.get_doi_object.pk %}">
-                                            View Response
+                                            View XML
                                         </a>
                                     {% endif %}
                                 </td>

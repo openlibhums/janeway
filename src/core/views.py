@@ -2173,23 +2173,31 @@ class FilteredArticlesListView(generic.ListView):
         return paginate_by
 
     def get_context_data(self, **kwargs):
+        params_querydict = self.request.GET.copy()
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context['paginate_by'] = self.request.GET.get('paginate_by', self.paginate_by)
+        context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
         context['facet_form'] = forms.CBVFacetForm(
             queryset=queryset,
             facet_queryset=self.get_facet_queryset(),
             facets=self.get_facets(),
-            initial=dict(self.request.GET.lists()),
+            initial=dict(params_querydict.lists()),
         )
 
         context['actions'] = self.get_actions()
-        context['params_string'] = self.request.GET.urlencode()
+        context['action_status'] = params_querydict.pop('action_status', '')
+        context['action_error'] = params_querydict.pop('action_error', False)
+        context['params_string'] = params_querydict.urlencode()
         return context
 
     def get_queryset(self, params_querydict=None):
         if not params_querydict:
-            params_querydict = self.request.GET
+            params_querydict = self.request.GET.copy()
+
+        # Clear any previous action status and error
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', False)
+
         self.queryset = super().get_queryset()
         q_stack = []
         facet_lookups = [facet['lookup'] for facet in self.get_facets()]
@@ -2226,14 +2234,21 @@ class FilteredArticlesListView(generic.ListView):
 
     def post(self, request, *args, **kwargs):
 
+        action_status = ''
+        action_error = False
         params_string = request.POST.get('params_string')
-        params_querydict = QueryDict(params_string)
+        params_querydict = QueryDict(params_string, mutable=True)
         actions = self.get_actions()
         if actions:
             for action in actions:
                 if action.get('name') in request.POST:
                     queryset = self.get_queryset(params_querydict=params_querydict)
-                    action.get('action')(queryset)
+                    action_status, action_error = action.get('action')(queryset)
+
+        if action_status:
+            params_string += f'&action_status={action_status}'
+        if action_error:
+            params_string += f'&action_error={action_error}'
 
         if params_string:
             return redirect(f'{request.path}?{params_string}')

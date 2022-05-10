@@ -122,13 +122,16 @@ class CrossrefDeposit(models.Model):
             self.update_status()
             self.save()
             logger.debug(self)
+            return self.status, False
         except requests.RequestException as e:
             self.success = False
             self.has_result = True
             self.result_text = 'Error: {0}'.format(e)
+            self.update_status()
             self.save()
             logger.error(self.result_text)
             logger.error(self)
+            return self.status, e
 
     def __str__(self):
         return ("[Deposit:{identifiers}:{self.file_name}]"
@@ -144,14 +147,14 @@ class CrossrefDeposit(models.Model):
 
     def update_status(self):
         if not self.deposit:
-            self.status = 'Created, ready to register'
+            self.status = 'Ready to register'
         elif self.queued:
             self.status = 'Queued at Crossref'
         elif self.success:
             if not self.citation_success:
-                self.status = 'Successfully registered (but some citations not correctly parsed)'
+                self.status = 'Registered (but some citations not correctly parsed)'
             else:
-                self.status = 'Successfully registered'
+                self.status = 'Registered'
         elif self.has_result:
             self.status = 'Registration with Crossref failed'
         else:

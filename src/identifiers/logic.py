@@ -9,6 +9,7 @@ from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
+import itertools
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -31,19 +32,37 @@ logger = get_logger(__name__)
 
 
 def register_crossref_doi(identifier):
-    domain = identifier.article.journal.domain
-    journal = identifier.article.journal
+    return register_batch_of_crossref_dois([identifier.article])
 
-    # Remove this
-    pingback_url = urlencode({'pingback': 'http://{0}{1}'.format(domain, reverse('crossref_pingback'))})
 
-    use_crossref, test_mode = check_crossref_settings(journal)
-    add_doi_logs(test_mode, [identifier.article])
-
-    if use_crossref:
-        return send_crossref_deposit(test_mode, [identifier])
+def register_batch_of_crossref_dois(articles):
+    journals = set([article.journal for article in articles])
+    if len(journals) > 1:
+        status = 'Articles must all be from the same journal'
+        error = True
+        logger.debug(status)
+        return status, error
     else:
-        return 'Crossref Disabled', 'Disabled'
+        journal = journals.pop()
+
+    use_crossref, test_mode, missing_settings = check_crossref_settings(journal)
+
+    if use_crossref and not missing_settings:
+        mode = 'test' if test_mode else 'live'
+        desc = f'DOI registration running in f{mode} mode'
+        util_models.LogEntry.bulk_add_simple_entry('Submission', desc, 'Info', targets=articles)
+        identifiers = get_dois_for_articles(articles, create=True)
+        return send_crossref_deposit(test_mode, identifiers, journal)
+    elif not use_crossref:
+        status = 'Crossref Disabled'
+        error = True
+        logger.debug(status)
+        return status, error
+    elif use_crossref and missing_settings:
+        status = 'Missing Crossref settings: '+', '.join(missing_settings)
+        error = True
+        logger.debug(status)
+        return status, error
 
 
 def check_crossref_settings(journal):
@@ -63,48 +82,30 @@ def check_crossref_settings(journal):
         journal
     ).processed_value or settings.DEBUG
 
-    return use_crossref, test_mode
+    settings = [
+        'crossref_prefix',
+        'crossref_username',
+        'crossref_password',
+        'crossref_name',
+        'crossref_email',
+        'crossref_registrant'
+    ]
+    missing_settings = []
+    for setting_name in settings:
+        setting_value = setting_handler.get_setting(
+            'Identifiers',
+            setting_name,
+            journal
+        ).processed_value
+        if not setting_value:
+            missing_settings.append(setting_name)
+    if not journal.code:
+        missing_settings.append('journal__code')
+
+    return use_crossref, test_mode, missing_settings
 
 
-def add_doi_logs(test_mode, articles):
-    for article in articles:
-        if test_mode:
-            util_models.LogEntry.add_entry(
-                'Submission',
-                "DOI registration running in test mode",
-                'Info',
-                target=article
-            )
-        else:
-            util_models.LogEntry.add_entry(
-                'Submission',
-                "DOI registration running in live mode",
-                'Info',
-                target=article
-            )
-
-
-def register_batch_of_crossref_dois(articles):
-    journals = set([article.journal for article in articles])
-    if len(journals) > 1:
-        status = 'Error'
-        error = 'Articles must all be from the same journal'
-        logger.debug(error)
-        return status, error
-    else:
-        journal = journals.pop()
-
-    use_crossref, test_mode = check_crossref_settings(journal)
-    add_doi_logs(test_mode, articles)
-
-    if use_crossref:
-        identifiers = get_doi_identifiers_for_articles(articles, create=True)
-        return send_crossref_deposit(test_mode, identifiers, journal)
-    else:
-        return 'Crossref Disabled', 'Disabled'
-
-
-def get_doi_identifiers_for_articles(articles, create=False):
+def get_dois_for_articles(articles, create=False):
     identifiers = []
     for article in articles:
         try:
@@ -119,16 +120,20 @@ def get_doi_identifiers_for_articles(articles, create=False):
 
 
 def poll_dois_for_articles(articles):
-    identifiers = get_doi_identifiers_for_articles(articles)
+    status = ''
+    error = False
+    identifiers = get_dois_for_articles(articles)
     polled = set()
     for identifier in identifiers:
         if identifier.deposit and identifier.deposit not in polled:
             try:
                 sleep(1)
-                identifier.deposit.poll()
+                status, error = identifier.deposit.poll()
                 polled.add(identifier.deposit)
             except:
                 continue
+
+    return status, error
 
 def register_crossref_component(article, xml, supp_file):
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
