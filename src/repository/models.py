@@ -21,6 +21,7 @@ from core import model_utils, files, models as core_models
 from utils import logic
 from repository import install
 from utils.function_cache import cache
+from submission import models as submission_models
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -401,6 +402,14 @@ class Preprint(models.Model):
     date_updated = models.DateTimeField(blank=True, null=True)
     current_step = models.IntegerField(default=1)
 
+    article = models.OneToOneField(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text='Linked article of this preprint.',
+    )
+
     def __str__(self):
         return '{}'.format(
             self.title,
@@ -622,6 +631,53 @@ class Preprint(models.Model):
         )
 
         return url
+
+    def create_article(self, journal, workflow_stage, journal_license, journal_section, force=False):
+        """
+        Creates an article in a given journal and workflow stage.
+        """
+        if not self.article or force:
+            # create base article
+            article = submission_models.Article.objects.create(
+                journal=journal,
+                owner=self.owner,
+                title=self.title,
+                abstract=self.abstract,
+                license=journal_license,
+                section=journal_section,
+                date_submitted=timezone.now(),
+                comments_editor='Submitted from {}'.format(self.repository.name),
+                stage=workflow_stage,
+            )
+
+            # copy authors to submission
+            for preprint_author in self.preprintauthor_set.all():
+                submission_models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=preprint_author.account,
+                    defaults={
+                        'order': preprint_author.order
+                    }
+                )
+
+            # snapshot authors
+            article.snapshot_authors()
+
+            # copy preprints latest file and add it as a MS file to the article
+            file = files.copy_preprint_file_to_article(
+                self,
+                article,
+            )
+            article.manuscript_files.add(file)
+
+            # save and return the article
+            self.article = article
+            self.save()
+            return article
+
+        # Return None to indicate this method has not created a new article object.
+        print('pass')
+        return None
 
 
 class KeywordPreprint(models.Model):

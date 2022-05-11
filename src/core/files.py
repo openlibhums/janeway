@@ -233,6 +233,8 @@ def copy_file_to_folder(file_to_handle, filename, folder_structure):
     import shutil
     shutil.copy(file_to_handle, path)
 
+    return path
+
 
 def copy_article_file(article_to_copy_from, file_to_copy, article_to_copy_to):
     """
@@ -865,3 +867,30 @@ def serve_robots_file(journal=None, repository=None):
         ),
         content_type='text/plain',
     )
+
+
+def copy_preprint_file_to_article(preprint, article):
+    """
+    Copies a preprint's latest file over to Manuscript Files for an article.
+    """
+    from core import models
+
+    filename = str(uuid4()) + str(os.path.splitext(preprint.current_version.file.original_filename)[1])
+    path = copy_file_to_folder(
+        preprint.current_version.file.file.path,
+        filename,
+        article.folder_path(),
+    )
+
+    new_file = models.File.objects.create(
+        mime_type=file_path_mime(path),
+        original_filename=preprint.current_version.file.original_filename,
+        uuid_filename=filename,
+        label='Manuscript File',
+        description='File copied from preprint #{}'.format(str(preprint.pk)),
+        owner=article.owner,
+        is_galley=False,
+        article_id=article.pk
+    )
+
+    return new_file
