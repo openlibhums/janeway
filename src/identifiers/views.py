@@ -309,6 +309,12 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'choice_label_field': 'display_title',
                 'order_by': 'facet_count',
             },
+            {
+                'type': 'property_function',
+                'lookup': 'identifier__deposit__status',
+                'function': 'doi_registration_status',
+                'field_label': 'Deposit status',
+            },
         ]
         return self.filter_facets_if_journal(facets)
 

@@ -5,6 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
 import copy
+import functools
+import itertools
 
 from django import forms
 from django.forms.fields import Field
@@ -12,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -524,21 +527,53 @@ class CBVFacetForm(forms.Form):
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
                 if self.facet_queryset:
-                    fk_column = self.facet_queryset.values_list(facet['lookup'], flat=True)
+                    column = self.facet_queryset.values_list(facet['lookup'], flat=True)
                 else:
-                    fk_column = self.queryset.values_list(facet['lookup'], flat=True)
-                fks = list(filter(bool, fk_column))
-                choice_queryset = facet['model'].objects.filter(pk__in=fks)
+                    column = self.queryset.values_list(facet['lookup'], flat=True)
+                values_list = list(filter(bool, column))
+                choice_queryset = facet['model'].objects.filter(pk__in=values_list)
 
                 if facet.get('order_by'):
-                    choice_queryset = self.order_by(choice_queryset, facet, fks)
+                    choice_queryset = self.order_by(choice_queryset, facet, values_list)
 
                 choices = []
                 for each in choice_queryset:
                     label = getattr(each, facet["choice_label_field"])
-                    count = fks.count(each.pk)
+                    count = values_list.count(each.pk)
                     label_with_count = f'{label} ({count})'
                     choices.append((each.pk, label_with_count))
+                self.fields[facet['lookup']] = forms.ChoiceField(
+                    widget=forms.widgets.CheckboxSelectMultiple,
+                    choices=choices,
+                    required=False,
+                )
+
+            elif facet['type'] == 'property_function':
+                # Note: This retrieval is written to work even for sqlite3.
+                # It might be rewritten differently if sqlite3 support isn't needed.
+
+                column = []
+                values_list = []
+                lookup_parts = facet['function'].split('.')
+                for obj in self.queryset:
+                    for part in lookup_parts:
+                        if obj:
+                            try:
+                                result = getattr(obj, part)
+                                obj = result
+                            except:
+                                result = None
+
+                    if result != None:
+                        values_list.append(result)
+
+                unique_values = set(values_list)
+                choices = []
+                for value in unique_values:
+                    label = value
+                    count = values_list.count(value)
+                    label_with_count = f'{label} ({count})'
+                    choices.append((value, label_with_count))
                 self.fields[facet['lookup']] = forms.ChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
