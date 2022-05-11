@@ -132,3 +132,5 @@ src/themes/superhero
 local.env
 .lando.local.yml
 dockerfiles/lando_local.env
+
+src/utils/management/commands/test_command.py
