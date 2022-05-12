@@ -519,7 +519,15 @@ def repository_submit(request, preprint_id=None):
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
-    preprint = repository_logic.get_preprint_if_id(preprint_id, request.repository)
+    if preprint_id:
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            date_submitted__isnull=True,
+            repository=request.repository,
+        )
+    else:
+        preprint = None
 
     form = forms.PreprintInfo(
         instance=preprint,

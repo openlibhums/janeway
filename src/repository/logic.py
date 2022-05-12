@@ -370,29 +370,16 @@ def get_published_preprints(request, user_subject_pks):
         return published_preprints.filter(pk__in=user_subject_pks)
 
 
-def get_preprint_if_id(preprint_id, repository):
-    if preprint_id:
-        article = get_object_or_404(
-            models.Preprint,
-            pk=preprint_id,
-            date_submitted__isnull=True,
-            repository=repository,
-        )
-    else:
-        article = None
-
-    return article
-
-
-# TODO: Update this
 @cache(300)
-def list_articles_without_subjects(repository):
+def list_articles_without_subjects(repository=None):
     preprints = models.Preprint.objects.filter(
         date_submitted__isnull=False,
         subject__isnull=True,
-        repository=repository,
     )
-
+    if repository:
+        preprints = preprints.filter(
+            repository=repository,
+        )
     return preprints
 
 
