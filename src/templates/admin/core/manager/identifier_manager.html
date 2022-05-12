@@ -94,6 +94,7 @@
                     </tbody>
                 </table>
             </section>
+            {% include "common/elements/pagination.html" with form_id=facet_form.id %}
         </div>
         <div class="columns small-3 right">
             {% if facet_form.fields %}
@@ -143,7 +144,6 @@
         </div>
     </div>
 
-    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
 
 </div>
 {% endblock body %}
