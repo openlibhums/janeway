@@ -2212,7 +2212,7 @@ class FilteredArticlesListView(generic.ListView):
             self.filter_queryset_if_journal(
                 self.queryset.filter(*q_stack)
             )
-        )
+        ).order_by('title')
 
     def order_queryset(self, queryset):
         return queryset.order_by('-date_published', 'title')
@@ -2222,12 +2222,12 @@ class FilteredArticlesListView(generic.ListView):
         return self.filter_facets_if_journal(facets)
 
     def get_facet_queryset(self):
-        # The default behavior is for the facets to change
-        # dynamically when a filter is chosen.
-        # A separate queryset is needed to turn off this behavior.
-        # An example:
-        # return self.filter_queryset_if_journal(self.model.objects.all())
-        return None
+        # The default behavior is for the facets to stay the same
+        # when a filter is chosen.
+        # To make them change dynamically, return None
+        # instead of a separate facet.
+        # return None
+        return self.filter_queryset_if_journal(self.model.objects.all())
 
     def get_actions(self):
         return []

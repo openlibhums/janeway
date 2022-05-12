@@ -321,7 +321,7 @@ class IdentifierManager(core_views.FilteredArticlesListView):
             },
             {
                 'name': 'poll_doi_status',
-                'value': 'Poll Crossref and update status',
+                'value': 'Poll for status',
                 'action': logic.poll_dois_for_articles,
             },
         ]

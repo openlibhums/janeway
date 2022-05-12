@@ -156,7 +156,7 @@ class CrossrefDeposit(models.Model):
             else:
                 self.status = 'Registered'
         elif self.has_result:
-            self.status = 'Registration with Crossref failed'
+            self.status = 'Registration failed'
         else:
             self.status = 'Unknown'
 
