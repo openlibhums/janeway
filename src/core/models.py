@@ -1260,6 +1260,10 @@ BASE_ELEMENTS = [
      'article_url': True}
 ]
 
+BASE_ELEMENT_NAMES = [
+    element.get('name') for element in BASE_ELEMENTS
+]
+
 
 class Workflow(models.Model):
     journal = models.ForeignKey('journal.Journal')

@@ -676,7 +676,6 @@ class Preprint(models.Model):
             return article
 
         # Return None to indicate this method has not created a new article object.
-        print('pass')
         return None
 
 

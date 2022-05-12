@@ -519,3 +519,29 @@ class RepositoryFieldForm(forms.ModelForm):
             field.save()
 
         return field
+
+
+class PreprinttoArticleForm(forms.Form):
+    license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
+    section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
+    stage = forms.ChoiceField(
+        choices=(
+            (element, element) for element in core_models.BASE_ELEMENT_NAMES
+        )
+    )
+    force = forms.BooleanField(
+        required=False,
+        help_text='If you want to force the creation of a new article object even if one exists, check this box.',
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(PreprinttoArticleForm, self).__init__(*args, **kwargs)
+
+        if self.journal:
+            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+                journal=self.journal,
+            )
+            self.fields['section'].queryset = submission_models.Section.objects.filter(
+                journal=self.journal,
+            )
