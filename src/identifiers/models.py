@@ -34,6 +34,15 @@ IDENTIFIER_TYPES = {
     'doi'
 }
 
+deposit_status_choices = (
+    ('untried', 'Registration not yet attempted'),
+    ('queued', 'Queued at Crossref'),
+    ('registered', 'Registered'),
+    ('registered_but_citation_problems', 'Registered (but some citations not correctly parsed)'),
+    ('failed', 'Registration failed'),
+    ('unknown', 'Unknown'),
+)
+
 NON_DOI_IDENTIFIER_TYPES = IDENTIFIER_TYPES - {"doi"}
 
 DOI_REGEX_PATTERN = '10.\d{4,9}/[-._;()/:A-Za-z0-9]+'
@@ -73,6 +82,7 @@ class CrossrefDeposit(models.Model):
         default='Unknown',
         max_length=255,
         help_text='A user-friendly message about the status of registration with Crossref.',
+        choices=identifier_choices,
     )
 
     # Note: CrossrefDeposit.identifier is deprecated from version 1.4.2
@@ -146,19 +156,21 @@ class CrossrefDeposit(models.Model):
         )
 
     def update_status(self):
+        choices = dict(deposit_status_choices)
         if not self.deposit:
-            self.status = 'Ready to register'
+            self.status = choices.get('untried')
         elif self.queued:
-            self.status = 'Queued at Crossref'
+            self.status = choices.get('queued')
         elif self.success:
             if not self.citation_success:
-                self.status = 'Registered (but some citations not correctly parsed)'
+                self.status = choices.get('registered_but_citation_problems')
             else:
-                self.status = 'Registered'
+                self.status = choices.get('registered')
         elif self.has_result:
-            self.status = 'Registration failed'
+            self.status = choices.get('failed')
         else:
-            self.status = 'Unknown'
+            self.status = choices.get('unknown')
+
 
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
