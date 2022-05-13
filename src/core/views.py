@@ -2215,6 +2215,8 @@ class FilteredArticlesListView(generic.ListView):
             self.filter_queryset_if_journal(
                 self.queryset.filter(*q_stack)
             )
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
         )
 
     def order_queryset(self, queryset):
