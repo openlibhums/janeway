@@ -2201,7 +2201,6 @@ class FilteredArticlesListView(generic.ListView):
         self.queryset = super().get_queryset()
         q_stack = []
         facets = self.get_facets()
-        # facet_lookups = [facet['lookup'] for facet in self.get_facets()]
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
@@ -2235,7 +2234,15 @@ class FilteredArticlesListView(generic.ListView):
         # To make them change dynamically, return None
         # instead of a separate facet.
         # return None
-        return self.filter_queryset_if_journal(self.model.objects.all())
+        queryset = self.filter_queryset_if_journal(
+            self.model.objects.all()
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+        facets = self.get_facets()
+        for facet in facets.values():
+            queryset = queryset.annotate(**facet.get('annotations', {}))
+        return queryset
 
     def get_actions(self):
         return []
