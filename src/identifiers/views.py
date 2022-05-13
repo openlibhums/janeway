@@ -294,12 +294,12 @@ class IdentifierManager(core_views.FilteredArticlesListView):
 
     def get_facets(self):
 
-        latest_crossref_deposit = models.CrossrefDeposit.objects.filter(
+        crossref_deposits = models.CrossrefDeposit.objects.filter(
             identifiers__article=OuterRef('pk'),
         ).order_by('-date_time')
 
         latest_deposit_status = Subquery(
-            latest_crossref_deposit.values('status')[:1]
+            crossref_deposits.values('status')[:1]
         )
 
         facets = {

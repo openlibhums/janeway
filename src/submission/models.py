@@ -547,9 +547,6 @@ class Article(AbstractLastModifiedModel):
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
 
-    # DOI
-    # doi = models.ForeignKey('identifiers.Identifier', blank=True, null=True)
-
     class Meta:
         ordering = ('-date_published', 'title')
 
