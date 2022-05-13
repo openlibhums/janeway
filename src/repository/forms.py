@@ -570,9 +570,7 @@ class ReviewForm(forms.ModelForm):
         self.preprint = kwargs.pop('preprint')
         self.manager = kwargs.pop('manager')
         super(ReviewForm, self).__init__(*args, **kwargs)
-        self.fields['reviewer'].queryset = core_models.Account.objects.filter(
-            repository__repositoryrole__role__slug='reviewer',
-        )
+        self.fields['reviewer'].queryset = self.preprint.repository.reviewer_accounts()
 
     def save(self, commit=True):
         review = super(ReviewForm, self).save(commit=False)
