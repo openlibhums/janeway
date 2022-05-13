@@ -552,10 +552,14 @@ class CBVFacetForm(forms.Form):
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
 
+                if self.facet_queryset:
+                    queryset = self.facet_queryset
+                else:
+                    queryset = self.queryset
                 column = []
                 values_list = []
                 lookup_parts = facet_key.split('.')
-                for obj in self.queryset:
+                for obj in queryset:
                     for part in lookup_parts:
                         if obj:
                             try:
@@ -570,7 +574,6 @@ class CBVFacetForm(forms.Form):
                 unique_values = set(values_list)
                 choices = []
                 for value in unique_values:
-                    from nose.tools import set_trace; set_trace()
                     if value:
                         label = value
                     else:
