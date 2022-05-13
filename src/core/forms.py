@@ -520,16 +520,16 @@ class CBVFacetForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        for facet in self.facets:
+        for facet_key, facet in self.facets.items():
 
             if facet['type'] == 'foreign_key':
 
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
                 if self.facet_queryset:
-                    column = self.facet_queryset.values_list(facet['lookup'], flat=True)
+                    column = self.facet_queryset.values_list(facet_key, flat=True)
                 else:
-                    column = self.queryset.values_list(facet['lookup'], flat=True)
+                    column = self.queryset.values_list(facet_key, flat=True)
                 values_list = list(filter(bool, column))
                 choice_queryset = facet['model'].objects.filter(pk__in=values_list)
 
@@ -542,19 +542,19 @@ class CBVFacetForm(forms.Form):
                     count = values_list.count(each.pk)
                     label_with_count = f'{label} ({count})'
                     choices.append((each.pk, label_with_count))
-                self.fields[facet['lookup']] = forms.ChoiceField(
+                self.fields[facet_key] = forms.ChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
                     required=False,
                 )
 
-            elif facet['type'] == 'property_function':
+            elif facet['type'] == 'charfield':
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
 
                 column = []
                 values_list = []
-                lookup_parts = facet['function'].split('.')
+                lookup_parts = facet_key.split('.')
                 for obj in self.queryset:
                     for part in lookup_parts:
                         if obj:
@@ -574,7 +574,7 @@ class CBVFacetForm(forms.Form):
                     count = values_list.count(value)
                     label_with_count = f'{label} ({count})'
                     choices.append((value, label_with_count))
-                self.fields[facet['lookup']] = forms.ChoiceField(
+                self.fields[facet_key] = forms.ChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
                     required=False,
@@ -586,7 +586,7 @@ class CBVFacetForm(forms.Form):
             elif facet['type'] == 'boolean':
                 pass
 
-            self.fields[facet['lookup']].label = facet['field_label']
+            self.fields[facet_key].label = facet['field_label']
 
     def order_by(self, queryset, facet, fks):
         order_by = facet.get('order_by')

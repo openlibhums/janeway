@@ -17,4 +17,8 @@ class Migration(migrations.Migration):
             name='status',
             field=models.CharField(blank=True, choices=[('doi', 'DOI'), ('uri', 'URI Path'), ('pubid', 'Publisher ID')], default='Unknown', help_text='A user-friendly message about the status of registration with Crossref.', max_length=255),
         ),
+        migrations.AlterModelOptions(
+            name='crossrefdeposit',
+            options={'ordering': ('-date_time',)},
+        ),
     ]

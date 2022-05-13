@@ -94,6 +94,9 @@ class CrossrefDeposit(models.Model):
         related_name='deposit_identifier', # Required to avoid reverse accessor clashes
     )
 
+    class Meta:
+        ordering = ('-date_time',)
+
     @property
     def journal(self):
         journals = set([identifier.article.journal for identifier in self.identifiers.all()])
@@ -170,6 +173,7 @@ class CrossrefDeposit(models.Model):
             self.status = choices.get('failed')
         else:
             self.status = choices.get('unknown')
+        self.save()
 
 
 class Identifier(models.Model):

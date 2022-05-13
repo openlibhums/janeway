@@ -2200,9 +2200,12 @@ class FilteredArticlesListView(generic.ListView):
 
         self.queryset = super().get_queryset()
         q_stack = []
-        facet_lookups = [facet['lookup'] for facet in self.get_facets()]
+        facets = self.get_facets()
+        # facet_lookups = [facet['lookup'] for facet in self.get_facets()]
+        for facet in facets.values():
+            self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
-            if keyword in facet_lookups and value_list and value_list[0]:
+            if keyword in facets and value_list and value_list[0]:
                 predicates = [(keyword, value) for value in value_list]
                 query = Q()
                 for predicate in predicates:
@@ -2212,10 +2215,10 @@ class FilteredArticlesListView(generic.ListView):
             self.filter_queryset_if_journal(
                 self.queryset.filter(*q_stack)
             )
-        ).order_by('title')
+        )
 
     def order_queryset(self, queryset):
-        return queryset.order_by('-date_published', 'title')
+        return queryset.order_by('title')
 
     def get_facets(self):
         facets = []
@@ -2264,12 +2267,7 @@ class FilteredArticlesListView(generic.ListView):
 
     def filter_facets_if_journal(self, facets):
         if self.request.journal:
-            journal_facet = next(
-                (i for i, facet in enumerate(facets) if facet["lookup"] == "journal__pk"),
-                None
-            )
-            if isinstance(journal_facet, int):
-                facets.pop(journal_facet)
+            facets.pop('journal__pk')
             return facets
         else:
             return facets

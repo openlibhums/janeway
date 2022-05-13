@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
+from django.db.models import OuterRef, Subquery
 
 from identifiers import models, forms
 from submission import models as submission_models
@@ -292,30 +293,38 @@ class IdentifierManager(core_views.FilteredArticlesListView):
     template_name = 'core/manager/identifier_manager.html'
 
     def get_facets(self):
-        facets = [
-            {
+
+        latest_crossref_deposit = models.CrossrefDeposit.objects.filter(
+            identifiers__article=OuterRef('pk'),
+        ).order_by('-date_time')
+
+        latest_deposit_status = Subquery(
+            latest_crossref_deposit.values('status')[:1]
+        )
+
+        facets = {
+            'journal__pk': {
                 'type': 'foreign_key',
-                'lookup': 'journal__pk',
                 'model': journal_models.Journal,
                 'field_label': 'Journal',
                 'choice_label_field': 'name',
                 'order_by': 'facet_count',
             },
-            {
+            'primary_issue__pk': {
                 'type': 'foreign_key',
-                'lookup': 'primary_issue__pk',
                 'model': journal_models.Issue,
                 'field_label': 'Issue',
                 'choice_label_field': 'display_title',
                 'order_by': 'facet_count',
             },
-            {
-                'type': 'property_function',
-                'lookup': 'identifier__deposit__status',
-                'function': 'get_doi_object.deposit.status',
+            'latest_deposit_status': {
+                'type': 'charfield',
+                'annotations': {
+                    'latest_deposit_status': latest_deposit_status,
+                },
                 'field_label': 'Deposit status',
             },
-        ]
+        }
         return self.filter_facets_if_journal(facets)
 
     def get_actions(self):
