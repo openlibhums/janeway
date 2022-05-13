@@ -1936,7 +1936,7 @@ def manage_review(request, preprint_id):
             preprint=preprint,
             manager=request.user,
         )
-        if form.is_valid:
+        if form.is_valid():
             review = form.save()
             messages.add_message(
                 request,
