@@ -525,9 +525,7 @@ class PreprinttoArticleForm(forms.Form):
     license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
     section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
     stage = forms.ChoiceField(
-        choices=(
-            (element, element) for element in core_models.BASE_ELEMENT_NAMES
-        )
+        choices=submission_models.STAGE_CHOICES,
     )
     force = forms.BooleanField(
         required=False,
