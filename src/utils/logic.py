@@ -172,7 +172,10 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
     """
     template, context = None, None
     if press:
-        journals = journal_models.Journal.objects.all()
+        journals = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_remote=False,
+        )
         repos = repo_models.Repository.objects.all()
         template = 'common/site_map_index.xml'
         context = {
