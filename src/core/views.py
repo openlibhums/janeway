@@ -2205,11 +2205,8 @@ class FilteredArticlesListView(generic.ListView):
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
-            if keyword in facets and value_list:
-                if value_list[0]:
-                    predicates = [(keyword, value) for value in value_list]
-                else:
-                    predicates = [(keyword+'__isnull', True)]
+            if keyword in facets and value_list and value_list[0]:
+                predicates = [(keyword, value) for value in value_list]
                 query = Q()
                 for predicate in predicates:
                     query |= Q(predicate)

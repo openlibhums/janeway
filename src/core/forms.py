@@ -564,8 +564,8 @@ class CBVFacetForm(forms.Form):
                             except:
                                 result = None
 
-                    # if result != None:
-                    values_list.append(result)
+                    if result != None:
+                        values_list.append(result)
 
                 unique_values = set(values_list)
                 choices = []
