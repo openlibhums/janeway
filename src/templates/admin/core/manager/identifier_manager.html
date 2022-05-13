@@ -57,14 +57,8 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if article.get_doi %}
-                                        {% if article.get_doi_object.deposit %}
-                                            {{ article.get_doi_object.deposit.status }}
-                                        {% else %}
-                                            Ready to register
-                                        {% endif %}
-                                    {% else %}
-                                        Ready to register from pattern
+                                    {% if article.get_doi_object.deposit %}
+                                        {{ article.get_doi_object.deposit.status }}
                                     {% endif %}
                                 </td>
                                 <td>

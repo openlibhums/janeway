@@ -312,7 +312,7 @@ class IdentifierManager(core_views.FilteredArticlesListView):
             {
                 'type': 'property_function',
                 'lookup': 'identifier__deposit__status',
-                'function': 'doi_registration_status',
+                'function': 'get_doi_object.deposit.status',
                 'field_label': 'Deposit status',
             },
         ]

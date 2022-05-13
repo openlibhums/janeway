@@ -548,7 +548,7 @@ class Article(AbstractLastModifiedModel):
     funders = models.ManyToManyField('Funder', blank=True)
 
     # DOI
-    doi = models.ForeignKey('identifiers.Identifier', blank=True, null=True)
+    # doi = models.ForeignKey('identifiers.Identifier', blank=True, null=True)
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -792,18 +792,9 @@ class Article(AbstractLastModifiedModel):
             return ident.get_doi_url()
         return None
 
+    @property
     def get_doi_object(self):
         return self.get_identifier('doi', object=True)
-
-    @property
-    def doi_registration_status(self):
-        doi = self.get_doi_object()
-        if doi and doi.deposit:
-            return doi.deposit.status
-        elif doi:
-            return 'Ready to register'
-        else:
-            return 'Ready to register from pattern'
 
     @property
     def doi_pattern_preview(self):
