@@ -28,6 +28,7 @@
                             <th>ID</th>
                             <th style="max-width: 12%">Title</th>
                             <th style="max-width: 12%">DOI</th>
+                            <th style="max-width: 12%">Edit</th>
                             <th style="max-width: 12%">Status</th>
                             <th>Deposit</th>
                             <th>Response</th>
@@ -55,6 +56,11 @@
                                     {% else %}
                                         {{ article.doi_pattern_preview }}
                                     {% endif %}
+                                </td>
+                                <td>
+                                    <a class="tiny secondary button" href="{% url 'article_identifiers' article.pk %}">
+                                        <span class="fa fa-edit"></span>
+                                    </a>
                                 </td>
                                 <td>
                                     {% if article.get_doi_object.deposit %}
