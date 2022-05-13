@@ -54,7 +54,7 @@
                                     {% if article.get_doi %}
                                         {{ article.get_doi }}
                                     {% else %}
-                                        {{ article.doi_pattern_preview }}
+                                        {{ article.doi_pattern_preview }} (pattern preview)
                                     {% endif %}
                                 </td>
                                 <td>
@@ -63,9 +63,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {% if article.get_doi_object.deposit %}
-                                        {{ article.get_doi_object.deposit.status }}
-                                    {% endif %}
+                                    {{ article.get_doi_object.deposit.status|default:"Not yet registered" }}
                                 </td>
                                 <td>
                                     {% if article.get_doi_object.deposit %}

@@ -322,6 +322,7 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'annotations': {
                     'latest_deposit_status': latest_deposit_status,
                 },
+                'default': 'Not yet registered',
                 'field_label': 'Deposit status',
             },
         }

@@ -570,7 +570,11 @@ class CBVFacetForm(forms.Form):
                 unique_values = set(values_list)
                 choices = []
                 for value in unique_values:
-                    label = value
+                    from nose.tools import set_trace; set_trace()
+                    if value:
+                        label = value
+                    else:
+                        label = facet['default']
                     count = values_list.count(value)
                     label_with_count = f'{label} ({count})'
                     choices.append((value, label_with_count))
