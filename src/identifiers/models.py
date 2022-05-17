@@ -109,6 +109,7 @@ class CrossrefDeposit(models.Model):
         url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
 
         try:
+            from nose.tools import set_trace; set_trace()
             response = requests.get(url, timeout=settings.HTTP_TIMEOUT_SECONDS)
             response.raise_for_status()
             self.result_text = response.text
@@ -132,8 +133,9 @@ class CrossrefDeposit(models.Model):
         soup = BeautifulSoup(self.result_text, 'lxml-xml')
         record_diagnostics = soup.find_all('record_diagnostic')
         for record_diagnostic in record_diagnostics:
-            if doi in record_diagnostic.doi.string:
-                return str(record_diagnostic)
+            if record_diagnostic.doi and record_diagnostic.doi.string:
+                if doi in record_diagnostic.doi.string:
+                    return str(record_diagnostic)
 
     def __str__(self):
         return ("[Deposit:{identifiers}:{self.file_name}]"
@@ -156,7 +158,7 @@ class CrossrefStatus(models.Model):
     REGISTERED_BUT_CITATION_PROBLEMS = 'registered_but_citation_problems'
     WARNING = 'warning'
     FAILED = 'failed'
-    UNKNOWN = 'unknown'
+    UNKNOWN = ''
 
     CROSSREF_STATUS_CHOICES = (
         (UNTRIED, 'Not yet registered'),

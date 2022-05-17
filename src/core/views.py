@@ -2168,8 +2168,11 @@ class FilteredArticlesListView(generic.ListView):
 
     def get_paginate_by(self, queryset):
         paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
-        if paginate_by == 'all' and queryset:
-            paginate_by = len(queryset)
+        if paginate_by == 'all':
+            if queryset:
+                paginate_by = len(queryset)
+            else:
+                paginate_by = self.paginate_by
         return paginate_by
 
     def get_context_data(self, **kwargs):
@@ -2207,6 +2210,8 @@ class FilteredArticlesListView(generic.ListView):
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
+                elif value_list[0] == '':
+                    predicates = [(keyword, '')]
                 else:
                     predicates = [(keyword+'__isnull', True)]
                 query = Q()

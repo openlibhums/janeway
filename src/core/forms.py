@@ -577,7 +577,7 @@ class CBVFacetForm(forms.Form):
                 choices = []
                 model_choice_dict = dict(facet['model_choices'])
                 for value in unique_values:
-                    label = model_choice_dict[value]
+                    label = model_choice_dict.get(value, value)
                     count = values_list.count(value)
                     label_with_count = f'{label} ({count})'
                     choices.append((value, label_with_count))

@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             name='CrossrefStatus',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.CharField(blank=True, choices=[('untried', 'Not yet registered'), ('queued', 'Queued at Crossref'), ('registered', 'Registered'), ('registered_but_citation_problems', 'Registered (but some citations not correctly parsed)'), ('warning', 'Registered with warning'), ('failed', 'Registration failed'), ('unknown', 'Unknown')], default='Unknown', help_text='A user-friendly message about the status of registration with Crossref.', max_length=255)),
+                ('message', models.CharField(blank=True, choices=[('untried', 'Not yet registered'), ('queued', 'Queued at Crossref'), ('registered', 'Registered'), ('registered_but_citation_problems', 'Registered (but some citations not correctly parsed)'), ('warning', 'Registered with warning'), ('failed', 'Registration failed'), ('', 'Unknown')], default='Unknown', help_text='A user-friendly message about the status of registration with Crossref.', max_length=255)),
             ],
         ),
         migrations.AddField(

@@ -312,7 +312,6 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                     'status': status,
                 },
                 'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
-                'default': 'untried',
                 'field_label': 'Status',
             },
             'journal__pk': {
