@@ -11,6 +11,7 @@ import requests
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.core.exceptions import ObjectDoesNotExist
 
 from identifiers import logic
 from utils import shared
@@ -18,6 +19,8 @@ from utils.logger import get_logger
 from utils import setting_handler
 
 from django.conf import settings
+
+from bs4 import BeautifulSoup
 
 logger = get_logger(__name__)
 
@@ -33,15 +36,6 @@ IDENTIFIER_TYPES = {
     'id',
     'doi'
 }
-
-deposit_status_choices = (
-    ('untried', 'Registration not yet attempted'),
-    ('queued', 'Queued at Crossref'),
-    ('registered', 'Registered'),
-    ('registered_but_citation_problems', 'Registered (but some citations not correctly parsed)'),
-    ('failed', 'Registration failed'),
-    ('unknown', 'Unknown'),
-)
 
 NON_DOI_IDENTIFIER_TYPES = IDENTIFIER_TYPES - {"doi"}
 
@@ -62,8 +56,7 @@ class CrossrefDeposit(models.Model):
     The identifiers must all be for the same journal.
     """
 
-    identifiers = models.ManyToManyField("identifiers.Identifier")
-    deposit = models.TextField(
+    document = models.TextField(
         null=True,
         blank=True,
         help_text='The deposit document with rendered XML for the DOI batch.'
@@ -72,18 +65,10 @@ class CrossrefDeposit(models.Model):
     success = models.BooleanField(default=False)
     queued = models.BooleanField(default=False)
     citation_success = models.BooleanField(default=False)
-    result_text = models.TextField(blank=True, null=True)
+    result_text = models.TextField(blank=True, null=False)
     file_name = models.CharField(blank=False, null=False, max_length=255)
     date_time = models.DateTimeField(default=timezone.now)
     polling_attempts = models.PositiveIntegerField(default=0)
-    status = models.CharField(
-        blank=True,
-        null=False,
-        default='Unknown',
-        max_length=255,
-        help_text='A user-friendly message about the status of registration with Crossref.',
-        choices=identifier_choices,
-    )
 
     # Note: CrossrefDeposit.identifier is deprecated from version 1.4.2
     identifier = models.ForeignKey(
@@ -91,7 +76,6 @@ class CrossrefDeposit(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name='deposit_identifier', # Required to avoid reverse accessor clashes
     )
 
     class Meta:
@@ -99,7 +83,7 @@ class CrossrefDeposit(models.Model):
 
     @property
     def journal(self):
-        journals = set([identifier.article.journal for identifier in self.identifiers.all()])
+        journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
         if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
@@ -132,48 +116,124 @@ class CrossrefDeposit(models.Model):
             self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
             self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
             self.citation_success = not ' status="error"' in self.result_text
-            self.update_status()
             self.save()
             logger.debug(self)
-            return self.status, False
+            return 'Polled', False
         except requests.RequestException as e:
             self.success = False
             self.has_result = True
             self.result_text = 'Error: {0}'.format(e)
-            self.update_status()
             self.save()
             logger.error(self.result_text)
             logger.error(self)
-            return self.status, e
+            return 'Error', True
+
+    def get_record_diagnostic(self, doi):
+        soup = BeautifulSoup(self.result_text, 'lxml-xml')
+        record_diagnostics = soup.find_all('record_diagnostic')
+        for record_diagnostic in record_diagnostics:
+            if doi in record_diagnostic.doi.string:
+                return str(record_diagnostic)
 
     def __str__(self):
         return ("[Deposit:{identifiers}:{self.file_name}]"
             "[queued:{self.queued}]"
             "[success:{self.success}]"
             "[citation_success:{citation_success}]".format(
-                identifiers=''.join([identifier.identifier for identifier in self.identifiers.all()]),
+                identifiers=''.join([crossref_status.identifier.identifier for crossref_status in self.crossrefstatus_set.all()]),
                 self=self,
                 #Citation success only to be considered for succesful deposits
                 citation_success=self.citation_success if self.success else None,
             )
         )
 
-    def update_status(self):
-        choices = dict(deposit_status_choices)
-        if not self.deposit:
-            self.status = choices.get('untried')
-        elif self.queued:
-            self.status = choices.get('queued')
-        elif self.success:
-            if not self.citation_success:
-                self.status = choices.get('registered_but_citation_problems')
+
+class CrossrefStatus(models.Model):
+
+    UNTRIED = 'untried'
+    QUEUED = 'queued'
+    REGISTERED = 'registered'
+    REGISTERED_BUT_CITATION_PROBLEMS = 'registered_but_citation_problems'
+    WARNING = 'warning'
+    FAILED = 'failed'
+    UNKNOWN = 'unknown'
+
+    CROSSREF_STATUS_CHOICES = (
+        (UNTRIED, 'Not yet registered'),
+        (QUEUED, 'Queued at Crossref'),
+        (REGISTERED, 'Registered'),
+        (REGISTERED_BUT_CITATION_PROBLEMS, 'Registered (but some citations not correctly parsed)'),
+        (WARNING, 'Registered with warning'),
+        (FAILED, 'Registration failed'),
+        (UNKNOWN, 'Unknown'),
+    )
+
+    identifier = models.OneToOneField(
+        "identifiers.Identifier",
+        on_delete=models.CASCADE,
+    )
+    deposits = models.ManyToManyField(
+        "identifiers.CrossrefDeposit",
+        blank=True,
+    )
+    message = models.CharField(
+        blank=True,
+        default='Unknown',
+        max_length=255,
+        help_text='A user-friendly message about the status of registration with Crossref.',
+        choices=CROSSREF_STATUS_CHOICES,
+    )
+
+    def update(self):
+        deposit = self.latest_deposit
+        granular_status = self.get_granular_status()
+        if not deposit:
+            self.message = self.UNTRIED
+        elif not deposit.document:
+            self.message = self.UNTRIED
+        elif deposit.queued:
+            self.message = self.QUEUED
+        elif deposit.success:
+            if not deposit.citation_success:
+                self.message = self.REGISTERED_BUT_CITATION_PROBLEMS
+            elif granular_status:
+                self.message = granular_status
+        elif deposit.has_result:
+            if granular_status:
+                self.message = granular_status
             else:
-                self.status = choices.get('registered')
-        elif self.has_result:
-            self.status = choices.get('failed')
+                self.message = self.FAILED
         else:
-            self.status = choices.get('unknown')
+            self.message = self.UNKNOWN
+
+        # Prevent data not in choices from being saved
+        if self.message not in dict(self.CROSSREF_STATUS_CHOICES):
+            self.message = self.UNKNOWN
+
         self.save()
+
+
+    def get_granular_status(self):
+        doi = self.identifier.identifier
+        try:
+            record_diagnostic = self.latest_deposit.get_record_diagnostic(doi)
+            if record_diagnostic:
+                soup = BeautifulSoup(record_diagnostic, 'lxml-xml')
+                tag = soup.record_diagnostic
+                if tag['status'] == 'Success':
+                    return self.REGISTERED
+                elif tag['status'] == 'Warning':
+                    return self.WARNING
+                else:
+                    return self.FAILED
+        except AttributeError:
+            return ''
+
+    @property
+    def latest_deposit(self):
+        deposits = self.deposits.all()
+        if deposits.count() > 0:
+            return deposits[0]
 
 
 class Identifier(models.Model):
@@ -206,12 +266,10 @@ class Identifier(models.Model):
         return False
 
     @property
-    def deposit(self):
-        deposits = self.crossrefdeposit_set.all().order_by('-date_time')
-
-        if deposits.count() > 0:
-            return deposits[0]
-        else:
+    def crossref_status(self):
+        try:
+            return self.crossrefstatus
+        except ObjectDoesNotExist:
             return None
 
 

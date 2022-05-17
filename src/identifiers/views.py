@@ -122,7 +122,7 @@ def manage_identifier(request, article_id, identifier_id=None):
 @production_user_or_editor_required
 def show_doi(request, article_id, identifier_id):
     """
-    Issues a DOI identifier
+    Shows a DOI deposit
     :param request: HttpRequest
     :param article_id: Article object PK
     :param identifier_id: Identifier object PK
@@ -141,10 +141,11 @@ def show_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if identifier.deposit:
-        return HttpResponse(identifier.deposit.deposit, content_type="application/xml")
-    else:
-        template_context = logic.create_crossref_doi_batch_context(request.journal, identifier)
+    try:
+        document = identifier.crossref_status.latest_deposit.document
+        return HttpResponse(document, content_type="application/xml")
+    except AttributeError:
+        template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))
         template = 'common/identifiers/crossref_doi_batch.xml'
         return render_to_response(template, template_context, content_type="application/xml")
 
@@ -171,10 +172,8 @@ def poll_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if not identifier.deposit:
-        pass
-    else:
-        identifier.deposit.poll()
+    if identifier.crossref_status and identifier.crossref_status.latest_deposit:
+        identifier.crossref_status.latest_deposit.poll()
 
     return redirect(
         reverse(
@@ -187,7 +186,7 @@ def poll_doi(request, article_id, identifier_id):
 @production_user_or_editor_required
 def poll_doi_output(request, article_id, identifier_id):
     """
-    Polls crossref for DOI info
+    Gets Crossref response stored on CrossrefDeposit
     :param request: HttpRequest
     :param article_id: Article object PK
     :param identifier_id: Identifier object PK
@@ -206,12 +205,16 @@ def poll_doi_output(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if not identifier.deposit:
+    if not identifier.crossref_status:
         return HttpResponse('Error: no deposit found')
-    elif 'doi_batch' not in identifier.deposit.result_text:
-        return HttpResponse(identifier.deposit.result_text)
+    elif 'doi_batch' not in identifier.crossref_status.latest_deposit.result_text:
+        return HttpResponse(identifier.crossref_status.latest_deposit.result_text)
     else:
-        resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
+        text = identifier.crossref_status.latest_deposit.get_record_diagnostic(identifier.identifier)
+        if text:
+            resp = HttpResponse(text, content_type="application/xml")
+        else:
+            resp = HttpResponse(identifier.crossref_status.latest_deposit.result_text, content_type="application/xml")
         resp['Content-Disposition'] = 'inline;'
         return resp
 
@@ -294,15 +297,24 @@ class IdentifierManager(core_views.FilteredArticlesListView):
 
     def get_facets(self):
 
-        crossref_deposits = models.CrossrefDeposit.objects.filter(
-            identifiers__article=OuterRef('pk'),
-        ).order_by('-date_time')
+        crossref_status_obj = models.CrossrefStatus.objects.filter(
+            identifier__article=OuterRef('pk'),
+        )
 
-        latest_deposit_status = Subquery(
-            crossref_deposits.values('status')[:1]
+        status = Subquery(
+            crossref_status_obj.values('message')[:1]
         )
 
         facets = {
+            'status': {
+                'type': 'charfield_with_choices',
+                'annotations': {
+                    'status': status,
+                },
+                'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
+                'default': 'untried',
+                'field_label': 'Status',
+            },
             'journal__pk': {
                 'type': 'foreign_key',
                 'model': journal_models.Journal,
@@ -316,14 +328,6 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'field_label': 'Issue',
                 'choice_label_field': 'display_title',
                 'order_by': 'facet_count',
-            },
-            'latest_deposit_status': {
-                'type': 'charfield',
-                'annotations': {
-                    'latest_deposit_status': latest_deposit_status,
-                },
-                'default': 'Not yet registered',
-                'field_label': 'Deposit status',
             },
         }
         return self.filter_facets_if_journal(facets)

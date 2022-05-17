@@ -9,7 +9,16 @@ def migrate_current_crossref_deposit_identifiers(apps, schema_editor):
     CrossrefDeposit = apps.get_model("identifiers", "CrossrefDeposit")
     for crossref_deposit in CrossrefDeposit.objects.all():
         if crossref_deposit.identifier:
-            crossref_deposit.identifiers.add(crossref_deposit.identifier)
+            CrossrefStatus = apps.get_model("identifiers", "CrossrefStatus")
+            crossref_status = CrossrefStatus(
+                identifier=crossref_deposit.identifier
+            )
+            crossref_status.deposits.add(crossref_deposit)
+            crossref_status.update_status()
+            crossref_status.save()
+
+            crossref_deposit.identifier.remove()
+            crossref_deposit.save()
 
 class Migration(migrations.Migration):
 
@@ -20,18 +29,40 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='crossrefdeposit',
-            name='deposit',
+            name='document',
             field=models.TextField(blank=True, help_text='The deposit document with rendered XML for the DOI batch.', null=True),
-        ),
-        migrations.AddField(
-            model_name='crossrefdeposit',
-            name='identifiers',
-            field=models.ManyToManyField(to='identifiers.Identifier'),
         ),
         migrations.AlterField(
             model_name='crossrefdeposit',
             name='identifier',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='deposit_identifier', to='identifiers.Identifier'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='identifiers.Identifier'),
+        ),
+        migrations.AlterField(
+            model_name='crossrefdeposit',
+            name='result_text',
+            field=models.TextField(blank=True, default=''),
+            preserve_default=False,
+        ),
+        migrations.AlterModelOptions(
+            name='crossrefdeposit',
+            options={'ordering': ('-date_time',)},
+        ),
+        migrations.CreateModel(
+            name='CrossrefStatus',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('message', models.CharField(blank=True, choices=[('untried', 'Not yet registered'), ('queued', 'Queued at Crossref'), ('registered', 'Registered'), ('registered_but_citation_problems', 'Registered (but some citations not correctly parsed)'), ('warning', 'Registered with warning'), ('failed', 'Registration failed'), ('unknown', 'Unknown')], default='Unknown', help_text='A user-friendly message about the status of registration with Crossref.', max_length=255)),
+            ],
+        ),
+        migrations.AddField(
+            model_name='crossrefstatus',
+            name='deposits',
+            field=models.ManyToManyField(blank=True, to='identifiers.CrossrefDeposit'),
+        ),
+        migrations.AddField(
+            model_name='crossrefstatus',
+            name='identifier',
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='identifiers.Identifier'),
         ),
         migrations.RunPython(migrate_current_crossref_deposit_identifiers, reverse_code=migrations.RunPython.noop),
     ]

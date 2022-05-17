@@ -548,7 +548,7 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
-            elif facet['type'] == 'charfield':
+            elif facet['type'] == 'charfield_with_choices':
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
 
@@ -568,16 +568,16 @@ class CBVFacetForm(forms.Form):
                             except:
                                 result = None
 
-                    # if result != None:
-                    values_list.append(result)
+                    if result != None:
+                        values_list.append(result)
+                    elif result == None and 'default' in facet:
+                        values_list.append(facet['default'])
 
                 unique_values = set(values_list)
                 choices = []
+                model_choice_dict = dict(facet['model_choices'])
                 for value in unique_values:
-                    if value:
-                        label = value
-                    else:
-                        label = facet['default']
+                    label = model_choice_dict[value]
                     count = values_list.count(value)
                     label_with_count = f'{label} ({count})'
                     choices.append((value, label_with_count))

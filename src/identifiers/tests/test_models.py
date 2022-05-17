@@ -28,9 +28,30 @@ class TestLogic(TestCase):
             self.journal_one,
             set(self.ten_identifiers)
         )
-        deposit = logic.render_to_string(template, template_context)
+        document = logic.render_to_string(template, template_context)
         filename = uuid4()
-        crd = models.CrossrefDeposit.objects.create(deposit=deposit, file_name=filename)
-        crd.identifiers.add(*self.ten_identifiers)
-        crd.save()
-        self.assertTrue('10.0000/TST.9' in str(crd))
+        crossref_deposit = models.CrossrefDeposit.objects.create(document=document, file_name=filename)
+        crossref_deposit.save()
+        for identifier in self.ten_identifiers:
+            status, _created = models.CrossrefStatus.objects.get_or_create(identifier=identifier)
+            status.deposits.add(crossref_deposit)
+            status.save()
+        self.assertTrue('10.0000/TST.9' in str(crossref_deposit))
+
+
+    def test_crossref_status(self):
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        template_context = logic.create_crossref_doi_batch_context(
+            self.journal_one,
+            set(self.ten_identifiers)
+        )
+        document = logic.render_to_string(template, template_context)
+        filename = uuid4()
+        crossref_deposit = models.CrossrefDeposit.objects.create(document=document, file_name=filename)
+        crossref_deposit.save()
+        identifier = self.ten_identifiers[0]
+        status, _created = models.CrossrefStatus.objects.get_or_create(identifier=identifier)
+        status.deposits.add(crossref_deposit)
+        status.update()
+
+        self.assertTrue('Unknown', status)

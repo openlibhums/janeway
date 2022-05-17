@@ -17,9 +17,17 @@ class Identifier(admin.ModelAdmin):
     raw_id_fields = ('article',)
 
 
+class CrossrefStatus(admin.ModelAdmin):
+    pass
+
+class CrossrefDeposit(admin.ModelAdmin):
+    pass
+
 admin_list = [
     (models.Identifier, Identifier),
     (models.BrokenDOI, DOIAdmin),
+    (models.CrossrefDeposit, CrossrefDeposit),
+    (models.CrossrefStatus, CrossrefStatus),
 ]
 
 [admin.site.register(*t) for t in admin_list]

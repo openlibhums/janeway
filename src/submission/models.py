@@ -794,16 +794,6 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('doi', object=True)
 
     @property
-    def doi_registration_status(self):
-        doi = self.get_doi_object()
-        if doi and doi.deposit:
-            return doi.deposit.status
-        elif doi:
-            return 'Ready to register'
-        else:
-            return 'Ready to register from pattern'
-
-    @property
     def doi_pattern_preview(self):
         return id_logic.render_doi_from_pattern(self)
 

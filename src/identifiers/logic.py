@@ -120,18 +120,33 @@ def get_dois_for_articles(articles, create=False):
 
 
 def poll_dois_for_articles(articles):
+    from utils.shared import clear_cache
+    clear_cache()
     status = ''
     error = False
     identifiers = get_dois_for_articles(articles)
     polled = set()
     for identifier in identifiers:
-        if identifier.deposit and identifier.deposit not in polled:
+        try:
+            deposit = identifier.crossref_status.latest_deposit
+        except AttributeError:
+            deposit = None
+        if deposit and deposit not in polled:
             try:
                 sleep(1)
-                status, error = identifier.deposit.poll()
-                polled.add(identifier.deposit)
+                status, error = deposit.poll()
+                polled.add(deposit)
             except:
                 continue
+
+    for identifier in identifiers:
+        try:
+            identifier.crossref_status.update()
+        except AttributeError:
+            crossref_status = models.CrossrefStatus.objects.create(
+                identifier=identifier
+            )
+            crossref_status.update()
 
     return status, error
 
@@ -367,15 +382,18 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     template = 'common/identifiers/crossref_doi_batch.xml'
     template_context = create_crossref_doi_batch_context(journal, identifiers)
-    deposit = render_to_string(template, template_context)
+    document = render_to_string(template, template_context)
 
     filename = uuid4()
 
-    crossref_deposit = models.CrossrefDeposit.objects.create(deposit=deposit, file_name=filename)
-    crossref_deposit.identifiers.add(*identifiers)
+    crossref_deposit = models.CrossrefDeposit.objects.create(document=document, file_name=filename)
     crossref_deposit.save()
+    for identifier in identifiers:
+        crossref_status, _created = models.CrossrefStatus.objects.get_or_create(identifier=identifier)
+        crossref_status.deposits.add(crossref_deposit)
+        crossref_status.save()
 
-    description = "Sending request: {0}".format(crossref_deposit.deposit)
+    description = "Sending request: {0}".format(crossref_deposit.document)
     articles = set([identifier.article for identifier in identifiers])
     util_models.LogEntry.bulk_add_simple_entry('Submission', description, 'Info', targets=articles)
 
@@ -386,7 +404,7 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
     depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
 
     try:
-        response = depositor.register_doi(submission_id=filename, request_xml=crossref_deposit.deposit)
+        response = depositor.register_doi(submission_id=filename, request_xml=crossref_deposit.document)
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
         status = 'Error depositing. Could not connect to Crossref ({0}). Error: {1}'.format(
             depositor.get_endpoint(verb='deposit'),
@@ -413,7 +431,10 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
         status = "Deposited DOI"
         util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
         logger.info(status)
-        crossref_deposit.poll()
+
+    for identifier in identifiers:
+        crossref_status = models.CrossrefStatus.objects.get(identifier=identifier)
+        crossref_status.update()
 
     return status, error
 
