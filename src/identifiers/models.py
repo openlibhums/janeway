@@ -109,7 +109,6 @@ class CrossrefDeposit(models.Model):
         url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
 
         try:
-            from nose.tools import set_trace; set_trace()
             response = requests.get(url, timeout=settings.HTTP_TIMEOUT_SECONDS)
             response.raise_for_status()
             self.result_text = response.text

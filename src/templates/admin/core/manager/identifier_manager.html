@@ -66,13 +66,15 @@
                                     {{ article.get_doi_object.crossref_status.get_message_display }}
                                 </td>
                                 <td>
-                                    <a class="small success button" href="{% url 'show_doi' article.pk article.get_doi_object.pk %}">
-                                        {% if article.get_doi_object.crossref_status.latest_deposit %}
-                                            View XML
-                                        {% else %}
-                                            Preview XML
-                                        {% endif %}
-                                    </a>
+                                    {% if article.get_doi_object %}
+                                        <a class="small success button" href="{% url 'show_doi' article.pk article.get_doi_object.pk %}">
+                                            {% if article.get_doi_object.crossref_status.latest_deposit %}
+                                                View XML
+                                            {% else %}
+                                                Preview XML
+                                            {% endif %}
+                                        </a>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if article.get_doi_object.crossref_status.latest_deposit %}

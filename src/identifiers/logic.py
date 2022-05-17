@@ -428,7 +428,7 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
         logger.error(status)
         error = True
     else:
-        status = "Deposited DOI"
+        status = "Deposit sent"
         util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
         logger.info(status)
 
