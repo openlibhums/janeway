@@ -316,11 +316,11 @@ class IdentifierManager(core_views.FilteredArticlesListView):
             },
             'date_published__gte': {
                 'type': 'date_time',
-                'field_label': 'Published after',
+                'field_label': 'Pub date from',
             },
             'date_published__lte': {
                 'type': 'date_time',
-                'field_label': 'Published before',
+                'field_label': 'Pub date to',
             },
             'journal__pk': {
                 'type': 'foreign_key',
