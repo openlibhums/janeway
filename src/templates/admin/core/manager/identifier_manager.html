@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 
+{% load classname %}
+
 {% block title %}DOI Manager{% endblock title %}
 {% block title-section %}DOI Manager{% endblock %}
 {% block title-sub %}A manager for Digital Object Identifiers with support for Crossref.{% endblock %}
@@ -35,6 +37,7 @@
                             {% if not journal %}
                                 <th style="max-width: 12%">Journal</th>
                             {% endif %}
+                            <th>Last modified</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,6 +89,9 @@
                                 {% if not journal %}
                                     <td>{{ article.journal.name }}</td>
                                 {% endif %}
+                                <td>
+                                    {{ article.last_modified }}
+                                </td>
                             </form>
                         </tr>
                         {% empty %}
@@ -108,9 +114,18 @@
                                 <hr>
                                 <fieldset onchange="this.form.submit()">
                                     <legend>{{ field.label }}</legend>
-                                    {% for checkbox in field %}
-                                        <label for="{{ checkbox.id_for_label }}">{{ checkbox.tag }}{{ checkbox.choice_label }}</label>
-                                    {% endfor %}
+                                    {% with field.field.widget|classname as widgetclass %}
+                                        {% if widgetclass == 'CheckboxSelectMultiple' %}
+                                            {% for checkbox in field %}
+                                                <label for="{{ checkbox.id_for_label }}">
+                                                    {{ checkbox.tag }}
+                                                    {{ checkbox.choice_label }}
+                                                </label>
+                                            {% endfor %}
+                                        {% elif widgetclass == 'HTMLDateInput' %}
+                                            {{ field }}
+                                        {% endif %}
+                                    {% endwith %}
                                 </fieldset>
                             {% endfor %}
                         </form>

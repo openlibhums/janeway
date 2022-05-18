@@ -2180,11 +2180,21 @@ class FilteredArticlesListView(generic.ListView):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
+        facets = self.get_facets()
+
+        # Most initial values are in list form
+        # The exception is date_time facets
+        initial = dict(params_querydict.lists())
+        for keyword, value in initial.items():
+            if keyword in facets:
+                if facets[keyword]['type'] == 'date_time':
+                    initial[keyword] = value.pop(0)
+
         context['facet_form'] = forms.CBVFacetForm(
             queryset=queryset,
             facet_queryset=self.get_facet_queryset(),
-            facets=self.get_facets(),
-            initial=dict(params_querydict.lists()),
+            facets=facets,
+            initial=initial,
         )
 
         context['actions'] = self.get_actions()
@@ -2210,10 +2220,13 @@ class FilteredArticlesListView(generic.ListView):
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
-                elif value_list[0] == '':
-                    predicates = [(keyword, '')]
+                elif facets[keyword]['type'] != 'date_time':
+                    if value_list[0] == '' and facets[keyword]['type'] != 'date_time':
+                        predicates = [(keyword, '')]
+                    else:
+                        predicates = [(keyword+'__isnull', True)]
                 else:
-                    predicates = [(keyword+'__isnull', True)]
+                    predicates = []
                 query = Q()
                 for predicate in predicates:
                     query |= Q(predicate)

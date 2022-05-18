@@ -22,7 +22,7 @@ from core import models, validators
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm, HTMLDateInput
 from utils.logger import get_logger
 from submission import models as submission_models
 
@@ -588,8 +588,12 @@ class CBVFacetForm(forms.Form):
                 )
 
             # To do:
-            elif facet['type'] == 'date':
-                pass
+            elif facet['type'] == 'date_time':
+                self.fields[facet_key] = forms.DateTimeField(
+                    widget=HTMLDateInput(),
+                    required=False,
+                )
+
             elif facet['type'] == 'boolean':
                 pass
 
@@ -615,4 +619,3 @@ class CBVFacetForm(forms.Form):
         # function property like journal.name
 
         return queryset
-

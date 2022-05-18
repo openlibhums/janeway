@@ -314,6 +314,14 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
                 'field_label': 'Status',
             },
+            'last_modified__gte': {
+                'type': 'date_time',
+                'field_label': 'Last modified after',
+            },
+            'last_modified__lte': {
+                'type': 'date_time',
+                'field_label': 'Last modified before',
+            },
             'journal__pk': {
                 'type': 'foreign_key',
                 'model': journal_models.Journal,
