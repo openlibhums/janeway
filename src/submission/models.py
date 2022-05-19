@@ -12,6 +12,7 @@ from dateutil import parser as dateparser
 from django.urls import reverse
 from django.db import models
 from django.conf import settings
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
@@ -383,27 +384,44 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             return queryset.none()
         if site:
             queryset = queryset.filter(journal=site)
-        return queryset.filter(
-            **self.build_postgres_lookups(search_term, search_filters)
-        )
+        lookups, annotations = self.build_postgres_lookups(
+            search_term, search_filters)
+        if annotations:
+            queryset = queryset.annotate(**annotations)
+        if lookups:
+            queryset = queryset.filter(**lookups)
+
+        return queryset.order_by("-relevance")
 
     def build_postgres_lookups(self, search_term, search_filters):
         lookups = {}
-        if search_filters.get("full_text"):
-            lookups['galley__file__text__contents__search'] = search_term
-        if search_filters.get("abstract"):
-            lookups['abstract__search'] = search_term
+        annotations = {"relevance": models.Value(1)}
+        vectors = []
         if search_filters.get('title'):
-            lookups["title__search"] = search_term
+            vectors.append(SearchVector('title', weight="A"))
         if search_filters.get('authors'):
-            lookups['frozenauthor__first_name'] = search_term
-            lookups['frozenauthor__last_name__search'] = search_term
+            vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
+            vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
+        if search_filters.get('keywords'):
+            vectors.append(SearchVector('galley__file__text__contents', weight="C"))
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector('frozenauthor__first_name', weight="D"))
+        if search_filters.get("full_text"):
+            vectors.append(SearchVector('galley__file__text__contents', weight="D"))
+            #lookups['galley__file__text__contents__search'] = search_term
+        if vectors:
+            vector = vectors[0]
+            for v in vectors[1:]:
+                vector += v
+            query = SearchQuery(search_term)
+            relevance = SearchRank(vector, query)
+            annotations["relevance"] = relevance
+            lookups["relevance__gte"] = 0.1
+
         if search_filters.get('ORCID'):
             lookups['frozenauthor__author__orcid'] = search_term
             lookups['frozenauthor__orcid'] = search_term
-        if search_filters.get('keywords'):
-            lookups["keywords__word__search"]
-        return lookups
+        return lookups, annotations
 
 
 class Article(AbstractLastModifiedModel):

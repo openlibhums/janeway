@@ -895,7 +895,7 @@ class File(AbstractLastModifiedModel):
             if not path:
                 return indexed
             text_parser = files.MIME_TO_TEXT_PARSER[self.mime_type]
-        except IndexError:
+        except KeyError:
             # We have no support for indexing files of this type yet
             return indexed
         parsed_text = text_parser(path)
@@ -977,7 +977,7 @@ def update_file_index(sender, instance, **kwargs):
     if not instance.pk:
         return False
 
-    if settings.ENABLE_FULL_TEXT_SEARCH and self.text:
+    if settings.ENABLE_FULL_TEXT_SEARCH and instance.text:
         instance.index_full_text(save=False)
 
 
