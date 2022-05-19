@@ -1289,9 +1289,9 @@ class Article(AbstractLastModifiedModel):
         kwargs = {'article_id': self.pk}
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
-            return reverse('review_unassigned_article', kwargs=kwargs)
+            path = reverse('review_unassigned_article', kwargs=kwargs)
         elif self.stage in FINAL_STAGES:
-            return reverse('manage_archive_article', kwargs=kwargs)
+            path = reverse('manage_archive_article', kwargs=kwargs)
         elif not self.stage:
             logger.error(
                 'Article #{} has no Stage.'.format(
@@ -1302,7 +1302,7 @@ class Article(AbstractLastModifiedModel):
         else:
             element = self.current_workflow_element
             if element:
-                return reverse(element.jump_url, kwargs=kwargs)
+                path = reverse(element.jump_url, kwargs=kwargs)
             else:
                 # In order to ensure the Dashboard renders we purposefully do
                 # not raise an error message here.
@@ -1312,6 +1312,7 @@ class Article(AbstractLastModifiedModel):
                     )
                 )
                 return '?workflow_element_url=no_element'
+        return self.journal.site_url(path=path)
 
     @cache(600)
     def render_sample_doi(self):

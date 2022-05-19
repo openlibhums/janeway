@@ -2188,7 +2188,7 @@ class FilteredArticlesListView(generic.ListView):
         for keyword, value in initial.items():
             if keyword in facets:
                 if facets[keyword]['type'] == 'date_time':
-                    initial[keyword] = value.pop(0)
+                    initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
             queryset=queryset,
@@ -2272,11 +2272,19 @@ class FilteredArticlesListView(generic.ListView):
         params_string = request.POST.get('params_string')
         params_querydict = QueryDict(params_string, mutable=True)
         actions = self.get_actions()
+        queryset = self.get_queryset(params_querydict=params_querydict)
+        if request.journal:
+            querysets = [queryset]
+        else:
+            querysets = []
+            for journal in {article.journal for article in queryset}:
+                querysets.append(queryset.filter(journal=journal))
+
         if actions:
             for action in actions:
                 if action.get('name') in request.POST:
-                    queryset = self.get_queryset(params_querydict=params_querydict)
-                    action_status, action_error = action.get('action')(queryset)
+                    for queryset in querysets:
+                        action_status, action_error = action.get('action')(queryset)
 
         if action_status:
             params_string += f'&action_status={action_status}'

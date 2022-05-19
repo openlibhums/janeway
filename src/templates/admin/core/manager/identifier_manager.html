@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 
 {% load classname %}
+{% load fqdn %}
 
 {% block title %}DOI Manager{% endblock title %}
 {% block title-section %}DOI Manager{% endblock %}
@@ -18,25 +19,21 @@
             <section>
                 <h3>Results</h3>
                 <p>
-                    {% if page_obj.paginator.count != 1 %}
-                        {{ page_obj.paginator.count }} records
-                    {% else %}
-                        1 record
-                    {% endif %}
+                    {{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }}
                 </p>
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th style="max-width: 12%">Title</th>
+                            {% if not journal %}
+                                <th style="max-width: 12%">Journal</th>
+                            {% endif %}
                             <th style="max-width: 12%">DOI</th>
                             <th style="max-width: 12%">Edit</th>
                             <th style="max-width: 12%">Status</th>
                             <th>Deposit</th>
                             <th>Response</th>
-                            {% if not journal %}
-                                <th style="max-width: 12%">Journal</th>
-                            {% endif %}
                             <th>Pub Date</th>
                         </tr>
                     </thead>
@@ -47,12 +44,15 @@
                                 {% csrf_token %}
                                 <td>{{ article.pk }}</td>
                                 <td>
-                                    {% if article.stage != 'Rejected' and article.stage != 'Published' %}
-                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
+                                        <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
                                     {% else %}
-                                     <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                        <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                     {% endif %}
                                 </td>
+                                {% if not journal %}
+                                    <td>{{ article.journal.name }}</td>
+                                {% endif %}
                                 <td>
                                     {% if article.get_doi %}
                                         {{ article.get_doi }}
@@ -70,7 +70,7 @@
                                 </td>
                                 <td>
                                     {% if article.get_doi_object %}
-                                        <a class="small success button" href="{% url 'show_doi' article.pk article.get_doi_object.pk %}">
+                                        <a class="small success button" href="{% external_journal_url article.journal 'show_doi' article.pk article.get_doi_object.pk %}">
                                             {% if article.get_doi_object.crossref_status.latest_deposit %}
                                                 View XML
                                             {% else %}
@@ -81,14 +81,11 @@
                                 </td>
                                 <td>
                                     {% if article.get_doi_object.crossref_status.latest_deposit %}
-                                        <a class="small success button" href="{% url 'poll_doi_output' article.pk article.get_doi_object.pk %}">
+                                        <a class="small success button" href="{% external_journal_url article.journal 'poll_doi_output' article.pk article.get_doi_object.pk %}">
                                             View XML
                                         </a>
                                     {% endif %}
                                 </td>
-                                {% if not journal %}
-                                    <td>{{ article.journal.name }}</td>
-                                {% endif %}
                                 <td>
                                 {% if article.date_published %}
                                     {{ article.date_published }}
