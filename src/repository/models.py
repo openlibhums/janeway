@@ -710,6 +710,9 @@ class PreprintFile(models.Model):
     )
     size = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return self.original_filename
+
     def filename(self):
         return os.path.basename(self.file.name)
 
