@@ -20,7 +20,6 @@ djangorestframework==3.11.2
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 enum34==1.1.6
-
 html2text==2017.10.4
 idna==2.7
 ipaddress==1.0.16
@@ -32,6 +31,7 @@ markdown2
 mock
 mysqlclient==1.3.12
 pdfkit
+pdfminer
 Pillow==7.1.0
 psycopg2-binary~=2.8.0
 pyasn1==0.1.9
@@ -52,3 +52,4 @@ django-hijack==2.1.10
 geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4
 freezegun==1.2.0
+swapper
