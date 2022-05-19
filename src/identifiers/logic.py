@@ -216,12 +216,6 @@ def create_crossref_doi_batch_context(journal, identifiers):
         'is_conference': journal.is_conference or False,
     }
 
-    # Conference
-    if journal and journal.is_conference:
-        return
-
-
-    # Not a conference, a journal
     template_context['crossref_issues'] = create_crossref_issues_context(journal, identifiers)
     return template_context
 
@@ -291,19 +285,20 @@ def create_crossref_journal_context(
     publication_title=None
 ):
     return {
-        'journal_title': publication_title or journal.name,
+        'title': publication_title or journal.name,
         'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn,
+        'press': journal.press,
     }
 
 def create_crossref_article_context(article, identifier=None):
     template_context = {
-        'article_title': '{0}{1}{2}'.format(
+        'title': '{0}{1}{2}'.format(
             article.title,
             ' ' if article.subtitle is not None else '',
             article.subtitle if article.subtitle is not None else ''),
         'doi': identifier.identifier if identifier else render_doi_from_pattern(article),
-        'article_url': article.url,
+        'url': article.url,
         'authors': article.frozenauthor_set.all(),
         'abstract': strip_tags(article.abstract or ''),
         'date_accepted': article.date_accepted,

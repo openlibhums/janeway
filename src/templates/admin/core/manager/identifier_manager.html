@@ -61,7 +61,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a class="tiny secondary button" href="{% url 'article_identifiers' article.pk %}">
+                                    <a class="tiny secondary button" href="{% external_journal_url article.journal 'article_identifiers' article.pk %}">
                                         <span class="fa fa-edit"></span>
                                     </a>
                                 </td>
@@ -80,7 +80,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if article.get_doi_object.crossref_status.latest_deposit %}
+                                    {% if article.get_doi_object.crossref_status.latest_deposit.result_text %}
                                         <a class="small success button" href="{% external_journal_url article.journal 'poll_doi_output' article.pk article.get_doi_object.pk %}">
                                             View XML
                                         </a>

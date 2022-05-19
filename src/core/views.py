@@ -2236,7 +2236,7 @@ class FilteredArticlesListView(generic.ListView):
                 self.queryset.filter(*q_stack)
             )
         ).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED
+            stage=submission_models.STAGE_UNSUBMITTED,
         )
 
     def order_queryset(self, queryset):

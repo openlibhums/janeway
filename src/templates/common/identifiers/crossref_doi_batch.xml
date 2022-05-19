@@ -18,10 +18,12 @@
     </head>
     <body>
     {% if is_conference %}
-        {% include "common/identifiers/crossref_conference.xml" with conference=conference %}
+        {% for crossref_issue in crossref_issues %}
+            {% include "common/identifiers/crossref_conference.xml" with crossref_issue=crossref_issue %}
+        {% endfor %}
     {% else %}
         {% for crossref_issue in crossref_issues %}
-        {% include "common/identifiers/crossref_journal_issue.xml" with crossref_issue=crossref_issue %}
+            {% include "common/identifiers/crossref_journal_issue.xml" with crossref_issue=crossref_issue %}
         {% endfor %}
     {% endif %}
     </body>

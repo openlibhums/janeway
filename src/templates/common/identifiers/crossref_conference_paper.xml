@@ -1,7 +1,5 @@
-{% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
-                <titles>
-                    <title>{{ article.title }}</title>
-                </titles>
+            <conference_paper publication_type="full_text">
+                {# Order matters! conferences MUST send contributors before titles #}
                 {% if article.authors %}
                 <contributors>
                 {% for author in article.authors %}
@@ -16,7 +14,7 @@
                         {% if author.institution %}
                         <affiliation>{{ author.affiliation }}</affiliation>
                         {% endif %}
-                        {% if author.orcid %}
+                        {% if author.author.orcid %}
                         <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
                         {% endif %}
                     </person_name>
@@ -24,9 +22,9 @@
                 {% endfor %}
                 </contributors>
                 {% endif %}
-                {% if article.abstract %}
-                <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
-                {% endif %}
+                <titles>
+                    <title>{{ article.title }}</title>
+                </titles>
                 <publication_date media_type="online">
                 {% if article.date_published %}
                     <month>{{ article.date_published.month }}</month>
@@ -38,13 +36,6 @@
                     <year>{{ now.year }}</year>
                 {% endif %}
                 </publication_date>
-                {% if article.date_accepted %}
-                <acceptance_date media_type="online">
-                    <month>{{ article.date_accepted.month }}</month>
-                    <day>{{ article.date_accepted.day }}</day>
-                    <year>{{ article.date_accepted.year }}</year>
-                </acceptance_date>
-                {% endif %}
                 {% if article.license %}
                 <ai:program name="AccessIndicators">
                     <ai:license_ref>{{ article.license }}</ai:license_ref>
@@ -63,7 +54,4 @@
                         </item>
                     </collection>
                 </doi_data>
-                {% if article.citation_list %}
-                    {{ article.citation_list|safe }}
-                {% endif %}
-            </journal_article>
+            </conference_paper>

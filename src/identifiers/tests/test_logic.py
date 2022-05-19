@@ -25,13 +25,14 @@ class TestLogic(TestCase):
         cls.journal_one, cls.journal_two = helpers.create_journals()
 
         # Configure settings
-        save_setting('general', 'journal_issn', cls.journal_one, '1234-5678')
-        save_setting('general', 'print_issn', cls.journal_one, '8765-4321')
-        save_setting('Identifiers', 'use_crossref', cls.journal_one, True)
-        save_setting('Identifiers', 'crossref_prefix', cls.journal_one, '10.0000')
-        save_setting('Identifiers', 'crossref_email', cls.journal_one, 'sample_email@example.com')
-        save_setting('Identifiers', 'crossref_name', cls.journal_one, 'Journal One')
-        save_setting('Identifiers', 'crossref_registrant', cls.journal_one, 'registrant')
+        for journal in [cls.journal_one, cls.journal_two]:
+            save_setting('general', 'journal_issn', journal, '1234-5678')
+            save_setting('general', 'print_issn', journal, '8765-4321')
+            save_setting('Identifiers', 'use_crossref', journal, True)
+            save_setting('Identifiers', 'crossref_prefix', journal, '10.0000')
+            save_setting('Identifiers', 'crossref_email', journal, 'sample_email@example.com')
+            save_setting('Identifiers', 'crossref_name', journal, 'Journal Name')
+            save_setting('Identifiers', 'crossref_registrant', journal, 'registrant')
 
         # Make mock request
         cls.request = helpers.Request()
@@ -95,12 +96,46 @@ class TestLogic(TestCase):
         cls.issue_six_one.save()
 
 
+        # Journal 2 is a conference
+        cls.journal_two.is_conference = True
+        cls.issue_nine_nine = helpers.create_issue(cls.journal_two, vol=9, number=9)
+
+        cls.article_six = helpers.create_article(cls.journal_two, with_author=True)
+        cls.doi_six = logic.generate_crossref_doi_with_pattern(cls.article_six)
+        cls.issue_nine_nine.articles.add(cls.article_six)
+        cls.article_six.primary_issue = cls.issue_nine_nine
+        cls.article_six.abstract = 'Test abstract.'
+        cls.article_six.snapshot_authors()
+        cls.article_six.license = submission_models.Licence.objects.filter(
+            journal=cls.journal_two,
+        ).first()
+        cls.article_six.page_numbers = '58-62'
+        cls.article_six.save()
+
+        cls.article_seven = helpers.create_article(cls.journal_two, with_author=True)
+        cls.doi_seven = logic.generate_crossref_doi_with_pattern(cls.article_seven)
+        cls.issue_nine_nine.articles.add(cls.article_seven)
+        cls.article_seven.primary_issue = cls.issue_nine_nine
+        cls.article_seven.save()
+
+        cls.issue_nine_nine.save()
+
+
+        # Schema location for Crossref XML validation
+        cls.schema_base_path = os.path.join(
+            settings.BASE_DIR,
+            'identifiers',
+            'tests',
+            'test_data',
+            'schemas',
+        )
+
     def test_create_crossref_doi_batch_context(self):
         self.maxDiff = None
         expected_data = {}
 
         expected_data['depositor_email'] = 'sample_email@example.com'
-        expected_data['depositor_name'] = 'Journal One'
+        expected_data['depositor_name'] = 'Journal Name'
         expected_data['registrant'] = 'registrant'
         expected_data['is_conference'] = self.journal_one.is_conference
 
@@ -171,9 +206,10 @@ class TestLogic(TestCase):
 
     def test_create_crossref_journal_context(self):
         expected_data = {
-            'journal_title': 'Journal One',
+            'title': 'Journal One',
             'journal_issn': '1234-5678',
             'print_issn': '8765-4321',
+            'press': self.journal_one.press
         }
         context = logic.create_crossref_journal_context(self.journal_one)
         self.assertEqual(expected_data, context)
@@ -181,9 +217,9 @@ class TestLogic(TestCase):
 
     def test_create_crossref_article_context(self):
         expected_data = {
-            'article_title': self.article_one.title,
+            'title': self.article_one.title,
             'abstract': self.article_one.abstract,
-            'article_url': self.article_one.url,
+            'url': self.article_one.url,
             'authors': [
                 author.email for author in self.article_one.frozenauthor_set.all()
             ],
@@ -219,39 +255,35 @@ class TestLogic(TestCase):
     def test_deposit_xml_document_is_valid(self):
         self.maxDiff = None
 
-        schema_base_path = os.path.join(
-            settings.BASE_DIR,
-            'identifiers',
-            'tests',
-            'test_data',
-            'schemas',
-        )
+        for journal in [self.journal_one, self.journal_two]:
+            # Generate batch and validate against schema
+            template = 'common/identifiers/crossref_doi_batch.xml'
+            identifiers = set([identifier for identifier in models.Identifier.objects.filter(
+                article__journal=journal
+            )])
+            template_context = logic.create_crossref_doi_batch_context(
+                journal,
+                identifiers,
+            )
+            deposit = logic.render_to_string(template, template_context)
 
-        # Generate batch and validate against schema
+            soup = BeautifulSoup(deposit, 'lxml')
+            version = soup.find('doi_batch')['version']
+            schema_filename = f'crossref{version}.xsd'
+            with open(os.path.join(self.schema_base_path, schema_filename)) as fileref:
+                xml_schema_doc = etree.parse(fileref)
+            xml_schema = etree.XMLSchema(xml_schema_doc)
+
+            deposit_bytes = BytesIO(str.encode(deposit))
+            doc = etree.parse(deposit_bytes)
+            xml_schema.assertValid(doc)
+            self.assertTrue(xml_schema.validate(doc))
+
+    def test_journal_deposit_xml_document_has_basically_correct_components(self):
         template = 'common/identifiers/crossref_doi_batch.xml'
-        identifiers = set([identifier for identifier in models.Identifier.objects.all()])
-        template_context = logic.create_crossref_doi_batch_context(
-            self.journal_one,
-            identifiers,
-        )
-        deposit = logic.render_to_string(template, template_context)
-
-        soup = BeautifulSoup(deposit, 'lxml')
-        version = soup.find('doi_batch')['version']
-        schema_filename = f'crossref{version}.xsd'
-        with open(os.path.join(schema_base_path, schema_filename)) as fileref:
-            xml_schema_doc = etree.parse(fileref)
-        xml_schema = etree.XMLSchema(xml_schema_doc)
-
-        deposit_bytes = BytesIO(str.encode(deposit))
-        doc = etree.parse(deposit_bytes)
-        xml_schema.assertValid(doc)
-        self.assertTrue(xml_schema.validate(doc))
-
-
-    def test_deposit_xml_document_has_basically_correct_components(self):
-        template = 'common/identifiers/crossref_doi_batch.xml'
-        identifiers = set([identifier for identifier in models.Identifier.objects.all()])
+        identifiers = set([identifier for identifier in models.Identifier.objects.filter(
+            article__journal=self.journal_one
+        )])
         template_context = logic.create_crossref_doi_batch_context(
             self.journal_one,
             identifiers,
@@ -266,3 +298,23 @@ class TestLogic(TestCase):
         self.assertEqual(4, len(soup.find_all('journal_metadata')))
         # There should be five articles
         self.assertEqual(5, len(soup.find_all('journal_article')))
+
+    def test_conference_deposit_xml_document_has_basically_correct_components(self):
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        identifiers = set([identifier for identifier in models.Identifier.objects.filter(
+            article__journal=self.journal_two
+        )])
+        template_context = logic.create_crossref_doi_batch_context(
+            self.journal_two,
+            identifiers,
+        )
+        deposit = logic.render_to_string(template, template_context)
+        soup = BeautifulSoup(deposit, 'lxml')
+        # There should be one doi_batch
+        self.assertEqual(1, len(soup.find_all('doi_batch')))
+        # There should be one conference (crossref_issue)
+        self.assertEqual(1, len(soup.find_all('conference')))
+        # And so conference metadata should appear one time, once for each issue
+        self.assertEqual(1, len(soup.find_all('event_metadata')))
+        # There should be two conference papers (articles)
+        self.assertEqual(2, len(soup.find_all('conference_paper')))
