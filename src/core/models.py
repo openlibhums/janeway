@@ -15,18 +15,29 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import (
+    connection,
+    models,
+    transaction,
+)
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+import swapper
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField, AbstractLastModifiedModel
+from core.model_utils import (
+    AbstractLastModifiedModel,
+    AbstractSiteModel,
+    PGCaseInsensitiveEmailField,
+    SearchLookup,
+)
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
@@ -737,6 +748,9 @@ class File(AbstractLastModifiedModel):
         'FileHistory',
         blank=True,
     )
+    text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
+        blank=True, null=True
+    )
 
     class Meta:
         ordering = ('sequence', 'pk')
@@ -864,6 +878,53 @@ class File(AbstractLastModifiedModel):
 
     def __repr__(self):
         return u'%s' % self.original_filename
+
+
+class AbstractFileText(models.Model):
+    contents = models.TextField(blank=True, null=True)
+    date_populated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        return text
+
+    def update_contents(text, lang=None):
+        self.contents = self.preprocess_contents(text)
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.date_populated = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class FileText(AbstractFileText):
+    class Meta:
+        swappable = swapper.swappable_setting('core', 'FileText')
+    pass
+
+
+class PGFileText(AbstractFileText):
+    contents = SearchVectorField(blank=True, null=True, editable=False)
+
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        """ Casts the given text into a postgres TSVector
+
+        The result can be cached so that there is no need to store the original
+        text and also speed up the search queries.
+        The drawback is that the cached TSVector needs to be regenerated
+        whenever the underlying field changes.
+
+        Postgres `to_tsvector()` function normalises the input before handing it
+        over to `tsvector()`.
+        """
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
+        return cursor.fetchone()[0]
 
 
 class FileHistory(models.Model):
