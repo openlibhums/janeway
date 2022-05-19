@@ -873,6 +873,49 @@ class File(AbstractLastModifiedModel):
         else:
             return self.original_filename
 
+    def index_full_text(self):
+        """ Extracts text from the File and stores it into an indexed model
+
+        Depending on the database backend, preprocessing ahead of indexing varies;
+        As an example, for Postgresql, instead of storing the text as a LOB, a
+        tsvector of the text is generated which is used for indexing. There is no
+        such approach for MySQL, so the text is stored in full and then indexed,
+        which takes significantly more disk space.
+
+        Custom indexing routines can be provided with the swappable model under
+        settings.py `CORE_FILETEXT_MODEL`
+        :return: A bool indicating if the file has been succesfully indexed
+        """
+        indexed = False
+        try:
+            # TODO: Only aricle files are supported at the moment since File
+            # objects don't know the path to the actual file unless you also
+            # know the context (article/preprint/journal...) of the file
+            path = self.self_article_path()
+            if not path:
+                return indexed
+            text_parser = files.MIME_TO_TEXT_PARSER[self.mime_type]
+        except IndexError:
+            # We have no support for indexing files of this type yet
+            return indexed
+        parsed_text = text_parser(path)
+        FileTextModel = swapper.load_model("core", "FileText")
+        preprocessed_text = FileTextModel.preprocess_contents(parsed_text)
+        if self.text:
+            file_text_obj.update_contents(preprocessed_text)
+            indexed = True
+        else:
+            file_text_obj = FileTextModel.objects.create(
+                contents=preprocessed_text,
+                file=self,
+            )
+            self.text = file_text_obj
+            self.save()
+            indexed = True
+
+        return indexed
+
+
     def __str__(self):
         return u'%s' % self.original_filename
 
