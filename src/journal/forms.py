@@ -17,13 +17,15 @@ from hcaptcha.fields import hCaptchaField
 
 from core import models as core_models
 from journal import models as journal_models, logic
-from utils.forms import CaptchaForm
+from utils.forms import CaptchaForm, LeftBooleanField
 
 SEARCH_SORT_OPTIONS = [
-        ('title', 'Titles A-Z'),
-        ('-title', 'Titles Z-A'),
-        ('-date_published', 'Newest'),
-        ('date_published', 'Oldest'),
+        # Translators: Search order options
+        ('relevance', _('Relevance')),
+        ('title', _('Titles A-Z')),
+        ('-title', _('Titles Z-A')),
+        ('-date_published', _('Newest')),
+        ('date_published', _('Oldest')),
       ]
 
 
@@ -98,8 +100,25 @@ class EmailForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    article_search = forms.CharField(label='search term', min_length=3, max_length=100, required=False)
-    sort = forms.ChoiceField(label='sort by', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+    article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
+    title = LeftBooleanField(initial=True, label=_('Search Titles'), required=False)
+    abstract = LeftBooleanField(initial=True, label=_('Search Abstract'), required=False)
+    authors = LeftBooleanField(initial=True, label=_('Search Authors'), required=False)
+    keywords = LeftBooleanField(label=_("Search Keywords"), required=False)
+    full_text = LeftBooleanField(initial=True, label=_("Search Full Text"), required=False)
+    orcid = LeftBooleanField(label=_("Search ORCIDs"), required=False)
+    sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+
+    def get_search_filters(self):
+        """ Generates a dictionary of search_filters from a search form"""
+        return {
+            "full_text": self.cleaned_data["full_text"],
+            "tile": self.cleaned_data["title"],
+            "authors": self.cleaned_data["authors"],
+            "abstract": self.cleaned_data["abstract"],
+            "keywords": self.cleaned_data["keywords"],
+            "orcid": self.cleaned_data["orcid"],
+        }
 
 
 class IssueDisplayForm(forms.ModelForm):
