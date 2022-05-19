@@ -873,7 +873,7 @@ class File(AbstractLastModifiedModel):
         else:
             return self.original_filename
 
-    def index_full_text(self):
+    def index_full_text(self, save=True):
         """ Extracts text from the File and stores it into an indexed model
 
         Depending on the database backend, preprocessing ahead of indexing varies;
@@ -910,7 +910,8 @@ class File(AbstractLastModifiedModel):
                 file=self,
             )
             self.text = file_text_obj
-            self.save()
+            if save:
+                self.save()
             indexed = True
 
         return indexed
@@ -968,6 +969,16 @@ class PGFileText(AbstractFileText):
         cursor = connection.cursor()
         result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
         return cursor.fetchone()[0]
+
+
+@receiver(models.signals.pre_save, sender=File)
+def update_file_index(sender, instance, **kwargs):
+    """ Updates the indexed conmtents in the database """
+    if not instance.pk:
+        return False
+
+    if settings.ENABLE_FULL_TEXT_SEARCH and self.text:
+        instance.index_full_text(save=False)
 
 
 class FileHistory(models.Model):
