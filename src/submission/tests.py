@@ -13,8 +13,9 @@ from django.urls.base import clear_script_prefix
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test.utils import override_settings
+import swapper
 
-from core.models import Account
+from core.models import Account, File
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -23,10 +24,9 @@ from submission import (
     logic,
     models,
 )
-
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.testing import helpers
-from utils.testing.helpers import request_context
+from utils.testing.helpers import create_galley, request_context
 
 
 # Create your tests here.
@@ -504,6 +504,91 @@ class SubmissionTests(TestCase):
         expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
                                        '2025 • Fall 2025 • 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
+
+    def test_article_full_text_search(self):
+        text_to_search = """
+            Exceeding reaction chamber thermal limit.
+            We have begun power-supply calibration.
+            Force fields have been established on all turbo lifts and crawlways.
+            Computer, run a level-two diagnostic on warp-drive systems.
+        """
+        needle = "turbo lifts"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Testing the search of articles",
+            date_published=dateparser.parse("2020-01-01"),
+        )
+        other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+        )
+        file_obj = File.objects.create(article_id=article.pk)
+        create_galley(article, file_obj)
+        FileText = swapper.load_model("core", "FileText")
+        text_to_search = FileText.preprocess_contents(text_to_search)
+        text = FileText.objects.create(
+            contents=text_to_search,
+        )
+        file_obj.text = text
+        file_obj.save()
+
+        search_filters = {"full_text": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
+    def test_article_search_abstract(self):
+        text_to_search = """
+            Exceeding reaction chamber thermal limit.
+            We have begun power-supply calibration.
+            Force fields have been established on all turbo lifts and crawlways.
+            Computer, run a level-two diagnostic on warp-drive systems.
+        """
+        needle = "Crawlways"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test searching abstract",
+            date_published=dateparser.parse("2020-01-01"),
+            abstract=text_to_search,
+        )
+        other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+            abstract="Random abstract crawl text",
+        )
+
+        search_filters = {"abstract": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
+    def test_article_search_title(self):
+        text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
+        needle = "warp-drive"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title=text_to_search,
+            date_published=dateparser.parse("2020-01-01"),
+        )
+        other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+        )
+
+        search_filters = {"title": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
 
 
 class FrozenAuthorModelTest(TestCase):
