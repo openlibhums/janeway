@@ -520,3 +520,5 @@ HIJACK_LOGIN_REDIRECT_URL = '/manager/'
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
     CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False

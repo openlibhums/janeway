@@ -100,6 +100,12 @@ class EmailForm(forms.Form):
 
 
 class SearchForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not settings.ENABLE_FULL_TEXT_SEARCH:
+            self.fields.pop('full_text', None)
+
     article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
     title = LeftBooleanField(initial=True, label=_('Search Titles'), required=False)
     abstract = LeftBooleanField(initial=True, label=_('Search Abstract'), required=False)
