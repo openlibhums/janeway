@@ -1,5 +1,8 @@
 {% extends "admin/core/base.html" %}
 
+{% load classname %}
+{% load fqdn %}
+
 {% block title %}Article List{% endblock title %}
 {% block title-section %}Article List{% endblock %}
 {% block title-sub %}A list of articles that can be filtered to perform batch actions.{% endblock %}
@@ -16,11 +19,7 @@
             <section>
                 <h3>Results</h3>
                 <p>
-                    {% if page_obj.paginator.count != 1 %}
-                        {{ page_obj.paginator.count }} records
-                    {% else %}
-                        1 record
-                    {% endif %}
+                    {{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }}
                 </p>
                 <table>
                     <thead>
@@ -38,10 +37,10 @@
                         <tr>
                             <td>{{ article.pk }}</td>
                             <td>
-                                {% if article.stage != 'Rejected' and article.stage != 'Published' %}
-                                <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
                                 {% else %}
-                                 <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                 {% endif %}
                             </td>
                             <td>{{ article.author_list }}</td>
@@ -71,13 +70,24 @@
                         <form method="GET" id={{ facet_form.id }}>
                             {% for field in facet_form %}
                                 <hr>
-                                <fieldset onchange="this.form.submit()">
+                                <fieldset>
                                     <legend>{{ field.label }}</legend>
-                                    {% for checkbox in field %}
-                                        <label for="{{ checkbox.id_for_label }}">{{ checkbox.tag }}{{ checkbox.choice_label }}</label>
-                                    {% endfor %}
+                                    {% with field.field.widget|classname as widgetclass %}
+                                        {% if widgetclass == 'CheckboxSelectMultiple' %}
+                                            {% for checkbox in field %}
+                                                <label for="{{ checkbox.id_for_label }}">
+                                                    {{ checkbox.tag }}
+                                                    {{ checkbox.choice_label }}
+                                                </label>
+                                            {% endfor %}
+                                        {% elif widgetclass == 'HTMLDateInput' %}
+                                            {{ field }}
+                                        {% endif %}
+                                    {% endwith %}
                                 </fieldset>
                             {% endfor %}
+                            <hr>
+                            <button action="" class="button" type="submit">Apply</button>
                         </form>
                     </section>
                 </div>
@@ -97,14 +107,6 @@
                                 {% endfor %}
                             </div>
                         </form>
-                        {% if action_error %}
-                            <p>Error</p>
-                            {% if action_status %}
-                                {% for status in action_status %}
-                                    <p>{{ status }}</p>
-                                {% endfor %}
-                            {% endif %}
-                        {% endif %}
                     </section>
                 </div>
             {% endif %}

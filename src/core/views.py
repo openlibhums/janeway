@@ -2198,8 +2198,9 @@ class FilteredArticlesListView(generic.ListView):
         )
 
         context['actions'] = self.get_actions()
-        context['action_status'] = params_querydict.pop('action_status', '')
-        context['action_error'] = params_querydict.pop('action_error', False)
+
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
         return context
 
@@ -2243,13 +2244,13 @@ class FilteredArticlesListView(generic.ListView):
         return queryset.order_by('title')
 
     def get_facets(self):
-        facets = []
+        facets = {}
         return self.filter_facets_if_journal(facets)
 
     def get_facet_queryset(self):
         # The default behavior is for the facets to stay the same
         # when a filter is chosen.
-        # To make them change dynamically, return None
+        # To make them change dynamically, return None 
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
@@ -2285,11 +2286,10 @@ class FilteredArticlesListView(generic.ListView):
                 if action.get('name') in request.POST:
                     for queryset in querysets:
                         action_status, action_error = action.get('action')(queryset)
-
-        if action_status:
-            params_string += f'&action_status={action_status}'
-        if action_error:
-            params_string += f'&action_error={action_error}'
+                        if action_error:
+                            messages.add_message(request, messages.ERROR, action_status)
+                        elif action_status:
+                            messages.add_message(request, messages.INFO, action_status)
 
         if params_string:
             return redirect(f'{request.path}?{params_string}')
@@ -2305,7 +2305,7 @@ class FilteredArticlesListView(generic.ListView):
 
     def filter_facets_if_journal(self, facets):
         if self.request.journal:
-            facets.pop('journal__pk')
+            facets.pop('journal__pk', '')
             return facets
         else:
             return facets

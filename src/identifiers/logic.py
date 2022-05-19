@@ -54,12 +54,12 @@ def register_batch_of_crossref_dois(articles):
         identifiers = get_dois_for_articles(articles, create=True)
         return send_crossref_deposit(test_mode, identifiers, journal)
     elif not use_crossref:
-        status = 'Crossref Disabled'
+        status = f'Crossref Disabled ({journal.code})'
         error = True
         logger.debug(status)
         return status, error
     elif use_crossref and missing_settings:
-        status = 'Missing Crossref settings: '+', '.join(missing_settings)
+        status = f'Missing Crossref settings ({journal.code}): '+', '.join(missing_settings)
         error = True
         logger.debug(status)
         return status, error
@@ -423,7 +423,7 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
         logger.error(status)
         error = True
     else:
-        status = "Deposit sent"
+        status = f"Deposit sent ({journal.code})"
         util_models.LogEntry.bulk_add_simple_entry('Submission', status, 'Info', targets=articles)
         logger.info(status)
 

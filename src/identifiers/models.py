@@ -118,15 +118,15 @@ class CrossrefDeposit(models.Model):
             self.citation_success = not ' status="error"' in self.result_text
             self.save()
             logger.debug(self)
-            return 'Polled', False
+            return f'Polled ({self.journal.code})', False
         except requests.RequestException as e:
             self.success = False
             self.has_result = True
-            self.result_text = 'Error: {0}'.format(e)
+            self.result_text = f'Error ({self.journal.code}): {e}'
             self.save()
             logger.error(self.result_text)
             logger.error(self)
-            return 'Error', True
+            return f'Error ({self.journal.code})', True
 
     def get_record_diagnostic(self, doi):
         soup = BeautifulSoup(self.result_text, 'lxml-xml')
