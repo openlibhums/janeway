@@ -19,9 +19,14 @@ from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
+import swapper
 
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import M2MOrderedThroughField, AbstractLastModifiedModel
+from core.model_utils import(
+    AbstractLastModifiedModel,
+    BaseSearchManagerMixin,
+    M2MOrderedThroughField,
+)
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
@@ -364,6 +369,43 @@ class DynamicChoiceField(models.CharField):
                     raise
 
 
+class ArticleSearchManager(BaseSearchManagerMixin):
+
+    def search(self, *args, **kwargs):
+        queryset = super().search(*args, **kwargs)
+        return queryset.filter(
+            date_published__lte=timezone.now()
+        )
+
+    def postgres_search(self, search_term, search_filters, site=None):
+        queryset = self.get_queryset()
+        if not search_term or not any(search_filters.values()):
+            return queryset.none()
+        if site:
+            queryset = queryset.filter(journal=site)
+        return queryset.filter(
+            **self.build_postgres_lookups(search_term, search_filters)
+        )
+
+    def build_postgres_lookups(self, search_term, search_filters):
+        lookups = {}
+        if search_filters.get("full_text"):
+            lookups['galley__file__text__contents__search'] = search_term
+        if search_filters.get("abstract"):
+            lookups['abstract__search'] = search_term
+        if search_filters.get('title'):
+            lookups["title__search"] = search_term
+        if search_filters.get('authors'):
+            lookups['frozenauthor__first_name'] = search_term
+            lookups['frozenauthor__last_name__search'] = search_term
+        if search_filters.get('ORCID'):
+            lookups['frozenauthor__author__orcid'] = search_term
+            lookups['frozenauthor__orcid'] = search_term
+        if search_filters.get('keywords'):
+            lookups["keywords__word__search"]
+        return lookups
+
+
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -546,6 +588,8 @@ class Article(AbstractLastModifiedModel):
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
+
+    objects = ArticleSearchManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -754,6 +798,31 @@ class Article(AbstractLastModifiedModel):
                         return False
 
         return True
+
+
+    def index_full_text(self):
+        """ Indexes the render galley for full text search
+        :return: A boolean indicating if a file has been processed
+        """
+        indexed = False
+
+        # Delete currently indexed article files
+        FileTextModel = swapper.load_model("core", "FileText")
+        current = FileTextModel.objects.filter(file__article_id=self.pk)
+        if current.exists():
+            current.delete()
+
+        # Generate new from best possible galley
+        render_galley = self.get_render_galley
+        if render_galley:
+            indexed = render_galley.file.index_full_text()
+        elif self.galley_set.exists():
+            for galley in self.galley_set.all():
+                indexed = galley.file.index_full_text()
+                if indexed:
+                    break
+        return indexed
+
 
     @property
     @cache(300)
