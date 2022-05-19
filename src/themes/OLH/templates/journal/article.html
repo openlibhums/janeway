@@ -390,7 +390,7 @@
                         <div class="section hide-for-small-only">
                             <h3>{% trans field.field.name %}</h3>
                             <ul>
-                                <li>{{ field.answer }}</li>
+                                <li>{{ field.answer|safe }}</li>
                             </ul>
                         </div>
                         {% endfor %}
