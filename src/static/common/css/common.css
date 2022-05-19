@@ -239,21 +239,33 @@ ol.gloss-word {
     vertical-align: middle;
 }
 
-article ol .list-ord {
+article .list-ord {
     list-style-type: decimal;
 }
-article ul .list-unord {
+article .list-unord {
     list-style-type: disc;
 }
-article ol .list-alphalower {
+article .list-alphalower {
     list-style-type: lower-alpha;
 }
-article ol .list-alphaupper {
+article .list-alphaupper {
     list-style-type: upper-alpha;
 }
-article ol .list-romanlower {
+article .list-romanlower {
     list-style-type: lower-roman;
 }
-article ol .list-romanupper {
+article .list-romanupper {
     list-style-type: upper-roman;
+}
+
+.no-list-type {
+    list-style-type: none;
+}
+
+.no-list-type:first-child p {
+    display: inline;
+}
+
+.jats-list-type {
+    margin-left: -1.20rem;
 }
