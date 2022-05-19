@@ -674,3 +674,7 @@ footer svg {
     height: 90%;
     width: 90%;
 }
+
+strong {
+    font-weight: 650;
+}
