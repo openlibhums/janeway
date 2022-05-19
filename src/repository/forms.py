@@ -10,7 +10,7 @@ from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.forms import render_choices
-from core import models as core_models
+from core import models as core_models, workflow
 from utils import forms as utils_forms
 
 
@@ -525,7 +525,7 @@ class PreprinttoArticleForm(forms.Form):
     license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
     section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
     stage = forms.ChoiceField(
-        choices=submission_models.STAGE_CHOICES,
+        choices=()
     )
     force = forms.BooleanField(
         required=False,
@@ -543,3 +543,4 @@ class PreprinttoArticleForm(forms.Form):
             self.fields['section'].queryset = submission_models.Section.objects.filter(
                 journal=self.journal,
             )
+            self.fields['stage'].choices = workflow.workflow_journal_choices(self.journal)
