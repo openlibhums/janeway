@@ -1845,6 +1845,13 @@ def remove_author_from_article(sender, instance, **kwargs):
             author=instance.author,
             article=instance.article,
         ).delete()
+    except ArticleAuthorOrder.MultipleObjectsReturned:
+        # the same account could be linked to the paper twice if the account
+        # is linked to multiple FrozenAuthor records.
+        ArticleAuthorOrder.objects.filter(
+            author=instance.author,
+            article=instance.article,
+        ).first().delete()
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
