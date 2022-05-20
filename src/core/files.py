@@ -869,7 +869,7 @@ def serve_robots_file(journal=None, repository=None):
     )
 
 
-def copy_preprint_file_to_article(preprint, article):
+def copy_preprint_file_to_article(preprint, article, manuscript=True):
     """
     Copies a preprint's latest file over to Manuscript Files for an article.
     """
@@ -892,5 +892,8 @@ def copy_preprint_file_to_article(preprint, article):
         is_galley=False,
         article_id=article.pk
     )
+
+    if manuscript:
+        article.manuscript_files.add(new_file)
 
     return new_file

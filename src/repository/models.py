@@ -667,8 +667,8 @@ class Preprint(models.Model):
             file = files.copy_preprint_file_to_article(
                 self,
                 article,
+                manuscript=True,
             )
-            article.manuscript_files.add(file)
 
             # save and return the article
             self.article = article
