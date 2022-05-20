@@ -173,7 +173,18 @@ def poll_doi(request, article_id, identifier_id):
     )
 
     if identifier.crossref_status and identifier.crossref_status.latest_deposit:
-        identifier.crossref_status.latest_deposit.poll()
+        status, error = identifier.crossref_status.latest_deposit.poll()
+        messages.add_message(
+            request,
+            messages.INFO if not error else messages.ERROR,
+            status
+        )
+        identifier.crossref_status.update()
+    else:
+        crossref_status = models.CrossrefStatus.objects.create(
+            identifier=identifier
+        )
+        crossref_status.update()
 
     return redirect(
         reverse(
@@ -306,14 +317,6 @@ class IdentifierManager(core_views.FilteredArticlesListView):
         )
 
         facets = {
-            'status': {
-                'type': 'charfield_with_choices',
-                'annotations': {
-                    'status': status,
-                },
-                'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
-                'field_label': 'Status',
-            },
             'date_published__gte': {
                 'type': 'date_time',
                 'field_label': 'Pub date from',
@@ -321,6 +324,14 @@ class IdentifierManager(core_views.FilteredArticlesListView):
             'date_published__lte': {
                 'type': 'date_time',
                 'field_label': 'Pub date to',
+            },
+            'status': {
+                'type': 'charfield_with_choices',
+                'annotations': {
+                    'status': status,
+                },
+                'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
+                'field_label': 'Status',
             },
             'journal__pk': {
                 'type': 'foreign_key',
@@ -332,8 +343,8 @@ class IdentifierManager(core_views.FilteredArticlesListView):
             'primary_issue__pk': {
                 'type': 'foreign_key',
                 'model': journal_models.Issue,
-                'field_label': 'Issue',
-                'choice_label_field': 'display_title',
+                'field_label': 'Primary issue',
+                'choice_label_field': 'non_pretty_issue_identifier',
                 'order_by': 'facet_count',
             },
         }

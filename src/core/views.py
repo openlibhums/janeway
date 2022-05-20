@@ -43,6 +43,7 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
+from utils.logic import get_janeway_version
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
 from repository import models as rm
@@ -2202,6 +2203,7 @@ class FilteredArticlesListView(generic.ListView):
         params_querydict.pop('action_status', '')
         params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
+        context['version'] = get_janeway_version()
         return context
 
     def get_queryset(self, params_querydict=None):
@@ -2286,10 +2288,11 @@ class FilteredArticlesListView(generic.ListView):
                 if action.get('name') in request.POST:
                     for queryset in querysets:
                         action_status, action_error = action.get('action')(queryset)
-                        if action_error:
-                            messages.add_message(request, messages.ERROR, action_status)
-                        elif action_status:
-                            messages.add_message(request, messages.INFO, action_status)
+                        messages.add_message(
+                            request,
+                            messages.INFO if not action_error else messages.ERROR,
+                            action_status,
+                        )
 
         if params_string:
             return redirect(f'{request.path}?{params_string}')
