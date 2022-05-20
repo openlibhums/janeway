@@ -3564,6 +3564,36 @@
         <xsl:text disable-output-escaping="yes">&lt;/blockquote&gt;</xsl:text>
     </xsl:template>
 
+    <xsl:template match="attrib">
+        <p class="jats-attrib">
+            <xsl:apply-templates/>
+        </p>
+    </xsl:template>
+
+    <xsl:template match="address">
+        <span class="jats-addr">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
+    <xsl:template match="address/institution">
+        <span class="jats-addr-institution">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
+    <xsl:template match="address/addr-line">
+        <span class="jats-addr-line">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
+    <xsl:template match="address/country | address/phone | address/fax | address/email | address/uri">
+        <span class="jats-addr-line-other">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
     <xsl:template match="code">
         <xsl:choose>
             <xsl:when test="@xml:space = 'preserve'">

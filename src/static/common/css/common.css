@@ -257,3 +257,16 @@ article ol .list-romanlower {
 article ol .list-romanupper {
     list-style-type: upper-roman;
 }
+
+.jats-addr {
+    line-height: 18px;
+}
+.jats-addr-institution {
+    display: block;
+}
+.jats-addr-line {
+    display: block;
+}
+.jats-addr-line-other {
+    display: block;
+}
