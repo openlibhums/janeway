@@ -606,10 +606,12 @@ def send_copyedit_deleted(**kwargs):
 
 def send_copyedit_decision(**kwargs):
     request = kwargs['request']
+    decision = kwargs["decision"]
     copyedit_assignment = kwargs['copyedit_assignment']
 
-    description = '{0} has accepted copyediting task for {1} due on {2}.'.format(
+    description = '{0} has {1}ed copyediting task for {2} due on {3}.'.format(
         copyedit_assignment.copyeditor.full_name(),
+        decision,
         copyedit_assignment.article.title,
         copyedit_assignment.due)
 

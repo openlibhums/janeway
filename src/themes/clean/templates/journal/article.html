@@ -197,7 +197,7 @@
                 {% endif %}
                 {% for field in article.custom_fields %}
                 <h2>{% trans field.field.name %}</h2>
-                <p>{{ field.answer }}</p>
+                <p>{{ field.answer|safe }}</p>
                 {% endfor %}
                 {% if article.is_published %}
                     {% if not request.journal.disable_metrics_display %}

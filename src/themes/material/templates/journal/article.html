@@ -402,7 +402,7 @@
                         <div class="divider"></div>
                     </div>
                     <h4>{% trans field.field.name %}</h4>
-                      <p>{{ field.answer }}</p>
+                      <p>{{ field.answer|safe }}</p>
                     {% endfor %}
                     <div class="spacer">
                         <div class="divider"></div>

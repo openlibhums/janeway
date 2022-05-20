@@ -3463,13 +3463,28 @@
         </xsl:choose>
     </xsl:template>
 
+
+
     <xsl:template match="list-item">
         <xsl:choose>
             <xsl:when test="not(parent::list[@list-type='gloss']) and not(parent::list[@list-type='sentence-gloss'])">
-                <li>
-                    <xsl:apply-templates/>
-                </li>
+                <!-- Target list-items that have a title so we can use the title as the list-item-type -->
+                <!-- See also match="title" where we handle wrapping the title in a span -->
+                <xsl:choose>
+                    <xsl:when test="name(*[1]) = 'title'">
+                        <li class="no-list-type">
+                            <xsl:apply-templates/>
+                        </li>
+                    </xsl:when>
+
+                    <xsl:otherwise>
+                        <li>
+                            <xsl:apply-templates/>
+                        </li>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:when>
+            <!-- Glosses -->
             <xsl:when test="parent::list[@list-type='gloss'] and count(preceding-sibling::list-item) = 0">
                 <ol class="gloss-sentence"><xsl:apply-templates/></ol>
             </xsl:when>
@@ -3552,11 +3567,20 @@
         <xsl:apply-templates/>
       </xsl:template>
 
-      <xsl:template match="title">
-          <strong>
-            <xsl:apply-templates/>
-          </strong>
-      </xsl:template>
+    <xsl:template match="title">
+        <xsl:choose>
+            <xsl:when test="name(parent::*) = 'list-item'">
+                <span class="jats-list-type">
+                    <xsl:value-of select="node()" />
+                </span>
+            </xsl:when>
+            <xsl:otherwise>
+                <strong>
+                    <xsl:apply-templates/>
+                </strong>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
 
     <xsl:template match="disp-quote">
         <xsl:text disable-output-escaping="yes">&lt;blockquote class="disp-quote"&gt;</xsl:text>
