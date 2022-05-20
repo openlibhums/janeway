@@ -659,6 +659,7 @@ class Preprint(models.Model):
                         'order': preprint_author.order
                     }
                 )
+                article.authors.add(preprint_author.account)
 
             # snapshot authors
             article.snapshot_authors()
