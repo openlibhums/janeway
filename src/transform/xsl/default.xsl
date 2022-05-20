@@ -3564,6 +3564,18 @@
         <xsl:text disable-output-escaping="yes">&lt;/blockquote&gt;</xsl:text>
     </xsl:template>
 
+    <xsl:template match="glossary/title">
+        <h2>
+            <xsl:apply-templates/>
+        </h2>
+    </xsl:template>
+
+    <xsl:template match="def-item/term">
+        <strong>
+            <xsl:apply-templates/>
+        </strong>
+    </xsl:template>
+
     <xsl:template match="code">
         <xsl:choose>
             <xsl:when test="@xml:space = 'preserve'">
