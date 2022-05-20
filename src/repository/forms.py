@@ -529,7 +529,8 @@ class PreprinttoArticleForm(forms.Form):
     )
     force = forms.BooleanField(
         required=False,
-        help_text='If you want to force the creation of a new article object even if one exists, check this box.',
+        help_text='If you want to force the creation of a new article object even if one exists, check this box. '
+                  'The old article will be orphaned and no longer linked to this object.',
     )
 
     def __init__(self, *args, **kwargs):
