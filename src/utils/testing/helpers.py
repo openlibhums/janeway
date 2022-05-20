@@ -253,12 +253,12 @@ def create_repository(press, managers, subject_editors):
     return repository, subject
 
 
-def create_preprint(repository, author, subject):
+def create_preprint(repository, author, subject, title='This is a Test Preprint'):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
         owner=author,
         stage=repo_models.STAGE_PREPRINT_REVIEW,
-        title='This is a Test Preprint',
+        title=title,
         abstract='This is a fake abstract.',
         comments_editor='',
         date_submitted=timezone.now(),
