@@ -36,7 +36,7 @@ Pillow==7.1.0
 psycopg2-binary~=2.8.0
 pyasn1==0.1.9
 pycparser==2.14
-PyJWT==1.6.1
+PyJWT==2.4.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
 python-magic==0.4.13
