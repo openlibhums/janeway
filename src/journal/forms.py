@@ -119,7 +119,7 @@ class SearchForm(forms.Form):
         """ Generates a dictionary of search_filters from a search form"""
         return {
             "full_text": self.cleaned_data["full_text"],
-            "tile": self.cleaned_data["title"],
+            "title": self.cleaned_data["title"],
             "authors": self.cleaned_data["authors"],
             "abstract": self.cleaned_data["abstract"],
             "keywords": self.cleaned_data["keywords"],

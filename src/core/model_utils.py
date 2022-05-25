@@ -12,7 +12,10 @@ import sys
 
 from django import forms
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
-from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.search import (
+    SearchVector as DjangoSearchVector,
+    SearchVectorField,
+)
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import(
@@ -546,3 +549,16 @@ class BaseSearchManagerMixin(Manager):
 
     def get_search_lookups(self):
         return self.search_lookups
+
+
+class SearchVector(DjangoSearchVector):
+    """ An Extension of SearchVector that works with SearchVectorField
+
+    Django's implementation assumes that the `to_tsvector` function needs
+    to be called with the provided column, except that when the field is already
+    a SearchVectorField, there is no need.
+    """
+    # Override template to ignore function
+    function = None
+    template = '%(expressions)s'
+
