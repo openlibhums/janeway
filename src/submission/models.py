@@ -395,7 +395,7 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
     def build_postgres_lookups(self, search_term, search_filters):
         lookups = {}
-        annotations = {"relevance": models.Value(1)}
+        annotations = {"relevance": models.Value(1.0, models.FloatField())}
         vectors = []
         if search_filters.get('title'):
             vectors.append(SearchVector('title', weight="A"))
@@ -407,7 +407,7 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if search_filters.get("abstract"):
             vectors.append(SearchVector('frozenauthor__first_name', weight="D"))
         if search_filters.get("full_text"):
-            vectors.append(SearchVector('galley__file__text__contents', weight="D"))
+            vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
             #lookups['galley__file__text__contents__search'] = search_term
         if vectors:
             vector = vectors[0]
