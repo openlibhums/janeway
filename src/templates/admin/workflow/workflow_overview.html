@@ -1,0 +1,143 @@
+{% extends "admin/core/base.html" %}
+
+{% load classname %}
+{% load fqdn %}
+
+{% block title %}Workflow Overview{% endblock title %}
+{% block title-section %}Workflow Overview{% endblock %}
+{% block title-sub %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class="content">
+        <div class="row"> 
+            <a href="" class="button small float-right">
+                Documentation <span class="fa fa-info-circle"></span>
+            </a>
+        </div>
+        {% if facet_form.fields %}
+            <div class="box">
+                <section>
+                    <h3>Filters</h3>
+                    <div class="row small-12">
+                        <form method="GET" id={{ facet_form.id }}>
+                            {% for field in facet_form %}
+                                <div class="columns small-12 medium-6">
+                                    <fieldset style="padding-bottom: 24px">
+                                        <legend>{{ field.label }}</legend>
+                                        {% with field.field.widget|classname as widgetclass %}
+                                            {% if widgetclass == 'CheckboxSelectMultiple' %}
+                                                {% for checkbox in field %}
+                                                    <label for="{{ checkbox.id_for_label }}">
+                                                        {{ checkbox.tag }}
+                                                        {{ checkbox.choice_label }}
+                                                    </label>
+                                                {% endfor %}
+                                            {% elif widgetclass == 'HTMLDateInput' %}
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </fieldset>
+                                </div>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <button form="{{ facet_form.id }}" action="" class="button" type="submit">Apply</button>
+                </section>
+            </div>
+        {% endif %}
+        <div id="results" class="box small-12">
+            <section>
+                <h3>Results</h3>
+                <p>
+                    {{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }}
+                </p>
+                <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th style="max-width: 10%">Title</th>
+                            {% if not journal %}
+                                <th style="max-width: 10%">Journal</th>
+                            {% endif %}
+                            <th style="max-width: 10%">Status</th>
+                            <th style="max-width: 10%">Notes</th>
+                            <th style="max-width: 10%">Pub Date</th>
+                            <th style="max-width: 10%">Primary Issue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in article_list %}
+                        <tr>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <td>{{ article.pk }}</td>
+                                <td>
+                                    {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
+                                        <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    {% else %}
+                                        <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    {% endif %}
+                                </td>
+                                {% if not journal %}
+                                    <td>{{ article.journal.name }}</td>
+                                {% endif %}
+                                <td>
+                                    {{  }}
+                                </td>
+                                <td>
+
+
+                                </td>
+                                <td>
+                                {% if article.date_published %}
+                                    {{ article.date_published }}
+                                {% endif %}
+                                </td>
+                                <td>
+                                {% if article.primary_issue %}
+                                    {{ article.primary_issue.pretty_issue_identifier }}
+                                {% endif %}
+                                </td>
+                            </form>
+                        </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="10">No articles to show.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </section>
+            <div class="row">
+                {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+            </div>
+        </div>
+        {% if actions %}
+            <div class="box small-12 small-8 large-6">
+                <section>
+                    <h3>Actions</h3>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                            <input type="hidden" name="params_string" value="{{ params_string }}"/>
+                        <div class="button-group">
+                            {% for action in actions %}
+                                <button action="" class="success button" type="submit" name="{{ action.name }}">
+                                    {{ action.value }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </section>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock body %}
