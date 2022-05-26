@@ -13,6 +13,20 @@ class LicenceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('name', 'short_name', 'text', 'url')
 
 
+class CustomArticleLabelSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = submission_models.CustomArticleLabel
+        fields = ('article', 'label', 'text', 'date_created', 'reminder_date')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        instance = super().create(validated_data)
+        if request and request.user:
+            instance.creator = request.user
+            instance.save()
+        return instance
+
 class KeywordsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
