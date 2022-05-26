@@ -112,6 +112,11 @@ def workflow_overview(request):
         stage=submission_models.STAGE_UNSUBMITTED
     )
 
+    if request.journal:
+        article_list = article_list.filter(
+            journal=request.journal,
+        )
+
     template = 'workflow/workflow_overview.html'
     context = {
         'article_list': article_list,
