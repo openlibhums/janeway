@@ -353,6 +353,15 @@ class ArticleFunding(models.Model):
         return f"Article funding entry {self.pk}: {self.name}"
 
 
+class CustomArticleLabel(models.Model):
+    article = models.ForeignKey('Article')
+    label = models.CharField(max_length=999, blank=False, null=False)
+    text = models.TextField(blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now)
+    reminder_date = models.DateField(blank=True, null=True)
+    creator = models.ForeignKey('core.Account', default=None, blank=True, null=True)
+
+
 class ArticleStageLog(models.Model):
     article = models.ForeignKey(
         'Article',
