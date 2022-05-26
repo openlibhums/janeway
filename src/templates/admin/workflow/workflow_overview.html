@@ -31,11 +31,11 @@
                 </section>
             </div>
         {% endif %}
-        <div id="results" class="box small-12 articles">
+        <div class="box small-12">
             <section>
                 <h3>Articles</h3>
                 <div class="table-scroll">
-                <table>
+                <table id="articles">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -63,18 +63,14 @@
                                         <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                     {% endif %}
                                 </td>
-                                <td>[Section]</td>
-                                <td>[Stage]</td>
+                                <td>{{ article.section.name }}</td>
+                                <td>{{ article.stage }}</td>
                                 {% if not journal %}
                                     <td>{{ article.journal.name }}</td>
                                 {% endif %}
                                 <td>[Action Date]</td>
                                 <td>[Status]</td>
-                                <td>
-                                {% if article.primary_issue %}
-                                    {{ article.primary_issue.pretty_issue_identifier }}
-                                {% endif %}
-                                </td>
+                                <td>[Notes]</td>
                             </form>
                         </tr>
                         {% empty %}
@@ -86,9 +82,6 @@
                 </table>
                 </div>
             </section>
-            <div class="row">
-                {% include "common/elements/pagination.html" with form_id=facet_form.id %}
-            </div>
         </div>
         {% if actions %}
             <div class="box small-12 small-8 large-6">
