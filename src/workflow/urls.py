@@ -15,4 +15,7 @@ urlpatterns = [
     re_path(r'^article/(?P<article_id>\d+)/move_to_next/$',
         views.move_to_next_workflow_element,
         name='move_to_next_workflow_element'),
+    url(r'^overview/$',
+        views.workflow_overview,
+        name='workflow_overview'),
 ]

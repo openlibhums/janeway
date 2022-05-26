@@ -107,7 +107,6 @@ def move_to_next_workflow_element(request, article_id):
     )
 
 @has_journal
-@editor_user_required
 def workflow_overview(request):
     article_list = submission_models.Article.objects.exclude(
         stage=submission_models.STAGE_UNSUBMITTED
