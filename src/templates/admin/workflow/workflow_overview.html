@@ -51,12 +51,9 @@
                 </section>
             </div>
         {% endif %}
-        <div id="results" class="box small-12">
+        <div id="results" class="box small-12 articles">
             <section>
-                <h3>Results</h3>
-                <p>
-                    {{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }}
-                </p>
+                <h3>Articles</h3>
                 <div class="table-scroll">
                 <table>
                     <thead>
@@ -141,3 +138,7 @@
     </div>
 </div>
 {% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#articles" %}
+{% endblock js %}
