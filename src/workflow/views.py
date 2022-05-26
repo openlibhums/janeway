@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
 
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
@@ -104,3 +105,10 @@ def move_to_next_workflow_element(request, article_id):
         task_object=article,
         **workflow_kwargs,
     )
+
+@has_journal
+@editor_user_required
+def workflow_overview(request):
+
+
+    return HttpResponse('')
