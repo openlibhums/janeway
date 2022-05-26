@@ -39,14 +39,15 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th style="max-width: 10%">Title</th>
+                            <th>Title</th>
+                            <th style="width: 15%">Section</th>
+                            <th style="width: 15%">Stage</th>
+                            <th style="width: 15%">Action Date</th>
                             {% if not journal %}
-                                <th style="max-width: 10%">Journal</th>
+                                <th style="width: 15%">Journal</th>
                             {% endif %}
-                            <th style="max-width: 10%">Status</th>
-                            <th style="max-width: 10%">Notes</th>
-                            <th style="max-width: 10%">Pub Date</th>
-                            <th style="max-width: 10%">Primary Issue</th>
+                            <th style="width: 15%">Status</th>
+                            <th style="width: 15%">Notes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,20 +63,13 @@
                                         <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                     {% endif %}
                                 </td>
+                                <td>[Section]</td>
+                                <td>[Stage]</td>
                                 {% if not journal %}
                                     <td>{{ article.journal.name }}</td>
                                 {% endif %}
-                                <td>
-                                </td>
-                                <td>
-
-
-                                </td>
-                                <td>
-                                {% if article.date_published %}
-                                    {{ article.date_published }}
-                                {% endif %}
-                                </td>
+                                <td>[Action Date]</td>
+                                <td>[Status]</td>
                                 <td>
                                 {% if article.primary_issue %}
                                     {{ article.primary_issue.pretty_issue_identifier }}
