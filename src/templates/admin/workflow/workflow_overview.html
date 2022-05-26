@@ -1,6 +1,5 @@
 {% extends "admin/core/base.html" %}
 
-{% load classname %}
 {% load fqdn %}
 
 {% block title %}Workflow Overview{% endblock title %}
@@ -25,27 +24,8 @@
                 <section>
                     <h3>Filters</h3>
                     <div class="row small-12">
-                        <form method="GET" id={{ facet_form.id }}>
-                            {% for field in facet_form %}
-                                <div class="columns small-12 medium-6">
-                                    <fieldset style="padding-bottom: 24px">
-                                        <legend>{{ field.label }}</legend>
-                                        {% with field.field.widget|classname as widgetclass %}
-                                            {% if widgetclass == 'CheckboxSelectMultiple' %}
-                                                {% for checkbox in field %}
-                                                    <label for="{{ checkbox.id_for_label }}">
-                                                        {{ checkbox.tag }}
-                                                        {{ checkbox.choice_label }}
-                                                    </label>
-                                                {% endfor %}
-                                            {% elif widgetclass == 'HTMLDateInput' %}
-                                                {{ field }}
-                                            {% endif %}
-                                        {% endwith %}
-                                    </fieldset>
-                                </div>
-                            {% endfor %}
-                        </form>
+                    
+
                     </div>
                     <button form="{{ facet_form.id }}" action="" class="button" type="submit">Apply</button>
                 </section>
@@ -79,14 +59,13 @@
                                     {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
                                         <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
                                     {% else %}
-                                        <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                        <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                     {% endif %}
                                 </td>
                                 {% if not journal %}
                                     <td>{{ article.journal.name }}</td>
                                 {% endif %}
                                 <td>
-                                    {{  }}
                                 </td>
                                 <td>
 
