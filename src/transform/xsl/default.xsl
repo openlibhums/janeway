@@ -3360,11 +3360,11 @@
     <xsl:template match="app//sec//title">
         <h3>
             <xsl:if test="preceding-sibling::label"><xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-            
+
         </h3>
     </xsl:template>
-   
-  
+
+
     <!-- START - general format -->
 
     <!-- list elements start-->
@@ -3391,8 +3391,17 @@
                     <xsl:when test="@list-type = 'order'">
                         <ol>
                             <xsl:attribute name="class">
-                                <xsl:value-of select="'list-ord'"/>
+                                <xsl:value-of select="'list-order'"/>
                             </xsl:attribute>
+
+                            <xsl:if test="@continued-from">
+                                <xsl:variable name="count-list-items">
+                                  <xsl:number count="list-item"  from="list[@id=@continued-from]" level="any"/>
+                                </xsl:variable>
+                                <xsl:attribute name="start">
+                                  <xsl:value-of select="$count-list-items + 1"/>
+                                </xsl:attribute>
+                            </xsl:if>
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
