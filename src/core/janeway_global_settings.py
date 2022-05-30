@@ -117,7 +117,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.SiteSettingsMiddleware',
     'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
-    'cron.middleware.CronMiddleware',
+    # 'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'core.middleware.PressMiddleware',
