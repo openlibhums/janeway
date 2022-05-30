@@ -16,6 +16,7 @@ class IdentifierForm(forms.ModelForm):
         )
 
     def clean(self):
+        super().clean()
         cleaned_data = self.cleaned_data
         id_type = self.cleaned_data.get('id_type')
         identifier = self.cleaned_data.get('identifier')
