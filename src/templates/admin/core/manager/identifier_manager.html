@@ -106,9 +106,9 @@
                                 <td>
                                     {% if article.get_doi_object %}
                                         <a class="small button" href="{% external_journal_url article.journal 'show_doi' article.pk article.get_doi_object.pk %}">
-                                            {% if article.get_doi_object.crossref_status.latest_deposit %}
+                                            {% if article.get_doi_object.crossref_status.latest_deposit.document %}
                                                 View XML
-                                            {% else %}
+                                            {% elif article.get_doi_object %}
                                                 Preview XML
                                             {% endif %}
                                         </a>

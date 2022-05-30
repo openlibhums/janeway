@@ -143,6 +143,8 @@ def show_doi(request, article_id, identifier_id):
 
     try:
         document = identifier.crossref_status.latest_deposit.document
+        if not document:
+            raise AttributeError
         return HttpResponse(document, content_type="application/xml")
     except AttributeError:
         template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))

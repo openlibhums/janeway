@@ -5,23 +5,8 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
-def migrate_current_crossref_deposit_identifiers(apps, schema_editor):
-    CrossrefDeposit = apps.get_model("identifiers", "CrossrefDeposit")
-    for crossref_deposit in CrossrefDeposit.objects.all():
-        if crossref_deposit.identifier:
-            CrossrefStatus = apps.get_model("identifiers", "CrossrefStatus")
-            crossref_status = CrossrefStatus(
-                identifier=crossref_deposit.identifier
-            )
-            crossref_status.deposits.add(crossref_deposit)
-            crossref_status.update_status()
-            crossref_status.save()
-
-            crossref_deposit.identifier.remove()
-            crossref_deposit.save()
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('identifiers', '0006_crossrefdeposit'),
     ]
@@ -64,5 +49,4 @@ class Migration(migrations.Migration):
             name='identifier',
             field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='identifiers.Identifier'),
         ),
-        migrations.RunPython(migrate_current_crossref_deposit_identifiers, reverse_code=migrations.RunPython.noop),
     ]
