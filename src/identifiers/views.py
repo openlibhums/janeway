@@ -90,13 +90,20 @@ def manage_identifier(request, article_id, identifier_id=None):
         article=article,
     ) if identifier_id else None
 
-    form = forms.IdentifierForm(instance=identifier)
+    form = forms.IdentifierForm(
+        instance=identifier,
+        article=article,
+    )
 
     if request.POST:
-        form = forms.IdentifierForm(request.POST, instance=identifier)
+        form = forms.IdentifierForm(
+            request.POST,
+            instance=identifier,
+            article=article,
+        )
 
         if form.is_valid():
-            form.save(article=article)
+            form.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
