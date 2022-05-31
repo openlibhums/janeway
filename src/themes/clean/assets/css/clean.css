@@ -421,3 +421,7 @@ header svg {
 .article-table-sm td {
   padding: 0.3rem;
 }
+
+#main_article {
+    margin-top: 30px;
+}
