@@ -13,15 +13,15 @@
     </div>
 
     {% for group in editorial_groups %}
-        <div class="row">
+        <div class="row eq-height-row">
             <div class="col m12 default-li">
                 <h2>{{ group.name }}</h2>
                 {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
             </div>
             {% for member in group.members %}
                 <div class="col s12 m3">
-                    <div class="card editorial-card">
-                        {% if journal_settings.general.enable_editorial_images %}
+                    <div class="card editorial-card eq-height-col">
+                        {% if journal_settings.styling.enable_editorial_images %}
                             <div class="card-image">
                                 <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
                             </div>
@@ -42,9 +42,13 @@
                     </div>
                 </div>
                 {% if forloop.counter|divisibleby:4 %}</div>
-                <div class="row">{% endif %}
+                <div class="row eq-height-row">{% endif %}
             {% endfor %}
         </div>
     {% endfor %}
 
 {% endblock body %}
+
+{% block js %}
+    <script src="{% static "common/js/material-eq-height.js" %}"></script>
+{% endblock %}
