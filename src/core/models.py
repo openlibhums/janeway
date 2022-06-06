@@ -903,7 +903,7 @@ class File(AbstractLastModifiedModel):
         FileTextModel = swapper.load_model("core", "FileText")
         preprocessed_text = FileTextModel.preprocess_contents(parsed_text)
         if self.text:
-            file_text_obj.update_contents(preprocessed_text)
+            self.text.update_contents(preprocessed_text)
             indexed = True
         else:
             file_text_obj = FileTextModel.objects.create(
@@ -936,7 +936,7 @@ class AbstractFileText(models.Model):
     def preprocess_contents(text, lang=None):
         return text
 
-    def update_contents(text, lang=None):
+    def update_contents(self, text, lang=None):
         self.contents = self.preprocess_contents(text)
         self.save()
 

@@ -378,6 +378,30 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             date_published__lte=timezone.now()
         )
 
+    def mysql_search(self, search_term, search_filters, site=None):
+        queryset = self.get_queryset().none()
+        if not search_term or not any(search_filters.values()):
+            return queryset
+        querysets = []
+        if search_filters.get('title'):
+            querysets.append(self.get_queryset().filter(title__search=search_term))
+        if search_filters.get('authors'):
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__first_name__search=search_term))
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__last_name__search=search_term))
+        if search_filters.get("abstract"):
+            querysets.append(self.get_queryset().filter(abstract__search=search_term))
+        if search_filters.get('keywords'):
+            querysets.append(self.get_queryset().filter(
+                keywords__word__search=search_term))
+        if search_filters.get("full_text"):
+            querysets.append(self.get_queryset().filter(
+                galley__file__text__contents__search=search_term))
+        for search_queryset in querysets:
+            queryset |= search_queryset
+        return queryset
+
     def postgres_search(self, search_term, search_filters, site=None):
         queryset = self.get_queryset()
         if not search_term or not any(search_filters.values()):
@@ -399,16 +423,15 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         vectors = []
         if search_filters.get('title'):
             vectors.append(SearchVector('title', weight="A"))
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector('abstract', weight="B"))
         if search_filters.get('authors'):
             vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
             vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
         if search_filters.get('keywords'):
-            vectors.append(SearchVector('galley__file__text__contents', weight="C"))
-        if search_filters.get("abstract"):
-            vectors.append(SearchVector('frozenauthor__first_name', weight="D"))
+            vectors.append(SearchVector('keywords__word', weight="C"))
         if search_filters.get("full_text"):
             vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
-            #lookups['galley__file__text__contents__search'] = search_term
         if vectors:
             vector = vectors[0]
             for v in vectors[1:]:
@@ -416,7 +439,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             query = SearchQuery(search_term)
             relevance = SearchRank(vector, query)
             annotations["relevance"] = relevance
-            lookups["relevance__gte"] = 0.1
+            # Since we weight file contents as 'D', the returned relevance
+            # values can range between .01 and .09
+            lookups["relevance__gte"] = 0.01
 
         if search_filters.get('ORCID'):
             lookups['frozenauthor__author__orcid'] = search_term

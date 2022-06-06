@@ -487,17 +487,18 @@ class SearchLookup(PGSearchLookup):
 
     def process_lhs(self, compiler, connection):
         if connection.vendor != 'postgresql':
-            return Lookup.process_lhs(self, compiler, connection)
+            return models.Lookup.process_lhs(self, compiler, connection)
         else:
             return super().process_lhs(compiler, connection)
 
     def process_rhs(self, compiler, connection):
         if connection.vendor != 'postgresql':
-            return Lookup.process_rhs(self, compiler, connection)
+            return models.Lookup.process_rhs(self, compiler, connection)
         else:
             return super().process_rhs(compiler, connection)
 
 SearchVectorField.register_lookup(SearchLookup)
+models.CharField.register_lookup(SearchLookup)
 
 
 class BaseSearchManagerMixin(Manager):
@@ -544,7 +545,7 @@ class BaseSearchManagerMixin(Manager):
     def postgres_search(self, search_term, search_filter, site=None):
         return self._search(search_term, search_filters, site)
 
-    def mysql_search(self, search_term, search_filter, site=None):
+    def mysql_search(self, search_term, search_filters, site=None):
         return self._search(search_term, search_filters, site)
 
     def get_search_lookups(self):
