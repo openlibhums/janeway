@@ -16,6 +16,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='PGFileText',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('contents', django.contrib.postgres.search.SearchVectorField(blank=True, editable=False, null=True)),
+            ],
+            options={
+                'abstract': False,
+                'required_db_vendor': 'postgresql',
+            },
+        ),
+        migrations.CreateModel(
             name='FileText',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -24,20 +35,13 @@ class Migration(migrations.Migration):
                 'swappable': 'CORE_FILETEXT_MODEL',
             },
         ),
-        migrations.CreateModel(
-            name='PGFileText',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('contents', django.contrib.postgres.search.SearchVectorField(blank=True, editable=False, null=True)),
-            ],
-            options={
-                'abstract': False,
-            },
-        ),
         migrations.AddField(
             model_name='file',
             name='text',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.CORE_FILETEXT_MODEL),
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+            to=settings.CORE_FILETEXT_MODEL,
+            related_name='file',
+            ),
         ),
         migrations.AlterField(
             model_name='account',

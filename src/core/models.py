@@ -749,7 +749,8 @@ class File(AbstractLastModifiedModel):
         blank=True,
     )
     text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
-        blank=True, null=True
+        blank=True, null=True,
+        related_name="file",
     )
 
     class Meta:
@@ -952,6 +953,9 @@ class FileText(AbstractFileText):
 
 class PGFileText(AbstractFileText):
     contents = SearchVectorField(blank=True, null=True, editable=False)
+
+    class Meta:
+        required_db_vendor = "postgresql"
 
 
     @staticmethod
