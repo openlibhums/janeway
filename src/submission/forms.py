@@ -454,7 +454,7 @@ def utility_clean_orcid(form, field_name='orcid'):
             orcid = result.group(0)
         else:
             form.add_error(
-                'orcid',
+                field_name,
                 'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
                 ' 0000-0000-0000-0000',
             )
