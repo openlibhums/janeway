@@ -1891,9 +1891,15 @@ def sitemap(request, issue_id=None):
 
     raise Http404()
 
-
 @decorators.frontend_enabled
 def search(request):
+    if settings.ENABLE_FULL_TEXT_SEARCH:
+        return full_text_search(request)
+    else:
+        return old_search(request)
+
+@decorators.frontend_enabled
+def full_text_search(request):
     """ Allows a user to search for articles using various filters
     :param request: HttpRequest object
     :return: HttpResponse object
@@ -1904,7 +1910,7 @@ def search(request):
     sort = 'title'
     articles = []
 
-    search_term, keyword, sort, form, redir = logic.handle_search_controls(
+    search_term, keyword, _, form, redir = logic.handle_search_controls(
         request,
     )
     if search_term:
@@ -1913,13 +1919,12 @@ def search(request):
             search_term, form.get_search_filters(),
         )
 
-    template = 'journal/search.html'
+    template = 'journal/full-text-search.html'
     context = {
         'articles': articles,
         'article_search': search_term,
         'keyword': keyword,
         'form': form,
-        'sort': sort,
     }
 
     return render(request, template, context)

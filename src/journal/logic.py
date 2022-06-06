@@ -423,10 +423,11 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
         sort = request.GET.get('sort', 'title')
+        if sort == "relevance":
+            sort = 'title'
         form = SearchForm(request.GET)
 
         return search_term, keyword, sort, form, None
-
 
 
 def set_search_GET_variables(search_term=False, keyword=False, sort='title'):

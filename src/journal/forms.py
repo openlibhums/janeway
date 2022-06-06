@@ -115,6 +115,11 @@ class SearchForm(forms.Form):
     orcid = LeftBooleanField(label=_("Search ORCIDs"), required=False)
     sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not settings.ENABLE_FULL_TEXT_SEARCH:
+            self.fields["sort"].choices = SEARCH_SORT_OPTIONS[1:]
+
     def get_search_filters(self):
         """ Generates a dictionary of search_filters from a search form"""
         return {
