@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import re
+
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -247,7 +249,6 @@ class AuthorForm(forms.ModelForm):
             'password',
             'username',
             'roles',
-
         )
 
         widgets = {
@@ -263,7 +264,6 @@ class AuthorForm(forms.ModelForm):
             'impactstory': forms.TextInput(attrs={'placeholder': 'ImpactStory profile'}),
             'orcid': forms.TextInput(attrs={'placeholder': 'ORCID ID'}),
             'email': forms.TextInput(attrs={'placeholder': 'Email address'}),
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -271,6 +271,9 @@ class AuthorForm(forms.ModelForm):
         self.fields['password'].required = False
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
+
+    def clean_orcid(self):
+        return utility_clean_orcid(self)
 
 
 class FileDetails(forms.ModelForm):
@@ -342,6 +345,9 @@ class EditFrozenAuthor(forms.ModelForm):
                 pass
             obj.save()
         return obj
+
+    def clean_frozen_orcid(self):
+        return utility_clean_orcid(self, field_name='frozen_orcid')
 
 
 class IdentifierForm(forms.ModelForm):
@@ -432,3 +438,25 @@ class ProjectedIssueForm(forms.ModelForm):
     class Meta:
         model = models.Article
         fields = ('projected_issue',)
+
+
+def utility_clean_orcid(form, field_name='orcid'):
+    """
+    Utility function that cleans an ORCID ID.
+    """
+    orcid = form.cleaned_data[field_name]
+
+    if orcid:
+        orcid_regex = re.compile('([0]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
+        result = orcid_regex.search(orcid)
+
+        if result:
+            orcid = result.group(0)
+        else:
+            form.add_error(
+                'orcid',
+                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000',
+            )
+
+    return orcid
