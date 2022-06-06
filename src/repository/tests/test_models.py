@@ -21,17 +21,12 @@ class TestModels(TestCase):
         self.request.press = self.press
         self.request.journal = self.journal_one
         self.article_one = helpers.create_article(self.journal_one)
-        self.repository = helpers.create_repository(self.press, [], [])
+        self.repository, self.subject = helpers.create_repository(self.press, [], [])
 
         self.section = sm.Section.objects.filter(
             journal=self.journal_one,
         ).first()
 
-        self.subject = rm.Subject.objects.create(
-            repository=self.repository,
-            name='Test Subject',
-            enabled=True,
-        )
         self.preprint_author = helpers.create_user(
             username='repo_author@janeway.systems',
         )
