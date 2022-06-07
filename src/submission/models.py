@@ -371,12 +371,23 @@ class DynamicChoiceField(models.CharField):
 
 
 class ArticleSearchManager(BaseSearchManagerMixin):
+    SORT_KEYS = {
+        "-title",
+        "title",
+        "date_published",
+        "-date_published",
+    }
 
     def search(self, *args, **kwargs):
+        sort = kwargs.pop("sort", None)
         queryset = super().search(*args, **kwargs)
+        if sort and sort in self.SORT_KEYS:
+            queryset = queryset.order_by(sort)
+
         return queryset.filter(
             date_published__lte=timezone.now()
         )
+
 
     def mysql_search(self, search_term, search_filters, site=None):
         queryset = self.get_queryset().none()

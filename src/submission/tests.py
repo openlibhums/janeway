@@ -505,6 +505,7 @@ class SubmissionTests(TestCase):
                                        '2025 • Fall 2025 • 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_full_text_search(self):
         text_to_search = """
             Exceeding reaction chamber thermal limit.
@@ -512,6 +513,10 @@ class SubmissionTests(TestCase):
             Force fields have been established on all turbo lifts and crawlways.
             Computer, run a level-two diagnostic on warp-drive systems.
         """
+        from django.db import connection
+        if connection.vendor == "sqlite":
+            # No native support for full text search in sqlite
+            return
         needle = "turbo lifts"
 
         article = models.Article.objects.create(
@@ -519,7 +524,7 @@ class SubmissionTests(TestCase):
             title="Testing the search of articles",
             date_published=dateparser.parse("2020-01-01"),
         )
-        other_article = models.Article.objects.create(
+        _other_article = models.Article.objects.create(
             journal=self.journal_one,
             title="This article should not appear",
             date_published=dateparser.parse("2020-01-01"),
@@ -540,6 +545,7 @@ class SubmissionTests(TestCase):
 
         self.assertEqual(result, [article])
 
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_abstract(self):
         text_to_search = """
             Exceeding reaction chamber thermal limit.
@@ -568,6 +574,7 @@ class SubmissionTests(TestCase):
 
         self.assertEqual(result, [article])
 
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_title(self):
         text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
         needle = "warp-drive"
@@ -588,7 +595,6 @@ class SubmissionTests(TestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
-
 
 
 class FrozenAuthorModelTest(TestCase):
