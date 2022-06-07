@@ -47,7 +47,7 @@ six==1.14.0
 sqlparse==0.2.3
 ua-parser==0.7.2
 user-agents==1.0.1
--e git+https://github.com/BirkbeckCTP/django-materialize.git@bcfbfd9150887328dddce965674c84b2b6e6b785#egg=django_materialize
+-e git+https://github.com/BirkbeckCTP/django-materialize.git@d92226dba2aa56de6933db06bbe144253bc08454#egg=django_materialize
 django-hijack==2.1.10
 geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4

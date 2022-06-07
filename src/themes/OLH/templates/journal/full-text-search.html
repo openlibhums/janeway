@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+<section id="content">
+    {% if search_term %}
+        <h5>Searching for: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>Keyword: <i>{{ keyword }}</i></h5>
+    {% endif %}
+
+    <div class="row">
+        <div class="columns large-8">
+            <hr />
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+            {% empty %}
+                <p>No articles to display.</p>
+            {% endfor %}
+
+        </div>
+        <div class="columns large-4">
+            <div class="card">
+                <div class="card-block">
+                    <form method="GET">
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {% include 'elements/forms/errors.html'  with form=form%}
+                                {{ form.as_p }}
+                            {% else %}
+                                You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
+                            {% endif %}
+                        </div>
+                        {% if all_keywords %}
+                        {% endif %}
+                        <div class="form-group">
+                            <button type="submit" class="button">{% trans "Search" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
