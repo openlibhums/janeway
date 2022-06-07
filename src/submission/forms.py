@@ -273,7 +273,16 @@ class AuthorForm(forms.ModelForm):
         self.fields['last_name'].required = True
 
     def clean_orcid(self):
-        return utility_clean_orcid(self)
+        orcid_string = self.cleaned_data.get('orcid')
+        try:
+            return utility_clean_orcid(orcid_string)
+        except ValueError:
+            self.add_error(
+                'orcid',
+                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000',
+            )
+        return orcid_string
 
 
 class FileDetails(forms.ModelForm):
@@ -347,7 +356,16 @@ class EditFrozenAuthor(forms.ModelForm):
         return obj
 
     def clean_frozen_orcid(self):
-        return utility_clean_orcid(self, field_name='frozen_orcid')
+        orcid_string = self.cleaned_data.get('fozen_orcid')
+        orcid, clean_orcid_found = utility_clean_orcid(orcid_string)
+
+        if not clean_orcid_found:
+            self.add_error(
+                'orcid',
+                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000',
+            )
+        return orcid
 
 
 class IdentifierForm(forms.ModelForm):
@@ -440,23 +458,15 @@ class ProjectedIssueForm(forms.ModelForm):
         fields = ('projected_issue',)
 
 
-def utility_clean_orcid(form, field_name='orcid'):
+def utility_clean_orcid(orcid):
     """
     Utility function that cleans an ORCID ID.
     """
-    orcid = form.cleaned_data[field_name]
-
     if orcid:
         orcid_regex = re.compile('([0]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
         result = orcid_regex.search(orcid)
 
         if result:
-            orcid = result.group(0)
-        else:
-            form.add_error(
-                field_name,
-                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000',
-            )
+            return result.group(0)
 
-    return orcid
+    raise ValueError('ORCID is not valid.')
