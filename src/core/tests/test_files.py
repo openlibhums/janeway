@@ -50,7 +50,7 @@ class TestFilesHandler(TestCase):
             """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.2/JATS-journalpublishing1.dtd">
-            <text>test</text>
+            <article>test</article>
             """.strip().encode("utf-8"),
         )
 

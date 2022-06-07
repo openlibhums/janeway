@@ -1910,13 +1910,14 @@ def full_text_search(request):
     sort = 'title'
     articles = []
 
-    search_term, keyword, _, form, redir = logic.handle_search_controls(
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(
         request,
     )
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
             search_term, form.get_search_filters(),
+            sort=form.cleaned_data.get("sort"),
         )
 
     template = 'journal/full-text-search.html'
