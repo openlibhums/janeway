@@ -529,7 +529,7 @@ class Issue(AbstractLastModifiedModel):
     )
 
     code = models.SlugField(
-        max_length=999, null=True, blank=True,
+        max_length=700, null=True, blank=True,
         help_text=ugettext(
             "An optional alphanumeric code (Slug) used to generate a verbose "
             " url for this issue. e.g: 'winter-special-issue'."
