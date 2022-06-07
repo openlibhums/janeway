@@ -421,3 +421,11 @@ header svg {
 .article-table-sm td {
   padding: 0.3rem;
 }
+
+.homepage-element-search-bar input[type="text"] {
+    font-size: 1.5rem;
+}
+
+.homepage-element-search-bar .input-group-text {
+    font-size: 1.5rem;
+}
