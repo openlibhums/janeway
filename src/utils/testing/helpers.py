@@ -92,6 +92,7 @@ def create_journals():
 def create_press():
     return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
 
+
 def create_issue(journal, vol=0, number=0, articles=None):
     issue_type, created = journal_models.IssueType.objects.get_or_create(
         code="issue",

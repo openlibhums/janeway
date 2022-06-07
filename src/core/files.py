@@ -875,25 +875,27 @@ def copy_preprint_file_to_article(preprint, article, manuscript=True):
     """
     from core import models
 
-    filename = str(uuid4()) + str(os.path.splitext(preprint.current_version.file.original_filename)[1])
-    path = copy_file_to_folder(
-        preprint.current_version.file.file.path,
-        filename,
-        article.folder_path(),
-    )
+    if preprint.current_version:
+        filename = str(uuid4()) + str(os.path.splitext(preprint.current_version.file.original_filename)[1])
+        path = copy_file_to_folder(
+            preprint.current_version.file.file.path,
+            filename,
+            article.folder_path(),
+        )
 
-    new_file = models.File.objects.create(
-        mime_type=file_path_mime(path),
-        original_filename=preprint.current_version.file.original_filename,
-        uuid_filename=filename,
-        label='Manuscript File',
-        description='File copied from preprint #{}'.format(str(preprint.pk)),
-        owner=article.owner,
-        is_galley=False,
-        article_id=article.pk
-    )
+        new_file = models.File.objects.create(
+            mime_type=file_path_mime(path),
+            original_filename=preprint.current_version.file.original_filename,
+            uuid_filename=filename,
+            label='Manuscript File',
+            description='File copied from preprint #{}'.format(str(preprint.pk)),
+            owner=article.owner,
+            is_galley=False,
+            article_id=article.pk
+        )
 
-    if manuscript:
-        article.manuscript_files.add(new_file)
+        if manuscript:
+            article.manuscript_files.add(new_file)
 
-    return new_file
+        return new_file
+    return None
