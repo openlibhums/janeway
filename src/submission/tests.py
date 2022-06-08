@@ -523,6 +523,7 @@ class SubmissionTests(TestCase):
             journal=self.journal_one,
             title="Testing the search of articles",
             date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
         )
         _other_article = models.Article.objects.create(
             journal=self.journal_one,
@@ -559,6 +560,7 @@ class SubmissionTests(TestCase):
             journal=self.journal_one,
             title="Test searching abstract",
             date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
             abstract=text_to_search,
         )
         other_article = models.Article.objects.create(
@@ -583,6 +585,7 @@ class SubmissionTests(TestCase):
             journal=self.journal_one,
             title=text_to_search,
             date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
         )
         other_article = models.Article.objects.create(
             journal=self.journal_one,
