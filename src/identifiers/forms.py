@@ -44,6 +44,9 @@ class IdentifierForm(forms.ModelForm):
             identifier=identifier,
         )
 
+        if self.instance:
+            idents = idents.exclude(id=self.instance.id)
+
         if id_type == 'doi' and idents.exists():
             self.add_error(
                 'identifier',
