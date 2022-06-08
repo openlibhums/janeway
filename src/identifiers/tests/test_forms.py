@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from identifiers import forms
+from identifiers import forms, models
 from utils.testing import helpers
 from utils.setting_handler import save_setting
 
@@ -171,5 +171,58 @@ class TestForms(TestCase):
         self.assertTrue(
             form_two.is_valid(),
         )
+
+    def test_edit_existing_ident(self):
+        """
+        Tests that we can edit an existing identifier.
+        """
+        ident = models.Identifier.objects.create(
+            id_type='pubid',
+            identifier='xyz',
+            enabled=True,
+            article=self.article_one,
+        )
+        form = forms.IdentifierForm(
+            {
+                'id_type': 'pubid',
+                'identifier': 'xyz',
+                'enabled': False,
+            },
+            instance=ident,
+            article=self.article_one,
+        )
+        self.assertTrue(
+            form.is_valid(),
+        )
+
+    def test_edit_existing_ident_duplicate(self):
+        """
+        Checks that we cannot save an existing identifier that matches another.
+        """
+        ident_one = models.Identifier.objects.create(
+            id_type='doi',
+            identifier='10.1234/1234',
+            enabled=True,
+            article=self.article_one,
+        )
+        ident_two = models.Identifier.objects.create(
+            id_type='doi',
+            identifier='10.1234/9876',
+            enabled=True,
+            article=self.article_two,
+        )
+        form = forms.IdentifierForm(
+            {
+                'id_type': 'doi',
+                'identifier': '10.1234/9876',
+                'enabled': True,
+            },
+            instance=ident_one,
+            article=self.article_one,
+        )
+        self.assertFalse(
+            form.is_valid(),
+        )
+
 
 
