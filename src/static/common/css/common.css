@@ -257,15 +257,24 @@ article .list-romanlower {
 article .list-romanupper {
     list-style-type: upper-roman;
 }
-
 .no-list-type {
     list-style-type: none;
 }
-
 .no-list-type:first-child p {
     display: inline;
 }
-
 .jats-list-type {
     margin-left: -1.20rem;
+}
+.jats-addr {
+    line-height: 18px;
+}
+.jats-addr-institution {
+    display: block;
+}
+.jats-addr-line {
+    display: block;
+}
+.jats-addr-line-other {
+    display: block;
 }
