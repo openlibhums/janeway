@@ -155,9 +155,9 @@ TEMPLATES = [
                 'django.template.context_processors.i18n'
             ],
             'loaders': [
+                'django.template.loaders.app_directories.Loader',
                 'utils.template_override_middleware.Loader',
                 'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
             ],
             'builtins': [
                 'core.templatetags.fqdn',
