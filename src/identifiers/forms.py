@@ -42,8 +42,6 @@ class IdentifierForm(forms.ModelForm):
         idents = models.Identifier.objects.filter(
             id_type=id_type,
             identifier=identifier,
-        ).exclude(
-            article=self.article,
         )
 
         if id_type == 'doi' and idents.exists():
@@ -57,9 +55,10 @@ class IdentifierForm(forms.ModelForm):
             ).exists():
                 self.add_error(
                     'identifier',
-                    'This identifier already exists for another Article on this Jouranl.',
+                    'This identifier already exists on: {}.'.format(
+                        " ".join([ident.article.title for ident in idents])
+                    ),
                 )
-
 
         return cleaned_data
 
