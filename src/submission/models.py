@@ -385,7 +385,8 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             queryset = queryset.order_by(sort)
 
         return queryset.filter(
-            date_published__lte=timezone.now()
+            date_published__lte=timezone.now(),
+            stage=STAGE_PUBLISHED,
         )
 
 
@@ -429,21 +430,39 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         return queryset.order_by("-relevance")
 
     def build_postgres_lookups(self, search_term, search_filters):
+        """ Build the necessary lookup expressions based on the provided filters
+
+        Each Filter is provided an arbitrary weight:
+            +---------------+---------+---------+
+            | column        | Weight  | Factor  |
+            +===============+=========+=========+
+            | Title         | A       | 1       |
+            | Keyword       | B       | .4      |
+            | Author names  | B       | .4      |
+            | Abstract      | C       | .2      |
+            | Galley text   | D       | .1      |
+            +---------------+---------+---------+
+        Each result is annotated with a 'relevance' value that will be factored
+        using the above weights. The results are then sorted based on relevance
+        which will have an impact only when multiple search filters are
+        combined.
+        """
         lookups = {}
         annotations = {"relevance": models.Value(1.0, models.FloatField())}
         vectors = []
         if search_filters.get('title'):
             vectors.append(SearchVector('title', weight="A"))
-        if search_filters.get("abstract"):
-            vectors.append(SearchVector('abstract', weight="B"))
+        if search_filters.get('keywords'):
+            vectors.append(SearchVector('keywords__word', weight="B"))
         if search_filters.get('authors'):
             vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
             vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
-        if search_filters.get('keywords'):
-            vectors.append(SearchVector('keywords__word', weight="C"))
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector('abstract', weight="C"))
         if search_filters.get("full_text"):
             vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
         if vectors:
+            # Combine all vectors
             vector = vectors[0]
             for v in vectors[1:]:
                 vector += v
@@ -451,12 +470,12 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             relevance = SearchRank(vector, query)
             annotations["relevance"] = relevance
             # Since we weight file contents as 'D', the returned relevance
-            # values can range between .01 and .09
+            # values can range between .01 and .1
             lookups["relevance__gte"] = 0.01
 
         if search_filters.get('ORCID'):
             lookups['frozenauthor__author__orcid'] = search_term
-            lookups['frozenauthor__orcid'] = search_term
+            lookups['frozenauthor__frozen_orcid'] = search_term
         return lookups, annotations
 
 
