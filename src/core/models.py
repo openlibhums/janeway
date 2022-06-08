@@ -977,7 +977,7 @@ class PGFileText(AbstractFileText):
 
 @receiver(models.signals.pre_save, sender=File)
 def update_file_index(sender, instance, **kwargs):
-    """ Updates the indexed conmtents in the database """
+    """ Updates the indexed contents in the database """
     if not instance.pk:
         return False
 
