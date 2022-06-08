@@ -14,3 +14,4 @@ class CoreConfig(AppConfig):
     def ready(self):
         from core.model_utils import SearchLookup
         models.CharField.register_lookup(SearchLookup)
+        models.TextField.register_lookup(SearchLookup)
