@@ -129,6 +129,7 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('The tiny round or square image appearing in browser '
                            'tabs before the webpage title'),
     )
+    # DEPRECATED "description" in favour of "journal_description" setting
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
     keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
@@ -528,7 +529,7 @@ class Issue(AbstractLastModifiedModel):
     )
 
     code = models.SlugField(
-        max_length=999, null=True, blank=True,
+        max_length=700, null=True, blank=True,
         help_text=ugettext(
             "An optional alphanumeric code (Slug) used to generate a verbose "
             " url for this issue. e.g: 'winter-special-issue'."

@@ -108,6 +108,29 @@
                                 <li>{{ note.text|safe }}</li>
                             {% endfor %}
                         </ul>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
+
+                    {% if article.is_published and galleys %}
+                        <div class="show-on-small hide-on-med-and-up">
+                            <h2>{% trans "Downloads" %}</h2>
+                            <p>
+                                {% for galley in galleys %}
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    <br/>
+                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                        <a target="_blank"
+                                           href="{% url 'article_view_galley' article.id galley.id %}">View
+                                            PDF</a><br/>
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                            <div class="spacer">
+                                <div class="divider"></div>
+                            </div>
+                        </div>
                     {% endif %}
 
                     {% if article.funders.all %}

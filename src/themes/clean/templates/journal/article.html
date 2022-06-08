@@ -86,7 +86,23 @@
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
-                    {{ article.rights | safe }} </p>
+                        {{ article.rights | safe }} </p>
+                {% endif %}
+                {% if article.is_published and galleys %}
+                    <div class="d-lg-none d-xl-none d-md-none">
+                        <p>
+                            <strong>Downloads:</strong><br/>
+                            {% for galley in galleys %}
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                <br/>
+                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                    <a target="_blank"
+                                       href="{% url 'article_view_galley' article.id galley.id %}">View
+                                        PDF</a><br/>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
