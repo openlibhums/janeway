@@ -379,31 +379,28 @@ class ArticleSearchManager(BaseSearchManagerMixin):
     }
 
     def search(self, *args, **kwargs):
-        sort = kwargs.pop("sort", None)
         queryset = super().search(*args, **kwargs)
-        if sort and sort in self.SORT_KEYS:
-            queryset = queryset.order_by(sort)
-
         return queryset.filter(
             date_published__lte=timezone.now(),
             stage=STAGE_PUBLISHED,
         )
 
-
-    def mysql_search(self, search_term, search_filters, site=None):
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
         queryset = self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
         if search_filters.get('title'):
-            querysets.append(self.get_queryset().filter(title__search=search_term))
+            querysets.append(
+                self.get_queryset().filter(title__search=search_term))
         if search_filters.get('authors'):
             querysets.append(self.get_queryset().filter(
                 frozenauthor__first_name__search=search_term))
             querysets.append(self.get_queryset().filter(
                 frozenauthor__last_name__search=search_term))
         if search_filters.get("abstract"):
-            querysets.append(self.get_queryset().filter(abstract__search=search_term))
+            querysets.append(
+                self.get_queryset().filter(abstract__search=search_term))
         if search_filters.get('keywords'):
             querysets.append(self.get_queryset().filter(
                 keywords__word__search=search_term))
@@ -412,9 +409,14 @@ class ArticleSearchManager(BaseSearchManagerMixin):
                 galley__file__text__contents__search=search_term))
         for search_queryset in querysets:
             queryset |= search_queryset
+
+
+        if sort in self.SORT_KEYS:
+            queryset = queryset.order_by(sort)
+
         return queryset
 
-    def postgres_search(self, search_term, search_filters, site=None):
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
         queryset = self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
@@ -427,7 +429,11 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if lookups:
             queryset = queryset.filter(**lookups)
 
-        return queryset.order_by("-relevance")
+        if not sort or sort not in self.SORT_KEYS:
+            sort = "-relevance"
+
+        # Postgresql requires adding the DISTINCT ON column to ORDER BY
+        return queryset.distinct("id").order_by( "id", sort)
 
     def build_postgres_lookups(self, search_term, search_filters):
         """ Build the necessary lookup expressions based on the provided filters

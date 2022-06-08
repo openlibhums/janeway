@@ -504,7 +504,7 @@ models.CharField.register_lookup(SearchLookup)
 class BaseSearchManagerMixin(Manager):
     search_lookups = set()
 
-    def search(self, search_term, search_filters, site=None):
+    def search(self, search_term, search_filters, sort=None, site=None):
         if connection.vendor == "postgresql":
             return self.postgres_search(search_term, search_filters, site)
         elif connection.vendor == "mysql":
@@ -512,7 +512,7 @@ class BaseSearchManagerMixin(Manager):
         else:
             return self._search(search_term, search_filters, site)
 
-    def _search(self, search_term, search_filters, site=None):
+    def _search(self, search_term, search_filters, sort=None, site=None):
         """ This is a copy of search from journal.views.old_search with filters
         """
         articles = self.get_queryset()
@@ -542,11 +542,11 @@ class BaseSearchManagerMixin(Manager):
 
         return articles.distinct()
 
-    def postgres_search(self, search_term, search_filter, site=None):
-        return self._search(search_term, search_filters, site)
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
 
-    def mysql_search(self, search_term, search_filters, site=None):
-        return self._search(search_term, search_filters, site)
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
 
     def get_search_lookups(self):
         return self.search_lookups
