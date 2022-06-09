@@ -1,0 +1,59 @@
+{% extends "admin/core/base.html" %}
+
+{% load static from staticfiles %}
+{% load settings i18n %}
+
+{% block navbar %}
+    {% include "press/nav.html" %}
+{% endblock navbar %}
+
+{% block body %}
+<div class="box">
+    <div class="title-area">
+        <h2>{{ press }} Articles</h2>
+    </div>
+    <div class="content">
+        <table class="small scroll">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th style="width: 25%">Title</th>
+                    <th style="width: 25%">Authors</th>
+                    <th>Journal</th>
+                    <th>Stage</th>
+                    <th>Pub Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in article_list %}
+                <tr>
+                    <td>{{ article.pk }}</td>
+                    <td>
+                        {% if article.stage != 'Rejected' and article.stage != 'Published' %}
+                        <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                        {% else %}
+                         <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                        {% endif %}
+                    </td>
+                    <td>{{ article.author_list }}</td>
+                    <td>{{ article.journal.name }}</td>
+                    <td>{{ article.stage }}</td>
+                    <td>
+                        {% if article.stage == 'Published' %}
+                            {{ article.date_published }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10">No articles to show.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "common/elements/pagination.html" %}
+
+</div>
+{% endblock body %}

@@ -31,6 +31,8 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
 HIJACK_USERS_ENABLED = True
 
+ENABLE_FULL_TEXT_SEARCH = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

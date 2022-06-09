@@ -390,3 +390,38 @@ header svg {
     margin-top: 4px;
     margin-bottom: 4px;
 }
+
+.responsive-img {
+    max-width: 100%;
+}
+
+.article-table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.article-table th,
+.article-table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+.article-table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.article-table tbody + tbody {
+  border-top: 2px solid #dee2e6;
+}
+
+.article-table-sm th,
+.article-table-sm td {
+  padding: 0.3rem;
+}
+
+#main_article {
+    margin-top: 30px;
+}

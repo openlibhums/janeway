@@ -2,10 +2,12 @@ import collections
 import csv
 import io
 import json
+import re
 
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
+from django.db.models import Q
 
 from rest_framework import viewsets, generics
 from rest_framework.decorators import api_view, permission_classes
@@ -28,6 +30,36 @@ def index(request):
     json_content = json.dumps(response_dict)
 
     return HttpResponse(json_content, content_type="application/json")
+
+
+@permission_classes((permissions.IsAdminUser,))
+class AccountViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows staff to see user accounts.
+    """
+    serializer_class = serializers.AccountSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned object to a given user,
+        by filtering against a `email` query parameter in the URL.
+        """
+        queryset = core_models.Account.objects.all()
+        search = self.request.query_params.get('search')
+        escaped = re.escape(search)
+        split_term = [re.escape(word) for word in search.split(" ")]
+        split_term.append(escaped)
+        search_regex = "^({})$".format(
+            "|".join({name for name in split_term})
+        )
+
+        if search is not None:
+            queryset = queryset.filter(
+                Q(email__icontains=search) |
+                Q(first_name__iregex=search_regex) |
+                Q(last_name__iregex=search_regex)
+            )
+        return queryset
 
 
 @permission_classes((api_permissions.IsEditor, ))

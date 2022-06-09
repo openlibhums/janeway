@@ -86,7 +86,23 @@
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
-                    {{ article.rights | safe }} </p>
+                        {{ article.rights | safe }} </p>
+                {% endif %}
+                {% if article.is_published and galleys %}
+                    <div class="d-lg-none d-xl-none d-md-none">
+                        <p>
+                            <strong>Downloads:</strong><br/>
+                            {% for galley in galleys %}
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                <br/>
+                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                    <a target="_blank"
+                                       href="{% url 'article_view_galley' article.id galley.id %}">View
+                                        PDF</a><br/>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
@@ -197,7 +213,7 @@
                 {% endif %}
                 {% for field in article.custom_fields %}
                 <h2>{% trans field.field.name %}</h2>
-                <p>{{ field.answer }}</p>
+                <p>{{ field.answer|safe }}</p>
                 {% endfor %}
                 {% if article.is_published %}
                     {% if not request.journal.disable_metrics_display %}
@@ -238,6 +254,12 @@
                     </ul>
                 {% endif %}
             </div>
+             {% if article_content %}
+            <div class="sticky-top">
+            <h2>{% trans "Table of Contents" %}</h2>
+            <ul id="toc" class="table-of-contents"></ul>
+             {% endif %}
+        </div>
         </div>
     </div>
 
@@ -254,6 +276,7 @@
 {% block js %}
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+    <script src="{% static 'material/toc.js' %}"></script>
     {% hook 'article_js_block' %}
      <script>
     $('.table-expansion').each(function(){

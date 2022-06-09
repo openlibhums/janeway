@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='issue',
             name='code',
-            field=models.SlugField(blank=True, help_text="An optional alphanumeric code (Slug) used to generate a verbose  url for this issue. e.g: 'winter-special-issue'.", max_length=999, null=True),
+            field=models.SlugField(blank=True, help_text="An optional alphanumeric code (Slug) used to generate a verbose  url for this issue. e.g: 'winter-special-issue'.", max_length=700, null=True),
         ),
         migrations.AlterUniqueTogether(
             name='issue',
