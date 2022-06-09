@@ -412,6 +412,14 @@
                         </div>
                         {% endfor %}
 
+                        {% if article.preprint %}
+                        <div class="section hide-for-small-only">
+                            <h3>{{ article.preprint.repository.object_name }}</h3>
+                            <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
+                            <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
+                        </div>
+                        {% endif %}
+
                         <div class="section hide-for-small-only">
                             <h3>{% trans "File Checksums (MD5)" %}</h3>
                             <ul>

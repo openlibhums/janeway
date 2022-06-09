@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files
+from journal import models as journal_models
 
 
 from utils import (
@@ -1797,4 +1798,73 @@ def delete_preprint_author(request, preprint_id):
             'repository_manager_article',
             kwargs={'preprint_id': preprint.pk},
         )
+    )
+
+
+@is_repository_manager
+def send_preprint_to_journal(request, preprint_id, journal_id=None):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    if journal_id:
+        journal = get_object_or_404(
+            journal_models.Journal,
+            pk=journal_id,
+        )
+    else:
+        journal = None
+
+    form = forms.PreprinttoArticleForm(
+        journal=journal,
+    )
+
+    if request.POST:
+        form = forms.PreprinttoArticleForm(
+            request.POST,
+            journal=journal,
+        )
+        if form.is_valid():
+            article = preprint.create_article(
+                journal=journal,
+                workflow_stage=form.cleaned_data.get('stage'),
+                journal_license=form.cleaned_data.get('license'),
+                journal_section=form.cleaned_data.get('section'),
+                force=form.cleaned_data.get('force'),
+            )
+            if article:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Article {} created in journal {}'.format(
+                        article.pk,
+                        journal.name,
+                    )
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'No article created.',
+                )
+
+            return redirect(
+                reverse(
+                    'repository_manager_article',
+                    kwargs={'preprint_id': preprint.pk},
+                )
+            )
+
+    template = 'repository/send_preprint_to_journal.html'
+    context = {
+        'preprint': preprint,
+        'journal': journal,
+        'form': form,
+        'journals': journal_models.Journal.objects.all().order_by('code'),
+    }
+    return render(
+        request,
+        template,
+        context,
     )
