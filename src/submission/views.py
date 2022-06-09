@@ -21,6 +21,7 @@ from security.decorators import (
     production_user_or_editor_required,
     editor_user_required,
     submission_authorised,
+    article_is_not_submitted
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
@@ -99,6 +100,7 @@ def submit_submissions(request):
 @login_required
 @decorators.submission_is_enabled
 @decorators.funding_is_enabled
+@article_is_not_submitted
 @article_edit_user_required
 @submission_authorised
 def submit_funding(request, article_id):
@@ -150,6 +152,7 @@ def submit_funding(request, article_id):
 
 @login_required
 @decorators.submission_is_enabled
+@article_is_not_submitted
 @article_edit_user_required
 @submission_authorised
 def submit_info(request, article_id):
@@ -227,6 +230,7 @@ def publisher_notes_order(request, article_id):
 
 @login_required
 @decorators.submission_is_enabled
+@article_is_not_submitted
 @article_edit_user_required
 @submission_authorised
 def submit_authors(request, article_id):
@@ -409,6 +413,7 @@ def delete_author(request, article_id, author_id):
 
 @login_required
 @decorators.submission_is_enabled
+@article_is_not_submitted
 @article_edit_user_required
 @submission_authorised
 def submit_files(request, article_id):
@@ -506,6 +511,7 @@ def submit_files(request, article_id):
 
 @login_required
 @decorators.submission_is_enabled
+@article_is_not_submitted
 @article_edit_user_required
 @submission_authorised
 def submit_review(request, article_id):

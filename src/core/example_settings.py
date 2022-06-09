@@ -49,6 +49,7 @@ DATABASES = {
     }
 }
 
+
 # OIDC Settings
 ENABLE_OIDC = False
 OIDC_SERVICE_NAME = 'OIDC Service Name'
@@ -59,3 +60,9 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = ""
 OIDC_OP_TOKEN_ENDPOINT = ""
 OIDC_OP_USER_ENDPOINT = ""
 OIDC_OP_JWKS_ENDPOINT = ''
+
+
+ENABLE_FULL_TEXT_SEARCH = False # Read the docs before enabling full text
+
+# Model used for indexing full text files
+CORE_FILETEXT_MODEL = "core.FileText"  # Use "core.PGFileText" for Postgres

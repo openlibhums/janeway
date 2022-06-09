@@ -20,7 +20,7 @@
 
                         {% for editor in subject.editors.all %}
                             <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
-                                <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout"
+                                <div class="{% if journal_settings.styling.enable_editorial_images %}editorial-team{% endif %} callout"
                                      data-equalizer-watch>
                                         <img class="thumbnail editorial-image" src="
 

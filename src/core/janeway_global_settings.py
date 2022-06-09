@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
 
     # Installed Apps
     'cms',
@@ -518,6 +519,7 @@ if (
 HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
 
+
 # OIDC
 ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
 OIDC_SERVICE_NAME = 'OIDC Service Name'
@@ -539,3 +541,10 @@ if ENABLE_OIDC:
         'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
         'django.contrib.auth.backends.ModelBackend',
     )
+
+    
+CORE_FILETEXT_MODEL = "core.FileText"
+if os.environ.get("DB_VENDOR") == "postgres":
+    CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False
