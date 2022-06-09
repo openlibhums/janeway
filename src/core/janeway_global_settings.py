@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
 
     # Installed Apps
     'cms',
@@ -515,3 +516,9 @@ if (
 # A potentially dangerous feature, this allows superusers to hijack and control a user's account.
 HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+CORE_FILETEXT_MODEL = "core.FileText"
+if os.environ.get("DB_VENDOR") == "postgres":
+    CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False

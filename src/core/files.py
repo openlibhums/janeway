@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from io import StringIO
 import mimetypes as mime
 import os
 from uuid import uuid4
@@ -12,6 +13,7 @@ import shutil
 import magic
 import hashlib
 
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
@@ -20,6 +22,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.views.decorators.cache import patch_cache_control
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfparser import PDFParser
 
 from utils import models as util_models
 from utils.logger import get_logger
@@ -58,6 +66,7 @@ PDF_MIMETYPES = {
     'application/pdf',
     'application/x-pdf',
 }
+
 
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
 CROSSREF_XSL = "NLM.JATS2Crossref.v3.1.1.xsl"
@@ -899,3 +908,52 @@ def copy_preprint_file_to_article(preprint, article, manuscript=True):
 
         return new_file
     return None
+
+  
+def jats_to_text(file_path):
+    text = None
+    with open(file_path, "r") as f:
+        soup = BeautifulSoup(f.read(), "lxml")
+        article = soup.find("article")
+        if article:
+            text = article.findAll(text=True)
+        else:
+            text = soup.findAll(text=True)
+
+    return " ".join(text)
+
+
+def html_to_text(file_path):
+    text = None
+    with open(file_path, "r") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+        body = soup.find("body")
+        if body:
+            body.text
+        else:
+            text = soup.text
+
+    return text
+
+
+def pdf_to_text(file_path):
+    text = StringIO()
+    with open(file_path, 'rb') as file_:
+        pdf_parser = PDFParser(file_)
+        document = PDFDocument(pdf_parser)
+        resource_manager = PDFResourceManager()
+        converter = TextConverter(resource_manager, text, laparams=LAParams())
+        interpreter = PDFPageInterpreter(resource_manager, converter)
+        for page in PDFPage.create_pages(document):
+            interpreter.process_page(page)
+
+    return text.getvalue()
+
+
+MIME_TO_TEXT_PARSER = {}
+for _mime in XML_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = jats_to_text
+for _mime in HTML_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = html_to_text
+for _mime in PDF_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = pdf_to_text

@@ -306,10 +306,6 @@ a:hover .article-title {
     color: white;
 }
 
-.editorial-card {
-    max-height: 420px;
-}
-
 .disp-formula {
     overflow-x: auto;
 }
@@ -673,4 +669,8 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 footer svg {
     height: 90%;
     width: 90%;
+}
+
+strong {
+    font-weight: 650;
 }

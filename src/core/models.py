@@ -15,18 +15,29 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import (
+    connection,
+    models,
+    transaction,
+)
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+import swapper
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField, AbstractLastModifiedModel
+from core.model_utils import (
+    AbstractLastModifiedModel,
+    AbstractSiteModel,
+    PGCaseInsensitiveEmailField,
+    SearchLookup,
+)
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
@@ -738,6 +749,10 @@ class File(AbstractLastModifiedModel):
         'FileHistory',
         blank=True,
     )
+    text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
+        blank=True, null=True,
+        related_name="file",
+    )
 
     class Meta:
         ordering = ('sequence', 'pk')
@@ -860,11 +875,115 @@ class File(AbstractLastModifiedModel):
         else:
             return self.original_filename
 
+    def index_full_text(self, save=True):
+        """ Extracts text from the File and stores it into an indexed model
+
+        Depending on the database backend, preprocessing ahead of indexing varies;
+        As an example, for Postgresql, instead of storing the text as a LOB, a
+        tsvector of the text is generated which is used for indexing. There is no
+        such approach for MySQL, so the text is stored in full and then indexed,
+        which takes significantly more disk space.
+
+        Custom indexing routines can be provided with the swappable model under
+        settings.py `CORE_FILETEXT_MODEL`
+        :return: A bool indicating if the file has been succesfully indexed
+        """
+        indexed = False
+        try:
+            # TODO: Only aricle files are supported at the moment since File
+            # objects don't know the path to the actual file unless you also
+            # know the context (article/preprint/journal...) of the file
+            path = self.self_article_path()
+            if not path:
+                return indexed
+            text_parser = files.MIME_TO_TEXT_PARSER[self.mime_type]
+        except KeyError:
+            # We have no support for indexing files of this type yet
+            return indexed
+        parsed_text = text_parser(path)
+        FileTextModel = swapper.load_model("core", "FileText")
+        preprocessed_text = FileTextModel.preprocess_contents(parsed_text)
+        if self.text:
+            self.text.update_contents(preprocessed_text)
+            indexed = True
+        else:
+            file_text_obj = FileTextModel.objects.create(
+                contents=preprocessed_text,
+                file=self,
+            )
+            self.text = file_text_obj
+            if save:
+                self.save()
+            indexed = True
+
+        return indexed
+
+
     def __str__(self):
         return u'%s' % self.original_filename
 
     def __repr__(self):
         return u'%s' % self.original_filename
+
+
+class AbstractFileText(models.Model):
+    contents = models.TextField(blank=True, null=True)
+    date_populated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        return text
+
+    def update_contents(self, text, lang=None):
+        self.contents = self.preprocess_contents(text)
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.date_populated = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class FileText(AbstractFileText):
+    class Meta:
+        swappable = swapper.swappable_setting('core', 'FileText')
+    pass
+
+
+class PGFileText(AbstractFileText):
+    contents = SearchVectorField(blank=True, null=True, editable=False)
+
+    class Meta:
+        required_db_vendor = "postgresql"
+
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        """ Casts the given text into a postgres TSVector
+
+        The result can be cached so that there is no need to store the original
+        text and also speed up the search queries.
+        The drawback is that the cached TSVector needs to be regenerated
+        whenever the underlying field changes.
+
+        Postgres `to_tsvector()` function normalises the input before handing it
+        over to `tsvector()`.
+        """
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
+        return cursor.fetchone()[0]
+
+
+@receiver(models.signals.pre_save, sender=File)
+def update_file_index(sender, instance, **kwargs):
+    """ Updates the indexed contents in the database """
+    if not instance.pk:
+        return False
+
+    if settings.ENABLE_FULL_TEXT_SEARCH and instance.text:
+        instance.index_full_text(save=False)
 
 
 class FileHistory(models.Model):
