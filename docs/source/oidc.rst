@@ -40,8 +40,6 @@ New Accounts
 ------------
 When a user without an account on Janeway logs in a new active account is generated for them with their Email address as the django username, first name and last name are also copied.
 
-If you want to stop OIDC from creating accounts you can add `OIDC_CREATE_USER = False` to your settings file.
-
 Session Refresh
 ---------------
 It is essential that the SessionRefresh middleware is enabled so that Janeway can detect if the login status of the remote user changes.

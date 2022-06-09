@@ -10,15 +10,15 @@ from django.utils import timezone
 from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
-from utils import merge_settings, transactional_emails
+from utils import merge_settings, transactional_emails, oidc
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
-
 from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
 from utils.install import update_xsl_files
+from core import models as core_models
 
 
 class UtilsTests(TestCase):
@@ -275,7 +275,6 @@ class TestForms(TestCase):
         journal = form.save()
         self.assertTrue(journal.keywords.filter(word=expected).exists())
 
-
     def test_keyword_form_empty_string(self):
 
         class KeywordTestForm(KeywordModelForm):
@@ -290,3 +289,42 @@ class TestForms(TestCase):
         form.is_valid()
         journal = form.save()
         self.assertFalse(journal.keywords.exists())
+
+
+class TestOIDC(TestCase):
+
+    def test_create_user(self):
+        oidc_auth_backend = oidc.JanewayOIDCAB()
+        claims = {
+            'given_name': 'Andy',
+            'family_name': 'Byers',
+            'email': 'andy@janeway.systems',
+        }
+        user = oidc_auth_backend.create_user(claims=claims)
+
+        self.assertEqual(
+            user.email,
+            'andy@janeway.systems',
+        )
+        self.assertEqual(
+            user.username,
+            'andy@janeway.systems',
+        )
+
+    def test_update_user(self):
+        user = core_models.Account.objects.create(
+            first_name='Andy',
+            last_name='Byers',
+            email='andy@janeway.systems',
+        )
+        oidc_auth_backend = oidc.JanewayOIDCAB()
+        claims = {
+            'given_name': 'Andrew',
+            'family_name': 'Byers',
+            'email': 'andy@janeway.systems',
+        }
+        oidc_user = oidc_auth_backend.update_user(user, claims=claims)
+        self.assertEqual(
+            oidc_user.first_name,
+            'Andrew',
+        )
