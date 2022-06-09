@@ -293,6 +293,13 @@ class TestForms(TestCase):
 
 class TestOIDC(TestCase):
 
+    @override_settings(
+        OIDC_OP_TOKEN_ENDPOINT='test.janeway.systems/token',
+        OIDC_OP_USER_ENDPOINT='test.janeway.systems/user',
+        OIDC_RP_CLIENT_ID='test',
+        OIDC_RP_CLIENT_SECRET='test',
+        OIDC_RP_SIGN_ALGO='RS256',
+    )
     def test_create_user(self):
         oidc_auth_backend = oidc.JanewayOIDCAB()
         claims = {
@@ -311,6 +318,13 @@ class TestOIDC(TestCase):
             'andy@janeway.systems',
         )
 
+    @override_settings(
+        OIDC_OP_TOKEN_ENDPOINT='test.janeway.systems/token',
+        OIDC_OP_USER_ENDPOINT='test.janeway.systems/user',
+        OIDC_RP_CLIENT_ID='test',
+        OIDC_RP_CLIENT_SECRET='test',
+        OIDC_RP_SIGN_ALGO='RS256',
+    )
     def test_update_user(self):
         user = core_models.Account.objects.create(
             first_name='Andy',
