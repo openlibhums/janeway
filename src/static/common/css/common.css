@@ -257,6 +257,14 @@ article .list-romanlower {
 article .list-romanupper {
     list-style-type: upper-roman;
 }
+.orcid-button {
+    background-color: rgb(166, 206, 57);
+    color: #fff;
+}
+.orcid-button:hover, .orcid-button:focus {
+  background-color: rgb(138, 178, 22);
+  color: #fff;
+}
 .no-list-type {
     list-style-type: none;
 }
