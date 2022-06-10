@@ -137,7 +137,7 @@
                     </small>
                 </p>
                 {% endif %}
-                <table class="scroll small">
+                <table class="table scroll small">
                     <tr>
                         <th>Label</th>
                         <th>Filename</th>
@@ -315,5 +315,5 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#editors" %}
+    {% include "admin/elements/datatables.html" with target="#editors" page_length=5 %}
 {% endblock js %}
