@@ -47,24 +47,21 @@
                                 Decisions</a>
                         {% endif %}
                         {% if not journal_settings.general.draft_decisions or editor %}
-                                <a href="{% url 'review_decision' article.id 'accept' %}"
-                                   class="button success"><i
-                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept
-                                    Article</a> Accept Article</a>
+                            <a href="{% url 'review_decision' article.id 'accept' %}"
+                               class="button success"><i
+                                    class="fa fa-check-circle action-icon">&nbsp;</i>Accept
+                                Article</a> Accept Article</a>
 
-                                <form method="POST"
-                                      action="{% url 'review_in_review' article.pk %}">{% csrf_token %}
-                                    <button name="new_review_round" type="submit"
-                                            class="button warning"><i
-                                            class="fa fa-plus-circle action-icon">&nbsp;</i>New
-                                        Review Round
-                                    </button>
-                                </form>
+                            <a href="#" data-open="newround"
+                               class="button warning"><i
+                                    class="fa fa-plus-circle action-icon">&nbsp;</i>New
+                                Review Round
+                            </a>
 
-                                <a href="{% url 'review_decision' article.id 'decline' %}"
-                                   class="button alert"><i
-                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
-                                    Article</a>
+                            <a href="{% url 'review_decision' article.id 'decline' %}"
+                               class="button alert"><i
+                                    class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
+                                Article</a>
                             <a href="{% url 'review_request_revisions' article.pk %}"
                                class="button warning"><i
                                     class="fa fa-inbox action-icon">&nbsp;</i>Request
@@ -132,6 +129,7 @@
     {% for review in complete_reviews %}
     {% include "elements/review/decision_form_modal.html" with review=review %}
     {% endfor %}
+    {% include "admin/elements/review/new_round_modal.html" %}
 
 
 

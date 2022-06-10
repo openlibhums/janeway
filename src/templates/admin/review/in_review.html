@@ -226,12 +226,9 @@
                             </a>
                         </li>
                         <li>
-                          <form method="POST">
-                            {% csrf_token %}
-                            <button name="new_review_round" type="submit" class="expanded">
-                                <i class="fa fa-plus-circle action-icon">&nbsp;</i> New Review Round
-                            </button>
-                          </form>
+                            <a href="#" data-open="newround" class="expanded">
+                                <i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -239,6 +236,7 @@
         </div><!--/col-lg-12 -->
     </div>
     {% include "admin/elements/summary_modal.html" %}
+    {% include "admin/elements/review/new_round_modal.html" %}
 
 {% endblock body %}
 
