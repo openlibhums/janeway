@@ -12,7 +12,7 @@
 {% block body %}
     <div class="box">
         {% if not close %}
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="large-12 columns">
                 {% include "elements/forms/errors.html" with form=form %}
@@ -23,9 +23,13 @@
                 </div>
             </div>
             {{ form|foundation }}
-            <div class="large-12 columns">
-                <button name="send" class="success button">Send Email</button>
-                <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                    <input type="file" name="attachment" multiple>
+                    <button name="send" class="success button">Send Email</button>
+                    <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+                </div>
             </div>
             <br/>
         </form>
