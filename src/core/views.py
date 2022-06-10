@@ -46,6 +46,7 @@ from utils.logger import get_logger
 from utils.logic import get_janeway_version
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
+from utils.logic import get_janeway_version
 from repository import models as rm
 from events import logic as events_logic
 
@@ -646,6 +647,7 @@ def manager_index(request):
             journal=request.journal
         ).select_related('section')[:25],
         'support_message': support_message,
+        'version': get_janeway_version(),
     }
     return render(request, template, context)
 
