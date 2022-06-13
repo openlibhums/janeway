@@ -76,6 +76,7 @@ class TestModels(TestCase):
             self.preprint_one.review_set.count(),
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_notify_reviewer(self):
         review = rm.Review.objects.create(
             reviewer=self.reviewer,
@@ -106,6 +107,7 @@ class TestModels(TestCase):
             mail.outbox[0].subject
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_do_review(self):
         review = rm.Review.objects.create(
             reviewer=self.reviewer,
@@ -139,6 +141,7 @@ class TestModels(TestCase):
             'This is my review.',
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_publish_review_comment(self):
         comment = rm.Comment.objects.create(
             author=self.reviewer,
@@ -176,6 +179,7 @@ class TestModels(TestCase):
             ).count()
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_unpublish_review_comment(self):
         comment = rm.Comment.objects.create(
             author=self.reviewer,
@@ -215,6 +219,7 @@ class TestModels(TestCase):
             ).count()
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_edit_review_comment(self):
         comment = rm.Comment.objects.create(
             author=self.reviewer,
