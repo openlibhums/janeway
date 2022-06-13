@@ -135,6 +135,7 @@ class UtilsTests(TestCase):
     def test_press_sitemap_generation(self):
 
         expected_press_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <sitemap>
@@ -162,6 +163,7 @@ class UtilsTests(TestCase):
     @override_settings(URL_CONFIG="path")
     def test_journal_sitemap_generation(self):
         expected_journal_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <sitemap>
@@ -182,6 +184,7 @@ class UtilsTests(TestCase):
     @override_settings(URL_CONFIG="path")
     def test_issue_sitemap_generation(self):
         expected_issue_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <url>
