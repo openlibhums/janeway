@@ -27,9 +27,9 @@
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
                         <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
-                            <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout"
+                            <div class="{% if journal_settings.styling.enable_editorial_images %}editorial-team{% endif %} callout"
                                  data-equalizer-watch>
-                                {% if journal_settings.general.enable_editorial_images %}
+                                {% if journal_settings.styling.enable_editorial_images %}
                                     <img class="thumbnail editorial-image" src="
                                             {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
                                          alt="Photo of Uranus.">

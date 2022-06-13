@@ -24,7 +24,7 @@ class SubjectAdmin(admin.ModelAdmin):
 class PreprintAdmin(admin.ModelAdmin):
     list_display = ('title', 'pk', 'repository', 'doi', 'current_version')
     list_filter = ('repository',)
-    raw_id_fields = ('repository', 'owner', 'subject', )
+    raw_id_fields = ('repository', 'owner', 'subject', 'article', 'submission_file')
     filter_horizontal = ('keywords',)
 
     save_as = True

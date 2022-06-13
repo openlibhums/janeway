@@ -22,36 +22,30 @@
                         <div class="content">
                             {% if element.element_name == 'review' %}
                                 {% for article in unassigned_articles %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='unassigned' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='unassigned' %}
                                 {% endfor %}
                                 {% for article in in_review %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='assigned' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='assigned' %}
                                 {% endfor %}
 
                             {% elif element.element_name == 'copyediting' %}
                                 {% for article in copyediting %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='copyedit' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='copyedit' %}
                                 {% endfor %}
 
                             {% elif element.element_name == 'production' %}
                                 {% for article in production %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='production_unassigned' %}
-                                {% endfor %}
-                                {% for article in production_assigned %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='production_assigned' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='production' production_assigned=production_assigned %}
                                 {% endfor %}
 
                             {% elif element.element_name == 'proofing' %}
                                 {% for article in proofing %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='proof_unassigned' %}
-                                {% endfor %}
-                                {% for article in proofing_assigned %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='proof_assigned' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='proof' proofing_assigned=proofing_assigned %}
                                 {% endfor %}
 
                             {% elif element.element_name == 'prepublication' %}
                                 {% for article in prepubs %}
-                                    {% include "elements/core/kanban/card.html" with article=article type='prepublication' %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='prepublication' %}
                                 {% endfor %}
 
                             {% else %}

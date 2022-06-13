@@ -1,0 +1,65 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }} - Send to Journal{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} - Send to Journal{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    <li>Send Preprint to {% if journal %}{{ journal.name }}{% else %}a Journal{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            {% if preprint.article %}
+                <p><strong>Note:</strong> this {{ request.repository.object_name}} has already been sent to {{ preprint.article.journal.name }} (ID {{ preprint.article.pk }})</p>
+            {% endif %}
+            {% if not journal %}
+                <p>Select a journal to send this preprint to:</p>
+                <table class="table" id="journals">
+                    <thead>
+                    <tr>
+                        <th>Journal Name</th>
+                        <th>Journal Code</th>
+                        <th>Select</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for journal in journals %}
+                        <tr>
+                            <td>{{ journal.name }}</td>
+                            <td>{{ journal.code }}</td>
+                            <td><a href="{% url 'repository_send_to_journal' preprint.pk journal.pk %}"
+                                   class="small button success">Select</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Sending to: {{ journal.name }}. An article record will be created in the given workflow element you select below.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button class="button" name="send_to_journal">
+                                Send to Journal
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    {% include "admin/elements/datatables.html" with target='#journals' sort=0 order='desc'   %}
+{% endblock js %}
+

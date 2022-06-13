@@ -1,4 +1,15 @@
-from django.forms import CharField, ModelForm, DateInput, HiddenInput, Form
+from django.forms import (
+    BooleanField,
+    CharField,
+    CheckboxInput,
+    ModelForm,
+    DateInput,
+    HiddenInput,
+    Form,
+    widgets,
+)
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
@@ -98,3 +109,30 @@ class CaptchaForm(Form):
             captcha = CharField(widget=HiddenInput, required=False)
 
         self.fields["captcha"] = captcha
+
+
+class LeftCheckboxInput(CheckboxInput):
+    """ A checkbox input that renders the actual checkbox left on the text"""
+    def __init__(self, *args, **kwargs):
+        self.choice_label = kwargs.pop('choice_label', '')
+        super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None):
+        attrs = attrs or self.attrs
+        label_attrs = ['class="checkbox-inline"']
+        if 'id' in self.attrs:
+            label_attrs.append(format_html('for="{}"', self.attrs['id']))
+        label_for = mark_safe(' '.join(label_attrs))
+        tag = super(CheckboxInput, self).render(name, value, attrs)
+        return format_html('<label {0}>{1} {2}</label>', label_for, tag, self.choice_label)
+
+
+class LeftBooleanField(BooleanField):
+    widget = LeftCheckboxInput
+    """ A BooleanField that uses the LeftCheckboxInput widget"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.label:
+            if not self.widget.choice_label:
+                self.widget.choice_label = self.label
+            self.label = ''

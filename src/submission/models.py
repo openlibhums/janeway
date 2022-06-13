@@ -12,6 +12,7 @@ from dateutil import parser as dateparser
 from django.urls import reverse
 from django.db import models
 from django.conf import settings
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
@@ -19,9 +20,14 @@ from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
+import swapper
 
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import M2MOrderedThroughField, AbstractLastModifiedModel
+from core.model_utils import(
+    AbstractLastModifiedModel,
+    BaseSearchManagerMixin,
+    M2MOrderedThroughField,
+)
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
@@ -364,6 +370,121 @@ class DynamicChoiceField(models.CharField):
                     raise
 
 
+class ArticleSearchManager(BaseSearchManagerMixin):
+    SORT_KEYS = {
+        "-title",
+        "title",
+        "date_published",
+        "-date_published",
+    }
+
+    def search(self, *args, **kwargs):
+        queryset = super().search(*args, **kwargs)
+        return queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=STAGE_PUBLISHED,
+        )
+
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
+        queryset = self.get_queryset().none()
+        if not search_term or not any(search_filters.values()):
+            return queryset
+        querysets = []
+        if search_filters.get('title'):
+            querysets.append(
+                self.get_queryset().filter(title__search=search_term))
+        if search_filters.get('authors'):
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__first_name__search=search_term))
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__last_name__search=search_term))
+        if search_filters.get("abstract"):
+            querysets.append(
+                self.get_queryset().filter(abstract__search=search_term))
+        if search_filters.get('keywords'):
+            querysets.append(self.get_queryset().filter(
+                keywords__word__search=search_term))
+        if search_filters.get("full_text"):
+            querysets.append(self.get_queryset().filter(
+                galley__file__text__contents__search=search_term))
+        for search_queryset in querysets:
+            queryset |= search_queryset
+
+
+        if sort in self.SORT_KEYS:
+            queryset = queryset.order_by(sort)
+
+        return queryset
+
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
+        queryset = self.get_queryset()
+        if not search_term or not any(search_filters.values()):
+            return queryset.none()
+        if site:
+            queryset = queryset.filter(journal=site)
+        lookups, annotations = self.build_postgres_lookups(
+            search_term, search_filters)
+        if annotations:
+            queryset = queryset.annotate(**annotations)
+        if lookups:
+            queryset = queryset.filter(**lookups)
+
+        if not sort or sort not in self.SORT_KEYS:
+            sort = "-relevance"
+
+        # Postgresql requires adding the DISTINCT ON column to ORDER BY
+        return queryset.distinct("id").order_by( "id", sort)
+
+    def build_postgres_lookups(self, search_term, search_filters):
+        """ Build the necessary lookup expressions based on the provided filters
+
+        Each Filter is provided an arbitrary weight:
+            +---------------+---------+---------+
+            | column        | Weight  | Factor  |
+            +===============+=========+=========+
+            | Title         | A       | 1       |
+            | Keyword       | B       | .4      |
+            | Author names  | B       | .4      |
+            | Abstract      | C       | .2      |
+            | Galley text   | D       | .1      |
+            +---------------+---------+---------+
+        Each result is annotated with a 'relevance' value that will be factored
+        using the above weights. The results are then sorted based on relevance
+        which will have an impact only when multiple search filters are
+        combined.
+        """
+        lookups = {}
+        annotations = {"relevance": models.Value(1.0, models.FloatField())}
+        vectors = []
+        if search_filters.get('title'):
+            vectors.append(SearchVector('title', weight="A"))
+        if search_filters.get('keywords'):
+            vectors.append(SearchVector('keywords__word', weight="B"))
+        if search_filters.get('authors'):
+            vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
+            vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector('abstract', weight="C"))
+        if search_filters.get("full_text"):
+            vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
+        if vectors:
+            # Combine all vectors
+            vector = vectors[0]
+            for v in vectors[1:]:
+                vector += v
+            query = SearchQuery(search_term)
+            relevance = SearchRank(vector, query)
+            annotations["relevance"] = relevance
+            # Since we weight file contents as 'D', the returned relevance
+            # values can range between .01 and .1
+            lookups["relevance__gte"] = 0.01
+
+        if search_filters.get('ORCID'):
+            lookups['frozenauthor__author__orcid'] = search_term
+            lookups['frozenauthor__frozen_orcid'] = search_term
+        return lookups, annotations
+
+
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -546,6 +667,8 @@ class Article(AbstractLastModifiedModel):
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
+
+    objects = ArticleSearchManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -755,6 +878,31 @@ class Article(AbstractLastModifiedModel):
 
         return True
 
+
+    def index_full_text(self):
+        """ Indexes the render galley for full text search
+        :return: A boolean indicating if a file has been processed
+        """
+        indexed = False
+
+        # Delete currently indexed article files
+        FileTextModel = swapper.load_model("core", "FileText")
+        current = FileTextModel.objects.filter(file__article_id=self.pk)
+        if current.exists():
+            current.delete()
+
+        # Generate new from best possible galley
+        render_galley = self.get_render_galley
+        if render_galley:
+            indexed = render_galley.file.index_full_text()
+        elif self.galley_set.exists():
+            for galley in self.galley_set.all():
+                indexed = galley.file.index_full_text()
+                if indexed:
+                    break
+        return indexed
+
+
     @property
     @cache(300)
     def identifier(self):
@@ -940,7 +1088,7 @@ class Article(AbstractLastModifiedModel):
         super(Article, self).save(*args, **kwargs)
 
     def folder_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', self.pk)
+        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.pk))
 
     def production_managers(self):
         return [assignment.production_manager for assignment in self.productionassignment_set.all()]

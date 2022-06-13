@@ -13,7 +13,7 @@
         </div></small>
     </div>
     <div class="col-md-6 text-right">
-        <small><p>
+        <small>
             <ul class="list-inline">
                 {% if journal_settings.general.privacy_policy_url %}
                     <li class="list-inline-item"><a
@@ -25,7 +25,7 @@
                 {% endif %}
                 <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 {% if not request.user.is_authenticated %}
-                    <li><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
+                    <li class="list-inline-item"><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
                 {% if journal_settings.general.switch_language %}
                     <li class="list-inline-item">
                         <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
@@ -47,6 +47,6 @@
                     </li>
                 {% endif %}
             </ul>
-            </p></small>
+            </small>
     </div>
 </div>
