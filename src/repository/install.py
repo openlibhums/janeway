@@ -22,7 +22,7 @@ def load_settings(instance, force=True):
 
         for key, value in repo_settings[0].items():
             if hasattr(instance, key):
-                if force or not getattr(instance, key):
+                if force or not getattr(instance, key, None):
                     setattr(instance, key, value)
 
     return instance
