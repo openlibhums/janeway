@@ -505,6 +505,51 @@ class SubmissionTests(TestCase):
                                        '2025 • Fall 2025 • 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
+    def test_url_based_orcid_cleaned(self):
+        clean_orcid = forms.utility_clean_orcid('https://orcid.org/0000-0003-2126-266X')
+        self.assertEqual(
+            clean_orcid,
+            '0000-0003-2126-266X',
+        )
+
+    def test_orcid_value_error_raised(self):
+        with self.assertRaises(ValueError):
+            forms.utility_clean_orcid('Mauro-sfak-orci-dtst')
+
+    def test_author_form_with_bad_orcid(self):
+        form = forms.AuthorForm(
+            {
+                'first_name': 'Mauro',
+                'last_name': 'Sanchez',
+                'biography': 'Mauro is a Jedi Master hailing from the planet Galicia.',
+                'institution': 'Birkbeck, University of London',
+                'email': 'mauro@janeway.systems',
+                'orcid': 'Mauro-sfak-orci-dtst',
+            }
+        )
+        self.assertFalse(
+            form.is_valid(),
+        )
+
+    def test_author_form_with_good_orcid(self):
+        form = forms.AuthorForm(
+            {
+                'first_name': 'Andy',
+                'last_name': 'Byers',
+                'biography': 'Andy is a Jedi Master hailing from the planet Scotland.',
+                'institution': 'Birkbeck, University of London',
+                'email': 'andy@janeway.systems',
+                'orcid': 'https://orcid.org/0000-0003-2126-266X',
+            }
+        )
+        self.assertTrue(
+            form.is_valid(),
+        )
+        self.assertEqual(
+            form.cleaned_data.get('orcid'),
+            '0000-0003-2126-266X',
+        )
+
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_full_text_search(self):
         text_to_search = """
@@ -598,7 +643,6 @@ class SubmissionTests(TestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
-
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod
