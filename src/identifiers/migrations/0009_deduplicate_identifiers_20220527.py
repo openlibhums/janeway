@@ -8,26 +8,24 @@ import django.db.models.deletion
 
 def deduplicate_identifiers(apps, schema_editor):
     Identifier = apps.get_model("identifiers", "Identifier")
-    Journal = apps.get_model("journal", "Journal")
-    journals = Journal.objects.all()
-    for journal in journals:
-        identifiers_in_journal = Identifier.objects.filter(article__journal=journal)
+    Article = apps.get_model("submission", "Article")
+    articles = Article.objects.all()
+    for article in articles:
+        identifiers_for_article = Identifier.objects.filter(article=article)
         for id_type in ['doi', 'uri', 'pubid']:
-            identifiers_of_type = identifiers_in_journal.filter(id_type=id_type)
+            identifiers_of_type = identifiers_for_article.filter(id_type=id_type)
             for doi_string in set(identifiers_of_type.values_list('identifier', flat=True)):
-                to_keep_pk = identifiers_of_type.filter(identifier=doi_string).values_list('id', flat=True)[0]
-                duplicate_pks = identifiers_of_type.filter(identifier=doi_string).values_list('id', flat=True)[1:]
-                duplicate_identifiers = [identifier for identifier in Identifier.objects.filter(pk__in=duplicate_pks)]
-                print(id_type, to_keep_pk, doi_string)
-                if duplicate_identifiers:
-                    print('\n\n\n')
-                    print('To keep:')
-                    print(id_type, to_keep_pk, doi_string)
-                    print('Duplicates:')
-                    for dup in duplicate_identifiers:
-                        print(id_type, dup.pk, dup.identifier)
-                    print('\n\n\n')
-                Identifier.objects.filter(pk__in=duplicate_pks).delete()
+                to_keep = identifiers_of_type.filter(identifier=doi_string).order_by('-pk').first()
+                duplicates = identifiers_of_type.filter(identifier=doi_string).exclude(pk=to_keep.pk)
+                if duplicates:
+                    # print('\n\n\n')
+                    # print('To keep:')
+                    # print(id_type, to_keep.pk, doi_string)
+                    # print('Duplicates:')
+                    # for dup in duplicates:
+                    #     print(id_type, dup.pk, dup.identifier)
+                    # print('\n\n\n')
+                    duplicates.delete()
 
 
 class Migration(migrations.Migration):

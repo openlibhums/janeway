@@ -13,10 +13,10 @@ def migrate_current_crossref_deposit_identifiers(apps, schema_editor):
             crossref_status, created = CrossrefStatus.objects.get_or_create(
                 identifier=crossref_deposit.identifier
             )
-            print('\n\n\n')
-            print(crossref_status.identifier.identifier)
-            print('CrossrefStatus attached to doi:', crossref_status.identifier.identifier)
-            print('CrossrefStatus message before ifs:', crossref_status.message)
+            # print('\n\n\n')
+            # print(crossref_status.identifier.identifier)
+            # print('CrossrefStatus attached to doi:', crossref_status.identifier.identifier)
+            # print('CrossrefStatus message before ifs:', crossref_status.message)
             if crossref_deposit.queued:
                 crossref_status.message = 'queued'
             elif crossref_deposit.success:
@@ -31,12 +31,12 @@ def migrate_current_crossref_deposit_identifiers(apps, schema_editor):
 
             crossref_status.deposits.add(crossref_deposit)
             crossref_status.save()
-            print('CrossrefStatus message  after ifs:', crossref_status.message)
-            print('CrossrefDeposit with identifier still attached:', crossref_deposit.identifier.identifier)
+            # print('CrossrefStatus message  after ifs:', crossref_status.message)
+            # print('CrossrefDeposit with identifier still attached:', crossref_deposit.identifier.identifier)
             crossref_deposit.identifier = None
             crossref_deposit.save()
-            print('CrossrefDeposit with identifier removed:', crossref_deposit.identifier)
-            print('CrossrefDeposit result text:', crossref_deposit.result_text)
+            # print('CrossrefDeposit with identifier removed:', crossref_deposit.identifier)
+            # print('CrossrefDeposit result text:', crossref_deposit.result_text)
 
 class Migration(migrations.Migration):
     dependencies = [
