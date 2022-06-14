@@ -7,6 +7,7 @@ from django.test import TestCase, override_settings
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
+from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
 from utils.install import update_settings
@@ -52,6 +53,7 @@ class TestModels(TestCase):
         )
         self.server_name = "repo.test.com"
         update_settings()
+        clear_script_prefix()
 
     @override_settings(URL_CONFIG='domain')
     def test_invite_reviewer(self):
