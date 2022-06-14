@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files
+from journal import models as journal_models
 
 
 from utils import (
@@ -107,10 +108,12 @@ def repository_dashboard(request):
     preprints = models.Preprint.objects.filter(
         owner=request.user,
         date_submitted__isnull=False,
+        repository=request.repository,
     )
     incomplete_preprints = models.Preprint.objects.filter(
         owner=request.user,
         date_submitted__isnull=True,
+        repository=request.repository,
     )
 
     if request.POST and 'delete' in request.POST:
@@ -121,6 +124,7 @@ def repository_dashboard(request):
                     pk=preprint_id,
                     owner=request.user,
                     stage=models.STAGE_PREPRINT_UNSUBMITTED,
+                    repository=request.repository,
                 )
                 preprint.delete()
                 messages.add_message(
@@ -163,6 +167,7 @@ def repository_submit_update(request, preprint_id, action):
         models.Preprint,
         pk=preprint_id,
         stage__in=models.SUBMITTED_STAGES,
+        repository=request.repository,
     )
 
     file_form = None
@@ -230,6 +235,7 @@ def repository_author_article(request, preprint_id):
         models.Preprint,
         pk=preprint_id,
         stage__in=models.SUBMITTED_STAGES,
+        repository=request.repository,
     )
     metrics_summary = repository_logic.metrics_summary([preprint])
 
@@ -493,7 +499,10 @@ def preprints_editors(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
-    subjects = models.Subject.objects.filter(enabled=True)
+    subjects = models.Subject.objects.filter(
+        repository=request.repository,
+        enabled=True,
+    )
 
     template = 'preprints/editors.html'
     context = {
@@ -511,7 +520,15 @@ def repository_submit(request, preprint_id=None):
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
-    preprint = repository_logic.get_preprint_if_id(preprint_id)
+    if preprint_id:
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            date_submitted__isnull=True,
+            repository=request.repository,
+        )
+    else:
+        preprint = None
 
     form = forms.PreprintInfo(
         instance=preprint,
@@ -756,6 +773,7 @@ def repository_review(request, preprint_id):
         pk=preprint_id,
         owner=request.user,
         date_submitted__isnull=False,
+        repository=request.repository,
     )
 
     if request.POST and 'complete' in request.POST:
@@ -789,15 +807,20 @@ def preprints_manager(request):
     incomplete_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=True,
+        repository=request.repository,
     )
     rejected_preprints = models.Preprint.objects.filter(
         date_declined__isnull=False,
+        repository=request.repository,
     )
     metrics_summary = repository_logic.metrics_summary(published_preprints)
     versisons = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
     )
-    subjects = models.Subject.objects.filter(enabled=True)
+    subjects = models.Subject.objects.filter(
+        repository=request.repository,
+        enabled=True,
+    )
 
     template = 'admin/repository/manager.html'
     context = {
@@ -1158,7 +1181,11 @@ def repository_comments(request, preprint_id):
     :param preprint_id: PK of an Preprint object
     :return: HttpRedirect if POST, HttpResponse otherwise
     """
-    preprint = get_object_or_404(models.Preprint.objects, pk=preprint_id)
+    preprint = get_object_or_404(
+        models.Preprint.objects,
+        pk=preprint_id,
+        repository=request.repository,
+    )
 
     if request.POST:
         repository_logic.comment_manager_post(request, preprint)
@@ -1219,6 +1246,7 @@ def repository_subjects(request, subject_id=None):
 
     top_level_subjects = models.Subject.objects.filter(
         parent__isnull=True,
+        repository=request.repository,
     ).prefetch_related('editors')
 
     template = 'admin/repository/subjects.html'
@@ -1226,7 +1254,7 @@ def repository_subjects(request, subject_id=None):
         'top_level_subjects': top_level_subjects,
         'form': form,
         'subject': subject,
-        'active_users': core_models.Account.objects.all(),
+        'active_users': core_models.Account.objects.filter(is_active=True),
     }
 
     return render(request, template, context)
@@ -1265,6 +1293,7 @@ def repository_rejected_submissions(request):
     rejected_preprints = models.Preprint.objects.filter(
         date_declined__isnull=False,
         date_published__isnull=True,
+        repository=request.repository,
     )
 
     template = 'admin/repository/rejected_submissions.html'
@@ -1282,7 +1311,9 @@ def orphaned_preprints(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    orphaned_preprints = repository_logic.list_articles_without_subjects()
+    orphaned_preprints = repository_logic.list_articles_without_subjects(
+        request.repository,
+    )
 
     template = 'admin/repository/orphaned_preprints.html'
     context = {
@@ -1301,6 +1332,7 @@ def version_queue(request):
     """
     version_queue = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
+        preprint__repository=request.repository,
     )
     duplicates = repository_logic.check_duplicates(version_queue)
 
@@ -1662,6 +1694,7 @@ def new_supplementary_file(request, preprint_id):
         )
     )
 
+
 @require_POST
 @preprint_editor_or_author_required
 def order_supplementary_files(request, preprint_id):
@@ -1765,4 +1798,73 @@ def delete_preprint_author(request, preprint_id):
             'repository_manager_article',
             kwargs={'preprint_id': preprint.pk},
         )
+    )
+
+
+@is_repository_manager
+def send_preprint_to_journal(request, preprint_id, journal_id=None):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    if journal_id:
+        journal = get_object_or_404(
+            journal_models.Journal,
+            pk=journal_id,
+        )
+    else:
+        journal = None
+
+    form = forms.PreprinttoArticleForm(
+        journal=journal,
+    )
+
+    if request.POST:
+        form = forms.PreprinttoArticleForm(
+            request.POST,
+            journal=journal,
+        )
+        if form.is_valid():
+            article = preprint.create_article(
+                journal=journal,
+                workflow_stage=form.cleaned_data.get('stage'),
+                journal_license=form.cleaned_data.get('license'),
+                journal_section=form.cleaned_data.get('section'),
+                force=form.cleaned_data.get('force'),
+            )
+            if article:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Article {} created in journal {}'.format(
+                        article.pk,
+                        journal.name,
+                    )
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'No article created.',
+                )
+
+            return redirect(
+                reverse(
+                    'repository_manager_article',
+                    kwargs={'preprint_id': preprint.pk},
+                )
+            )
+
+    template = 'repository/send_preprint_to_journal.html'
+    context = {
+        'preprint': preprint,
+        'journal': journal,
+        'form': form,
+        'journals': journal_models.Journal.objects.all().order_by('code'),
+    }
+    return render(
+        request,
+        template,
+        context,
     )

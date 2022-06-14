@@ -1667,26 +1667,25 @@ def kanban(request):
     assigned_table = production_models.ProductionAssignment.objects.filter(article__journal=request.journal)
     assigned = [assignment.article.pk for assignment in assigned_table]
 
-    prod_unassigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
-        id__in=assigned)
-    assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING,
-                                                                 journal=request.journal).exclude(
-        id__in=unassigned_articles)
+    prod_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING, journal=request.journal)
+    assigned_articles = submission_models.Article.objects.filter(pk__in=assigned)
 
-    proofing_assigned_table = proofing_models.ProofingAssignment.objects.filter(article__journal=request.journal)
+    proofing_assigned_table = proofing_models.ProofingAssignment.objects.filter(
+        article__journal=request.journal,
+    )
     proofing_assigned = [assignment.article.pk for assignment in proofing_assigned_table]
 
-    proof_unassigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_PROOFING, journal=request.journal).exclude(
-        id__in=proofing_assigned)
-    proof_assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PROOFING,
-                                                                       journal=request.journal).exclude(
-        id__in=proof_unassigned_articles)
+    proof_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_PROOFING, journal=request.journal)
+    proof_assigned_articles = submission_models.Article.objects.filter(
+        pk__in=proofing_assigned,
+    )
 
-    prepub = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
-                                                      journal=request.journal) \
-        .order_by('-date_submitted')
+    prepub = submission_models.Article.objects.filter(
+        Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
+        journal=request.journal,
+    ).order_by('-date_submitted')
 
     articles_in_workflow_plugins = workflow.articles_in_workflow_plugins(request)
 
@@ -1694,9 +1693,9 @@ def kanban(request):
         'unassigned_articles': unassigned_articles,
         'in_review': in_review,
         'copyediting': copyediting,
-        'production': prod_unassigned_articles,
+        'production': prod_articles,
         'production_assigned': assigned_articles,
-        'proofing': proof_unassigned_articles,
+        'proofing': proof_articles,
         'proofing_assigned': proof_assigned_articles,
         'prepubs': prepub,
         'articles_in_workflow_plugins': articles_in_workflow_plugins,

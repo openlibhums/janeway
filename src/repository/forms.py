@@ -10,7 +10,7 @@ from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.forms import render_choices
-from core import models as core_models
+from core import models as core_models, workflow
 from utils import forms as utils_forms
 
 
@@ -519,3 +519,29 @@ class RepositoryFieldForm(forms.ModelForm):
             field.save()
 
         return field
+
+
+class PreprinttoArticleForm(forms.Form):
+    license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
+    section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
+    stage = forms.ChoiceField(
+        choices=()
+    )
+    force = forms.BooleanField(
+        required=False,
+        help_text='If you want to force the creation of a new article object even if one exists, check this box. '
+                  'The old article will be orphaned and no longer linked to this object.',
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(PreprinttoArticleForm, self).__init__(*args, **kwargs)
+
+        if self.journal:
+            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+                journal=self.journal,
+            )
+            self.fields['section'].queryset = submission_models.Section.objects.filter(
+                journal=self.journal,
+            )
+            self.fields['stage'].choices = workflow.workflow_journal_choices(self.journal)

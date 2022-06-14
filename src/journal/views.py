@@ -1891,9 +1891,47 @@ def sitemap(request, issue_id=None):
 
     raise Http404()
 
-
 @decorators.frontend_enabled
 def search(request):
+    if settings.ENABLE_FULL_TEXT_SEARCH:
+        return full_text_search(request)
+    else:
+        return old_search(request)
+
+@decorators.frontend_enabled
+def full_text_search(request):
+    """ Allows a user to search for articles using various filters
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    search_term = None
+    keyword = None
+    redir = False
+    sort = 'title'
+    articles = []
+
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(
+        request,
+    )
+    if search_term:
+        form.is_valid()
+        articles = submission_models.Article.objects.search(
+            search_term, form.get_search_filters(),
+            sort=form.cleaned_data.get("sort"),
+        )
+
+    template = 'journal/full-text-search.html'
+    context = {
+        'articles': articles,
+        'article_search': search_term,
+        'keyword': keyword,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+@decorators.frontend_enabled
+def old_search(request):
     """
     Allows a user to search for articles by name or author name.
     :param request: HttpRequest object

@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
 
     # Installed Apps
     'cms',
@@ -82,8 +83,8 @@ INSTALLED_APPS = [
     'install',
     'workflow',
 
-
     # 3rd Party
+    'mozilla_django_oidc',
     'django_summernote',
     'markdown_deux',
     'raven.contrib.django.raven_compat',
@@ -180,6 +181,8 @@ SETTINGS_EXPORT = [
     'LANGUAGE_CODE',
     'URL_CONFIG',
     'HIJACK_USERS_ENABLED',
+    'ENABLE_OIDC',
+    'OIDC_SERVICE_NAME',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -412,7 +415,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-LOGIN_REDIRECT_URL = '/user/profile/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -515,3 +518,33 @@ if (
 # A potentially dangerous feature, this allows superusers to hijack and control a user's account.
 HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+
+# OIDC
+ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
+OIDC_SERVICE_NAME = 'OIDC Service Name'
+OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
+OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
+OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
+OIDC_LOGOUT_URL = os.environ.get('OIDC_LOGOUT_URL')
+OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_SECRET')
+OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_SIGN_ALGO')
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT')
+OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
+OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
+OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
+
+
+if ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS = (
+        'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+    
+CORE_FILETEXT_MODEL = "core.FileText"
+if os.environ.get("DB_VENDOR") == "postgres":
+    CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False

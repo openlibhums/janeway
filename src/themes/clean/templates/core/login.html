@@ -18,8 +18,12 @@
                         {% if settings.ENABLE_ORCID %}
                         <h2 class="text-center">{% trans "Log in with your account" %}</h2>
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
-                           class="btn btn-primary btn-block">{% trans "Log in with ORCiD" %}</a>
+                           class="btn orcid-button btn-block">{% trans "Log in with ORCiD" %}</a>
                         <br/>
+                        {% endif %}
+                        {% if settings.ENABLE_OIDC %}
+                        <a href="{% url 'oidc_authentication_init' %}" class="btn btn-primary btn-block">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
+                         <br/>
                         {% endif %}
                         <form method="POST">
                             {% include "common/elements/static-error-messages.html" with form=form %}

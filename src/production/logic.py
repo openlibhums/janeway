@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.conf import settings
 from django.core.files.base import ContentFile
 
 from production import models
@@ -125,6 +126,8 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         sequence=article.get_next_galley_sequence(),
         public=public,
     )
+    if settings.ENABLE_FULL_TEXT_SEARCH is True:
+        article.index_full_text()
 
     return new_galley
 

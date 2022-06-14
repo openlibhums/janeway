@@ -1586,6 +1586,7 @@ def request_revisions(request, article_id):
     pending_approval = review_round.reviewassignment_set.filter(
         is_complete=True,
         for_author_consumption=False,
+        date_declined__isnull=True,
     )
     incomplete = review_round.reviewassignment_set.filter(
         is_complete=False,

@@ -20,7 +20,7 @@
             <div class="row">
                 <div class="large-8 columns">
                     <small class="uppercase">{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h3>
+                    <h2>{{ article.title|safe }}</h2>
                     <p>
                         <strong>{% if article.frozen_authors.count > 1 %}
                             {% trans "Authors" %}:
@@ -167,7 +167,7 @@
                 <hr/>
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
-                                <h2>{% trans "Abstract" %}</h2>
+                                <h3>{% trans "Abstract" %}</h3>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
@@ -187,6 +187,23 @@
                                             <li>{{ note.text|safe }}</li>
                                         {% endfor %}
                                     </ul>
+                                </div>
+                            {% endif %}
+
+                            {% if article.is_published and galleys %}
+                                <div class="show-for-small-only">
+                                    <p>
+                                        <strong>Downloads:</strong><br/>
+                                        {% for galley in galleys %}
+                                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                            <br/>
+                                            {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                <a target="_blank"
+                                                   href="{% url 'article_view_galley' article.id galley.id %}">View
+                                                    PDF</a><br/>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
                                 </div>
                             {% endif %}
 
@@ -390,10 +407,18 @@
                         <div class="section hide-for-small-only">
                             <h3>{% trans field.field.name %}</h3>
                             <ul>
-                                <li>{{ field.answer }}</li>
+                                <li>{{ field.answer|safe }}</li>
                             </ul>
                         </div>
                         {% endfor %}
+
+                        {% if article.preprint %}
+                        <div class="section hide-for-small-only">
+                            <h3>{{ article.preprint.repository.object_name }}</h3>
+                            <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
+                            <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
+                        </div>
+                        {% endif %}
 
                         <div class="section hide-for-small-only">
                             <h3>{% trans "File Checksums (MD5)" %}</h3>

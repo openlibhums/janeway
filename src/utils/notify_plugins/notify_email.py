@@ -94,7 +94,7 @@ def notify_hook(**kwargs):
     request = kwargs.pop('request', None)
     task = kwargs.pop('task', None)
 
-    if request.journal:
+    if request and request.journal:
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
         subject = "[{0}] {1}".format(request.journal.code, subject_setting if subject_setting else subject)
 

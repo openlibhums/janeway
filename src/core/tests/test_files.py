@@ -1,11 +1,13 @@
 import os
 import shutil
+from tempfile import NamedTemporaryFile
 
 from django.urls import reverse
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.utils import timezone
+import pdfkit
 
 from utils.testing import helpers
 from submission import models as submission_models
@@ -42,6 +44,14 @@ class TestFilesHandler(TestCase):
         self.test_file_two = SimpleUploadedFile(
             "file.txt",
             b"content",
+        )
+        self.test_xml_file = SimpleUploadedFile(
+            "test.xml",
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.2/JATS-journalpublishing1.dtd">
+            <article>test</article>
+            """.strip().encode("utf-8"),
         )
 
         self.files = list()
@@ -119,4 +129,40 @@ class TestFilesHandler(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_xml_to_text(self):
+        with NamedTemporaryFile("wb") as f:
+            f.write(self.test_xml_file.read())
+            f.seek(0)
+            parsed_text = files.jats_to_text(f.name).strip()
+
+        expected = "test"
+
+        self.assertEqual(parsed_text, expected)
+
+    def test_pdf_to_text(self):
+        with NamedTemporaryFile("r+b") as f:
+            # Write a PDF File
+            text = "Hello World"
+            config = pdfkit.configuration(wkhtmltopdf=os.path.join(
+                settings.BASE_DIR,
+                'transform/cassius/bin/wkhtmltopdf'
+            ))
+            pdfkit.from_string(text, output_path=f.name, configuration=config)
+
+            # Parse the PDF File
+            parsed_text = files.pdf_to_text(f.name).strip()
+
+
+        self.assertEqual(parsed_text, text)
+
+    def test_index_file(self):
+        file_ = files.save_file_to_article(
+            self.test_xml_file,
+            article=self.article_in_production,
+            owner=self.request.user,
+            label="test-xml",
+        )
+        indexed = file_.index_full_text()
+
+        self.assertTrue(indexed)
 
