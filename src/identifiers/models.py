@@ -137,11 +137,10 @@ class CrossrefDeposit(models.Model):
                     return str(record_diagnostic)
 
     def __str__(self):
-        return ("[Deposit:{identifiers}:{self.file_name}]"
+        return ("[Deposit:{self.file_name}]"
             "[queued:{self.queued}]"
             "[success:{self.success}]"
             "[citation_success:{citation_success}]".format(
-                identifiers=''.join([crossref_status.identifier.identifier for crossref_status in self.crossrefstatus_set.all()]),
                 self=self,
                 #Citation success only to be considered for succesful deposits
                 citation_success=self.citation_success if self.success else None,

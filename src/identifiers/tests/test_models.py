@@ -33,10 +33,7 @@ class TestLogic(TestCase):
         crossref_deposit = models.CrossrefDeposit.objects.create(document=document, file_name=filename)
         crossref_deposit.save()
         for identifier in self.ten_identifiers:
-            status, _created = models.CrossrefStatus.objects.get_or_create(identifier=identifier)
-            status.deposits.add(crossref_deposit)
-            status.save()
-        self.assertTrue('10.0000/TST.9' in str(crossref_deposit))
+            self.assertTrue(identifier.identifier in crossref_deposit.document)
 
 
     def test_crossref_status(self):
