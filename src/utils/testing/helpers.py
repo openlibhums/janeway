@@ -229,7 +229,7 @@ def create_test_file(test_case, file):
     return file, path_parts
 
 
-def create_repository(press, managers, subject_editors):
+def create_repository(press, managers, subject_editors, domain='repo.domain.com'):
     repository, c = repo_models.Repository.objects.get_or_create(
         press=press,
         name='Test Repository',
@@ -238,8 +238,10 @@ def create_repository(press, managers, subject_editors):
         object_name_plural='Preprints',
         publisher='Test Publisher',
         live=True,
+        domain=domain,
     )
     repository.managers.add(*managers)
+    repository.save()
 
     subject, c = repo_models.Subject.objects.get_or_create(
         repository=repository,

@@ -20,19 +20,9 @@ def load_settings(instance, force=True):
     ) as json_data:
         repo_settings = json.load(json_data)
 
-        # As we are using pre_save there is no need to call save so we
-        # avoid recursion here.
-        if force or not instance.submission:
-            instance.submission = repo_settings[0]['submission']
-        if force or not instance.publication:
-            instance.publication = repo_settings[0]['publication']
-        if force or not instance.decline:
-            instance.decline = repo_settings[0]['decline']
-        if force or not instance.accept_version:
-            instance.accept_version = repo_settings[0]['accept_version']
-        if force or not instance.decline_version:
-            instance.decline_version = repo_settings[0]['decline_version']
-        if force or not instance.new_comment:
-            instance.new_comment = repo_settings[0]['new_comment']
+        for key, value in repo_settings[0].items():
+            if hasattr(instance, key):
+                if force or not getattr(instance, key, None):
+                    setattr(instance, key, value)
 
     return instance

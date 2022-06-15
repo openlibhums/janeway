@@ -1,0 +1,60 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load admin_urls %}
+{% load static from staticfiles %}
+
+{% block title %}Submit Review{% endblock %}
+{% block title-section %}Submit Review{% endblock %}
+{% block title-sub %}Submit a an invited review for {{ request.repository.object_name }} {{ review.preprint.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li>Review #{{ review.pk }} - {{ review.preprint.title }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Information</h2>
+            </div>
+            <div class="content">
+                <p><strong>Title: </strong>{{ review.preprint.title }}</p>
+                <p><strong>Abstract:</strong><br />{{ review.preprint.abstract|linebreaksbr }}</p>
+                <p><strong>Keywords: </strong>{% for keyword in review.preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% empty %}No keywords to display.{% endfor %}</p>
+                <p><strong>Subjects: </strong>{% for subject in review.preprint.subject.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% empty %}No subjects to display.{% endfor %}</p>
+
+                <p>You can either agree or decline to submit a review comment. Please use the buttons below to let the Editor know your decision.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% if not review.date_accepted %}
+                    <button class="button success" name="accept">Agree</button>
+                    {% endif %}
+                    <button class="button alert" name="decline">Decline</button>
+                </form>
+
+            </div>
+            <div class="title-area">
+                <h2>Files</h2>
+            </div>
+            <div class="content">
+                <a href="{% url 'repository_download_review_file' review.pk review.access_code %}" class="button"><i class="fa fa-download"></i> Download File</a>
+            </div>
+            <div class="title-area">
+                <h2>Add Your Review</h2>
+            </div>
+            <div class="content">
+               {{ request.repository.review_helper|safe }}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button class="button">Submit and Complete Review</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

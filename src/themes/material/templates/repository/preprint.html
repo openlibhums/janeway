@@ -159,13 +159,21 @@
                                     {% endif %}
                                 </div>
                                 <div class="col m10">
+                                    {% if comment.review %}
+                                        <p>
+                                        <small><strong>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
+                                            @ {{ comment.date_time }}</strong></small>
+                                    </p>
+                                        {{ comment.body|safe }}
+                                    {% else %}
                                     <p>
                                         <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
                                             @ {{ comment.date_time }}</small>
                                     </p>
                                     <p>
-                                        {{ comment.body }}
+                                        {{ comment.body|linebreaksbr }}
                                     </p>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% empty %}
