@@ -938,6 +938,14 @@ class Article(AbstractLastModifiedModel):
         return None
 
     @property
+    def get_doi_object(self):
+        return self.get_identifier('doi', object=True)
+
+    @property
+    def doi_pattern_preview(self):
+        return id_logic.render_doi_from_pattern(self)
+
+    @property
     def identifiers(self):
         from identifiers import models as identifier_models
         return identifier_models.Identifier.objects.filter(article=self)
@@ -1429,9 +1437,9 @@ class Article(AbstractLastModifiedModel):
         kwargs = {'article_id': self.pk}
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
-            return reverse('review_unassigned_article', kwargs=kwargs)
+            path = reverse('review_unassigned_article', kwargs=kwargs)
         elif self.stage in FINAL_STAGES:
-            return reverse('manage_archive_article', kwargs=kwargs)
+            path = reverse('manage_archive_article', kwargs=kwargs)
         elif not self.stage:
             logger.error(
                 'Article #{} has no Stage.'.format(
@@ -1442,7 +1450,7 @@ class Article(AbstractLastModifiedModel):
         else:
             element = self.current_workflow_element
             if element:
-                return reverse(element.jump_url, kwargs=kwargs)
+                path = reverse(element.jump_url, kwargs=kwargs)
             else:
                 # In order to ensure the Dashboard renders we purposefully do
                 # not raise an error message here.
@@ -1452,6 +1460,7 @@ class Article(AbstractLastModifiedModel):
                     )
                 )
                 return '?workflow_element_url=no_element'
+        return self.journal.site_url(path=path)
 
     @cache(600)
     def render_sample_doi(self):

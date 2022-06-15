@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -43,6 +43,7 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
+from utils.logic import get_janeway_version
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
 from repository import models as rm
@@ -2161,16 +2162,152 @@ def manage_access_requests(request):
 @method_decorator(staff_member_required, name='dispatch')
 class FilteredArticlesListView(generic.ListView):
     model = submission_models.Article
-    template_name = 'core/article_list.html'
+    template_name = 'core/manager/article_list.html'
     paginate_by = '25'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["paginate_by"] = self.get_paginate_by(self.get_queryset())
-        return context
+    facets = {}
 
     def get_paginate_by(self, queryset):
-        self.paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
-        if self.paginate_by == 'all':
-            self.paginate_by = len(queryset)
-        return self.paginate_by
+        paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginate_by == 'all':
+            if queryset:
+                paginate_by = len(queryset)
+            else:
+                paginate_by = self.paginate_by
+        return paginate_by
+
+    def get_context_data(self, **kwargs):
+        params_querydict = self.request.GET.copy()
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
+        facets = self.get_facets()
+
+        # Most initial values are in list form
+        # The exception is date_time facets
+        initial = dict(params_querydict.lists())
+        for keyword, value in initial.items():
+            if keyword in facets:
+                if facets[keyword]['type'] == 'date_time':
+                    initial[keyword] = value[0]
+
+        context['facet_form'] = forms.CBVFacetForm(
+            queryset=queryset,
+            facet_queryset=self.get_facet_queryset(),
+            facets=facets,
+            initial=initial,
+        )
+
+        context['actions'] = self.get_actions()
+
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', '')
+        context['params_string'] = params_querydict.urlencode()
+        context['version'] = get_janeway_version()
+        return context
+
+    def get_queryset(self, params_querydict=None):
+        if not params_querydict:
+            params_querydict = self.request.GET.copy()
+
+        # Clear any previous action status and error
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', False)
+
+        self.queryset = super().get_queryset()
+        q_stack = []
+        facets = self.get_facets()
+        for facet in facets.values():
+            self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
+        for keyword, value_list in params_querydict.lists():
+            if keyword in facets and value_list:
+                if value_list[0]:
+                    predicates = [(keyword, value) for value in value_list]
+                elif facets[keyword]['type'] != 'date_time':
+                    if value_list[0] == '' and facets[keyword]['type'] != 'date_time':
+                        predicates = [(keyword, '')]
+                    else:
+                        predicates = [(keyword+'__isnull', True)]
+                else:
+                    predicates = []
+                query = Q()
+                for predicate in predicates:
+                    query |= Q(predicate)
+                q_stack.append(query)
+        return self.order_queryset(
+            self.filter_queryset_if_journal(
+                self.queryset.filter(*q_stack)
+            )
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED,
+        )
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('title')
+
+    def get_facets(self):
+        facets = {}
+        return self.filter_facets_if_journal(facets)
+
+    def get_facet_queryset(self):
+        # The default behavior is for the facets to stay the same
+        # when a filter is chosen.
+        # To make them change dynamically, return None 
+        # instead of a separate facet.
+        # return None
+        queryset = self.filter_queryset_if_journal(
+            self.model.objects.all()
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+        facets = self.get_facets()
+        for facet in facets.values():
+            queryset = queryset.annotate(**facet.get('annotations', {}))
+        return queryset
+
+    def get_actions(self):
+        return []
+
+    def post(self, request, *args, **kwargs):
+
+        action_status = ''
+        action_error = False
+        params_string = request.POST.get('params_string')
+        params_querydict = QueryDict(params_string, mutable=True)
+        actions = self.get_actions()
+        queryset = self.get_queryset(params_querydict=params_querydict)
+        if request.journal:
+            querysets = [queryset]
+        else:
+            querysets = []
+            for journal in {article.journal for article in queryset}:
+                querysets.append(queryset.filter(journal=journal))
+
+        if actions:
+            for action in actions:
+                if action.get('name') in request.POST:
+                    for queryset in querysets:
+                        action_status, action_error = action.get('action')(queryset)
+                        messages.add_message(
+                            request,
+                            messages.INFO if not action_error else messages.ERROR,
+                            action_status,
+                        )
+
+        if params_string:
+            return redirect(f'{request.path}?{params_string}')
+        else:
+            return redirect(request.path)
+
+
+    def filter_queryset_if_journal(self, queryset):
+        if self.request.journal:
+            return queryset.filter(journal=self.request.journal)
+        else:
+            return queryset
+
+    def filter_facets_if_journal(self, facets):
+        if self.request.journal:
+            facets.pop('journal__pk', '')
+            return facets
+        else:
+            return facets

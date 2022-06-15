@@ -70,6 +70,7 @@ urlpatterns = [
         name='serve_press_file',
         ),
     url(r'^press/merge_users/$', press_views.merge_users, name='merge_users'),
+    url(r'^doi_manager/$', press_views.IdentifierManager.as_view(), name='press_identifier_manager'),
 
     # Notes
     url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,

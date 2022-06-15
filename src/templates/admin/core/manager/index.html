@@ -105,10 +105,11 @@
                     </div>
                 </div>
                 <div class="title-area">
-                    <h2>Crossref</h2>
+                    <h2>Identifiers</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
+                        <a class="button" href="{% url 'journal_identifier_manager' %}">DOI Manager</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
                     </div>

@@ -128,6 +128,24 @@ class LogEntry(models.Model):
 
         return new_entry
 
+    @staticmethod
+    def bulk_add_simple_entry(
+        types,
+        description,
+        level,
+        targets,
+    ):
+        new_entries = []
+        for target in targets:
+            new_entry = LogEntry()
+            new_entry.types = types
+            new_entry.description = description
+            new_entry.level = level
+            new_entry.target = target
+            new_entries.append(new_entry)
+        batch_size = 500
+        return LogEntry.objects.bulk_create(new_entries, batch_size)
+
 
 class ToAddress(models.Model):
     log_entry = models.ForeignKey(LogEntry)
