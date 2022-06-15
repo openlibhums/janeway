@@ -674,3 +674,16 @@ footer svg {
 strong {
     font-weight: 650;
 }
+
+
+#homepage-element-search-bar .input-field .prefix {
+  font-size: 3rem;
+}
+
+#homepage-element-search-bar .input-field label {
+  font-size: 1.5rem;
+}
+
+#homepage-element-search-bar .input-field #search_term {
+  font-size: 1.5rem;
+}
