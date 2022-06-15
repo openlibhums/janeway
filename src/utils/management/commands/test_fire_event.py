@@ -9,19 +9,31 @@ from django.http import HttpRequest
 from events import logic as event_logic
 from journal import models
 from core import models as core_models
+from repository import models as repo_models
 
 
-def create_fake_request(journal, user):
+def create_fake_request(user, journal=None, repository=None):
     request = Mock(HttpRequest)
     request.GET = Mock()
-    request.journal = journal
+
     request.user = user
-    request.site_type = journal
+
     request.FILES = None
     request.META = {}
-    request.press = journal.press
+
     request.META = {'REMOTE_ADDR': '127.0.0.1'}
     request.model_content_type = None
+
+    if journal:
+        request.journal = journal
+        request.site_type = journal
+        request.press = journal.press
+        request.repository = None
+    elif repository:
+        request.repository = repository
+        request.site_type = repository
+        request.press = repository.press
+        request.journal = None
 
     return request
 
@@ -71,12 +83,16 @@ class Command(BaseCommand):
         json_path = options.get('json_path')
         json_string = options.get('json_string', None)
 
+        user = core_models.Account.objects.get(pk=user_id)
+        try:
+            journal = models.Journal.objects.get(code=journal_code)
+            request = create_fake_request(user, journal=journal)
+        except models.Journal.DoesNotExist:
+            repository = repo_models.Repository.objects.get(short_name=journal_code)
+            request = create_fake_request(user, repository=repository)
+
         if not json_path and not json_string:
             exit('You must provide a json_path or json_string')
-
-        user = core_models.Account.objects.get(pk=user_id)
-        journal = models.Journal.objects.get(code=journal_code)
-        request = create_fake_request(journal, user)
 
         context = {
             'request': request,

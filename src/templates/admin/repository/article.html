@@ -20,7 +20,7 @@
             <div class="title-area">
                 <h2>Metadata</h2>
                 {% if preprint.is_published %}
-                  <a class="button" href="{{ preprint.url }}">View Live Article</a>
+                    <a class="button" href="{{ preprint.url }}">View Live Article</a>
                 {% endif %}
             </div>
             <div class="content">
@@ -44,8 +44,11 @@
                         <th>Published DOI</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{% if preprint.preprint_doi %}<a target="_blank" href="https://doi.org/{{ preprint.preprint_doi }}">{{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
-                        <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
+                        <td colspan="2">{% if preprint.preprint_doi %}
+                            <a target="_blank" href="https://doi.org/{{ preprint.preprint_doi }}">
+                            {{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
+                        <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">
+                            {{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
                     </tr>
                     <tr>
                         <th colspan="3">
@@ -109,7 +112,12 @@
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     <li><a href="{% url 'repository_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
-                        ({{ preprint.comment_set.all|length }})</a></li>
+                        ({{ comment_count }})</a></li>
+                    <li>
+                        <a href="{% url 'repository_list_reviews' preprint.pk %}">
+                            <i class="fa fa-commenting" aria-hidden="true">&nbsp;</i>Invited Comments ({{ preprint.review_set.count }})
+                        </a>
+                    </li>
                     <li>
                         <a target="_blank" href="{% url 'discussion_threads' 'preprint' preprint.pk %}">
                             <i class="fa fa-align-justify" aria-hidden="true">&nbsp;</i>
@@ -121,18 +129,20 @@
                             {% if preprint.date_accepted %}
                                 <i class="fa fa-edit action-icon">&nbsp;</i>Edit Published Date
                             {% else %}
-                                <i class="fa fa-check-circle action-icon">&nbsp;</i>Accept {{ request.repository.object_name }}
+                                <i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
+                                {{ request.repository.object_name }}
                             {% endif %}
                         </a></li>
                     {% endif %}
                     {% if not preprint.date_accepted and not preprint.date_declined %}
                         <li>
-                            <a href="#" data-open="decline_preprint"><i class="fa fa-times-circle action-icon">&nbsp;</i>Reject
+                            <a href="#" data-open="decline_preprint"><i
+                                    class="fa fa-times-circle action-icon">&nbsp;</i>Reject
                                 {{ request.repository.object_name }}
                             </a>
                         </li>
                     {% endif %}
-                     <form method="POST">
+                    <form method="POST">
                         {% csrf_token %}
                         {% if preprint.date_accepted and preprint.date_published %}
                             <li>
@@ -149,28 +159,37 @@
                             </li>
                         {% endif %}
                     </form>
+                    <li>
+                        <a href="{% url 'repository_send_to_a_journal' preprint.pk %}"><i class="fa fa-exchange">&nbsp;</i>Send to Journal
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">
                     {% if preprint.date_accepted %}
-                        <small>This {{ request.repository.object_name }} was accepted on {{ preprint.date_accepted }}</small>
+                        <small>This {{ request.repository.object_name }} was accepted
+                            on {{ preprint.date_accepted }}</small>
                     {% elif preprint.date_declined %}
-                        <small>This {{ request.repository.object_name }} was rejected on {{ preprint.date_declined }}</small>
+                        <small>This {{ request.repository.object_name }} was rejected
+                            on {{ preprint.date_declined }}</small>
                     {% else %}
                         <small>This {{ request.repository.object_name }} is currently awaiting review.</small>
                     {% endif %}
                     {% if not preprint.has_version and not preprint.date_declined %}
-                        <small> This {{ request.repository.object_name }} requires at least one version. You can either turn an existing file
+                        <small> This {{ request.repository.object_name }} requires at least one version. You can either
+                            turn an existing file
                             into a version in the table below, or upload a new file to be a version.
                         </small>
                     {% endif %}
                     {% if preprint.date_published %}
-                        <br />
-                        <small>This {{ request.repository.object_name }} was published on {{ preprint.date_published }}</small>
+                        <br/>
+                        <small>This {{ request.repository.object_name }} was published
+                            on {{ preprint.date_published }}</small>
                     {% endif %}
                 </div>
                 <div class="callout">
-                    <small>Primary identifier for this article {% if not preprint.identifier %}[ID] {{ preprint.pk }}{% endif %}</small>
+                    <small>Primary identifier for this article {% if not preprint.identifier %}[ID]
+                        {{ preprint.pk }}{% endif %}</small>
                 </div>
             </div>
         </div>
@@ -180,7 +199,8 @@
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
-                <a class="button" href="{% url 'repository_add_author' preprint.pk %}"><i class="fa fa-plus"></i> Add Author</a>
+                <a class="button" href="{% url 'repository_add_author' preprint.pk %}"><i class="fa fa-plus"></i> Add
+                    Author</a>
             </div>
             <div class="content">
                 <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
@@ -200,14 +220,16 @@
                             <tr id="authors-{{ author.pk }}">
                                 <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
                                 <td>{{ author.account.email }}</td>
-                                <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}{{ author.account.institution }}{% endif %}</td>
+                                <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
+                                    {{ author.account.institution }}{% endif %}</td>
                                 <td>
                                     <a href="{% url 'repository_edit_authors' preprint.pk author.pk %}">
                                         Edit
                                     </a>
                                 </td>
                                 <td>
-                                    <button class="del" name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span> Delete
+                                    <button class="del" name="author_id" value="{{ author.pk }}"><span
+                                            class="fa fa-trash"></span> Delete
                                     </button>
                                 </td>
                             </tr>
@@ -251,7 +273,8 @@
                                     class="fa fa-download"></i></a></td>
                             <td>
                                 <form method="POST">{% csrf_token %}
-                                    <button type="submit" value="{{ version.pk }}" name="delete_version" class="control-button">
+                                    <button type="submit" value="{{ version.pk }}" name="delete_version"
+                                            class="control-button">
                                         <i class="fa fa-trash"></i></button>
                                 </form>
                             </td>
@@ -283,14 +306,14 @@
                             <td>{{ update.get_update_type_display }} (Pending)</td>
                             <td>{{ update.date_submitted }}</td>
                             {% if update.file %}
-                            <td>{{ update.file.original_filename }}</td>
-                            <td>{{ update.file.uploaded }}</td>
-                            <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><i
-                                    class="fa fa-download"></i></a></td>
+                                <td>{{ update.file.original_filename }}</td>
+                                <td>{{ update.file.uploaded }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><i
+                                        class="fa fa-download"></i></a></td>
                             {% else %}
-                            <td>n/a</td>
-                            <td>n/a</td>
-                            <td>n/a</td>
+                                <td>n/a</td>
+                                <td>n/a</td>
+                                <td>n/a</td>
                             {% endif %}
                             <td>
                                 <a href="{% url 'version_queue' %}">Manage</a>
@@ -348,15 +371,16 @@
         <div class="box">
             <div class="title-area">
                 <h2>Supplementary Files</h2>
-                <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">Manage Supplementary Files</a>
+                <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">Manage
+                    Supplementary Files</a>
             </div>
             <div class="content">
                 <ul>
-                {% for link in preprint.supplementaryfiles %}
-                    <li><a href="{{ link.url }}">{{ link.label }}</a></li>
-                {% empty %}
-                    <li>No Supplementary File</li>
-                {% endfor %}
+                    {% for link in preprint.supplementaryfiles %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                        {% empty %}
+                        <li>No Supplementary File</li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>

@@ -1,0 +1,70 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load admin_urls %}
+
+{% block title %}Add New Invited Review{% endblock %}
+{% block title-section %}Add New Invited Review{% endblock %}
+{% block title-sub %}Invite a new reviewer for {{ request.repository.object_name }} #{{ preprint.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li><a href="{% url 'repository_list_reviews' preprint.pk %}">Invited Reviews</a></li>
+    <li>Invite New Reviewer</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <form method="POST">
+            {% csrf_token %}
+            {% include "elements/forms/errors.html" with form=form %}
+            <div class="title-area">
+                <h2>Select a Reviewer</h2>
+                <a class="button"><i class="fa fa-user"></i> Manage Reviewers</a>
+            </div>
+            <div class="content">
+                <p>Select a reviewer from the list below.</p>
+                <table class="table" id="reviewer_table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Interests</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for reviewer in reviewers %}
+                    <tr>
+                        <td><input type="radio" name="reviewer" id="reviewer" value="{{ reviewer.pk }}" {% if request.POST.reviewer == reviewer.pk %}selected{% endif %}></td>
+                        <td>{{ reviewer.full_name }}</td>
+                        <td>{{ reviewer.email }}</td>
+                        <td>{% for interest in reviewer.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="title-area">
+                <h2>Set Due Date</h2>
+            </div>
+            <div class="content">
+                <p>Set your due date, be sure to give the reviewer a decent amount of time to complete their task.</p>
+                {{ form.date_due|foundation }}
+                <p>Once you have selected your reviewer and set the date, use the button below to complate step 1. In step 2 you will be able to compose a message to the reviewer.</p>
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <button class="button" name="submit">Complete Step 1</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+{% include "admin/elements/datatables.html" with target="#reviewer_table" %}
+{% endblock js %}

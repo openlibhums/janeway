@@ -13,8 +13,9 @@ from django.urls.base import clear_script_prefix
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test.utils import override_settings
+import swapper
 
-from core.models import Account
+from core.models import Account, File
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -23,10 +24,9 @@ from submission import (
     logic,
     models,
 )
-
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.testing import helpers
-from utils.testing.helpers import request_context
+from utils.testing.helpers import create_galley, request_context
 
 
 # Create your tests here.
@@ -505,6 +505,144 @@ class SubmissionTests(TestCase):
                                        '2025 • Fall 2025 • 1 page'
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
+    def test_url_based_orcid_cleaned(self):
+        clean_orcid = forms.utility_clean_orcid('https://orcid.org/0000-0003-2126-266X')
+        self.assertEqual(
+            clean_orcid,
+            '0000-0003-2126-266X',
+        )
+
+    def test_orcid_value_error_raised(self):
+        with self.assertRaises(ValueError):
+            forms.utility_clean_orcid('Mauro-sfak-orci-dtst')
+
+    def test_author_form_with_bad_orcid(self):
+        form = forms.AuthorForm(
+            {
+                'first_name': 'Mauro',
+                'last_name': 'Sanchez',
+                'biography': 'Mauro is a Jedi Master hailing from the planet Galicia.',
+                'institution': 'Birkbeck, University of London',
+                'email': 'mauro@janeway.systems',
+                'orcid': 'Mauro-sfak-orci-dtst',
+            }
+        )
+        self.assertFalse(
+            form.is_valid(),
+        )
+
+    def test_author_form_with_good_orcid(self):
+        form = forms.AuthorForm(
+            {
+                'first_name': 'Andy',
+                'last_name': 'Byers',
+                'biography': 'Andy is a Jedi Master hailing from the planet Scotland.',
+                'institution': 'Birkbeck, University of London',
+                'email': 'andy@janeway.systems',
+                'orcid': 'https://orcid.org/0000-0003-2126-266X',
+            }
+        )
+        self.assertTrue(
+            form.is_valid(),
+        )
+        self.assertEqual(
+            form.cleaned_data.get('orcid'),
+            '0000-0003-2126-266X',
+        )
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_article_full_text_search(self):
+        text_to_search = """
+            Exceeding reaction chamber thermal limit.
+            We have begun power-supply calibration.
+            Force fields have been established on all turbo lifts and crawlways.
+            Computer, run a level-two diagnostic on warp-drive systems.
+        """
+        from django.db import connection
+        if connection.vendor == "sqlite":
+            # No native support for full text search in sqlite
+            return
+        needle = "turbo lifts"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Testing the search of articles",
+            date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
+        )
+        _other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+        )
+        file_obj = File.objects.create(article_id=article.pk)
+        create_galley(article, file_obj)
+        FileText = swapper.load_model("core", "FileText")
+        text_to_search = FileText.preprocess_contents(text_to_search)
+        text = FileText.objects.create(
+            contents=text_to_search,
+        )
+        file_obj.text = text
+        file_obj.save()
+
+        search_filters = {"full_text": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_article_search_abstract(self):
+        text_to_search = """
+            Exceeding reaction chamber thermal limit.
+            We have begun power-supply calibration.
+            Force fields have been established on all turbo lifts and crawlways.
+            Computer, run a level-two diagnostic on warp-drive systems.
+        """
+        needle = "Crawlways"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test searching abstract",
+            date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
+            abstract=text_to_search,
+        )
+        other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+            abstract="Random abstract crawl text",
+        )
+
+        search_filters = {"abstract": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_article_search_title(self):
+        text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
+        needle = "warp-drive"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title=text_to_search,
+            date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
+        )
+        other_article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="This article should not appear",
+            date_published=dateparser.parse("2020-01-01"),
+        )
+
+        search_filters = {"title": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod

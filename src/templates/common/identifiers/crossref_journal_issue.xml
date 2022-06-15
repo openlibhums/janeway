@@ -1,0 +1,35 @@
+{% spaceless %}<journal>{% endspaceless %}
+            <journal_metadata>
+                <full_title>{{ crossref_issue.journal.title }}</full_title>
+                {% if crossref_issue.journal.print_issn and crossref_issue.journal.print_issn != '0000-0000' %}
+                <issn media_type="print">{{ crossref_issue.journal.print_issn }}</issn>
+                {% endif %}
+                {% if crossref_issue.journal.journal_issn and crossref_issue.journal.journal_issn != '0000-0000' %}
+                <issn media_type="electronic">{{ crossref_issue.journal.journal_issn }}</issn>
+                {% endif %}
+            </journal_metadata>
+
+            {% if crossref_issue.issue and crossref_issue.issue.date %}
+            <journal_issue>
+                {% if crossref_issue.issue.issue_title %}
+                <titles>
+                    <title>{{ crossref_issue.issue.issue_title }}</title>
+                </titles>
+                {% endif %}
+                <publication_date media_type="online">
+                    <month>{{ crossref_issue.issue.date.month }}</month>
+                    <day>{{ crossref_issue.issue.date.day }}</day>
+                    <year>{{ crossref_issue.issue.date.year }}</year>
+                </publication_date>
+
+                <journal_volume>
+                    <volume>{{ crossref_issue.issue.volume }}</volume>
+                </journal_volume>
+                <issue>{{ crossref_issue.issue.issue }}</issue>
+            </journal_issue>
+            {% endif %}
+
+            {% for article in crossref_issue.articles %}
+                {% include "common/identifiers/crossref_article.xml" with article=article %}
+            {% endfor %}
+        </journal>

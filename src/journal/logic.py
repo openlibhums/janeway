@@ -423,10 +423,9 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
         sort = request.GET.get('sort', 'title')
-        if keyword:
-            form = SearchForm({'article_search':'', 'sort': sort})
-        else:
-            form = SearchForm({'article_search':search_term, 'sort': sort})
+        if sort == "relevance":
+            sort = 'title'
+        form = SearchForm(request.GET)
 
         return search_term, keyword, sort, form, None
 

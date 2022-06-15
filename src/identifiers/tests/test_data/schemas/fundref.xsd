@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.crossref.org/fundref.xsd" xmlns="http://www.crossref.org/fundref.xsd">
+    
+    <!--=========Change History===========
+    5/2/13 (PDF) changed funding_identifier to award_number
+    -->
+    
+    
+    <xsd:element name="program">
+        <xsd:annotation>
+            <xsd:documentation>
+                FundRef documentation and examples: http://help.crossref.org/#fundref
+                
+                As part of CrossMark metadata, a deposit may contain what is called FundRef info. This details the funding behind a published article. The schema is a sequence of nested &lt;assertion&gt; tags. 
+                
+                If a DOI is not participating in CrossMark, FundRef data may be deposited as part of the &lt;journal_article&gt; metadata.
+                    
+                    Note: Some rules will be enforced by the deposit logic (e.g. not the schema). 
+                    
+                    FundRef data includes one or more award numbers (award_number), each of which may have one or more funders (funder_name). Each funder may have one or more optional identifiers (funder_identifier).
+                    
+                    A FundRef deposit begins with a &lt;fr:program&gt; tag within the &lt;crossmark&gt; structure (where fr is the namespace for the FundRef program).
+                        
+                        The &lt;program&gt; element is an implicit funder_group and will typically contain:
+                            
+                            A) one or more funder_name assertions and an award_number assertion.
+                            
+                            or
+                            
+                            B) one or more funder_group assertions where each funder_group should contain one or more funder_name assertions and at least one award_number assertion.
+                            
+                            Multiple 'award_number's may be included in a single program or fundgroup. Deposits without an award_number will be accepted, but award_number should be provided whenever possible. Items with several award numbers associated with a single funding organization should be grouped together by enclosing the "funder_name", "funder_identifier", and award_number(s) within a "fundgroup" assertion.    
+</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="assertion" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" fixed="fundref"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="assertion">
+        <xsd:annotation>
+            <xsd:documentation>FundRef attributes included in assertion are:
+
+fundgroup: used to group funding info for items with multiple funding sources. Required for items with multiple award_number assertions, optional for items with a single award_number
+
+funder_identifier: funding agency identifier, must be nested within the funder_name assertion
+
+funder_name: name of the funding agency (required)
+
+award_number: grant number or other fund identifier</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:element ref="assertion" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="provider" default="publisher">
+                <xsd:simpleType>
+                <xsd:restriction base="xsd:NMTOKEN">
+                    <xsd:enumeration value="publisher"/>
+                    <xsd:enumeration value="crossref"/>
+                </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="name" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN">
+                        <xsd:enumeration value="fundgroup"/>
+                        <!-- fundgroup: used to group funding info for items with multiple funding sources. 
+                            Required for items with multiple award_number assertions, optional for items with a single award_number -->
+                        <xsd:enumeration value="funder_identifier"/>
+                        <!--funder_identifier: funding agency identifier, must be nested within the funder_name assertion-->
+                        <xsd:enumeration value="funder_name"/>
+                        <!--funder_name: name of the funding agency-->
+                        <xsd:enumeration value="award_number"/>
+                        <!---award_number: grant number or other fund identifier-->
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

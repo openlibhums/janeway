@@ -7,13 +7,24 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from contextlib import contextmanager
 from io import BytesIO
+import re
 import sys
 
 from django import forms
+from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
+from django.contrib.postgres.search import (
+    SearchVector as DjangoSearchVector,
+    SearchVectorField,
+)
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.db import models, IntegrityError, transaction
-from django.db.models import fields
+from django.db import(
+    connection,
+    IntegrityError,
+    models,
+    transaction,
+)
+from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
 from django.core.validators import (
     FileExtensionValidator,
@@ -444,3 +455,109 @@ class AbstractLastModifiedModel(models.Model):
                         last_mod_date = obj_modified
 
         return last_mod_date
+
+
+class SearchLookup(PGSearchLookup):
+    """ A Search lookup that works across multiple databases.
+    Django dropped support for the search lookup when using MySQLin 1.10
+    This lookup attempts to restore some of that behaviour so that MySQL users
+    can still benefit of some form of full text search. For any other vendors,
+    the search performs a simple LIKE match. For Postgres, the behaviour from
+    contrib.postgres.lookups.SearchLookup is preserved
+    """
+    lookup_name = 'search'
+
+    def as_mysql(self, compiler, connection):
+       lhs, lhs_params = self.process_lhs(compiler, connection)
+       rhs, rhs_params = self.process_rhs(compiler, connection)
+       params = lhs_params + rhs_params
+       return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+
+    def as_postgresql(self, compiler, connection):
+        return super().as_sql(compiler, connection)
+
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+        return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+
+    def process_lhs(self, compiler, connection):
+        if connection.vendor != 'postgresql':
+            return models.Lookup.process_lhs(self, compiler, connection)
+        else:
+            return super().process_lhs(compiler, connection)
+
+    def process_rhs(self, compiler, connection):
+        if connection.vendor != 'postgresql':
+            return models.Lookup.process_rhs(self, compiler, connection)
+        else:
+            return super().process_rhs(compiler, connection)
+
+SearchVectorField.register_lookup(SearchLookup)
+models.CharField.register_lookup(SearchLookup)
+
+
+class BaseSearchManagerMixin(Manager):
+    search_lookups = set()
+
+    def search(self, search_term, search_filters, sort=None, site=None):
+        if connection.vendor == "postgresql":
+            return self.postgres_search(search_term, search_filters, sort, site)
+        elif connection.vendor == "mysql":
+            return self.mysql_search(search_term, search_filters, sort, site)
+        else:
+            return self._search(search_term, search_filters, sort, site)
+
+    def _search(self, search_term, search_filters, sort=None, site=None):
+        """ This is a copy of search from journal.views.old_search with filters
+        """
+        articles = self.get_queryset()
+        if search_term:
+            escaped = re.escape(search_term)
+            split_term = [re.escape(word) for word in search_term.split(" ")]
+            split_term.append(escaped)
+            search_regex = "^({})$".format(
+                "|".join({name for name in split_term})
+            )
+            q_object = Q()
+            if search_filters.get("title"):
+                q_object = q_object | Q(title__icontains=search_term)
+            if search_filters.get("abstract"):
+                q_object = q_object | Q(abstract__icontains=search_term)
+            if search_filters.get("keywords"):
+                q_object = q_object | Q(keywords__word=search_term)
+            if search_filters.get("authors"):
+                q_object = q_object | (
+                    Q(frozenauthor__first_name__iregex=search_regex) |
+                    Q(frozenauthor__last_name__iregex=search_regex)
+                ),
+            articles = articles.filter(q_object)
+            if site:
+                # TODO: Support other site types
+                articles = articles.filter(journal=site)
+
+        return articles.distinct()
+
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
+
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
+
+    def get_search_lookups(self):
+        return self.search_lookups
+
+
+class SearchVector(DjangoSearchVector):
+    """ An Extension of SearchVector that works with SearchVectorField
+
+    Django's implementation assumes that the `to_tsvector` function needs
+    to be called with the provided column, except that when the field is already
+    a SearchVectorField, there is no need.
+    """
+    # Override template to ignore function
+    function = None
+    template = '%(expressions)s'
+

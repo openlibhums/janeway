@@ -10,7 +10,7 @@ from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.forms import render_choices
-from core import models as core_models
+from core import models as core_models, workflow
 from utils import forms as utils_forms
 
 
@@ -433,12 +433,14 @@ class RepositorySite(RepositoryBase):
             'submission_access_request_text',
             'submission_access_contact',
             'custom_js_code',
+            'review_helper',
         )
         widgets = {
             'about': SummernoteWidget,
             'footer': SummernoteWidget,
             'login_text': SummernoteWidget,
             'submission_access_request_text': SummernoteWidget,
+            'review_helper': SummernoteWidget,
         }
 
 
@@ -473,6 +475,9 @@ class RepositoryEmails(RepositoryBase):
             'accept_version',
             'decline_version',
             'new_comment',
+            'review_invitation',
+            'manager_review_status_change',
+            'reviewer_review_status_change',
         )
 
         widgets = {
@@ -482,6 +487,9 @@ class RepositoryEmails(RepositoryBase):
             'accept_version': SummernoteWidget,
             'decline_version': SummernoteWidget,
             'new_comment': SummernoteWidget,
+            'review_invitation': SummernoteWidget,
+            'manager_review_status_change': SummernoteWidget,
+            'reviewer_review_status_change': SummernoteWidget,
         }
 
 
@@ -519,3 +527,175 @@ class RepositoryFieldForm(forms.ModelForm):
             field.save()
 
         return field
+
+
+class PreprinttoArticleForm(forms.Form):
+    license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
+    section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
+    stage = forms.ChoiceField(
+        choices=()
+    )
+    force = forms.BooleanField(
+        required=False,
+        help_text='If you want to force the creation of a new article object even if one exists, check this box. '
+                  'The old article will be orphaned and no longer linked to this object.',
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(PreprinttoArticleForm, self).__init__(*args, **kwargs)
+
+        if self.journal:
+            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+                journal=self.journal,
+            )
+            self.fields['section'].queryset = submission_models.Section.objects.filter(
+                journal=self.journal,
+            )
+            self.fields['stage'].choices = workflow.workflow_journal_choices(self.journal)
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = (
+            'reviewer',
+            'date_due',
+        )
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        self.manager = kwargs.pop('manager')
+        super(ReviewForm, self).__init__(*args, **kwargs)
+        self.fields['reviewer'].queryset = self.preprint.repository.reviewer_accounts()
+
+    def save(self, commit=True):
+        review = super(ReviewForm, self).save(commit=False)
+        review.preprint = self.preprint
+        review.manager = self.manager
+        review.status = 'new'
+
+        if commit:
+            review.save()
+
+        return review
+
+
+class ReviewDueDateForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = ('date_due',)
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput(),
+        }
+
+
+class ReviewCommentForm(forms.Form):
+    body = forms.CharField(
+        widget=SummernoteWidget(),
+        label="Comments",
+    )
+    anonymous = forms.BooleanField(
+        help_text='Check if you want your comments to be displayed anonymously.',
+        label="Comment Anonymously",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.review = kwargs.pop('review')
+        super(ReviewCommentForm, self).__init__(*args, **kwargs)
+        if self.review.comment:
+            self.fields['body'].initial = self.review.comment.body
+            self.fields['anonymous'].initial = self.review.anonymous
+
+    def save(self):
+        if self.cleaned_data:
+            if self.review.comment:
+                comment = self.review.comment
+            else:
+                comment = models.Comment()
+
+            comment.author = self.review.reviewer
+            comment.preprint = self.review.preprint
+            comment.body = self.cleaned_data.get('body')
+            comment.save()
+
+            self.review.anonymous = self.cleaned_data.get('anonymous', False)
+            self.review.comment = comment
+            self.review.save()
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = (
+            'reviewer',
+            'date_due',
+        )
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        self.manager = kwargs.pop('manager')
+        super(ReviewForm, self).__init__(*args, **kwargs)
+        self.fields['reviewer'].queryset = self.preprint.repository.reviewer_accounts()
+
+    def save(self, commit=True):
+        review = super(ReviewForm, self).save(commit=False)
+        review.preprint = self.preprint
+        review.manager = self.manager
+        review.status = 'new'
+
+        if commit:
+            review.save()
+
+        return review
+
+
+class ReviewDueDateForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        fields = ('date_due',)
+        widgets = {
+            'date_due': utils_forms.HTMLDateInput(),
+        }
+
+
+class ReviewCommentForm(forms.Form):
+    body = forms.CharField(
+        widget=SummernoteWidget(),
+        label="Comments",
+    )
+    anonymous = forms.BooleanField(
+        help_text='Check if you want your comments to be displayed anonymously.',
+        label="Comment Anonymously",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.review = kwargs.pop('review')
+        super(ReviewCommentForm, self).__init__(*args, **kwargs)
+        if self.review.comment:
+            self.fields['body'].initial = self.review.comment.body
+            self.fields['anonymous'].initial = self.review.anonymous
+
+    def save(self):
+        if self.cleaned_data:
+            if self.review.comment:
+                comment = self.review.comment
+            else:
+                comment = models.Comment()
+
+            comment.author = self.review.reviewer
+            comment.preprint = self.review.preprint
+            comment.body = self.cleaned_data.get('body')
+            comment.save()
+
+            self.review.anonymous = self.cleaned_data.get('anonymous', False)
+            self.review.comment = comment
+            self.review.save()

@@ -30,7 +30,13 @@
         <div class="col m7">
             <div itemprop="articleBody" id="pdf">
                 <p class="preprint-text">
-                    This is a {{ request.repository.object_name }} and has not been peer reviewed.{% if preprint.doi %} The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.{% endif %} This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
+                    This is a {{ request.repository.object_name }} and has not been peer reviewed.
+                    {% if preprint.doi %}
+                        The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    {% elif preprint.article %}
+                        A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
+                    {% endif %}
+                    This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
                 </p>
                 {% if preprint.current_version_file_type == 'html' %}
                     <div class="card">
@@ -153,13 +159,21 @@
                                     {% endif %}
                                 </div>
                                 <div class="col m10">
+                                    {% if comment.review %}
+                                        <p>
+                                        <small><strong>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
+                                            @ {{ comment.date_time }}</strong></small>
+                                    </p>
+                                        {{ comment.body|safe }}
+                                    {% else %}
                                     <p>
                                         <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
                                             @ {{ comment.date_time }}</small>
                                     </p>
                                     <p>
-                                        {{ comment.body }}
+                                        {{ comment.body|linebreaksbr }}
                                     </p>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% empty %}

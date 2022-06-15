@@ -1,0 +1,48 @@
+<?xml-stylesheet href="xsd.xsl" type="text/xsl"?>
+<xsd:schema xmlns="http://www.ncbi.nlm.nih.gov/JATS1" targetNamespace="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mtl="http://www.mulberrytech.com/taglib"
+            xmlns:c="http://www.w3.org/ns/xproc-step"
+            xmlns:mml="http://www.w3.org/1998/Math/MathML"
+            xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <xsd:annotation>
+      <xsd:documentation>
+         <div xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:dxdy="http://mulberrytech.com/2014/dxdy"
+              xmlns:xsd="http://www.w3.org/2000/10/XMLSchema"
+              class="bodytext">
+              <h1>MODULE: JATS-journalpublishing1-3d2-mathml3 DTD in XSD form (driver file)</h1>
+              <h2>MODEL: Journal Publishing DTD (MathML 3.0)</h2>
+              <h2>VERSION:   1.3d2</h2>
+              <h2>DATE:  December 2020</h2>
+              
+              <dl>
+                <dt>SYSTEM</dt>
+                <dd>
+                  <p>Journal Publishing model of the JATS Suite</p>
+               </dd>
+                <dt>PURPOSE</dt>
+                <dd>
+                  <p>Driver file: include and import all other schema documents</p>
+               </dd>
+                <dt>CREATED FOR</dt>
+                <dd>
+                  <p>NLM/NCBI</p> 
+               </dd>
+                
+              </dl>
+            </div>
+      </xsd:documentation>
+   </xsd:annotation>
+   <xsd:import namespace="http://www.w3.org/1999/xlink"
+               schemaLocation="standard-modules/xlink.xsd"/>
+   <xsd:import namespace="http://www.w3.org/1998/Math/MathML"
+               schemaLocation="standard-modules/mathml3/mathml3.xsd"/>
+   <xsd:import namespace="http://www.niso.org/schemas/ali/1.0/"
+               schemaLocation="standard-modules/module-ali.xsd"/>
+   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+               schemaLocation="standard-modules/xml.xsd"/>
+   <xsd:include schemaLocation="JATS-journalpublishing1-3d2-mathml3-elements.xsd"/>
+</xsd:schema>
+

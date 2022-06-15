@@ -1,100 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch
-    xmlns="http://www.crossref.org/schema/4.4.1"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    version="4.4.1"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/schemas/crossref4.4.1.xsd"
-    xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
->
-    <head>
-        <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{% now "YmdHis" %}{{ timestamp_suffix }}</timestamp>
-        <depositor>
-            <depositor_name>{{ depositor_name }}</depositor_name>
-            <email_address>{{ depositor_email }}</email_address>
-        </depositor>
-        <registrant>{{ registrant }}</registrant>
-    </head>
-    <body>
-        {% if issue and issue.date %}
-        <conference>
+{% if crossref_issue.issue and crossref_issue.issue.date %}
+{% spaceless %}<conference>{% endspaceless %}
             <event_metadata>
-                {% if issue.issue_title %}
-                <conference_name>{{ issue.issue_title }}</conference_name>
+                {% if crossref_issue.issue.issue_title %}
+                <conference_name>{{ crossref_issue.issue.issue_title }}</conference_name>
                 {% else %}
-                <conference_name>{{ journal_title }} - {{ issue.year }}</conference_name>
+                <conference_name>{{ crossref_issue.journal.title }} - {{ crossref_issue.issue.year }}</conference_name>
                 {% endif %}
             </event_metadata>
             <proceedings_metadata>
-                {% if issue.issue_title %}
-                <proceedings_title>{{ issue.issue_title }}</proceedings_title>
+                {% if crossref_issue.issue.issue_title %}
+                <proceedings_title>{{ crossref_issue.issue.issue_title }}</proceedings_title>
                 {% else %}
-                <proceedings_title>{{ journal_title }} - {{ issue.year }}</proceedings_title>
+                <proceedings_title>{{ crossref_issue.journal.title }} - {{ crossref_issue.issue.year }}</proceedings_title>
                 {% endif %}
                 <publisher>
-                  <publisher_name>{{ issue.journal.press.name }}</publisher_name>
+                  <publisher_name>{{ crossref_issue.issue.journal.press.name }}</publisher_name>
                 </publisher>
                 <publication_date media_type="online">
-                    <month>{{ issue.date.month }}</month>
-                    <day>{{ issue.date.day }}</day>
-                    <year>{{ issue.date.year }}</year>
+                    <month>{{ crossref_issue.issue.date.month }}</month>
+                    <day>{{ crossref_issue.issue.date.day }}</day>
+                    <year>{{ crossref_issue.issue.date.year }}</year>
                 </publication_date>
                 <noisbn reason="simple_series"/>
             </proceedings_metadata>
-            <conference_paper publication_type="full_text">
-                {# Order matters! conferences MUST send contributors before titles #}
-                {% if authors %}
-                <contributors>
-                  {% for author in authors %}
-                    {% if author.is_corporate %}
-                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        {{ author.corporate_name }}
-                    </organization>
-                    {% else %}
-                    <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        <given_name>{{ author.given_names }}</given_name>
-                        <surname>{{ author.last_name }}</surname>
-                        {% if author.institution %}
-                        <affiliation>{{ author.affiliation }}</affiliation>
-                        {% endif %}
-                        {% if author.author.orcid %}
-                        <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
-                        {% endif %}
-                    </person_name>
-                    {% endif %}
-                  {%  endfor %}
-                </contributors>
-                {% endif %}
-                <titles>
-                    <title>{{ article_title }}</title>
-                </titles>
-
-                <publication_date>
-                    <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
-                    <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
-                    <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
-                </publication_date>
-                {% if license %}
-                <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ license }}</ai:license_ref>
-                </ai:program>
-                {% endif %}
-                <doi_data>
-                    <doi>{{ doi }}</doi>
-                    <resource>{{ article_url }}</resource>
-                    <collection property="crawler-based">
-                        <item crawler="iParadigms">
-                            {% if pdf_url %}
-                                <resource>{{ pdf_url }}</resource>
-                            {% else %}
-                                <resource>{{ article_url }}</resource>
-                            {% endif %}
-                        </item>
-                    </collection>
-                </doi_data>
-            </conference_paper>
-     </conference>
-    {% endif %}
-    </body>
-</doi_batch>
-
+            {% for article in crossref_issue.articles %}
+                {% include "common/identifiers/crossref_conference_paper.xml" with article=article %}
+            {% endfor %}
+        </conference>
+{% endif %}

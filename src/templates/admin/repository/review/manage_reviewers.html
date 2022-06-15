@@ -1,0 +1,111 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{{ request.repository.name }} | Reviewers{% endblock %}
+{% block title-section %}{{ request.repository.name }} Reviewers{% endblock %}
+{% block title-sub %}Lists and manage reviewers for {{ request.repository.name }}.{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li>Reviewers</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Search for Users</h2>
+                </div>
+                <div class="content">
+                    <div class="row expanded">
+                        <form method="GET">
+                            <div class="large-12 columns">
+                                <p>Search by First Name, Last Name or Email Address. </p>
+                            </div>
+                            <div class="medium-2 columns">
+                                <input minlength=2 type="text" name="first_name" placeholder="First Name"
+                                       {% if first_name %}value="{{ first_name }}"{% endif %}>
+                            </div>
+                            <div class="medium-2 columns">
+                                <input minlength=2 type="text" name="last_name" placeholder="Last Name"
+                                       {% if last_name %}value="{{ last_name }}"{% endif %}>
+                            </div>
+                            <div class="medium-2 columns">
+                                <input minlength=2 type="text" name="email" placeholder="Email"
+                                       {% if email %}value="{{ email }}"{% endif %}>
+                            </div>
+                            <div class="medium-2 columns end">
+                                <button class="success button">Search Users</button>
+                            </div>
+                        </form>
+                    </div>
+
+                {% if first_name or last_name or email %}
+                <table class="table" id="reviewer_table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Interests</th>
+                            <td>Remove</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in user_search %}
+                            <tr>
+                                <td>{{ user.pk }}</td>
+                                <td>{{ user.full_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{% for interest in user.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td><form method="POST">{% csrf_token %}<button name="add_reviewer" value="{{ user.pk }}" class="button small">Add Role</button></form></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No accounts found matching query.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                </div>
+                <div class="title-area">
+                    <h2>Current Reviewers</h2>
+                </div>
+                <div class="content">
+                    <table class="table" id="reviewer_table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Interests</th>
+                            <td>Remove</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for reviewer in reviewers %}
+                            <tr>
+                                <td>{{ reviewer.pk }}</td>
+                                <td>{{ reviewer.full_name }}</td>
+                                <td>{{ reviewer.email }}</td>
+                                <td>{% for interest in reviewer.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>
+                                    <form method="POST">{% csrf_token %}<button name="remove_reviewer" value="{{ reviewer.pk }}" class="small alert button">Remove Role</button></form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">{{ request.repository.name }} has no current reviewers.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

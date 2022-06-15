@@ -34,5 +34,8 @@ urlpatterns = [
         name='poll_doi'),
     url(r'^(?P<article_id>\d+)/poll/output/(?P<identifier_id>\d+)/$',
         views.poll_doi_output,
-        name='poll_doi_output')
+        name='poll_doi_output'),
+
+    # DOI Manager
+    url(r'^doi_manager/$', views.IdentifierManager.as_view(), name='journal_identifier_manager'),
 ]

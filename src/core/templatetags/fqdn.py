@@ -35,3 +35,13 @@ def site_url(context, url_name=None, *args):
 @register.simple_tag(takes_context=True)
 def journal_base_url(context, journal):
     return journal.site_url()
+
+
+@register.simple_tag
+def external_journal_url(journal, url_name=None, *args):
+    if url_name is not None:
+        path = reverse(url_name, args=args)
+    else:
+        path = None
+
+    return journal.site_url(path=path)

@@ -56,14 +56,14 @@ Publisher notes appear on the article page below the abstract and how to cite bl
 
 Identifiers
 -----------
-Any identifiers such as DOIs are listed here and a link to manage them is in the top right of the block. From that link you can manage the identifiers.
+Any identifiers such as DOIs are listed here and a link to manage them is in the top right of the block.
 
 .. figure:: /nstatic/edit_doi.png
 
-    The identifiers manager
+    The article-level identifiers manager
 
-.. warning::
-    Janeway does not currently tell you if a DOI was deposited successfully, to do so you can test the DOI or check the issue admin system.
+.. tip::
+    You can also manage DOIs at the journal level as an editor (and at the press level as a staff user) using the :ref:`DOI Manager<doimanager>`.
 
 Galleys
 -------

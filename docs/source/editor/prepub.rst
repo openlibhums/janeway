@@ -33,14 +33,15 @@ Check the ‘Mark as Complete’ box to move onto the next step.
 3. Verify DOIs
 --------------
 
-Articles usually have a DOI, or Digital Object Identifier, automatically assigned and ‘minted’ (created) for them by the system. This unique digital link to the article is usually created automatically for you by the system, and the Verify DOI stage lets you check if the DOI has been issued successfully or if there are any problems.
-If the DOI only has two ‘hops’, or two steps shown as bullet points in the Verify DOI stage, this means that no further changes are needed and you are ready to proceed. 
-You can verify that the article’s DOI is resolving correctly by clicking ‘Edit’ in the top right hand corner of the pop up window and checking that the ‘Status’ column reads ‘Success’. If the DOI Status is listed as pending, or blank, click ‘Poll for DOI Status’. If no DOI has been assigned, click ‘Issue DOI’. NB that newly issued DOIS can take a while to go through.  
+Articles usually have a DOI (Digital Object Identifier) automatically assigned and ‘minted’ (created) for them by the system. The DOI serves both as a unique identifier and a permalink. The ‘Verify DOI’ step lets you check if the DOI is working successfully as a permalink.
 
+If the DOI only has two ‘hops’, or two steps (shown as bullet points), this means that no further changes are needed and you are ready to proceed.
+
+If the DOI has more than two hops, or you see something else, you need to look more closely at the DOI's details. Select ‘Edit’ in the top right hand corner of the pop up window and check the ‘Status’ column for an indication of what to do next. See :ref:`Interpreting Registration Status<interpreting-registration-status>` for more help.
 
 .. figure:: ../nstatic/prepubgif2.gif
 
-Check the ‘Mark as Complete’ box to move onto the next step. 
+Check the ‘Mark as Complete’ box to move onto the next step.
 
 4. Select a Galley for Rendering
 --------------------------------
