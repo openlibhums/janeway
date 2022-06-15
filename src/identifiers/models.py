@@ -235,6 +235,10 @@ class CrossrefStatus(models.Model):
         if deposits.count() > 0:
             return deposits[0]
 
+    class Meta:
+        verbose_name = 'Crossref status'
+        verbose_name_plural = 'Crossref statuses'
+
 
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
