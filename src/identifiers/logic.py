@@ -23,6 +23,7 @@ import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from utils.shared import clear_cache
 from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
@@ -120,7 +121,6 @@ def get_dois_for_articles(articles, create=False):
 
 
 def poll_dois_for_articles(articles):
-    from utils.shared import clear_cache
     clear_cache()
     status = ''
     error = False
