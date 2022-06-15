@@ -473,17 +473,15 @@ class SearchLookup(PGSearchLookup):
        params = lhs_params + rhs_params
        return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
 
-    def as_others(self, compiler, connection):
-       lhs, lhs_params = self.process_lhs(compiler, connection)
-       rhs, rhs_params = self.process_rhs(compiler, connection)
-       params = lhs_params + rhs_params
-       return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+    def as_postgresql(self, compiler, connection):
+        return super().as_sql(compiler, connection)
+
 
     def as_sql(self, compiler, connection):
-        if connection.vendor != 'postgresql':
-            return self.as_others(self, compiler, connection)
-        else:
-            return super().as_sql(compiler, connection)
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+        return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
 
     def process_lhs(self, compiler, connection):
         if connection.vendor != 'postgresql':
@@ -506,11 +504,11 @@ class BaseSearchManagerMixin(Manager):
 
     def search(self, search_term, search_filters, sort=None, site=None):
         if connection.vendor == "postgresql":
-            return self.postgres_search(search_term, search_filters, site)
+            return self.postgres_search(search_term, search_filters, sort, site)
         elif connection.vendor == "mysql":
-            return self.mysql_search(search_term, search_filters, site)
+            return self.mysql_search(search_term, search_filters, sort, site)
         else:
-            return self._search(search_term, search_filters, site)
+            return self._search(search_term, search_filters, sort, site)
 
     def _search(self, search_term, search_filters, sort=None, site=None):
         """ This is a copy of search from journal.views.old_search with filters
