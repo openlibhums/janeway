@@ -354,7 +354,6 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'model': journal_models.Issue,
                 'field_label': 'Primary issue',
                 'choice_label_field': 'non_pretty_issue_identifier',
-                'order_by': 'facet_count',
             },
         }
         return self.filter_facets_if_journal(facets)

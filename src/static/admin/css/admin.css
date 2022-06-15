@@ -711,3 +711,8 @@ ul.menu {
 #review_controls {
     padding-bottom: 20px;
 }
+
+.facet {
+    max-height: 200px;
+    overflow-y: scroll;
+}

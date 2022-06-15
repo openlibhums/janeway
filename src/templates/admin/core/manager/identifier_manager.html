@@ -15,7 +15,7 @@
 {% block body %}
 <div>
     <div class="content">
-        <div class="row"> 
+        <div class="row expanded"> 
             <a href="https://janeway.readthedocs.io/en/v{{ version }}/manager/identifiers/index.html" class="button small float-right">
                 Documentation <span class="fa fa-info-circle"></span>
             </a>
@@ -24,10 +24,10 @@
             <div class="box">
                 <section>
                     <h3>Filters</h3>
-                    <div class="row small-12">
+                    <div class="row expanded">
                         <form method="GET" id={{ facet_form.id }}>
                             {% for field in facet_form %}
-                                <div class="columns small-12 medium-6">
+                                <div class="facet columns small-12 medium-6">
                                     <fieldset style="padding-bottom: 24px">
                                         <legend>{{ field.label }}</legend>
                                         {% with field.field.widget|classname as widgetclass %}
@@ -142,7 +142,7 @@
                 </table>
                 </div>
             </section>
-            <div class="row">
+            <div class="row expanded">
                 {% include "common/elements/pagination.html" with form_id=facet_form.id %}
             </div>
         </div>
