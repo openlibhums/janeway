@@ -10,7 +10,8 @@ import os
 from dateutil import parser as dateparser
 
 from django.urls import reverse
-from django.db import models
+from django.db import connection, models
+from django.db.models.query import RawQuerySet
 from django.conf import settings
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.utils import timezone
@@ -380,10 +381,12 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
     def search(self, *args, **kwargs):
         queryset = super().search(*args, **kwargs)
-        return queryset.filter(
-            date_published__lte=timezone.now(),
-            stage=STAGE_PUBLISHED,
-        )
+        if not isinstance(queryset, RawQuerySet):
+            queryset = queryset.filter(
+                date_published__lte=timezone.now(),
+                stage=STAGE_PUBLISHED,
+            )
+        return queryset
 
     def mysql_search(self, search_term, search_filters, sort=None, site=None):
         queryset = self.get_queryset().none()
@@ -420,6 +423,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         queryset = self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
+        queryset = queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=STAGE_PUBLISHED,
+        )
         if site:
             queryset = queryset.filter(journal=site)
         lookups, annotations = self.build_postgres_lookups(
@@ -429,11 +436,27 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if lookups:
             queryset = queryset.filter(**lookups)
 
+
         if not sort or sort not in self.SORT_KEYS:
             sort = "-relevance"
 
         # Postgresql requires adding the DISTINCT ON column to ORDER BY
-        return queryset.distinct("id").order_by( "id", sort)
+        queryset = queryset.order_by("id").distinct("id")
+
+        # Now we can order the result set based by another column
+        if "relevance" in sort:
+            # We can't use the ORM because it is not possible to select
+            # a column from a subquery filter
+            inner_sql = self.stringify_queryset(queryset)
+            return Article.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search "
+                "ORDER BY relevance DESC"
+            )
+        else:
+            return self.get_queryset().filter(
+                id__in=queryset
+            ).order_by(sort)
+
 
     def build_postgres_lookups(self, search_term, search_filters):
         """ Build the necessary lookup expressions based on the provided filters
@@ -483,6 +506,12 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             lookups['frozenauthor__author__orcid'] = search_term
             lookups['frozenauthor__frozen_orcid'] = search_term
         return lookups, annotations
+
+    @staticmethod
+    def stringify_queryset(queryset):
+        sql, params = queryset.query.sql_with_params()
+        with connection.cursor() as cursor:
+            return cursor.mogrify(sql, params).decode()
 
 
 class Article(AbstractLastModifiedModel):
@@ -938,6 +967,14 @@ class Article(AbstractLastModifiedModel):
         return None
 
     @property
+    def get_doi_object(self):
+        return self.get_identifier('doi', object=True)
+
+    @property
+    def doi_pattern_preview(self):
+        return id_logic.render_doi_from_pattern(self)
+
+    @property
     def identifiers(self):
         from identifiers import models as identifier_models
         return identifier_models.Identifier.objects.filter(article=self)
@@ -1088,7 +1125,7 @@ class Article(AbstractLastModifiedModel):
         super(Article, self).save(*args, **kwargs)
 
     def folder_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', self.pk)
+        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.pk))
 
     def production_managers(self):
         return [assignment.production_manager for assignment in self.productionassignment_set.all()]
@@ -1429,9 +1466,9 @@ class Article(AbstractLastModifiedModel):
         kwargs = {'article_id': self.pk}
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
-            return reverse('review_unassigned_article', kwargs=kwargs)
+            path = reverse('review_unassigned_article', kwargs=kwargs)
         elif self.stage in FINAL_STAGES:
-            return reverse('manage_archive_article', kwargs=kwargs)
+            path = reverse('manage_archive_article', kwargs=kwargs)
         elif not self.stage:
             logger.error(
                 'Article #{} has no Stage.'.format(
@@ -1442,7 +1479,7 @@ class Article(AbstractLastModifiedModel):
         else:
             element = self.current_workflow_element
             if element:
-                return reverse(element.jump_url, kwargs=kwargs)
+                path = reverse(element.jump_url, kwargs=kwargs)
             else:
                 # In order to ensure the Dashboard renders we purposefully do
                 # not raise an error message here.
@@ -1452,6 +1489,7 @@ class Article(AbstractLastModifiedModel):
                     )
                 )
                 return '?workflow_element_url=no_element'
+        return self.journal.site_url(path=path)
 
     @cache(600)
     def render_sample_doi(self):

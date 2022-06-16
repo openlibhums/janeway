@@ -8,7 +8,8 @@
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block css %}
-    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

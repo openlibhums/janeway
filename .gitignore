@@ -115,8 +115,8 @@ janeway\.sublime-workspace
 terminal\.glue
 
 src/core/management/commands
-
 src/core/management/__init__\.py
+src/utils/management/commands/test_command.py
 
 src/auth\.json
 
@@ -133,5 +133,8 @@ local.env
 .lando.local.yml
 dockerfiles/lando_local.env
 
+src/utils/management/commands/test_command.py
+
 # Emacs backup files
 *~
+

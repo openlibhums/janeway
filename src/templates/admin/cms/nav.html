@@ -18,7 +18,7 @@
 {% block body %}
     <div class="large-6 columns">
         <div class="box">
-            {% include "admin/elements/translations/form_tabs.html" with object=nav_item_to_edit %}
+            {% include "admin/elements/translations/form_tabs.html" with object=form.instance %}
             <form method="POST">
                 {% csrf_token %}
                 <div class="title-area">

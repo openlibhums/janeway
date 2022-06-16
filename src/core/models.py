@@ -145,6 +145,7 @@ TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
 SUMMERNOTE_SENTINEL = '<p><br></p>'
 
+
 class Country(models.Model):
     code = models.TextField(max_length=5)
     name = models.TextField(max_length=255)
@@ -1377,6 +1378,10 @@ BASE_ELEMENTS = [
      'jump_url': 'publish_article',
      'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
      'article_url': True}
+]
+
+BASE_ELEMENT_NAMES = [
+    element.get('name') for element in BASE_ELEMENTS
 ]
 
 

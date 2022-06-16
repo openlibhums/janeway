@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^utils/', include('utils.urls')),
     url(r'^workflow/', include('workflow.urls')),
     url(r'^discussion/', include('discussion.urls')),
+    url('oidc/', include('mozilla_django_oidc.urls')),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
@@ -69,6 +70,7 @@ urlpatterns = [
         name='serve_press_file',
         ),
     url(r'^press/merge_users/$', press_views.merge_users, name='merge_users'),
+    url(r'^doi_manager/$', press_views.IdentifierManager.as_view(), name='press_identifier_manager'),
 
     # Notes
     url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,

@@ -1,0 +1,59 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load admin_urls %}
+{% load static from staticfiles %}
+
+{% block title %}Notify Invited Reviewer{% endblock %}
+{% block title-section %}Notify Invited Reviewer{% endblock %}
+{% block title-sub %}Send a notification to invited reviewer of {{ request.repository.object_name }} #{{ preprint.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li><a href="{% url 'repository_list_reviews' preprint.pk %}">Invited Reviews</a></li>
+    <li>Notify Reviewer</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Notify the Reviewer</h2>
+            </div>
+            <div class="content">
+                <p>You can send a message to the reviewer or skip it.</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="card">
+                        <div class="card-divider">
+                            <h4>To {{ review.reviewer.full_name }}</h4>
+                            <h5>From {{ request.user.full_name }}</h5>
+                        </div>
+
+                        {% csrf_token %}
+
+                        <p>Subject: <strong>{{ request.repository.object_name }} Review Invitation</strong></p>
+                        <textarea rows="10" name="message">{{ message|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
+                    </div>
+                    <div class="card-divider">
+                        <div class="button-group">
+                            <button type="submit" class="button success" name="send"><i
+                                    class="fa fa-envelope-o">&nbsp;</i>Send
+                            </button>
+                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    {% include "admin/elements/jqte.html" %}
+{% endblock js %}

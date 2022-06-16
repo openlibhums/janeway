@@ -24,9 +24,10 @@
             <div class="content">
                 {% if draft %}
                     <div class="bs-callout bs-callout-danger">
-                        <p><span class="fa fa-exclamation-triangle"></span> As this draft has been completed, any
-                            changes to the
-                            email text (eg. Due Date) will need to be made manually.</p>
+                        <p><span class="fa fa-exclamation-triangle"></span>
+                            As this draft has been completed, any
+                            changes to the email text (eg. Due Date) will need to be made manually.</p>
+                        <p><span class="fa fa-arrow-circle-down"></span> Review reports are listed towards the bottom of this page and can assist you in evaluating this draft decision.</p>
                     </div>
                     <div class="row expanded">
                         <div class="large-12 columns">
@@ -64,12 +65,14 @@
                         Save{% endif %}</button>
 
                     {% if draft and user_is_editor %}
-                        <div class="float-right">
+                        <div class="title-area">
+                            <h2>Complete Reviews</h2>
+                        </div>
+                        {% include "admin/elements/review/view_reviews.html" with reviews=article.completed_reviews_with_decision reviewer_names=True %}
                             <button name="accept_draft" type="submit" class="success button"
                                     formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Accept Draft
                             </button>
                             <a href="#" data-open="declinemodal" class="alert button">Decline Draft</a>
-                        </div>
                     {% endif %}
                 </form>
             </div>

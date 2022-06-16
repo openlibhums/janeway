@@ -24,7 +24,7 @@ class SubjectAdmin(admin.ModelAdmin):
 class PreprintAdmin(admin.ModelAdmin):
     list_display = ('title', 'pk', 'repository', 'doi', 'current_version')
     list_filter = ('repository',)
-    raw_id_fields = ('repository', 'owner', 'subject', )
+    raw_id_fields = ('repository', 'owner', 'subject', 'article', 'submission_file')
     filter_horizontal = ('keywords',)
 
     save_as = True
@@ -70,6 +70,18 @@ class PreprintSupplementaryFileAdmin(admin.ModelAdmin):
     pass
 
 
+class RepositoryRoleAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'repository', 'user', 'role')
+    list_filter = ('repository', 'role')
+    raw_id_fields = ('repository', 'user', 'role')
+
+
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'reviewer', 'manager', 'preprint',)
+    raw_id_fields = ('preprint', 'manager', 'reviewer', 'comment')
+    list_display_links = ('pk', 'reviewer')
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.PreprintVersion, VersionAdmin),
@@ -83,6 +95,9 @@ admin_list = [
     (models.RepositoryField,),
     (models.RepositoryFieldAnswer,),
     (models.PreprintAccess, PreprintAccessAdmin),
+    (models.Review, ReviewAdmin),
+    (models.RepositoryRole, RepositoryRoleAdmin)
+
 ]
 
 [admin.site.register(*t) for t in admin_list]

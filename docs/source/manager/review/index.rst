@@ -5,6 +5,8 @@ The management interface has two sections that allow you to manage peer review s
 - Review Settings
 - Review Forms
 
+.. _reviewsettings:
+
 Review Settings
 ---------------
 Under review settings we can control how peer review operates for the given journal. The settings editable here are:

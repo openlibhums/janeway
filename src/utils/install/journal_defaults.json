@@ -529,7 +529,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The username to login to Crossref's deposit API.",
+            "description": "The username to log in to Crossref's deposit API.",
             "is_translatable": false,
             "name": "crossref_username",
             "pretty_name": "Crossref username",
@@ -544,7 +544,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The password to login to Crossref's deposit API.",
+            "description": "The password to log in to Crossref's deposit API.",
             "is_translatable": false,
             "name": "crossref_password",
             "pretty_name": "Crossref password",
@@ -1459,7 +1459,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "You can set your DOI pattern, fallback is 10.xxxx/{{ article.pk }}",
+            "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
             "is_translatable": false,
             "name": "doi_pattern",
             "pretty_name": "DOI Pattern",
@@ -1794,6 +1794,21 @@
             "name": "google_analytics_code",
             "pretty_name": "Google Analytics Code",
             "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Use cookieless GA 4 instead of traditional analytics.",
+            "is_translatable": false,
+            "name": "use_ga_four",
+            "pretty_name": "Use Google Analytics 4",
+            "type": "boolean"
         },
         "value": {
             "default": ""

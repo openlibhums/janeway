@@ -1,60 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch
-    xmlns="http://www.crossref.org/schema/4.4.2"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    version="4.4.2"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4. http://www.crossref.org/schemas/crossref4.4.1.xsd"
-    xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
-    xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
->
-    <head>
-        <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{% now "YmdHis" %}{{ timestamp_suffix }}</timestamp>
-        <depositor>
-            <depositor_name>{{ depositor_name }}</depositor_name>
-            <email_address>{{ depositor_email }}</email_address>
-        </depositor>
-        <registrant>{{ registrant }}</registrant>
-    </head>
-    <body>
-        <journal>
-            <journal_metadata>
-                <full_title>{{ journal_title }}</full_title>
-                {% if print_issn and print_issn != '0000-0000' %}
-                <issn media_type="print">{{ print_issn }}</issn>
-                {% endif %}
-                {% if article.ISSN_override %}
-                <issn media_type="electronic">{{ article.ISSN_override }}</issn>
-                {% elif journal_issn and journal_issn != '0000-0000' %}
-                <issn media_type="electronic">{{ journal_issn }}</issn>
-                {% endif %}
-            </journal_metadata>
-            {% if issue and issue.date %}
-            <journal_issue>
-                {% if issue.issue_title %}
+{% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
                 <titles>
-                    <title>{{ issue.issue_title }}</title>
+                    <title>{{ article.title }}</title>
                 </titles>
-                {% endif %}
-                <publication_date media_type="online">
-                    <month>{{ issue.date.month }}</month>
-                    <day>{{ issue.date.day }}</day>
-                    <year>{{ issue.date.year }}</year>
-                </publication_date>
-
-                <journal_volume>
-                    <volume>{{ issue.volume }}</volume>
-                </journal_volume>
-                <issue>{{ issue.issue }}</issue>
-            </journal_issue>
-            {% endif %}
-            <journal_article publication_type="full_text">
-                <titles>
-                    <title>{{ article_title }}</title>
-                </titles>
-                {% if authors %}
+                {% if article.authors %}
                 <contributors>
-                  {% for author in authors %}
+                {% for author in article.authors %}
                     {% if author.is_corporate %}
                     <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
                         {{ author.corporate_name }}
@@ -71,47 +21,49 @@
                         {% endif %}
                     </person_name>
                     {% endif %}
-                  {% endfor %}
+                {% endfor %}
                 </contributors>
                 {% endif %}
-                {% if abstract %}
-                <jats:abstract><jats:p>{{ abstract }}</jats:p></jats:abstract>
+                {% if article.abstract %}
+                <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
                 {% endif %}
                 <publication_date media_type="online">
-                    <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
-                    <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
-                    <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
+                {% if article.date_published %}
+                    <month>{{ article.date_published.month }}</month>
+                    <day>{{ article.date_published.day }}</day>
+                    <year>{{ article.date_published.year }}</year>
+                {% else %}
+                    <month>{{ now.month }}</month>
+                    <day>{{ now.day }}</day>
+                    <year>{{ now.year }}</year>
+                {% endif %}
                 </publication_date>
-                {% if date_accepted %}
+                {% if article.date_accepted %}
                 <acceptance_date media_type="online">
-                    <month>{{ date_accepted.month }}</month>
-                    <day>{{ date_accepted.day }}</day>
-                    <year>{{ date_accepted.year }}</year>
+                    <month>{{ article.date_accepted.month }}</month>
+                    <day>{{ article.date_accepted.day }}</day>
+                    <year>{{ article.date_accepted.year }}</year>
                 </acceptance_date>
                 {% endif %}
-                {% if license %}
+                {% if article.license %}
                 <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ license }}</ai:license_ref>
+                    <ai:license_ref>{{ article.license }}</ai:license_ref>
                 </ai:program>
                 {% endif %}
                 <doi_data>
-                    <doi>{{ doi }}</doi>
-                    <resource>{{ article_url }}</resource>
+                    <doi>{{ article.doi }}</doi>
+                    <resource>{{ article.url }}</resource>
                     <collection property="crawler-based">
                         <item crawler="iParadigms">
-                            {% if pdf_url %}
-                                <resource>{{ pdf_url }}</resource>
-                            {% else %}
-                                <resource>{{ article_url }}</resource>
-                            {% endif %}
+                        {% if article.pdf_url %}
+                            <resource>{{ article.pdf_url }}</resource>
+                        {% else %}
+                            <resource>{{ article.url }}</resource>
+                        {% endif %}
                         </item>
                     </collection>
                 </doi_data>
-                {% if citation_list %}
-                    {{ citation_list|safe }}
+                {% if article.citation_list %}
+                    {{ article.citation_list|safe }}
                 {% endif %}
             </journal_article>
-     </journal>
-    </body>
-</doi_batch>
-

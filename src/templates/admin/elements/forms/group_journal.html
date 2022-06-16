@@ -70,6 +70,7 @@
 
     <p>You can include a google analytics code here if you want to track user visits.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.use_ga_four %}
 
     <p>You can use this setting to stop this journal being list on the Press' journals page.</p>
     {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}

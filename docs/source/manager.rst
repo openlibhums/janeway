@@ -13,7 +13,7 @@ Manager
    manager/submission/index
    manager/content/index
    manager/articlesissues/index
-   manager/crossref/index
+   manager/identifiers/index
    manager/users/index
    manager/other/index
 

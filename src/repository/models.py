@@ -18,9 +18,11 @@ from django.http.request import split_domain_port
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
-from utils import logic
+from utils import logic, models as utils_models
 from repository import install
 from utils.function_cache import cache
+from submission import models as submission_models
+from events import logic as event_logic
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -146,6 +148,10 @@ class Repository(model_utils.AbstractSiteModel):
     accept_version = models.TextField(blank=True, null=True)
     decline_version = models.TextField(blank=True, null=True)
     new_comment = models.TextField(blank=True, null=True)
+    review_invitation = models.TextField(blank=True, null=True)
+    review_helper = models.TextField(blank=True, null=True)
+    manager_review_status_change = models.TextField(blank=True, null=True)
+    reviewer_review_status_change = models.TextField(blank=True, null=True)
     footer = models.TextField(
         blank=True,
         null=True,
@@ -238,6 +244,15 @@ class Repository(model_utils.AbstractSiteModel):
     def code(self):
         return self.short_name
 
+    def reviewer_accounts(self):
+        reviewer_ids = RepositoryRole.objects.filter(
+            repository=self,
+            role__slug='reviewer',
+        ).values_list('user__id')
+        return core_models.Account.objects.filter(
+            pk__in=reviewer_ids,
+        )
+
 
 class RepositoryRole(models.Model):
     repository = models.ForeignKey(Repository)
@@ -252,8 +267,8 @@ class RepositoryRole(models.Model):
 
     def __str__(self):
         return 'User {} registered as {} on Repo {}'.format(
-            self.user.full_name,
-            self.get_role_display(),
+            self.user.full_name(),
+            self.role,
             self.repository.name,
         )
 
@@ -400,6 +415,14 @@ class Preprint(models.Model):
     date_published = models.DateTimeField(blank=True, null=True)
     date_updated = models.DateTimeField(blank=True, null=True)
     current_step = models.IntegerField(default=1)
+
+    article = models.OneToOneField(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text='Linked article of this preprint.',
+    )
 
     def __str__(self):
         return '{}'.format(
@@ -623,6 +646,53 @@ class Preprint(models.Model):
 
         return url
 
+    def create_article(self, journal, workflow_stage, journal_license, journal_section, force=False):
+        """
+        Creates an article in a given journal and workflow stage.
+        """
+        if not self.article or force:
+            # create base article
+            article = submission_models.Article.objects.create(
+                journal=journal,
+                owner=self.owner,
+                title=self.title,
+                abstract=self.abstract,
+                license=journal_license,
+                section=journal_section,
+                date_submitted=timezone.now(),
+                comments_editor='Submitted from {}'.format(self.repository.name),
+                stage=workflow_stage,
+            )
+
+            # copy authors to submission
+            for preprint_author in self.preprintauthor_set.all():
+                submission_models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=preprint_author.account,
+                    defaults={
+                        'order': preprint_author.order
+                    }
+                )
+                article.authors.add(preprint_author.account)
+
+            # snapshot authors
+            article.snapshot_authors()
+
+            # copy preprints latest file and add it as a MS file to the article
+            file = files.copy_preprint_file_to_article(
+                self,
+                article,
+                manuscript=True,
+            )
+
+            # save and return the article
+            self.article = article
+            self.save()
+            return article
+
+        # Return None to indicate this method has not created a new article object.
+        return None
+
 
 class KeywordPreprint(models.Model):
     keyword = models.ForeignKey("submission.Keyword")
@@ -654,6 +724,9 @@ class PreprintFile(models.Model):
         null=True,
     )
     size = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.original_filename
 
     def filename(self):
         return os.path.basename(self.file.name)
@@ -1016,6 +1089,181 @@ class VersionQueue(models.Model):
             return _('Under Review')
         else:
             return _('Declined')
+
+
+def review_status_choices():
+    return (
+        ('new', 'New'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('complete', 'Complete'),
+        ('withdrawn', 'Withdrawn'),
+    )
+
+
+class Review(models.Model):
+    preprint = models.ForeignKey(
+        'Preprint',
+        on_delete=models.CASCADE,
+    )
+    manager = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='review_manager',
+        help_text='The manager making the review request.',
+    )
+    reviewer = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='review_reviewer',
+    )
+    date_assigned = models.DateTimeField(
+        blank=True,
+        null=True,
+        auto_now_add=True,
+    )
+    date_due = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Due date",
+    )
+    date_accepted = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    date_completed = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=review_status_choices(),
+    )
+    access_code = models.UUIDField(
+        default=uuid.uuid4,
+    )
+    comment = models.OneToOneField(
+        'Comment',
+        blank=True,
+        null=True,
+    )
+    anonymous = models.BooleanField(
+        default=False,
+    )
+    status_reason = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Information supplied by a reviewer when declining or completing '
+                  'a review or by staff withdrawing a review',
+    )
+    notification_sent = models.BooleanField(
+        default=False,
+    )
+
+    def accept(self, request):
+        self.date_accepted = timezone.now()
+        self.status = 'accepted'
+        self.save()
+
+        # Raise event
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
+            **{
+                'request': request,
+                'review': self,
+                'status_change': 'accept',
+            }
+        )
+
+    def decline(self, request):
+        self.date_completed = timezone.now()
+        self.status = 'declined'
+        self.save()
+
+        # Raise event
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
+            **{
+                'request': request,
+                'review': self,
+                'status_change': 'decline',
+            }
+        )
+
+    def complete(self, request):
+        self.date_completed = timezone.now()
+        self.status = 'complete'
+        self.save()
+
+        # Raise event
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
+            **{
+                'request': request,
+                'review': self,
+                'status_change': 'complete',
+            }
+        )
+
+    def withdraw(self, reason, request):
+        self.date_completed = timezone.now()
+        self.status = 'withdrawn'
+        self.status_reason = reason
+        self.save()
+
+        # Raise event
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
+            **{
+                'request': request,
+                'review': self,
+                'status_change': 'withdraw',
+            }
+        )
+
+    def reset(self, user):
+        self.date_accepted = None
+        self.date_completed = None
+        self.status = 'new'
+        self.status_reason = 'Invited Review reset by staff.'
+        self.save()
+
+        utils_models.LogEntry.add_entry(
+            types='Preprint Review',
+            description='Preprint Review by {} reset'.format(self.reviewer.full_name()),
+            level='Info',
+            actor=user,
+            target=self.preprint,
+        )
+
+    def publish(self, user=None):
+        if self.comment:
+            self.comment.is_reviewed = True
+            self.comment.is_public = True
+            self.comment.save()
+
+            utils_models.LogEntry.add_entry(
+                types='Preprint Review',
+                description='Preprint Review by {} published'.format(self.reviewer.full_name()),
+                level='Info',
+                actor=user,
+                target=self.preprint,
+            )
+
+    def unpublish(self, user):
+        if self.comment:
+            self.comment.is_public = False
+            self.comment.save()
+
+            utils_models.LogEntry.add_entry(
+                types='Preprint Review',
+                description='Preprint Review by {} unpublished'.format(self.reviewer.full_name()),
+                level='Info',
+                actor=user,
+                target=self.preprint,
+            )
 
 
 @receiver(models.signals.post_delete, sender=PreprintFile)
