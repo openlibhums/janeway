@@ -708,6 +708,10 @@ ul.menu {
     word-wrap: anywhere;
 }
 
+.spacer-top-20 {
+ margin-top: 20px;
+}
+
 #review_controls {
     padding-bottom: 20px;
 }
