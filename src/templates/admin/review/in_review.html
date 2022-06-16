@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load itertools %}
 {% load roles %}
 
 {% block title %}Review {{ article.title }}{% endblock %}
@@ -108,11 +109,14 @@
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
                                             Reviewer</a>{% endif %}
                                 </div>
-                                {% for review in round.active_reviews %}
-                                    {% include "admin/elements/review/review_block.html" with review=review %}
-                                {% endfor %}
-                                {% for review in round.inactive_reviews %}
-                                    {% include "admin/elements/review/review_block.html" with review=review %}
+                                {% chain round.active_reviews round.inactive_reviews as reviews %}
+                                {% for review in reviews %}
+                                    {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
+                                  {% if forloop.last and forloop.counter > 2 %}
+                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='top' %}
+                                  {% else %}
+                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='right' %}
+                                  {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
