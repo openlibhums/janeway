@@ -1184,7 +1184,7 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.all().order_by(('name')),
+        'roles': models.Role.objects.exclude(slug='reader').order_by(('name')),
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
