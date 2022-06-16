@@ -1018,11 +1018,20 @@ class Article(AbstractLastModifiedModel):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.objects.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(
+                    id=identifier,
+                    journal=journal,
+                ).exclude(
+                    stage=STAGE_ARCHIVED,
+                )[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
-                    id_type=identifier_type, identifier=identifier)[0].article
+                    id_type=identifier_type,
+                    identifier=identifier,
+                ).exclude(
+                    article__stage=STAGE_ARCHIVED,
+                )[0].article
 
                 if not article.journal == journal:
                     return None
