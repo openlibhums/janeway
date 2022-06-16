@@ -470,8 +470,8 @@ def serve_pdf_galley_to_browser(request, file, article):
         raise Http404
 
 
-def delete_file(article_object, file_object):
-    """ Deletes a file. Note: the actual file is not deleted, this just removes the association of the file with an
+def unassociate_file(article_object, file_object):
+    """ Removes a given file from an articles manuscript_files or data_figure_files.
     article.
 
     :param article_object: the article associated with the file
