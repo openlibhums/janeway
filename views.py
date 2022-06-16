@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
@@ -811,6 +812,7 @@ def typesetting_delete_galley(request, galley_id):
 def typesetting_assignment(request, assignment_id):
     assignment = get_object_or_404(
         models.TypesettingAssignment,
+        ~Q(round__article__stage=submission_models.STAGE_ARCHIVED),
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
@@ -1209,6 +1211,7 @@ def typesetting_proofreading_assignments(request):
 def typesetting_proofreading_assignment(request, assignment_id):
     assignment = get_object_or_404(
         models.GalleyProofing,
+        ~Q(round__article__stage=submission_models.STAGE_ARCHIVED),
         pk=assignment_id,
         completed__isnull=True,
         cancelled=False,
