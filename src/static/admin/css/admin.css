@@ -716,3 +716,7 @@ ul.menu {
     max-height: 200px;
     overflow-y: scroll;
 }
+
+.bg-white {
+    background-color: white;
+}

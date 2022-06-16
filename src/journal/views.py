@@ -1612,7 +1612,10 @@ def manage_archive(request):
     )
     rejected_articles = submission_models.Article.objects.filter(
         journal=request.journal,
-        stage=submission_models.STAGE_REJECTED
+        stage__in=[
+            submission_models.STAGE_REJECTED,
+            submission_models.STAGE_ARCHIVED,
+        ],
     ).order_by(
         '-date_declined'
     )

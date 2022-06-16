@@ -1734,6 +1734,7 @@ def do_revisions(request, article_id, revision_id):
         article__pk=article_id,
         pk=revision_id,
         date_completed__isnull=True,
+        article__stage__in=submission_models.REVIEW_STAGES,
     )
 
     reviews = models.ReviewAssignment.objects.filter(

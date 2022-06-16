@@ -706,6 +706,7 @@ def do_typeset_task(request, typeset_id):
     """
     typeset_task = get_object_or_404(
         models.TypesetTask,
+        ~Q(assignment__article__stage=submission_models.STAGE_ARCHIVED),
         pk=typeset_id,
         accepted__isnull=False,
         completed__isnull=True,

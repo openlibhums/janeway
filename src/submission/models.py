@@ -219,6 +219,7 @@ STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+STAGE_ARCHIVED = 'Archived'
 
 NEW_ARTICLE_STAGES = {
     STAGE_UNSUBMITTED,
@@ -229,6 +230,7 @@ FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
     STAGE_PUBLISHED,
     STAGE_REJECTED,
+    STAGE_ARCHIVED,
 }
 
 REVIEW_STAGES = {
@@ -269,7 +271,8 @@ STAGE_CHOICES = [
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
     (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
-    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
+    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published'),
+    (STAGE_ARCHIVED, 'Archived'),
 ]
 
 PLUGIN_WORKFLOW_STAGES = []
