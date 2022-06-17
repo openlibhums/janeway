@@ -17,6 +17,9 @@ from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
 from journal import views as journal_views
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 urlpatterns = [
     url(r'^submit/', include('submission.urls')),
@@ -219,9 +222,11 @@ if blocks:
                 url(r'^homepage/elements/{0}/'.format(block.name),
                     include('core.homepage_elements.{0}.urls'.format(block.name))),
             ]
+            logger.debug("Loaded URLs for %s", block.name)
         except ImportError as e:
-            print("Error loading a block: {0}, {1}".format(block.name, e))
-            pass
+            logger.debug(
+                "Homepage Element %s has no urls.py module", block.name
+            )
 
 # Plugin Loading
 # TODO: plugin_loader should handle the logic below
@@ -233,11 +238,9 @@ if plugins:
             urlpatterns += [
                 url(r'^plugins/{0}/'.format(plugin.best_name(slug=True)), include('plugins.{0}.urls'.format(plugin.name))),
             ]
-            if settings.DEBUG:
-                print("Loaded URLs for {0}".format(plugin.name))
+            logger.debug("Loaded URLs for %s", plugin.name)
         except ImportError as e:
-            print("Error loading a plugin: {0}, {1}".format(plugin.name, e))
-            pass
+            logger.debug("Plugin %s has no urls.py module", plugin.name)
 
 # load the notification plugins
 if len(settings.NOTIFY_FUNCS) == 0:
