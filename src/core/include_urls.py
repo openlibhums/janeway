@@ -215,10 +215,12 @@ blocks = plugin_loader.load(os.path.join('core', 'homepage_elements'), prefix='c
 if blocks:
     for block in blocks:
         try:
-            urlpatterns += [
-                url(r'^homepage/elements/{0}/'.format(block.name),
-                    include('core.homepage_elements.{0}.urls'.format(block.name))),
-            ]
+            urls_module = os.path.join('core', 'homepage_elements', block.name, 'urls.py')
+            if os.path.exists(urls_module):
+                urlpatterns += [
+                    url(r'^homepage/elements/{0}/'.format(block.name),
+                        include('core.homepage_elements.{0}.urls'.format(block.name))),
+                ]
         except ImportError as e:
             print("Error loading a block: {0}, {1}".format(block.name, e))
             pass
