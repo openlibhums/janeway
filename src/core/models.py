@@ -972,6 +972,8 @@ class PGFileText(AbstractFileText):
         over to `tsvector()`.
         """
         cursor = connection.cursor()
+        # Remove NULL characters before vectorising
+        text = text.replace("\x00", "\uFFFD")
         result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
         return cursor.fetchone()[0]
 
