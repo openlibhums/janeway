@@ -1918,6 +1918,7 @@ def full_text_search(request):
         articles = submission_models.Article.objects.search(
             search_term, form.get_search_filters(),
             sort=form.cleaned_data.get("sort"),
+            site=request.site_object,
         )
 
     template = 'journal/full-text-search.html'
