@@ -2704,7 +2704,7 @@ msgstr "Deze sectie heeft geen artikels."
 #: src/templates/admin/core/manager/sections/section_list.html:26
 msgid "\n"
 "                    You can create and edit article section types below. To quickly re-order sections, drag and drop the "
-msgstr "Je kan artikelsectie types aanmaken hieronder. Om de secties snel te sorteren, versleep de "
+msgstr "\n Je kan artikelsectie types aanmaken hieronder. Om de secties snel te sorteren, versleep de "
 
 #: src/templates/admin/core/manager/sections/section_list.html:27
 msgid "handles on the left of each row"
@@ -2783,7 +2783,7 @@ msgid "\n"
 "                        You can select a reviewer using the radio buttons in the first column and complete the section under \"Set Options\".\n"
 "                        If you cannot find the reviewer you want in this list you can use \"Enroll Existing User\" to search the database and give users the Reviewer role, or \"Add New Reviewer\" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).\n"
 "                        "
-msgstr "Je kan een reviewer selecteren met behulp van de keuzerondjes in de eerste kolom en het gedeelte onder \"Opties instellen\" invullen.\n"
+msgstr "\n Je kan een reviewer selecteren met behulp van de keuzerondjes in de eerste kolom en het gedeelte onder \"Opties instellen\" invullen.\n"
 "Als u de gewenste reviewer niet in deze lijst kunt vinden, kunt u \"Bestaande gebruiker inschrijven\" gebruiken om de database te doorzoeken en gebruikers de rol van reviewer te geven, of \"Nieuwe reviewer toevoegen\" om een ​​nieuw account voor een reviewer aan te maken (dit proces is stil, ze ontvangen geen e-mail voor het aanmaken van een account)."
 
 #: src/templates/admin/review/decision.html:24
@@ -2874,7 +2874,7 @@ msgid "\n"
 "                account will be marked as inactive until you follow the instructions in the verification email. <strong>Note: </strong>\n"
 "                Changing your email address will also change your username as these are one and the same.</p>\n"
 "                "
-msgstr "<p>Als u uw e-mailadres wilt wijzigen, kunt u dat hieronder doen, maar u wordt dan uitgelogd en uw account wordt gemarkeerd als inactief totdat u de instructies in de verificatie-e-mail volgt. <strong>Opmerking: </strong> Als u uw e-mailadres wijzigt, verandert ook uw gebruikersnaam, aangezien deze één en dezelfde zijn.</p>"
+msgstr "\n <p>Als u uw e-mailadres wilt wijzigen, kunt u dat hieronder doen, maar u wordt dan uitgelogd en uw account wordt gemarkeerd als inactief totdat u de instructies in de verificatie-e-mail volgt. <strong>Opmerking: </strong> Als u uw e-mailadres wijzigt, verandert ook uw gebruikersnaam, aangezien deze één en dezelfde zijn.</p>"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:12
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:12
