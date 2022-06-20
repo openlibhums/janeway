@@ -1,6 +1,7 @@
 {% load foundation %}
 {% load static %}
 {% load i18n %}
+{% load hooks %}
 
 <h5>{% trans 'Core Data' %}</h5>
 <div class="row">
@@ -34,6 +35,7 @@
         {{ form.preferred_timezone|foundation }}
     </div>
 </div>
+{% hook 'extra_corefields' %}
 <hr />
 <h5>{% trans 'Social Media and Accounts' %}</h5>
 <div class="row">
