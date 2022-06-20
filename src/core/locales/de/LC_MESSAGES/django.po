@@ -2709,7 +2709,7 @@ msgstr "Diese Rubrik hat keine Artikel."
 #: src/templates/admin/core/manager/sections/section_list.html:26
 msgid "\n"
 "                    You can create and edit article section types below. To quickly re-order sections, drag and drop the "
-msgstr "Sie können im Folgenden Artikelrubriken erstellen und bearbeiten. Um Rubriken neu zu ordnen, ziehen Sie per drag&drop die Griffe auf der linken Seite jeder Zeile."
+msgstr "\n Sie können im Folgenden Artikelrubriken erstellen und bearbeiten. Um Rubriken neu zu ordnen, ziehen Sie per drag&drop die Griffe auf der linken Seite jeder Zeile."
 
 #: src/templates/admin/core/manager/sections/section_list.html:27
 msgid "handles on the left of each row"
@@ -2788,7 +2788,7 @@ msgid "\n"
 "                        You can select a reviewer using the radio buttons in the first column and complete the section under \"Set Options\".\n"
 "                        If you cannot find the reviewer you want in this list you can use \"Enroll Existing User\" to search the database and give users the Reviewer role, or \"Add New Reviewer\" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).\n"
 "                        "
-msgstr "Über die Optionsfelder in der ersten Spalte können Sie eine*n Gutachter*in auswählen und den Abschnitt unter \"Optionen festlegen\" ausfüllen. Wenn Sie die gewünschten Gutachter*innen in dieser Liste nicht finden können, können Sie mit \"Bestehende*n Benutzer*in einschreiben\" die Datenbank durchsuchen und Benutzer*innen die Gutachter*inrolle zuweisen, oder mit \"Neue*n Gutachter*in hinzufügen\" ein neues Gutachter-Konto erstellen (dieser Vorgang ist geräuschlos, er erhält keine E-Mail zur Kontoerstellung)."
+msgstr "\n Über die Optionsfelder in der ersten Spalte können Sie eine*n Gutachter*in auswählen und den Abschnitt unter \"Optionen festlegen\" ausfüllen. Wenn Sie die gewünschten Gutachter*innen in dieser Liste nicht finden können, können Sie mit \"Bestehende*n Benutzer*in einschreiben\" die Datenbank durchsuchen und Benutzer*innen die Gutachter*inrolle zuweisen, oder mit \"Neue*n Gutachter*in hinzufügen\" ein neues Gutachter-Konto erstellen (dieser Vorgang ist geräuschlos, er erhält keine E-Mail zur Kontoerstellung)."
 
 #: src/templates/admin/review/decision.html:24
 msgid "Note: This article has completed reviews that have not been made available to the author:"
@@ -2878,7 +2878,7 @@ msgid "\n"
 "                account will be marked as inactive until you follow the instructions in the verification email. <strong>Note: </strong>\n"
 "                Changing your email address will also change your username as these are one and the same.</p>\n"
 "                "
-msgstr "Wenn Sie Ihre E-Mail-Adresse ändern möchten, können Sie dies unten tun, aber Sie werden ausgeloggt und Ihr Konto wird als inaktiv markiert, bis Sie den Anweisungen in der Bestätigungs-E-Mail folgen. <strong>Note: </strong>Wenn Sie Ihre Mailadresse ändern wird sich auch Ihr Benutzername ändern, da diese ein und dasselbe sind.</p>"
+msgstr "\n Wenn Sie Ihre E-Mail-Adresse ändern möchten, können Sie dies unten tun, aber Sie werden ausgeloggt und Ihr Konto wird als inaktiv markiert, bis Sie den Anweisungen in der Bestätigungs-E-Mail folgen. <strong>Note: </strong>Wenn Sie Ihre Mailadresse ändern wird sich auch Ihr Benutzername ändern, da diese ein und dasselbe sind.</p>"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:12
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:12
@@ -3126,7 +3126,7 @@ msgstr "Wie sollten Herausgeber*innen und Mitarbeiter*innen Hilfe zu Janeway erh
 msgid "\n"
 "                 This interface allows you to override the press level languages and set the languages that are available for this journal.\n"
 "                 "
-msgstr "Dieses Interface ermöglicht Ihnen, die Sprache der Übersichtseite (press) zu überschreiben und die verfügbaren Sprachen, die für das Journal verfügbar sind, einzustellen."
+msgstr "\n Dieses Interface ermöglicht Ihnen, die Sprache der Übersichtseite (press) zu überschreiben und die verfügbaren Sprachen, die für das Journal verfügbar sind, einzustellen."
 
 #: src/templates/admin/repository/article.html:195
 #: src/templates/admin/repository/submit/authors.html:82
@@ -3143,7 +3143,7 @@ msgid "\n"
 "                            You can search for an existing author or add them using the form below. If you\n"
 "                            complete the form with an email address of an existing user, that user will be added\n"
 "                            to the"
-msgstr "Sie können eine*n gelistete*n Autor*in suchen oder hinzufügen indem Sie das untenstehende Formular verwenden. Wenn Sie das Formular mit der gelisteten Benutzer*in-Email-Adresse vervollständigen, wird diese Person hinzugefügt zu"
+msgstr "\n Sie können eine*n gelistete*n Autor*in suchen oder hinzufügen indem Sie das untenstehende Formular verwenden. Wenn Sie das Formular mit der gelisteten Benutzer*in-Email-Adresse vervollständigen, wird diese Person hinzugefügt zu"
 
 #: src/templates/admin/repository/submit/authors.html:8
 msgid "Add Authors to"
