@@ -13,7 +13,12 @@ from django.urls import reverse
 from django.db import connection, models
 from django.db.models.query import RawQuerySet
 from django.conf import settings
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    SearchVectorField,
+)
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
@@ -489,7 +494,14 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if search_filters.get("abstract"):
             vectors.append(SearchVector('abstract', weight="C"))
         if search_filters.get("full_text"):
-            vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
+            FileTextModel = swapper.load_model("core", "FileText")
+            field_type = FileTextModel._meta.get_field("contents")
+            if isinstance(field_type, SearchVectorField):
+                vectors.append(model_utils.SearchVector(
+                    'galley__file__text__contents', weight="D"))
+            else:
+                vectors.append(SearchVector(
+                    'galley__file__text__contents', weight="D"))
         if vectors:
             # Combine all vectors
             vector = vectors[0]
