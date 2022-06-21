@@ -162,6 +162,18 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         return preprint
 
+    def clean_doi(self):
+        print('CLEAN')
+        doi_string = self.cleaned_data.get('doi')
+
+        if doi_string and not URL_DOI_RE.match(doi_string):
+            self.add_error(
+                'doi',
+                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+            )
+
+        return doi_string
+
 
 class PreprintSupplementaryFileForm(forms.ModelForm):
     class Meta:
