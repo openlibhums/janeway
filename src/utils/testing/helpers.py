@@ -201,6 +201,7 @@ def create_article(journal, **kwargs):
         }
         author = create_author(journal, **kwargs)
         article.authors.add(author)
+        article.owner = author
         article.save()
         author.snapshot_self(article)
     else:

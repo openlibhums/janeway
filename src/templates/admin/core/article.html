@@ -22,6 +22,7 @@
         </div>
     </div>
 
+    {% if not journal_settings.general.hide_review_data_pre_release or article.is_accepted or article.date_declined %}
     <div class="box">
         <div class="title-area">
             <h2>Reviews</h2>
@@ -64,6 +65,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 
 
     {% if article.is_published %}

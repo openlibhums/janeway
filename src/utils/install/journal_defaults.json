@@ -3196,6 +3196,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Enable if you want to hide all review data from authors until released.",
+            "is_translatable": false,
+            "name": "hide_review_data_pre_release",
+            "pretty_name": "Hide Review Data from Authors Before Release",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+          }
+    },
+    {
+        "group": {
             "name": "news"
         },
         "setting": {
