@@ -45,7 +45,7 @@
                         <div class="large-12 columns">
                             <div class="stacked button-group">
                                 {% for subject in subjects %}
-                                    <a href="{% url 'preprints_list_subject' subject.slug %}"
+                                    <a href="{% url 'preprints_list_subject' subject.pk %}"
                                        class="button">{{ subject.name }}</a>
                                 {% endfor %}
                             </div>
@@ -54,7 +54,7 @@
                         <div class="row">
                             {% for subject in subjects %}
                                 <div class="small-6 columns subjectbutton">
-                                    <a href="{% url 'preprints_list_subject' subject.slug %}"
+                                    <a href="{% url 'preprints_list_subject' subject.pk %}"
                                        class="button expanded">{{ subject.name }}</a>
                                 </div>
                                 {% if forloop.counter|divisibleby:2 %}
