@@ -820,6 +820,7 @@ def preprints_manager(request):
     metrics_summary = repository_logic.metrics_summary(published_preprints)
     versisons = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
+        preprint__repository=request.repository,
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,
