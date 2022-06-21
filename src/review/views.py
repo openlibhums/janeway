@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
@@ -1745,6 +1746,10 @@ def do_revisions(request, article_id, revision_id):
     form = forms.DoRevisions(instance=revision_request)
     revision_files = logic.group_files(revision_request.article, reviews)
 
+    modal = None
+    modal_question = ''
+    potential_errors = []
+
     if request.POST:
 
         if 'delete' in request.POST:
@@ -1787,8 +1792,28 @@ def do_revisions(request, article_id, revision_id):
                     }
                 )
             )
-        else:
 
+        elif 'confirm' in request.POST:
+            modal = 'confirm_modal'
+            modal_question = _('Are you sure you want to submit revisions?')
+            form = forms.DoRevisions(request.POST, instance=revision_request)
+
+            _is_valid = form.is_valid()
+            if not form.cleaned_data.get('author_note', None):
+                message = 'The Covering Letter field is empty.'
+                potential_errors.append(_(message))
+
+            ms_files = revision_request.article.manuscript_files.all()
+            if ms_files:
+                last_upload = max(set(ms_file.date_uploaded for ms_file in ms_files))
+                if revision_request.date_requested > last_upload:
+                    message = 'No manuscript files have been replaced or added.'
+                    potential_errors.append(_(message))
+            else:
+                message = 'No manuscript files have been uploaded.'
+                potential_errors.append(_(message))
+
+        else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
                 form.add_error(
@@ -1837,6 +1862,9 @@ def do_revisions(request, article_id, revision_id):
         'form': form,
         'article': revision_request.article,
         'reviews': reviews,
+        'modal': modal,
+        'potential_errors': potential_errors,
+        'modal_question': modal_question,
     }
 
     return render(request, template, context)

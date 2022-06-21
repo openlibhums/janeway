@@ -416,7 +416,7 @@ class RevisionRequest(models.Model):
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
 
-    date_requested = models.DateField(default=timezone.now)
+    date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()
     date_completed = models.DateTimeField(blank=True, null=True)
 
