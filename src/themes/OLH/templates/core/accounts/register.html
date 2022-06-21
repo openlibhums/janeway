@@ -66,6 +66,13 @@
                                 {{ form.country|foundation }}
                             </div>
                         </div>
+                        {% if form.register_as_reader %}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                {{ form.register_as_reader|foundation }}
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="row">
                             <div class="large-6 columns">
                                 {{ form.password_1|foundation }}

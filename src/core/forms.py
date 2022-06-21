@@ -115,11 +115,23 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    register_as_reader = forms.BooleanField(
+        label='Register for Article Notifications',
+        help_text='Check this box if you would like to receive notifications of new articles published in this journal',
+        required=False,
+    )
 
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
                   'last_name', 'department', 'institution', 'country',)
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+
+        if not self.journal:
+            self.fields.pop('register_as_reader')
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -141,6 +153,11 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
         if commit:
             user.save()
+            if self.cleaned_data.get('register_as_reader') and self.journal:
+                user.add_account_role(
+                    role_slug="reader",
+                    journal=self.journal,
+                )
 
         return user
 
