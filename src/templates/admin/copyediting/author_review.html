@@ -83,13 +83,11 @@
         <div class="content">
             {% include "elements/forms/errors.html" with form=form %}
             <p>You can add a note to the editor, they can pass any requests on to the Copyeditor.</p>
-            <form method="POST">
+            <form method="POST" id="author_copyediting_review">
                 <div class="row expanded">
                     <div class="large-6 columns">
                         {{ form.author_note|foundation }}
-                        <button type="submit" class="button success" name="send"><i class="fa fa-check">&nbsp;</i>Complete
-                            Copyedit
-                            Task
+                        <button type="submit" class="button success" name="confirm"><i class="fa fa-check">&nbsp;</i>Complete Copyedit Task
                         </button>
                     </div>
                     <div class="large-6 columns">
@@ -101,8 +99,13 @@
         </div>
     </div>
 
+    {% include "admin/elements/confirm_modal.html" with modal=modal form_id="author_copyediting_review" %}
+
 {% endblock body %}
 
 {% block js %}
     {% include "elements/jqte.html" %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal.id %}
+    {% endif %}
 {% endblock js %}
