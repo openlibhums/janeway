@@ -83,7 +83,7 @@ def check_crossref_settings(journal):
         journal
     ).processed_value or settings.DEBUG
 
-    settings = [
+    settings_to_check = [
         'crossref_prefix',
         'crossref_username',
         'crossref_password',
@@ -92,7 +92,7 @@ def check_crossref_settings(journal):
         'crossref_registrant'
     ]
     missing_settings = []
-    for setting_name in settings:
+    for setting_name in settings_to_check:
         setting_value = setting_handler.get_setting(
             'Identifiers',
             setting_name,
