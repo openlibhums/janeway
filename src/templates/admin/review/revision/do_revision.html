@@ -109,12 +109,12 @@
         </div>
     </div>
 
-    {% include "admin/elements/confirm_modal.html" with modal_question=modal_question form_id="do_revision" potential_errors=potential_errors%}
+    {% include "admin/elements/confirm_modal.html" with modal=modal form_id="do_revision" %}
 
 {% endblock body %}
 
 {% block js %}
     {% if modal %}
-        {% include "admin/elements/open_modal.html" with target=modal %}
+        {% include "admin/elements/open_modal.html" with target=modal.id %}
     {% endif %}
 {% endblock js %}
