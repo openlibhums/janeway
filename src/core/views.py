@@ -282,10 +282,15 @@ def register(request):
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
 
-    form = forms.RegistrationForm()
+    form = forms.RegistrationForm(
+        journal=request.journal,
+    )
 
     if request.POST:
-        form = forms.RegistrationForm(request.POST)
+        form = forms.RegistrationForm(
+            request.POST,
+            journal=request.journal,
+        )
 
         password_policy_check = logic.password_policy_check(request)
 
@@ -415,6 +420,28 @@ def edit_profile(request):
 
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+
+        elif 'subscribe' in request.POST and request.journal:
+            request.user.add_account_role(
+                'reader',
+                request.journal,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully subscribed to article notifications.',
+            )
+
+        elif 'unsubscribe' in request.POST and request.journal:
+            request.user.remove_account_role(
+                'reader',
+                request.journal
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully unsubscribed from article notifications.',
+            )
 
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -942,7 +969,7 @@ def roles(request):
     """
     template = 'core/manager/roles/roles.html'
 
-    roles = models.Role.objects.all()
+    roles = models.Role.objects.all().exclude(slug='reader')
     for role in roles:
         role.user_count = request.journal.users_with_role_count(role.slug)
 
@@ -1208,11 +1235,12 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.exclude(slug='reader').order_by(('name')),
+        'roles': models.Role.objects.order_by(('name')),
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
-        'return': request.GET.get('return')
+        'return': request.GET.get('return'),
+        'reader': models.Role.objects.get(slug='reader'),
     }
     return render(request, template, context)
 

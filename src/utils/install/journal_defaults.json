@@ -3643,6 +3643,51 @@
         "value": {
             "default": "Copyedit Review Request Deleted"
         }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent readers when new articles are published.",
+            "is_translatable": true,
+            "name": "reader_publication_notification",
+            "pretty_name": "Reader Publication Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>You are receiving this email because you are registered for publication notifications for {{ journal.name }}.</p><p>The following articles have been published today: </p><ul>{% for article in articles %}<li><a href=\"{{ article.url }}\">{{ article.title }}</a></li>{% endfor %}</ul>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Submission Access Request Complete.",
+            "is_translatable": true,
+            "name": "subject_reader_publication_notification",
+            "pretty_name": "Subject Reader Publication Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "New Articles Published"
+        }
+    },
+    {
+        "group": {
+            "name": "notifications"
+        },
+        "setting": {
+            "description": "If enabled Janeway will notify readers of new published articles.",
+            "is_translatable": false,
+            "name": "send_reader_notifications",
+            "pretty_name": "Send Reader Notifications",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
     }
 
 ]

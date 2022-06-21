@@ -30,7 +30,7 @@ def send_email_with_body_from_setting_template(request, template, subject, to, c
 
 def send_email_with_body_from_user(
         request, subject, to, body,
-        log_dict=None, cc=None,
+        log_dict=None, cc=None, bcc=None,
 ):
     notify_contents = {
         'subject': subject,
@@ -40,5 +40,6 @@ def send_email_with_body_from_user(
         'request': request,
         'log_dict': log_dict,
         'cc': cc,
+        'bcc': bcc,
     }
     notify.notification(**notify_contents)
