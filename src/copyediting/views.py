@@ -610,11 +610,11 @@ def author_copyedit(request, article_id, author_review_id):
             ce_files = copyedit.copyeditor_files.all()
             if ce_files:
                 last_upload = max(set(ce_file.date_uploaded for ce_file in ce_files))
-                last_editor_action = max([
+                last_editor_action = max(filter(bool, [
                     copyedit.copyeditor_completed,
                     copyedit.copyedit_reopened_complete,
                     copyedit.assigned
-                ])
+                ]))
                 if last_editor_action > last_upload:
                     message = 'The copyedited files have not been changed.'
                     modal['potential_errors'].append(_(message))
