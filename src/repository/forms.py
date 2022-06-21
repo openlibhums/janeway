@@ -339,6 +339,9 @@ class SubjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.repository = kwargs.pop('repository')
         super(SubjectForm, self).__init__(*args, **kwargs)
+        self.fields['parent'].queryset = models.Subject.objects.filter(
+            repository=self.repository,
+        )
 
     def save(self, commit=True):
         subject = super(SubjectForm, self).save(commit=False)
