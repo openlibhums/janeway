@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
@@ -1236,61 +1237,92 @@ def typesetting_proofreading_assignment(request, assignment_id):
     )
 
     form = forms.ProofingForm(instance=assignment)
+    modal = None
 
     if request.POST:
         form = forms.ProofingForm(request.POST, instance=assignment)
 
-        if form.is_valid():
-            form.save()
+        if 'confirm' in request.POST:
+            modal = {
+                'id': 'confirm_modal',
+                'yes_button_name': 'complete',
+                'question': _('Are you sure you want to complete proofreading task?'),
+                'potential_errors': [],
+            }
 
-        if request.FILES:
-            logic.handle_proofreader_file(
-                request,
-                assignment,
-                assignment.round.article,
-            )
+            _is_valid = form.is_valid()
+            if not form.cleaned_data.get('notes', None):
+                message = 'The Notes field is empty.'
+                modal['potential_errors'].append(_(message))
 
-        if 'complete' in request.POST:
-            unproofed_galleys = assignment.unproofed_galleys(galleys)
-            if not unproofed_galleys:
-                assignment.complete(
-                    user=request.user
-                )
-                notify.galley_proofing_complete(
-                    request,
-                    assignment
-                )
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    'Proofreading Assignment complete.',
-                )
-                return redirect(
-                    reverse(
-                        'core_dashboard',
-                    )
-                )
+            annotated_files = assignment.annotated_files.all()
+            if annotated_files:
+                from nose.tools import set_trace; set_trace()
+                last_upload = max(set(an_file.date_uploaded for an_file in annotated_files))
+                last_editor_or_typesetter_action = max(filter(bool, [
+                    assignment.completed,
+                    assignment.assigned,
+                ]))
+                if last_editor_or_typesetter_action > last_upload:
+                    message = 'The annotated files have not been changed.'
+                    modal['potential_errors'].append(_(message))
             else:
-                messages.add_message(
+                message = 'No annotated files have been uploaded.'
+                modal['potential_errors'].append(_(message))
+
+        else:
+            if form.is_valid():
+                form.save()
+
+            if request.FILES:
+                logic.handle_proofreader_file(
                     request,
-                    messages.WARNING,
-                    'You must proof {}.'.format(
-                        ", ".join([g.label for g in unproofed_galleys])
-                    )
+                    assignment,
+                    assignment.round.article,
                 )
 
-        return redirect(
-            reverse(
-                'typesetting_proofreading_assignment',
-                kwargs={'assignment_id': assignment.pk},
+            if 'complete' in request.POST:
+                unproofed_galleys = assignment.unproofed_galleys(galleys)
+                if not unproofed_galleys:
+                    assignment.complete(
+                        user=request.user
+                    )
+                    notify.galley_proofing_complete(
+                        request,
+                        assignment
+                    )
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'Proofreading Assignment complete.',
+                    )
+                    return redirect(
+                        reverse(
+                            'core_dashboard',
+                        )
+                    )
+                else:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        'You must proof {}.'.format(
+                            ", ".join([g.label for g in unproofed_galleys])
+                        )
+                    )
+
+            return redirect(
+                reverse(
+                    'typesetting_proofreading_assignment',
+                    kwargs={'assignment_id': assignment.pk},
+                )
             )
-        )
 
     template = 'typesetting/typesetting_proofreading_assignment.html'
     context = {
         'assignment': assignment,
         'galleys': galleys,
         'form': form,
+        'modal': modal,
     }
 
     return render(request, template, context)
