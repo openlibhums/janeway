@@ -318,3 +318,20 @@ class TestLogic(TestCase):
         self.assertEqual(1, len(soup.find_all('event_metadata')))
         # There should be two conference papers (articles)
         self.assertEqual(2, len(soup.find_all('conference_paper')))
+
+    def test_check_crossref_settings(self):
+
+        # Missing settings
+        save_setting('Identifiers', 'crossref_prefix', self.journal_one, '')
+        save_setting('Identifiers', 'crossref_username', self.journal_one, '')
+        save_setting('Identifiers', 'crossref_password', self.journal_one, '')
+
+        use_crossref, test_mode, missing_settings = logic.check_crossref_settings(
+            self.journal_one
+        )
+
+        # Put need missing setting back
+        save_setting('Identifiers', 'crossref_prefix', self.journal_one, '10.0000')
+
+        self.assertEqual(use_crossref, True)
+        self.assertEqual(missing_settings, ['crossref_prefix', 'crossref_username', 'crossref_password'])
