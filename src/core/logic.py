@@ -369,6 +369,10 @@ def get_settings_to_edit(display_group, journal):
                 'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
             },
             {
+                'name': 'hide_review_data_pre_release',
+                'object': setting_handler.get_setting('general', 'hide_review_data_pre_release', journal),
+            },
+            {
                 'name': 'enable_suggested_reviewers',
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },

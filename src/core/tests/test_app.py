@@ -10,8 +10,11 @@ from django.core.management import call_command
 from django.db import connection, IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
+from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
+from utils import setting_handler, install
 from core import models
 
 
@@ -238,11 +241,74 @@ class CoreTests(TestCase):
 
     @patch.object(models.Setting, 'validate')
     def test_setting_validation(self, mock_method):
-        from utils import setting_handler
         setting_handler.save_setting(
             'email', 'editor_assignment', self.journal_one, 'test'
         )
         mock_method.assert_called()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hide_review_details_on(self):
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'Reviews'
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hide_review_details_on_accepted(self):
+        self.article_one.date_published = timezone.now()
+        self.article_one.save()
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Reviews'
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hide_review_details_on_declined(self):
+        self.article_one.date_declined = timezone.now()
+        self.article_one.save()
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Reviews'
+        )
 
     def setUp(self):
         self.press = helpers.create_press()
@@ -267,4 +333,11 @@ class CoreTests(TestCase):
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         call_command('install_plugins')
-        call_command('load_default_settings')
+        install.update_settings(management_command=False)
+        self.article_one = helpers.create_article(
+            self.journal_one,
+            with_author=True,
+        )
+        self.article_one.stage = 'Unassigned'
+        self.article_one.save()
+        clear_script_prefix()
