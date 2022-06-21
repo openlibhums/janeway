@@ -196,7 +196,7 @@ def repository_submit_update(request, preprint_id, action):
                         None,
                         'You must upload a PDF for your manuscript',
                     )
-        if version_form.is_valid() and file_form.is_valid() if file_form else True:
+        if version_form.is_valid() and (file_form.is_valid() if file_form else True):
             new_version = version_form.save(commit=False)
             new_version.update_type = action
 

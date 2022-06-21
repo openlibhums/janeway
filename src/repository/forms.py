@@ -12,6 +12,7 @@ from press import models as press_models
 from review.forms import render_choices
 from core import models as core_models, workflow
 from utils import forms as utils_forms
+from identifiers.models import URL_DOI_RE
 
 
 class PreprintInfo(utils_forms.KeywordModelForm):
@@ -381,6 +382,17 @@ class VersionForm(forms.ModelForm):
             version.save()
 
         return version
+
+    def clean_published_doi(self):
+        doi_string = self.cleaned_data.get('published_doi')
+
+        if doi_string and not URL_DOI_RE.match(doi_string):
+            self.add_error(
+                'published_doi',
+                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+            )
+
+        return doi_string
 
 
 class RepositoryBase(forms.ModelForm):
