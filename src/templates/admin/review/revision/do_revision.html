@@ -103,12 +103,18 @@
                 </div>
                 <div class="content">
                     <p>When you have completed your revisions and finished writing your covering letter, click the 'Submit Revisions' button below to finish. Please note that you will not be able to make any further changes to your letter or revisions once you click 'Submit Revisions'</p>
-                    <a class="button success" name="confirm" data-open="confirm_modal">Submit Revisions</a>
+                    <button class="button success" name="confirm">Submit Revisions</button>
                 </div>
             </form>
         </div>
     </div>
 
-{% include "admin/elements/confirm_modal.html" with action="submit revisions" form_id="do_revision" warnings=warnings %}
+    {% include "admin/elements/confirm_modal.html" with modal_question=modal_question form_id="do_revision" potential_errors=potential_errors%}
 
 {% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock js %}
