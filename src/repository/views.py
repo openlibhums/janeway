@@ -283,14 +283,18 @@ def repository_subject_list(request):
 
 
 
-def repository_list(request, subject_slug=None):
+def repository_list(request, subject_id=None):
     """
     Displays a list of all published preprints.
     :param request: HttpRequest
     :return: HttpResponse
     """
-    if subject_slug:
-        subject = get_object_or_404(models.Subject, slug=subject_slug)
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
         preprints = subject.preprint_set.filter(
             repository=request.repository,
             date_published__lte=timezone.now(),

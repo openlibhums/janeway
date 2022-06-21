@@ -53,7 +53,7 @@ urlpatterns = [
         views.repository_subject_list,
         name='repository_subject_list'),
 
-    url(r'^list/(?P<subject_slug>[-\w]+)/$',
+    url(r'^list/(?P<subject_id>\d+)/$',
         views.repository_list,
         name='preprints_list_subject'),
 
