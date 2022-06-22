@@ -30,6 +30,7 @@ from core import (
     models as core_models,
     plugin_loader,
     logic as core_logic,
+    forms as core_forms,
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
@@ -2085,7 +2086,7 @@ def resend_logged_email(request, article_id, log_id):
 @editor_user_required
 def send_user_email(request, user_id, article_id=None):
     user = get_object_or_404(core_models.Account, pk=user_id)
-    form = forms.EmailForm(
+    form = core_forms.EmailForm(
         initial={'body': '<br/ >{signature}'.format(
             signature=request.user.signature)},
     )
@@ -2099,14 +2100,14 @@ def send_user_email(request, user_id, article_id=None):
         )
 
     if request.POST and 'send' in request.POST:
-        form = forms.EmailForm(request.POST)
+        form = core_forms.EmailForm(request.POST)
 
         if form.is_valid():
-            logic.send_email(
+            core_logic.send_email(
                 user,
                 form,
                 request,
-                article,
+                article=article,
             )
             close = True
 
