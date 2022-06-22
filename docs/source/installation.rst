@@ -141,7 +141,7 @@ and follow the on screen instructions.
 
    > Press main contact (email): ajrbyers@gmail.com
 
-   > Thanks! We will now set up out first journal.
+   > Thanks! We will now set up our first journal.
 
    > Journal #1 code: tstj
 
