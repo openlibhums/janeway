@@ -1246,7 +1246,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
             modal = {
                 'id': 'confirm_modal',
                 'yes_button_name': 'complete',
-                'question': _('Are you sure you want to complete proofreading task?'),
+                'question': _('Are you sure you want to complete the proofreading task?'),
                 'potential_errors': [],
             }
 
