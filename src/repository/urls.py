@@ -175,6 +175,10 @@ urlpatterns = [
         views.delete_supplementary_file,
         name='repository_delete_supplementary_files'),
 
+    url(r'^manager/licenses/$',
+        views.repository_licenses,
+        name='repository_licenses'),
+
     url(r'^manager/subjects/$',
         views.repository_subjects,
         name='repository_subjects'),

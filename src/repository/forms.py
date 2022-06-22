@@ -57,10 +57,12 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             enabled=True,
             repository=self.request.repository,
         )
-        self.fields['license'].queryset = submission_models.Licence.objects.filter(
-            press__isnull=False,
-            available_for_submission=True,
-        )
+        if self.admin:
+            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+                journal__isnull=True,
+            )
+        else:
+            self.fields['license'].queryset = self.request.repository.active_licenses.all()
         self.fields['license'].required = True
 
         if elements:
@@ -337,6 +339,29 @@ class SubjectForm(forms.ModelForm):
             subject.save()
 
         return subject
+
+
+class ActiveLicenseForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = ('active_licenses',)
+        widgets = {
+            'active_licenses': forms.CheckboxSelectMultiple,
+        }
+        labels = {
+            'active_licenses': 'Select the licenses that authors can pick from during submission',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ActiveLicenseForm, self).__init__(*args, **kwargs)
+        self.fields['active_licenses'].queryset = submission_models.Licence.objects.filter(
+            journal=None
+        )
+        self.fields['active_licenses'].label_from_instance = self.label_from_instance
+
+    @staticmethod
+    def label_from_instance(obj):
+        return obj.name
 
 
 class FileForm(forms.ModelForm):
