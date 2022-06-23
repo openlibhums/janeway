@@ -30,7 +30,8 @@ from security.decorators import (
     reviewer_user_for_assignment_required,
     file_user_required, article_decision_not_made, article_author_required,
     editor_is_not_author, senior_editor_user_required,
-    section_editor_draft_decisions, article_stage_review_required
+    section_editor_draft_decisions, article_stage_review_required,
+    any_editor_user_required
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
@@ -39,7 +40,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-@senior_editor_user_required
+@any_editor_user_required
 def home(request):
     """
     Displays a list of review articles.
@@ -55,11 +56,8 @@ def home(request):
     )
 
     filter = request.GET.get('filter', None)
-    if filter == 'me':
-        assignments = models.EditorAssignment.objects.filter(article__journal=request.journal,
-                                                             editor=request.user)
-        assignment_article_pks = [assignment.article.pk for assignment in assignments]
-        articles = articles.filter(pk__in=assignment_article_pks)
+    if filter == 'me' or request.user.is_section_editor(request):
+        articles = core_logic.restrict_articles_to_editor_assigned(request, articles)
 
     template = 'review/home.html'
     context = {
@@ -70,7 +68,7 @@ def home(request):
     return render(request, template, context)
 
 
-@senior_editor_user_required
+@any_editor_user_required
 def unassigned(request):
     """
     Displays a list of unassigned articles.
@@ -79,6 +77,9 @@ def unassigned(request):
     """
     articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_UNASSIGNED,
                                                         journal=request.journal)
+
+    if request.user.is_section_editor(request):
+        articles = core_logic.restrict_articles_to_editor_assigned(request, articles)
 
     template = 'review/unassigned.html'
     context = {
