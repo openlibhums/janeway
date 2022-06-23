@@ -919,3 +919,11 @@ def render_nested_setting(
     )
 
     return rendered_string
+
+def restrict_articles_to_editor_assigned(request, articles):
+    assignments = review_models.EditorAssignment.objects.filter(
+        article__journal=request.journal,
+        editor=request.user
+    )
+    assignment_article_pks = [assignment.article.pk for assignment in assignments]
+    return articles.filter(pk__in=assignment_article_pks)
