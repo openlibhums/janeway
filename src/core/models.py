@@ -752,6 +752,7 @@ class File(AbstractLastModifiedModel):
     text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
         blank=True, null=True,
         related_name="file",
+        on_delete=models.SET_NULL,
     )
 
     class Meta:
