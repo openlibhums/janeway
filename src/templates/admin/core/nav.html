@@ -4,6 +4,7 @@
 {% load hooks %}
 
 {% is_editor as editor %}
+{% is_any_editor as any_editor %}
 
 <div class="off-canvas position-left reveal-for-large" id="offCanvas" data-off-canvas>
     <button class="close-button" aria-label="Close menu" type="button" data-close>
@@ -39,6 +40,8 @@
         {% if editor %}
         <li><a href="{% url 'kanban' %}"><i class="fa fa-sticky-note">&nbsp;</i> Kanban</a>
         </li>
+        {% endif %}
+        {% if any_editor %}
         <li><a href="{% url 'core_active_submissions' %}"><i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions</a>
         </li>
         <li class="subtitle"><a href="#">Workflow</a></li>
@@ -51,7 +54,8 @@
                     <a href="{% url element.handshake_url %}"><i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}</a>
                 </li>
             {% endfor %}
-
+        {% endif %}
+        {% if editor %}
         <li class="subtitle"><a href="#">Back Content</a></li>
         <li><a href="{% url 'manage_issues' %}"><i class="fa fa-folder-open">&nbsp;</i>
             Issues</a></li>

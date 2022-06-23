@@ -13,18 +13,18 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from copyediting import models, logic, forms
-from core import models as core_models, files
+from core import models as core_models, files, logic as core_logic
 from events import logic as event_logic
 from security.decorators import (
     production_user_or_editor_required, copyeditor_user_required,
     copyeditor_for_copyedit_required, article_author_required,
-    editor_user_required, senior_editor_user_required
+    editor_user_required, senior_editor_user_required,
+    any_editor_user_required
 )
 
 from submission import models as submission_models
 
-
-@senior_editor_user_required
+@any_editor_user_required
 def copyediting(request):
     """
     View shows the user a list of articles in Copyediting
@@ -34,6 +34,12 @@ def copyediting(request):
 
     articles_in_copyediting = submission_models.Article.objects.filter(stage__in=submission_models.COPYEDITING_STAGES,
                                                                        journal=request.journal)
+
+    if request.user.is_section_editor(request):
+        articles_in_copyediting = core_logic.restrict_articles_to_editor_assigned(
+            request,
+            articles_in_copyediting
+        )
 
     template = 'copyediting/copyediting.html'
     context = {
