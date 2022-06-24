@@ -1355,6 +1355,10 @@ class Article(AbstractLastModifiedModel):
         else:
             return False
 
+    @property
+    def scheduled_for_publication(self):
+        return self.stage == STAGE_PUBLISHED and self.date_published
+
     def snapshot_authors(self, article=None, force_update=True):
         """ Creates/updates FrozenAuthor records for this article's authors
         :param article: (deprecated) should not pass this argument

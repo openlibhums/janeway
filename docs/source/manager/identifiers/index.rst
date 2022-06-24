@@ -7,7 +7,8 @@ When Are DOIs Minted?
 ---------------------
 If all the settings are properly configured (see below), Janeway handles DOI registration for you, stepping in at a few key points in the publishing pipeline.
 
-By default, a DOI is registered (a.k.a. minted, deposited) with Crossref when an article is accepted for publication. Some provisional metadata is sent at this time. 
+By default, a DOI is registered (a.k.a. minted, deposited) with Crossref when an article is accepted for publication. Some provisional metadata is sent at this time (No author-identifiable details are shared).
+When an article is scheduled for publication, a new request is sent to Crossref to update all metadata records.
 
 .. tip::
     You can let editors see a preview of the data that gets sent before accepting an article. See **Accept Article Warning** under :ref:`Review Settings<reviewsettings>`.
