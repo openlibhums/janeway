@@ -1,5 +1,9 @@
+import datetime
+import pytz
+
 from django.test import TestCase
 from django.conf import settings
+from django.utils import timezone
 
 from identifiers import logic, models
 from core.models import SettingGroup
@@ -43,6 +47,11 @@ class TestLogic(TestCase):
         cls.issue_five_three = helpers.create_issue(cls.journal_one, vol=5, number=3)
 
         cls.article_one = helpers.create_article(cls.journal_one, with_author=True)
+        cls.article_published = helpers.create_article(cls.journal_one, with_author=True)
+        cls.article_published.stage = submission_models.STAGE_PUBLISHED
+        cls.article_published.date_published = timezone.now()
+        cls.article_published.save()
+
         cls.doi_one = logic.generate_crossref_doi_with_pattern(cls.article_one)
         cls.issue_five_three.articles.add(cls.article_one)
         cls.article_one.primary_issue = cls.issue_five_three
@@ -215,7 +224,29 @@ class TestLogic(TestCase):
         self.assertEqual(expected_data, context)
 
 
-    def test_create_crossref_article_context(self):
+    def test_create_crossref_article_context_published(self):
+        self.maxDiff = None
+        expected_data = {
+            'title': self.article_published.title,
+            'abstract': '',
+            'url': self.article_published.url,
+            'authors': [
+                author.email for author in self.article_published.frozenauthor_set.all()
+            ],
+            'citation_list': None,
+            'date_accepted': None,
+            'date_published': self.article_published.date_published,
+            'doi': '10.0000/TST.2',
+            'license': '',
+            'pages': self.article_published.page_numbers,
+            'scheduled': True,
+        }
+
+        context = logic.create_crossref_article_context(self.article_published)
+        context['authors'] = [author.email for author in context['authors']]
+        self.assertEqual(expected_data, context)
+
+    def test_create_crossref_article_context_not_published(self):
         expected_data = {
             'title': self.article_one.title,
             'abstract': self.article_one.abstract,
@@ -230,7 +261,8 @@ class TestLogic(TestCase):
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
-            'pages': self.article_one.page_numbers
+            'pages': self.article_one.page_numbers,
+            'scheduled': False,
         }
 
         context = logic.create_crossref_article_context(self.article_one)

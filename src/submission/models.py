@@ -1357,7 +1357,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def scheduled_for_publication(self):
-        return self.stage == STAGE_PUBLISHED and self.date_published
+        return bool(self.stage == STAGE_PUBLISHED and self.date_published)
 
     def snapshot_authors(self, article=None, force_update=True):
         """ Creates/updates FrozenAuthor records for this article's authors
