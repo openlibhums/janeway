@@ -305,6 +305,7 @@ def create_crossref_article_context(article, identifier=None):
         'date_published': article.date_published,
         'license': article.license.url if article.license else '',
         'pages': article.page_numbers,
+        'scheduled': article.scheduled_for_publication,
     }
 
     # append citations for i4oc compatibility
