@@ -2,6 +2,7 @@
 
 {% load classname %}
 {% load fqdn %}
+{% load foundation %}
 
 {% block title %}DOI Manager{% endblock title %}
 {% block title-section %}DOI Manager{% endblock %}
@@ -27,21 +28,23 @@
                     <div class="row expanded">
                         <form method="GET" id={{ facet_form.id }}>
                             {% for field in facet_form %}
-                                <div class="facet columns small-12 medium-6">
+                                <div class="columns small-12 medium-6">
                                     <fieldset style="padding-bottom: 24px">
                                         <legend>{{ field.label }}</legend>
-                                        {% with field.field.widget|classname as widgetclass %}
-                                            {% if widgetclass == 'CheckboxSelectMultiple' %}
-                                                {% for checkbox in field %}
-                                                    <label for="{{ checkbox.id_for_label }}">
-                                                        {{ checkbox.tag }}
-                                                        {{ checkbox.choice_label }}
-                                                    </label>
-                                                {% endfor %}
-                                            {% elif widgetclass == 'HTMLDateInput' %}
-                                                {{ field }}
-                                            {% endif %}
-                                        {% endwith %}
+                                        <div class="facet">
+                                            {% with field.field.widget|classname as widgetclass %}
+                                                {% if widgetclass == 'CheckboxSelectMultiple' %}
+                                                    {% for checkbox in field %}
+                                                        <label for="{{ checkbox.id_for_label }}">
+                                                            {{ checkbox.tag }}
+                                                            {{ checkbox.choice_label }}
+                                                        </label>
+                                                    {% endfor %}
+                                                {% elif widgetclass == 'HTMLDateInput' %}
+                                                    {{ field }}
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
                                     </fieldset>
                                 </div>
                             {% endfor %}
