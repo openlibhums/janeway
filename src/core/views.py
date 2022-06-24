@@ -2205,6 +2205,11 @@ class FilteredArticlesListView(generic.ListView):
         params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
         context['version'] = get_janeway_version()
+        context['action_maximum_size'] = setting_handler.get_setting(
+            'crossref',
+            'doi_manager_action_maximum_size',
+            self.request.journal if self.request.journal else None,
+        ).processed_value
         return context
 
     def get_queryset(self, params_querydict=None):

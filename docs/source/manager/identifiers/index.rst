@@ -26,6 +26,8 @@ You can see all the DOIs for a journal (if you are an editor) or for a press (if
 
 First, filter by date, registration status, or primary issue until you have an actionable set of articles.
 
+At the moment, the DOI Manager can handle small batches, such as 20 articles, with no problems, but it may not be able to handle larger batches very well. We will optimize it to handle large batches in the future.
+
 In some cases, you can preview the XML that will get sent to Crossref.
 
 Once you have filtered the articles to your liking, you can take two actions: **Register DOIs** and **Poll for status**. **Register DOIs** will package up all the metadata into XML and send it to Crossref. Crossref will put all the deposits they receive in a queue to process, so the status may not be immediate. After a few moments (or longer if it is a large batch), you can use **Poll for status** to check the result.

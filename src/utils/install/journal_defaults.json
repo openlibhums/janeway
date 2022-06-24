@@ -3403,6 +3403,21 @@
         "value": {
             "default": "{{ article.registration_preview|safe }}"
         }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Maximum number of articles on which an action can be performed in the DOI Manager",
+            "is_translatable": false,
+            "name": "doi_manager_action_maximum_size",
+            "pretty_name": "DOI Manager Action Maximum Size",
+            "type": "number"
+        },
+        "value": {
+            "default": "25"
+        }
     }
 
 ]
