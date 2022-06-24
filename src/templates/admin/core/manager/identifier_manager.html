@@ -16,7 +16,7 @@
 <div>
     <div class="content">
         <div class="row expanded"> 
-            <a href="https://janeway.readthedocs.io/en/v{{ version }}/manager/identifiers/index.html" class="button small float-right">
+            <a href="https://janeway.readthedocs.io/en/latest/manager/identifiers/index.html" class="button small float-right">
                 Documentation <span class="fa fa-info-circle"></span>
             </a>
         </div>
@@ -150,12 +150,15 @@
             <div class="box small-12 small-8 large-6">
                 <section>
                     <h3>Actions</h3>
+                    {% if page_obj.paginator.count > action_maximum_size %}
+                    <p>This version of the DOI Manager can handle up to {{ action_maximum_size }} articles at a time. Please filter the results down to fewer than {{ action_maximum_size }} articles.</p>
+                    {% endif %}
                     <form action="" method="post">
                         {% csrf_token %}
-                            <input type="hidden" name="params_string" value="{{ params_string }}"/>
+                        <input type="hidden" name="params_string" value="{{ params_string }}"/>
                         <div class="button-group">
                             {% for action in actions %}
-                                <button action="" class="success button" type="submit" name="{{ action.name }}">
+                                <button action="" class="success button" type="submit" name="{{ action.name }}" {% if page_obj.paginator.count > action_maximum_size %}disabled{% endif %}>
                                     {{ action.value }}
                                 </button>
                             {% endfor %}
