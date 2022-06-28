@@ -149,7 +149,7 @@ def show_doi(request, article_id, identifier_id):
     )
 
     try:
-        document = identifier.crossref_status.latest_deposit.document
+        document = identifier.crossrefstatus.latest_deposit.document
         if not document:
             raise AttributeError
         return HttpResponse(document, content_type="application/xml")
@@ -181,14 +181,14 @@ def poll_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if identifier.crossref_status and identifier.crossref_status.latest_deposit:
-        status, error = identifier.crossref_status.latest_deposit.poll()
+    if identifier.crossrefstatus and identifier.crossrefstatus.latest_deposit:
+        status, error = identifier.crossrefstatus.latest_deposit.poll()
         messages.add_message(
             request,
             messages.INFO if not error else messages.ERROR,
             status
         )
-        identifier.crossref_status.update()
+        identifier.crossrefstatus.update()
     else:
         crossref_status = models.CrossrefStatus.objects.create(
             identifier=identifier
@@ -225,16 +225,16 @@ def poll_doi_output(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if not identifier.crossref_status:
+    if not identifier.crossrefstatus:
         return HttpResponse('Error: no deposit found')
-    elif 'doi_batch' not in identifier.crossref_status.latest_deposit.result_text:
-        return HttpResponse(identifier.crossref_status.latest_deposit.result_text)
+    elif 'doi_batch' not in identifier.crossrefstatus.latest_deposit.result_text:
+        return HttpResponse(identifier.crossrefstatus.latest_deposit.result_text)
     else:
-        text = identifier.crossref_status.latest_deposit.get_record_diagnostic(identifier.identifier)
+        text = identifier.crossrefstatus.latest_deposit.get_record_diagnostic(identifier.identifier)
         if text:
             resp = HttpResponse(text, content_type="application/xml")
         else:
-            resp = HttpResponse(identifier.crossref_status.latest_deposit.result_text, content_type="application/xml")
+            resp = HttpResponse(identifier.crossrefstatus.latest_deposit.result_text, content_type="application/xml")
         resp['Content-Disposition'] = 'inline;'
         return resp
 
@@ -347,7 +347,6 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'model': journal_models.Journal,
                 'field_label': 'Journal',
                 'choice_label_field': 'name',
-                'order_by': 'facet_count',
             },
             'primary_issue__pk': {
                 'type': 'foreign_key',

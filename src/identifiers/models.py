@@ -17,6 +17,7 @@ from identifiers import logic
 from utils import shared
 from utils.logger import get_logger
 from utils import setting_handler
+from utils.function_cache import cache
 
 from django.conf import settings
 
@@ -81,10 +82,11 @@ class CrossrefDeposit(models.Model):
     class Meta:
         ordering = ('-date_time',)
 
+    @cache(600)
     @property
     def journal(self):
         journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
-        if len(journals) > 1:
+        if journals.count() > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
         else:
@@ -268,13 +270,6 @@ class Identifier(models.Model):
             return True
 
         return False
-
-    @property
-    def crossref_status(self):
-        try:
-            return self.crossrefstatus
-        except ObjectDoesNotExist:
-            return None
 
 
 class BrokenDOI(models.Model):
