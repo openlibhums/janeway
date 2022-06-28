@@ -30,6 +30,9 @@
 
                             {% bootstrap_form form %}
                             <p>{% trans 'By registering an account you agree to our' %} <a href="/site/privacy/">{% trans 'Privacy Policy' %}</a>.</p>
+                            {% if journal_settings.general.display_register_page_notice %}
+                            {{ journal_settings.general.register_page_notice|safe }}
+                            {% endif %}
                             <p>
                                 <button type="submit"
                                         class="btn btn-primary float-right">{% trans "Register" %}</button>

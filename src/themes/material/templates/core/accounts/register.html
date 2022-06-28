@@ -42,6 +42,9 @@
                             <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
                           {% endif %}
                         </p>
+                        {% if journal_settings.general.display_register_page_notice %}
+                        {{ journal_settings.general.register_page_notice|safe }}
+                        {% endif %}
                         <button type="submit"
                                 class="btn btn-primary float-right">{% trans "Register" %}</button>
                     </form>
