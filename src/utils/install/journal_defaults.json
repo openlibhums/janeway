@@ -3401,7 +3401,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "{{ article.registration_preview|safe }}"
+            "default": ""
         }
     }
 
