@@ -2206,7 +2206,7 @@ class FilteredArticlesListView(generic.ListView):
         context['params_string'] = params_querydict.urlencode()
         context['version'] = get_janeway_version()
         context['action_maximum_size'] = setting_handler.get_setting(
-            'crossref',
+            'Identifiers',
             'doi_manager_action_maximum_size',
             self.request.journal if self.request.journal else None,
         ).processed_value
