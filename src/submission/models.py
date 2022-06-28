@@ -36,6 +36,7 @@ from core.model_utils import(
 )
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
+from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
 from review import models as review_models
@@ -956,7 +957,6 @@ class Article(AbstractLastModifiedModel):
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
-        from identifiers import models as identifier_models
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)

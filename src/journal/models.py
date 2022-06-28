@@ -230,6 +230,7 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting(group_name, setting_name, self, create=False).processed_value
 
     @property
+    @cache(15)
     def name(self):
         try:
             return setting_handler.get_setting('general', 'journal_name', self, default=True).value

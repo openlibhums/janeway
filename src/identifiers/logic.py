@@ -128,7 +128,7 @@ def poll_dois_for_articles(articles):
     polled = set()
     for identifier in identifiers:
         try:
-            deposit = identifier.crossref_status.latest_deposit
+            deposit = identifier.crossrefstatus.latest_deposit
         except AttributeError:
             deposit = None
         if deposit and deposit not in polled:
@@ -141,7 +141,7 @@ def poll_dois_for_articles(articles):
 
     for identifier in identifiers:
         try:
-            identifier.crossref_status.update()
+            identifier.crossrefstatus.update()
         except AttributeError:
             crossref_status = models.CrossrefStatus.objects.create(
                 identifier=identifier
@@ -489,7 +489,6 @@ def render_doi_from_pattern(article):
                                                          article.journal,
                                                          'doi_pattern',
                                                          group_name='Identifiers')
-
     return '{0}/{1}'.format(doi_prefix, doi_suffix)
 
 
