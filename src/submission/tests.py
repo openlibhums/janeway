@@ -6,8 +6,9 @@ from dateutil import parser as dateparser
 from mock import Mock
 import os
 
+from django.core.management import call_command
 from django.http import Http404
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils import translation
 from django.urls.base import clear_script_prefix
 from django.conf import settings
@@ -550,6 +551,68 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+class ArticleSearchTests(TransactionTestCase):
+    roles_path = os.path.join(
+        settings.BASE_DIR,
+        'utils',
+        'install',
+        'roles.json'
+    )
+    fixtures = [roles_path]
+
+    def test_new_journals_has_submission_configuration(self):
+        if not self.journal_one.submissionconfiguration:
+            self.fail('Journal does not have a submissionconfiguration object.')
+
+    @staticmethod
+    def create_journal():
+        """
+        Creates a dummy journal for testing
+        :return: a journal
+        """
+        update_xsl_files()
+        update_settings()
+        journal_one = journal_models.Journal(code="TST", domain="testserver")
+        journal_one.title = "Test Journal: A journal of tests"
+        journal_one.save()
+        update_issue_types(journal_one)
+
+        return journal_one
+
+    @staticmethod
+    def create_authors():
+        author_1_data = {
+            'is_active': True,
+            'password': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+        }
+        author_2_data = {
+            'is_active': True,
+            'password': 'this_is_a_password',
+            'salutation': 'Sr.',
+            'first_name': 'Mauro',
+            'last_name': 'Sanchez',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+        }
+        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
+        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+
+        return author_1, author_2
+
+    def setUp(self):
+        """
+        Setup the test environment.
+        :return: None
+        """
+        self.journal_one = self.create_journal()
+        self.editor = helpers.create_editor(self.journal_one)
+        self.press = helpers.create_press()
+
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_full_text_search(self):
         text_to_search = """
@@ -585,6 +648,9 @@ class SubmissionTests(TestCase):
         file_obj.text = text
         file_obj.save()
 
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
         search_filters = {"full_text": True}
         queryset = models.Article.objects.search(needle, search_filters)
         result = [a for a in queryset]
@@ -615,6 +681,9 @@ class SubmissionTests(TestCase):
             abstract="Random abstract crawl text",
         )
 
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
         search_filters = {"abstract": True}
         queryset = models.Article.objects.search(needle, search_filters)
         result = [a for a in queryset]
@@ -624,7 +693,7 @@ class SubmissionTests(TestCase):
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_title(self):
         text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
-        needle = "warp-drive"
+        needle = "diagnostic"
 
         article = models.Article.objects.create(
             journal=self.journal_one,
@@ -637,6 +706,9 @@ class SubmissionTests(TestCase):
             title="This article should not appear",
             date_published=dateparser.parse("2020-01-01"),
         )
+
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
 
         search_filters = {"title": True}
         queryset = models.Article.objects.search(needle, search_filters)
