@@ -87,6 +87,9 @@
                                 </p>
                             </div>
                         </div>
+                        {% if journal_settings.general.display_register_page_notice %}
+                        {{ journal_settings.general.register_page_notice|safe }}
+                        {% endif %}
                         <p>
                             <button type="submit" class="success button float-right">{% trans "Register" %}</button>
                         </p>

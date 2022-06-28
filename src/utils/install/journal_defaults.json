@@ -3136,6 +3136,36 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If set to true the Registration Page Notice will display.",
+            "is_translatable": true,
+            "name": "display_register_page_notice",
+            "pretty_name": "Display Registration Page Notice",
+            "type": "boolean"
+        },
+        "value": {
+            "default": false
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Message to display if you enable Display Registration Page Notice.",
+            "is_translatable": true,
+            "name": "register_page_notice",
+            "pretty_name": "Registration Page Notice",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "crossref"
         },
         "setting": {
