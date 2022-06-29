@@ -181,6 +181,8 @@ def kbart(request, tsv=True):
     writer = None
 
     for journal in journal_models.Journal.objects.filter(is_remote=False, hide_from_press=False):
+        kbart_embargo = journal.get_setting(
+            'kbart', 'embargo_period')
         # Note that we here use an OrderedDict. This is important as the
         # field headers are generated below at the late init of the TSV or
         # CSV writer and need to be in the right order. Hence, fields should
@@ -188,8 +190,12 @@ def kbart(request, tsv=True):
         journal_line = collections.OrderedDict()
 
         journal_line['publication_title'] = journal.name
+        journal_line['online_identifier'] = journal.issn
+        journal_line['print_identifier'] = journal.print_issn
 
-        issues = journal.serial_issues().order_by("date")
+        issues = journal.serial_issues().filter(
+            date__lte=timezone.now().date(),
+        ).order_by("date")
 
         # We here iterate over the issues.
         # Technically, this should check if issues are consecutive
@@ -210,15 +216,23 @@ def kbart(request, tsv=True):
             # the issue number of the first issue that we have
             journal_line['num_first_issue_online'] = first_issue.issue
 
-            # the date that the last issue that we have was published
-            journal_line['date_last_issue_online'] = '{:%Y-%m-%d}'.format(
-                last_issue.date)
+            # The date that the last issue that we have was published,
+            # this is should only be populated if the article has ceased
+            # publication OR if the article  publishes content after a
+            # period of embargo
+            if journal.is_archived or kbart_embargo:
+                journal_line['date_last_issue_online'] = '{:%Y-%m-%d}'.format(
+                    last_issue.date)
+                # the issue number of the last issue that we have
+                journal_line['num_last_issue_online'] = last_issue.issue
+                # the volume number of the last issue that we have
+                journal_line['num_last_vol_online'] = last_issue.volume
+            else:
+                journal_line['date_last_issue_online'] = None
+                journal_line['num_last_issue_online'] = None
+                journal_line['num_last_vol_online'] = None
 
-            # the volume number of the last issue that we have
-            journal_line['num_last_vol_online'] = last_issue.volume
 
-            # the issue number of the last issue that we have
-            journal_line['num_last_issue_online'] = last_issue.issue
         else:
             # set these fields to None if there are no issues
             journal_line['date_first_issue_online'] = None
@@ -237,8 +251,9 @@ def kbart(request, tsv=True):
         # the issn of the journal
         journal_line['title_id'] = journal.issn
 
-        # an embargo period which is not applicable to gold OA titles
-        journal_line['embargo_info'] = None # not needed as no paywalls
+        # Applicable to journals that publish in print but have period of 
+        # embargo period before publishing online
+        journal_line['embargo_info'] = kbart_embargo or None
 
         # the type of coverage that we have available
         journal_line['coverage_depth'] = 'fulltext'
