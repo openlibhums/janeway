@@ -3436,6 +3436,21 @@
     },
     {
         "group": {
+            "name": "kbart"
+        },
+        "setting": {
+            "description": "Optional period of embargo this journal is subject to. It must follow the kbart format such as 'R2Y' or 'P1Y'",
+            "is_translatable": false,
+            "name": "embargo_period",
+            "pretty_name": "Embargo Period (KBART)",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "Identifiers"
         },
         "setting": {
