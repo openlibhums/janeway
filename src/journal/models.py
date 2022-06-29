@@ -149,6 +149,11 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('When enabled, the journal is marked as not hosted in Janeway.'),
     )
     is_conference = models.BooleanField(default=False)
+    is_archived = models.BooleanField(
+        default=False,
+        help_text="The journal is no longer publishing. This is only used as "
+            "part of the journal metadata.",
+    )
     remote_submit_url = models.URLField(
         blank=True,
         null=True,
