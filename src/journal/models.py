@@ -21,6 +21,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import ugettext
+from django.utils.functional import cached_property
 
 from core import (
         files,
@@ -625,11 +626,11 @@ class Issue(AbstractLastModifiedModel):
 
         return [volume, issue, year, issue_title, article_number, page_numbers]
 
-    @property
+    @cached_property
     def pretty_issue_identifier(self):
         return mark_safe(" &bull; ".join((filter(None, self.issue_title_parts()))))
 
-    @property
+    @cached_property
     def non_pretty_issue_identifier(self):
         return " ".join((filter(None, self.issue_title_parts())))
 

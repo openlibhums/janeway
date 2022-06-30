@@ -26,6 +26,7 @@ from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
+from django.utils.functional import cached_property
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -982,7 +983,7 @@ class Article(AbstractLastModifiedModel):
     def get_doi_object(self):
         return self.get_identifier('doi', object=True)
 
-    @property
+    @cached_property
     def doi_pattern_preview(self):
         return id_logic.render_doi_from_pattern(self)
 

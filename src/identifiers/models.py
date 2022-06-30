@@ -12,6 +12,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.functional import cached_property
 
 from identifiers import logic
 from utils import shared
@@ -82,8 +83,7 @@ class CrossrefDeposit(models.Model):
     class Meta:
         ordering = ('-date_time',)
 
-    @cache(600)
-    @property
+    @cached_property
     def journal(self):
         journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
         if journals.count() > 1:
@@ -231,11 +231,9 @@ class CrossrefStatus(models.Model):
         except AttributeError:
             return ''
 
-    @property
+    @cached_property
     def latest_deposit(self):
-        deposits = self.deposits.all()
-        if deposits.count() > 0:
-            return deposits[0]
+        return self.deposits.first()
 
     class Meta:
         verbose_name = 'Crossref status'
