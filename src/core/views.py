@@ -2262,14 +2262,14 @@ class FilteredArticlesListView(generic.ListView):
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
-            self.model.objects.all()
+            super().get_queryset()
         ).exclude(
             stage=submission_models.STAGE_UNSUBMITTED
         )
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
-        return queryset
+        return queryset.order_by()
 
     def get_actions(self):
         return []
