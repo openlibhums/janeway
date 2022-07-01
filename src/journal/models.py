@@ -593,7 +593,7 @@ class Issue(AbstractLastModifiedModel):
             return False
 
     def update_display_title(self):
-        if self.issue_type.code != 'issue':
+        if self.issue_type and self.issue_type.code != 'issue':
             self.display_title = self.issue_title
         else:
             self.display_title = self.pretty_issue_identifier
