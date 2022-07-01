@@ -21,7 +21,6 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import ugettext
-from django.utils.functional import cached_property
 
 from core import (
         files,
@@ -496,6 +495,7 @@ class Issue(AbstractLastModifiedModel):
     volume = models.IntegerField(default=1)
     issue = models.CharField(max_length=255, default="1")
     issue_title = models.CharField(blank=True, max_length=300)
+    display_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=0)
     issue_type = models.ForeignKey(
@@ -587,12 +587,11 @@ class Issue(AbstractLastModifiedModel):
         else:
             return False
 
-    @property
-    def display_title(self):
+    def update_display_title(self):
         if self.issue_type.code != 'issue':
-            return self.issue_title
+            self.display_title = self.issue_title
         else:
-            return self.pretty_issue_identifier
+            self.display_title = self.pretty_issue_identifier
 
     def issue_title_parts(self, article=None):
         journal = self.journal
@@ -621,11 +620,11 @@ class Issue(AbstractLastModifiedModel):
 
         return [volume, issue, year, issue_title, article_number, page_numbers]
 
-    @cached_property
+    @property
     def pretty_issue_identifier(self):
         return mark_safe(" &bull; ".join((filter(None, self.issue_title_parts()))))
 
-    @cached_property
+    @property
     def non_pretty_issue_identifier(self):
         return " ".join((filter(None, self.issue_title_parts())))
 
@@ -843,6 +842,10 @@ class Issue(AbstractLastModifiedModel):
                         "Can't auto increase issue number after issue %s",
                         latest_issue.issue,
                     )
+
+    def save(self, *args, **kwargs):
+        self.update_display_title()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (
@@ -1078,6 +1081,12 @@ def setup_default_form(sender, instance, created, **kwargs):
 
             default_review_form.elements.add(main_element)
 
+
+@receiver(post_save, sender=Journal)
+def update_issue_display_title(sender, instance, created, **kwargs):
+    for issue in Issue.objects.filter(journal=instance):
+        issue.update_display_title()
+        issue.save()
 
 def issue_articles_change(sender, **kwargs):
     """
