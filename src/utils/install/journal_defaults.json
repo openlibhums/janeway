@@ -3461,7 +3461,7 @@
             "type": "number"
         },
         "value": {
-            "default": "25"
+            "default": "200"
         }
     }
 
