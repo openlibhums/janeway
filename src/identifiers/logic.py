@@ -293,6 +293,7 @@ def create_crossref_journal_context(
 
 def create_crossref_article_context(article, identifier=None):
     template_context = {
+        'id': article.pk,
         'title': '{0}{1}{2}'.format(
             article.title,
             ' ' if article.subtitle is not None else '',

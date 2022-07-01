@@ -3,7 +3,7 @@
                     {% if article.scheduled %}
                     <title>{{ article.title }}</title>
                     {% else %}
-                    <title>Title Pending</title>
+                    <title>Title Pending {{ article.id }}</title>
                     {% endif %}
                 </titles>
                 {% if article.authors and article.scheduled %}
