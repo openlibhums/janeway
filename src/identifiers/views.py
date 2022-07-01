@@ -315,6 +315,9 @@ def delete_identifier(request, article_id, identifier_id):
 class IdentifierManager(core_views.FilteredArticlesListView):
     template_name = 'core/manager/identifier_manager.html'
 
+    # None or integer
+    action_queryset_chunk_size = 100
+
     def get_facets(self):
 
         crossref_status_obj = models.CrossrefStatus.objects.filter(
@@ -352,7 +355,7 @@ class IdentifierManager(core_views.FilteredArticlesListView):
                 'type': 'foreign_key',
                 'model': journal_models.Issue,
                 'field_label': 'Primary issue',
-                'choice_label_field': 'non_pretty_issue_identifier',
+                'choice_label_field': 'display_title',
             },
         }
         return self.filter_facets_if_journal(facets)
