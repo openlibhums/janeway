@@ -11,6 +11,11 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    {% if not journal %}
+        <li><a href="{% url 'press_identifier_manager' %}">DOI Manager</a></li>
+    {% else %}
+        <li><a href="{% url 'journal_identifier_manager' %}">DOI Manager</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -92,7 +97,7 @@
                                 {% endif %}
                             </td>
                             {% if not journal %}
-                                <td>{{ journal_settings.name }}</td>
+                                <td>{{ article_journal.name }}</td>
                             {% endif %}
                             <td>
                                 {% if doi %}

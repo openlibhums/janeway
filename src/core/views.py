@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from importlib import import_module
 import json
 import pytz
+import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -2168,6 +2169,9 @@ class FilteredArticlesListView(generic.ListView):
     paginate_by = '25'
     facets = {}
 
+    # None or integer
+    action_queryset_chunk_size = None
+
     def get_paginate_by(self, queryset):
         paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
         if paginate_by == 'all':
@@ -2276,24 +2280,32 @@ class FilteredArticlesListView(generic.ListView):
 
     def post(self, request, *args, **kwargs):
 
-        action_status = ''
-        action_error = False
         params_string = request.POST.get('params_string')
         params_querydict = QueryDict(params_string, mutable=True)
-        actions = self.get_actions()
-        queryset = self.get_queryset(params_querydict=params_querydict)
-        if request.journal:
-            querysets = [queryset]
-        else:
-            querysets = []
-            for journal in {article.journal for article in queryset}:
-                querysets.append(queryset.filter(journal=journal))
 
+        actions = self.get_actions()
         if actions:
+            start = datetime.datetime.now()
+
+            action_status = ''
+            action_error = False
+
+            querysets = []
+            queryset = self.get_queryset(params_querydict=params_querydict)
+
+            if request.journal:
+                querysets.extend(self.split_up_queryset_if_needed(queryset))
+            else:
+                for journal in journal_models.Journal.objects.all():
+                    journal_queryset = queryset.filter(journal=journal)
+                    if journal_queryset:
+                        querysets.extend(self.split_up_queryset_if_needed(journal_queryset))
+
             for action in actions:
+                kwargs = {'start': start}
                 if action.get('name') in request.POST:
                     for queryset in querysets:
-                        action_status, action_error = action.get('action')(queryset)
+                        action_status, action_error = action.get('action')(queryset, **kwargs)
                         messages.add_message(
                             request,
                             messages.INFO if not action_error else messages.ERROR,
@@ -2304,6 +2316,14 @@ class FilteredArticlesListView(generic.ListView):
             return redirect(f'{request.path}?{params_string}')
         else:
             return redirect(request.path)
+
+    def split_up_queryset_if_needed(self, queryset):
+        if self.action_queryset_chunk_size:
+            n = self.action_queryset_chunk_size
+            querysets = [queryset[i:i + n] for i in range(0, queryset.count(), n)]
+            return querysets
+        else:
+            return [queryset]
 
 
     def filter_queryset_if_journal(self, queryset):

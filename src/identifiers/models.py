@@ -12,7 +12,6 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.functional import cached_property
 
 from identifiers import logic
 from utils import shared
@@ -83,10 +82,11 @@ class CrossrefDeposit(models.Model):
     class Meta:
         ordering = ('-date_time',)
 
-    @cached_property
+    @property
+    @cache(30)
     def journal(self):
         journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
-        if journals.count() > 1:
+        if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
         else:
@@ -95,13 +95,8 @@ class CrossrefDeposit(models.Model):
     def poll(self):
         self.polling_attempts += 1
         self.save()
-        test_mode = setting_handler.get_setting('Identifiers',
-                                                'crossref_test',
-                                                self.journal).processed_value or settings.DEBUG
-        username = setting_handler.get_setting('Identifiers', 'crossref_username',
-                                               self.journal).processed_value
-        password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                               self.journal).processed_value
+
+        test_mode, username, password = logic.get_poll_settings(self.journal)
 
         if test_mode:
             test_var = 'test'
@@ -231,7 +226,7 @@ class CrossrefStatus(models.Model):
         except AttributeError:
             return ''
 
-    @cached_property
+    @property
     def latest_deposit(self):
         return self.deposits.first()
 
