@@ -35,7 +35,7 @@ def copyediting(request):
     articles_in_copyediting = submission_models.Article.objects.filter(stage__in=submission_models.COPYEDITING_STAGES,
                                                                        journal=request.journal)
 
-    if request.user.is_section_editor(request):
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
         articles_in_copyediting = core_logic.restrict_articles_to_editor_assigned(
             request,
             articles_in_copyediting
