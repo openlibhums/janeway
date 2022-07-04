@@ -584,7 +584,7 @@ def active_submissions(request):
             journal=request.journal
         ).order_by('pk', 'title')
 
-    if request.user.is_section_editor(request):
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
         active_submissions = logic.restrict_articles_to_editor_assigned(
             request,
             active_submissions
