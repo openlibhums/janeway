@@ -20,4 +20,4 @@ help:
 docker-build:
 	@docker build . -t birkbeckctp/sphinx-rtd
 docker:
-	@docker run --rm -ti -v ${PWD}:/docs sphinxdoc/sphinx
+	@docker run --rm -ti -v ${PWD}:/docs birkbeckctp/sphinx-rtd
