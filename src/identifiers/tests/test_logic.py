@@ -237,6 +237,7 @@ class TestLogic(TestCase):
             'date_accepted': None,
             'date_published': self.article_published.date_published,
             'doi': '10.0000/TST.2',
+            'id': 2,
             'license': '',
             'pages': self.article_published.page_numbers,
             'scheduled': True,
@@ -258,6 +259,7 @@ class TestLogic(TestCase):
             'date_accepted': None,
             'date_published': None,
             'doi': self.doi_one.identifier,
+            'id': self.article_one.id,
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
