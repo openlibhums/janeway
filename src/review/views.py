@@ -19,6 +19,7 @@ from django.conf import settings
 from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
+from django.utils.translation import ugettext_lazy as _
 
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
@@ -1438,8 +1439,9 @@ def review_decision(request, article_id, decision):
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
     if article.date_accepted or article.date_declined:
-        messages.add_message(request, messages.WARNING, 'This article has already been accepted or declined.')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        if decision != 'undecline':
+            messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
+            return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
         email_content = request.POST.get('decision_rationale')
@@ -1469,6 +1471,14 @@ def review_decision(request, article_id, decision):
             article.decline_article()
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
             return redirect(reverse('core_dashboard'))
+
+        elif decision == 'undecline':
+            article.undo_review_decision()
+            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_UNDECLINED, task_object=article, **kwargs)
+            if article.stage == submission_models.STAGE_UNASSIGNED:
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+            elif article.stage == submission_models.STAGE_ASSIGNED:
+                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
         messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))

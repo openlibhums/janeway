@@ -35,7 +35,7 @@ from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
-from review import forms as review_forms
+from review import forms as review_forms, models as review_models
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
@@ -1706,6 +1706,9 @@ def manage_archive_article(request, article_id):
         note_form = submission_forms.PublisherNoteForm(instance=publisher_note)
         note_forms.append(note_form)
 
+    assigned_editors = [assignment.editor for assignment in
+                       review_models.EditorAssignment.objects.filter(article=article)]
+
     template = 'journal/manage/archive_article.html'
     context = {
         'article': article,
@@ -1714,6 +1717,7 @@ def manage_archive_article(request, article_id):
         'newnote_form': newnote_form,
         'note_forms': note_forms,
         'galley_form': galley_form,
+        'assigned_editors': assigned_editors,
     }
 
     return render(request, template, context)
