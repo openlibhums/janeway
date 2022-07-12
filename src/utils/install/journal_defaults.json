@@ -724,6 +724,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "When using a custom theme you can set the base theme, when a template from a custom theme is missing templates from the base theme will be used as a backup.",
+            "is_translatable": false,
+            "name": "journal_base_theme",
+            "pretty_name": "Journal Base Theme",
+            "type": "select"
+        },
+        "value": {
+            "default": "OLH"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Guide shown to Copyeditors.",
             "is_translatable": true,
             "name": "copyediting_guidelines",
