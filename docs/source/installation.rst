@@ -6,7 +6,7 @@ Running Janeway with Docker and docker-compose
 ----------------------------------------------
 1. Install ``docker``, ``docker-compose`` and ``GNU Make``.
 2. From the /path/to/janeway directory run ``make install``.
-3. A docker environment will be provisioned, and shortly after the janeway isntall script will run. Follow the instructions on screen to complete the installation.
+3. A docker environment will be provisioned, and shortly after the janeway install script will run. Follow the instructions on screen to complete the installation.
 4. Once install is complete run ``make run`` to run the django development server against a Postgres backend.
 5. For Janeway browse ``http://localhost:8000``/.
 6. If using Postgres (e you can also browse ``http://localhost:8001`` for pgadmin. The default root password is `janeway-web`
@@ -83,7 +83,7 @@ Native Install
 
 The following is for Debian/Ubuntu-based systems (16.04).
 
-1. Install python3, pip3 & virtualevwrapper and create a project
+1. Install python3, pip3 & virtualenvwrapper and create a project
 
 ::
 
