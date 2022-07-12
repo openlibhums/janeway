@@ -222,7 +222,7 @@ def get_settings_to_edit(display_group, journal):
         review_form_choices.append([form.pk, form])
 
     if display_group == 'submission':
-        settings = [
+        group_of_settings = [
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
              },
@@ -320,7 +320,7 @@ def get_settings_to_edit(display_group, journal):
         setting_group = 'general'
 
     elif display_group == 'review':
-        settings = [
+        group_of_settings = [
             {
                 'name': 'reviewer_guidelines',
                 'object': setting_handler.get_setting('general', 'reviewer_guidelines', journal),
@@ -401,7 +401,7 @@ def get_settings_to_edit(display_group, journal):
             'doi_pattern', 'doi_manager_action_maximum_size', 'title_doi', 'issue_doi_pattern', 'register_issue_dois'
         ]
 
-        settings = process_setting_list(xref_settings, 'Identifiers', journal)
+        group_of_settings = process_setting_list(xref_settings, 'Identifiers', journal)
         setting_group = 'Identifiers'
 
     elif display_group == 'crosscheck':
@@ -409,7 +409,7 @@ def get_settings_to_edit(display_group, journal):
             'enable', 'username', 'password'
         ]
 
-        settings = process_setting_list(xref_settings, 'crosscheck', journal)
+        group_of_settings = process_setting_list(xref_settings, 'crosscheck', journal)
         setting_group = 'crosscheck'
 
     elif display_group == 'journal':
@@ -421,23 +421,29 @@ def get_settings_to_edit(display_group, journal):
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
             'display_register_page_notice', 'register_page_notice',
-            'support_email', 'support_contact_message_for_staff',
-            'replyto_address',
+            'from_address', 'replyto_address',
         ]
 
-        settings = process_setting_list(journal_settings, 'general', journal)
-        settings[3]['choices'] = get_theme_list()
+        group_of_settings = process_setting_list(journal_settings, 'general', journal)
+        group_of_settings[3]['choices'] = get_theme_list()
         setting_group = 'general'
-        settings.append({
-            'name': 'from_address',
-            'object': setting_handler.get_setting('general', 'from_address', journal),
-        })
+
+        if group_of_settings[3].get('object').value not in settings.CORE_THEMES:
+            group_of_settings.append(
+                {
+                    'name': 'journal_base_theme',
+                    'object': setting_handler.get_setting('general', 'journal_base_theme', journal),
+                    'choices': [
+                        [theme, theme]
+                    for theme in settings.CORE_THEMES]
+                },
+            )
 
     elif display_group == 'proofing':
         proofing_settings = [
             'max_proofreaders'
         ]
-        settings = process_setting_list(proofing_settings, 'general', journal)
+        group_of_settings = process_setting_list(proofing_settings, 'general', journal)
         setting_group = 'general'
     elif display_group == 'article':
         article_settings = [
@@ -450,10 +456,10 @@ def get_settings_to_edit(display_group, journal):
             'altmetric_badge_type',
             'hide_author_email_links',
         ]
-        settings = process_setting_list(article_settings, 'article', journal)
+        group_of_settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
     elif display_group == 'styling':
-        settings = [
+        group_of_settings = [
             {
                 'name': 'enable_editorial_images',
                 'object': setting_handler.get_setting('styling',
@@ -475,7 +481,7 @@ def get_settings_to_edit(display_group, journal):
         ]
         setting_group = 'styling'
     elif display_group == 'news':
-        settings = [
+        group_of_settings = [
             {
                 'name': 'news_title',
                 'object': setting_handler.get_setting('news', 'news_title', journal),
@@ -483,10 +489,10 @@ def get_settings_to_edit(display_group, journal):
         ]
         setting_group = 'news'
     else:
-        settings = []
+        group_of_settings = []
         setting_group = None
 
-    return settings, setting_group
+    return group_of_settings, setting_group
 
 
 def get_theme_list():

@@ -7,6 +7,9 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.print_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
+    {% if edit_form.journal_base_theme %}
+        {% include "admin/elements/forms/field.html" with field=edit_form.journal_base_theme %}
+    {% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
     {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
