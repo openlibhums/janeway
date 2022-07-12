@@ -1617,6 +1617,7 @@ def preprint_review_status_change(**kwargs):
     request = kwargs.get('request')
     review = kwargs.get('review')
     status_change = kwargs.get('status_change')
+    status_text = None
 
     description = "Status of review {} by {} is now: {}".format(
         review.pk,
@@ -1632,6 +1633,12 @@ def preprint_review_status_change(**kwargs):
 
     if status_change in ['accept', 'decline', 'complete']:
         to = review.manager.email
+        if status_change == 'accept':
+            status_text = 'The reviewer has agreed to add a comment.'
+        elif status_change == 'decline':
+            status_text = 'The reviewer has declined to add a comment.'
+        elif status_change == 'complete':
+            status_text = 'The reviewer has submitted their comment.'
         template = request.repository.manager_review_status_change
     else:  # withdraw
         to = review.reviewer.email
@@ -1639,7 +1646,7 @@ def preprint_review_status_change(**kwargs):
 
     context = {
         'review': review,
-        'status_change': status_change,
+        'status_text': status_text,
         'url': request.repository.site_url(path=reverse(
             'repository_review_detail',
             kwargs={
