@@ -72,7 +72,7 @@ class Loader(BaseLoader):
             )
 
         # if the base_theme and INSTALLATION_BASE_THEME are different,
-        # # append the INSTALLATION_BASE_THEME.
+        # append the INSTALLATION_BASE_THEME.
         if not base_theme == settings.INSTALLATION_BASE_THEME:
             themes_in_order.append(
                 os.path.join(settings.BASE_DIR, 'themes', settings.INSTALLATION_BASE_THEME, 'templates')
