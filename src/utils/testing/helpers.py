@@ -16,6 +16,7 @@ from core import (
 from journal import models as journal_models
 from press import models as press_models
 from submission import models as sm_models
+from review import models as review_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -130,8 +131,9 @@ def create_second_user(journal):
     return second_user
 
 
-def create_editor(journal):
-    editor = create_user("editoruser@martineve.com", ["editor"], journal=journal)
+def create_editor(journal, **kwargs):
+    email = kwargs.pop("email", "editoruser@martineve.com")
+    editor = create_user(email, ["editor"], journal=journal)
     editor.is_active = True
     editor.save()
     return editor
@@ -356,7 +358,6 @@ class request_context(ContextDecorator):
 
 
 def create_review_form(journal):
-    from review import models as review_models
     return review_models.ReviewForm.objects.create(
         name="A Form",
         slug="A Slug",
@@ -392,7 +393,6 @@ def create_review_assignment(
     if not review_form:
         review_form = create_review_form(journal)
 
-    from review import models as review_models
     return review_models.ReviewAssignment.objects.create(
         article=article,
         reviewer=reviewer,
@@ -434,3 +434,13 @@ def create_reminder(journal=None, reminder_type=None):
     )
 
     return reminder
+
+
+def create_editor_assignment(article, editor, **kwargs):
+    assignment_type = kwargs.get('assignment_type','editor')
+    assignment, created = review_models.EditorAssignment.objects.get_or_create(
+        article=article,
+        editor=editor,
+        editor_type=assignment_type,
+    )
+    return assignment
