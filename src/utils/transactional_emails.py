@@ -29,12 +29,16 @@ def send_reviewer_withdrawl_notice(**kwargs):
     description = '{0}\'s review of "{1}" has been withdrawn by {2}'.format(review_assignment.reviewer.full_name(),
                                                                             review_assignment.article.title,
                                                                             request.user.full_name())
-
     if not skip:
         log_dict = {'level': 'Info', 'action_text': description, 'types': 'Review Withdrawl',
                     'target': review_assignment.article}
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_withdrawl', review_assignment.reviewer.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_review_withdrawl',
+            review_assignment.reviewer.email,
+            user_message_content,
+            log_dict=log_dict
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -54,7 +58,7 @@ def send_editor_unassigned_notice(request, message, assignment, skip=False):
 
         notify_helpers.send_email_with_body_from_user(
                 request,
-                'subject_review_withdrawl',
+                'subject_unassign_editor',
                 assignment.editor.email,
                 message,
                 log_dict=log_dict,
@@ -98,9 +102,13 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
 
     # send to assigned editor
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_editor_assignment',
-                                                      editor_assignment.editor.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_editor_assignment',
+            editor_assignment.editor.email,
+            user_message_content,
+            log_dict=log_dict
+        )
 
     # send to editor
     if not acknowledgement:
@@ -224,7 +232,7 @@ def send_review_complete_acknowledgements(**kwargs):
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_complete_acknowledgement',
-            'subject_review_complete_reviewer_acknowledgement',
+            'subject_review_complete_acknowledgement',
             editor.email,
             context,
         )
@@ -425,10 +433,22 @@ def send_article_decision(**kwargs):
                 'types': 'Article Decision',
                 'target': article}
 
+    if decision == 'accept':
+        subject = 'subject_review_decision_accept'
+    elif decision == 'decline':
+        subject = 'subject_review_decision_decline'
+    elif decision == 'undecline':
+        subject = 'subject_review_decision_undecline'
+
+
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'Article Review Decision',
-                                                      article.correspondence_author.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            subject,
+            article.correspondence_author.email,
+            user_message_content,
+            log_dict=log_dict
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
