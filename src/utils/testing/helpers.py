@@ -19,6 +19,7 @@ from journal import models as journal_models
 from press import models as press_models
 from submission import models as sm_models
 from review import models as review_models
+from copyediting import models as copyediting_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -461,3 +462,29 @@ def create_revision_request(article, editor, **kwargs):
     )
     return revision
 
+
+def create_copyeditor(journal, **kwargs):
+    username = kwargs.pop('username', 'copyeditor@example.com')
+    roles = kwargs.pop('roles', ['Copyeditor'])
+    return create_user(username, roles=roles, journal=journal, **kwargs)
+
+
+def create_copyedit_assignment(article, copyeditor, **kwargs):
+    assigned = kwargs.get('assigned', timezone.now() - datetime.timedelta(minutes=3))
+    notified = kwargs.get('notified', False)
+    decision = kwargs.get('decision', False)
+    date_decided = kwargs.get('date_decided', None)
+    copyeditor_completed = kwargs.get('copyeditor_completed', None)
+    copyedit_accepted = kwargs.get('copyedit_accepted', None)
+
+    assignment = copyediting_models.CopyeditAssignment.objects.create(
+        article=article,
+        copyeditor=copyeditor,
+        assigned=assigned,
+        notified=notified,
+        decision=decision,
+        date_decided=date_decided,
+        copyeditor_completed=copyeditor_completed,
+        copyedit_accepted=copyedit_accepted,
+    )
+    return assignment
