@@ -24,7 +24,7 @@
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">{% trans 'Articles' %}</a></li>{% endif %}
         {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">{% trans 'Issues' %}</a></li>{% endif %}
         {% if journal_settings.general.enable_editorial_display %}
-            {% if journal_settings.styling.multi_page_editorial %}
+            {% if journal_settings.general.multi_page_editorial %}
             <li class=".is-dropdown-submenu-parent">
                 <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Editorial Team' %}</a>
                 <ul class="menu vertical medium-horizontal">
