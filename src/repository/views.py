@@ -2241,8 +2241,8 @@ def manage_reviewers(request):
 
         user_search = core_models.Account.objects.filter(
             **filters, is_active=True,
-        ).difference(
-            request.repository.reviewer_accounts(),
+        ).exclude(
+            pk__in=[account.pk for account in request.repository.reviewer_accounts()],
         )
 
     if request.POST and ('add_reviewer' in request.POST or 'remove_reviewer' in request.POST):
