@@ -1171,7 +1171,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "styling"
         },
         "setting": {
             "description": "If checked, Editorial Team images will display.",
@@ -1216,7 +1216,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "styling"
         },
         "setting": {
             "description": "If checked, editorial groups will have their own pages.",
