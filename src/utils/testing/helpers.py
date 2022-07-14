@@ -7,6 +7,8 @@ from contextlib import ContextDecorator
 
 from django.utils import translation, timezone
 from django.conf import settings
+from django.utils import timezone
+import datetime
 
 from core import (
     middleware,
@@ -387,8 +389,6 @@ def create_review_assignment(
     if not editor:
         editor = create_editor(journal)
     if not due_date:
-        from django.utils import timezone
-        import datetime
         due_date = timezone.now() + datetime.timedelta(days=3)
     if not review_form:
         review_form = create_review_form(journal)
@@ -444,3 +444,20 @@ def create_editor_assignment(article, editor, **kwargs):
         editor_type=assignment_type,
     )
     return assignment
+
+
+def create_revision_request(article, editor, **kwargs):
+    note = kwargs.get('note', 'Test note')
+    decision = kwargs.get('decision', review_models.review_decision()[0][0])
+    if isinstance(decision, tuple):
+        decision = decision[0]
+    date_due = kwargs.get('date_due', timezone.now() + datetime.timedelta(days=3))
+    revision = review_models.RevisionRequest.objects.create(
+        article=article,
+        editor=editor,
+        editor_note=note,
+        type=decision,
+        date_due=date_due,
+    )
+    return revision
+
