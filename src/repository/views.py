@@ -2242,7 +2242,7 @@ def manage_reviewers(request):
         user_search = core_models.Account.objects.filter(
             **filters, is_active=True,
         ).exclude(
-            pk__in=[account.pk for account in request.repository.reviewer_accounts()],
+            pk__in=request.repository.reviewer_accounts().values("id"),
         )
 
     if request.POST and ('add_reviewer' in request.POST or 'remove_reviewer' in request.POST):
