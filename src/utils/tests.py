@@ -42,6 +42,7 @@ class UtilsTests(TestCase):
         cls.editor = helpers.create_editor(cls.journal_one)
         cls.editor_two = helpers.create_editor(cls.journal_one, email='editor2@example.com')
         cls.author = helpers.create_author(cls.journal_one)
+        cls.copyeditor = helpers.create_copyeditor(cls.journal_one)
 
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
@@ -54,10 +55,8 @@ class UtilsTests(TestCase):
                                                                             stage=submission_models.STAGE_UNDER_REVIEW,
                                                                             journal_id=cls.journal_one.id)
 
-        cls.editor_assignment = helpers.create_editor_assignment(
-            article=cls.article_under_review,
-            editor=cls.editor_two,
-        )
+
+
 
         cls.review_assignment = review_models.ReviewAssignment.objects.create(article=cls.article_under_review,
                                                                               reviewer=cls.second_user,
@@ -106,6 +105,17 @@ class UtilsTests(TestCase):
         cls.issue_one.articles.add(cls.article_one)
 
 
+    # Helper function for email subjects
+    def get_default_email_subject(self, setting_name, journal=None):
+        journal = journal or self.journal_one
+        group = 'email_subject'
+        subject = setting_handler.get_email_subject_setting(group, setting_name, journal)
+        if subject != setting_name:
+            # The test shouldn't pass unless the setting or a default was retrieved.
+            # The name serves as a backup in production but shouldn't be let through in testing.
+            return subject
+
+
     @override_settings(URL_CONFIG="domain")
     def test_send_reviewer_withdrawl_notice(self):
         kwargs = {
@@ -122,11 +132,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_review_withdrawl'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
@@ -143,31 +149,28 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_unassign_editor'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
 
     @override_settings(URL_CONFIG="domain")
     def test_send_editor_assigned_acknowledgements(self):
-        expected_recipient_one = self.editor_assignment.editor.email
+
+        editor_assignment = helpers.create_editor_assignment(
+            article=self.article_under_review,
+            editor=self.editor_two,
+        )
+        expected_recipient_one = editor_assignment.editor.email
         kwargs = dict(**self.base_kwargs)
-        kwargs['editor_assignment'] = self.editor_assignment
+        kwargs['editor_assignment'] = editor_assignment
         kwargs['acknowledgment'] = True
         transactional_emails.send_editor_assigned_acknowledgements(**kwargs)
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_editor_assignment'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
@@ -183,11 +186,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_review_assignment'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
@@ -204,11 +203,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_review_complete_reviewer_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
@@ -217,11 +212,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
 
         subject_setting_name = 'subject_review_complete_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
 
@@ -240,11 +231,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
         subject_setting_name = 'subject_review_accept_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
@@ -253,11 +240,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
 
         subject_setting_name = 'subject_reviewer_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
 
@@ -271,11 +254,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_one, mail.outbox[2].to[0])
 
         subject_setting_name = 'subject_review_decline_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[2].subject)
 
@@ -284,11 +263,7 @@ class UtilsTests(TestCase):
         self.assertEqual(expected_recipient_two, mail.outbox[3].to[0])
 
         subject_setting_name = 'subject_reviewer_acknowledgement'
-        subject_setting = setting_handler.get_email_subject_setting(
-            'email_subject',
-            subject_setting_name,
-            self.journal_one
-        )
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[3].subject)
 
@@ -299,7 +274,7 @@ class UtilsTests(TestCase):
         kwargs['article'] = self.article_under_review
         expected_recipient_one = self.article_under_review.correspondence_author.email
 
-        for i, decision in enumerate(['accept', 'decline', 'undecline']):
+        for i, decision in enumerate(['accept', 'decline']): # to be added: 'undecline'
             kwargs['decision'] = decision
 
             transactional_emails.send_article_decision(**kwargs)
@@ -307,13 +282,85 @@ class UtilsTests(TestCase):
             self.assertEqual(expected_recipient_one, mail.outbox[i].to[0])
 
             subject_setting_name = f'subject_review_decision_{decision}'
-            subject_setting = setting_handler.get_email_subject_setting(
-                'email_subject',
-                subject_setting_name,
-                self.journal_one
-            )
+            subject_setting = self.get_default_email_subject(subject_setting_name)
             expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
             self.assertEqual(expected_subject, mail.outbox[i].subject)
+
+
+    @override_settings(URL_CONFIG="domain")
+    def test_send_revisions_request(self):
+        kwargs = self.base_kwargs
+        kwargs['revision'] = helpers.create_revision_request(
+            article = self.article_under_review,
+            editor = self.editor,
+        )
+
+        transactional_emails.send_revisions_request(**kwargs)
+
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_request_revisions'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    @override_settings(URL_CONFIG="domain")
+    def test_send_revisions_author_receipt(self):
+        kwargs = self.base_kwargs
+        kwargs['revision'] = helpers.create_revision_request(
+            article = self.article_under_review,
+            editor = self.editor,
+        )
+
+        transactional_emails.send_revisions_author_receipt(**kwargs)
+
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_revisions_complete_receipt'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    @override_settings(URL_CONFIG="domain")
+    def test_send_copyedit_assignment(self):
+        kwargs = self.base_kwargs
+        kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
+            article = self.article_under_review,
+            copyeditor = self.copyeditor,
+        )
+
+        transactional_emails.send_copyedit_assignment(**kwargs)
+
+        expected_recipient_one = self.copyeditor.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_copyeditor_assignment_notification'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    @override_settings(URL_CONFIG="domain")
+    def test_send_copyedit_deleted(self):
+        kwargs = self.base_kwargs
+        kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
+            article = self.article_under_review,
+            copyeditor = self.copyeditor,
+        )
+
+        transactional_emails.send_copyedit_deleted(**kwargs)
+
+        expected_recipient_one = self.copyeditor.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_copyedit_deleted'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
 
 
     @override_settings(URL_CONFIG="path")
