@@ -1746,8 +1746,6 @@ def do_revisions(request, article_id, revision_id):
     form = forms.DoRevisions(instance=revision_request)
     revision_files = logic.group_files(revision_request.article, reviews)
 
-    modal = None
-
     if request.POST:
 
         if 'delete' in request.POST:
@@ -1791,30 +1789,6 @@ def do_revisions(request, article_id, revision_id):
                 )
             )
 
-        elif 'confirm' in request.POST:
-            form = forms.DoRevisions(request.POST, instance=revision_request)
-            modal = {
-                'id': 'confirm_modal',
-                'yes_button_name': '',
-                'question': _('Are you sure you want to submit revisions?'),
-                'potential_errors': [],
-            }
-
-            _is_valid = form.is_valid()
-            if not form.cleaned_data.get('author_note', None):
-                message = 'The Covering Letter field is empty.'
-                modal['potential_errors'].append(_(message))
-
-            ms_files = revision_request.article.manuscript_files.all()
-            if ms_files:
-                last_upload = max(set(ms_file.date_uploaded for ms_file in ms_files))
-                if revision_request.date_requested > last_upload:
-                    message = 'No manuscript files have been replaced or added.'
-                    modal['potential_errors'].append(_(message))
-            else:
-                message = 'No manuscript files have been uploaded.'
-                modal['potential_errors'].append(_(message))
-
         else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
@@ -1822,7 +1796,7 @@ def do_revisions(request, article_id, revision_id):
                     None,
                     'Your article must have at least one manuscript file.',
                 )
-            if form.is_valid():
+            if form.is_valid() and form.is_confirmed():
                 form.save()
 
                 kwargs = {
@@ -1864,7 +1838,6 @@ def do_revisions(request, article_id, revision_id):
         'form': form,
         'article': revision_request.article,
         'reviews': reviews,
-        'modal': modal,
     }
 
     return render(request, template, context)

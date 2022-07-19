@@ -619,3 +619,35 @@ class CBVFacetForm(forms.Form):
         # function property like journal.name
 
         return queryset
+
+class ConfirmableForm(forms.Form):
+
+    CONFIRMABLE_BUTTON_NAME = 'confirmable'
+    CONFIRMED_BUTTON_NAME = 'confirmed'
+    QUESTION = _('Are you sure?')
+
+    def __init__(self, *args, **kwargs):
+        self.modal = None
+        super().__init__(*args, **kwargs)
+
+    def is_valid(self, *args, **kwargs):
+        parent_return = super().is_valid(*args, **kwargs)
+        if self.CONFIRMABLE_BUTTON_NAME in self.data:
+            self.create_modal()
+        return parent_return
+
+    def create_modal(self):
+
+        self.modal = {
+            'id': 'confirm_modal',
+            'confirmed_button_name': self.CONFIRMED_BUTTON_NAME,
+            'question': self.QUESTION,
+            'potential_errors': self.check_for_potential_errors(),
+        }
+
+    def check_for_potential_errors(self):
+        return []
+
+    def is_confirmed(self):
+        return self.CONFIRMED_BUTTON_NAME in self.data
+

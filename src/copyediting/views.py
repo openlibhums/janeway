@@ -590,47 +590,19 @@ def author_copyedit(request, article_id, author_review_id):
                                       date_decided__isnull=True)
     copyedit = author_review.assignment
     form = forms.AuthorCopyeditForm(instance=author_review)
-    modal = None
 
     if request.POST:
-        if 'confirm' in request.POST:
-            form = forms.AuthorCopyeditForm(request.POST, instance=author_review)
-            modal = {
-                'id': 'confirm_modal',
-                'yes_button_name': 'send',
-                'question': _('Are you sure you want to complete the copyedit task?'),
-                'potential_errors': [],
-            }
+        form = forms.AuthorCopyeditForm(request.POST, instance=author_review)
 
-            _is_valid = form.is_valid()
-            if not form.cleaned_data.get('author_note', None):
-                message = 'The Note to the Editor field is empty.'
-                modal['potential_errors'].append(_(message))
+        if form.is_valid() and form.is_confirmed():
+            author_review = form.save(commit=False)
+            author_review.date_decided = timezone.now()
+            author_review.save()
 
-            ce_files = copyedit.copyeditor_files.all()
-            if ce_files:
-                last_upload = max(set(ce_file.date_uploaded for ce_file in ce_files))
-                last_editor_action = max(filter(bool, [
-                    copyedit.copyeditor_completed,
-                    copyedit.copyedit_reopened_complete,
-                    copyedit.assigned
-                ]))
-                if last_editor_action > last_upload:
-                    message = 'The copyedited files have not been changed.'
-                    modal['potential_errors'].append(_(message))
+            kwargs = {'author_review': author_review, 'copyedit': copyedit, 'request': request}
+            event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE, **kwargs)
 
-        else:
-            form = forms.AuthorCopyeditForm(request.POST, instance=author_review)
-
-            if form.is_valid():
-                author_review = form.save(commit=False)
-                author_review.date_decided = timezone.now()
-                author_review.save()
-
-                kwargs = {'author_review': author_review, 'copyedit': copyedit, 'request': request}
-                event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE, **kwargs)
-
-                return redirect(reverse('core_dashboard'))
+            return redirect(reverse('core_dashboard'))
 
     if request.GET.get('file_id'):
         return logic.attempt_to_serve_file(request, copyedit)
@@ -640,7 +612,6 @@ def author_copyedit(request, article_id, author_review_id):
         'author_review': author_review,
         'copyedit': copyedit,
         'form': form,
-        'modal': modal,
     }
 
     return render(request, template, context)
