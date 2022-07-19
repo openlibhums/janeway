@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load i18n %}
 
 {% block title %}Proofreading Assignments{% endblock %}
 
@@ -19,7 +20,7 @@
                 {{ journal_settings.general.typesetting_proofreader_guidelines|safe }}
             <p><strong>Notes from the editors: </strong> </p>
                     {{ assignment.task|safe }}
-                
+
 
                 <br/><br/>
                 <p><strong>Editors: </strong> {% for editor_assignment in assignment.round.article.editors %}
@@ -112,19 +113,21 @@
                     </div>
                     <div class="content">
                         <p>When you have completed your notes and uploaded any annotated files, you can mark this task as complete using the button below. Note: Once you mark this task as complete you will not be able to return to this page.</p>
-                        <button class="button success float-right" name="confirm">Mark Task as Complete</button>
+                        <button class="button success float-right" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">{% trans "Mark Task as Complete" %}</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    {% include "admin/elements/confirm_modal.html" with modal=modal form_id="typesetting_proofreading" %}
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="typesetting_proofreading" %}
+    {% endif %}
 
 {% endblock body %}
 
 {% block js %}
-    {% if modal %}
-        {% include "admin/elements/open_modal.html" with target=modal.id %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}
 {% endblock js %}
