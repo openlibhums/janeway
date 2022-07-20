@@ -495,7 +495,7 @@ class Issue(AbstractLastModifiedModel):
     volume = models.IntegerField(default=1)
     issue = models.CharField(max_length=255, default="1")
     issue_title = models.CharField(blank=True, max_length=300)
-    display_title = models.CharField(blank=True, max_length=300)
+    display_title = models.CharField(blank=True, max_length=300, editable=False)
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=0)
     issue_type = models.ForeignKey(

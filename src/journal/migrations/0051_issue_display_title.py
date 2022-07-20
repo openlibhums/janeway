@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='issue',
             name='display_title',
-            field=models.CharField(blank=True, max_length=300),
+            field=models.CharField(blank=True, editable=False, max_length=300),
         ),
         migrations.RunPython(save_issue_display_title, reverse_code=migrations.RunPython.noop),
     ]
