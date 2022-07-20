@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from importlib import import_module
 import json
 import pytz
+import time
 import datetime
 
 from django.contrib import messages
@@ -2230,6 +2231,8 @@ class FilteredArticlesListView(generic.ListView):
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
+            # The following line prevents the user from passing any parameters
+            # other than those specified in the facets.
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
@@ -2285,7 +2288,7 @@ class FilteredArticlesListView(generic.ListView):
 
         actions = self.get_actions()
         if actions:
-            start = datetime.datetime.now()
+            start = time.time()
 
             action_status = ''
             action_error = False
