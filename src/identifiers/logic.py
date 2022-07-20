@@ -8,7 +8,7 @@ import datetime
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
-from time import sleep
+import time
 import itertools
 
 from django.urls import reverse
@@ -31,6 +31,7 @@ from submission import models as submission_models
 
 logger = get_logger(__name__)
 
+CROSSREF_TIMEOUT_SECONDS = 30
 
 def register_crossref_doi(identifier):
     return register_batch_of_crossref_dois([identifier.article])
@@ -136,9 +137,8 @@ def get_dois_for_articles(articles, create=False):
 def poll_dois_for_articles(articles, **kwargs):
     clear_cache()
 
-    start = kwargs.pop('start', None)
-    if not start:
-        start = datetime.datetime.now()
+    start = kwargs.pop('start', time.time())
+    timeout = kwargs.pop('timeout', CROSSREF_TIMEOUT_SECONDS)
 
     status = ''
     error = False
@@ -147,7 +147,7 @@ def poll_dois_for_articles(articles, **kwargs):
     for i, identifier in enumerate(identifiers):
 
         # Time out gracefully
-        if datetime.datetime.now() > start + datetime.timedelta(seconds=30):
+        if timeout and time.time() > start + timeout:
             error = True
             journal_code = identifier.article.journal.code
             status = f"Polling timed out before all articles could be checked. Polled: {i} of {len(identifiers)} ({journal_code})."
@@ -162,7 +162,7 @@ def poll_dois_for_articles(articles, **kwargs):
                 status, error = deposit.poll()
                 polled.add(deposit)
                 if len(polled) and len(polled) % 20 == 0:
-                    sleep(.15)
+                    time.sleep(.15)
             except:
                 continue
 
@@ -280,7 +280,6 @@ def create_crossref_issues_context(journal, identifiers):
     return crossref_issues
 
 
-@cache(30)
 def create_crossref_issue_context(
     journal,
     identifiers,
