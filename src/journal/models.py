@@ -1090,7 +1090,6 @@ def setup_default_form(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Journal)
 def update_issue_display_title(sender, instance, created, **kwargs):
     for issue in Issue.objects.filter(journal=instance):
-        issue.update_display_title()
         issue.save()
 
 def issue_articles_change(sender, **kwargs):
