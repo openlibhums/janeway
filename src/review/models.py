@@ -246,6 +246,11 @@ class ReviewAssignment(models.Model):
                 'reminder': 'request',
             }
 
+    def visibility_statement(self):
+        if self.for_author_consumption:
+            return "available for the author to read"
+        return "not available for the author to read"
+
     def __str__(self):
         if self.reviewer:
             reviewer_name = self.reviewer.full_name()

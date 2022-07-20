@@ -1169,6 +1169,9 @@ def view_review(request, article_id, review_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
+    visibility_form = forms.ReviewVisibilityForm(
+        review_assignment=review,
+    )
 
     if request.POST:
         if 'author_consumption' in request.POST:
@@ -1205,7 +1208,8 @@ def view_review(request, article_id, review_id):
     template = 'review/view_review.html'
     context = {
         'article': article,
-        'review': review
+        'review': review,
+        'visibility_form': visibility_form,
     }
 
     return render(request, template, context)
