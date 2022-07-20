@@ -49,4 +49,8 @@ class Migration(migrations.Migration):
             name='identifier',
             field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='identifiers.Identifier'),
         ),
+        migrations.AlterModelOptions(
+            name='crossrefstatus',
+            options={'verbose_name': 'Crossref status', 'verbose_name_plural': 'Crossref statuses'},
+        ),
     ]
