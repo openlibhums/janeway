@@ -1170,46 +1170,70 @@ def view_review(request, article_id, review_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
     visibility_form = forms.ReviewVisibilityForm(
+        instance=review,
+    )
+    answer_visibility_form = forms.AnswerVisibilityForm(
         review_assignment=review,
     )
 
     if request.POST:
-        if 'author_consumption' in request.POST:
+        fire_redirect, extend_answer_accordion = False, False
 
-            if review.for_author_consumption:
-                review.for_author_consumption = False
-            else:
-                review.for_author_consumption = True
-            review.save()
+        if 'visibility' in request.POST:
+            visibility_form = forms.ReviewVisibilityForm(
+                request.POST,
+                instance=review,
+            )
+            if visibility_form.is_valid():
+                visibility_form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Review visibility has been updated.',
+                )
+                fire_redirect = True
 
-        if 'individual_author_consumption' in request.POST:
-            checkboxes = request.POST.getlist('answer_viewable')
-
-            for answer in review.review_form_answers():
-                if str(answer.pk) in checkboxes:
-                    answer.author_can_see = True
-                else:
-                    answer.author_can_see = False
-
-                answer.save()
+        if 'answer_visibility' in request.POST:
+            answer_visibility_form = forms.AnswerVisibilityForm(
+                request.POST,
+                review_assignment=review,
+            )
+            if answer_visibility_form.is_valid():
+                answer_visibility_form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Review answer visibility has been updated.',
+                )
+                extend_answer_accordion = True
+                fire_redirect = True
 
         if 'reset' in request.POST:
             answer_pk = request.POST.get('pk')
-            answer = models.ReviewAssignmentAnswer.objects.get(pk=answer_pk)
+            answer = models.ReviewAssignmentAnswer.objects.get(
+                assignment=review,
+                pk=answer_pk,
+            )
             answer.edited_answer = None
             answer.save()
+            fire_redirect = True
 
-        if 'review_file_visible' in request.POST:
-            logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
-            messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
-
-        return redirect(reverse('review_view_review', kwargs={'article_id': article.pk, 'review_id': review.pk}))
+        if fire_redirect:
+            return redirect("{}{}".format(
+                reverse(
+                    'review_view_review',
+                    kwargs={'article_id': article.pk, 'review_id': review.pk, }
+                ),
+                "?answer_accordion=True" if extend_answer_accordion else "",
+            ),
+            )
 
     template = 'review/view_review.html'
     context = {
         'article': article,
         'review': review,
         'visibility_form': visibility_form,
+        'answer_visibility_form': answer_visibility_form,
     }
 
     return render(request, template, context)

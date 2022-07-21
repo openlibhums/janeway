@@ -71,64 +71,65 @@
                             <p>No review was undertaken.</p>
                         {% elif review.is_complete %}
                             {% if review.review_file %}
-                            <div class="row expanded">
-                                <div class="large-12 columns">
-                                    <div class="callout">
-                                        <strong>Review File</strong>
-                                        {% include "admin/elements/review/review_file_table_modal.html" with review=review %}
+                                <div class="row expanded">
+                                    <div class="large-12 columns">
+                                        <div class="callout">
+                                            <strong>Review File</strong>
+                                            {% include "admin/elements/review/review_file_table_modal.html" with review=review %}
+                                        </div>
                                     </div>
                                 </div>
-                                {% endif %}
-                                {% for answer in review.review_form_answers %}
-                                    <div class="{{ answer.element.width }}">
-                                        <div class="callout" style="padding-bottom:0px;">
-                                            <b>{{ answer.element.name }}</b>
+                            {% endif %}
+                            {% for answer in review.review_form_answers %}
+                                <div class="{{ answer.element.width }}">
+                                    <div class="callout" style="padding-bottom:0px;">
+                                        <b>{{ answer.element.name }}</b>
+                                        <br/>
+                                        {{ answer.answer|linebreaksbr }}
+                                        <br/>
+                                        {% if answer.edited_answer %}
                                             <br/>
-                                            {{ answer.answer|linebreaksbr }}
+                                            <b>Edited Answer</b>
                                             <br/>
-                                            {% if answer.edited_answer %}
-                                                <br/>
-                                                <b>Edited Answer</b>
-                                                <br/>
-                                                {{ answer.edited_answer|linebreaksbr }}
-                                                <br/>
-                                            {% endif %}
+                                            {{ answer.edited_answer|linebreaksbr }}
                                             <br/>
-                                            <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}"><i
-                                                    class="fa fa-edit">&nbsp;</i></a>Edit
-                                            {% if answer.edited_answer %}
-                                                <form method="POST">
-                                                    {% csrf_token %}
-                                                    <button name="reset" type="submit">
-                                                        <input name="pk"
-                                                               type="hidden"
-                                                               value="{{ answer.pk }}">
-                                                        <i class="fa fa-refresh">&nbsp;</i>
-                                                    </button>
-                                                    Reset
-                                                </form>
-                                            {% endif %}
-                                        </div>
+                                        {% endif %}
+                                        <br/>
+                                        <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}"><i
+                                                class="fa fa-edit">&nbsp;</i></a>Edit
+                                        {% if answer.edited_answer %}
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <button name="reset" type="submit">
+                                                    <input name="pk"
+                                                           type="hidden"
+                                                           value="{{ answer.pk }}">
+                                                    <i class="fa fa-refresh">&nbsp;</i>
+                                                </button>
+                                                Reset
+                                            </form>
+                                        {% endif %}
                                     </div>
-                                {% endfor %}
+                                </div>
+                            {% endfor %}
 
-                                {% if review.comments_for_editor %}
-                                    <div class="large-12 columns">
-                                        <div class="callout" style="padding-bottom:0px;">
-                                            <div class="title-area">
-                                                <h2>Comments for the Editor</h2>
-                                            </div>
-                                            <div class="content">
-                                                <p>{{ review.comments_for_editor|linebreaksbr }}</p>
-                                            </div>
+                            {% if review.comments_for_editor %}
+                                <div class="large-12 columns">
+                                    <div class="callout" style="padding-bottom:0px;">
+                                        <div class="title-area">
+                                            <h2>Comments for the Editor</h2>
+                                        </div>
+                                        <div class="content">
+                                            <p>{{ review.comments_for_editor|linebreaksbr }}</p>
                                         </div>
                                     </div>
-                                {% endif %}
+                                </div>
+                            {% endif %}
                             </div>
                         {% endif %}
 
-                    </div>
                 </div>
+
 
                 <div class="large-5 columns">
                     <div class="title-area">
@@ -143,16 +144,14 @@
                                 <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                                 <div class="accordion-content" data-tab-content>
                                     <p>Currently this review is {{ review.visibility_statement }}.</p>
-                                    {{ visibility_form.visible_to_author.label_tag }}
-                                    {{ visibility_form.visible_to_author }}
-
-                                    {% if review.review_file %}
-                                        {{ visibility_form.review_file_visible_to_author.label_tag }}
-                                        {{ visibility_form.review_file_visible_to_author }}
-                                    {% endif %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {{ visibility_form }}
+                                        <button class="button" name="visibility">Save</button>
+                                    </form>
                                 </div>
                             </li>
-                            <li class="accordion-item" data-accordion-item>
+                            <li class="accordion-item{% if answer_visibility_form.errors or "answer_accordion" in request.GET %} is-active{% endif %}" data-accordion-item>
                                 <a href="#" class="accordion-title">Answer Visibility</a>
                                 <div class="accordion-content" data-tab-content>
                                     <p>
@@ -165,31 +164,29 @@
                                             toggle above.
                                         </small>
                                     </p>
-                                    {% for field in visibility_form %}
-                                        {% if field.name != 'visible_to_author' and field.name != 'review_file_visible_to_author' %}
-                                            {{ field.label_tag }}
-                                            {{ field }}
-                                        {% endif %}
-                                    {% endfor %}
-                                    <button class="success button">Save Answer Visibility</button>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {% include "admin/elements/forms/errors.html" with form=answer_visibility_form %}
+                                        {{ answer_visibility_form }}
+                                        <button class="button" name="answer_visibility">Save</button>
+                                    </form>
                                 </div>
                             </li>
                         </ul>
-
-
                     </div>
                 </div>
             {% endif %}
-         </div>
+        </div>
+    </div>
 
-        {% if review.date_declined %}
-            <div class="title-area">
-                <h2>Suggested Reviewers</h2>
-            </div>
-            <div class="content">
-                {{ review.suggested_reviewers|safe }}
-            </div>
-        {% endif %}
+    {% if review.date_declined %}
+        <div class="title-area">
+            <h2>Suggested Reviewers</h2>
+        </div>
+        <div class="content">
+            {{ review.suggested_reviewers|safe }}
+        </div>
+    {% endif %}
     </div>
 {% endblock %}
 

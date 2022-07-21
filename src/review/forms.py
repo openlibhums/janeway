@@ -222,33 +222,46 @@ class ReviewReminderForm(forms.Form):
     body = forms.CharField(widget=forms.Textarea, required=True)
 
 
-class ReviewVisibilityForm(forms.Form):
-    visible_to_author = forms.BooleanField(
-        label='Author can access this review',
-        widget=HTMLSwitchInput(),
-        required=False,
-    )
+class ReviewVisibilityForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewAssignment
+        fields = ('for_author_consumption', 'display_review_file')
+        labels = {
+            "for_author_consumption": "Author can access this review",
+            "display_review_file": "Author can see review file",
+        }
+        widgets = {
+            "for_author_consumption": HTMLSwitchInput(),
+            "display_review_file": HTMLSwitchInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ReviewVisibilityForm, self).__init__(*args, **kwargs)
+        if not self.instance.review_file:
+            self.fields.pop('display_review_file')
+
+
+class AnswerVisibilityForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.review_assignment = kwargs.pop('review_assignment', None)
-        super(ReviewVisibilityForm, self).__init__(*args, **kwargs)
+        super(AnswerVisibilityForm, self).__init__(*args, **kwargs)
 
         for answer in self.review_assignment.review_form_answers():
-            self.fields[answer.pk] = forms.BooleanField(
+            self.fields[str(answer.pk)] = forms.BooleanField(
                 label="Author can see {}".format(answer.original_element.name),
                 widget=HTMLSwitchInput(),
                 required=False,
                 initial=True if answer.author_can_see else False,
             )
 
-        if self.review_assignment.review_file:
-            self.fields['review_file_visible_to_author'] = forms.BooleanField(
-                label="Author can see review file",
-                widget=HTMLSwitchInput(),
-                required=False,
-                initial=True if self.review_assignment.display_review_file else False,
+    def save(self, commit=True):
+        for answer_id, visibility in self.cleaned_data.items():
+            answer = self.review_assignment.review_form_answers().get(
+                pk=answer_id,
             )
+            answer.author_can_see = visibility
+            if commit:
+                answer.save()
 
-        self.fields['visible_to_author'].initial = True if self.review_assignment.for_author_consumption else False
-
-
+        return self.review_assignment.review_form_answers()
