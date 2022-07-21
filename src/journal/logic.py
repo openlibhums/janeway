@@ -425,7 +425,7 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         sort = request.GET.get('sort', 'title')
         if sort == "relevance":
             sort = 'title'
-        form = SearchForm(request.GET)
+        form = SearchForm(request.GET or None)
 
         return search_term, keyword, sort, form, None
 
