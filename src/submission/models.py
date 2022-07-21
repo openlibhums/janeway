@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import uuid
 import os
 from dateutil import parser as dateparser
+from itertools import chain
 
 from django.urls import reverse
 from django.db import connection, models
@@ -1602,6 +1603,9 @@ class Article(AbstractLastModifiedModel):
         ).exclude(
             decision='withdrawn',
         )
+
+    def ms_and_figure_files(self):
+        return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
