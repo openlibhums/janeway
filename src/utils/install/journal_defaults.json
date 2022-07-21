@@ -1906,6 +1906,21 @@
     },
     {
         "value": {
+            "default": "Copyediting Decision"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyediting Decision",
+            "is_translatable": true,
+            "description": "Subject for email sent to managing editor when a copyeditor accepts or declines a request.",
+            "name": "subject_copyediting_decision"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {
             "default": "Article Publication"
         },
         "setting": {
