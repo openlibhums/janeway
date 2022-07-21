@@ -638,7 +638,7 @@ def send_copyedit_decision(**kwargs):
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyediting Decision',
                 'target': copyedit_assignment.article}
 
-    notify_helpers.send_email_with_body_from_user(request, 'Article Copyediting Decision',
+    notify_helpers.send_email_with_body_from_user(request, 'subject_copyediting_decision',
                                                   copyedit_assignment.editor.email,
                                                   description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -1161,7 +1161,7 @@ def send_author_publication_notification(**kwargs):
                 'target': article}
 
     notify_helpers.send_email_with_body_from_user(request,
-                                                  '{0} Publication'.format(article.title),
+                                                  'subject_author_publication',
                                                   article.correspondence_author.email,
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -1172,7 +1172,7 @@ def send_author_publication_notification(**kwargs):
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 'section_editor_pub_notification',
-                'Article set for publication',
+                'subject_section_editor_pub_notification',
                 editor.email,
                 {'article': article, 'editor': editor},
             )
@@ -1183,7 +1183,7 @@ def send_author_publication_notification(**kwargs):
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 'peer_reviewer_pub_notification',
-                'Article set for publication',
+                'subject_peer_reviewer_pub_notification',
                 reviewer.email,
                 {'article': article, 'reviewer': reviewer},
             )
