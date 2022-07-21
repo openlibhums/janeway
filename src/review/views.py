@@ -2514,39 +2514,45 @@ def decision_helper(request, article_id):
         review.decision]
     )
 
-    if 'reveal_review' in request.POST:
-        review = get_object_or_404(
-            models.ReviewAssignment,
-            article=article,
-            id=request.POST.get('review'),
-        )
-        review.for_author_consumption=True
-        review.save()
-        messages.add_message(
-            request, messages.SUCCESS,
-            "The author can now see review #%s" % review.pk,
-        )
+    if request.POST:
+        if 'review_id' in request.POST:
+            review = get_object_or_404(
+                models.ReviewAssignment,
+                pk=request.POST.get('review_id'),
+                article=article,
+            )
+            if 'visibility' in request.POST:
+                review.for_author_consumption = True
+            else:
+                review.for_author_consumption = False
 
-    if 'hide_review' in request.POST:
-        review = get_object_or_404(
-            models.ReviewAssignment,
-            article=article,
-            id=request.POST.get('review'),
+            review.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Review {} is now {}'.format(
+                    review.pk,
+                    'visible to the author.' if review.for_author_consumption else 'hidden from the author.',
+                )
+            )
+
+        if 'review_file_visible' in request.POST:
+            review = get_object_or_404(
+                models.ReviewAssignment,
+                article=article,
+                id=request.POST.get('review'),
+            )
+            logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
+            messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
+
+        return redirect(
+            reverse(
+                'decision_helper',
+                kwargs={
+                    'article_id': article.pk,
+                }
+            )
         )
-        review.for_author_consumption=False
-        review.save()
-        messages.add_message(
-            request, messages.WARNING,
-            "The author won't see the review #%s" % review.pk,
-        )
-    if 'review_file_visible' in request.POST:
-        review = get_object_or_404(
-            models.ReviewAssignment,
-            article=article,
-            id=request.POST.get('review'),
-        )
-        logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
-        messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
 
     template = 'admin/review/decision_helper.html'
     context = {
