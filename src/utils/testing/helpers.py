@@ -142,6 +142,24 @@ def create_editor(journal, **kwargs):
     return editor
 
 
+def create_section_editor(journal, **kwargs):
+    email = kwargs.pop('email', 'section_editor@example.com')
+    roles = ['section-editor']
+    se = create_user(email, roles=roles, journal=journal)
+    se.is_active = True
+    se.save()
+    return se
+
+
+def create_peer_reviewer(journal, **kwargs):
+    email = kwargs.pop('email', 'peer_reviewer@example.com')
+    roles = ['reviewer']
+    reviewer = create_user(email, roles=roles, journal=journal)
+    reviewer.is_active = True
+    reviewer.save()
+    return reviewer
+
+
 def create_author(journal, **kwargs):
     roles = kwargs.pop('roles', ['author'])
     email = kwargs.pop('email', "authoruser@martineve.com")
@@ -470,6 +488,7 @@ def create_copyeditor(journal, **kwargs):
 
 
 def create_copyedit_assignment(article, copyeditor, **kwargs):
+    editor = kwargs.get('editor', None)
     assigned = kwargs.get('assigned', timezone.now() - datetime.timedelta(minutes=3))
     notified = kwargs.get('notified', False)
     decision = kwargs.get('decision', False)
@@ -480,6 +499,7 @@ def create_copyedit_assignment(article, copyeditor, **kwargs):
     assignment = copyediting_models.CopyeditAssignment.objects.create(
         article=article,
         copyeditor=copyeditor,
+        editor=editor,
         assigned=assigned,
         notified=notified,
         decision=decision,
