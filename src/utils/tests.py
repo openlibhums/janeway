@@ -12,9 +12,10 @@ from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
 
 from utils import (
-    merge_settings, transactional_emails, models, oidc,
+    merge_settings, models, oidc,
     setting_handler, notify
 )
+from utils.transactional_emails import *
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
 from utils.testing import helpers
@@ -116,252 +117,7 @@ class UtilsTests(TestCase):
             return subject
 
 
-    @override_settings(URL_CONFIG="domain")
-    def test_send_reviewer_withdrawl_notice(self):
-        kwargs = {
-            'review_assignment': self.review_assignment,
-            'request': self.request,
-            'user_message_content': self.test_message,
-            'skip': False
-        }
-
-        expected_recipient = self.review_assignment.reviewer.email
-
-        transactional_emails.send_reviewer_withdrawl_notice(**kwargs)
-
-        self.assertEqual(expected_recipient, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_review_withdrawl'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_editor_unassigned_notice(self):
-        expected_recipient_one = self.review_assignment.editor.email
-        transactional_emails.send_editor_unassigned_notice(
-            request=self.request,
-            message=self.test_message,
-            assignment=self.review_assignment,
-        )
-
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_unassign_editor'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_editor_assigned_acknowledgements(self):
-
-        editor_assignment = helpers.create_editor_assignment(
-            article=self.article_under_review,
-            editor=self.editor_two,
-        )
-        expected_recipient_one = editor_assignment.editor.email
-        kwargs = dict(**self.base_kwargs)
-        kwargs['editor_assignment'] = editor_assignment
-        kwargs['acknowledgment'] = True
-        transactional_emails.send_editor_assigned_acknowledgements(**kwargs)
-
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_editor_assignment'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_reviewer_requested_acknowledgements(self):
-        kwargs = dict(**self.base_kwargs)
-        kwargs['review_assignment'] = self.review_assignment
-
-        expected_recipient_one = self.review_assignment.reviewer.email
-        transactional_emails.send_reviewer_requested_acknowledgements(**kwargs)
-
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_review_assignment'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_review_complete_acknowledgements(self):
-        kwargs = dict(**self.base_kwargs)
-        kwargs['review_assignment'] = self.review_assignment
-
-        transactional_emails.send_review_complete_acknowledgements(**kwargs)
-
-        # first email
-        expected_recipient_one = self.review_assignment.reviewer.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_review_complete_reviewer_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-        # second email
-        expected_recipient_two = self.review_assignment.editor.email
-        self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
-
-        subject_setting_name = 'subject_review_complete_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[1].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_reviewer_accepted_or_decline_acknowledgements(self):
-        kwargs = dict(**self.base_kwargs)
-        kwargs['review_assignment'] = self.review_assignment
-
-        # reviewer accepted
-        kwargs['accepted'] = True
-        transactional_emails.send_reviewer_accepted_or_decline_acknowledgements(**kwargs)
-
-        # first email
-        expected_recipient_one = self.review_assignment.reviewer.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_review_accept_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-        # second email
-        expected_recipient_two = self.review_assignment.editor.email
-        self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
-
-        subject_setting_name = 'subject_reviewer_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[1].subject)
-
-
-        # reviewer declined
-        kwargs['accepted'] = False
-        transactional_emails.send_reviewer_accepted_or_decline_acknowledgements(**kwargs)
-
-        # first email
-        expected_recipient_one = self.review_assignment.reviewer.email
-        self.assertEqual(expected_recipient_one, mail.outbox[2].to[0])
-
-        subject_setting_name = 'subject_review_decline_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[2].subject)
-
-        # second email
-        expected_recipient_two = self.review_assignment.editor.email
-        self.assertEqual(expected_recipient_two, mail.outbox[3].to[0])
-
-        subject_setting_name = 'subject_reviewer_acknowledgement'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[3].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_article_decision(self):
-        kwargs = self.base_kwargs
-        kwargs['article'] = self.article_under_review
-        expected_recipient_one = self.article_under_review.correspondence_author.email
-
-        for i, decision in enumerate(['accept', 'decline']): # to be added: 'undecline'
-            kwargs['decision'] = decision
-
-            transactional_emails.send_article_decision(**kwargs)
-
-            self.assertEqual(expected_recipient_one, mail.outbox[i].to[0])
-
-            subject_setting_name = f'subject_review_decision_{decision}'
-            subject_setting = self.get_default_email_subject(subject_setting_name)
-            expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-            self.assertEqual(expected_subject, mail.outbox[i].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_revisions_request(self):
-        kwargs = self.base_kwargs
-        kwargs['revision'] = helpers.create_revision_request(
-            article = self.article_under_review,
-            editor = self.editor,
-        )
-
-        transactional_emails.send_revisions_request(**kwargs)
-
-        expected_recipient_one = self.article_under_review.correspondence_author.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_request_revisions'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_revisions_author_receipt(self):
-        kwargs = self.base_kwargs
-        kwargs['revision'] = helpers.create_revision_request(
-            article = self.article_under_review,
-            editor = self.editor,
-        )
-
-        transactional_emails.send_revisions_author_receipt(**kwargs)
-
-        expected_recipient_one = self.article_under_review.correspondence_author.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_revisions_complete_receipt'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_copyedit_assignment(self):
-        kwargs = self.base_kwargs
-        kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
-            article = self.article_under_review,
-            copyeditor = self.copyeditor,
-        )
-
-        transactional_emails.send_copyedit_assignment(**kwargs)
-
-        expected_recipient_one = self.copyeditor.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_copyeditor_assignment_notification'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
-
-    @override_settings(URL_CONFIG="domain")
-    def test_send_copyedit_deleted(self):
-        kwargs = self.base_kwargs
-        kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
-            article = self.article_under_review,
-            copyeditor = self.copyeditor,
-        )
-
-        transactional_emails.send_copyedit_deleted(**kwargs)
-
-        expected_recipient_one = self.copyeditor.email
-        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
-
-        subject_setting_name = 'subject_copyedit_deleted'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-        self.assertEqual(expected_subject, mail.outbox[0].subject)
-
+class SitemapTests(UtilsTests):
 
     @override_settings(URL_CONFIG="path")
     def test_press_sitemap_generation(self):
@@ -439,6 +195,319 @@ class UtilsTests(TestCase):
             expected_issue_sitemap,
             file.getvalue(),
         )
+
+
+class TransactionalReviewEmailTests(UtilsTests):
+
+
+    def test_send_reviewer_withdrawl_notice(self):
+        kwargs = {
+            'review_assignment': self.review_assignment,
+            'request': self.request,
+            'user_message_content': self.test_message,
+            'skip': False
+        }
+
+        expected_recipient = self.review_assignment.reviewer.email
+
+        send_reviewer_withdrawl_notice(**kwargs)
+
+        self.assertEqual(expected_recipient, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_review_withdrawl'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    def test_send_editor_unassigned_notice(self):
+        expected_recipient_one = self.review_assignment.editor.email
+        send_editor_unassigned_notice(
+            request=self.request,
+            message=self.test_message,
+            assignment=self.review_assignment,
+        )
+
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_unassign_editor'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    def test_send_editor_assigned_acknowledgements(self):
+
+        editor_assignment = helpers.create_editor_assignment(
+            article=self.article_under_review,
+            editor=self.editor_two,
+        )
+        expected_recipient_one = editor_assignment.editor.email
+        kwargs = dict(**self.base_kwargs)
+        kwargs['editor_assignment'] = editor_assignment
+        kwargs['acknowledgment'] = True
+        send_editor_assigned_acknowledgements(**kwargs)
+
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_editor_assignment'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    def test_send_reviewer_requested_acknowledgements(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['review_assignment'] = self.review_assignment
+
+        expected_recipient_one = self.review_assignment.reviewer.email
+        send_reviewer_requested_acknowledgements(**kwargs)
+
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_review_assignment'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    def test_send_review_complete_acknowledgements(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['review_assignment'] = self.review_assignment
+
+        send_review_complete_acknowledgements(**kwargs)
+
+        # first email
+        expected_recipient_one = self.review_assignment.reviewer.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_review_complete_reviewer_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+        # second email
+        expected_recipient_two = self.review_assignment.editor.email
+        self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
+
+        subject_setting_name = 'subject_review_complete_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[1].subject)
+
+
+    def test_send_reviewer_accepted_or_decline_acknowledgements(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['review_assignment'] = self.review_assignment
+
+        # reviewer accepted
+        kwargs['accepted'] = True
+        send_reviewer_accepted_or_decline_acknowledgements(**kwargs)
+
+        # first email
+        expected_recipient_one = self.review_assignment.reviewer.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_review_accept_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+        # second email
+        expected_recipient_two = self.review_assignment.editor.email
+        self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
+
+        subject_setting_name = 'subject_reviewer_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[1].subject)
+
+
+        # reviewer declined
+        kwargs['accepted'] = False
+        send_reviewer_accepted_or_decline_acknowledgements(**kwargs)
+
+        # first email
+        expected_recipient_one = self.review_assignment.reviewer.email
+        self.assertEqual(expected_recipient_one, mail.outbox[2].to[0])
+
+        subject_setting_name = 'subject_review_decline_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[2].subject)
+
+        # second email
+        expected_recipient_two = self.review_assignment.editor.email
+        self.assertEqual(expected_recipient_two, mail.outbox[3].to[0])
+
+        subject_setting_name = 'subject_reviewer_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[3].subject)
+
+
+    def test_send_submission_acknowledgement(self):
+        pass
+
+    def test_send_article_decision(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['article'] = self.article_under_review
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+
+        for i, decision in enumerate(['accept', 'decline']): # to be added: 'undecline'
+            kwargs['decision'] = decision
+
+            send_article_decision(**kwargs)
+
+            self.assertEqual(expected_recipient_one, mail.outbox[i].to[0])
+
+            subject_setting_name = f'subject_review_decision_{decision}'
+            subject_setting = self.get_default_email_subject(subject_setting_name)
+            expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+            self.assertEqual(expected_subject, mail.outbox[i].subject)
+
+
+    def test_send_revisions_request(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['revision'] = helpers.create_revision_request(
+            article = self.article_under_review,
+            editor = self.editor,
+        )
+
+        send_revisions_request(**kwargs)
+
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_request_revisions'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+    def test_send_revisions_complete(self):
+        pass
+
+    def test_send_revisions_author_receipt(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs['revision'] = helpers.create_revision_request(
+            article = self.article_under_review,
+            editor = self.editor,
+        )
+
+        send_revisions_author_receipt(**kwargs)
+
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_revisions_complete_receipt'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+
+class SubjectTestsMeta(type):
+
+    def __new__(cls, name, bases, attrs):
+        parent_return = super().__new__(cls, name, bases, attrs)
+        for email_function, subject_setting_name in (
+            (send_copyedit_assignment, 'subject_copyeditor_assignment_notification'),
+            (send_copyedit_updated, 'subject_copyedit_updated'),
+            (send_copyedit_deleted, 'subject_copyedit_deleted'),
+            (send_copyedit_author_review, 'subject_copyeditor_notify_author'),
+        ):
+            test_name = f'test_subject_{email_function.__name__}'
+            test_obj = cls.subject_test(email_function, subject_setting_name)
+            setattr(parent_return, test_name, test_obj)
+        from nose.tools import set_trace; set_trace()
+        return parent_return
+
+    @classmethod
+    def subject_test(cls, email_function, subject_setting_name):
+
+        def fn(self):
+            kwargs = dict(**self.base_kwargs)
+            kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
+                article = self.article_under_review,
+                copyeditor = self.copyeditor,
+            )
+            email_function(**kwargs)
+            subject_setting = self.get_default_email_subject(subject_setting_name)
+            expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+            self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+        return fn
+
+
+class SubjectTests(UtilsTests, metaclass=SubjectTestsMeta):
+
+    # send_copyedit_assignment tested with meta class
+    # send_copyedit_updated tested with meta class
+    # send_copyedit_deleted tested with meta class
+    def send_copyedit_decision(self): 
+        pass
+
+    # send_copyedit_deleted tested with meta class
+
+    def test_send_copyedit_complete(self):
+        pass
+
+    def test_send_copyedit_ack(self):
+        pass
+
+    def test_send_copyedit_reopen(self):
+        pass
+
+    def test_send_typeset_assignment(self):
+        pass
+
+    def test_send_typeset_decision(self):
+        pass
+
+    def test_send_typeset_task_deleted(self):
+        pass
+
+    def test_send_typeset_complete(self):
+        pass
+
+    def test_send_production_complete(self):
+        pass
+
+    def test_send_proofreader_decision(self):
+        pass
+
+    def test_send_proofreader_complete_notification(self):
+        pass
+
+    def test_send_proofing_typeset_request(self):
+        pass
+
+    def test_send_proofing_typeset_decision(self):
+        pass
+
+    def test_send_corrections_complete(self):
+        pass
+
+    def test_send_proofing_ack(self):
+        pass
+
+    def test_send_proofing_complete(self):
+        pass
+
+    def test_send_author_publication_notification(self):
+        pass
+
+    def test_send_draft_decison(self):
+        pass
+
+    def test_send_author_copyedit_complete(self):
+        pass
+
+    def test_send_cancel_corrections(self):
+        pass
+
+    def test_send_draft_decision_declined(self):
+        pass
 
 
 class TestMergeSettings(TestCase):
