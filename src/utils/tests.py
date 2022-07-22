@@ -47,6 +47,10 @@ class UtilsTests(TestCase):
         cls.author = helpers.create_author(cls.journal_one)
         cls.copyeditor = helpers.create_copyeditor(cls.journal_one)
 
+        cls.submitted_article = helpers.create_article(cls.journal_one)
+        cls.submitted_article.authors.add(cls.author)
+        cls.submitted_article.correspondence_author = cls.author
+
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
 
@@ -57,9 +61,6 @@ class UtilsTests(TestCase):
                                                                             abstract="An abstract",
                                                                             stage=submission_models.STAGE_UNDER_REVIEW,
                                                                             journal_id=cls.journal_one.id)
-
-
-
 
         cls.review_assignment = review_models.ReviewAssignment.objects.create(article=cls.article_under_review,
                                                                               reviewer=cls.second_user,
@@ -352,7 +353,29 @@ class TransactionalReviewEmailTests(UtilsTests):
 
 
     def test_send_submission_acknowledgement(self):
-        pass
+        """
+        Tests whether subjects are correct, nothing else.
+        Testing recipients would require some cleaning up of
+        test data in the setup method.
+        """
+
+        kwargs = dict(**self.base_kwargs)
+        kwargs['article'] = self.submitted_article
+
+        send_submission_acknowledgement(**kwargs)
+
+        # first email subject
+        subject_setting_name = 'subject_submission_acknowledgement'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
+        # second email subject
+        subject_setting_name = 'subject_editor_new_submission'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[1].subject)
+
 
     def test_send_article_decision(self):
         kwargs = dict(**self.base_kwargs)
@@ -391,7 +414,22 @@ class TransactionalReviewEmailTests(UtilsTests):
 
 
     def test_send_revisions_complete(self):
-        pass
+        kwargs = dict(**self.base_kwargs)
+        kwargs['revision'] = helpers.create_revision_request(
+            article = self.article_under_review,
+            editor = self.editor,
+        )
+
+        send_revisions_complete(**kwargs)
+
+        expected_recipient_one = self.editor.email
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+        subject_setting_name = 'subject_revisions_complete_receipt'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
+
 
     def test_send_revisions_author_receipt(self):
         kwargs = dict(**self.base_kwargs)

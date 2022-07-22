@@ -502,7 +502,7 @@ def send_revisions_complete(**kwargs):
     )
     notify_helpers.send_email_with_body_from_user(
         request,
-        'Article Revisions Complete',
+        'subject_revisions_complete_receipt',
         {editor.email for editor in get_assignment_editors(revision)},
         description,
     )
