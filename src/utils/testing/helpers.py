@@ -506,3 +506,13 @@ def create_copyedit_assignment(article, copyeditor, **kwargs):
         copyedit_accepted=copyedit_accepted,
     )
     return assignment
+
+def create_access_request(journal, user, role, **kwargs):
+    role = core_models.Role.objects.get(slug=role)
+    access_request, created = core_models.AccessRequest.objects.get_or_create(
+        journal=journal,
+        user=user,
+        role=role,
+        text='Automatic request as author added to an article.',
+    )
+    return access_request
