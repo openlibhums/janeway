@@ -27,7 +27,7 @@
             <td>{{ galley.label }}</td>
             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
             <td>{{ galley.public|bool_fa }}</td>
-            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
+            <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_article' article.pk %}"
                    class="fa fa-edit"></a></td>
