@@ -184,9 +184,8 @@ def create_author(journal, **kwargs):
 
 
 def create_article(journal, **kwargs):
-    from submission import models as submission_models
 
-    article = submission_models.Article.objects.create(
+    article = sm_models.Article.objects.create(
         journal=journal,
         title='Test Article from Utils Testing Helpers',
         article_agreement='Test Article',
@@ -216,9 +215,8 @@ def create_galley(article, file_obj=None):
     return galley
 
 def create_section(journal):
-    from submission import models as submission_models
 
-    section, created = submission_models.Section.objects.get_or_create(
+    section, created = sm_models.Section.objects.get_or_create(
         journal=journal,
         number_of_reviewers=2,
         name='Article',
