@@ -47,6 +47,13 @@ class UtilsTests(TestCase):
         cls.author = helpers.create_author(cls.journal_one)
         cls.copyeditor = helpers.create_copyeditor(cls.journal_one)
 
+        setting_handler.save_setting(
+            'general',
+            'submission_access_request_contact',
+            cls.journal_one,
+            cls.editor.email,
+        )
+
         cls.submitted_article = helpers.create_article(cls.journal_one)
         cls.submitted_article.authors.add(cls.author)
         cls.submitted_article.correspondence_author = cls.author
@@ -67,6 +74,12 @@ class UtilsTests(TestCase):
                                                                               editor=cls.editor,
                                                                               date_due=timezone.now(),
                                                                               form=cls.review_form)
+
+        cls.access_request = helpers.create_access_request(
+            cls.journal_one,
+            cls.author,
+            'author',
+        )
 
         cls.request = helpers.Request()
         cls.request.journal = cls.journal_one
@@ -546,17 +559,39 @@ class MiscEmailSubjectTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
-
     def test_send_draft_decision_declined(self):
-        pass
+        kwargs = dict(**self.base_kwargs)
+        kwargs['article'] = self.article_under_review
+        kwargs['draft_decision'], created = review_models.DecisionDraft.objects.get_or_create(
+            article=kwargs['article'],
+            editor=self.editor,
+            section_editor=self.section_editor,
+            message_to_editor='Test Message',
+        )
+        send_draft_decision_declined(**kwargs)
 
+        subject_setting = self.get_default_email_subject('subject_notify_se_draft_declined')
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
 
     def test_access_request_notification(self):
-        pass
+        kwargs = dict(**self.base_kwargs)
+        kwargs['access_request'] = self.access_request
+        access_request_notification(**kwargs)
 
+        subject_setting = self.get_default_email_subject('subject_submission_access_request_notification')
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
 
     def test_access_request_complete(self):
-        pass
+        kwargs = dict(**self.base_kwargs)
+        kwargs['access_request'] = self.access_request
+        kwargs['decision'] = 'Test Decision'
+        access_request_complete(**kwargs)
+
+        subject_setting = self.get_default_email_subject('subject_submission_access_request_complete')
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertEqual(expected_subject, mail.outbox[0].subject)
 
 
 class TestMergeSettings(TestCase):
