@@ -226,6 +226,9 @@ def get_settings_to_edit(display_group, journal):
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
              },
+            {'name': 'disable_journal_submission_message',
+             'object': setting_handler.get_setting('general', 'disable_journal_submission_message', journal)
+             },
             {'name': 'limit_access_to_submission',
              'object': setting_handler.get_setting('general', 'limit_access_to_submission', journal)
              },
