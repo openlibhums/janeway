@@ -47,11 +47,7 @@ def funding_is_enabled(func):
         article = models.Article.get_article(request.journal, 'id', article_id)
 
         # Staff and editors can bypass this requirement.
-        if request.user.is_staff:
-            return func(request, *args, **kwargs)
-        elif request.user in article.section_editors():
-            return func(request, *args, **kwargs)
-        elif request.user.is_editor(
+        if request.user.is_staff or request.user in article.section_editors() or request.user.is_editor(
                 request=None,
                 journal=article.journal,
         ):
