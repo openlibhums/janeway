@@ -434,6 +434,14 @@ def article(request, identifier_type, identifier):
     if article_object.is_published:
         store_article_access(request, article_object, 'view')
 
+    if request.journal.disable_html_downloads:
+        # exclude any HTML galleys.
+        galleys = galleys.exclude(
+            file__mime_type='text/html',
+            type='html',
+            label='HTML'
+        )
+
     template = 'journal/article.html'
     context = {
         'article': article_object,

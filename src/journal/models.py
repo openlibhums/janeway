@@ -144,7 +144,10 @@ class Journal(AbstractSiteModel):
                            'tables within an article.'),
     )
     enable_correspondence_authors = models.BooleanField(default=True)
-    disable_html_downloads = models.BooleanField(default=False)
+    disable_html_downloads = models.BooleanField(
+        default=False,
+        help_text='Used to disable download links for HTML files on the Article page.',
+    )
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(
         default=False,
