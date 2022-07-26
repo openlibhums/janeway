@@ -22,22 +22,23 @@
                 <h6>Issues</h6>
                 <table class="scroll">
                     <tr>
-                        <th>Title</th>
-                        <th>Volume</th>
-                        <th>Number</th>
+                        <th>Display Title</th>
                         <th>Date</th>
+                        <th>Primary</th>
                         <th></th>
                     </tr>
                 {% for issue in issues %}
                     <tr{% if issue.pk == article.projected_issue.pk %} style="background-color: darkseagreen;"{% endif %}>
-                        <td>{{ issue.issue_title }}</td>
-                        <td>{{ issue.volume }}</td>
-                        <td>{{ issue.issue }}</td>
+                        <td>{{ issue.display_title }}</td>
                         <td>{{ issue.date|date:"Y-m-d" }}</td>
+                        <td>
+                            {% if article.primary_issue == issue %}
+                                <i class="fa fa-check-circle-o" style="color: green;"></i> Primary
+                            {% endif %}
                         <td>
                             {% if issue in article.issues_list %}
                             <button name="unassign_issue" value="{{ issue.pk }}", type="submit" class="tiny alert button">
-                                <i class="fa fa-plus">&nbsp;</i>Unassign
+                                <i class="fa fa-minus">&nbsp;</i>Unassign
                             </button>
                             {% else %}
                             <button name="assign_issue" value="{{ issue.pk }}", type="submit" class="tiny success button">
