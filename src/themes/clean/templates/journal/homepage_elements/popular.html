@@ -16,6 +16,10 @@
                     <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
                          alt="{{ article.title|striptags }}"
                          class="card-img-top">
+                {% elif article.issue.large_image %}
+                    <img src="{{ article.issue.large_image.url }}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
                 {% elif article.journal.default_large_image %}
                     <img src="{{ article.journal.default_large_image.url }}"
                          alt="{{ article.title|striptags }}"

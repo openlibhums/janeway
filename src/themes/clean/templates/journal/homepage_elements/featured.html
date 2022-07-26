@@ -8,8 +8,12 @@
     {% for fa in featured_articles %}
         <div class="col-md-4 row-eq-height">
             <div class="card">
-              {% if fa.article.large_image_file %}
+                {% if fa.article.large_image_file %}
                     <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% elif fa.article.issue.large_image %}
+                    <img src="{{ fa.article.issue.large_image.url }}"
                          alt="{{ article.title|striptags }}"
                          class="card-img-top">
                 {% elif fa.article.journal.default_large_image %}
