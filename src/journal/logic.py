@@ -200,6 +200,9 @@ def handle_assign_issue(request, article, issues):
         if issue_to_assign in issues:
             issue_to_assign.articles.add(article)
             issue_to_assign.save()
+            if not article.primary_issue:
+                article.primary_issue = issue_to_assign
+                article.save()
             messages.add_message(request, messages.SUCCESS, 'Article assigned to issue.')
         else:
 
@@ -215,6 +218,12 @@ def handle_unassign_issue(request, article, issues):
         if issue_to_unassign in issues:
             issue_to_unassign.articles.remove(article)
             issue_to_unassign.save()
+            if issue_to_unassign == article.primary_issue:
+                if article.issues_list().exists():
+                    article.primary_issue = article.issues_list().first()
+                else:
+                    article.primary_issue = None
+                article.save()
             messages.add_message(request, messages.SUCCESS, 'Article unassigned from Issue.')
         else:
 
