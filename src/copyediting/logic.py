@@ -21,11 +21,16 @@ def get_copyeditors(article):
     :param article: a Article object
     :return: a queryset of AccountRole objects
     """
-    copyeditor_assignments = models.CopyeditAssignment.objects.filter(article=article)
-    copyeditors = [assignment.copyeditor.pk for assignment in copyeditor_assignments]
-
-    return core_models.AccountRole.objects.filter(role__slug='copyeditor',
-                                                  journal=article.journal).exclude(user__pk__in=copyeditors)
+    copyeditor_assignments = models.CopyeditAssignment.objects.filter(
+        article=article,
+        copyedit_accepted__isnull=True,
+    ).values('copyeditor__id')
+    return core_models.AccountRole.objects.filter(
+        role__slug='copyeditor',
+        journal=article.journal
+    ).exclude(
+        user__pk__in=copyeditor_assignments,
+    )
 
 
 def get_user_from_post(request):
