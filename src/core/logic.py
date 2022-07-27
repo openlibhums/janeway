@@ -411,6 +411,7 @@ def get_settings_to_edit(display_group, journal):
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
             'display_register_page_notice', 'register_page_notice',
             'support_email', 'support_contact_message_for_staff',
+            'replyto_address',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
