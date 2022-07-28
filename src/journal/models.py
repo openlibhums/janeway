@@ -1153,6 +1153,13 @@ def issue_articles_change(sender, **kwargs):
                 except ArticleOrdering.DoesNotExist:
                     pass
 
+                if issue == article.primary_issue:
+                    if article.issues_list().exists():
+                        article.primary_issue = article.issues_list().first()
+                    else:
+                        article.primary_issue = None
+                    article.save()
+
             elif action == 'post_add':
                 ArticleOrdering.objects.get_or_create(
                     issue=issue,
@@ -1161,5 +1168,8 @@ def issue_articles_change(sender, **kwargs):
                     order=issue.next_order(),
                 )
 
+                if not article.primary_issue:
+                    article.primary_issue = issue
+                    article.save()
 
 m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)
