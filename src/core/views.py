@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+import pytz
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,11 +14,10 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.urls import reverse
-from django.http import Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -26,9 +26,13 @@ from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
-import pytz
+from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views import generic
 
-from core import models, forms, logic, workflow
+from core import models, forms, logic, workflow, models as core_models
 from security.decorators import editor_user_required, article_author_required, has_journal
 from submission import models as submission_models
 from review import models as review_models
@@ -39,8 +43,13 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
+from utils.logic import get_janeway_version
+from utils.decorators import GET_language_override
+from utils.shared import language_override_redirect
+from utils.logic import get_janeway_version
+from repository import models as rm
+from events import logic as events_logic
 
-from django.db.models import Q
 
 logger = get_logger(__name__)
 
@@ -96,6 +105,8 @@ def user_login(request):
 
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
+                elif request.journal:
+                    return redirect(reverse('core_dashboard'))
                 else:
                     return redirect(reverse('website_index'))
             else:
@@ -138,7 +149,9 @@ def user_login_orcid(request):
 
     if orcid_code and django_settings.ENABLE_ORCID:
         orcid_id = orcid.retrieve_tokens(
-            orcid_code, request.site_type)
+            orcid_code,
+            request.site_type,
+        )
 
         if orcid_id:
             try:
@@ -148,8 +161,11 @@ def user_login_orcid(request):
 
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
-                else:
+                elif request.journal:
                     return redirect(reverse('core_dashboard'))
+                else:
+                    return redirect(reverse('website_index'))
+
             except models.Account.DoesNotExist:
                 # Set Token and Redirect
                 models.OrcidToken.objects.filter(orcid=orcid_id).delete()
@@ -616,11 +632,23 @@ def manager_index(request):
         return press_views.manager_index(request)
 
     template = 'core/manager/index.html'
+
+    support_message = logic.render_nested_setting(
+        'support_contact_message_for_staff',
+        'general',
+        request,
+        nested_settings=[('support_email','general')],
+    )
+
     context = {
         'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED, journal=request.journal).select_related('section')[:25]
+            date_published__isnull=False,
+            stage=submission_models.STAGE_PUBLISHED,
+            journal=request.journal
+        ).select_related('section')[:25],
+        'support_message': support_message,
+        'version': get_janeway_version(),
     }
-
     return render(request, template, context)
 
 
@@ -646,11 +674,11 @@ def settings_index(request):
     """
     template = 'core/manager/settings/index.html'
     context = {
-        'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
-                     models.SettingGroup.objects.all().order_by('name')],
+        'settings': models.Setting.objects.order_by('name')
     }
 
     return render(request, template, context)
+
 
 @staff_member_required
 def default_settings_index(request):
@@ -665,6 +693,7 @@ def default_settings_index(request):
     return settings_index(request)
 
 
+@GET_language_override
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
     """
@@ -674,57 +703,60 @@ def edit_setting(request, setting_group, setting_name):
     :param setting_name: string, Setting.name
     :return: HttpResponse object
     """
-    setting = models.Setting.objects.get(
-            name=setting_name, group__name=setting_group)
-    setting_value = setting_handler.get_setting(
-            setting_group,
-            setting_name,
-            request.journal,
-            default=False
+    with translation.override(request.override_language):
+        setting = models.Setting.objects.get(
+                name=setting_name, group__name=setting_group)
+        setting_value = setting_handler.get_setting(
+                setting_group,
+                setting_name,
+                request.journal,
+                default=False
+            )
+
+        if setting_value and setting_value.setting.types == 'rich-text':
+            setting_value.value = linebreaksbr(setting_value.value)
+
+        edit_form = forms.EditKey(
+                key_type=setting.types,
+                value=setting_value.value if setting_value else None
         )
 
-    if setting_value and setting_value.setting.types == 'rich-text':
-        setting_value.value = linebreaksbr(setting_value.value)
-
-    edit_form = forms.EditKey(
-            key_type=setting.types,
-            value=setting_value.value if setting_value else None
-    )
-
-    if request.POST and 'delete' in request.POST and setting_value:
-        setting_value.delete()
-
-        return redirect(reverse('core_settings_index'))
-
-    if request.POST:
-        if 'delete' in request.POST and setting_value:
+        if request.POST and 'delete' in request.POST and setting_value:
             setting_value.delete()
-        else:
-            value = request.POST.get('value')
-            if request.FILES:
-                value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-            try:
-                setting_value = setting_handler.save_setting(
-                    setting_group, setting_name, request.journal, value)
-            except ValidationError as error:
-                messages.add_message( request, messages.ERROR, error)
+            return redirect(reverse('core_settings_index'))
+
+        if request.POST:
+            if 'delete' in request.POST and setting_value:
+                setting_value.delete()
             else:
-                cache.clear()
+                value = request.POST.get('value')
+                if request.FILES:
+                    value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        if "email_template" in request.GET:
-            return redirect(reverse('core_email_templates'))
-        return redirect(reverse('core_settings_index'))
+                try:
+                    setting_value = setting_handler.save_setting(
+                        setting_group, setting_name, request.journal, value)
+                except ValidationError as error:
+                    messages.add_message( request, messages.ERROR, error)
+                else:
+                    cache.clear()
 
-    template = 'core/manager/settings/edit_setting.html'
-    context = {
-        'setting': setting,
-        'setting_value': setting_value,
-        'group': setting.group,
-        'edit_form': edit_form,
-        'value': setting_value.value if setting_value else None
-    }
-    return render(request, template, context)
+            return language_override_redirect(
+                request,
+                'core_edit_setting',
+                {'setting_group': setting_group, 'setting_name': setting_name},
+            )
+
+        template = 'core/manager/settings/edit_setting.html'
+        context = {
+            'setting': setting,
+            'setting_value': setting_value,
+            'group': setting.group,
+            'edit_form': edit_form,
+            'value': setting_value.value if setting_value else None
+        }
+        return render(request, template, context)
 
 
 @staff_member_required
@@ -739,79 +771,89 @@ def edit_default_setting(request, setting_group, setting_name):
     return edit_setting(request, setting_group, setting_name)
 
 
+@GET_language_override
 @editor_user_required
-def edit_settings_group(request, group):
+def edit_settings_group(request, display_group):
     """
     Displays a group of settings on a page for editing. If there is no request.journal we are editing from the press
     and must set a temp request.journal and then unset it.
     :param request: HttpRequest object
-    :param group: string, name of a group of settings
+    :param display_group: string, name of a group of settings
     :return: HttpResponse object
     """
-    if request.journal:
-        journal_id = None
-        journal = request.journal
-    else:
-        journal_id = request.GET.get('journal')
-        journal = get_object_or_404(journal_models.Journal, pk=journal_id)
-        # Set request.journal
-        request.journal = journal
+    with translation.override(request.override_language):
+        settings, setting_group = logic.get_settings_to_edit(display_group, request.journal)
+        edit_form = forms.GeneratedSettingForm(settings=settings)
+        attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
-    settings, setting_group = logic.get_settings_to_edit(group, journal)
+        if display_group == 'journal':
+            attr_form_object = forms.JournalAttributeForm
+        elif display_group == 'images':
+            attr_form_object = forms.JournalImageForm
+            display_tabs = False
+        elif display_group == 'article':
+            attr_form_object = forms.JournalArticleForm
+            display_tabs = False
+        elif display_group == 'styling':
+            attr_form_object = forms.JournalStylingForm
+            display_tabs = False
+        elif display_group == 'submission':
+            attr_form_object = forms.JournalSubmissionForm
 
-    if not settings:
-        raise Http404
+        if attr_form_object:
+            attr_form = attr_form_object(instance=request.journal)
 
-    edit_form = forms.GeneratedSettingForm(settings=settings)
+        if not settings and not attr_form_object:
+            raise Http404
 
-    if journal_id:
-        attr_form = forms.PressJournalAttrForm(instance=journal)
-    else:
-        attr_form = forms.JournalAttributeForm(instance=journal)
+        if request.POST:
+            edit_form = forms.GeneratedSettingForm(
+                request.POST,
+                settings=settings,
+            )
 
-    if request.POST:
-        edit_form = forms.GeneratedSettingForm(request.POST, settings=settings)
+            if edit_form.is_valid():
+                edit_form.save(
+                    group=setting_group,
+                    journal=request.journal,
+                )
+            else:
+                fire_redirect = False
 
-        if journal_id:
-            attr_form = forms.PressJournalAttrForm(request.POST, request.FILES, instance=journal)
-        else:
-            attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
+            if attr_form_object:
+                attr_form = attr_form_object(
+                    request.POST,
+                    request.FILES,
+                    instance=request.journal,
+                )
+                if attr_form.is_valid():
+                    attr_form.save()
 
-        if edit_form.is_valid():
-            edit_form.save(group=setting_group, journal=journal)
-
-        if group == 'journal' and attr_form.is_valid():
-            # Evaluate this form for this group only, otherwise booleans
-            # will all get set to False
-            attr_form.save()
-            logic.handle_default_thumbnail(request, journal, attr_form)
-            logic.handle_press_override_image(request, journal, attr_form)
-
-            if group == 'journal' and journal.default_large_image:
-                path = django_settings.BASE_DIR + journal.default_large_image.url
-                logic.resize_and_crop(path, [750, 324], 'middle')
+                    if display_group == 'images':
+                        logic.handle_default_thumbnail(request, request.journal, attr_form)
+                        logic.handle_press_override_image(request, request.journal, attr_form)
+                else:
+                    fire_redirect = False
 
             cache.clear()
 
-            # Unset request.journal
-            if journal_id:
-                request.journal = None
+            if fire_redirect:
+                return language_override_redirect(
+                    request,
+                    'core_edit_settings_group',
+                    {'display_group': display_group},
+                )
 
-            if request.journal:
-                return redirect(reverse('core_edit_settings_group', kwargs={'group': group}))
-            else:
-                return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': group}),
-                                                         journal_id))
+        template = 'admin/core/manager/settings/group.html'
+        context = {
+            'group': display_group,
+            'settings_list': settings,
+            'edit_form': edit_form,
+            'attr_form': attr_form,
+            'display_tabs': display_tabs,
+        }
 
-    template = 'core/manager/settings/group.html'
-    context = {
-        'group': group,
-        'settings': settings,
-        'edit_form': edit_form,
-        'attr_form': attr_form,
-    }
-
-    return render(request, template, context)
+        return render(request, template, context)
 
 
 @editor_user_required
@@ -875,8 +917,13 @@ def roles(request):
     :return: HttpResponse object
     """
     template = 'core/manager/roles/roles.html'
+
+    roles = models.Role.objects.all()
+    for role in roles:
+        role.user_count = request.journal.users_with_role_count(role.slug)
+
     context = {
-        'roles': models.Role.objects.all(),
+        'roles': roles,
     }
 
     return render(request, template, context)
@@ -893,13 +940,10 @@ def role(request, slug):
     role_obj = get_object_or_404(models.Role, slug=slug)
 
     account_roles = models.AccountRole.objects.filter(journal=request.journal, role=role_obj)
-    users_with_role = [assignment.user.pk for assignment in account_roles]
-    user_list = models.Account.objects.all().order_by('last_name').exclude(pk__in=users_with_role)
 
     template = 'core/manager/roles/role.html'
     context = {
         'role': role_obj,
-        'users': user_list,
         'account_roles': account_roles
     }
 
@@ -1120,6 +1164,36 @@ def user_history(request, user_id):
 
 
 @editor_user_required
+def enrol_users(request):
+    user_search = []
+    first_name = request.GET.get('first_name', '')
+    last_name = request.GET.get('last_name', '')
+    email = request.GET.get('email', '')
+
+    if first_name or last_name or email:
+        filters = {}
+        if first_name and len(first_name) >= 2:
+            filters['first_name__icontains'] = first_name
+        if last_name and len(last_name) >= 2:
+            filters['last_name__icontains'] = last_name
+        if email and len(email) >= 2:
+            filters['email__icontains'] = email
+
+        user_search = core_models.Account.objects.filter(**filters)
+
+    template = 'core/manager/users/enrol_users.html'
+    context = {
+        'user_search': user_search,
+        'roles': models.Role.objects.all().order_by(('name')),
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
+        'return': request.GET.get('return')
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
 def settings_home(request):
     # this should return a context containing:
     # 1. An excluded list of homepage items
@@ -1262,14 +1336,19 @@ def contacts(request):
     :return: HttpResponse object
     """
     form = forms.JournalContactForm()
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    contacts = models.Contacts.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
 
     if 'delete' in request.POST:
         contact_id = request.POST.get('delete')
-        contact = get_object_or_404(models.Contacts,
-                                    pk=contact_id,
-                                    content_type=request.model_content_type,
-                                    object_id=request.site_type.pk)
+        contact = get_object_or_404(
+            models.Contacts,
+            pk=contact_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
         contact.delete()
         return redirect(reverse('core_journal_contacts'))
 
@@ -1295,31 +1374,51 @@ def contacts(request):
 
 
 @editor_user_required
-def edit_contacts(request, contact_id):
+@GET_language_override
+def edit_contacts(request, contact_id=None):
     """
     Allows for editing of existing Contact objects
     :param request: HttpRequest object
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
-    contact = get_object_or_404(models.Contacts,
-                                pk=contact_id,
-                                content_type=request.model_content_type,
-                                object_id=request.site_type.pk)
-    form = forms.JournalContactForm(instance=contact)
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    with translation.override(request.override_language):
+        if contact_id:
+            contact = get_object_or_404(
+                models.Contacts,
+                pk=contact_id,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
+            form = forms.JournalContactForm(instance=contact)
+        else:
+            contact = None
+            form = forms.JournalContactForm(
+                next_sequence=request.site_type.next_contact_order(),
+            )
 
-    if request.POST:
-        form = forms.JournalContactForm(request.POST, instance=contact)
+        if request.POST:
+            form = forms.JournalContactForm(request.POST, instance=contact)
 
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_journal_contacts'))
+            if form.is_valid():
+                if contact:
+                    contact = form.save()
+                else:
+                    contact = form.save(commit=False)
+                    contact.content_type = request.model_content_type
+                    contact.object_id = request.site_type.pk
+                    contact.save()
 
-    template = 'core/manager/contacts/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_journal_contact',
+                    {'contact_id': contact.pk},
+                )
+
+    template = 'core/manager/contacts/manage.html'
     context = {
         'form': form,
-        'contacts': contacts
+        'contact': contact,
     }
 
     return render(request, template, context)
@@ -1351,7 +1450,6 @@ def editorial_team(request):
     :return: HttpResponse object
     """
     editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    form = forms.EditorialGroupForm(next_sequence=request.journal.next_group_order())
 
     if 'delete' in request.POST:
         delete_id = request.POST.get('delete')
@@ -1359,47 +1457,54 @@ def editorial_team(request):
         group.delete()
         return redirect(reverse('core_editorial_team'))
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST)
-
-        if form.is_valid():
-            group = form.save(commit=False)
-            group.journal = request.journal
-            group.save()
-
-            return redirect(reverse('core_editorial_team'))
-
     template = 'core/manager/editorial/index.html'
     context = {
         'editorial_groups': editorial_groups,
-        'form': form,
     }
 
     return render(request, template, context)
 
 
 @editor_user_required
-def edit_editorial_group(request, group_id):
+@GET_language_override
+def edit_editorial_group(request, group_id=None):
     """
     Allows editors to edit existing EditorialGroup objects
     :param request: HttpRequest object
     :param group_id: EditorialGroup object PK
     :return: HttpResponse object
     """
-    editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
-    form = forms.EditorialGroupForm(instance=group)
+    with translation.override(request.override_language):
+        if group_id:
+            group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
+            form = forms.EditorialGroupForm(
+                instance=group,
+            )
+        else:
+            group = None
+            form = forms.EditorialGroupForm(
+                next_sequence=request.journal.next_group_order(),
+            )
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST, instance=group)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_editorial_team'))
+        if request.POST:
+            form = forms.EditorialGroupForm(request.POST, instance=group)
+            if form.is_valid():
+                if group:
+                    group = form.save()
+                else:
+                    group = form.save(commit=False)
+                    group.journal = request.journal
+                    group.save()
 
-    template = 'core/manager/editorial/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_edit_editorial_team',
+                    {'group_id': group.pk},
+                )
+
+    template = 'core/manager/editorial/manage_group.html'
     context = {
         'group': group,
-        'editorial_groups': editorial_groups,
         'form': form,
     }
 
@@ -1564,26 +1669,25 @@ def kanban(request):
     assigned_table = production_models.ProductionAssignment.objects.filter(article__journal=request.journal)
     assigned = [assignment.article.pk for assignment in assigned_table]
 
-    prod_unassigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
-        id__in=assigned)
-    assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING,
-                                                                 journal=request.journal).exclude(
-        id__in=unassigned_articles)
+    prod_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING, journal=request.journal)
+    assigned_articles = submission_models.Article.objects.filter(pk__in=assigned)
 
-    proofing_assigned_table = proofing_models.ProofingAssignment.objects.filter(article__journal=request.journal)
+    proofing_assigned_table = proofing_models.ProofingAssignment.objects.filter(
+        article__journal=request.journal,
+    )
     proofing_assigned = [assignment.article.pk for assignment in proofing_assigned_table]
 
-    proof_unassigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_PROOFING, journal=request.journal).exclude(
-        id__in=proofing_assigned)
-    proof_assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PROOFING,
-                                                                       journal=request.journal).exclude(
-        id__in=proof_unassigned_articles)
+    proof_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_PROOFING, journal=request.journal)
+    proof_assigned_articles = submission_models.Article.objects.filter(
+        pk__in=proofing_assigned,
+    )
 
-    prepub = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
-                                                      journal=request.journal) \
-        .order_by('-date_submitted')
+    prepub = submission_models.Article.objects.filter(
+        Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
+        journal=request.journal,
+    ).order_by('-date_submitted')
 
     articles_in_workflow_plugins = workflow.articles_in_workflow_plugins(request)
 
@@ -1591,9 +1695,9 @@ def kanban(request):
         'unassigned_articles': unassigned_articles,
         'in_review': in_review,
         'copyediting': copyediting,
-        'production': prod_unassigned_articles,
+        'production': prod_articles,
         'production_assigned': assigned_articles,
-        'proofing': proof_unassigned_articles,
+        'proofing': proof_articles,
         'proofing_assigned': proof_assigned_articles,
         'prepubs': prepub,
         'articles_in_workflow_plugins': articles_in_workflow_plugins,
@@ -1668,7 +1772,10 @@ def email_templates(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    template_list = models.Setting.objects.filter(group__name='email')
+    template_list = (
+        (setting, 'subject_%s' % setting.name)
+        for setting in models.Setting.objects.filter(group__name='email')
+    )
 
     template = 'core/manager/email/email_templates.html'
     context = {
@@ -1679,29 +1786,61 @@ def email_templates(request):
 
 
 @editor_user_required
-def sections(request, section_id=None):
+def section_list(request):
+    """
+    Displays a list of the journals sections.
+    :praram request: HttpRequest object
+    :return: HttpResponse
+    """
+    section_objects = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
+
+    if request.POST and 'delete' in request.POST:
+        section_id = request.POST.get('delete')
+        section_to_delete = get_object_or_404(submission_models.Section, pk=section_id)
+
+        if section_to_delete.article_count():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a section that contains articles. Remove articles'
+                    ' from the section if you want to delete it.'
+                ),
+            )
+        else:
+            section_to_delete.delete()
+        return redirect(reverse('core_manager_sections'))
+
+    template = 'core/manager/sections/section_list.html'
+    context = {
+        'section_objects': section_objects,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@GET_language_override
+def manage_section(request, section_id=None):
     """
     Displays a list of sections, allows them to be added, edited and deleted.
     :param request: HttpRequest object
     :param section_id: Section object PK, optional
     :return: HttpResponse object
     """
-    section = get_object_or_404(submission_models.Section, pk=section_id,
-                                journal=request.journal) if section_id else None
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal)
+    with translation.override(request.override_language):
+        section = get_object_or_404(submission_models.Section, pk=section_id,
+                                    journal=request.journal) if section_id else None
+        sections = submission_models.Section.objects.filter(journal=request.journal)
 
-    if section:
-        form = forms.SectionForm(instance=section, request=request)
-    else:
-        form = forms.SectionForm(request=request)
-
-    if request.POST:
-
-        if 'delete' in request.POST:
-            id = request.POST.get('delete')
-            object = get_object_or_404(submission_models.Section, pk=id)
-            object.delete()
+        if section:
+            form = forms.SectionForm(instance=section, request=request)
         else:
+            form = forms.SectionForm(request=request)
+
+        if request.POST:
+
             if section:
                 form = forms.SectionForm(request.POST, instance=section, request=request)
             else:
@@ -1713,15 +1852,35 @@ def sections(request, section_id=None):
                 form_section.save()
                 form.save_m2m()
 
-        return redirect(reverse('core_manager_sections'))
+            return language_override_redirect(
+                request,
+                'core_manager_section',
+                {'section_id': section.pk if section else form_section.pk},
+            )
 
-    template = 'core/manager/sections/sections.html'
+        template = 'core/manager/sections/manage_section.html'
+        context = {
+            'sections': sections,
+            'section': section,
+            'form': form,
+        }
+    return render(request, template, context)
+
+
+@editor_user_required
+def section_articles(request, section_id):
+    """
+    Displays a list of articles in a given section.
+    """
+    section = get_object_or_404(
+        submission_models.Section,
+        pk=section_id,
+        journal=request.journal,
+    )
+    template = 'core/manager/sections/section_articles.html'
     context = {
-        'sections': sections,
         'section': section,
-        'form': form,
     }
-
     return render(request, template, context)
 
 
@@ -1863,3 +2022,299 @@ def set_session_timezone(request):
             content_type='application/json',
             status=200,
     )
+
+
+@login_required
+def request_submission_access(request):
+    if request.repository:
+        check = rm.RepositoryRole.objects.filter(
+            repository=request.repository,
+            user=request.user,
+            role__slug='author',
+        ).exists()
+    elif request.journal:
+        check = request.user.is_author(request)
+    else:
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_request = models.AccessRequest.objects.filter(
+        user=request.user,
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    ).first()
+    role = models.Role.objects.get(slug='author')
+    form = forms.AccessRequestForm(
+        journal=request.journal,
+        repository=request.repository,
+        user=request.user,
+        role=role,
+    )
+
+    if request.POST and not active_request:
+        form = forms.AccessRequestForm(
+            request.POST,
+            journal=request.journal,
+            repository=request.repository,
+            user=request.user,
+            role=role,
+        )
+        if form.is_valid():
+            access_request = form.save()
+            event_kwargs = {
+                'request': request,
+                'access_request': access_request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request',
+                **event_kwargs,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Sent.',
+            )
+            return redirect(
+                reverse(
+                    'request_submission_access'
+                )
+            )
+
+    template = 'admin/core/request_submission_access.html'
+    context = {
+        'check': check,
+        'active_request': active_request,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@staff_member_required
+def manage_access_requests(request):
+    # If we don't have a journal or repository return a 404.
+    if not request.journal and not request.repository:
+        raise Http404('The Submission Access page is only accessible on Repository and Journal sites.')
+
+    active_requests = models.AccessRequest.objects.filter(
+        journal=request.journal,
+        repository=request.repository,
+        processed=False,
+    )
+    if request.POST:
+        if 'approve' in request.POST:
+            pk = request.POST.get('approve')
+            access_request = active_requests.get(pk=pk)
+            decision = 'approve'
+
+            if request.journal:
+                access_request.user.add_account_role(
+                    access_request.role.slug,
+                    request.journal,
+                )
+            elif request.repository:
+                rm.RepositoryRole.objects.get_or_create(
+                    repository=access_request.repository,
+                    user=access_request.user,
+                    role=access_request.role
+                )
+        elif 'reject' in request.POST:
+            pk = request.POST.get('reject')
+            access_request = active_requests.get(pk=pk)
+            decision = 'reject'
+
+        if access_request:
+            eval_note = request.POST.get('eval_note')
+            access_request.evaluation_note = eval_note
+            access_request.processed = True
+            access_request.save()
+            event_kwargs = {
+                'decision': decision,
+                'access_request': access_request,
+                'request': request,
+            }
+            events_logic.Events.raise_event(
+                'on_access_request_complete',
+                **event_kwargs,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Access Request Processed.',
+            )
+        return redirect(
+            reverse(
+                'manage_access_requests',
+            )
+        )
+    template = 'admin/core/manage_access_requests.html'
+    context = {
+        'active_requests': active_requests,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class FilteredArticlesListView(generic.ListView):
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+    paginate_by = '25'
+    facets = {}
+
+    def get_paginate_by(self, queryset):
+        paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginate_by == 'all':
+            if queryset:
+                paginate_by = len(queryset)
+            else:
+                paginate_by = self.paginate_by
+        return paginate_by
+
+    def get_context_data(self, **kwargs):
+        params_querydict = self.request.GET.copy()
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
+        facets = self.get_facets()
+
+        # Most initial values are in list form
+        # The exception is date_time facets
+        initial = dict(params_querydict.lists())
+        for keyword, value in initial.items():
+            if keyword in facets:
+                if facets[keyword]['type'] == 'date_time':
+                    initial[keyword] = value[0]
+
+        context['facet_form'] = forms.CBVFacetForm(
+            queryset=queryset,
+            facet_queryset=self.get_facet_queryset(),
+            facets=facets,
+            initial=initial,
+        )
+
+        context['actions'] = self.get_actions()
+
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', '')
+        context['params_string'] = params_querydict.urlencode()
+        context['version'] = get_janeway_version()
+        context['action_maximum_size'] = setting_handler.get_setting(
+            'Identifiers',
+            'doi_manager_action_maximum_size',
+            self.request.journal if self.request.journal else None,
+        ).processed_value
+        return context
+
+    def get_queryset(self, params_querydict=None):
+        if not params_querydict:
+            params_querydict = self.request.GET.copy()
+
+        # Clear any previous action status and error
+        params_querydict.pop('action_status', '')
+        params_querydict.pop('action_error', False)
+
+        self.queryset = super().get_queryset()
+        q_stack = []
+        facets = self.get_facets()
+        for facet in facets.values():
+            self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
+        for keyword, value_list in params_querydict.lists():
+            if keyword in facets and value_list:
+                if value_list[0]:
+                    predicates = [(keyword, value) for value in value_list]
+                elif facets[keyword]['type'] != 'date_time':
+                    if value_list[0] == '' and facets[keyword]['type'] != 'date_time':
+                        predicates = [(keyword, '')]
+                    else:
+                        predicates = [(keyword+'__isnull', True)]
+                else:
+                    predicates = []
+                query = Q()
+                for predicate in predicates:
+                    query |= Q(predicate)
+                q_stack.append(query)
+        return self.order_queryset(
+            self.filter_queryset_if_journal(
+                self.queryset.filter(*q_stack)
+            )
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED,
+        )
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('title')
+
+    def get_facets(self):
+        facets = {}
+        return self.filter_facets_if_journal(facets)
+
+    def get_facet_queryset(self):
+        # The default behavior is for the facets to stay the same
+        # when a filter is chosen.
+        # To make them change dynamically, return None 
+        # instead of a separate facet.
+        # return None
+        queryset = self.filter_queryset_if_journal(
+            self.model.objects.all()
+        ).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+        facets = self.get_facets()
+        for facet in facets.values():
+            queryset = queryset.annotate(**facet.get('annotations', {}))
+        return queryset
+
+    def get_actions(self):
+        return []
+
+    def post(self, request, *args, **kwargs):
+
+        action_status = ''
+        action_error = False
+        params_string = request.POST.get('params_string')
+        params_querydict = QueryDict(params_string, mutable=True)
+        actions = self.get_actions()
+        queryset = self.get_queryset(params_querydict=params_querydict)
+        if request.journal:
+            querysets = [queryset]
+        else:
+            querysets = []
+            for journal in {article.journal for article in queryset}:
+                querysets.append(queryset.filter(journal=journal))
+
+        if actions:
+            for action in actions:
+                if action.get('name') in request.POST:
+                    for queryset in querysets:
+                        action_status, action_error = action.get('action')(queryset)
+                        messages.add_message(
+                            request,
+                            messages.INFO if not action_error else messages.ERROR,
+                            action_status,
+                        )
+
+        if params_string:
+            return redirect(f'{request.path}?{params_string}')
+        else:
+            return redirect(request.path)
+
+
+    def filter_queryset_if_journal(self, queryset):
+        if self.request.journal:
+            return queryset.filter(journal=self.request.journal)
+        else:
+            return queryset
+
+    def filter_facets_if_journal(self, facets):
+        if self.request.journal:
+            facets.pop('journal__pk', '')
+            return facets
+        else:
+            return facets

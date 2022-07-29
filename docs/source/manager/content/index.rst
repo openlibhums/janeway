@@ -2,13 +2,14 @@ Content
 =======
 The content section allows us to control the navigation menu, content pages, news and editorial team in Janeway.
 
-The nav controller and CMS system will be overhauled as part of 1.4.
+.. note::
+   In version 1.4 the content manager page has been redesigned and updated.
 
 Content
 -------
 The Content Manager is Janeway's CMS. Pages can be created an edited using our rich text editor.
 
-.. figure:: ../../nstatic/content_and_navigation.png
+.. figure:: ../../nstatic/content_manager.png
 
     Content and Navigation manager
 
@@ -27,11 +28,14 @@ Once a new page has been created you will find it is available at https://yourur
 
 Edit a Page
 ~~~~~~~~~~~
-From the Content page you can see a list of the pages currently on your journal. To edit one, click on its title and the edit/delete buttons will appear. Select edit to make changes.
+From the Content page you can see a list of the pages currently on your journal. Select Edit to make changes.
 
 Delete a Page
 ~~~~~~~~~~~~~
-As above click on the title and then the edit/delete buttons will appear. Press Delete to remove the page.
+To delete a page use the red Delete button.
+
+.. warning::
+   Data cannot be recovered so ensure you really want to remove a page before pressing the delete button.
 
 Navigation
 ~~~~~~~~~~
@@ -95,6 +99,8 @@ The form fields include:
     - Use for sorting when news items are posted on the same day
 - Image file
     - An image file to fit the news piece, ensure you have the rights to post it
+- Custom Byline
+    - Lets you overwrite the name displayed as the originator of the news item
 - Tags
     - A series of tags/keywords for the piece, you can filter news items by tags
 
@@ -113,7 +119,11 @@ You can control the contacts listing for your journal by adding and removing con
 - Role
     - The contact's role e.g. Editor or Publisher
     
-Each outgoing message is recorded in the database and can be viewed in the admin area by staff. 
+Each outgoing message is recorded in the database and can be viewed in the admin area by staff.
+
+.. figure:: ../../nstatic/contact_manager.png
+
+    Contact Manager interface. The sort handles indicate you can drag and drop to re-order your contacts.
 
 Editorial Team
 --------------
@@ -129,10 +139,14 @@ When you access the interface the form for making a new group is displayed on th
 - Edit the membership
 - Edit the group details
 - Delete the group
+- Drag and drop to re-order them
 
 .. figure:: ../../nstatic/editorial_team.png
 
     The Editorial Team interface
+
+.. tip::
+   As of version 1.4 the Group description field supports HTML and presents a rich-text editor. If you do not wish to add an account for each user you can simply list them in the rich text box using, for example, a bulleted list.
 
 Adding a New Group
 ~~~~~~~~~~~~~~~~~~
@@ -160,4 +174,70 @@ On the left is a list of the current members, you can:
 
 Journal users are listed on the right and you can add a user to the group using the *Add* button. If a user account does not exist for the user you can use the *Add New User* button to add them.
 
+Submission Page Items
+---------------------
+A new addition to v1.4 the Submission Page Items system lets you totally customise the Submission page to your liking. The existing submission items have automatically been setup for you and can now be edited.
 
+.. figure:: ../../nstatic/submission_items.png
+
+    List of default submission items generated in the v1.4 upgrade process.
+
+You can manage submission items in three ways:
+
+- Link to a setting
+- Custom HTML
+- Special Display
+
+From the main screen you can add new, edit existing and delete items as well as re-order them by dragging and dropping rows of the table.
+
+
+.. figure:: ../../nstatic/submission_items_reorder.gif
+
+    List of default submission items generated in the v1.4 upgrade process.
+
+Link to a Setting
+~~~~~~~~~~~~~~~~~
+
+You can opt to link a submission item to an existing setting so it will display the same content as that setting. This is currently used for the majority of the automatically generated submission page items. Some examples of this are:
+
+- About
+- Focus and Scope
+- Submission Checklist
+
+You can tell when a submission item is linked to a setting under the 'Setting or Text' column in the main table or the 'Existing setting' field being completed when editing a submission item.
+
+
+Custom HTML
+~~~~~~~~~~~
+
+A submission item can also just have some custom HTML, you can fill out the 'Text' rich text box. When using the Text field you should not select an Existing Setting or this will take precedence when the page is rendered.
+
+Special Display
+~~~~~~~~~~~~~~~
+
+Special Display settings are used to display Licenses and Sections on the Submission page. To add these blocks you need to set the title of the item to either:
+
+- licenses
+
+or
+
+- sections
+
+You must also leave 'Text' and 'Existing setting' blank. This will render a special template that displays all publicly available sections or licenses.
+
+Media Files
+^^^^^^^^^^^
+The Media Files manager lets editors upload and host small files. Examples include:
+
+* Author Guidelines
+* Proofing Guidelines
+* Article Submission Templates
+
+Once a file is uploaded a link is provided that you can then insert into CMS pages or templates.
+
+.. note::
+    The Media Files section should not be used to upload videos unless you have sufficient storage space/bandwidth. If you use Janeway Hosting you should contact the support team.
+
+.. figure:: ../../nstatic/media_files.gif
+
+    Upload and deletion of a media file.

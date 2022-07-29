@@ -1,0 +1,67 @@
+{% extends 'admin/core/base.html' %}
+{% load i18n foundation recaptcha2 %}
+
+{% block title %}{{ request.journal.name }} Contact{% endblock %}
+{% block title-section %}{{ request.journal.name }} Contact{% endblock %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Contact</li>
+{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="box">
+            <div class="row expanded">
+                <div class="large-4 columns contact">
+                    {% if request.journal %}
+                        <h3>{% trans "Journal Representatives" %}</h3>
+                    {% else %}
+                        <h3>{% trans "Press Representatives" %}</h3>
+                    {% endif %}
+                    {% for contact in contacts %}
+                        <h4>{{ contact.name }}</h4>
+                        <p>{{ contact.role }}</p>
+                    {% endfor %}
+                    {% if request.journal and request.journal.contact_info %}
+                        <h4>{% trans 'Contact Information' %}</h4>
+                        {{ request.journal.contact_info|safe }}
+                    {% endif %}
+                </div>
+                <div class="large-8 columns">
+                    <h3>{% trans "Contact" %}</h3>
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=contact_form %}
+                        {% csrf_token %}
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
+                                <select id="id_recipient" name="recipient">
+                                    {% for contact in contacts %}
+                                        <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {{ contact_form.sender|foundation }}
+                        {{ contact_form.subject|foundation }}
+                        {{ contact_form.body|foundation }}
+                        {{ contact_form.captcha|foundation }}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <br />
+                                <button type="submit" class="success button">{% trans "Send Message" %}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+        </div>
+    </section>
+{% endblock body %}

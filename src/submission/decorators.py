@@ -4,6 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
+from submission import models
+
 
 def submission_is_enabled(func):
     """ This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of

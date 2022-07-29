@@ -72,7 +72,7 @@ class Press(AbstractSiteModel):
         help_text='Additional HTML for the press footer.',
     )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
-    theme = models.CharField(max_length=255, default='default', blank=False, null=False)
+    theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
     carousel_type = models.CharField(max_length=30, default='articles', choices=press_carousel_choices())
     carousel_items = models.PositiveIntegerField(default=4)
@@ -114,6 +114,11 @@ class Press(AbstractSiteModel):
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField('submission.Article')
 
+    disable_journals = models.BooleanField(
+        default=False,
+        help_text='If enabled, the journals page will no longer render.'
+    )
+
     def __str__(self):
         return u'%s' % self.name
 
@@ -139,24 +144,40 @@ class Press(AbstractSiteModel):
     def users():
         return core_models.Account.objects.all()
 
+    @property
+    def issues(self, **filters):
+        if not filters:
+            filters = {}
+        filters["journal__press"] = self
+        from journal import models as journal_models
+        if filters:
+            return journal_models.Issue.objects.filter(**filters)
+        return journal_models.Journal.objects.all()
+
     @staticmethod
-    def press_url(request):
-        logger.warning("Using press.press_url is deprecated")
-        return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
-                                            Press.get_press(request).domain,
-                                            ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
-                                            '/press' if settings.URL_CONFIG == 'path' else '')
+    def users():
+        return core_models.Account.objects.all()
 
     def journal_path_url(self, journal, path=None):
         """ Returns a Journal's path mode url relative to its press """
+        return self.site_path_url(journal, path)
 
-        _path = journal.code
+    def repository_path_url(self, repository, path=None):
+        """ Returns a Repo's path mode url relative to its press """
+        return self.site_path_url(repository, path)
+
+    def site_path_url(self, child_site, path=None):
+        """Returns the path mode URL of a site relative to its press"""
+        _path = "/" + child_site.code
         request = logic.get_current_request()
         if settings.DEBUG and request:
             port = request.get_port()
         else:
             port = None
         if path is not None:
+            # Ignore duplicate site code if provided in code
+            if path.startswith(_path):
+                path = path[len(_path):]
             _path += path
 
         return logic.build_url(
@@ -224,67 +245,11 @@ class Press(AbstractSiteModel):
         """ Renders a carousel for the journal homepage.
         :return: a tuple containing the active carousel and list of associated articles
         """
-        import core.logic as core_logic
-        carousel_objects = []
-        article_objects = []
-        news_objects = []
-
-        if self.carousel is None:
+        if self.carousel is None or not self.carousel.enabled:
             return None, []
+        items = self.carousel.get_items()
 
-        if self.carousel.mode == 'off':
-            return self.carousel, []
-
-        # determine the carousel mode and build the list of objects as appropriate
-        if self.carousel.mode == "latest":
-            article_objects = core_logic.latest_articles(self.carousel, 'press')
-
-        elif self.carousel.mode == "selected-articles":
-            article_objects = core_logic.selected_articles(self.carousel)
-
-        elif self.carousel.mode == "news":
-            news_objects = core_logic.news_items(self.carousel, 'press', self)
-
-        elif self.carousel.mode == "mixed":
-            # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'press', self)
-            article_objects = core_logic.latest_articles(self.carousel, 'press')
-
-        elif self.carousel.mode == "mixed-selected":
-            # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'press', self)
-            article_objects = core_logic.selected_articles(self.carousel)
-
-        # run the exclusion routine
-        if self.carousel.mode != "news" and self.carousel.exclude:
-            # remove articles from the list here when the user has specified that certain articles
-            # should be excluded
-            exclude_list = self.carousel.articles.all()
-            excluded = exclude_list.values_list('id', flat=True)
-            try:
-                article_objects = article_objects.exclude(id__in=excluded)
-            except AttributeError:
-                for exclude_item in exclude_list:
-                    if exclude_item in article_objects:
-                        article_objects.remove(exclude_item)
-
-        # now limit the items by the respective amounts
-        if self.carousel.article_limit > 0:
-            article_objects = article_objects[:self.carousel.article_limit]
-
-        if self.carousel.news_limit > 0:
-            news_objects = news_objects[:self.carousel.news_limit]
-
-        # if running in a mixed mode, sort the objects by a mixture of date_published for articles and posted for
-        # news items. Note, this has to be done AFTER the exclude procedure above.
-        if self.carousel.mode == "mixed-selected" or self.carousel.mode == 'mixed':
-            carousel_objects = core_logic.sort_mixed(article_objects, news_objects)
-        elif self.carousel.mode == 'news':
-            carousel_objects = news_objects
-        else:
-            carousel_objects = article_objects
-
-        return self.carousel, carousel_objects
+        return self.carousel, items
 
     def get_setting(self, name):
         return PressSetting.objects.get_or_create(press=self, name=name)
@@ -304,10 +269,17 @@ class Press(AbstractSiteModel):
         return self.journals(is_conference=False).count() > 0
 
     @cache(600)
+    def live_repositories(self):
+        from repository import models as repository_models
+        return repository_models.Repository.objects.filter(
+            live=True,
+        )
+
+    @cache(600)
     def preprint_editors(self):
-        from preprint import models as pp_models
+        from repository import models as repository_models
         editors = list()
-        subjects = pp_models.Subject.objects.all()
+        subjects = repository_models.Subject.objects.all()
 
         for subject in subjects:
             for editor in subject.editors.all():

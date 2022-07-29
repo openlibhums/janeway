@@ -17,6 +17,9 @@ from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
 from journal import views as journal_views
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 urlpatterns = [
     url(r'^submit/', include('submission.urls')),
@@ -38,14 +41,16 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^news/', include('comms.urls')),
     url(r'^reports/', include('reports.urls')),
-    url(r'^preprints/', include('preprint.urls')),
-    url(r'^repository/', include('preprint.urls')),
+    url(r'^repository/', include('repository.urls')),
     url(r'^utils/', include('utils.urls')),
     url(r'^workflow/', include('workflow.urls')),
+    url(r'^discussion/', include('discussion.urls')),
+    url('oidc/', include('mozilla_django_oidc.urls')),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
     url(r'^journals/$', press_views.journals, name='press_journals'),
+    url(r'^article_list/$', core_views.FilteredArticlesListView.as_view(), name='article_list'),
     url(r'^conferences/$', press_views.conferences, name='press_conferences'),
     url(r'^kanban/$', core_views.kanban, name='kanban'),
     url(r'^login/$', core_views.user_login, name='core_login'),
@@ -68,6 +73,7 @@ urlpatterns = [
         name='serve_press_file',
         ),
     url(r'^press/merge_users/$', press_views.merge_users, name='merge_users'),
+    url(r'^doi_manager/$', press_views.IdentifierManager.as_view(), name='press_identifier_manager'),
 
     # Notes
     url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,
@@ -79,14 +85,14 @@ urlpatterns = [
     # Settings Management
     url(r'^manager/settings/$', core_views.settings_index, name='core_settings_index'),
     url(r'^manager/default_settings/$', core_views.default_settings_index, name='core_default_settings_index'),
-    url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/setting/(?P<setting_name>[-\w.]+)/$',
+    url(r'^manager/settings/group/(?P<setting_group>[-\w.: ]+)/setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_setting'),
-    url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
+    url(r'^manager/settings/group/(?P<setting_group>[-\w.: ]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_default_setting'),
-    url(r'^manager/settings/(?P<group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
-    url(r'^manager/settings/(?P<plugin>[-\w.]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
+    url(r'^manager/settings/(?P<display_group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
+    url(r'^manager/settings/(?P<plugin>[-\w.:]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
         core_views.edit_plugin_settings_groups, name='core_edit_plugin_settings_groups'),
 
     url(r'^manager/home/settings/$', core_views.settings_home, name='home_settings_index'),
@@ -100,6 +106,7 @@ urlpatterns = [
 
     # Users
     url(r'^manager/user/$', core_views.users, name='core_manager_users'),
+    url(r'^manager/user/enrol/$', core_views.enrol_users, name='core_manager_enrol_users'),
     url(r'^manager/user/inactive/$', core_views.inactive_users, name='core_manager_inactive_users'),
     url(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
     url(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
@@ -116,6 +123,7 @@ urlpatterns = [
 
     # Journal Contacts
     url(r'^manager/contacts/$', core_views.contacts, name='core_journal_contacts'),
+    url(r'^manager/contacts/add/$', core_views.edit_contacts, name='core_new_journal_contact'),
     url(r'^manager/contacts/(?P<contact_id>\d+)/$', core_views.edit_contacts, name='core_journal_contact'),
     url(r'^manager/contacts/order/$', core_views.contacts_order, name='core_journal_contacts_order'),
 
@@ -123,6 +131,8 @@ urlpatterns = [
     url(r'^manager/editorial/$', core_views.editorial_team, name='core_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/$', core_views.edit_editorial_group,
         name='core_edit_editorial_team'),
+    url(r'^manager/editorial/new/$', core_views.edit_editorial_group,
+        name='core_add_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/$', core_views.add_member_to_group,
         name='core_editorial_member_to_group'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/(?P<user_id>\d+)/$', core_views.add_member_to_group,
@@ -147,9 +157,13 @@ urlpatterns = [
 
     # Journal Sections
     url(r'^manager/sections/$',
-        core_views.sections, name='core_manager_sections'),
+        core_views.section_list, name='core_manager_sections'),
+    url(r'^manager/sections/add/$',
+        core_views.manage_section, name='core_manager_section_add'),
     url(r'^manager/sections/(?P<section_id>\d+)/$',
-        core_views.sections, name='core_manager_section'),
+        core_views.manage_section, name='core_manager_section'),
+    url(r'^manager/sections/(?P<section_id>\d+)/articles/$',
+        core_views.section_articles, name='core_manager_section_articles'),
 
     # Pinned Articles
     url(r'^manager/articles/pinned/$',
@@ -183,13 +197,17 @@ urlpatterns = [
     # Public Profiles
     url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),
 
-    url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
+    url(r'^robots.txt$', press_views.robots, name='website_robots'),
+    url(r'^sitemap.xml$', press_views.sitemap, name='website_sitemap'),
+    url(r'^(?P<issue_id>\d+)_sitemap.xml$', journal_views.sitemap, name='website_sitemap'),
 
     url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
 
     url(r'^set-timezone/$', core_views.set_session_timezone, name='set_timezone'),
 
     url(r'^jsi18n/$', cache_page(60 * 60, key_prefix='jsi18n_catalog')(JavaScriptCatalog.as_view()), name='javascript-catalog'),
+    url(r'permission/submit/$', core_views.request_submission_access, name='request_submission_access'),
+    url(r'permission/requests/$', core_views.manage_access_requests, name='manage_access_requests'),
 ]
 
 # Journal homepage block loading
@@ -204,9 +222,11 @@ if blocks:
                 url(r'^homepage/elements/{0}/'.format(block.name),
                     include('core.homepage_elements.{0}.urls'.format(block.name))),
             ]
+            logger.debug("Loaded URLs for %s", block.name)
         except ImportError as e:
-            print("Error loading a block: {0}, {1}".format(block.name, e))
-            pass
+            logger.debug(
+                "Homepage Element %s has no urls.py module", block.name
+            )
 
 # Plugin Loading
 # TODO: plugin_loader should handle the logic below
@@ -216,13 +236,11 @@ if plugins:
     for plugin in plugins:
         try:
             urlpatterns += [
-                url(r'^plugins/{0}/'.format(plugin.best_name()), include('plugins.{0}.urls'.format(plugin.name))),
+                url(r'^plugins/{0}/'.format(plugin.best_name(slug=True)), include('plugins.{0}.urls'.format(plugin.name))),
             ]
-            if settings.DEBUG:
-                print("Loaded URLs for {0}".format(plugin.name))
+            logger.debug("Loaded URLs for %s", plugin.name)
         except ImportError as e:
-            print("Error loading a plugin: {0}, {1}".format(plugin.name, e))
-            pass
+            logger.debug("Plugin %s has no urls.py module", plugin.name)
 
 # load the notification plugins
 if len(settings.NOTIFY_FUNCS) == 0:

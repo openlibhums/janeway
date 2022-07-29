@@ -1,0 +1,38 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Request Submission Access{% endblock title %}
+{% block title-section %}Request Submission Access{% endblock %}
+{% block title-sub %}Request permission to submit to {{ request.site_type.name }}{% endblock %}
+
+
+{% block body %}
+    <section>
+        <div class="box">
+            {% if not check %}
+            <p>
+                {{ request.site_type.name }} {% blocktrans %}requires that you request permission to make a submission.{% endblocktrans %}
+            </p>
+            {% else %}
+                {% blocktrans %}You are already enrolled as an author.{% endblocktrans %}
+            {% endif %}
+            {% if not active_request and not check %}
+                {% if request.journal %}
+                    {{ journal_settings.general.submission_access_request_text|safe }}
+                {% elif request.repository %}
+                    {{ request.repository.submission_access_request_text|safe }}
+                {% endif %}
+                <hr />
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form }}
+                    <button class="info button">Send Access Request</button>
+                </form>
+            {% elif active_request %}
+                <p>
+                    {% trans 'You have an active access request that was submitted on: ' %}{{ active_request.requested|date:"Y-m-d" }} at {{ active_request.requested|date:"H:i" }}
+                </p>
+            {% endif %}
+        </div>
+    </section>
+{% endblock body %}

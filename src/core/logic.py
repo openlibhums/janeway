@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import uuid
 from importlib import import_module
 from datetime import timedelta
@@ -13,15 +13,15 @@ import re
 from functools import reduce
 
 from django.conf import settings
-from django.utils.translation import get_language
 from django.contrib.auth import logout
 from django.contrib import messages
-from django.utils import timezone
 from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
+from django.utils import timezone
+from django.utils.translation import get_language, ugettext_lazy as _
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -120,7 +120,14 @@ def resize_and_crop(img_path, size, crop_type='middle'):
     """
 
     # If height is higher we resize vertically, if not we resize horizontally
-    img = Image.open(img_path)
+    try:
+        img = Image.open(img_path)
+    except FileNotFoundError:
+        logger.warning("File not found, can't resize: %s" % img_path)
+        return
+    except UnidentifiedImageError:
+        # Could be an SVG
+        return
 
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
@@ -180,7 +187,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck', 'article']
+    setting_groups = ['general', 'crosscheck', 'article', 'news', 'styling']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
@@ -191,9 +198,7 @@ def cached_settings_for_context(journal, language):
                 group,
                 setting.name,
                 journal,
-                fallback=True,
             ).processed_value
-
     return _dict
 
 
@@ -208,7 +213,7 @@ def process_setting_list(settings_to_get, type, journal):
     return settings
 
 
-def get_settings_to_edit(group, journal):
+def get_settings_to_edit(display_group, journal):
     review_form_choices = list()
     for form in review_models.ReviewForm.objects.filter(
         journal=journal,
@@ -216,23 +221,25 @@ def get_settings_to_edit(group, journal):
     ):
         review_form_choices.append([form.pk, form])
 
-    if group == 'submission':
+    if display_group == 'submission':
         settings = [
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
+             },
+            {'name': 'limit_access_to_submission',
+             'object': setting_handler.get_setting('general', 'limit_access_to_submission', journal)
+             },
+            {'name': 'submission_access_request_text',
+             'object': setting_handler.get_setting('general', 'submission_access_request_text', journal)
+             },
+            {'name': 'submission_access_request_contact',
+             'object': setting_handler.get_setting('general', 'submission_access_request_contact', journal)
              },
             {'name': 'abstract_required',
              'object': setting_handler.get_setting(
                  'general',
                  'abstract_required',
                  journal,
-             )
-             },
-            {'name': 'display_about_on_submissions',
-             'object': setting_handler.get_setting(
-                 'general',
-                 'display_about_on_submissions',
-                 journal
              )
              },
             {'name': 'submission_intro_text',
@@ -284,11 +291,32 @@ def get_settings_to_edit(group, journal):
              },
             {'name': 'copyright_submission_label',
              'object': setting_handler.get_setting('general', 'copyright_submission_label', journal)
-             }
+             },
+            {
+                'name': 'file_submission_guidelines',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'file_submission_guidelines', journal
+                ),
+            },
+            {
+                'name': 'manuscript_file_submission_instructions',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'manuscript_file_submission_instructions', journal
+                ),
+            },
+            {
+                'name': 'data_figure_file_submission_instructions',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'data_figure_file_submission_instructions', journal
+                ),
+            }
         ]
         setting_group = 'general'
 
-    elif group == 'review':
+    elif display_group == 'review':
         settings = [
             {
                 'name': 'reviewer_guidelines',
@@ -310,10 +338,6 @@ def get_settings_to_edit(group, journal):
             {
                 'name': 'enable_save_review_progress',
                 'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
-            },
-            {
-                'name': 'default_review_days',
-                'object': setting_handler.get_setting('general', 'default_review_days', journal),
             },
             {
                 'name': 'enable_one_click_access',
@@ -340,20 +364,36 @@ def get_settings_to_edit(group, journal):
                 'name': 'peer_review_upload_text',
                 'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
             },
+            {
+                'name': 'enable_peer_review_data_block',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
+            },
+            {
+                'name': 'enable_suggested_reviewers',
+                'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
+            },
+            {
+                'name': 'hide_review_metadata_from_authors',
+                'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
+            },
+            {
+                'name': 'accept_article_warning',
+                'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
+            },
         ]
         setting_group = 'general'
 
-    elif group == 'crossref':
+    elif display_group == 'crossref':
         xref_settings = [
             'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
-            'doi_pattern'
+            'doi_pattern', 'doi_manager_action_maximum_size',
         ]
 
         settings = process_setting_list(xref_settings, 'Identifiers', journal)
         setting_group = 'Identifiers'
 
-    elif group == 'crosscheck':
+    elif display_group == 'crosscheck':
         xref_settings = [
             'enable', 'username', 'password'
         ]
@@ -361,37 +401,73 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(xref_settings, 'crosscheck', journal)
         setting_group = 'crosscheck'
 
-    elif group == 'journal':
+    elif display_group == 'journal':
         journal_settings = [
-            'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
-            'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
-            'publisher_name', 'publisher_url', 'privacy_policy_url',
-            'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
-            'twitter_handle', 'switch_language', 'google_analytics_code', 'keyword_list_page', 'open_peer_review'
+            'journal_name', 'journal_issn', 'print_issn', 'journal_theme',
+            'journal_description', 'main_contact', 'publisher_name',
+            'publisher_url', 'privacy_policy_url', 'auto_signature',
+            'slack_logging', 'slack_webhook', 'twitter_handle',
+            'switch_language', 'enable_language_text', 'google_analytics_code',
+            'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
+            'display_register_page_notice', 'register_page_notice',
+            'support_email', 'support_contact_message_for_staff', 'open_peer_review',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
-        settings[2]['choices'] = get_theme_list()
+        settings[3]['choices'] = get_theme_list()
         setting_group = 'general'
         settings.append({
             'name': 'from_address',
             'object': setting_handler.get_setting('general', 'from_address', journal),
         })
 
-    elif group == 'proofing':
+    elif display_group == 'proofing':
         proofing_settings = [
             'max_proofreaders'
         ]
         settings = process_setting_list(proofing_settings, 'general', journal)
         setting_group = 'general'
-    elif group == 'article':
+    elif display_group == 'article':
         article_settings = [
             'suppress_how_to_cite',
             'display_guest_editors',
             'suppress_citations_metric',
+            'display_altmetric_badge',
+            'altmetric_badge_type',
+            'hide_author_email_links',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
+    elif display_group == 'styling':
+        settings = [
+            {
+                'name': 'enable_editorial_images',
+                'object': setting_handler.get_setting('styling',
+                                                      'enable_editorial_images',
+                                                      journal),
+            },
+            {
+                'name': 'multi_page_editorial',
+                'object': setting_handler.get_setting('styling',
+                                                      'multi_page_editorial',
+                                                      journal),
+            },
+            {
+                'name': 'display_journal_title',
+                'object': setting_handler.get_setting('styling',
+                                                      'display_journal_title',
+                                                      journal),
+            }
+        ]
+        setting_group = 'styling'
+    elif display_group == 'news':
+        settings = [
+            {
+                'name': 'news_title',
+                'object': setting_handler.get_setting('news', 'news_title', journal),
+            },
+        ]
+        setting_group = 'news'
     else:
         settings = []
         setting_group = None
@@ -408,8 +484,12 @@ def get_theme_list():
 
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get('default_thumbnail'):
-        new_file = files.save_file_to_journal(request, request.FILES.get('default_thumbnail'), 'Default Thumb',
-                                              'default')
+        new_file = files.save_file_to_journal(
+            request,
+            request.FILES.get('default_thumbnail'),
+            'Default Thumb',
+            'default',
+        )
 
         if journal.thumbnail_image:
             journal.thumbnail_image.unlink_file(journal=journal)
@@ -525,7 +605,7 @@ def handle_add_users_to_role(users, role, request):
 
     for user in users:
         user.add_account_role(role.slug, request.journal)
-        messages.add_message(request, messages.INFO, '{0} added to {1}'.format(user.full_name(), role.name))
+        messages.add_message(request, messages.INFO, '{0} added to {1} role.'.format(user.full_name(), role.name))
 
 
 def clear_active_elements(elements, workflow, plugins):
@@ -666,14 +746,14 @@ def password_policy_check(request):
     password = request.POST.get('password_1')
 
     rules = [
-        lambda s: len(password) >= request.press.password_length or 'length'
+        lambda s: len(password) >= request.press.password_length or _('Your password must be {} characters long').format(request.press.password_length)
     ]
 
     if request.press.password_upper:
-        rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
+        rules.append(lambda password: any(x.isupper() for x in password) or _('An uppercase character is required'))
 
     if request.press.password_number:
-        rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
+        rules.append(lambda password: any(x.isdigit() for x in password) or _('A number is required'))
 
     problems = [p for p in [r(password) for r in rules] if p != True]
 
@@ -802,3 +882,41 @@ def get_homepage_elements(request):
     homepage_element_names = [el.name for el in homepage_elements]
 
     return homepage_elements, homepage_element_names
+
+
+def render_nested_setting(
+        setting_name,
+        setting_group,
+        request,
+        article=None,
+        nested_settings=None,
+    ):
+
+    setting = setting_handler.get_setting(
+        setting_group,
+        setting_name,
+        request.journal,
+    ).processed_value
+
+    setting_context = {}
+
+    if article:
+        setting_context['article'] = article
+
+    if not nested_settings:
+        nested_settings=[]
+    for name, group in nested_settings:
+        setting_context[name] = setting_handler.get_setting(
+            group,
+            name,
+            request.journal
+        ).processed_value
+
+    rendered_string = render_template.get_message_content(
+        request,
+        setting_context,
+        setting,
+        template_is_setting=True
+    )
+
+    return rendered_string

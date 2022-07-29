@@ -49,6 +49,7 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,22 +57,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
 
     # Installed Apps
     'cms',
     'core',
     'copyediting',
     'cron',
+    'discussion',
     'events',
     'identifiers',
     'journal',
     'metrics',
     'comms',
-    'preprint',
     'press',
     'production',
     'proofing',
     'review',
+    'repository',
     'reports',
     'security',
     'submission',
@@ -81,9 +84,9 @@ INSTALLED_APPS = [
     'workflow',
 
     # 3rd Party
+    'mozilla_django_oidc',
     'django_summernote',
     'markdown_deux',
-    'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
@@ -91,6 +94,9 @@ INSTALLED_APPS = [
     'materialize',
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
+    'hijack',
+    'compat',
+    'hcaptcha',
 
     # Forms
     'django.forms',
@@ -118,6 +124,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'journal.middleware.LanguageMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -154,6 +161,7 @@ TEMPLATES = [
             ],
             'builtins': [
                 'core.templatetags.fqdn',
+                'django.templatetags.i18n',
             ]
         },
     },
@@ -171,6 +179,10 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'URL_CONFIG',
+    'HIJACK_USERS_ENABLED',
+    'ENABLE_OIDC',
+    'OIDC_SERVICE_NAME',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -233,7 +245,12 @@ LANGUAGES = (
     ('en', ugettext('English')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
+    ('nl', ugettext('Dutch')),
+    ('cy', ugettext('Welsh')),
 )
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'en'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -271,7 +288,7 @@ SUMMERNOTE_CONFIG = {
 
     # Change editor size
     'width': '100%',
-    'height': '480',
+    'height': '350',
 
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
@@ -398,7 +415,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-LOGIN_REDIRECT_URL = '/user/profile/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -470,10 +487,14 @@ HTTP_TIMEOUT_SECONDS = 5
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.4.2)'
 
-# Testing Overrides
-if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
+# Skip migrations by default on sqlite for faster execution
+if (
+    IN_TEST_RUNNER
+    and "--keepdb" not in COMMAND
+    and os.environ.get("DB_VENDOR") == "sqlite"
+):
     from collections.abc import Mapping
 
 
@@ -494,3 +515,36 @@ if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
     logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 
+# A potentially dangerous feature, this allows superusers to hijack and control a user's account.
+HIJACK_USERS_ENABLED = False
+HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+
+# OIDC
+ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
+OIDC_SERVICE_NAME = 'OIDC Service Name'
+OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
+OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
+OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
+OIDC_LOGOUT_URL = os.environ.get('OIDC_LOGOUT_URL')
+OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_SECRET')
+OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_SIGN_ALGO')
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT')
+OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
+OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
+OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
+
+
+if ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS = (
+        'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+    
+CORE_FILETEXT_MODEL = "core.FileText"
+if os.environ.get("DB_VENDOR") == "postgres":
+    CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False

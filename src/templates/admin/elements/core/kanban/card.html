@@ -28,17 +28,18 @@
                 <a class="button tiny" href="{% url 'review_in_review' article.pk %}">View Review Detail</a>
             {% elif type == "copyedit" %}
                 <a class="button tiny" href="{% url 'article_copyediting' article.pk %}">View Copyediting Detail</a>
-            {% elif type == 'production_unassigned' %}
+            {% elif type == 'production' and not article in production_assigned %}
                 <a class="button tiny" href="{% url 'production_list' %}">Assign Production Manager</a>
-            {% elif type == 'production_assigned' %}
+            {% elif type == 'production' and article in production_assigned %}
                 <a class="button tiny" href="{% url 'production_article' article.pk %}">View Production Detail</a>
-            {% elif type == 'proof_unassigned' %}
+            {% elif type == 'proof' and not article in proofing_assigned %}
                 <a class="button tiny" href="{% url 'proofing_list' %}">Assign Proofing Manager</a>
-            {% elif type == 'proof_assigned' %}
+            {% elif type == 'proof' and article in proofing_assigned %}
                 <a class="button tiny" href="{% url 'proofing_article' article.pk %}">View Proofing Detail</a>
             {% elif type == 'prepublication' %}
                 <a class="button tiny" href="{% url 'publish_article' article.pk %}">Pre-publication</a>
             {% endif %}
+
         </div>
     </div>
     <div class="card-divider">

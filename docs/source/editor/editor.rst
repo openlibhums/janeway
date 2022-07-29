@@ -9,3 +9,5 @@ Editor Guide
    copyediting
    production
    proofing
+   typesetting
+   prepub

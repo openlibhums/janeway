@@ -7,9 +7,9 @@
     <li><a href="{% url 'core_manager_users' %}">Users</a></li>
 {% endblock %}
 
-{% block title %}Users{% endblock %}
-{% block title-section %}Users{% endblock %}
-{% block title-sub %}List{% endblock %}
+{% block title %}Enrolled Users{% endblock %}
+{% block title-section %}Enrolled Users{% endblock %}
+{% block title-sub %}A list of users who have been enrolled.{% endblock %}
 
 
 
@@ -19,12 +19,16 @@
             <div class="title-area">
                 <h2>Journal Users</h2>
                 <a href="{% url 'core_add_user' %}" class="button"><i class="fa fa-plus">&nbsp;</i>Add New User</a>
-                <a href="{% url 'core_manager_index' %}" class="button">Go back</a>
+                <a href="{% url 'core_manager_index' %}" class="button">< Go back</a>
             </div>
             <div class="content">
+
                 <form method="POST">
                     {% csrf_token %}
                     <div class="row expanded">
+                        <div class="large-12 columns">
+                            <p>All of the users who have a role on your journal are listed below. If you wish to add an un-enrolled user you can do so from the <a href="{% url 'core_manager_enrol_users' %}?return={% url 'core_manager_users' %}">Enrol User</a> interface.</p>
+                        </div>
                         <div class="medium-4 columns">
                             <select name="role">
                                 {% for role in roles %}
@@ -44,8 +48,8 @@
                             <th width="15%">Last Name</th>
                             <th width="20%">Email</th>
                             <th width="15%">History</th>
-                            <th width="12%">Edit</th>
-                            {% if settings.DEBUG %}<th width="9%">Hijack</th>{% endif %}
+                            <th width="12%">Control</th>
+                            {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}<th width="9%">Hijack</th>{% endif %}
                         </tr>
                         </thead>
                         {% for user in users %}
@@ -58,10 +62,11 @@
                                 <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
                                 <td><a class="tiny success button"
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
-                                {% if settings.DEBUG %}
+                                {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
                                     <td>
-                                        <button type="submit" class="tiny button" formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
-                                            Hijack User</button>
+                                        <button type="submit" class="tiny button" formaction="{% url 'hijack:login_with_id' user.id %}?next={% url 'core_dashboard' %}">
+                                            Control User
+                                        </button>
                                     </td>{% endif %}
                             </tr>
                         {% endfor %}

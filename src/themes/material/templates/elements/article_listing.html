@@ -22,11 +22,8 @@
                 <h5 class="article-title">{{ article.title|safe }}</h5>
             </a>
             <p>{% for author in article.frozen_authors.all %}{% if forloop.last %}
-                {% if article.frozen_authors.all|length > 1 %} and
-                {% endif %}{% endif %}{{ author.full_name }}
-                {% if not forloop.last %}
-                    {% if not forloop.counter == article.frozen_authors.all|length|add:-1 %},
-                    {% endif %}{% endif %}{% endfor %}
+            {% if article.frozen_authors.all|length > 1 %} {% trans "and" %}
+                {% endif %}{% endif %}{{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}{% endfor %}
             </p>
             <p>
                 <span class="date">
@@ -37,7 +34,7 @@
                 {% if article.issue %}
                     <i class="fa fa-book"></i>
                     <a class="issue-link" href="{% url 'journal_issue' article.issue.pk %}">
-                        {{ article.issue.display_title }}
+                        {{ article.issue_title }}
                     </a>
                 {% endif %}
                 {% if article.issues.count > 1 %}

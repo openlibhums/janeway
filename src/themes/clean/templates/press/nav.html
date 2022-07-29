@@ -1,0 +1,83 @@
+{% load svg from press_url %}
+{% load roles %}
+{% load i18n %}
+{% load hooks %}
+
+<nav class="navbar navbar-dark navbar-expand-lg navbar-custom">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+            data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto font-weight-bold">
+            <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+            {% if journal_settings.general.enable_news_display %}
+                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
+
+            {% for item in navigation_items %}
+                {% if item.has_sub_nav %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ item.link_name }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
+                            {% if item.link %}
+                                <a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
+                            {% for subnav in item.sub_nav_items %}
+                                <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                {% endif %}
+            {% endfor %}{% if request.press.publishes_journals and not request.press.disable_journals %}
+            <li class="nav-item"><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+        {% endif %}
+            {% if request.press.enable_preprints %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="" id="preprints"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% trans 'Repositories' %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="preprints">
+                        {% for repo in request.press.live_repositories %}
+                            <a href="{{ repo.site_url }}" class="dropdown-item">{{ repo.name }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+                <li class="nav-item"></li>
+            {% endif %}
+            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+            {% hook 'nav_block' %}
+        </ul>
+        <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
+            {% if request.user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="" id="user"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Account
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="user">
+                        {% user_has_role request 'editor' as user_is_editor %}
+                        {% if user_is_editor or request.user.is_staff %}
+                            <a class="dropdown-item" href="{% url 'core_manager_index' %}">Manager</a>
+                        {% endif %}
+                        {% if request.user.is_staff %}
+                            <a class="dropdown-item" href="/admin/">Admin</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'core_edit_profile' %}">Profile</a>
+                        <a class="dropdown-item" href="{% url 'core_logout' %}">Logout</a>
+                    </div>
+                </li>
+            {% else %}
+                <li class="nav-item"><a href="{% url 'core_login' %}" class="nav-link"><i class="fa fa-sign-in">
+                    &nbsp;</i>Login</a></li>
+                <li class="nav-item"><a href="{% url 'core_register' %}" class="nav-link"><i class="fa fa-user-plus">
+                    &nbsp;</i>Register</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

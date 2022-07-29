@@ -8,7 +8,7 @@
 	<section id="content">
 		<div class="row">
             <div class="col m3">
-                <img class="thumbnail editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Profile photo.">
+                <img class="responsive-img thumbnail editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Profile photo of {{ user.full_name }}">
                 <h3>{{ user.full_name }}</h3>
                 <p><strong>{% trans "Roles" %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
                 <p><strong>{% trans "Affiliation" %}: </strong><br>{{ user.affiliation }}</p>
@@ -21,12 +21,14 @@
                     {{ user.biography|safe }}
                     <br/><br/>
                 {% endif %}
-                <h3>{% trans "Publications" %}</h3>
-                <hr />
-                {% for article in user.published_articles %}
-                    {% include "elements/article_listing.html" with article=article %}
+                {% if user.published_articles %}
+                    <h3>{% trans "Publications" %}</h3>
                     <hr />
-                {% endfor %}
+                    {% for article in user.published_articles %}
+                        {% include "elements/article_listing.html" with article=article %}
+                        <hr />
+                    {% endfor %}
+                {% endif %}
             </div>
 		</div>
 	</section>

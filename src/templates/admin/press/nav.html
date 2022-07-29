@@ -10,20 +10,20 @@
         <span aria-hidden="true">&times;</span>
     </button>
     <ul class="vertical menu">
-        <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway JMS</a></li>
+        <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
 
-        {% if request.press.enable_preprints %}
-            {% is_preprint_editor as preprint_editor %}
+        {% if request.press.enable_preprints and request.repository and request.user.is_authenticated %}
+            {% is_repository_manager as repository_manager %}
             <li class="subtitle"><a href="#">Preprints</a></li>
-            <li><a href="{% url 'preprints_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Dashboard</a></li>
-            {% if request.user.is_staff or preprint_editor %}
-                <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Manager</a></li>
+            <li><a href="{% url 'repository_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Author Dashboard</a></li>
+            {% if request.user.is_staff or repository_manager %}
+                <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Repository Manager</a></li>
             {% endif %}
             {% if request.user.is_staff %}
-                <li><a href="{% url 'preprints_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
+                <li><a href="{% url 'repository_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
                 <li><a href="{% url 'submission_licenses' %}"><i class="fa fa-creative-commons">&nbsp;</i>Licences</a></li>
-                <li><a href="{% url 'submission_fields' %}"><i class="fa fa-keyboard-o">&nbsp;</i>Additional Fields</a></li>
-                <li><a href="{% url 'preprints_settings' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
+                <li><a href="{% url 'repository_fields' %}"><i class="fa fa-keyboard-o">&nbsp;</i>Additional Fields</a></li>
+                <li><a href="{% url 'repository_wizard' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
             {% endif %}
         {% endif %}
 
@@ -69,7 +69,7 @@
                 &nbsp;
             </div>
             <div class="small-4 columns text-center">
-                <h1><a href="/">{{ request.press.name }}</a></h1>
+                <h1><a href="{{ request.site_type.site_url }}">{% if request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}</a></h1>
             </div>
             <div class="small-4 columns text-right">
                 <div class="profile">
@@ -80,10 +80,10 @@
                 </div>
                 <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">
                     <ul class="menu vertical">
-                        <li><a href="{% url 'submission_start' %}">Submit</a></li>
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-                        {% if request.press.enable_preprints %}
-                            <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+                        {% if request.repository %}
+                            <li><a href="{% url 'repository_dashboard' %}">Author Dashboard</a></li>
+                            <li><a href="{% url 'repository_submit' %}">Submit</a></li>
                         {% endif %}
                         {% if is_editor or request.user.is_staff %}
                             <li><a href="{% url 'core_manager_index' %}">Manager</a></li>

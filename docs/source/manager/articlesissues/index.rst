@@ -1,5 +1,20 @@
+.. _articles_issues_guidelines:
+
 Articles and Issues
 ===================
+
+
+Article Display Settings
+------------------------
+The Article Display Settings page has settings for controlling the way articles look and for deciding how metrics are displayed.
+
+- Disable Article Images
+- Display Guest Editors
+- Suppress How to Cite
+- View PDF Option
+- Disable Metrics Display
+- Suppress Citation Metrics
+
 
 Article Images Manager
 ----------------------
@@ -80,9 +95,12 @@ In addition, if the issue has guest editors you can add them using the Guest Edi
 
 Article Sections
 ----------------
+.. Note::
+    Article Sections has been redesigned as part of version 1.4
+
 Sections are ways of grouping articles by their content type e.g. "Research Articles" or "Reviews". From this interface you can edit the sections that are available on your journal.
 
-.. figure:: ../../nstatic/article_sections.png
+.. figure:: ../../nstatic/sections.gif
 
     Section Manager
     
@@ -104,8 +122,10 @@ For each section you can supply:
     - Checked if you want new submissions to be able to select this section.
 - Indexing
     - Whether this section is put forward for indexing.
-    
-You can edit and delete sections but be warned: deleting a section will orphan articles within that section.
+- Auto assign editors
+    - Articles submitted to this section will be automatically assigned to any editors and/or section editors selected on the 'Editors' and/or 'Section Editors box above.
+
+You can edit sections but you cannot delete a section when it would orphan an article. If you wish to remove a section first migrate all of the articles using that section to a different section then the delete button will become available.
 
 This field can also be disabled if you only have one article type, using the Submission Configurator.
 

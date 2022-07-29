@@ -1,0 +1,181 @@
+{% extends "admin/core/base.html" %}
+
+{% block title-section %}Preprint Manager{% endblock %}
+{% block title-sub %}Management interface for {{ request.repository.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li>Preprint Manager</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-7 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Unpublished Preprints</h2>
+                </div>
+                <div class="content">
+                    <table class="small" id="unpub">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>First Author</th>
+                            <th>Date Submitted</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for preprint in unpublished_preprints %}
+                            <tr>
+                                <td>{{ preprint.pk }}</td>
+                                <td>
+                                    <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
+                                </td>
+                                <td>{{ preprint.preprintauthor_set.first.full_name }}</td>
+                                <td>{{ preprint.date_submitted }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-5 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Preprint Stats</h2>
+                </div>
+                <div class="content">
+                    <div class="summary">
+                        <span class="title">{{ subjects|length }} Subject Areas</span>
+                        <a href="{% url 'repository_subjects' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">{{ published_preprints|length }} Published Submissions</span>
+                        <a href="" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">{{ unpublished_preprints|length }} New Submissions</span>
+                        <a href="" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">{{ rejected_preprints.count }} Rejected Submissions</span>
+                        <a href="{% url 'repository_rejected_submissions' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">{{ incomplete_preprints|length }} Incomplete Submissions</span>
+                        <a href="" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
+                        <a href="{% url 'version_queue' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">View Orphaned Preprints</span>
+                        <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">Manage Reviewers</span>
+                        <a href="{% url 'repository_manage_reviewers' %}" class="box-link"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+
+        <div class="large-12 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Published Preprints</h2>
+                </div>
+                <div class="content">
+                    <table class="small" id="pubd">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>First Author</th>
+                            <th>Date Published</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for preprint in published_preprints %}
+                            <tr>
+                                <td>{{ preprint.pk }}</td>
+                                <td>
+                                    <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
+                                </td>
+                                <td>{{ preprint.preprintauthor_set.first.full_name }}</td>
+                                <td>{{ preprint.date_published }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Metrics Summary</h2>
+                </div>
+                <div class="content">
+                    <canvas id="metrics_chart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+    <script>
+        var ctx = document.getElementById("metrics_chart");
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Views this Month", "Downloads this Month", "Views Last Month", "Downloads Last Month"],
+                datasets: [{
+                    label: 'Preprint Accesses',
+                    data: [{{ metrics_summary.views_this_month }}, {{ metrics_summary.downloads_this_month }}, {{ metrics_summary.views_last_month }}, {{ metrics_summary.downloads_last_monnth }}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255,99,132,1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+    {% include "elements/datatables.html" with target="#unpub" page_length=10 sort=1 order='desc' %}
+    {% include "elements/datatables.html" with target="#pubd" page_length=10 sort=2 order='desc' %}
+{% endblock %}

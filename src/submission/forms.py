@@ -3,15 +3,16 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import re
+
 from django import forms
-from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
 from review.forms import render_choices
-from utils.forms import KeywordModelForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
 
@@ -64,14 +65,16 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('comments_editor')
 
 
-class ArticleInfo(KeywordModelForm):
+class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
+    FILTER_PUBLIC_FIELDS = False
 
     class Meta:
         model = models.Article
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
                   'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed',
-                  'custom_how_to_cite',)
+                  'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'first_page', 'last_page', 'page_numbers', 'total_pages',
+                  'competing_interests', 'custom_how_to_cite',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
@@ -101,14 +104,22 @@ class ArticleInfo(KeywordModelForm):
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
+            section_queryset = models.Section.objects.filter(
                 journal=article.journal,
-                public_submissions=True,
             )
-            self.fields['license'].queryset = models.Licence.objects.filter(
+            license_queryset = models.Licence.objects.filter(
                 journal=article.journal,
-                available_for_submission=True,
             )
+            if self.FILTER_PUBLIC_FIELDS:
+                section_queryset = section_queryset.filter(
+                    public_submissions=self.FILTER_PUBLIC_FIELDS,
+                )
+                license_queryset = license_queryset.filter(
+                    available_for_submission=self.FILTER_PUBLIC_FIELDS,
+                )
+            self.fields['section'].queryset = section_queryset
+            self.fields['license'].queryset = license_queryset
+
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
@@ -209,6 +220,16 @@ class ArticleInfo(KeywordModelForm):
         return article
 
 
+class ArticleInfoSubmit(ArticleInfo):
+    # Filter licenses and sections to publicly available only
+    FILTER_PUBLIC_FIELDS = True
+
+
+class EditorArticleInfoSubmit(ArticleInfo):
+    # Used when an editor is making a submission.
+    FILTER_PUBLIC_FIELDS = False
+
+
 class AuthorForm(forms.ModelForm):
 
     class Meta:
@@ -228,7 +249,6 @@ class AuthorForm(forms.ModelForm):
             'password',
             'username',
             'roles',
-
         )
 
         widgets = {
@@ -244,7 +264,6 @@ class AuthorForm(forms.ModelForm):
             'impactstory': forms.TextInput(attrs={'placeholder': 'ImpactStory profile'}),
             'orcid': forms.TextInput(attrs={'placeholder': 'ORCID ID'}),
             'email': forms.TextInput(attrs={'placeholder': 'Email address'}),
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -252,6 +271,19 @@ class AuthorForm(forms.ModelForm):
         self.fields['password'].required = False
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
+
+    def clean_orcid(self):
+        orcid_string = self.cleaned_data.get('orcid')
+        print(orcid_string)
+        try:
+            return utility_clean_orcid(orcid_string)
+        except ValueError:
+            self.add_error(
+                'orcid',
+                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000',
+            )
+        return orcid_string
 
 
 class FileDetails(forms.ModelForm):
@@ -274,23 +306,67 @@ class EditFrozenAuthor(forms.ModelForm):
         super().__init__(*args, **kwargs)
         instance = kwargs.pop("instance", None)
         if instance:
+            if instance.author:
+                self.fields["frozen_email"].help_text += ugettext(
+                    "Currently linked to %s, leave blank to use this address"
+                    "" % instance.author.email,
+                )
+                if instance.author.orcid:
+                    self.fields["frozen_orcid"].help_text += ugettext(
+                        "If left blank, the account ORCiD will be used (%s)"
+                        "" % instance.author.orcid,
+                    )
             del self.fields["is_corporate"]
             if instance.is_corporate:
+                del self.fields["name_prefix"]
                 del self.fields["first_name"]
                 del self.fields["middle_name"]
                 del self.fields["last_name"]
+                del self.fields["name_suffix"]
 
     class Meta:
         model = models.FrozenAuthor
         fields = (
+            'name_prefix',
             'first_name',
             'middle_name',
             'last_name',
+            'name_suffix',
             'institution',
             'department',
+            'frozen_biography',
             'country',
             'is_corporate',
+            'frozen_email',
+            'frozen_orcid',
+            'display_email',
         )
+
+    def save(self, commit=True, *args, **kwargs):
+        obj = super().save(*args, **kwargs)
+        if commit is True and obj.frozen_email:
+            try:
+                # Associate with account if one exists
+                account = core_models.Account.objects.get(
+                    username=obj.frozen_email.lower())
+                obj.author = account
+                obj.frozen_email = None
+            except core_models.Account.DoesNotExist:
+                pass
+            obj.save()
+        return obj
+
+    def clean_frozen_orcid(self):
+        orcid_string = self.cleaned_data.get('frozen_orcid')
+        try:
+            return utility_clean_orcid(orcid_string)
+        except ValueError:
+            self.add_error(
+                'frozen_orcid',
+                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000',
+            )
+        return orcid_string
 
 
 class IdentifierForm(forms.ModelForm):
@@ -328,9 +404,7 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks(
-            settings.LANGUAGE_CODE,
-        ).filter(
+        self.fields['default_section'].queryset = models.Section.objects.filter(
             journal=self.instance.journal,
         )
         self.fields[
@@ -383,3 +457,20 @@ class ProjectedIssueForm(forms.ModelForm):
     class Meta:
         model = models.Article
         fields = ('projected_issue',)
+
+
+def utility_clean_orcid(orcid):
+    """
+    Utility function that cleans an ORCID ID.
+    """
+    if orcid:
+        orcid_regex = re.compile('([0]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
+        result = orcid_regex.search(orcid)
+
+        if result:
+            return result.group(0)
+        else:
+            raise ValueError('ORCID is not valid.')
+
+    # ORCID is None.
+    return orcid

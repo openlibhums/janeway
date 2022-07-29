@@ -82,7 +82,7 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 def validate_plugin_version(plugin_settings):
     valid = None
     try:
-        wants_version  = plugin_settings.JANEWAY_VERSION.split(".")
+        wants_version = plugin_settings.JANEWAY_VERSION.split(".")
     except AttributeError:
         # No MIN version pinned by plugin
         return
@@ -98,7 +98,7 @@ def validate_plugin_version(plugin_settings):
             valid = False
             break
 
-    if valid is None: #Handle exact match
+    if valid is None:  # Handle exact match
         valid = True
 
     if not valid:
@@ -107,6 +107,7 @@ def validate_plugin_version(plugin_settings):
                 plugin_settings.PLUGIN_NAME, current_version, wants_version
             )
         )
+
 
 def get_plugin(module_name, permissive):
     # Check that the module is installed.

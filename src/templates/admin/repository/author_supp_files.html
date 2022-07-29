@@ -1,0 +1,22 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-sub %}You can view the metadata of your article, its recent views and downloads and upload new versions
+    of the preprint.{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
+    <li><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>Manage Supplementary Files</li>
+{% endblock %}
+
+{% block body %}
+{% include "admin/repository/supp_files_body.html" %}
+{% endblock %}
+
+{% block js %}
+{% include "admin/repository/supp_files_js.html" %}
+{% endblock %}

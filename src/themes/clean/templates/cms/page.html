@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load markdown_deux_tags %}
+
+{% block title %}{{ page.display_name }}{% endblock title %}
+
+{% block page_title %}{{ page.display_name }}{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 id="cms-title">{{ page.display_name }}</h1>
+                <hr/>
+                <div id="cms">{{ page.content|safe }}</div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}

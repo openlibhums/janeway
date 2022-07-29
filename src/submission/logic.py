@@ -29,7 +29,23 @@ def add_user_as_author(user, article, give_role=True):
     :param give_role: If true, the user is given the author role in the journal
     """
     if give_role:
-        user.add_account_role("author", article.journal)
+        submission_requires_authorisation = article.journal.get_setting(
+            group_name='general',
+            setting_name='limit_access_to_submission',
+        )
+        if submission_requires_authorisation and not user.check_role(article.journal, 'author'):
+            role = core_models.Role.objects.get(
+                slug='author',
+            )
+            core_models.AccessRequest.objects.get_or_create(
+                journal=article.journal,
+                user=user,
+                role=role,
+                text='Automatic request as author added to an article.',
+            )
+        else:
+            user.add_account_role("author", article.journal)
+
     article.authors.add(user)
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
@@ -111,7 +127,18 @@ def parse_authors(soup):
     return author_list
 
 
-def import_from_jats_xml(path, journal):
+def add_keywords(soup, article):
+    keywords = soup.find_all('kwd')
+
+    for keyword in keywords:
+        if keyword.text not in [None, '', ' ']:
+            obj, c = models.Keyword.objects.get_or_create(
+                word=str(keyword.text).strip(),
+            )
+            article.keywords.add(obj)
+
+
+def import_from_jats_xml(path, journal, first_author_is_primary=False):
     with open(path) as file:
         soup = BeautifulSoup(file, 'lxml-xml')
         title = get_text(soup, 'article-title')
@@ -119,13 +146,19 @@ def import_from_jats_xml(path, journal):
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
 
-        section_obj, created = models.Section.objects.language('en').get_or_create(name=section, journal=journal)
+        try:
+            pub_date = soup.find('pub-date').get('iso-8601-date')
+        except AttributeError:
+            pub_date = None
+
+        section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
 
         article = models.Article.objects.create(
             title=title,
             abstract=abstract,
             section=section_obj,
             journal=journal,
+            date_published=pub_date,
         )
 
         for author in authors:
@@ -143,6 +176,17 @@ def import_from_jats_xml(path, journal):
                     institution=author['institution']
                 )
             article.authors.add(author)
+            models.ArticleAuthorOrder.objects.create(
+                article=article,
+                author=author,
+                order=article.next_author_sort()
+            )
+
+        if first_author_is_primary and article.authors.all():
+            article.correspondence_author = article.authors.all().first()
+            article.save()
+
+        add_keywords(soup, article)
 
         return article
 

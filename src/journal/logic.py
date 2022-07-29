@@ -20,6 +20,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
+from django.utils.timezone import make_aware
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -110,6 +111,7 @@ def create_galley_from_file(file_object, article_object, owner=None):
         label=new_file.label,
     )
 
+
 def get_best_galley(article, galleys):
     """
     Attempts to get the best galley possible for an article
@@ -117,18 +119,24 @@ def get_best_galley(article, galleys):
     :param galleys: list of Galley objects
     :return: Galley object
     """
-    if article.render_galley:
+    if article.render_galley and article.render_galley.public:
         return article.render_galley
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            html_galley = galleys.get(
+                file__mime_type__in=files.HTML_MIMETYPES,
+                public=True,
+            )
             return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            xml_galley = galleys.get(
+                file__mime_type__in=files.XML_MIMETYPES,
+                public=True,
+            )
             return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
@@ -223,13 +231,15 @@ def handle_set_pubdate(request, article):
 
     try:
         date_time = dateparser.parse(date_time_str)
-
-        article.date_published = date_time
+        article.date_published = make_aware(date_time)
         article.fixedpubcheckitems.set_pub_date = True
         article.fixedpubcheckitems.save()
         article.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Publication Date set to {0}'.format(date_time_str))
+        messages.add_message(
+            request, messages.SUCCESS,
+            'Publication Date set to {0}'.format(article.date_published)
+        )
 
         return [date_time, []]
     except ValueError:
@@ -422,10 +432,9 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
         sort = request.GET.get('sort', 'title')
-        if keyword:
-            form = SearchForm({'article_search':'', 'sort': sort})
-        else:
-            form = SearchForm({'article_search':search_term, 'sort': sort})
+        if sort == "relevance":
+            sort = 'title'
+        form = SearchForm(request.GET)
 
         return search_term, keyword, sort, form, None
 
@@ -514,7 +523,6 @@ def resend_email(article, log_entry, request, form):
 
 
 def send_email(user, form, request, article):
-
     subject = form.cleaned_data['subject']
     message = form.cleaned_data['body']
 
@@ -531,6 +539,7 @@ def send_email(user, form, request, article):
         user.email,
         message,
         log_dict=log_dict,
+        cc=form.cleaned_data['cc'],
     )
 
 
@@ -546,6 +555,25 @@ def get_table_from_html(table_name, content):
     table_div = soup.find("div", {'id': table_name})
     table = table_div.find("table")
     return table
+
+
+def get_all_tables_from_html(content):
+    """
+    Uses BS4 to fetch all tables in html.
+    :param content: HTML content
+    """
+    soup = BeautifulSoup(str(content), 'lxml')
+    tables = []
+
+    for table in soup.findAll('div', attrs={'class': 'table-expansion'}):
+        tables.append(
+            {
+                'id': table.get('id'),
+                'content': str(table)
+            }
+        )
+
+    return tables
 
 
 def parse_html_table_to_csv(table, table_name):

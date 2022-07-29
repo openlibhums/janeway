@@ -3,8 +3,12 @@
 {% if issue.large_image %}
     <div class="card">
         <div class="card-image waves-effect waves-block waves-light">
-            <img class="activator" src="{{ issue.large_image.url }}">
-            <span class="card-title">{{ issue.display_title }}</span>
+            <img class="activator" src="{{ issue.hero_image_url }}">
+            <span class="card-title">
+              <div class="carousel-text-wrapper ">
+                {{ issue.display_title }}
+              </div>
+            </span>
         </div>
         {% if issue.issue_description %}
             <div class="card-content">

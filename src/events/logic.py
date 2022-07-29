@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 # we need this for strict type checking on the event destroyer
 from submission import models as submission_models
+from django.conf import settings
 
 
 class Events:
@@ -75,6 +76,10 @@ class Events:
     # kwargs: article, draft, request
     # raised when a section editor adds a new draft
     ON_DRAFT_DECISION = 'on_draft_decision'
+
+    # kwargs: article, request, decision, skip (boolean)
+    # raised when an editor declines a draft decision
+    ON_DRAFT_DECISION_DECLINED = 'on_draft_decision_declined'
 
     # kwargs: article, copyeditor_assignment, request, skip (boolean)
     # raised when a copyeditor is assigned
@@ -211,17 +216,45 @@ class Events:
     # raised when a new preprint article is submitted
     ON_PREPRINT_SUBMISSION = 'on_preprint_submission'
 
-    # kwargs: request, article
+    # kwargs: request, preprint
     # raised when a preprint is published in the repo
     ON_PREPRINT_PUBLICATION = 'on_preprint_publication'
+
+    # kwargs: request, preprint, email_content
+    # raised when a preprint is published in the repo
+    ON_PREPRINT_NOTIFICATION = 'on_preprint_notification'
 
     # kwargs: request, article, comment
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = 'on_preprint_comment'
 
+    # kwargs: request, pending_update, action, reason (optional)
+    # raised when an PreprintVersion is approved or declined
+    ON_PREPRINT_VERSION_UPDATE = 'on_preprint_version_update'
+
+    # kwargs: request, preprint, review, message
+    # raised when an Review invite is sent
+    ON_PREPRINT_REVIEW_NOTIFICATION = 'on_preprint_review_notification'
+
+    # kwargs: request, review, status_change [accept, delcine, withdraw, complete]
+    # raised when a Review changes status
+    ON_PREPRINT_REVIEW_STATUS_CHANGE = 'on_preprint_review_status_change'
+
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
+
+    # kwargs: request, article, article_access
+    # raised when a view or download passes COUNTER-style compliance checks
+    ON_ARTICLE_ACCESS = 'on_article_access'
+
+    # kwargs: request, access_request
+    # raised when a user requests access to submit an article to a journal or repo.
+    ON_ACCESS_REQUEST = 'on_access_request'
+
+    # kwargs: request
+    # raised when a user access request is evaluated by staff.
+    ON_ACCESS_REQUEST_COMPLETE = 'on_access_request_complete'
 
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
@@ -233,7 +266,8 @@ class Events:
         :param kwargs: the arguments to pass to the event
         :return: None
         """
-
+        if settings.DEBUG:
+            print('Firing event {}'.format(event_name))
         # destroy/complete tasks that have registered for this event
         if event_name != "destroy_tasks" and task_object is not None and isinstance(task_object,
                                                                                     submission_models.Article):

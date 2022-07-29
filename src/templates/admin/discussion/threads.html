@@ -1,0 +1,78 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}{{ object.title }} Discussions{% endblock %}
+{% block title-section %}{{ object_type|capfirst }} {{ object.title }} Discussions{% endblock %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-5 columns thread-box-left">
+            <div class="box thread-box thread-dark">
+                {% for thread in threads %}
+                    {% include "admin/discussion/thread.html" %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="large-7 columns thread-box-right">
+            <div class="box thread-box">
+                <div class="title-area">
+                    <a class="button" href="#" data-open="new_thread">Add New Thread</a>
+                </div>
+                {% if active_thread %}
+                    <div>
+                        <h2>{{ active_thread.subject }}</h2>
+                        <p class="subheader">Started on {{ active_thread.started|date:"Y-m-d H:i" }} (newest at top)</p>
+                        <div class="row expanded">
+                            <form method="POST" action="{% url 'discussion_add_post' active_thread.pk %}">
+                                {% csrf_token %}
+                                <div class="small-9 columns">
+                                    <textarea name="new_post" rows="4"></textarea>
+                                </div>
+                                <div class="small-3 columns">
+                                    <button class="button expanded post-button">
+                                        <span class="fa fa-send-o" aria-hidden="true">&nbsp;</span> Add Post
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="thread-inner">
+                            {% for post in active_thread.posts.all %}
+                                {% include "admin/discussion/post.html" %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p>Select a thread to display posts.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal small" id="new_thread" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>Add New Thread</h4>
+            </div>
+            <div class="card-section">
+                {% include "admin/elements/forms/errors.html" %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="form" class="button">Add New Thread</button>
+                </form>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock %}

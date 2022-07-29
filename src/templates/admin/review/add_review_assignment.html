@@ -2,7 +2,7 @@
 {% load foundation %}
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
-{% block title-sub %}Select the Reviewer you'd like to review this article.{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -20,11 +20,16 @@
                     <h2>1. Select Reviewer</h2>
 
                         <a href="{% if journal_settings.general.enable_one_click_access %}#{% else %}{% url 'core_add_user' %}?role=reviewer&return={{ request.path }}{% endif %}" class="button" data-open="reviewer"><i class="fa fa-plus">&nbsp;</i>Add New Reviewer</a>
-                        <a href="#" class="button" data-open="enroll"><i class="fa fa-users">&nbsp;</i>Enroll Exising User</a>
+                        <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
                 </div>
                 <div class="content">
 
-                    <h5></h5>
+                    <p>
+                        {% blocktrans %}
+                        You can select a reviewer using the radio buttons in the first column and complete the section under "Set Options".
+                        If you cannot find the reviewer you want in this list you can use "Enroll Existing User" to search the database and give users the Reviewer role, or "Add New Reviewer" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).
+                        {% endblocktrans %}
+                    </p>
                     <table class="small scroll" id="reviewers">
                         <thead>
                         <tr>
@@ -35,7 +40,6 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
-                            <th width="15%">Quick Assign</th>
                         </tr>
                         </thead>
 
@@ -45,26 +49,23 @@
                                 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews_count }}</td>
-                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
-                                    {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer.rating_average }}</td>
-                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
-                            </tr>
-                        {% endfor %}
-                        {% for reviewer in reviewers %}
-                            {% if not reviewer in suggested_reviewers %}
-                            <tr>
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
-                                <td>{{ reviewer.full_name }}</td>
-                                <td>{{ reviewer.email }}</td>
                                 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
                                 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
                                 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
+                            </tr>
+                        {% endfor %}
+                        {% for reviewer in reviewers %}
+                            {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
+                            <tr>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
+                                <td>{{ reviewer.full_name }}</td>
+                                <td>{{ reviewer.email }}</td>
+                                <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
+                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
+                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
                             </tr>
                             {% endif %}
                         {% empty %}
@@ -85,13 +86,9 @@
                 </div>
                 <div class="content">
                     <div class="row expanded">
-                        <div class="large-6 columns">{{ form.review_type|foundation }}</div>
-                        <div class="large-6 columns">{{ form.visibility|foundation }}</div>
-                    </div>
-                    <div class="row expanded">
-                        <div class="large-6 columns">{{ form.form|foundation }}</div>
-                        <div class="large-6 columns">{{ form.date_due|foundation }}</div>
-                    </div>
+                        <div class="large-4 columns">{{ form.form|foundation }}</div>
+                        <div class="large-4 columns">{{ form.visibility|foundation }}</div>
+                        <div class="large-4 columns">{{ form.date_due|foundation }}</div>
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <button class="button success" name="delete" type="submit">Add Reviewer</button>
@@ -181,4 +178,34 @@
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
+
+    <script lang="javascript">
+    function getQueryStrings()
+    {
+        let vars = [], hash;
+        let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(let i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1].split('#')[0];
+        }
+        return vars;
+    }
+
+    // populate the query box when ready
+    $( document ).ready(function() {
+        let urls = getQueryStrings();
+        let user = urls["user"];
+        let user_id = urls["id"];
+
+        if (user !== '') {
+            $('#reviewers').DataTable().search(decodeURIComponent(user)).draw();
+
+            if (user_id !== '') {
+                $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
+            }
+        }
+    });
+    </script>
 {% endblock js %}

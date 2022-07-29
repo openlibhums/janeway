@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+
+    {% if search_term %}
+        <h5>Searching for: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>Keyword: <i>{{ keyword }}</i></h5>
+    {% endif %}
+
+	<div class="row">
+        <div class="col-md-8">
+		    <hr />
+		    {% for article in articles %}
+		        {% include "elements/article_listing.html" with article=article %}
+		    {% empty %}
+		        <p>No articles to display.</p>
+		    {% endfor %}
+
+	    </div>
+	    <div class="col-md-4">
+            <div class="card">
+                <div class="card-block">
+                    <form method="GET">
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {% include 'elements/forms/errors.html'  with form=form%}
+                                {{ form.as_p }}
+                            {% else %}
+                                You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
+                            {% endif %}
+                        </div>
+                        {% if all_keywords %}
+                        <div class="form-group">
+                            <label>{% trans "Keywords" %}
+
+                                {% for keyword in all_keywords %}
+                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+
+                            </label>
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

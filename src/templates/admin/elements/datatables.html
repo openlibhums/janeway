@@ -6,7 +6,7 @@
 
 $(document).ready(function() {
     $('{{target}}').DataTable({
-        "lengthMenu": [[25, 50, 10, -1], [25, 50, 10, "All"]],
+        "lengthMenu": [[25, 50, 10, 5, -1], [25, 50, 10, 5, "All"]],
     {% if hide_length %}"bLengthChange": false,{% endif %}
     {% if hide_page %}"bPaginate": false,{% endif %}
     {% if sort and order %}"order": [[ {{ sort }}, "{{ order }}" ]],{% endif %}

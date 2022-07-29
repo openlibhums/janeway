@@ -1,12 +1,13 @@
 {% load foundation %}
+{% load i18n %}
 <div class="small reveal" id="author" data-reveal>
-    <h5>Edit {{ frozen_author.full_name }}</h5>
-    <p><strong>NB.</strong> You are editing the frozen metadata record for this author, not their live user profile.</p>
+    <h5>{% trans "Edit" %} {{ frozen_author.full_name }}</h5>
+    <p><strong>{% trans "NB." %}</strong> {% trans "You are editing the frozen metadata record for this author, not their live user profile." %}</p>
     {% include "elements/forms/errors.html" with form=author_form %}
     <form method="POST">
         {% csrf_token %}
         {{ author_form|foundation }}
-        <button type="submit" name="author" value="{{ author.pk }}" class="small success button">Save Metadata</button>
+        <button type="submit" name="author" value="{{ author.pk }}" class="small success button">{% trans "Save Metadata" %}</button>
     </form>
     <button class="close-button" data-close aria-label="Close reveal" type="button">
         <span aria-hidden="true">&times;</span>

@@ -6,8 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from django import forms
 
-from hvad.admin import TranslatableAdmin
-
 from submission import models
 
 
@@ -25,25 +23,31 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ('pk', 'title', 'journal', 'date_submitted', 'stage',
                     'owner', 'is_import', 'ithenticate_score')
     search_fields = ('pk', 'title', 'subtitle')
-    list_filter = ('stage', 'is_import', 'journal')
-    raw_id_fields = ('section',)
-    filter_horizontal = (
-        'authors',
+    list_filter = ('stage', 'is_import', 'journal',)
+    raw_id_fields = (
+        'section',
+        'owner',
+        'license',
+        'correspondence_author',
+        'primary_issue',
+        'projected_issue',
+        'render_galley',
+        'large_image_file',
+        'thumbnail_image_file',
+        'preprint_journal_article',
+        'source_files',
         'manuscript_files',
         'data_figure_files',
         'supplementary_files',
         'publisher_notes',
+    )
+    filter_horizontal = (
+        'authors',
         'keywords',
-        'source_files',
     )
 
     def get_queryset(self, request):
-        return self.model.allarticles.get_queryset()
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'license':
-            return LicenseChoiceField(queryset=models.Licence.objects.all().order_by('journal__code'))
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return self.model.objects.get_queryset()
 
 
 class ArticleLogAdmin(admin.ModelAdmin):
@@ -74,7 +78,7 @@ class KeywordAdmin(admin.ModelAdmin):
     search_fields = ('word',)
 
 
-class SectionAdmin(TranslatableAdmin):
+class SectionAdmin(admin.ModelAdmin):
     list_display = ('section_name', 'section_journal', 'number_of_reviewers', 'is_filterable', 'public_submissions',
                     'indexing')
     list_filter = ('journal',)

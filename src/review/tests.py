@@ -15,11 +15,12 @@ from django.core.management import call_command
 from core import models as core_models
 from journal import models as journal_models
 from production import models as production_models
-from review import models as review_models
+from review import models as review_models, forms
 from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
-from utils.install import update_xsl_files
+from utils.install import update_xsl_files, update_settings
+from utils import setting_handler
 
 
 # Create your tests here.
@@ -32,6 +33,38 @@ class ReviewTests(TestCase):
         """
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+
+    def test_review_form_can_save(self):
+        review_field_text = 'Here is a review of this paper.'
+        first_form = forms.GeneratedForm(
+            review_assignment=self.review_assignment,
+            fields_required=False,
+            data={
+                str(self.review_form_element.pk): review_field_text,
+            }
+        )
+        first_form.is_valid()
+        self.review_assignment.save_review_form(first_form, self.review_assignment)
+        second_form = forms.GeneratedForm(
+            review_assignment=self.review_assignment,
+            fields_required=False,
+        )
+        self.assertEqual(
+            second_form.fields[str(self.review_form_element.pk)].initial,
+            review_field_text,
+        )
+
+    def test_total_review_count(self):
+        self.assertEqual(
+            self.article_review_completed.reviewassignment_set.all().count(),
+            2,
+        )
+
+    def test_completed_reviews_with_decision_count(self):
+        self.assertEqual(
+            self.article_review_completed.completed_reviews_with_decision.count(),
+            1,
+        )
 
     @staticmethod
     def create_user(username, roles=None, journal=None):
@@ -73,6 +106,7 @@ class ReviewTests(TestCase):
         Creates a set of dummy journals for testing
         :return: a 2-tuple of two journals
         """
+        update_settings()
         update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.save()
@@ -234,15 +268,62 @@ class ReviewTests(TestCase):
                                                     journal=self.journal_one)
         self.review_form.save()
 
-        self.review_assignment_complete = review_models.ReviewAssignment(article=self.article_review_completed,
-                                                                         reviewer=self.regular_user,
-                                                                         editor=self.editor,
-                                                                         date_due=datetime.datetime.now(),
-                                                                         form=self.review_form,
-                                                                         is_complete=True,
-                                                                         date_complete=timezone.now())
+        self.review_form_element, c = review_models.ReviewFormElement.objects.get_or_create(
+            name='Review',
+            kind='text',
+            order=1,
+            width='full',
+            required=True,
+        )
+        self.review_form.elements.add(self.review_form_element)
+        self.second_review_form_element, c = review_models.ReviewFormElement.objects.get_or_create(
+            name='Second Review Form Element',
+            kind='text',
+            order=2,
+            width='full',
+            required=True,
+        )
+        self.review_form.elements.add(self.second_review_form_element)
+        setting_handler.save_setting(
+            'general',
+            'enable_save_review_progress',
+            self.journal_one,
+            'On',
+        )
+
+        self.round_one = review_models.ReviewRound.objects.create(
+            article=self.article_review_completed,
+            round_number=1,
+        )
+        self.round_two = review_models.ReviewRound.objects.create(
+            article=self.article_review_completed,
+            round_number=2,
+        )
+
+        self.review_assignment_complete = review_models.ReviewAssignment(
+            article=self.article_review_completed,
+            review_round=self.round_one,
+            reviewer=self.regular_user,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            date_complete=timezone.now(),
+            decision='accept',
+        )
 
         self.review_assignment_complete.save()
+
+        self.review_assignment_withdrawn = review_models.ReviewAssignment.objects.create(
+            article=self.article_review_completed,
+            review_round=self.round_two,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            decision='withdrawn',
+        )
 
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
@@ -365,9 +446,11 @@ class ReviewTests(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
-        call_command('load_default_settings')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
         self.press.save()
-        call_command('install_plugins')
+        update_settings(
+            self.journal_one,
+            management_command=False,
+        )

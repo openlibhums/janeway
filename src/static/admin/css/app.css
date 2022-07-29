@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url(https://fonts.googleapis.com/css?family=Merriweather:400,300,700);
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 /**
  * Foundation for Sites by ZURB
  * Version 6.3.0
@@ -579,7 +579,7 @@ body {
   margin: 0;
   padding: 0;
   background: #f5f6f9;
-  font-family: "Merriweather", serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 300;
   line-height: 1.5;
   color: #0a0a0a;
@@ -1520,7 +1520,6 @@ a {
 
 hr {
   clear: both;
-  max-width: 75rem;
   height: 0;
   margin: 1.25rem auto;
   border-top: 0;
@@ -2235,7 +2234,8 @@ select {
     margin: 0;
     margin-right: 1px;
     margin-bottom: 1px;
-    font-size: 0.9rem; }
+    font-size: 0.9rem;
+    border-radius: 0;}
     .button-group .button:last-child {
       margin-right: 0; }
   .button-group.tiny .button {
@@ -3508,7 +3508,7 @@ html.is-reveal-open body {
     margin-bottom: 0; }
   @media print, screen and (min-width: 40em) {
     .reveal {
-      width: 600px;
+      min-width: 600px;
       max-width: 75rem; } }
   @media print, screen and (min-width: 40em) {
     .reveal .reveal {
@@ -3855,8 +3855,7 @@ a.thumbnail {
   position: relative;
   display: inline-block;
   border-bottom: dotted 1px #5b5e61;
-  font-weight: bold;
-  cursor: help; }
+  font-weight: bold;}
 
 .tooltip {
   position: absolute;
@@ -5117,4 +5116,47 @@ ul.actions li a {
 
 .submission-content {
   padding-bottom: 25px !important;
+}
+
+/* Remove default bullets */
+.tree {
+  list-style-type: none !important;
+  margin-left: 30px;
+}
+
+/* Remove margins and padding from the parent ul */
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+  margin-left: -20px;
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+  margin-left: 30px;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+.padded-group-item {
+  padding-top: 20px;
+  padding-bottom: 20px;
 }

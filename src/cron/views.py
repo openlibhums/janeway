@@ -6,9 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.text import slugify
 
 from cron import models, forms, logic
+from core import models as core_models
 from utils import setting_handler
 from security.decorators import editor_user_required
 
@@ -32,61 +32,62 @@ def reminders_index(request):
     """
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
-    form = forms.ReminderForm()
-
     if 'delete' in request.POST:
         reminder_id = request.POST.get('delete')
         reminder = get_object_or_404(models.Reminder, pk=reminder_id, journal=request.journal)
         reminder.delete()
         return redirect(reverse('cron_reminders'))
 
-    if request.POST:
-        form = forms.ReminderForm(request.POST)
-
-        if form.is_valid():
-            reminder = form.save(commit=False)
-            reminder.journal = request.journal
-            reminder.template_name = slugify(reminder.template_name)
-            reminder.save()
-
-            check_template = logic.check_template_exists(request, reminder)
-
-            if check_template:
-                return redirect(reverse('cron_reminders'))
-            else:
-                return redirect(reverse('cron_create_template', kwargs={'reminder_id': reminder.pk,
-                                                                        'template_name': reminder.template_name}))
-
     template = 'cron/reminders.html'
     context = {
         'reminders': reminders,
-        'form': form,
     }
 
     return render(request, template, context)
 
 
 @editor_user_required
-def edit_reminder(request, reminder_id):
+def manage_reminder(request, reminder_id=None):
     """
-    Allows for editing an existing Reminder object.
+    Allows for creating and editing of Reminder object.
     :param request: HttpRequest object
     :param reminder_id: Reminder object PK
     :return: HttpResponse
     """
-    reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
+    reminder = None
+    if reminder_id:
+        reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
-    form = forms.ReminderForm(instance=reminder)
+    form = forms.ReminderForm(
+        instance=reminder,
+        journal=request.journal,
+    )
 
     if request.POST:
-        form = forms.ReminderForm(request.POST, instance=reminder)
+        form = forms.ReminderForm(
+            request.POST,
+            instance=reminder,
+            journal=request.journal,
+        )
 
         if form.is_valid():
-            form.save()
-            return redirect(reverse('cron_reminders'))
+            reminder = form.save()
+            # Check if the template exists and redirect accordingly.
+            check_template = logic.check_template_exists(request, reminder)
+            if check_template:
+                return redirect(reverse('cron_reminders'))
+            else:
+                return redirect(
+                    reverse(
+                        'cron_create_template',
+                        kwargs={
+                            'reminder_id': reminder.pk, 'template_name': reminder.template_name
+                        }
+                    )
+                )
 
-    template = 'cron/reminders.html'
+    template = 'cron/manage_reminder.html'
     context = {
         'reminder': reminder,
         'reminders': reminders,
@@ -107,6 +108,11 @@ def create_template(request, reminder_id, template_name):
     """
     reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
 
+    try:
+        text = setting_handler.get_setting('email', template_name, request.journal).value
+    except core_models.Setting.DoesNotExist:
+        text = ''
+
     if request.POST:
         template = request.POST.get('template')
         setting_handler.create_setting('email', template_name, 'rich-text', reminder.subject, '', is_translatable=True)
@@ -118,6 +124,7 @@ def create_template(request, reminder_id, template_name):
     context = {
         'reminder': reminder,
         'template_name': template_name,
+        'text': text,
     }
 
     return render(request, template, context)

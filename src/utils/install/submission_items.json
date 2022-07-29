@@ -1,0 +1,47 @@
+[
+  {
+    "group": "general",
+    "name": "journal_description",
+    "title": "About"
+  },
+  {
+    "group": "general",
+    "name": "focus_and_scope",
+    "title": "Focus and Scope"
+  },
+  {
+    "group": "general",
+    "name": "submission_checklist",
+    "title": "Submission Checklist"
+  },
+  {
+    "group": "general",
+    "name": "copyright_notice",
+    "title": "Copyright Notice"
+  },
+  {
+    "group": "general",
+    "name": "peer_review_info",
+    "title": "Peer Review"
+  },
+  {
+    "group": "special",
+    "name": "licences",
+    "title": "licences"
+  },
+  {
+    "group": "general",
+    "name": "publication_fees",
+    "title": "Publication Fees"
+  },
+  {
+    "group": "general",
+    "name": "publication_cycle",
+    "title": "Publication Cycle"
+  },
+  {
+    "group": "special",
+    "name": "sections",
+    "title": "sections"
+  }
+]

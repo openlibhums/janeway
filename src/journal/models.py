@@ -3,20 +3,24 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
+import datetime
+from itertools import chain
 from operator import itemgetter
 import collections
 import uuid
 import os
+import re
 
 from django.conf import settings
+from django.core import validators
 from django.db import models, transaction
 from django.db.models import OuterRef, Subquery, Value
 from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.translation import ugettext
 
 from core import (
         files,
@@ -24,10 +28,10 @@ from core import (
         workflow,
 )
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic
+from utils import setting_handler, logic, install
 from utils.function_cache import cache
 from utils.logger import get_logger
 
@@ -70,33 +74,99 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
-    code = models.CharField(max_length=15, unique=True)
+    code = models.CharField(max_length=24, unique=True, help_text=ugettext(
+        'Short acronym for the journal. Used as part of the journal URL'
+        'in path mode and to uniquely identify the journal'
+    ))
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
-    thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_image',
-                                        on_delete=models.SET_NULL)
-    press_image_override = models.ForeignKey('core.File', null=True, blank=True, related_name='press_image_override')
-    default_cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    default_large_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    header_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    thumbnail_image = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='thumbnail_image',
+        on_delete=models.SET_NULL,
+        help_text=ugettext('The default thumbnail for articles, not to be '
+                           'confused with \'Default cover image\'.'),
+    )
+    press_image_override = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='press_image_override',
+        help_text=ugettext('Replaces the press logo in the footer.'),
+    )
+    default_cover_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The default cover image for journal issues and for '
+                           'the journal\'s listing on the press-level website.'),
+    )
+    default_large_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The default background image for article openers '
+                           'and carousel items.'),
+    )
+    header_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The logo-sized image at the top of all pages, '
+                           'typically used for journal logos.'),
+    )
+    favicon = models.ImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The tiny round or square image appearing in browser '
+                           'tabs before the webpage title'),
+    )
+    # DEPRECATED "description" in favour of "journal_description" setting
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
     keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
-    disable_article_images = models.BooleanField(default=False)
+    disable_article_images = models.BooleanField(
+        default=False,
+        help_text=ugettext('When checked, articles will not have header images'
+                           'or thumbnail images. Does not affect figures and'
+                           'tables within an article.'),
+    )
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
-    is_remote = models.BooleanField(default=False)
+    is_remote = models.BooleanField(
+        default=False,
+        help_text=ugettext('When enabled, the journal is marked as not hosted in Janeway.'),
+    )
     is_conference = models.BooleanField(default=False)
-    remote_submit_url = models.URLField(blank=True, null=True)
-    remote_view_url = models.URLField(blank=True, null=True)
+    is_archived = models.BooleanField(
+        default=False,
+        help_text="The journal is no longer publishing. This is only used as "
+            "part of the journal metadata.",
+    )
+    remote_submit_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its submission page.'),
+    )
+    remote_view_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its home page.'),
+    )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text='Enables a "View PDF" link on article pages.'
+        help_text=ugettext('Enables a "View PDF" link on article pages.'),
     )
 
     # Nav Items
@@ -127,7 +197,7 @@ class Journal(AbstractSiteModel):
     # this has to be handled this way so that we can add migrations to press
     try:
         press_name = press_models.Press.get_press(None).name
-    except BaseException:
+    except Exception:
         press_name = ''
 
     # Issue Display
@@ -135,6 +205,14 @@ class Journal(AbstractSiteModel):
     display_issue_number = models.BooleanField(default=True)
     display_issue_year = models.BooleanField(default=True)
     display_issue_title = models.BooleanField(default=True)
+    display_article_number = models.BooleanField(
+        default=False,
+        help_text=ugettext(
+            "Whether to display article numbers. Article numbers are distinct " \
+            "from article ID and can be set in Edit Metadata.",
+        )
+    )
+    display_article_page_numbers = models.BooleanField(default=True)
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -157,10 +235,9 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting(group_name, setting_name, self, create=False).processed_value
 
     @property
-    @cache(300)
     def name(self):
         try:
-            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+            return setting_handler.get_setting('general', 'journal_name', self, default=True).value
         except IndexError:
             self.name = 'Janeway Journal'
             return self.name
@@ -171,7 +248,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def publisher(self):
-        return setting_handler.get_setting('general', 'publisher_name', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'publisher_name', self, default=True).value
 
     @publisher.setter
     def publisher(self, value):
@@ -180,23 +257,25 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def issn(self):
-        return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
+
+    @property
+    @cache(120)
+    def print_issn(self):
+        return setting_handler.get_setting('general', 'print_issn', self, default=True).value
 
     @property
     @cache(120)
     def use_crossref(self):
-        try:
-            return setting_handler.get_setting('Identifiers',
-                                               'crossref_prefix',
-                                               self,
-                                               create=False,
-                                               fallback='en').processed_value
-        except IndexError:
-            return False
+        return setting_handler.get_setting('Identifiers', 'use_crossref', self, default=True).processed_value
 
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)
+
+    @print_issn.setter
+    def print_issn(self, value):
+        setting_handler.save_setting('general', 'print_issn', self, value)
 
     @property
     def slack_logging_enabled(self):
@@ -213,45 +292,69 @@ class Journal(AbstractSiteModel):
         press = press_models.Press.objects.all()[0]
         return press
 
+    @classmethod
+    def get_by_request(cls, request):
+        obj, path = super().get_by_request(request)
+        if not obj:
+            # Lookup by code
+            try:
+                code = request.path.split('/')[1]
+                obj = cls.objects.get(code=code)
+                path = code
+            except (IndexError, cls.DoesNotExist):
+                pass
+        return obj, path
+
     def site_url(self, path=""):
-        if settings.URL_CONFIG == "path":
-            return self._site_path_url(path)
+        if self.domain and not settings.URL_CONFIG == 'path':
 
-        return logic.build_url(
-                netloc=self.domain,
-                scheme=self.SCHEMES[self.is_secure],
-                port=None,
-                path=path,
-        )
-
-    def _site_path_url(self, path=None):
-        request = logic.get_current_request()
-        if request and request.journal == self:
-            if not path:
-                path = "/{}".format(self.code)
-            return request.build_absolute_uri(path)
+            # Handle domain journal being browsed in path mode
+            site_path = f'/{self.code}'
+            if path and path.startswith(site_path):
+                path = path[len(site_path):]
+            return logic.build_url(
+                    netloc=self.domain,
+                    scheme=self.SCHEMES[self.is_secure],
+                    port=None,
+                    path=path,
+            )
         else:
-            return self.press.journal_path_url(self, path)
-
-    def full_url(self, request=None):
-        logger.warning("Using journal.full_url is deprecated")
-        return self.site_url()
-
-    def full_reverse(self, request, url_name, kwargs):
-        base_url = self.full_url(request)
-        url_path = reverse(url_name, kwargs=kwargs)
-        return "{0}{1}".format(base_url, url_path)
+            return self.press.site_path_url(self, path)
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
         return max(issue_orders) + 1 if issue_orders else 0
 
+    @property
     def issues(self):
         return Issue.objects.filter(journal=self)
 
+    @property
+    def issue_type_plural_name(self):
+        try:
+            issue_type = IssueType.objects.get(journal=self, code="issue")
+            return issue_type.plural_name
+        except IssueType.DoesNotExist:
+            return None
+
+    def serial_issues(self):
+        return Issue.objects.filter(journal=self, issue_type__code='issue')
+
+    @property
+    def published_issues(self):
+        return Issue.objects.filter(
+            journal=self,
+            date__lte=timezone.now(),
+        )
+
     def editors(self):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
-        return core_models.Account.objects.filter(pk__in=pks)
+        """ Returns all users enrolled as editors for the journal
+        :return: A queryset of core.models.Account
+        """
+        return core_models.Account.objects.filter(
+                accountrole__role__slug="editor",
+                accountrole__journal=self,
+        )
 
     def users_with_role(self, role):
         pks = [
@@ -261,6 +364,12 @@ class Journal(AbstractSiteModel):
             ).prefetch_related('user')
         ]
         return core_models.Account.objects.filter(pk__in=pks)
+
+    def users_with_role_count(self, role):
+        return core_models.AccountRole.objects.filter(
+            role__slug=role,
+            journal=self,
+        ).count()
 
     def editor_pks(self):
         return [[str(role.user.pk), str(role.user.pk)] for role in
@@ -311,67 +420,13 @@ class Journal(AbstractSiteModel):
         """ Renders a carousel for the journal homepage.
         :return: a tuple containing the active carousel and list of associated articles
         """
-        import core.logic as core_logic
-        carousel_objects = []
-        article_objects = []
-        news_objects = []
-
-        if self.carousel is None:
+        if self.carousel is None or not self.carousel.enabled:
             return None, []
+        items = self.carousel.get_items()
+        if self.carousel.current_issue and self.current_issue:
+            items = chain([self.current_issue], items)
 
-        if self.carousel.mode == 'off':
-            return self.carousel, []
-
-        # determine the carousel mode and build the list of objects as appropriate
-        if self.carousel.mode == "latest":
-            article_objects = core_logic.latest_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "selected":
-            article_objects = core_logic.selected_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "news":
-            news_objects = core_logic.news_items(self.carousel, 'journal')
-
-        elif self.carousel.mode == "mixed":
-            # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'journal')
-            article_objects = core_logic.latest_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "mixed-selected":
-            # news items and latest articles
-            news_objects = self.carousel.news_articles.all()
-            article_objects = core_logic.selected_articles(self.carousel)
-
-        # run the exclusion routine
-        if self.carousel.mode != "news" and self.carousel.exclude:
-            # remove articles from the list here when the user has specified that certain articles
-            # should be excluded
-            exclude_list = self.carousel.articles.all()
-            excluded = exclude_list.values_list('id', flat=True)
-            try:
-                article_objects = article_objects.exclude(id__in=excluded)
-            except AttributeError:
-                for exclude_item in exclude_list:
-                    if exclude_item in article_objects:
-                        article_objects.remove(exclude_item)
-
-        # now limit the items by the respective amounts
-        if self.carousel.article_limit > 0:
-            article_objects = article_objects[:self.carousel.article_limit]
-
-        if self.carousel.news_limit > 0:
-            news_objects = news_objects[:self.carousel.news_limit]
-
-        # if running in a mixed mode, sort the objects by a mixture of date_published for articles and posted for
-        # news items. Note, this has to be done AFTER the exclude procedure above.
-        if self.carousel.mode == "mixed-selected" or self.carousel.mode == 'mixed':
-            carousel_objects = core_logic.sort_mixed(article_objects, news_objects)
-        elif self.carousel.mode == 'news':
-            carousel_objects = news_objects
-        else:
-            carousel_objects = article_objects
-
-        return self.carousel, carousel_objects
+        return self.carousel, items
 
     def next_pa_seq(self):
         "Works out what the next pinned article sequence should be."
@@ -434,7 +489,10 @@ class PinnedArticle(models.Model):
         return '{0}, {1}: {2}'.format(self.sequence, self.journal.code, self.article.title)
 
 
-class Issue(models.Model):
+ISSUE_CODE_RE = re.compile("^[a-zA-Z0-9-_]+$")
+
+
+class Issue(AbstractLastModifiedModel):
     journal = models.ForeignKey(Journal)
 
     # issue metadata
@@ -450,8 +508,18 @@ class Issue(models.Model):
     issue_description = models.TextField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
-    cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
+    cover_image = SVGImageField(
+        upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "Image representing the the cover of a printed issue or volume",
+        )
+    )
+    large_image = SVGImageField(
+        upload_to=issue_large_image_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "landscape hero image used in the carousel and issue page"
+        )
+    )
 
     # issue articles
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
@@ -465,39 +533,104 @@ class Issue(models.Model):
         through='IssueEditor',
     )
 
-    class Meta:
-        ordering = ('order', 'year', 'volume', 'issue', 'title')
+    code = models.SlugField(
+        max_length=700, null=True, blank=True,
+        help_text=ugettext(
+            "An optional alphanumeric code (Slug) used to generate a verbose "
+            " url for this issue. e.g: 'winter-special-issue'."
+        ),
+    )
+
+    @property
+    def hero_image_url(self):
+        if self.large_image:
+            return self.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        else:
+            return ''
+
+    @property
+    def date_published(self):
+        return datetime.datetime(
+            self.date.year, self.date.month, self.date.day,
+            tzinfo=self.date.tzinfo,
+        )
+
+    @property
+    def url(self):
+        if not self.is_serial:
+            path = reverse("journal_issue", kwargs={"issue_id": self.pk})
+        else:
+            path = reverse(
+                "journal_collection", kwargs={"collection_id": self.pk})
+        return self.journal.site_url(path=path)
+
+    @property
+    def carousel_subtitle(self):
+        if not self.is_serial:
+            return self.issue_type.pretty_name
+        if self == self.journal.current_issue:
+            return ugettext("Current Issue")
+        else:
+            return ""
+
+    @property
+    def carousel_title(self):
+        return self.display_title
+
+    @property
+    def carousel_image_resolver(self):
+        return 'news_file_download'
+
+    @property
+    def is_serial(self):
+        if self.issue_type.code == 'issue':
+            return True
+        else:
+            return False
 
     @property
     def display_title(self):
         if self.issue_type.code != 'issue':
             return self.issue_title
+        else:
+            return self.pretty_issue_identifier
 
+    def issue_title_parts(self, article=None):
         journal = self.journal
-        issue_identifier = self.pretty_issue_identifier
+        volume = issue = year = issue_title = article_number = page_numbers = ''
 
-        title = "{}".format(
-            self.issue_title) if journal.display_issue_title else ""
+        if journal.display_issue_volume and self.volume:
+            volume = ugettext("Volume") + " {}".format(self.volume)
+        if journal.display_issue_number and self.issue and self.issue != "0":
+            issue = ugettext("Issue") + " {}".format(self.issue)
+        if journal.display_issue_year and self.date:
+            year = "{}".format(self.date.year)
+        if journal.display_issue_title:
+            issue_title = self.issue_title
+        if journal.display_article_number and article and article.article_number:
+            article_number = ugettext("Article") + " {}".format(article.article_number)
+        if journal.display_article_page_numbers and article:
+            if article.page_range:
+                page_numbers = article.page_range
+            elif article.total_pages:
+                if article.total_pages != 1:
+                    label = ugettext('pages')
+                else:
+                    label = ugettext('page')
+                num_pages = str(article.total_pages)
+                page_numbers = f'{num_pages} {label}'
 
-        title_list = [issue_identifier, title]
-
-        return mark_safe(" &bull; ".join((filter(None, title_list))))
+        return [volume, issue, year, issue_title, article_number, page_numbers]
 
     @property
     def pretty_issue_identifier(self):
-        journal = self.journal
+        return mark_safe(" &bull; ".join((filter(None, self.issue_title_parts()))))
 
-        volume = "Volume {}".format(
-            self.volume) if journal.display_issue_volume else ""
-        issue = "Issue {}".format(
-            self.issue) if journal.display_issue_number else ""
-        year = "{}".format(
-            self.date.year) if journal.display_issue_year else ""
-
-        parts = [volume, issue, year]
-
-        return mark_safe(" &bull; ".join((filter(None, parts))))
-
+    @property
+    def non_pretty_issue_identifier(self):
+        return " ".join((filter(None, self.issue_title_parts())))
 
     @property
     def manage_issue_list(self):
@@ -715,10 +848,15 @@ class Issue(models.Model):
                     )
 
     def __str__(self):
-        return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
+        return (
+            '{self.issue_type.pretty_name}: '
+            '{self.issue}({self.volume}) '
+            '{self.issue_title} ({self.date.year})'.format(self=self)
+        )
 
     class Meta:
         ordering = ("order", "-date")
+        unique_together = ("journal", "code")
 
 
 class IssueType(models.Model):
@@ -729,7 +867,12 @@ class IssueType(models.Model):
     custom_plural = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{self.code}".format(self=self)
+        return (
+            self.custom_plural
+            or self.pretty_name
+            or "{self.code}".format(self=self)
+        )
+
 
     @property
     def plural_name(self):
@@ -871,12 +1014,13 @@ class Notifications(models.Model):
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
-        submission_models.Section.objects.language('en').get_or_create(
-            journal=instance,
-            number_of_reviewers=2,
-            name='Article',
-            plural='Articles'
-        )
+        with translation.override(settings.LANGUAGE_CODE):
+            submission_models.Section.objects.get_or_create(
+                journal=instance,
+                number_of_reviewers=2,
+                name='Article',
+                plural='Articles'
+            )
 
 
 @receiver(post_save, sender=Journal)
@@ -890,6 +1034,22 @@ def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
         submission_models.SubmissionConfiguration.objects.get_or_create(
             journal=instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_licenses(sender, instance, created, **kwargs):
+    if created:
+        install.update_license(
+            instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_submission_items(sender, instance, created, **kwargs):
+    if created:
+        install.setup_submission_items(
+            instance,
         )
 
 
@@ -917,7 +1077,7 @@ def setup_default_form(sender, instance, created, **kwargs):
                 required=True,
                 order=1,
                 width='large-12 columns',
-                help_text='Please add as much detail as you can.'
+                help_text=ugettext('Please add as much detail as you can.'),
             )
 
             default_review_form.elements.add(main_element)

@@ -39,7 +39,10 @@ def journal(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    settings_to_get = ['journal_name', 'journal_issn', 'publisher_name', 'publisher_url']
+    settings_to_get = [
+        'journal_name', 'journal_issn', 'print_issn',
+        'publisher_name', 'publisher_url',
+    ]
     initial_items = logic.get_initial_settings(request.journal, settings_to_get)
 
     attr_form = forms.JournalForm(instance=request.journal)

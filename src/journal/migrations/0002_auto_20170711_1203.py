@@ -63,12 +63,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='press_image_override',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_image_override', to='core.File'),
+            field=models.ForeignKey(blank=True, help_text='Replaces the press logo in the footer.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_image_override', to='core.File'),
         ),
         migrations.AddField(
             model_name='journal',
             name='thumbnail_image',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='thumbnail_image', to='core.File'),
+            field=models.ForeignKey(blank=True, help_text="The default thumbnail for articles, not to be confused with 'Default cover image'.", null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='thumbnail_image', to='core.File'),
         ),
         migrations.AddField(
             model_name='issue',

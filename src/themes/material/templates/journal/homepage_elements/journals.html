@@ -1,23 +1,23 @@
 {% load i18n %}
 
-<div class="row">
+<div class="row grid">
     <div class="col m12">
         <br/>
         <h3 class="index-header">{% trans "Featured Journals" %}</h3>
     </div>
     {% for current_journal in featured_journals %}
-        <div class="col m3 row-eq-height">
-            <div class="card">
-                <div class="card-image">
-                    <img class="" src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+        <div class="col l2 m2 s12 cell journal-card">
+            <div class="card card-full-height">
+                <div class="card-image journal-card-image">
+                    <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
                 </div>
-                <div class="card-content">
+                <div class="card-content journal-card-content">
                     {% if current_journal.is_remote %}
                         <a href="{{ current_journal.remote_view_url }}">
                     {% else %}
                         <a href="{{ current_journal.site_url }}">
                     {% endif %}
-                    <h7 class="card-title">{{ current_journal.name }}</h7>
+                    <p>{{ current_journal.name }}</p>
                     </a>
                 </div>
             </div>

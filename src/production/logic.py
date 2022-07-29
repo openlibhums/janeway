@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.conf import settings
 from django.core.files.base import ContentFile
 
 from production import models
@@ -68,7 +69,15 @@ def save_source_file(article, request, uploaded_file):
     article.source_files.add(new_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
+def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True, public=True):
+    if isinstance(uploaded_file, str):
+        mime = files.file_path_mime(uploaded_file)
+    else:
+        mime = files.guess_mime(uploaded_file.name)
+
+    if mime == "application/zip":
+        raise ZippedGalleyError("Zip galleys are not supported")
+
     new_file = files.save_file_to_article(
         uploaded_file,
         article,
@@ -115,7 +124,10 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         label=label,
         type=type_,
         sequence=article.get_next_galley_sequence(),
+        public=public,
     )
+    if settings.ENABLE_FULL_TEXT_SEARCH is True:
+        article.index_full_text()
 
     return new_galley
 
@@ -441,3 +453,7 @@ def handle_zipped_galley_images(zip_file, galley, request):
                     'File {} not found in XML'.format(zipped_file.name)
                 )
     return
+
+
+class ZippedGalleyError(Exception):
+    pass

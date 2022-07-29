@@ -1,0 +1,116 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title %}{% trans "Submit a Preprint" %}{% endblock title %}
+
+{% block body %}
+    <article>
+        <form method="POST">
+            <div class="row column">
+                {% csrf_token %}
+                <h2 class="title-area">{% trans "Submit a Preprint" %}</h2>
+                <p>{% trans "Please read the following carefully before you submit your preprints." %}</p>
+                {{ request.press.preprint_start|safe }}
+                <hr/>
+
+            </div>
+            <div class="row">
+                {% include "elements/forms/errors.html" with form=form %}
+                <div class="large-12 columns">
+                    {{ form.title|foundation }}
+                </div>
+                <div class="large-12 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            {{ form.abstract.label }}
+                            <textarea class="form-control" cols="40" id="id_abstract" name="abstract"
+                                      placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
+                                      rows="10" title=""></textarea></div>
+                    </div>
+                </div>
+                <div class="large-6 columns">
+                    {{ form.language|foundation }}
+                </div>
+                <div class="large-6 columns error">
+                    {{ form.license|foundation }}
+                </div>
+                <hr/>
+
+                <div class="large-6 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <label for="id_keywords">Keywords</label>
+                            <input type="text" id="id_keywords" name="keywords" value="
+
+
+
+
+                                    {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                            {% trans "Hit Enter to add a new keyword." %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="large-6 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            {{ form.subject|foundation }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="large-12 columns">
+                    <br/><br>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <label for="id_comments_editors">{% trans "Comments" %}</label>
+                            <textarea class="form-control" cols="40" id="id_comments_editor" name="comments_editor"
+                                      placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
+                                      rows="10" title="">{% if article %}{{ article.comments_editor }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {% if additional_fields %}
+                    <div class="large-12 columns">
+                        <p></p>
+                        <h4>{% trans "Additional Fields" %}</h4>
+                    </div>
+                    {% for additional_field in additional_fields %}
+                        {% get_form_field form additional_field.name as field %}
+                        <div class="{{ field.field.widget.attrs.div_class }} columns">
+                            {{ field|foundation }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="large-12 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <button class="success button pull-right" type="submit" name="start_submission"><i
+                                    class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </article>
+
+{% endblock body %}
+
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+{% endblock %}

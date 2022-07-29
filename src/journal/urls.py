@@ -16,7 +16,7 @@ NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
 
 urlpatterns = [
     # Figures and download patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/print/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/print/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
@@ -29,20 +29,26 @@ urlpatterns = [
     url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/file/(?P<file_id>\d+|None)/$',
         views.serve_article_file,
         name='article_file_download'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/file_history/(?P<file_id>\d+|None)/$',
+        views.serve_article_file_history,
+        name='article_file_history_download'),
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/download/',
         views.download_galley,
         name='article_download_galley'),
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/view/',
         views.view_galley,
         name='article_view_galley'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/pdf/$',
+        views.serve_article_pdf,
+        name='serve_article_pdf'),
     url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/xml/$',
         views.serve_article_xml,
         name='serve_article_xml'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/table/(?P<table_name>.+)$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/table/(?P<table_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/(?P<file_name>.+)$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/(?P<file_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
@@ -55,7 +61,6 @@ urlpatterns = [
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
-    url(r'^issue/(?P<issue_id>\d+)/download/$', views.download_issue, name='journal_issue_download'),
     url(r'^issue/(?P<issue_id>\d+)/download/(?P<galley_id>\d+)$',
         views.download_issue_galley,
         name='journal_issue_download_galley'),
@@ -65,17 +70,27 @@ urlpatterns = [
     url(r'^collections/$', views.collections, name='journal_collections_type'),
     url(r'^collections/(?P<issue_type_code>[a-zA-Z]+)/$', views.collections, name='journal_collections'),
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
+    url(r'^collection/(?P<collection_code>[a-zA-Z-_]+)/$', views.collection_by_code, name='journal_collection_by_code'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
+    url(r'^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$', views.volume, name='journal_volume'),
 
     # Article patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/edit/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/edit/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.edit_article,
         name='article_edit'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.article,
         name='article_view'
+        ),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.doi_redirect,
+        name='doi_redirect'),
+    url(r'^article/(?P<identifier_type>[\w.-_]+)/(?P<identifier>[\w.-]+)/$',
+        views.article_from_identifier,
+        name='article_view_custom_identifier',
         ),
 
 
@@ -142,6 +157,10 @@ urlpatterns = [
     url(r'^manage/articles/schedule/$',
         views.publication_schedule, name='publication_schedule'),
 
+    # Languages
+    url(r'^manage/languages/$',
+        views.manage_languages, name='manage_languages'),
+
     # Reviewer
     url(r'^reviewer/$',
         views.become_reviewer, name='become_reviewer'),
@@ -186,10 +205,6 @@ urlpatterns = [
         views.doi_redirect,
         name='print_doi_redirect'),
 
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.doi_redirect,
-        name='doi_redirect'),
 
     url(r'^email/user/(?P<user_id>\d+)/$',
         views.send_user_email, name='send_user_email'),

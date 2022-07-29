@@ -63,6 +63,11 @@ $orbit-control-zindex: 10 !default;
   list-style: none;
 }
 
+/// Adds styles for the inner Orbit slide container. These styles are used on the `.orbit-container` class.
+@mixin orbit-carousel {
+  max-height: 500px;
+}
+
 /// Adds styles for the individual slides of an Orbit slider. These styles are used on the `.orbit-slide` class.
 @mixin orbit-slide {
   width: 100%;
@@ -155,6 +160,10 @@ $orbit-control-zindex: 10 !default;
 
   .orbit-container {
     @include orbit-container;
+  }
+
+  .orbit-container {
+    @include orbit-carousel;
   }
 
   .orbit-slide {

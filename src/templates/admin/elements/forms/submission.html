@@ -1,7 +1,7 @@
 {% for field in form %}
     {% if field.auto_id == 'id_editors_for_notification' %}
-        {% include "elements/forms/table_multi_select_user.html" with field=field queryset=request.journal.editors %}
+        {% include "admin/elements/forms/table_multi_select_user.html" with field=field queryset=request.journal.editors %}
     {% else %}
-        {% include "elements/forms/group_field.html" with field=field %}
+        {% include "admin/elements/forms/group_field.html" with field=field %}
     {% endif %}
 {% endfor %}

@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}}
 {% load foundation %}
 {% load static from staticfiles %}
+{% load bool_fa %}
 
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
 
@@ -21,14 +22,12 @@
                     <a class="button" href="{{ return }}"><i class="fa fa-arrow-left"></i>Back</a>
                 </div>
                 <div class="content">
+                    {% include "elements/translations/form_tabs.html" with object=article %}
                     {% include "elements/forms/errors.html" with form=info_form %}
                     {% csrf_token %}
                     <div class="row expanded">
-                        <div class="large-6 columns">
+                        <div class="large-12 columns">
                             {{ info_form.title|foundation }}
-                        </div>
-                        <div class="large-6 columns">
-                            {{ info_form.subtitle|foundation }}
                         </div>
                         <div class="large-10 columns end">
                             {{ info_form.abstract|foundation }}
@@ -50,7 +49,21 @@
                             {{ info_form.license|foundation }}
                         </div>
                         <div class="large-3 columns">
+                            {{ info_form.article_number|foundation }}
+                        </div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-3 columns">
+                            {{ info_form.first_page|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.last_page|foundation }}
+                        </div>
+                        <div class="large-3 columns">
                             {{ info_form.page_numbers|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.total_pages|foundation }}
                         </div>
                     </div>
                     <div class="row expanded">
@@ -72,8 +85,13 @@
                         <div class="large-3 columns end">
                             {{ info_form.primary_issue|foundation }}
                         </div>
-                     </div>
-                    <div class="large-12 columns">
+                    </div>
+                    {% if journal_settings.general.submission_competing_interests %}
+                        <div class="large-10 columns">
+                            {{ info_form.competing_interests|foundation }}
+                        </div>
+                    {% endif %}
+                    <div class="large-10 columns">
                         {{ info_form.custom_how_to_cite|foundation }}
                     </div>
                     <div class="large-12 columns">
@@ -102,6 +120,7 @@
                             <th></th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Display Email Link?</th>
                             <th>Institution</th>
                             <th>Correspondence Author</th>
                             <th></th>
@@ -113,9 +132,10 @@
                             <tr id="authors-{{ f_author.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
                                 <td>{{ f_author.full_name }}</td>
-                                <td>{{ f_author.author.email }}</td>
+                                <td>{{ f_author.email }}</td>
+                                <td>{{ f_author.display_email|bool_fa }}</td>
                                 <td>{{ f_author.institution }}</td>
-                                <td>{% if f_author.author == article.correspondence_author %}
+                                <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                     <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
                                 <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
                                         class="fa fa-edit">&nbsp;</i>Edit</a></td>

@@ -19,7 +19,7 @@ def yield_homepage_element_context(request, homepage_elements):
                 request.journal,
             )
             title_value = title.value if title.value else ''
-        except IndexError:
+        except AttributeError:
             title_value = _('About this Journal')
 
         return {

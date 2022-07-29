@@ -1,17 +1,38 @@
-{% extends "core/base.html" %}
-{% load staticfiles %}
+{% load static from staticfiles %}
 {% load i18n %}
 
-{% block page_title %}{% trans "Issue" %} {{ issue }}{% endblock %}
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Server Error' %}</title>
+    <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
+    <link href="{% static "common/css/common.css" %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
 
-{% block css %}
-{% endblock %}
 
-{% block body %}
-    <section id="content">
-        <div class="row column">
-            <h4>{% trans "Server Error" %}</h4>
-             <p>{% trans "Sorry, there was a server error. Our team has been notified." %}</p>
-        </div>
-    </section>
-{% endblock body %}
+    <script src="https://use.typekit.net/lff8ikn.js"></script>
+    <script>try {
+        Typekit.load({async: true});
+    } catch (e) {
+    }</script>
+
+</head>
+<body>
+<div class="wrapper">
+    <main>
+        <section id="content">
+            <div class="row column">
+                <h1>{% trans 'Server Error' %}</h1>
+                <p>{% trans 'A server error has occurred' %}</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.5.1/js/foundation.min.js"></script>
+</body>
+</html>

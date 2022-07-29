@@ -2,7 +2,7 @@
 {% load foundation %}
 {% load i18n %}
 
-{% block title %}Activate Account{% endblock title %}
+{% block title %}{% trans 'Activate Account' %}{% endblock title %}
 
 {% block body %}
 
@@ -11,12 +11,12 @@
             <div class="card">
                 <div class="card-content">
                     {% if account %}
-                        <span class="card-title">Activate Account</span>
+                        <span class="card-title">{% trans "Activate Account" %}</span>
                         <form method="POST">
                             {% csrf_token %}
                             <p>{% trans "You can complete the activation process by clicking the button below." %}</p>
-                            <button class="btn btn-primary" name="activate">Activate
-                                Account
+                            <button class="btn btn-primary" name="activate">
+                                {% trans 'Activate Account' %}
                             </button>
                         </form>
                     {% else %}
@@ -28,8 +28,6 @@
                     {% endif %}
                 </div>
             </div>
-
-
         </div>
     </div>
 

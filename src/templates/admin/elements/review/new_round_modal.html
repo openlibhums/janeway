@@ -1,0 +1,36 @@
+<div class="reveal small" id="newround" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-plus-circle">&nbsp;</i>Create New Review Round</h4>
+        </div>
+        <div class="card-section">
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {% if article.current_review_round_object.reviewassignment_set.all %}
+                <p>Creating a new review round will automatically withdraw active assignments. Creating a new round will
+                    have the following effect for the current round's assignments:</p>
+                <ul>
+                    {% for assignment in article.current_review_round_object.reviewassignment_set.all %}
+                        <li>Assignment #{{ assignment.pk }} by {{ assignment.reviewer.full_name }}
+                            <ul>
+                                <li>{% if assignment.status.code == 'wait' or assignment.status.code == 'accept' %}
+                                    Current Status: Active, this assignment will be closed.{% else %}Current Status:
+                                    {{ assignment.status.display }}, no action required.{% endif %}</li>
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>There are no active assignments. Use the button below to create a new round.</p>
+            {% endif %}
+            <form method="POST" action="{% url 'review_in_review' article.pk %}">
+                {% csrf_token %}
+                <button name="new_review_round" type="submit" class="button">
+                    Create New Review Round
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

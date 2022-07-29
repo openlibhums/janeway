@@ -3,7 +3,7 @@
 
 {% block title %}Add Review Files{% endblock title %}
 {% block title-section %}Add Files{% endblock %}
-{% block title-sub %}Select the files you wish the reviewers to see.{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -38,7 +38,6 @@
                             <th>Download</th>
                             <th>History</th>
                             <th>Replace</th>
-
                         </tr>
                         </thead>
                         {% for file in article.manuscript_files.all %}

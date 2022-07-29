@@ -1,0 +1,43 @@
+{% load pages %}
+
+<div class="pagination-block">
+    <div class="input-group-field columns small-8">
+        {% if is_paginated %}
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li><button name="page" value="{{ page_obj.previous_page_number }}" form={{ form_id }}>&laquo;</button></li>
+                {% endif %}
+
+                {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
+                        <li>...</li>
+                    {% else %}
+                        <li class="{% if page_obj.number == page.number %}current{% endif %}">
+                            <button name="page" value="{{ page.number }}" form={{ form_id }}>{{ page.number }}</button>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="arrow"><button name="page" value="{{ page_obj.next_page_number }}" form={{ form_id }}>&raquo;</button></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+    <div class="columns small-2">
+        <select class="input-group-field" onchange="this.form.submit()" name="paginate_by" form={{ form_id }}>
+            <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
+            <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
+            <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
+            <option value="100" {% if paginate_by == "100" %}selected{% endif %}>100</option>
+            {% if page_obj.paginator %}
+                <option value="all" {% if paginate_by == "all" %}selected{% endif %}>all</option>
+            {% endif %}
+        </select>
+    </div>
+    <div class="small-2 columns">
+        <label labelfor="paginate_by">
+            records per page
+        </label>
+    </div>
+</div>

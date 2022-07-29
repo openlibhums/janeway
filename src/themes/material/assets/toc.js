@@ -9,7 +9,7 @@ $( document ).ready(function() {
     iter = 0;
     toc = '';
 
-    $("#main_article :header").each(function () {
+    $("#main_article h2").each(function () {
 
         link = $(this);
         title = link.text();

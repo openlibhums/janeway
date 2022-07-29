@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Issues" %}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans issue_type.plural_name %}</h1>
+
+
+            {% if request.journal.current_issue %}
+                <p>{% trans 'The current issue is' %}: </p>
+                <ul>
+                    <li>
+                        <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a>
+                    </li>
+                </ul>
+            {% endif %}
+
+            <p>Issue Archive: </p>
+            <ul>
+                {% for issue in issues %}
+                    <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }}
+                        &bull; {{ issue.articles.all.count }} {% trans "items" %}</a></li>
+                    {% empty %}
+                    <li>{% trans 'This journal has no issues' %}.</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}

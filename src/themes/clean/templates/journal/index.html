@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+
+{% block body %}
+
+    {% for element in homepage_elements %}
+    <div class="homepage-element-wrapper homepage-element-{{ element.name|slugify }}">
+        {% include element.template_path %}
+    </div>
+        <hr>
+    {% endfor %}
+
+{% endblock body %}
+{% block js %}
+<script type="text/javascript">
+$(function () {
+    $('#carousel').carousel({
+        interval:5000,
+        pause: "false"
+    });
+    $('#carousel-play').click(function () {
+        $('#carousel').carousel('cycle');
+    });
+    $('#carousel-pause').click(function () {
+        $('#carousel').carousel('pause');
+    });
+});
+</script>
+{% endblock js %}

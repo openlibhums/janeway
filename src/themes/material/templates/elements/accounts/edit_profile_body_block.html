@@ -9,10 +9,11 @@
                         {% trans "Changing your email address will also change your username as these are one and the same." %}</p>
                     <form method="POST">
                         {% csrf_token %}
+                        <p><strong>{% trans 'Current Email Address' %}:</strong> {{ request.user.email }}</p>
                         <div class="input-field">
                             <input type="email" name="email_address" class="form-control"
                                    placeholder="janeway@voyager.com">
-                            <label for="email_address">{% trans "Email Address" %}</label>
+                            <label for="email_address">{% trans "New Email Address" %}</label>
                         </div>
                         <button type="submit" name="email" class="btn btn-warning">{% trans "Update Email Address" %}</button>
                     </form>

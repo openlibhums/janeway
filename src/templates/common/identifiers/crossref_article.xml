@@ -1,90 +1,75 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch
-    xmlns="http://www.crossref.org/schema/4.4.1"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    version="4.4.1"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/schemas/crossref4.4.1.xsd"
-    xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
->
-    <head>
-        <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{% now "YmdHis" %}</timestamp>
-        <depositor>
-            <depositor_name>{{ depositor_name }}</depositor_name>
-            <email_address>{{ depositor_email }}</email_address>
-        </depositor>
-        <registrant>{{ registrant }}</registrant>
-    </head>
-    <body>
-        <journal>
-            <journal_metadata>
-                <full_title>{{ journal_title }}</full_title>
-                {% if journal_issn and journal_issn != '0000-0000' %}
-                <issn media_type="electronic">{{ journal_issn }}</issn>
-                {% endif %}
-            </journal_metadata>
-            {% if issue and issue.date %}
-            <journal_issue>
-                {% if issue.issue_title %}
+{% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
                 <titles>
-                    <title>{{ issue.issue_title }}</title>
+                    {% if article.scheduled %}
+                    <title>{{ article.title }}</title>
+                    {% else %}
+                    <title>Title Pending {{ article.id }}</title>
+                    {% endif %}
                 </titles>
-                {% endif %}
-                <publication_date media_type="online">
-                    <month>{{ issue.date.month }}</month>
-                    <day>{{ issue.date.day }}</day>
-                    <year>{{ issue.date.year }}</year>
-                </publication_date>
-
-                <journal_volume>
-                    <volume>{{ issue.volume }}</volume>
-                </journal_volume>
-                <issue>{{ issue.issue }}</issue>
-            </journal_issue>
-            {% endif %}
-            <journal_article publication_type="full_text">
-                <titles>
-                    <title>{{ article_title }}</title>
-                </titles>
-                {% if authors %}
+                {% if article.authors and article.scheduled %}
                 <contributors>
-                    {% for author in authors %}
+                {% for author in article.authors %}
+                    {% if author.is_corporate %}
+                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+                        {{ author.corporate_name }}
+                    </organization>
+                    {% else %}
                     <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        <given_name>{{ author.first_names }}</given_name>
+                        <given_name>{{ author.given_names }}</given_name>
                         <surname>{{ author.last_name }}</surname>
+                        {% if author.institution %}
+                        <affiliation>{{ author.affiliation }}</affiliation>
+                        {% endif %}
+                        {% if author.orcid %}
+                        <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+                        {% endif %}
                     </person_name>
-                    {%  endfor %}
+                    {% endif %}
+                {% endfor %}
                 </contributors>
                 {% endif %}
-
+                {% if article.abstract  and article.scheduled %}
+                <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
+                {% endif %}
                 <publication_date media_type="online">
-                    <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
-                    <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
-                    <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
+                {% if article.date_published %}
+                    <month>{{ article.date_published.month }}</month>
+                    <day>{{ article.date_published.day }}</day>
+                    <year>{{ article.date_published.year }}</year>
+                {% else %}
+                    <month>{{ now.month }}</month>
+                    <day>{{ now.day }}</day>
+                    <year>{{ now.year|add:10 }}</year>
+                {% endif %}
                 </publication_date>
-                {% if license %}
+                {% if article.date_accepted %}
+                <acceptance_date media_type="online">
+                    <month>{{ article.date_accepted.month }}</month>
+                    <day>{{ article.date_accepted.day }}</day>
+                    <year>{{ article.date_accepted.year }}</year>
+                </acceptance_date>
+                {% endif %}
+                {% if article.license %}
                 <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ license }}</ai:license_ref>
+                    <ai:license_ref>{{ article.license }}</ai:license_ref>
                 </ai:program>
                 {% endif %}
                 <doi_data>
-                    <doi>{{ doi }}</doi>
-                    <resource>{{ article_url }}</resource>
+                    <doi>{{ article.doi }}</doi>
+                    <resource>{{ article.url }}</resource>
+                    {% if article.scheduled %}
                     <collection property="crawler-based">
                         <item crawler="iParadigms">
-                            {% if pdf_url %}
-                                <resource>{{ pdf_url }}</resource>
-                            {% else %}
-                                <resource>{{ article_url }}</resource>
-                            {% endif %}
+                        {% if article.pdf_url %}
+                            <resource>{{ article.pdf_url }}</resource>
+                        {% else %}
+                            <resource>{{ article.url }}</resource>
+                        {% endif %}
                         </item>
                     </collection>
+                    {% endif %}
                 </doi_data>
-                {% if citation_list %}
-                    {{ citation_list|safe }}
+                {% if article.scheduled and article.citation_list %}
+                    {{ article.citation_list|safe }}
                 {% endif %}
             </journal_article>
-     </journal>
-    </body>
-</doi_batch>
-

@@ -12,11 +12,12 @@ from core.middleware import (
         SiteSettingsMiddleware,
         TimezoneMiddleware,
 )
-from core.models import Account
+from core.models import Account, Setting
 from journal.tests.utils import make_test_journal
 from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
+
 
 class TestSiteMiddleware(TestCase):
     def setUp(self):
@@ -49,6 +50,19 @@ class TestSiteMiddleware(TestCase):
         self.assertEqual(expected_journal, request.journal)
         self.assertEqual(expected_press, request.press)
         self.assertEqual(expected_site_type, request.site_type)
+
+    @override_settings(URL_CONFIG="domain", DEBUG=False)
+    def test_journal_site_with_path_in_domain_mode(self):
+        # expect
+        expected_journal = self.journal
+        # do
+        request = self.request_factory.get("http://press.org/test/")
+        _ = self.middleware.process_request(request)
+
+        # assert
+        self.assertEqual(expected_journal, request.journal)
+
+    @override_settings(URL_CONFIG="path")
 
     @override_settings(URL_CONFIG="path")
     def test_press_site_in_path_mode(self):
@@ -160,7 +174,7 @@ class TestTimezoneMiddleware(TestCase):
 
         request.user = user
         response = self.middleware.process_request(request)
-        self.assertEqual(request.timezone, user.preferred_timezone)
+        self.assertEqual(request.timezone.zone, user.preferred_timezone)
 
     def test_browser_timezone_case(self):
         user = AnonymousUser()
@@ -173,7 +187,7 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, tzname)
+        self.assertEqual(request.timezone.zone, tzname)
 
     def test_user_preference_over_browser(self):
         user_timezone = "Europe/Madrid"
@@ -190,6 +204,6 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, user_timezone)
+        self.assertEqual(request.timezone.zone, user_timezone)
 
 

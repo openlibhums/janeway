@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    {% for issue in journal.published_issues %}
+    <sitemap>
+        <loc>{{ journal.site_url }}/{{ issue.pk }}_sitemap.xml</loc>
+    </sitemap>
+    {% endfor %}
+</sitemapindex>

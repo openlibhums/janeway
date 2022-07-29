@@ -8,17 +8,8 @@
         </div>
         <div class="card-section">
             <small>{% include "elements/forms/errors.html" with form=form %}</small>
-            {% if modaltype == 'data' %}
-                <p>{% trans "Please supply any original figure files or supporting information. The journal urges you to submit this document to a repository such as Figshare so that a DOI can be assigned to it, but this is not required." %}</p>
-            {% else %}
-                {% if not journal_settings.general.limit_manuscript_types %}
-                    <p>{% trans "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage." %}</p>
-                {% else %}
-                    <p>{% trans "Please upload your manuscript file, it should be in RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage." %}</p>
-                {% endif %}
-            {% endif %}
-
             {% if modaltype == 'manuscript' %}
+                {{ journal_settings.general.manuscript_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
@@ -49,6 +40,7 @@
                     </button>
                 </form>
             {% else %}
+                {{ journal_settings.general.data_figure_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">

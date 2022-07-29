@@ -7,16 +7,34 @@ from urllib.parse import (
 
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
-from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View, TemplateResponseMixin
 
 from api.oai import exceptions
+from utils.http import allow_mutating_GET
+
+metadata_formats = [
+    {
+        'prefix': 'oai_dc',
+        'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+        'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+    },
+    {
+        'prefix': 'jats',
+        'schema': 'https://jats.nlm.nih.gov/publishing/0.4/xsd/JATS-journalpublishing0.xsd',
+        'metadataNamespace': 'http://jats.nlm.nih.gov',
+    }
+]
 
 
 class OAIModelView(BaseListView, TemplateResponseMixin):
     """ Base class for OAI views generated from model Querysets """
     content_type = "application/xml"
-    # `oai_dc` is the only required metadata format by OAI spec
-    metadata_formats = {"oai_dc"}
+
+    metadata_prefix = 'oai_dc'
+
+    metadata_formats_set = {
+        format.get('prefix') for format in metadata_formats
+    }
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -34,17 +52,49 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
         return qs
 
     def validate_metadata_format(self):
-        prefix = self.request.GET.get("metadataPrefix")
-        if prefix and prefix not in self.metadata_formats:
+        if self.metadata_prefix \
+                and self.metadata_prefix not in self.metadata_formats_set:
             raise exceptions.OAIUnsupportedMetadataFormat()
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["metadata_prefix"] = self.request.GET.get("metadataPrefix",
+                                                          "oai_dc")
+        return context
 
-class OAIPaginationMixin():
+
+class OAIPaginationMixin(View):
+    """ A Mixin allowing views to be paginated via OAI resumptionToken
+
+    The resumptionToken is a query parameter that allows a consumer of the OAI
+    interface to resume consuming elements of a listed query when the bounds
+    of such list are larger than the maximum number of records allowed per
+    response. This is achieved by encoding the page number details in the
+    querystring as the resumptionToken itself.
+    Furthermore, any filters provided as queryparams need to be encoded
+    into the resumptionToken as per the spec, it is not mandatory for the
+    consumer to provide filters on subsequent queries for the same list. This
+    is addressed in the `dispatch` method where we have no option but to mutate
+    the self.request.GET member in order to inject those querystring filters.
+    """
     page_kwarg = "token_page"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._decoded_token = {}
+
+    def dispatch(self, *args, **kwargs):
+        """ Adds resumptionToken encoded parameters into request.GET
+
+        This makes the implementation of resumptionToken transparent to any
+        child views that will see all encoded filters in the resumptionToken
+        as GET parameters
+        """
+        self._decode_token()
+        with allow_mutating_GET(self.request):
+            for key, value in self._decoded_token.items():
+                self.request.GET[key] = value
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         self.kwargs["token_page"] = self.page
@@ -63,7 +113,14 @@ class OAIPaginationMixin():
         }
 
     def encode_token(self, context):
-        return quote(urlencode(self.get_token_context(context)))
+        token_data = {}
+        for key, value in self.request.GET.items():
+            # verb is an exception as per OAI spec
+            if key not in {'resumptionToken', "verb"}:
+                token_data[key] = value
+        token_data.update(self.get_token_context(context))
+
+        return quote(urlencode(token_data))
 
     def _decode_token(self):
         if not self._decoded_token and "resumptionToken" in self.request.GET:
@@ -75,7 +132,6 @@ class OAIPaginationMixin():
 
     @property
     def page(self):
-        self._decode_token()
         if self._decoded_token:
             return int(self._decoded_token.get("page", 1))
         return None
@@ -111,7 +167,7 @@ class OAIDateFilterMixin(OAIPaginationMixin):
     @property
     def from_(self):
         self._decode_token()
-        if self._decoded_token and "from" in self._decoded_token:
+        if self._decoded_token and "from" in self._decoded_token.items():
             return self._decoded_token.get("from")
         else:
             return self.request.GET.get("from")

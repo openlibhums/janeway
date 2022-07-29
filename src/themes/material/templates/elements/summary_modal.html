@@ -2,7 +2,7 @@
 
 <div id="summarymodal" class="modal">
     <div class="modal-content">
-        <h4>Non Specialist Summary</h4>
+        <h4>{% trans "Non Specialist Summary" %}</h4>
         {% if article.non_specialist_summary %}
             {{ article.non_specialist_summary|safe }}
         {% else %}
@@ -10,6 +10,6 @@
         {% endif %}
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
     </div>
 </div>

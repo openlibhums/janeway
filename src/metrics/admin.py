@@ -29,13 +29,13 @@ def _export_as_csv(self, request, queryset):
 class ArticleAccessAdmin(admin.ModelAdmin):
     """Displays objects in the Django admin interface."""
     list_display = ('article', 'type', 'identifier', 'accessed')
-    list_filter = ('type', 'galley_type')
+    list_filter = ('type', 'galley_type', 'article')
     search_fields = ('identifier',)
     raw_id_fields = ('article',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(ArticleAccessAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['article'].queryset = submission_models.Article.allarticles.all()
+        form.base_fields['article'].queryset = submission_models.Article.objects.all()
         return form
 
 

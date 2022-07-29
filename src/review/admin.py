@@ -23,7 +23,7 @@ class ReviewRoundAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'reviewer', 'editor', 'review_round', 'decision', 'date_due', 'is_complete')
     list_filter = ('article', 'reviewer', 'editor')
-    raw_id_fields = ('article', 'reviewer', 'editor', 'review_round', 'form')
+    raw_id_fields = ('article', 'reviewer', 'editor', 'review_round', 'form', 'review_file')
 
 
 class ReviewFormAdmin(admin.ModelAdmin):
@@ -37,9 +37,9 @@ class ElementAdmin(admin.ModelAdmin):
 
 
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'assignment', 'element', 'author_can_see')
-    list_filter = ('element', 'assignment')
-    raw_id_fields = ('assignment', 'element')
+    list_display = ('pk', 'assignment', 'frozen_element', 'author_can_see')
+    list_filter = ('assignment',)
+    raw_id_fields = ('assignment',)
 
 
 class RatingAdmin(admin.ModelAdmin):
@@ -69,7 +69,7 @@ class EditorOverrideAdmin(admin.ModelAdmin):
 
 
 class DraftAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'section_editor', 'decision', 'drafted', 'editor_decision', 'closed')
+    list_display = ('pk', 'article', 'section_editor', 'decision', 'drafted', 'editor_decision')
     list_filter = ('article', 'section_editor', 'decision', 'editor_decision')
     raw_id_fields = ('article', 'section_editor')
 

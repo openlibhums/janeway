@@ -17,7 +17,7 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-rebuild:
-	@docker build . -t sphinx
+docker-build:
+	@docker build . -t birkbeckctp/sphinx-rtd
 docker:
-	@docker run --rm -ti -v ${PWD}:/docs sphinx
+	@docker run --rm -ti -v ${PWD}:/docs birkbeckctp/sphinx-rtd

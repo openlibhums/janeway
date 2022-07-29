@@ -1,13 +1,19 @@
+import os
 import hashlib
 import hmac
 from urllib.parse import SplitResult, quote_plus, urlencode
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.template.loader import render_to_string
 
 from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
 from utils import models, notify_helpers
 from utils.function_cache import cache
+from journal import models as journal_models
+from repository import models as repo_models
+from press import models as press_models
 
 
 def parse_mailgun_webhook(post):
@@ -83,6 +89,7 @@ def attempt_actor_email(event):
                                                   body,
                                                   log_dict=None)
 
+
 def build_url_for_request(request=None, path="", query=None, fragment=""):
     """ Builds a url from the base url relevant for the current request context
     :request: An instance of django.http.HTTPRequest
@@ -141,6 +148,7 @@ def get_current_request():
     except (KeyError, AttributeError):
         return None
 
+
 @cache(seconds=None)
 def get_janeway_version():
     """ Returns the installed version of janeway
@@ -148,3 +156,189 @@ def get_janeway_version():
     """
     v = models.Version.objects.filter(rollback=None).order_by("-pk")[0]
     return v.number
+
+
+def get_log_entries(object):
+    content_type = ContentType.objects.get_for_model(object)
+    return models.LogEntry.objects.filter(
+        content_type=content_type,
+        object_id=object.pk,
+    )
+
+
+def generate_sitemap(file, press=None, journal=None, repository=None, issue=None, subject=None):
+    """
+    Returns a rendered sitemap
+    """
+    template, context = None, None
+    if press:
+        journals = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_remote=False,
+        )
+        repos = repo_models.Repository.objects.all()
+        template = 'common/site_map_index.xml'
+        context = {
+            'journals': journals,
+            'repos': repos,
+        }
+    elif journal:
+        template = 'common/journal_sitemap.xml'
+        context = {
+            'journal': journal,
+        }
+    elif repository:
+        template = 'common/repo_sitemap.xml',
+        context = {
+            'repo': repository,
+        }
+    elif issue:
+        template = 'common/issue_sitemap.xml'
+        context = {
+            'issue': issue,
+        }
+    elif subject:
+        template = 'common/subject_sitemap.xml'
+        context = {
+            'subject': subject,
+        }
+
+    if template and context:
+        content = render_to_string(
+            template,
+            context,
+        )
+        file.write(content)
+    else:
+        return 'Must pass a press, journal, issue, repository or subject object.'
+
+
+def get_sitemap_path(path_parts, file_name):
+    path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'sitemaps',
+        *path_parts,
+    )
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    file_path = os.path.join(
+        path,
+        file_name,
+    )
+    return file_path
+
+
+def write_journal_sitemap(journal):
+    journal_file_path = get_sitemap_path(
+        path_parts=[journal.code],
+        file_name='sitemap.xml',
+    )
+    with open(journal_file_path, 'w') as file:
+        generate_sitemap(file, journal=journal)
+        file.close()
+
+
+def write_issue_sitemap(issue):
+    issue_file_path = get_sitemap_path(
+        path_parts=[issue.journal.code],
+        file_name='{}_sitemap.xml'.format(issue.pk),
+    )
+    with open(issue_file_path, 'w') as file:
+        generate_sitemap(file, issue=issue)
+        file.close()
+
+
+def write_repository_sitemap(repository):
+    repo_file_path = get_sitemap_path(
+        path_parts=[repository.code],
+        file_name='sitemap.xml',
+    )
+    with open(repo_file_path, 'w') as file:
+        generate_sitemap(file, repository=repository)
+        file.close()
+
+
+def write_subject_sitemap(subject):
+    subject_file_path = get_sitemap_path(
+        path_parts=[subject.repository.code],
+        file_name='{}_sitemap.xml'.format(subject.pk)
+    )
+    with open(subject_file_path, 'w') as file:
+        generate_sitemap(file, subject=subject)
+        file.close()
+
+
+def write_all_sitemaps(cli=False):
+    """
+    Utility function that generates and writes all sitemaps to disk in one go.
+    """
+    storage_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'sitemaps',
+    )
+    if not os.path.exists(storage_path):
+        os.makedirs(storage_path)
+
+    # Generate the press level sitemap
+    press = press_models.Press.objects.all().first()
+    journals = journal_models.Journal.objects.all()
+    repos = repo_models.Repository.objects.all()
+    file_path = os.path.join(
+        storage_path,
+        'sitemap.xml'
+    )
+    with open(file_path, 'w') as file:
+        generate_sitemap(file, press=press)
+        file.close()
+
+    # Generate Journal Sitemaps
+    for journal in journals:
+        if cli:
+            print("Generating sitemaps for {}".format(journal.name))
+        write_journal_sitemap(journal)
+
+        # Generate Issue Sitemap
+        for issue in journal.published_issues:
+            if cli:
+                print("Generating sitemap for issue {}".format(issue))
+            write_issue_sitemap(issue)
+
+    # Generate Repo Sitemap
+    for repo in repos:
+        if cli:
+            print("Generating sitemaps for {}".format(repo.name))
+        write_repository_sitemap(repo)
+
+        for subject in repo.subject_set.all():
+            if cli:
+                print("Generating sitemap for subject {}".format(subject.name))
+            write_subject_sitemap(subject)
+
+
+def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
+    """
+    Takes any ISO 8601 compliant date or datetime string
+    and returns an aware datetime object.
+    If no time information passed,
+    noon UTC is assumed.
+    """
+
+    import re
+    from dateutil import parser as dateparser
+    from django.utils.timezone import is_aware, make_aware
+
+    if use_noon_if_no_time and re.fullmatch(
+        '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        unparsed_string
+    ):
+        unparsed_string += ' 12:00'
+
+    parsed_datetime = dateparser.parse(unparsed_string)
+
+    if is_aware(parsed_datetime):
+        return parsed_datetime
+    else:
+        return make_aware(parsed_datetime)

@@ -4,25 +4,25 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
+import copy
+import functools
+import itertools
 
 from django import forms
 from django.forms.fields import Field
-from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from hvad.forms import TranslatableModelForm
+from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-from simplemathcaptcha.fields import MathCaptchaField
+from django_summernote.widgets import SummernoteWidget
 
 from core import models, validators
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
-from utils.forms import KeywordModelForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm, HTMLDateInput
 from utils.logger import get_logger
 from submission import models as submission_models
 
@@ -63,24 +63,33 @@ class EditKey(forms.Form):
         return cleaned_data
 
 
-class JournalContactForm(forms.ModelForm):
+class JournalContactForm(JanewayTranslationModelForm):
+    def __init__(self, *args, **kwargs):
+        next_sequence = kwargs.pop('next_sequence', None)
+        super(JournalContactForm, self).__init__(*args, **kwargs)
+        if next_sequence:
+            self.fields['sequence'].initial = next_sequence
 
     class Meta:
         model = models.Contacts
-        exclude = ('content_type', 'object_id', 'sequence',)
+        fields = ('name', 'email', 'role', 'sequence',)
+        exclude = ('content_type', 'object_id',)
 
 
-class EditorialGroupForm(forms.ModelForm):
+class EditorialGroupForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
-
         if next_sequence:
             self.fields['sequence'].initial = next_sequence
 
     class Meta:
         model = models.EditorialGroup
+        fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
+        widgets = {
+            'description': SummernoteWidget(),
+        }
 
 
 class PasswordResetForm(forms.Form):
@@ -100,24 +109,12 @@ class PasswordResetForm(forms.Form):
         return password_2
 
 
-class RegistrationForm(forms.ModelForm):
+class RegistrationForm(forms.ModelForm, CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if settings.CAPTCHA_TYPE == 'simple_math':
-            question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-            are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
-        elif settings.CAPTCHA_TYPE == 'recaptcha':
-            are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
-        else:
-            are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
-        self.fields["are_you_a_robot"] = are_you_a_robot
 
     class Meta:
         model = models.Account
@@ -158,7 +155,7 @@ class EditAccountForm(forms.ModelForm):
         exclude = ('email', 'username', 'activation_code', 'email_sent',
                    'date_confirmed', 'confirmation_code', 'is_active',
                    'is_staff', 'is_admin', 'date_joined', 'password',
-                   'is_superuser')
+                   'is_superuser', 'enable_digest')
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
@@ -279,14 +276,14 @@ class GeneratedSettingForm(forms.Form):
     def __init__(self, *args, **kwargs):
         settings = kwargs.pop('settings', None)
         super(GeneratedSettingForm, self).__init__(*args, **kwargs)
-
+        self.translatable_field_names = []
         for field in settings:
-
             object = field['object']
+
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(widget=forms.Textarea, required=False)
+                self.fields[field['name']] = forms.CharField(widget=SummernoteWidget, required=False)
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
@@ -303,33 +300,69 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=False)
 
+            if object.setting.is_translatable:
+                self.translatable_field_names.append(object.setting.name)
+
             self.fields[field['name']].label = object.setting.pretty_name
             self.fields[field['name']].initial = object.processed_value
             self.fields[field['name']].help_text = object.setting.description
 
     def save(self, journal, group, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            setting_handler.save_setting('general', setting_name, journal, setting_value)
+            setting_handler.save_setting(group, setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(KeywordModelForm):
+class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+           'contact_info',
+           'is_remote',
+           'remote_view_url',
+           'remote_submit_url',
+           'hide_from_press',
+        )
 
+
+class JournalImageForm(forms.ModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 
     class Meta:
         model = journal_models.Journal
         fields = (
-           'contact_info', 'header_image', 'default_cover_image',
+           'header_image', 'default_cover_image',
            'default_large_image', 'favicon',
-           'is_remote', 'remote_view_url', 'remote_submit_url',
-           'disable_metrics_display', 'disable_article_images',
-           'enable_correspondence_authors', 'full_width_navbar',
-           'view_pdf_button',
         )
 
 
-class PressJournalAttrForm(KeywordModelForm):
+class JournalStylingForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'full_width_navbar',
+        )
+
+
+class JournalSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'enable_correspondence_authors',
+        )
+
+
+class JournalArticleForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'view_pdf_button',
+            'disable_metrics_display',
+            'disable_article_images',
+        )
+
+
+class PressJournalAttrForm(KeywordModelForm, JanewayTranslationModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 
@@ -355,7 +388,7 @@ class ArticleMetaImageForm(forms.ModelForm):
         fields = ('meta_image',)
 
 
-class SectionForm(TranslatableModelForm):
+class SectionForm(JanewayTranslationModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
@@ -369,7 +402,9 @@ class SectionForm(TranslatableModelForm):
         request = kwargs.pop('request', None)
         super(SectionForm, self).__init__(*args, **kwargs)
         if request:
-            self.fields['section_editors'].queryset = request.journal.users_with_role('section-editor')
+            self.fields['section_editors'].queryset = request.journal.users_with_role(
+                'section-editor',
+            )
             self.fields['section_editors'].required = False
             self.fields['editors'].queryset = request.journal.users_with_role('editor')
             self.fields['editors'].required = False
@@ -378,22 +413,10 @@ class SectionForm(TranslatableModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'first_name', 'last_name')
-
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        if self.instance.email == email:
-            return email
-        try:
-            models.Account.objects.get(email=email)
-        except models.Account.DoesNotExist:
-            return email
-        raise forms.ValidationError(
-            'This email address is already in use.'
-        )
+        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
 
 
-class LoginForm(forms.Form):
+class LoginForm(CaptchaForm):
     user_name = forms.CharField(max_length=255, label="Email")
     user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
 
@@ -405,30 +428,8 @@ class LoginForm(forms.Form):
                 "[FAILED_LOGIN:%s][FAILURES: %s]"
                 "" % (self.fields["user_name"], bad_logins),
             )
-        if bad_logins > 3:
-            self.fields['captcha'] = self.captcha_field
-        else:
+        if bad_logins <= 3:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
-
-    @property
-    def captcha_field(self):
-        if settings.CAPTCHA_TYPE == 'simple_math':
-            self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-            return MathCaptchaField(label=_('Anti-spam captcha'))
-        elif settings.CAPTCHA_TYPE == 'recaptcha':
-            field = ReCaptchaField(widget=ReCaptchaWidget())
-            field.label = "Anti-spam captcha"
-            return field
-        else:
-            logger.warning(
-                    "Unknown CAPTCHA_TYPE in settings: %s"
-            "" % settings.CAPTCHA_TYPE
-            )
-            return self.no_cacptcha_field
-
-    @property
-    def no_captcha_field(self):
-        return forms.CharField(widget=forms.HiddenInput(), required=False)
 
 
 class FileUploadForm(forms.Form):
@@ -469,3 +470,152 @@ class XSLFileForm(forms.ModelForm):
             instance.save()
 
         return instance
+
+
+class AccessRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = models.AccessRequest
+        fields = ('text',)
+        labels = {
+            'text': 'Supporting Information',
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        self.repository = kwargs.pop('repository', None)
+        self.user = kwargs.pop('user')
+        self.role = kwargs.pop('role')
+        super(AccessRequestForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        access_request = super().save(commit=False)
+        access_request.journal = self.journal
+        access_request.repository = self.repository
+        access_request.user = self.user
+        access_request.role = self.role
+
+        if commit:
+            access_request.save()
+
+        return access_request
+
+
+class CBVFacetForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        # This form populates the facets that users can filter results on
+        # If you pass a separate facet_queryset into kwargs, the form is
+        # the same regardless of how the result queryset changes
+        # To have the facets dynamically contract based on the result queryset,
+        # do not pass anything for facet_queryset into kwargs.
+
+        self.id = 'facet_form'
+        self.queryset = kwargs.pop('queryset')
+        self.facets = kwargs.pop('facets')
+        self.facet_queryset = kwargs.pop('facet_queryset', None)
+        if not self.facet_queryset:
+            self.facet_queryset = self.queryset
+        self.fields = {}
+
+        super().__init__(*args, **kwargs)
+
+        for facet_key, facet in self.facets.items():
+
+            if facet['type'] == 'foreign_key':
+
+                # Note: This retrieval is written to work even for sqlite3.
+                # It might be rewritten differently if sqlite3 support isn't needed.
+                if self.facet_queryset:
+                    column = self.facet_queryset.values_list(facet_key, flat=True)
+                else:
+                    column = self.queryset.values_list(facet_key, flat=True)
+                values_list = list(filter(bool, column))
+                choice_queryset = facet['model'].objects.filter(pk__in=values_list)
+
+                if facet.get('order_by'):
+                    choice_queryset = self.order_by(choice_queryset, facet, values_list)
+
+                choices = []
+                for each in choice_queryset:
+                    label = getattr(each, facet["choice_label_field"])
+                    count = values_list.count(each.pk)
+                    label_with_count = f'{label} ({count})'
+                    choices.append((each.pk, label_with_count))
+                self.fields[facet_key] = forms.ChoiceField(
+                    widget=forms.widgets.CheckboxSelectMultiple,
+                    choices=choices,
+                    required=False,
+                )
+
+            elif facet['type'] == 'charfield_with_choices':
+                # Note: This retrieval is written to work even for sqlite3.
+                # It might be rewritten differently if sqlite3 support isn't needed.
+
+                if self.facet_queryset:
+                    queryset = self.facet_queryset
+                else:
+                    queryset = self.queryset
+                column = []
+                values_list = []
+                lookup_parts = facet_key.split('.')
+                for obj in queryset:
+                    for part in lookup_parts:
+                        if obj:
+                            try:
+                                result = getattr(obj, part)
+                                obj = result
+                            except:
+                                result = None
+
+                    if result != None:
+                        values_list.append(result)
+                    elif result == None and 'default' in facet:
+                        values_list.append(facet['default'])
+
+                unique_values = set(values_list)
+                choices = []
+                model_choice_dict = dict(facet['model_choices'])
+                for value in unique_values:
+                    label = model_choice_dict.get(value, value)
+                    count = values_list.count(value)
+                    label_with_count = f'{label} ({count})'
+                    choices.append((value, label_with_count))
+                self.fields[facet_key] = forms.ChoiceField(
+                    widget=forms.widgets.CheckboxSelectMultiple,
+                    choices=choices,
+                    required=False,
+                )
+
+            # To do:
+            elif facet['type'] == 'date_time':
+                self.fields[facet_key] = forms.DateTimeField(
+                    widget=HTMLDateInput(),
+                    required=False,
+                )
+
+            elif facet['type'] == 'boolean':
+                pass
+
+            self.fields[facet_key].label = facet['field_label']
+
+    def order_by(self, queryset, facet, fks):
+        order_by = facet.get('order_by')
+        if order_by != 'facet_count' and order_by in facet['model']._meta.get_fields():
+            queryset = queryset.order_by(order_by)
+        elif order_by == 'facet_count':
+            sorted_fk_tuples = sorted(
+                [(fk, fks.count(fk)) for fk in fks],
+                key=lambda x:x[1],
+                reverse=True,
+            )
+            sorted_fks = [tup[0] for tup in sorted_fk_tuples]
+            queryset = sorted(
+                queryset,
+                key=lambda x: sorted_fks.index(x.pk)
+            )
+
+        # Note: There is no way yet to sort on the result of a 
+        # function property like journal.name
+
+        return queryset

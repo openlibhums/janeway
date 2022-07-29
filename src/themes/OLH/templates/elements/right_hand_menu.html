@@ -1,40 +1,40 @@
 {% load roles %}
+{% load i18n %}
 <ul class="menu">
-    <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
-    <li><a href="{% url 'kanban' %}">Kanban</a></li>
+    <li><a href="{% url 'core_dashboard' %}">{% trans "Dashboard" %}</a></li>
+    <li><a href="{% url 'kanban' %}">{% trans "Kanban" %}</a></li>
     {% if not journal_settings.general.disable_journal_submission %}
     <li class="divider"></li>
-    <li><a href="{% url 'submission_start' %}">Submit</a></li>
+    <li><a href="{% url 'submission_start' %}">{% trans "Submit" %}</a></li>
     {% endif %}
     {% user_has_role request 'editor' as user_is_editor %}
     {% if user_is_editor or request.user.is_staff%}
         <li class="divider"></li>
-        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+        <li><a href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_submissions' %}
-            <li><a href="{% url 'core_edit_settings_group' 'submission' %}">Edit Submissions Page</a></li>
-            <li><a href="{% url 'core_edit_settings_group' 'journal' %}">Edit Journal Info</a></li>
+            <li><a href="{% url 'core_edit_settings_group' 'submission' %}">{% trans "Edit Submissions Page" %}</a></li>
+            <li><a href="{% url 'core_edit_settings_group' 'journal' %}">{% trans "Edit Journal Info" %}</a></li>
         {% endif %}
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' and page %}
-            <li><a href="{% url 'cms_page_edit' page.pk %}">Edit Page</a></li>
+            <li><a href="{% url 'cms_page_edit' page.pk %}">{% trans "Edit Page" %}</a></li>
         {% endif %}
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'editorial_team' %}
-            <li><a href="{% url 'core_editorial_team' %}">Manage Editorial Team</a></li>
+            <li><a href="{% url 'core_editorial_team' %}">{% trans "Manage Editorial Team" %}</a></li>
         {% endif %}
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' %}
-            <li><a href="{% url 'manage_archive_article' article.pk %}">Edit Article</a></li>
+            <li><a href="{% url 'manage_archive_article' article.pk %}">{% trans "Edit Article" %}</a></li>
         {% endif %}
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
-            <li><a href="{% url 'manage_issues_id' issue.pk %}">Edit Issue</a></li>
+            <li><a href="{% url 'manage_issues_id' issue.pk %}">{% trans "Edit Issue" %}</a></li>
         {% endif %}
         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
-            <li><a href="{% url 'core_manager_edit_news' news_item.pk %}">Edit
-                News Item</a></li>
+            <li><a href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans "Edit News Item" %}</a></li>
         {% endif %}
     {% endif %}
     {% if request.user.is_staff %}
-    <li><a href="/admin/">Admin</a></li>
+    <li><a href="/admin/">{% trans "Admin" %}</a></li>
     {% endif %}
     <li class="divider"></li>
-    <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-    <li><a href="{% url 'core_logout' %}">Logout</a></li>
+    <li><a href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
+    <li><a href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
 </ul>

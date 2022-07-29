@@ -1,3 +1,32 @@
-<p>| {% if request.journal.issn %}{{ request.journal.issn }}
-| {% endif %}{% if journal_settings.general.publisher_name %} Published by {% if journal_settings.general.publisher_url %}<a href="{{ journal_settings.general.publisher_url}}">{% endif %}{{ journal_settings.general.publisher_name }}{% if journal_settings.general.publisher_url %}</a>{% endif %} 
-| {% endif %}<a {% if journal_settings.general.privacy_policy_url %}href="{{ journal_settings.general.privacy_policy_url }}"{% else %}href="{% url 'cms_page' "privacy" %}"{% endif %}>Privacy Policy</a> |</p>
+<div class="row expanded">
+    <div class="col m10">
+        <p>
+            | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} | {% endif %}
+            {% if request.journal.print_issn %} Print ISSN: {{ request.journal.print_issn }} | {% endif %}
+            {% if journal_settings.general.publisher_name %} Published by
+            {% if journal_settings.general.publisher_url %}
+                <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
+        {% if journal_settings.general.publisher_url %}</a>{% endif %}
+            | {% endif %}<a
+                {% if journal_settings.general.privacy_policy_url %}href="{{ journal_settings.general.privacy_policy_url }}"
+                {% else %}href="{% url 'cms_page' "privacy" %}"{% endif %}>{% trans "Privacy Policy" %}</a> |</p>
+    </div>
+    <div class="col m2 end">
+        <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.PATH }}"/>
+            <select name="language" onchange="this.form.submit()" class="browser-default language-select" autocomplete="off">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                    {% if language.code in request.available_languages %}
+                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                        {{ language.name_local }} ({{ language.code }})
+                    </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+

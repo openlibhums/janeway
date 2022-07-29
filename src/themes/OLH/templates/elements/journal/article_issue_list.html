@@ -1,6 +1,7 @@
+{% load i18n %}
 
 {% with issue_length=article.issues_list|length %}
-<h3>{% if issue_length > 1 %}Issues{% else %}Issue{% endif %}</h3>
+<h3>{% if issue_length > 1 %}{% trans 'Issues' %}{% else %}{% trans 'Issue' %}{% endif %}</h3>
 {% endwith %}
 <ul>
     {% if article.primary_issue %}
@@ -13,8 +14,8 @@
         </li>
     {% endif %}
     {% for issue in article.issues_list %}
-        {% if not issue == article.primary_issue %}<li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.display_title }}</a></li>{% endif %}
+        {% if not issue == article.primary_issue %}<li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.issue_type.pretty_name }}: {{ issue.display_title }}</a></li>{% endif %}
     {% empty %}
-        <li>This article is not a part of any issues.</li>
+        <li>{% trans 'This article is not a part of any issues' %}.</li>
     {% endfor %}
 </ul>

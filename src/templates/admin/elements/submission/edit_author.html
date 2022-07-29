@@ -7,9 +7,17 @@
         </div>
         <div class="card-section">
             <p><strong>NB.</strong> You are editing the frozen metadata record for this author, not their live user
-                profile.</p>
+                profile.{% if frozen_author.author %} This frozen metadata record is linked to Account ID <a target="_blank" href="{% url 'core_user_edit' frozen_author.author.pk %}">{{ frozen_author.author.pk }} - {{ frozen_author.author.full_name }}</a>.{% endif %}</p>
             {% include "elements/forms/errors.html" with form=author_form %}
             <form method="POST">
+                {% if frozen_author.author and not frozen_author.author == article.correspondence_author %}
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button class="button" name="mark_primary">Mark as Primary Author</button>
+                        </div>
+                    </div>
+                {% endif %}
+
                 {% csrf_token %}
                 {{ author_form|foundation }}
                 <button type="submit" name="author" value="{{ author.pk }}" class="small success button">Save Metadata

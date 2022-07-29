@@ -1,7 +1,9 @@
 {% extends "admin/core/base.html" %}
+{% load i18n %}
 
 {% block title %}{{ decision|capfirst }} Article{% endblock title %}
 {% block title-section %}{{ decision|capfirst }} Article{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -13,10 +15,42 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Are you sure you want to {{ decision }} {{ article.title }}?</h2>
+                <h2>Article Decision</h2>
             </div>
             <div class="content">
-                <p>You can provide some information to the Authors below: </p>
+                <p>Are you sure you want to {{ decision }} {{ article.title }}?</p>
+                {% if decision == 'accept' %}
+                    {% if article.journal.use_crossref %}
+                        <div class="bs-callout">
+                        <p>
+                            This journal is set to use Crossref for DOI registration.
+                            A DOI will be minted now, without registering any metadata. Author and article metadata will
+                            be fully registered once this article is set for publication.
+                        </p>
+                        </div>
+                    {% else %}
+                        <div class="bs-callout bs-callout-danger">
+                        <p>Note: DOI registration is not configured.</p>
+                        </div>
+                    {% endif %}
+                    {% if accept_article_warning %}
+                        <div class="bs-callout">
+                        {{ accept_article_warning|safe }}
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if article.hidden_completed_reviews %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p>{% trans 'Note: This article has completed reviews that have not been made available to the author:' %}</p>
+                        <ul>
+                            {% for review in article.hidden_completed_reviews %}
+                                <li><a target="_blank" href="{% url 'review_view_review' article.pk review.pk %}">#{{ review.pk }} - {{ review.reviewer.full_name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <br />
+                {% endif %}
+                <p>You can provide some information to the authors below:</p>
                 <form method="POST">
                     {% csrf_token %}
                     <div class="card">
@@ -26,6 +60,8 @@
                         </div>
                         <div class="card-section">
                             <textarea name="decision_rationale" rows="5">{{ email_content|linebreaksbr }}</textarea>
+                            <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                            <input type="file" name="attachment" multiple>
                         </div>
                         <div class="card-divider">
                             <div class="button-group">

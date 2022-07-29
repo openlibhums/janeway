@@ -15,15 +15,12 @@ def yield_homepage_element_context(request, homepage_elements):
             return {'news_items': request.press.carousel_news_items.all()}
 
         plugin = utils_models.Plugin.objects.get(name='News')
-        try:
-            number_of_articles = setting_handler.get_plugin_setting(
-                plugin,
-                'number_of_articles',
-                request.journal if request.journal else None).value
-            number_of_articles = int(
-                number_of_articles) if number_of_articles else 0
-        except IndexError:
-            number_of_articles = 0
+        number_of_articles = setting_handler.get_plugin_setting(
+            plugin,
+            'number_of_articles',
+            request.journal if request.journal else None).value
+        number_of_articles = int(
+            number_of_articles) if number_of_articles else 2
 
         news_items = comms_models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(

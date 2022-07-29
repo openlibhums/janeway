@@ -258,8 +258,18 @@ a:hover .article-title {
     font-weight: 300;
 }
 
+.article-body h5 {
+    font-size: 17px;
+    font-weight: 300;
+}
+
+.article-body h6 {
+    font-size: 16px;
+    font-weight: 300;
+}
+
 .article-body a {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .article-body ul:not(.browser-default) {
@@ -296,16 +306,22 @@ a:hover .article-title {
     color: white;
 }
 
-.editorial-card {
-    max-height: 420px;
-}
-
 .disp-formula {
     overflow-x: auto;
 }
 
 .table-wrap {
     overflow-x: auto;
+}
+
+.table-center {
+    text-align: center;
+}
+.table-left {
+    text-align: left;
+}
+.table-right {
+    text-align: right;
 }
 
 .alm {
@@ -353,7 +369,7 @@ a:hover .article-title {
 }
 
 h1 {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: 300;
     margin: 1.68rem 0 1.68rem 0;
 }
@@ -364,11 +380,11 @@ h2 {
 }
 
 h3 {
-    font-size: 1.6rem;
+    font-size: 2.0rem;
 }
 
 h4 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 300;
 }
 
@@ -391,6 +407,24 @@ h5 {
     font-variant: small-caps
 }
 
+/* Remove default bullets */
+.tree {
+    margin-left: 20px;
+}
+.tree li {
+    list-style-type: disc !important;
+  }
+  
+  
+  /* Hide the nested list */
+  .nested {
+    margin-left: 30px;
+  }
+  
+  /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+  #subjects .tree .active {
+    display: block;
+  }
 .header-overrides {
     background-color: #fafafa;
     color: #616161;
@@ -408,6 +442,10 @@ h5 {
 
 .brand-logo {
     color: #616161;
+}
+
+.brand-logo img {
+    min-height: 75px;
 }
 
 nav ul a {
@@ -539,4 +577,113 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 
 .linkedin-bg:hover {
     background-color: var(--linkedin-hover);
+}
+
+.flexbox {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.scroll-y {
+    overflow-y: auto !important;
+}
+
+/* Allow the use of default <li> */
+.default-li ul {
+    display: block;
+    list-style: disc outside none;
+    padding: 0 0 0 40px;
+}
+.default-li ol {
+    list-style-type: decimal;
+    display: block;
+    padding: 0 0 0 40px;
+}
+.default-li li {
+    display: list-item;
+}
+.default-li ul ul, ol ul {
+    list-style-type: circle;
+}
+
+.default-li ol ol, ul ol {
+    list-style-type: lower-latin;
+}
+
+.default-li ul > li {
+    list-style-type: revert;
+}
+
+.language-select {
+    color: #616161;
+}
+
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+}
+
+.article-table {
+  display: block;
+  overflow-x: scroll;
+}
+
+.modal-large {
+    width: 75%;
+    max-height: 75%;
+}
+
+.card-full-height {
+    height: 100%;
+}
+
+.journal-button-block {
+    margin-top: 10px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.row.grid .cell {
+  // flex: auto;
+  // flex: 0;
+  // flex: 1;
+  margin-left: 0;
+}
+
+.card .journal-card-content {
+    padding: 24px 24px 0 24px;
+}
+
+.card .journal-card-content p {
+    padding-bottom: 0;
+}
+
+.journal-card {
+    margin-bottom: 10px;
+}
+
+footer svg {
+    height: 90%;
+    width: 90%;
+}
+
+strong {
+    font-weight: 650;
+}
+
+
+#homepage-element-search-bar .input-field .prefix {
+  font-size: 3rem;
+}
+
+#homepage-element-search-bar .input-field label {
+  font-size: 1.5rem;
+}
+
+#homepage-element-search-bar .input-field #search_term {
+  font-size: 1.5rem;
 }

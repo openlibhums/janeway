@@ -4,7 +4,7 @@
 
 {% block title %}{{ role.name }}{% endblock title %}
 {% block title-section %}Roles{% endblock %}
-{% block title-sub %}{{ role.name }}{% endblock %}
+{% block title-sub %}Users with the {{ role.name }} role{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -17,38 +17,10 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Users without this role</h2>
-                <a href="{% url 'core_manager_roles' %}" class="button">< Go back</a>
-            </div>
-            <div class="content">
-                <table class="small scroll" cellspacing="0" width="100%" id='users-without'>
-                    <thead>
-                    <tr>
-                        <th width="25%">First Name</th>
-                        <th width="25%">Last Name</th>
-                        <th width="30%">Email</th>
-                        <th width="20%"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for user in users %}
-                        <tr>
-                            <td>{{ user.first_name }}</td>
-                            <td>{{ user.last_name }}</td>
-                            <td>{{ user.email }}</td>
-                            <td width="20%"><a class="tiny success button" href="{% url 'core_manager_role_action' role.slug user.id 'add' %}"><i
-                                    class="fa fa-plus"></i>&nbsp;&nbsp; Add Role</a></td>
-                        </tr>
-                    {% endfor %}</tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="box">
-            <div class="title-area">
                 <h2>Users with this role</h2>
             </div>
             <div class="content">
+                <p>To enrol users use the <a href="{% url 'core_manager_enrol_users' %}?return={% url 'core_manager_role' role.slug %}">Enrol Users</a> interface.</p>
                 <table class="small scroll" cellspacing="0" width="100%" id='users-with'>
                     <thead>
                     <tr>
@@ -77,16 +49,11 @@
 
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#unassigned" %}
+    {% include "admin/elements/datatables.html" with target="#users-with" %}
     <script>
         $(document).ready(function () {
-            $('#users-without').DataTable({
-                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
-            });
-        });
-
-        $(document).ready(function () {
             $('#users-with').DataTable({
+                "page_length": 25,
                 "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
             });
         });

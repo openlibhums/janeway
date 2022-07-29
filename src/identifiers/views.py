@@ -6,16 +6,19 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.http import HttpResponse
 from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
 from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
+from django.db.models import OuterRef, Subquery
 
 from identifiers import models, forms
 from submission import models as submission_models
+from core import views as core_views
+from journal import models as journal_models
 
-from security.decorators import production_user_or_editor_required
+from security.decorators import production_user_or_editor_required, editor_user_required
 from identifiers import logic
 
 import datetime
 from uuid import uuid4
-
 
 from django.urls import reverse
 from django.contrib import messages
@@ -87,13 +90,20 @@ def manage_identifier(request, article_id, identifier_id=None):
         article=article,
     ) if identifier_id else None
 
-    form = forms.IdentifierForm(instance=identifier)
+    form = forms.IdentifierForm(
+        instance=identifier,
+        article=article,
+    )
 
     if request.POST:
-        form = forms.IdentifierForm(request.POST, instance=identifier)
+        form = forms.IdentifierForm(
+            request.POST,
+            instance=identifier,
+            article=article,
+        )
 
         if form.is_valid():
-            form.save(article=article)
+            form.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -119,7 +129,7 @@ def manage_identifier(request, article_id, identifier_id=None):
 @production_user_or_editor_required
 def show_doi(request, article_id, identifier_id):
     """
-    Issues a DOI identifier
+    Shows a DOI deposit
     :param request: HttpRequest
     :param article_id: Article object PK
     :param identifier_id: Identifier object PK
@@ -138,10 +148,15 @@ def show_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    template_context = logic.create_crossref_context(identifier)
-
-    template = logic.get_crossref_template(article)
-    return render_to_response(template, template_context, content_type="application/xml")
+    try:
+        document = identifier.crossref_status.latest_deposit.document
+        if not document:
+            raise AttributeError
+        return HttpResponse(document, content_type="application/xml")
+    except AttributeError:
+        template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        return render_to_response(template, template_context, content_type="application/xml")
 
 
 @production_user_or_editor_required
@@ -166,10 +181,19 @@ def poll_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if not identifier.deposit:
-        pass
+    if identifier.crossref_status and identifier.crossref_status.latest_deposit:
+        status, error = identifier.crossref_status.latest_deposit.poll()
+        messages.add_message(
+            request,
+            messages.INFO if not error else messages.ERROR,
+            status
+        )
+        identifier.crossref_status.update()
     else:
-        identifier.deposit.poll()
+        crossref_status = models.CrossrefStatus.objects.create(
+            identifier=identifier
+        )
+        crossref_status.update()
 
     return redirect(
         reverse(
@@ -182,7 +206,7 @@ def poll_doi(request, article_id, identifier_id):
 @production_user_or_editor_required
 def poll_doi_output(request, article_id, identifier_id):
     """
-    Polls crossref for DOI info
+    Gets Crossref response stored on CrossrefDeposit
     :param request: HttpRequest
     :param article_id: Article object PK
     :param identifier_id: Identifier object PK
@@ -201,10 +225,16 @@ def poll_doi_output(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if not identifier.deposit:
+    if not identifier.crossref_status:
         return HttpResponse('Error: no deposit found')
+    elif 'doi_batch' not in identifier.crossref_status.latest_deposit.result_text:
+        return HttpResponse(identifier.crossref_status.latest_deposit.result_text)
     else:
-        resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
+        text = identifier.crossref_status.latest_deposit.get_record_diagnostic(identifier.identifier)
+        if text:
+            resp = HttpResponse(text, content_type="application/xml")
+        else:
+            resp = HttpResponse(identifier.crossref_status.latest_deposit.result_text, content_type="application/xml")
         resp['Content-Disposition'] = 'inline;'
         return resp
 
@@ -279,3 +309,65 @@ def delete_identifier(request, article_id, identifier_id):
             kwargs={'article_id': article.pk},
         )
     )
+
+
+@method_decorator(editor_user_required, name='dispatch')
+class IdentifierManager(core_views.FilteredArticlesListView):
+    template_name = 'core/manager/identifier_manager.html'
+
+    def get_facets(self):
+
+        crossref_status_obj = models.CrossrefStatus.objects.filter(
+            identifier__article=OuterRef('pk'),
+        )
+
+        status = Subquery(
+            crossref_status_obj.values('message')[:1]
+        )
+
+        facets = {
+            'date_published__gte': {
+                'type': 'date_time',
+                'field_label': 'Pub date from',
+            },
+            'date_published__lte': {
+                'type': 'date_time',
+                'field_label': 'Pub date to',
+            },
+            'status': {
+                'type': 'charfield_with_choices',
+                'annotations': {
+                    'status': status,
+                },
+                'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
+                'field_label': 'Status',
+            },
+            'journal__pk': {
+                'type': 'foreign_key',
+                'model': journal_models.Journal,
+                'field_label': 'Journal',
+                'choice_label_field': 'name',
+                'order_by': 'facet_count',
+            },
+            'primary_issue__pk': {
+                'type': 'foreign_key',
+                'model': journal_models.Issue,
+                'field_label': 'Primary issue',
+                'choice_label_field': 'non_pretty_issue_identifier',
+            },
+        }
+        return self.filter_facets_if_journal(facets)
+
+    def get_actions(self):
+        return [
+            {
+                'name': 'register_dois',
+                'value': 'Register DOIs',
+                'action': logic.register_batch_of_crossref_dois,
+            },
+            {
+                'name': 'poll_doi_status',
+                'value': 'Poll for status',
+                'action': logic.poll_dois_for_articles,
+            },
+        ]

@@ -6,7 +6,7 @@
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}{{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
@@ -127,10 +127,17 @@
 
         <div class="box">
             <div class="title-area">
-                <h2>Files</h2>
+                <h2 id="files-block">Files</h2>
             </div>
             <div class="content">
-                <table class="scroll small">
+                {% if journal_settings.crosscheck.enable %}
+                <p>
+                    <small>
+                        {% trans 'To check an article for possible plagiarism, you can send an article for an automated Similarity Check via iThenticate by clicking Send below. The report then takes a few minutes to be generated, so refresh this page; results will be displayed under Similarity Check when ready.' %}
+                    </small>
+                </p>
+                {% endif %}
+                <table class="table scroll small">
                     <tr>
                         <th>Label</th>
                         <th>Filename</th>
@@ -161,7 +168,7 @@
                                 {% if journal_settings.crosscheck.enable %}
                                     <td>{% if not article.ithenticate_id %}
                                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i
-                                                class="fa fa-cloud-upload"></i></button>
+                                                class="fa fa-cloud-upload"></i> Send</button>
                                     {% else %}
                                         <a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i
                                                 class="fa fa-book">&nbsp;</i>View Report
@@ -275,6 +282,11 @@
             </div>
             <div class="content">
                 {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
+                    {% if journal_settings.crosscheck.enable and not article.ithenticate_id %}
+                        <div class="bs-callout bs-callout-danger">
+                            {% trans 'This paper has not had an automatic plagiarism check. If you wish to do so you can run a' %} <a href="{% url 'review_unassigned_article' article.pk %}#files-block">{% trans 'Similarity Check via iThenticate' %}</a> .</small></p>
+                        </div>
+                    {% endif %}
                     {% if article.editors %}
                         <ul class="menu vertical actions">
                             <li>
@@ -303,5 +315,5 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#editors" %}
+    {% include "admin/elements/datatables.html" with target="#editors" page_length=5 %}
 {% endblock js %}

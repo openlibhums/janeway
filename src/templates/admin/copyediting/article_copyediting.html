@@ -3,7 +3,7 @@
 
 {% block title %}Copyediting {{ article.title }}{% endblock %}
 {% block title-section %}Copyediting{% endblock %}
-{% block title-sub %}{{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -60,7 +60,7 @@
                                             <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
                                         {% endif %}
                                         {% if request.user.is_admin %}
-                                            <a class="button" target="_blank" href="{% url 'admin:copyediting_copyeditassignment_change' assignment.pk %}"><span class="fa fa-cogs">&nbsp;&nbsp;</span>Edit in <br />Admin</a>
+                                            <a class="button" target="_blank" href="{% url 'admin:copyediting_copyeditassignment_change' assignment.pk %}"><span class="fa fa-cogs">&nbsp;&nbsp;</span>Admin</a>
                                         {% endif %}
                                     </div>
                                     <div class="dropdown-pane right"

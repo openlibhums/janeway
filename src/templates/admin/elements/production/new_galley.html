@@ -1,3 +1,5 @@
+{% load foundation %}
+
 <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
     <div class="card">
@@ -15,14 +17,10 @@
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <input type="hidden" name="upload" value="upload">
-            <input type="text" name="label" placeholder="Enter a label for your galley">
             <p class="help-text">Galley labels are displayed in download links and have the format "Download Label" eg. if you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for you, leave it blank.</p>
             <div class="clearfix">
                 <div>
-                    <input name="file" type="file" class="float-left" style="width:50%;"
-                           data-placeholder="No file"
-                           data-buttonName="btn-primary">
+                    {{ galley_form|foundation }}
                     <button type="submit" class="button success float-right" name="other"><i
                             class="fa fa-upload">
                         &nbsp;</i>Upload

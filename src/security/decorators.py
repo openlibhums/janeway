@@ -20,6 +20,7 @@ from proofing import models as proofing_models
 from security.logic import can_edit_file, can_view_file_history, can_view_file, is_data_figure_file
 from utils import setting_handler
 from utils.logger import get_logger
+from repository import models as preprint_models
 
 logger = get_logger(__name__)
 
@@ -106,6 +107,24 @@ def senior_editor_user_required(func):
 
         else:
             deny_access(request)
+
+    return wrapper
+
+
+def editor_or_manager(func):
+    """
+    Checks that a user is either an editor or manager for the current journal or repo.
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        if request.journal and request.user in request.journal.editor_list():
+            return func(request, *args, **kwargs)
+
+        if request.repository and request.user in request.repository.managers.all():
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
@@ -542,6 +561,8 @@ def article_stage_accepted_or_later_or_staff_required(func):
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)
+        elif request.user in article_object.section_editors():
+            return func(request, *args, **kwargs)
         else:
             deny_access(request)
 
@@ -739,12 +760,32 @@ def article_decision_not_made(func):
             article_object = review_models.ReviewAssignment.objects.get(pk=kwargs['review_id'],
                                                                         article__journal=request.journal).article
 
-        if article_object.stage == models.STAGE_ASSIGNED or article_object.stage == models.STAGE_UNDER_REVIEW\
-                or article_object.stage == models.STAGE_UNDER_REVISION:
+        if article_object.stage in models.REVIEW_STAGES:
             return func(request, *args, **kwargs)
+        elif article_object.stage == models.STAGE_UNASSIGNED:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'This article is not in a review stage.',
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article_object.pk},
+                )
+            )
         else:
-            messages.add_message(request, messages.WARNING, 'This article has already been accepted or declined.')
-            return redirect(reverse('review_in_review', kwargs={'article_id': article_object.pk}))
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This article is no longer under review.',
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article_object.pk},
+                )
+            )
 
     return wrapper
 
@@ -973,7 +1014,7 @@ def press_only(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal:
+        if request.journal or request.repository:
             messages.add_message(request, messages.INFO, 'This is a press only page.')
             return redirect(reverse('core_manager_index'))
 
@@ -992,12 +1033,19 @@ def preprint_editor_or_author_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
 
-        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+        preprint = get_object_or_404(
+            preprint_models.Preprint,
+            pk=kwargs['preprint_id'],
+            repository=request.repository
+        )
 
-        if request.user in article.authors.all() or request.user.is_staff:
+        if request.user == preprint.owner or request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        if request.user in article.subject_editors():
+        if request.user in preprint.subject_editors():
+            return func(request, *args, **kwargs)
+
+        if request.user in request.repository.managers.all():
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1014,9 +1062,16 @@ def is_article_preprint_editor(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+        if not base_check(request):
+            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
 
-        if request.user in article.subject_editors() or request.user.is_staff:
+        preprint = get_object_or_404(
+            preprint_models.Preprint,
+            pk=kwargs['preprint_id'],
+            repository=request.repository
+        )
+
+        if request.user in preprint.subject_editors() or request.user.is_staff or request.user.is_repository_manager(request.repository):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1024,22 +1079,23 @@ def is_article_preprint_editor(func):
     return wrapper
 
 
-def is_preprint_editor(func):
+def is_repository_manager(func):
     """
-    Checks that the current user is a preprint editor
+    Checks that the current user is a repository manager
     :param func:
     :return:
     """
 
     @base_check_required
-    def wrapper(request, *args, **kwargs):
+    def preprint_manager_wrapper(request, *args, **kwargs):
 
-        if request.user in request.press.preprint_editors() or request.user.is_staff:
-            return func(request, *args, **kwargs)
+        if request.repository and request.user:
+            if request.user.is_staff or request.user in request.repository.managers.all():
+                return func(request, *args, **kwargs)
 
         deny_access(request)
 
-    return wrapper
+    return preprint_manager_wrapper
 
 
 def deny_access(request, *args, **kwargs):
@@ -1108,3 +1164,66 @@ def keyword_page_enabled(func):
             return func(request, *args, **kwargs)
 
     return keyword_page_enabled_wrapper
+
+
+def submission_authorised(func):
+    """
+    Checks if roles are required to access submission page.
+    :param func:
+    :return:
+    """
+
+    @base_check_required
+    def submission_authorised_wrapper(request, *args, **kwargs):
+        if (
+                request.user.is_staff or
+                (request.journal and request.user in request.journal.editors()) or
+                (request.repository and request.user in request.repository.managers.all())
+        ):
+            return func(request, *args, **kwargs)
+
+        if request.repository and request.repository.limit_access_to_submission:
+            if not preprint_models.RepositoryRole.objects.filter(
+                repository=request.repository,
+                user=request.user,
+                role__slug='author',
+            ).exists():
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
+
+        if request.journal and request.journal.get_setting('general', 'limit_access_to_submission'):
+            if not request.user.is_author(
+                request,
+            ):
+                return redirect(
+                    reverse(
+                        'request_submission_access'
+                    )
+                )
+
+        return func(request, *args, **kwargs)
+
+    return submission_authorised_wrapper
+
+
+def article_is_not_submitted(func):
+    """
+    Checks that an article is not already submitted.
+    """
+    @wraps(func)
+    def article_is_not_submitted(request, *args, **kwargs):
+        article_id = kwargs.get('article_id')
+        try:
+            article = models.Article.objects.get(
+                pk=article_id,
+                journal=request.journal,
+                date_submitted__isnull=True,
+            )
+            return func(request, *args, **kwargs)
+        except models.Article.DoesNotExist:
+            raise Http404('This article has already been submitted.')
+
+    return article_is_not_submitted

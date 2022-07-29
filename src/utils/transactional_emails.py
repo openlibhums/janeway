@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from utils import (
     notify_helpers,
@@ -154,7 +155,7 @@ def send_reviewer_requested_acknowledgements(**kwargs):
     if not skip:
         notify_helpers.send_email_with_body_from_user(
             request,
-            'subject_review_request_sent',
+            'subject_review_assignment',
             review_assignment.reviewer.email,
             user_message_content,
             log_dict=log_dict,
@@ -218,7 +219,7 @@ def send_review_complete_acknowledgements(**kwargs):
 
     # send to editor
     context['review_in_review_url'] = review_in_review_url
-    editors = get_review_assignment_editors(review_assignment)
+    editors = get_assignment_editors(review_assignment)
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
@@ -263,7 +264,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
     review_in_review_url = request.journal.site_url(
         path=reverse(
-            'review_unassigned_article',
+            'review_in_review',
             kwargs={'article_id': article.pk},
         )
     )
@@ -284,6 +285,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
     # send to reviewer
     if accepted:
+        context["reviewer_decision"] = _("accepted")
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_accept_acknowledgement',
@@ -293,6 +295,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
     else:
+        context["reviewer_decision"] = _("declined")
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_decline_acknowledgement',
@@ -302,12 +305,12 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
     # send to editor
-    editors = get_review_assignment_editors(review_assignment)
+    editors = get_assignment_editors(review_assignment)
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
-            'review_acknowledgement',
-            'subject_review_acknowledgement',
+            'reviewer_acknowledgement',
+            'subject_reviewer_acknowledgement',
             editor.email,
             editor_context,
         )
@@ -461,7 +464,8 @@ def send_revisions_request(**kwargs):
         )
         notify_helpers.send_slack(
             request,
-            description,['slack_editors'],
+            description,
+            ['slack_editors'],
         )
 
 
@@ -473,18 +477,53 @@ def send_revisions_complete(**kwargs):
     for action in revision.actions.all():
         action_text = "{0}<br><br>{1} - {2}".format(action_text, action.logged, action.text)
 
-    description = '<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'.format(request.user.full_name(),
-                                                                                      revision.article.title,
-                                                                                      action_text)
-
-    notify_helpers.send_email_with_body_from_user(request,
-                                                  'Article Revisions Complete',
-                                                  revision.editor.email,
-                                                  description)
+    description = ('<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'
+        ''.format(request.user.full_name(), revision.article.title, action_text)
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Article Revisions Complete',
+        {editor.email for editor in get_assignment_editors(revision)},
+        description,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-    util_models.LogEntry.add_entry(types='Revisions Complete', description=action_text, level='Info',
-                                   request=request, target=revision.article)
+    util_models.LogEntry.add_entry(
+        types='Revisions Complete', description=action_text, level='Info',
+        request=request, target=revision.article,
+    )
+
+
+def send_revisions_author_receipt(**kwargs):
+    request = kwargs['request']
+    revision = kwargs['revision']
+
+    description = '{0} has completed revisions for {1}'.format(
+        request.user.full_name(),
+        revision.article.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Revisions Complete',
+        'target': revision.article,
+    }
+    context = {
+        'revision': revision,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'revisions_complete_receipt',
+        'subject_revisions_complete_receipt',
+        revision.article.correspondence_author.email,
+        context,
+        log_dict=log_dict,
+    )
+    notify_helpers.send_slack(
+        request,
+        description,
+        ['slack_editors'],
+    )
 
 
 def send_copyedit_assignment(**kwargs):
@@ -567,10 +606,12 @@ def send_copyedit_deleted(**kwargs):
 
 def send_copyedit_decision(**kwargs):
     request = kwargs['request']
+    decision = kwargs["decision"]
     copyedit_assignment = kwargs['copyedit_assignment']
 
-    description = '{0} has accepted copyediting task for {1} due on {2}.'.format(
+    description = '{0} has {1}ed copyediting task for {2} due on {3}.'.format(
         copyedit_assignment.copyeditor.full_name(),
+        decision,
         copyedit_assignment.article.title,
         copyedit_assignment.due)
 
@@ -1108,19 +1149,24 @@ def send_author_publication_notification(**kwargs):
     # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'section_editor_pub_notification',
-                                                                      'Article set for publication',
-                                                                      editor.email,
-                                                                      {'article': article, 'editor': editor})
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'section_editor_pub_notification',
+                'Article set for publication',
+                editor.email,
+                {'article': article, 'editor': editor},
+            )
 
     if peer_reviewers:
-        for reviewer in article.peer_reviewers():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'peer_reviewer_pub_notification',
-                                                                      'Article set for publication',
-                                                                      reviewer.email,
-                                                                      {'article': article, 'reviewer': reviewer})
+        reviewers = {review_assignment.reviewer for review_assignment in article.completed_reviews_with_decision}
+        for reviewer in reviewers:
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'peer_reviewer_pub_notification',
+                'Article set for publication',
+                reviewer.email,
+                {'article': article, 'reviewer': reviewer},
+            )
 
 
 def review_sec_override_notification(**kwargs):
@@ -1140,10 +1186,6 @@ def send_draft_decison(**kwargs):
     request = kwargs['request']
     draft = kwargs['draft']
     article = kwargs['article']
-    emails = article.section.editor_emails()
-
-    if not emails:
-        emails = request.journal.editor_emails
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
@@ -1168,7 +1210,7 @@ def send_draft_decison(**kwargs):
         request,
         'draft_editor_message',
         'subject_draft_editor_message',
-        emails,
+        draft.editor.email if draft.editor else request.journal.editor_emails,
         context,
         log_dict=log_dict,
     )
@@ -1207,84 +1249,204 @@ def send_author_copyedit_complete(**kwargs):
     )
 
 
-
 def preprint_submission(**kwargs):
     """
-    Called by events.Event.ON_PRPINT_SUBMISSIONS, logs and emails the author and preprint editor.
+    Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author
+    and preprint editor.
     :param kwargs: Dictionary containing article and request objects
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    description = '{author} has submitted a new preprint titled {title}.'.format(author=request.user.full_name(),
-                                                                                 title=article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
-                'target': article}
+    description = '{author} has submitted a new {obj} titled {title}.'.format(
+        author=request.user.full_name(),
+        obj=request.repository.object_name,
+        title=preprint.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Submission',
+        'target': preprint,
+    }
 
     # Send an email to the user
-    context = {'article': article}
-    template = request.press.preprint_submission
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text,
-                                                  log_dict=log_dict)
+    context = {'preprint': preprint}
+    template = request.repository.submission
+    email_text = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Submission'.format(request.repository.object_name),
+        request.user.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
     # Send an email to the preprint editor
-    url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
-    editor_email_text = 'A new preprint has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+    url = request.repository.site_url() + reverse(
+        'repository_manager_article',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+        object=request.repository.object_name,
         press=request.press.name,
         url=url,
-        title=article.title
+        title=preprint.title
     )
     for editor in request.press.preprint_editors():
-        notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
-                                                      editor_email_text, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission'.format(request.repository.object_name),
+            editor.email,
+            editor_email_text,
+            log_dict=log_dict,
+        )
 
 
-def preprint_publication(**kwargs):
+def preprint_notification(**kwargs):
     """
-    Called by events.Event.ON_PREPRINT_PUBLICATIONS handles logging and emails.
-    :param kwargs: Dictionary containing article and request objects
+    Called by events.Event.ON_PREPRINT_NOTIFICATION handles logging and emails.
+    :param kwargs: Dict with preprint, content and request objects
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
+    content = kwargs.get('email_content')
+    skip = kwargs.get('skip')
 
-    description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
-                                                                             title=article.title)
+    if preprint.date_declined:
+        types = 'Rejected'
+        description = '<p>{editor} has rejected \'{title}\'. Moderator reason:</p><p>{reason}</p>'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+            reason=preprint.preprint_decline_note,
+        )
+    else:
+        types = 'Accepted'
+        description = '{editor} has published \'{title}\'.'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+        )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': types,
+        'target': preprint,
+    }
 
-    util_models.LogEntry.add_entry('Publication', description, 'Info', request.user, request, article)
+    util_models.LogEntry.add_entry(
+        types,
+        description,
+        'Info',
+        request.user,
+        request,
+        preprint,
+    )
 
-    # Send an email to the article owner.
-    context = {'article': article}
-    template = request.press.preprint_publication
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    if not skip:
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission Decision'.format(preprint.title),
+            preprint.owner.email,
+            content,
+            log_dict=log_dict,
+        )
 
-    # Stops this notification being sent multiple times.c
-    article.preprint_decision_notification = True
-    article.save()
+        # Stops this notification being sent multiple times.c
+        preprint.preprint_decision_notification = True
+        preprint.save()
 
 
 def preprint_comment(**kwargs):
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
-                 '<a href="{base_url}{url}">on the journal site</a>.'.format(
-                     article=article.title, base_url=request.press_base_url, url=reverse('preprints_comments',
-                                                                                         kwargs={'article_id': article.pk}))
+    path = reverse(
+        'repository_comments',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    url = request.repository.site_url(path)
 
-    description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Comment',
-                'target': article}
+    email_text = 'A comment has been made on your article {title}, you can moderate comments ' \
+                 '<a href="{url}">on the journal site</a>.'.format(
+        title=preprint.title,
+        url=url,
+    )
 
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    description = '{author} commented on {title}'.format(
+        author=request.user.full_name(),
+        title=preprint.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Comment',
+        'target': preprint,
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Preprint Comment',
+        preprint.owner.email,
+        email_text,
+        log_dict=log_dict,
+    )
+
+
+def preprint_version_update(**kwargs):
+    request = kwargs.get('request')
+    pending_update = kwargs.get('pending_update')
+    action = kwargs.get('action')
+    reason = kwargs.get('reason')
+
+    description = '{object} Pending Version {pk}: Decision: {decision}'.format(
+        object=request.repository.object_name,
+        pk=pending_update.pk,
+        decision=action,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Publication',
+        'target': pending_update.preprint,
+    }
+
+    context = {
+        'pending_update': pending_update,
+        'reason': reason,
+    }
+
+    if action == 'accept':
+        template = request.repository.accept_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+        )
+    else:
+        template = request.repository.decline_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+        )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Version Update'.format(pending_update.preprint.title),
+        pending_update.preprint.owner.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
 
 def send_cancel_corrections(**kwargs):
@@ -1314,22 +1476,188 @@ def send_cancel_corrections(**kwargs):
     )
 
 
-def get_review_assignment_editors(review_assignment):
-    """ Get editors relevant to a review assignment
+def get_assignment_editors(assignment):
+    """ Get editors relevant to a review or revision assignment
 
     This is a helper function to retrieve the editors that should be
-    notified of changes in a review assignment. It exists to handle edge-cases
-    where a review assignment might not have an editor assigned (e.g.:
-    migrated reviews from another system)
+    notified of changes in a review/ revision assignment.
+    It exists to handle edge-cases where anassignment might not have an editor
+    assigned (e.g.: migrated submissions from another system)
+    :param assignment: an instance of ReviewAssignment or RevisionRequest
+    :return: A list of Account objects
     """
-    article = review_assignment.article
-    if review_assignment.editor:
-        editors = [review_assignment.editor]
+    article = assignment.article
+    if assignment.editor:
+        editors = [assignment.editor]
     elif article.editorassignment_set.exists():
         # Try article assignment
         editors = [ass.editor for ass in article.editorassignment_set.all()]
     else:
         # Fallback to all editors
-        editors = [r.user for r in core_models.AccountRole.objects.filter(
-            role__slug='editor', journal=article.journal)]
+        editors = [e for e in assignment.article.journal.editors()]
     return editors
+
+
+def send_draft_decision_declined(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    draft_decision = kwargs.get('draft_decision')
+
+    description = '{user} has declined a draft decision {draft} written by {section_editor}'.format(
+        user=request.user,
+        draft=draft_decision.pk,
+        section_editor=draft_decision.section_editor.full_name,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Draft Decision Declined',
+        'target': article,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_se_draft_declined',
+        'subject_notify_se_draft_declined',
+        draft_decision.section_editor.email,
+        context=kwargs,
+        log_dict=log_dict,
+    )
+
+
+def access_request_notification(**kwargs):
+    request = kwargs.get('request')
+    access_request = kwargs.get('access_request')
+    description = '{} has requested the {} role for {}'.format(
+        request.user,
+        access_request.role.name,
+        request.site_type.name,
+    )
+
+    if request.journal:
+        contact = request.journal.get_setting('general', 'submission_access_request_contact')
+    else:
+        contact = request.repository.submission_access_contact
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Access Request',
+        'target': request.site_type,
+    }
+    if contact:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'submission_access_request_notification',
+            'subject_submission_access_request_notification',
+            contact,
+            context={'description': description},
+            log_dict=log_dict,
+        )
+
+
+def access_request_complete(**kwargs):
+    request = kwargs.get('request')
+    access_request = kwargs.get('access_request')
+    decision = kwargs.get('decision')
+    description = "Access request from {} evaluated by {}: {}".format(
+        access_request.user.full_name,
+        request.user,
+        decision,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Access Request',
+        'target': request.site_type,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'submission_access_request_complete',
+        'subject_submission_access_request_complete',
+        access_request.user.email,
+        context={
+            'access_request': access_request,
+            'decision': decision,
+        },
+        log_dict=log_dict,
+    )
+
+
+def preprint_review_notification(**kwargs):
+    request = kwargs.get('request')
+    preprint = kwargs.get('preprint')
+    review = kwargs.get('review')
+    message = kwargs.get('message')
+    skip = kwargs.get('skip', None)
+
+    if not skip:
+        description = 'Review of {} requested from {} by {}.'.format(
+            preprint.title,
+            review.reviewer.full_name(),
+            review.manager.full_name(),
+        )
+        log_dict = {
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Review',
+            'target': preprint,
+        }
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Review Invitation'.format(request.repository.object_name),
+            review.reviewer.email,
+            message,
+            log_dict=log_dict,
+        )
+
+
+def preprint_review_status_change(**kwargs):
+    request = kwargs.get('request')
+    review = kwargs.get('review')
+    status_change = kwargs.get('status_change')
+
+    description = "Status of review {} by {} is now: {}".format(
+        review.pk,
+        review.reviewer.full_name(),
+        status_change,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Review',
+        'target': review.preprint,
+    }
+
+    if status_change in ['accept', 'decline', 'complete']:
+        to = review.manager.email
+        template = request.repository.manager_review_status_change
+    else:  # withdraw
+        to = review.reviewer.email
+        template = request.repository.reviewer_review_status_change
+
+    context = {
+        'review': review,
+        'status_change': status_change,
+        'url': request.repository.site_url(path=reverse(
+            'repository_review_detail',
+            kwargs={
+                'preprint_id': review.preprint.pk,
+                'review_id': review.pk
+            }
+        ))
+    }
+    email_text = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Review Invitation Status'.format(request.repository.object_name),
+        to,
+        email_text,
+        log_dict=log_dict,
+    )

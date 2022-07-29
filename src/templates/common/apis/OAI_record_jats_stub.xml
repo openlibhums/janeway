@@ -1,0 +1,83 @@
+{% load settings %}<record>
+    {{ prefix }}
+    {% include "apis/OAI_record_header.xml" with article=article %}
+    <metadata>
+<article
+article-type="research-article"
+dtd-version="1.0" xml:lang="en"
+xmlns="https://jats.nlm.nih.gov/publishing/1.2/"
+xmlns:mml="http://www.w3.org/1998/Math/MathML"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <front>
+        <journal-meta>
+            <journal-id journal-id-type="issn">{{ article.journal.issn }}</journal-id>
+            <journal-title-group>
+                <journal-title>{{ article.journal.name }}</journal-title>
+            </journal-title-group>
+            <issn pub-type="epub">{{ article.journal.issn }}</issn>
+            <publisher>
+                <publisher-name>{{ article.journal|setting:'publisher_name' }}</publisher-name>
+            </publisher>
+        </journal-meta>
+        <article-meta>
+          {% if article.get_doi %}
+            <article-id pub-id-type="doi">{{ article.get_doi }}</article-id>
+          {% endif %}
+            <article-id pub-id-type="publisher-id">{{ article.pk}}</article-id>
+            <article-categories>
+                <subj-group>
+                    <subject>{{ article.section.name }}</subject>
+                </subj-group>
+            </article-categories>
+            <title-group>
+                <article-title>{{ article.title }}</article-title>
+            </title-group>
+            <contrib-group>
+            {% for author in article.frozen_authors.all %}
+                <contrib contrib-type="author">
+                    <name>
+                        <surname>{{ author.last_name }}</surname>
+                        <given-names>{{ author.given_names }}</given-names>
+                    </name>
+                    <email>{{ author.author.email }}</email>
+                    <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
+                </contrib>
+            {% endfor %}
+            </contrib-group>
+            {% for author in article.frozen_authors.all %}
+            <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
+            {% endfor %}
+            <pub-date date-type="pub" iso-8601-date="{{ article.date_published|date:"Y-m-d" }}" publication-format="electronic">
+                <day>{{ article.date_published|date:"d" }}</day>
+                <month>{{ article.date_published|date:"m" }}</month>
+                <year>{{ article.date_published|date:"Y" }}</year>
+            </pub-date>
+            <volume seq="{{ article.issue.order }}">{{ article.issue.volume }}</volume>
+            <issue>{{ article.issue.issue }}</issue>
+            <issue-id>{{ article.issue.pk }}</issue-id>
+            {% if article.issue.title %}
+            <issue-title xml:lang="en">{{ article.issue.title }}</issue-id>
+            {% endif %}
+            <permissions>
+                <copyright-statement>Copyright: © {{ article.date_published|date:"Y" }} The Author(s)</copyright-statement>
+                <copyright-year>{{ article.date_published|date:"Y" }}</copyright-year>
+            </permissions>
+            <self-uri content-type="text/html" xlink:href="{{ article.url }}"/>
+            {% if article.pdfs.exists %}
+            <self-uri content-type="application/pdf" xlink:href="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
+            {% endif %}
+            <abstract>{{ article.abstract }}</abstract>
+            {% if article.keywords.exists %}
+            <kwd-group xml:lang="en">
+                <title>Keywords</title>
+                {% for keyword in article.keywords.all %}
+                <kwd>{{ keyword.word }}</kwd>
+                {% endfor %}
+            </kwd-group>
+            {% endif %}
+        </article-meta>
+    </front>
+</article>
+    </metadata>
+</record>

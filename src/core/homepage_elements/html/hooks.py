@@ -13,7 +13,7 @@ def yield_homepage_element_context(request, homepage_elements):
     plugin = models.Plugin.objects.get(name='HTML')
     try:
         html_block_content = setting_handler.get_plugin_setting(plugin, 'html_block_content', request.journal).value
-    except (IndexError, models.PluginSettingValue.DoesNotExist) as e:
+    except AttributeError as e:
         logger.exception(e)
         html_block_content = '<p>This element has no content.</p>'
 

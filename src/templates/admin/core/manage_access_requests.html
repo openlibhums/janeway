@@ -1,0 +1,66 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Submission Access Requests{% endblock title %}
+{% block title-section %}Submission Access Requests{% endblock %}
+{% block title-sub %}Access requests for {{ request.site_type.name }}{% endblock %}
+
+
+{% block body %}
+    <section>
+        <div class="box">
+            <p>Active permission requests are listed below. Once approved or rejected they will be removed. Requesters will be notifed of your decision automatically.</p>
+            <table class="table" id="access_requests">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Requester</th>
+                        <th>Role</th>
+                        <th>Requested on</th>
+                        <th>View Information</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for access_request in active_requests %}
+                        <tr>
+                            <td>{{ access_request.pk }}</td>
+                            <td>{{ access_request.user.full_name }}</td>
+                            <td>{{ access_request.role.name }}</td>
+                            <td>{{ access_request.requested }}</td>
+                            <td><button class="small info button" data-open="request-{{ access_request.pk }}">View Information</button></td>
+                        </tr>
+                    {% empty %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% for access_request in active_requests %}
+        <div class="reveal small" id="request-{{ access_request.pk }}" data-reveal data-animation-in="slide-in-up"
+             data-animation-out="slide-out-down">
+            <div class="card">
+                <div class="card-divider">
+                    <h4>Access Request from {{ access_request.user.full_name }}</h4>
+                </div>
+                <div class="card-section">
+                    <p>{{ access_request.user.full_name }} provided the following supporting information:</p>
+                    <p>{{ access_request.text|safe }}</p>
+                    <p>Role Requested: {{ access_request.role.name }}</p>
+                    <p>You can either approve or reject their request.</p>
+                    <div class="button-group">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <label for="eval_note">Note for Requester</label>
+                            <textarea name="eval_note" id="eval_note" rows="4"></textarea>
+                            <button class="success button" name="approve" value="{{ access_request.pk }}">Approve</button>
+                            <button class="alert button" name="reject" value="{{ access_request.pk }}">Reject</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endblock body %}

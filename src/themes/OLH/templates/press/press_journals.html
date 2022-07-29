@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
-{% load settings %}
-{% load i18n %}
+{% load settings i18n %}
+{% load static from staticfiles %}
 
 {% block page_title %}{% trans "Journals" %}{% endblock page_title %}
 
@@ -55,19 +55,24 @@
                                                 {% if current_journal.is_remote %}
                                                     {% if not submission_disabled %}
                                                     <a href="{{ current_journal.remote_submit_url }}"
-                                                       class="button"><span>Submit</span></a>
+                                                       class="button"><span>{% trans 'Submit' %}</span></a>
                                                     {% endif %}
                                                     <a href="{{ current_journal.remote_view_url }}"
-                                                       class="button"><span>View</span></a>
+                                                       class="button"><span>{% trans 'View' %}</span></a>
                                                 {% else %}
                                                     {% if not submission_disabled %}
                                                     <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
-                                                       class="button"><span>Submit</span></a>
+                                                       class="button"><span>{% trans 'Submit' %}</span></a>
                                                     {% endif %}
                                                     <a href="{% journal_base_url current_journal %}"
-                                                       class="button"><span>View</span></a>
+                                                       class="button"><span>{% trans 'View' %}</span></a>
+                                                    {% if current_journal.current_issue %}
                                                     <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
-                                                       class="button"><span>Current Issue</span></a>
+                                                       class="button"><span>{% trans 'Current Issue' %}</span></a>
+                                                    {% elif current_journal.serial_issues.count > 0 %}
+                                                    <a href="{% journal_base_url current_journal %}{% url 'journal_issues' %}"
+                                                       class="button"><span>{{ current_journal.issue_type_plural_name }}</span></a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -100,21 +105,5 @@
 {% endblock body %}
 
 {% block js %}
-    <script>
-        jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
-            return function( elem ) {
-                return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-            };
-        });
-        var journals = $('.journal-div');
-        $('#filter').keyup(function () {
-            var filter = $("#filter").val();
-            if (filter) {
-                var $found = journals.find('> .box > .row > .large-12 > .content > .row > .title-div > .journal-description-box span:contains("' + filter.toLowerCase() + '")').closest('.journal-div').show();
-                journals.not($found).hide()
-            } else {
-                journals.show();
-            }
-        });
-    </script>
+    <script src="{% static 'common/js/journal_filter.js' %}"></script>
 {% endblock %}

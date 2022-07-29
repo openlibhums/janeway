@@ -10,13 +10,12 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
-from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
+from django.utils.text import slugify
 
-from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
 
@@ -59,6 +58,7 @@ class LogEntry(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     is_email = models.BooleanField(default=False)
+    email_subject = models.TextField(blank=True, null=True)
     message_id = models.TextField(blank=True, null=True)
     message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
     number_status_checks = models.IntegerField(default=0)
@@ -97,6 +97,7 @@ class LogEntry(models.Model):
             to=None,
             message_id=None,
             subject=None,
+            email_subject=None,
     ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
@@ -114,6 +115,7 @@ class LogEntry(models.Model):
             'is_email': is_email,
             'message_id': message_id,
             'subject': subject,
+            'email_subject': email_subject,
         }
         new_entry = LogEntry.objects.create(**kwargs)
 
@@ -126,6 +128,24 @@ class LogEntry(models.Model):
 
         return new_entry
 
+    @staticmethod
+    def bulk_add_simple_entry(
+        types,
+        description,
+        level,
+        targets,
+    ):
+        new_entries = []
+        for target in targets:
+            new_entry = LogEntry()
+            new_entry.types = types
+            new_entry.description = description
+            new_entry.level = level
+            new_entry.target = target
+            new_entries.append(new_entry)
+        batch_size = 500
+        return LogEntry.objects.bulk_create(new_entries, batch_size)
+
 
 class ToAddress(models.Model):
     log_entry = models.ForeignKey(LogEntry)
@@ -136,7 +156,7 @@ class ToAddress(models.Model):
 
 
 class Version(models.Model):
-    number = models.CharField(max_length=5)
+    number = models.CharField(max_length=10)
     date = models.DateTimeField(default=timezone.now)
     rollback = models.DateTimeField(blank=True, null=True)
 
@@ -162,11 +182,16 @@ class Plugin(models.Model):
     def __repr__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
 
-    def best_name(self):
+    def best_name(self, slug=False):
         if self.display_name:
-            return self.display_name.lower()
+            name = self.display_name.lower()
+        else:
+            name = self.name.lower()
 
-        return self.name.lower()
+        if slug:
+            return slugify(name)
+        else:
+            return name
 
 
 setting_types = (
@@ -179,63 +204,6 @@ setting_types = (
     ('select', 'Select'),
     ('json', 'JSON'),
 )
-
-
-class PluginSetting(models.Model):
-    name = models.CharField(max_length=100)
-    plugin = models.ForeignKey(Plugin)
-    types = models.CharField(max_length=20, choices=setting_types, default='text')
-    pretty_name = models.CharField(max_length=100, default='')
-    description = models.TextField(null=True, blank=True)
-    is_translatable = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('plugin', 'name')
-
-    def __str__(self):
-        return u'%s' % self.name
-
-    def __repr__(self):
-        return u'%s' % self.name
-
-
-class PluginSettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    setting = models.ForeignKey(PluginSetting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
-    )
-
-    def __repr__(self):
-        return "{0}, {1}".format(self.setting.name, self.value)
-
-    def __str__(self):
-        return "[{0}]: {1}".format(self.journal, self.setting.name)
-
-    @property
-    def processed_value(self):
-        return self.process_value()
-
-    def process_value(self):
-        """ Converts string values of settings to proper values
-
-        :return: a value
-        """
-
-        if self.setting.types == 'boolean' and self.value == 'on':
-            return True
-        elif self.setting.types == 'boolean':
-            return False
-        elif self.setting.types == 'number':
-            try:
-                return int(self.value)
-            except BaseException:
-                return 0
-        elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
-        else:
-            return self.value
 
 
 class ImportCacheEntry(models.Model):
@@ -276,7 +244,7 @@ class ImportCacheEntry(models.Model):
             with open(cached.on_disk, 'rb') as on_disk_file:
                 return on_disk_file.read(), cached.mime_type
 
-        except ImportCacheEntry.DoesNotExist:
+        except (ImportCacheEntry.DoesNotExist, FileNotFoundError):
             if not settings.SILENT_IMPORT_CACHE:
                 print("[CACHE] Fetching remote version of {0}".format(url))
 
@@ -338,8 +306,13 @@ class ImportCacheEntry(models.Model):
             with open(os.path.join(path, filename), 'wb') as f:
                 f.write(resp)
 
-            ImportCacheEntry.objects.create(url=url, mime_type=fetched.headers.get('content-type'),
-                                            on_disk=os.path.join(path, filename)).save()
+            ImportCacheEntry.objects.update_or_create(
+                url=url,
+                defaults=dict(
+                    mime_type=fetched.headers.get('content-type'),
+                    on_disk=os.path.join(path, filename)
+                ),
+            )
 
             return resp, fetched.headers.get('content-type')
 

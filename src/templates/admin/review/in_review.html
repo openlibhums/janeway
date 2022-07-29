@@ -1,10 +1,11 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load itertools %}
 {% load roles %}
 
 {% block title %}Review {{ article.title }}{% endblock %}
 {% block title-section %}Peer Review{% endblock %}
-{% block title-sub %}Breakdown{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -17,6 +18,30 @@
     <div class="row expanded">
         <div class="large-8 columns">
             <div class="box">
+                {% if article.stage == 'Unassigned' %}
+                    <div class="bs-callout bs-callout-danger">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <p><i class="fa fa-exclamation-triangle">&nbsp;</i>{% trans 'This article is not yet in the review stage' %}.</p>
+                            {% if not article.editor_list %}
+                                <p>{% trans 'Before you can move this paper into review you need to' %} <a
+                                        href="{% url 'review_unassigned_article' article.pk %}">{% trans 'assign an editor' %}</a>.
+                                </p>
+                            {% else %}
+                                <button name="move_to_review" class="small success button no-bottom-margin">Move to
+                                    Review
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                {% endif %}
+                {% if journal_settings.crosscheck.enable and not article.ithenticate_id %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p class="no-bottom-margin"><small>
+                            {% trans 'This paper has not had an automatic plagiarism check. If you wish to do so you can run a' %} <a href="{% url 'review_unassigned_article' article.pk %}#files-block">{% trans 'Similarity Check via iThenticate' %}</a> .</small></p>
+                    </div>
+                {% endif %}
+
                 <ul class="tabs" data-tabs id="round-tabs">
                     {% for round in review_rounds %}
                         <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
@@ -84,94 +109,15 @@
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
                                             Reviewer</a>{% endif %}
                                 </div>
-                                {% for review in round.reviewassignment_set.all %}
-                                    <div class="callout breakdown reviewer">
-                                        <div class="title-area">
-                                            <h4>{{ review.reviewer.full_name }}
-                                                <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>
-                                                <a href="{% url 'admin:core_account_change' review.reviewer.pk %}" target="_blank"><span class="fa fa-cogs"></span></a>
-                                            </h4>
-                                        </div>
-                                        <div class="table-scroll">
-                                            <table class="scroll">
-                                                <tbody>
-                                                <tr>
-                                                    <th>Requested</th>
-                                                    <th>Request Decision</th>
-                                                    <th>Due</th>
-                                                    <th>Decision</th>
-                                                    <th>Completed</th>
-                                                    {% if journal_settings.general.open_peer_review %}
-                                                    <th>Public/Open</th>
-                                                    {% endif %}
-                                                    <th width="150px"></th>
-                                                </tr>
-                                                <tr>
-                                                    <td>{{ review.date_requested|date:"Y-m-d" }}</td>
-                                                    <td>{% if review.decision == 'withdrawn' %}Withdrawn
-                                                        {{ review.date_complete|date:"Y-m-d" }}
-                                                    {% elif review.date_accepted %}Accepted
-                                                        {{ review.date_accepted|date:"Y-m-d" }}
-                                                    {% elif review.date_declined %}Declined
-                                                        {{ review.date_declined|date:"Y-m-d" }}
-                                                    {% else %}Awaiting acknowledgement{% endif %}
-                                                    </td>
-                                                    <td>{{ review.date_due|date:"Y-m-d" }} {% if not review.is_complete %}<a href="{% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}"><i class="fa fa-envelope-o"></i>&nbsp; <i class="fa fa-clock-o"></i></a>{% endif %}</td>
-                                                    <td>{% if review.decision %}
-                                                        {{ review.get_decision_display|capfirst }}{% else %}
-                                                        --{% endif %}</td>
-                                                    <td>{% if review.date_complete %}
-                                                        {{ review.date_complete }}{% else %}--{% endif %}</td>
-                                                    {% if journal_settings.general.open_peer_review %}
-                                                    <td>{% if review.permission_to_make_public %}<span style="color: green;"><i aria-hidden="true" title="Review can be made public" class="fa fa-check"></i></span>{% else %}<span style="color: red;"><i aria-hidden="true" title="Review is private" class="fa fa-times-circle"></i></span>{% endif %}</td>
-                                                    {% endif %}
-                                                    <td>
-                                                        <div class="button-group">
-                                                            <a href="{% url 'review_view_review' article.pk review.pk %}"
-                                                               class="button">View</a>
-                                                            <a class="dropdown button arrow-only"
-                                                               data-toggle="review-dropdown-{{ review.pk }}"><span
-                                                                    class="show-for-sr">Show menu</span></a>
-                                                        </div>
-                                                        <div class="dropdown-pane right"
-                                                             id="review-dropdown-{{ review.pk }}"
-                                                             data-dropdown data-close-on-click="true">
-                                                            <ul class="menu vertical actions">
-                                                                {% if review.decision == 'withdrawn' or review.date_declined %}
-                                                                    <li>
-                                                                        <a href="{% url 'review_reset_review' article.pk review.pk %}"><i
-                                                                                class="fa fa-retweet action-icon">&nbsp;</i>Reset</a>
-                                                                    </li>
-                                                                {% endif %}
-                                                                <li>
-                                                                    <a href="{% url 'review_edit_review' article.pk review.pk %}"><i
-                                                                            class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i
-                                                                            class="fa fa-star action-icon">&nbsp;</i>Rate</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i
-                                                                            class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{% url 'review_delete_review' article.pk review.pk %}"><i
-                                                                            class="fa fa-trash action-icon">&nbsp;</i>Delete</a>
-                                                                </li>
-                                                                {% if request.user.is_admin %}
-                                                                <li>
-                                                                    <a target="_blank" href="{% url 'admin:review_reviewassignment_change' review.pk %}"><span class="fa fa-cogs"> </span> Edit in Admin</a>
-                                                                </li>
-                                                                {% endif %}
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+
+                                {% chain round.active_reviews round.inactive_reviews as reviews %}
+                                {% for review in reviews %}
+                                    {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
+                                  {% if forloop.last and forloop.counter > 2 %}
+                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='top' %}
+                                  {% else %}
+                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='right' %}
+                                  {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -280,38 +226,22 @@
                         </li>
                         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                         <li>
-                            <form method="POST">{% csrf_token %}
-                                <button name="new_review_round" type="submit" class="expanded"><i
-                                        class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
-                                </button>
-                            </form>
+                            <a href="{% url 'decision_helper' article.pk %}">
+                                <span class="fa fa-gavel"></span> Make a Decision
+                            </a>
                         </li>
-                        {% if journal_settings.general.draft_decisions %}
-                            <li><a href="{% url 'review_draft_decision' article.pk %}"><i
-                                    class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
-                                Decision</a></li>
-                        {% endif %}
-                        {% if not journal_settings.general.draft_decisions or editor %}
-                            <li><a href="{% url 'review_request_revisions' article.pk %}"><i
-                                    class="fa fa-inbox action-icon">&nbsp;</i>Request
-                                Revisions</a></li>
-                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
-                                <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
-                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
-                                </li>
-                            {% endif %}
-                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
-                                <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
-                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
-                                    Article</a></li>
-                            {% endif %}
-                        {% endif %}
+                        <li>
+                            <a href="#" data-open="newround" class="expanded">
+                                <i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div><!--/col-lg-12 -->
     </div>
     {% include "admin/elements/summary_modal.html" %}
+    {% include "admin/elements/review/new_round_modal.html" %}
 
 {% endblock body %}
 

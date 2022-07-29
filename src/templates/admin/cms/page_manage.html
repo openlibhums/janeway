@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load foundation %}
 
 {% block title %}{{ page.display_name }}{% endblock title %}
 {% block admin-header %}{% if edit %}Edit Page {{ page.display_name }}{% else %}Add New Page{% endif %}{% endblock %}
@@ -10,20 +11,33 @@
     <li>{% if edit %}Edit Page {{ page.display_name }}{% else %}Add New Page{% endif %}</li>
 {% endblock %}
 
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
 {% block body %}
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Edit Page</h2>
+                <a href="{% url 'cms_index' %}" class="button">< Back</a>
             </div>
             <div class="content">
+                {% include "admin/elements/translations/form_tabs.html" with object=page %}
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form.as_p }}
-
-                    <button type="submit" class="button success">Save</button>
-                    <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}" class="alert button pull-right">Delete</button>
+                    {{ form|foundation }}
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <p>If you want to upload and link to a file use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
+                                Files</a> system.</p>
+                            <button type="submit" class="button success">Save</button>
+                            <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"
+                                    class="alert button pull-right">Delete
+                            </button>
+                        </div>
+                    </div>
                 </form>
+
             </div>
         </div>
     </div>

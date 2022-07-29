@@ -11,7 +11,7 @@
     {% endif %}
     <div class="row">
         <div class="col m12">
-            <h1>{% trans "Issues" %}</h1>
+            <h1>{% trans issue_type.plural_name %}</h1>
         </div>
 
         {% for issue in issues %}
@@ -33,7 +33,7 @@
                             {% endif %}
                         </div>
                         <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">close</i></span>
+                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">{% trans "close" %}</i></span>
                             <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
                         </div>
                         <div class="card-action">

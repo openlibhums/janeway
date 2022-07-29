@@ -1,12 +1,8 @@
 <p>
     {% for author in article.frozenauthor_set.all %}
         {% if forloop.last %}
-            {% if article.frozenauthor_set.all|length > 1 %} and{% endif %}
+            {% if article.frozenauthor_set.all|length > 1 %} {% trans "and" %}{% endif %}
         {% endif %}
-        {{ author.full_name }}
-        {% if not forloop.last %}
-            {% if not forloop.counter == article.frozenauthor_set.all|length|add:-1 %},
-            {% endif %}
-        {% endif %}
+        {{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozenauthor_set.all|length|add:-1 %}, {% endif %}{% endif %}
     {% endfor %}
 </p>
