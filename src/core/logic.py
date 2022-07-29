@@ -380,6 +380,10 @@ def get_settings_to_edit(display_group, journal):
                 'name': 'accept_article_warning',
                 'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
             },
+            {
+                'name': 'open_peer_review',
+                'object': setting_handler.get_setting('general', 'open_peer_review', journal),
+            },
         ]
         setting_group = 'general'
 
@@ -410,7 +414,7 @@ def get_settings_to_edit(display_group, journal):
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
             'display_register_page_notice', 'register_page_notice',
-            'support_email', 'support_contact_message_for_staff', 'open_peer_review',
+            'support_email', 'support_contact_message_for_staff',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)

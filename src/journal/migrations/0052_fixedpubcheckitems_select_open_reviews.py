@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0041_issue_short_description'),
+        ('journal', '0051_journal_is_archived'),
     ]
 
     operations = [

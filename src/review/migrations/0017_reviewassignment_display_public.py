@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('review', '0011_reviewassignment_permission_to_make_public'),
+        ('review', '0016_auto_20210510_0957'),
     ]
 
     operations = [
@@ -16,5 +16,11 @@ class Migration(migrations.Migration):
             model_name='reviewassignment',
             name='display_public',
             field=models.BooleanField(default=False, help_text='Whether this review should be publicly displayed.'),
+        ),
+        migrations.AddField(
+            model_name='reviewassignment',
+            name='permission_to_make_public',
+            field=models.BooleanField(default=False,
+                                      help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.'),
         ),
     ]
