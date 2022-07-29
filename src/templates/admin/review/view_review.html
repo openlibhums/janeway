@@ -32,6 +32,9 @@
                             <th>Access Code</th>
                             <th>Decision</th>
                             <th>Completed</th>
+                            {% if journal_settings.general.open_peer_review %}
+                                <th>Open<br/>Permission</th>
+                            {% endif %}
                             <th></th>
                         </tr>
                         <tr>
@@ -49,6 +52,13 @@
                             <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}
                                 --{% endif %}</td>
                             <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
+                            {% if journal_settings.general.open_peer_review %}
+                                <td>{% if review.permission_to_make_public %}
+                                    <span style="color: green;"><i aria-hidden="true" title="Review can be made public"
+                                                                   class="fa fa-check"></i></span>{% else %}
+                                    <span style="color: red;"><i aria-hidden="true" title="Review is private"
+                                                                 class="fa fa-times-circle"></i></span>{% endif %}</td>
+                            {% endif %}
                             <td>{% if review.is_complete %}
                                 <button class="button success" type="submit" name="author_consumption">
                                     {% if review.for_author_consumption %}Hide from Author{% else %}Allow Author to

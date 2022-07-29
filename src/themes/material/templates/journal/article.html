@@ -417,7 +417,7 @@
                                 {% if article.public_reviews.count > 0 %}
                                     <p>
                                         {% for review in article.public_reviews %}
-                                            Review by {{ review.reviewer.full_name }} (<a style="color:{% if 'accept' in review.decision %}green;{% elif 'revision' in review.decision %}orange;{% elif 'reject' in review.decision %}red;{% endif %}" href="#reviewmodal-{{ review.pk }}" class="button small success pub-button modal-trigger">{{ review.decision|title }}</a></span>)
+                                            <button data-target="reviewmodal-{{ review.pk }}" class="btn modal-trigger">Review by {{ review.reviewer.full_name }}</button>
                                         {% endfor %}<br/>
                                     </p>
                                 {% endif %}
@@ -467,7 +467,7 @@
 
     </div>
     {% include "elements/summary_modal.html" %}
-    {% include "elements/public_reviews_material.html" %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}
@@ -507,4 +507,5 @@
         child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
     });
     </script>
+
 {% endblock %}

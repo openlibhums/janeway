@@ -216,6 +216,18 @@
                 <p>{{ field.answer|safe }}</p>
                 {% endfor %}
                 {% if article.is_published %}
+
+                    {% if journal_settings.general.open_peer_review %}
+                        {% if article.public_reviews.count > 0 %}
+                            <h2>{% trans "Open Peer Reviews" %}</h2>
+                            <ul>
+                                {% for review in article.public_reviews %}
+                                    <li><a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
+                                {% endfor %}<br/>
+                            </ul>
+                        {% endif %}
+                    {% endif %}
+
                     {% if not request.journal.disable_metrics_display %}
                     <h2>{% trans "Metrics" %}</h2>
                     <ul>
@@ -267,6 +279,7 @@
     {% if journal_settings.general.submission_summary %}
         {% include "elements/journal/summary_modal.html" %}
     {% endif %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}

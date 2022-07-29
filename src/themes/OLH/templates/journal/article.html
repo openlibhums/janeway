@@ -437,7 +437,7 @@
                                 {% if article.public_reviews.count > 0 %}
                                     <p>
                                         {% for review in article.public_reviews %}
-                                            Review by {{ review.reviewer.full_name }} (<a style="color:{% if 'accept' in review.decision %}green;{% elif 'revision' in review.decision %}orange;{% elif 'reject' in review.decision %}red;{% endif %}" href="#" data-open="reviewmodal-{{ review.pk }}">{{ review.decision|title }}</a></span>)
+                                            <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
                                         {% endfor %}<br/>
                                     </p>
                                 {% endif %}
@@ -452,7 +452,7 @@
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
     {% include "elements/journal/summary_modal.html" %}
-    {% include "elements/public_reviews_olh.html" %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}
