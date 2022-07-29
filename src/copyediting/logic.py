@@ -138,15 +138,19 @@ def request_author_review(request, article, copyedit, author_review):
     :return:
     """
     user_message_content = request.POST.get('content_email')
-
+    skip = True if 'skip' in request.POST else False
     kwargs = {
         'copyedit_assignment': copyedit,
         'article': article,
         'author_review': author_review,
         'user_message_content': user_message_content,
         'request': request,
-        'skip': True if 'skip' in request.POST else False,
+        'skip': skip,
     }
+
+    if not skip:
+        author_review.notified = True
+        author_review.save()
 
     event_logic.Events.raise_event(
         event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)

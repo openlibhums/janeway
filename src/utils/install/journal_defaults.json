@@ -774,9 +774,6 @@
             "name": "copyeditor_notify_author",
             "pretty_name": "Copyedit Notify Author",
             "type": "rich-text"
-        },
-        "value": {
-            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br/><br/>The copyeditor has completed their task, you can review the copyedits: {{ author_copyedit_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -3462,6 +3459,36 @@
         },
         "value": {
             "default": "25"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to an author when an editor deletes their copyedit review task.",
+            "is_translatable": false,
+            "name": "author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subjedt for Author Copyedit Deleted email.",
+            "is_translatable": false,
+            "name": "subject_author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted Subject",
+            "type": "text"
+        },
+        "value": {
+            "default": "Copyedit Review Request Deleted"
         }
     }
 

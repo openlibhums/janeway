@@ -92,19 +92,26 @@
                                         <th>Notified</th>
                                         <th>Decision</th>
                                         <th>Decision Date</th>
+                                        <th></th>
                                     </tr>
                                     {% for review in assignment.author_reviews %}
                                         <tr>
                                         <td>{{ review.assigned|date:"Y-m-d" }}</td>
                                         <td>
                                             <i class="fa {% if review.notified %}fa-check-circle-o{% else %}fa-times-circle-o{% endif %}"></i>
+                                            {% if not review.notified %}<a href="{% url 'request_author_copyedit' article.pk assignment.pk review.pk %}"> <i class="fa fa-send-o"> </i> Send Notification</a>{% endif %}
                                         </td>
                                         <td>{% if review.decision %} {{ review.get_decision_display }} {% else %}
                                             Awaiting
                                             response{% endif %}</td>
-                                        <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }}
-                                    {% else %}--
-                                    {% endif %}
+                                        <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }}{% else %}--{% endif %}
+                                        <td>
+                                            {% if review.decision %}
+                                                 <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
+                                            {% else %}
+                                                <a href="{% url 'delete_author_review' article.id assignment.id review.pk %}" class="alert button delete">Delete Author Review</a>
+                                            {% endif %}
+                                        </td>
                                     {% endfor %}
                                 </table>
                             </div>
