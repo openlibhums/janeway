@@ -1038,7 +1038,7 @@ def add_review_assignment(request, article_id):
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewer_candidates(article, request.user)
-    modal = None
+    reviewer = None
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
@@ -1066,46 +1066,46 @@ def add_review_assignment(request, article_id):
                 acc = logic.handle_reviewer_form(request, new_reviewer_form)
                 return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
             else:
-                modal = 'reviewer'
+                form.modal = {'id': 'reviewer'}
         else:
 
             form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
+            reviewer = logic.get_reviewer_from_post(request)
 
-            if form.is_valid():
-                reviewer = logic.get_reviewer_from_post(request)
+            if not reviewer:
+                form.add_error(None, 'You must select a reviewer.')
 
-                if not reviewer:
-                    form.add_error(None, 'You must select a reviewer.')
-                else:
-                    review_assignment = form.save(commit=False)
-                    review_assignment.reviewer = reviewer
-                    review_assignment.article = article
-                    review_assignment.editor = request.user
-                    review_assignment.review_round = article.current_review_round_object()
-                    review_assignment.access_code = uuid4()
-                    review_assignment.save()
+            elif form.is_valid() and form.is_confirmed():
+                review_assignment = form.save(commit=False)
+                review_assignment.reviewer = reviewer
+                review_assignment.article = article
+                review_assignment.editor = request.user
+                review_assignment.review_round = article.current_review_round_object()
+                review_assignment.access_code = uuid4()
+                review_assignment.save()
 
-                    article.stage = submission_models.STAGE_UNDER_REVIEW
-                    article.save()
+                article.stage = submission_models.STAGE_UNDER_REVIEW
+                article.save()
 
-                    kwargs = {'user_message_content': '',
-                              'review_assignment': review_assignment,
-                              'request': request,
-                              'skip': False,
-                              'acknowledgement': False}
+                kwargs = {'user_message_content': '',
+                          'review_assignment': review_assignment,
+                          'request': request,
+                          'skip': False,
+                          'acknowledgement': False}
 
-                    event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED, **kwargs)
+                event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED, **kwargs)
 
-                    return redirect(reverse('review_notify_reviewer',
-                                            kwargs={'article_id': article_id, 'review_id': review_assignment.id}))
+                return redirect(reverse('review_notify_reviewer',
+                                        kwargs={'article_id': article_id, 'review_id': review_assignment.id}))
+
 
     template = 'review/add_review_assignment.html'
     context = {
         'article': article,
         'form': form,
         'reviewers': reviewers,
+        'selected_reviewer': reviewer or None,
         'new_reviewer_form': new_reviewer_form,
-        'modal': modal,
     }
 
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):

@@ -44,22 +44,22 @@ class DraftDecisionForm(forms.ModelForm):
             self.fields['editor'].widget = forms.HiddenInput()
 
 
-class ReviewAssignmentForm(forms.ModelForm):
+class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
     class Meta:
         model = models.ReviewAssignment
         fields = ('visibility', 'form', 'date_due')
 
     def __init__(self, *args, **kwargs):
-        journal = kwargs.pop('journal', None)
+        self.journal = kwargs.pop('journal', None)
         super(ReviewAssignmentForm, self).__init__(*args, **kwargs)
         self.fields['form'].empty_label = None
-        default_visibility = setting_handler.get_setting('general', 'default_review_visibility', journal, create=True)
-        default_due = setting_handler.get_setting('general', 'default_review_days', journal, create=True).value
+        default_visibility = setting_handler.get_setting('general', 'default_review_visibility', self.journal, create=True)
+        default_due = setting_handler.get_setting('general', 'default_review_days', self.journal, create=True).value
         default_form = setting_handler.get_setting('general',
-                                                   'default_review_form', journal, create=True).processed_value
+                                                   'default_review_form', self.journal, create=True).processed_value
 
-        if journal:
-            self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=journal, deleted=False)
+        if self.journal:
+            self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=self.journal, deleted=False)
 
         if default_visibility.value:
             self.fields['visibility'].initial = default_visibility.value
@@ -76,6 +76,21 @@ class ReviewAssignmentForm(forms.ModelForm):
             # Form should not be changed after request has been accepted
             self.fields['form'].initial = self.instance.form
             self.fields['form'].disabled = True
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        one_click_access = setting_handler.get_setting('general', 'enable_one_click_access', self.journal).value
+        reviewer_id = self.data.get('reviewer', None)
+        if not one_click_access and reviewer_id:
+            reviewer = core_models.Account.objects.get(id=reviewer_id)
+            if reviewer and not reviewer.is_active:
+                message = 'The chosen reviewer has not activated their account' \
+                          ' and may not be able to log in to view the assignment.'
+                potential_errors.append(_(message))
+
+        return potential_errors
 
 
 class ReviewerDecisionForm(forms.ModelForm):
