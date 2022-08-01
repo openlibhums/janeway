@@ -200,6 +200,7 @@
                 <p>You can write a note to the copyeditor thanking them for their time.</p>
                 <form method="POST">
                     {% csrf_token %}
+                    <p>Subject: <strong>{{ journal_settings.email_subject.subject_copyeditor_ack }}</strong></p>
                     <textarea name="accept_note">{{ accept_message|safe|linebreaksbr }}</textarea>
                     <button name="accept" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
                     </button>
@@ -222,6 +223,7 @@
                     below, which will be sent to the copyeditor.</p>
                 <form method="POST">
                     {% csrf_token %}
+                    <p>Subject: <strong>{{ journal_settings.email_subject.subject_copyeditor_reopen_task }}</strong></p>
                     <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
                     <label for="due">Due Date</label>
                     <input type="text" name="due" id="due" required="required">

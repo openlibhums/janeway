@@ -533,11 +533,6 @@ def request_author_copyedit(request, article_id, copyedit_id,
 
     )
 
-    email_subject = request.journal.get_setting(
-        'email_subject',
-        'subject_copyeditor_notify_author',
-    )
-
     if request.POST:
         logic.request_author_review(
             request,
@@ -568,7 +563,6 @@ def request_author_copyedit(request, article_id, copyedit_id,
         'copyedit': copyedit,
         'author_review': author_review,
         'email_content': email_content,
-        'email_subject': email_subject,
     }
 
     return render(request, template, context)

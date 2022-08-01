@@ -27,7 +27,7 @@
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
                     <div class="card-section">
-                         <p>Subject: <strong>Proofreading Feedback, Typesetting Request</strong></p>
+                        <p>Subject: <strong>{{ journal_settings.email_subject.subject_notify_typesetter_proofing_changes }}</strong></p>
                         <textarea rows="10" name="content_email">{{ notification_email_content|linebreaksbr }}</textarea>
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>

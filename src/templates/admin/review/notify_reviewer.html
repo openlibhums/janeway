@@ -32,11 +32,8 @@
                             <h4>To {{ review.reviewer.full_name }}</h4>
                             <h5>From {{ request.user.full_name }}</h5>
                         </div>
-
                         {% csrf_token %}
-
-                        {% setting_var request.journal 'subject_review_assignment' as subject %}
-                        <p>Subject: <strong>{{ subject }}</strong></p>
+                        <p>Subject: <strong>{{ journal_settings.email_subject.subject_review_assignment }}</strong></p>
                         <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>

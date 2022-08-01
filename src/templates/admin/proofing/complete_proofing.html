@@ -30,7 +30,7 @@
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
                     <div class="card-section">
-                        <p>Subject: <strong>Proofreading Complete</strong></p>
+                        <p>Subject: <strong>{{ journal_settings.email_subject.subject_notify_editor_proofing_complete }}</strong></p>
                         <textarea rows="10" name="content_email">{{ message|linebreaksbr }}</textarea>
                     </div>
                     <div class="card-divider">

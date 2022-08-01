@@ -59,6 +59,7 @@
                             <h5>From {{ request.user.full_name }}</h5>
                         </div>
                         <div class="card-section">
+                            <p>Subject: <strong>{% if decision == 'accept' %}{{ journal_settings.email_subject.subject_review_decision_accept }}{% else %}{{ journal_settings.email_subject.subject_review_decision_decline }}{% endif %}</strong></p>
                             <textarea name="decision_rationale" rows="5">{{ email_content|linebreaksbr }}</textarea>
                             <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                             <input type="file" name="attachment" multiple>

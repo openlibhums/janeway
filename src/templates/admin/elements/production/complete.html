@@ -10,6 +10,7 @@
             <p class="lead">You can inform the Editors that Production is complete, or skip the message.</p>
             <form method="POST" action="{% url 'production_done' article.pk %}">
                 {% csrf_token %}
+                <p>Subject: <strong>{{ journal_settings.email_subject.subject_production_complete }}</strong></p>
                 <textarea name="user_content_message">{{ complete_message|safe|linebreaksbr }}</textarea>
                 <button name="production" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
                 <button name="skip" type="submit" class="button alert"><i class="fa fa-fast-forward">&nbsp;</i>Skip</button>

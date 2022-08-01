@@ -29,8 +29,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card-section">
-                        {% setting_var request.journal 'subject_request_revisions' as subject %}
-                        <p>Subject: <strong>{{ subject }}</strong></p>
+                        <p>Subject: <strong>{{ journal_settings.email_subject.subject_request_revisions }}</strong></p>
                         <textarea rows="10" name="email_content">{{ email_content|linebreaksbr }}</textarea>
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>
