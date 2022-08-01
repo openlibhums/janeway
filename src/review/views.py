@@ -1617,7 +1617,7 @@ def request_revisions(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    form = forms.RevisionRequest()
+    form = forms.RevisionRequest(article=article, editor=request.user)
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
@@ -1631,13 +1631,10 @@ def request_revisions(request, article_id):
     )
 
     if request.POST:
-        form = forms.RevisionRequest(request.POST)
+        form = forms.RevisionRequest(request.POST, article=article, editor=request.user)
 
-        if form.is_valid():
-            revision_request = form.save(commit=False)
-            revision_request.editor = request.user
-            revision_request.article = article
-            revision_request.save()
+        if form.is_valid() and form.is_confirmed():
+            revision_request = form.save()
 
             article.stage = submission_models.STAGE_UNDER_REVISION
             article.save()

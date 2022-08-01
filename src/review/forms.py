@@ -129,12 +129,40 @@ class SuggestReviewers(forms.ModelForm):
         )
 
 
-class RevisionRequest(forms.ModelForm):
+class RevisionRequest(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+    QUESTION = _('Are you sure you want to request revisions?')
+
     class Meta:
         model = models.RevisionRequest
         fields = (
             'date_due', 'type', 'editor_note',
         )
+
+    def __init__(self, *args, **kwargs):
+        self.editor = kwargs.pop('editor', None)
+        self.article = kwargs.pop('article', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        revision_request = super().save(commit=False)
+        revision_request.editor = self.editor
+        revision_request.article = self.article
+
+        if commit:
+            revision_request.save()
+
+        return revision_request
+
+    def check_for_potential_errors(self):
+        potential_errors = []
+
+        author = self.article.correspondence_author
+        if not author.is_active:
+            message = _('The correspondence author may not be able to log in to view the assignment ' \
+                        'because they have not activated their account: ')
+            potential_errors.append(message + f' {author.email}')
+
+        return potential_errors
 
 
 class EditRevisionDue(forms.ModelForm):
