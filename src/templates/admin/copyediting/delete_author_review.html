@@ -1,0 +1,52 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Delete Author Copyedit Request{% endblock %}
+{% block title-section %}
+    Delete Author Copyedit Request #{{ author_review.id }}
+{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" %}
+    <li><a href="{% url 'editor_review' article.pk copyedit.pk %}">Review Copyediting</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Delete Author Copyedit Request</h2>
+        </div>
+        <div class="content">
+            <p>To delete this Author Copyedit Request, review the message below and, if needed, add a reason for the deletion. You can skip sending the email, this is particularly useful if you have not yet notified the author of the review request.</p>
+            <div class="card">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card-divider">
+                        <h4>To {{ copyedit.article.correspondence_author.full_name }}</h4>
+                        <h5>From {{ request.user.full_name }}</h5>
+                    </div>
+                    <div class="card-section">
+                         <p>Subject: <strong>{{ email_subject }}</strong></p>
+                        <textarea rows="10" name="user_message_content">{{ email_template|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
+                    </div>
+                    <div class="card-divider">
+                        <div class="button-group">
+                            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+	{% include "elements/jqte.html" %}
+{% endblock js %}

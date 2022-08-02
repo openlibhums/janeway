@@ -64,6 +64,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVI
                                       transactional_emails.send_copyedit_author_review)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE,
                                       transactional_emails.send_author_copyedit_complete)
+event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
+                                      transactional_emails.send_author_copyedit_deleted)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_ASSIGNMENT_COMPLETE,
                                       transactional_emails.send_copyedit_complete)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_REOPEN,
