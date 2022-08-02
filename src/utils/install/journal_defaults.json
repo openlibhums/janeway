@@ -774,6 +774,9 @@
             "name": "copyeditor_notify_author",
             "pretty_name": "Copyedit Notify Author",
             "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br/><br/>The copyeditor has completed their task, you can review the copyedits: {{ author_copyedit_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -3481,7 +3484,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subjedt for Author Copyedit Deleted email.",
+            "description": "Subject for Author Copyedit Deleted email.",
             "is_translatable": false,
             "name": "subject_author_copyedit_deleted",
             "pretty_name": "Author Copyedit Deleted Subject",
