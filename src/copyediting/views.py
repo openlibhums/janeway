@@ -467,28 +467,41 @@ def editor_review(request, article_id, copyedit_id):
     )
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
+    author_review_form = forms.AuthorReviewAssignmentForm(
+        author=article.correspondence_author,
+        assignment=copyedit,
+    )
+
     if request.POST:
         if 'accept_note' in request.POST:
             logic.accept_copyedit(copyedit, article, request)
-        elif 'author_review' in request.POST:
-            author_review = models.AuthorReview.objects.create(
+
+            return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
+
+        elif 'author_review' in request.POST or author_review_form.CONFIRMED_BUTTON_NAME in request.POST:
+            author_review_form = forms.AuthorReviewAssignmentForm(
+                request.POST,
                 author=article.correspondence_author,
                 assignment=copyedit,
             )
-            return redirect(
-                reverse(
-                    'request_author_copyedit',
-                    kwargs={
-                        'article_id': article.pk,
-                        'copyedit_id': copyedit.pk,
-                        'author_review_id': author_review.pk,
-                    }
+
+            if author_review_form.is_valid() and author_review_form.is_confirmed():
+                author_review = author_review_form.save()
+
+                return redirect(
+                    reverse(
+                        'request_author_copyedit',
+                        kwargs={
+                            'article_id': article.pk,
+                            'copyedit_id': copyedit.pk,
+                            'author_review_id': author_review.pk,
+                        }
+                    )
                 )
-            )
         elif 'reset_note' in request.POST:
             logic.reset_copyedit(copyedit, article, request)
 
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
+            return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
 
     if request.GET.get('file_id'):
         return logic.attempt_to_serve_file(request, copyedit)
@@ -499,6 +512,7 @@ def editor_review(request, article_id, copyedit_id):
         'copyedit': copyedit,
         'accept_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_ack'),
         'reopen_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_reopen_task'),
+        'author_review_form': author_review_form,
     }
 
     return render(request, template, context)

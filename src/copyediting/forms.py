@@ -80,6 +80,53 @@ class CopyEditForm(forms.ModelForm):
         fields = ('copyeditor_note',)
 
 
+class AuthorReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableForm):
+
+    # Confirmable form constants
+    QUESTION = _('Are you sure you want to ask the author to review copyedits?')
+    CONFIRMABLE_BUTTON_NAME = 'author_review'
+
+    class Meta:
+        model = models.AuthorReview
+
+        # This field is not for user input,
+        # just to make form validation operable
+        fields = ('author',)
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop('author', None)
+        self.assignment = kwargs.pop('assignment', None)
+        self.notified = kwargs.pop('notified', False)
+        super().__init__(*args, **kwargs)
+
+        # The way the author field works is a
+        # a temporary workaround arising
+        # from the desire to use core_models.ConfirmableForm
+        # for consistency with other assignments.
+        self.fields['author'].required = False
+
+
+    def save(self, commit=True):
+        review_assignment = super().save(commit=False)
+        review_assignment.author = self.author
+        review_assignment.assignment = self.assignment
+
+        if commit:
+            review_assignment.save()
+
+        return review_assignment
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        message = self.check_for_inactive_account(self.author)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
+
+
 class AuthorCopyeditForm(forms.ModelForm, core_forms.ConfirmableForm):
 
     # Confirmable form constants
