@@ -3120,6 +3120,12 @@
                   </div>
                 </xsl:when>
                 <xsl:otherwise>
+                <xsl:when test="contains(./@xlink:href, 'youtu.be')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="youtube"/>
+                  </div>
+                </xsl:when>
+                <xsl:otherwise>
                   <a href="{@xlink:href}">Video URL</a>
                 </xsl:otherwise>
               </xsl:choose>
