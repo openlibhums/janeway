@@ -688,6 +688,14 @@ class ConfirmableForm(forms.Form):
     def check_for_potential_errors(self):
         return []
 
+    def check_for_inactive_account(self, account):
+        if not isinstance(account, models.Account):
+            account = models.Account.objects.get(id=account)
+        if not account.is_active:
+            return _('The account belonging to %(email)s has not yet been activated, ' \
+                     'so the recipient of this assignment may not be able ' \
+                     'to log in and view it.') % {'email': account.email}
+
     def is_confirmed(self):
         return self.CONFIRMED_BUTTON_NAME in self.data
 
