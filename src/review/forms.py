@@ -82,13 +82,11 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         potential_errors = []
 
         one_click_access = setting_handler.get_setting('general', 'enable_one_click_access', self.journal).value
-        reviewer_id = self.data.get('reviewer', None)
-        if not one_click_access and reviewer_id:
-            reviewer = core_models.Account.objects.get(id=reviewer_id)
-            if reviewer and not reviewer.is_active:
-                message = 'The chosen reviewer has not activated their account' \
-                          ' and may not be able to log in to view the assignment.'
-                potential_errors.append(_(message))
+        if not one_click_access:
+            reviewer = self.cleaned_data.get('reviewer', None)
+            message = self.check_for_inactive_account(reviewer)
+            if message:
+                potential_errors.append(message)
 
         return potential_errors
 
@@ -156,11 +154,9 @@ class RevisionRequest(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
     def check_for_potential_errors(self):
         potential_errors = []
 
-        author = self.article.correspondence_author
-        if not author.is_active:
-            message = _('The correspondence author may not be able to log in to view the assignment ' \
-                        'because they have not activated their account: ')
-            potential_errors.append(message + f' {author.email}')
+        message = self.check_for_inactive_account(self.article.correspondence_author)
+        if message:
+            potential_errors.append(message)
 
         return potential_errors
 
