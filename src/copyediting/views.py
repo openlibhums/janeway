@@ -130,6 +130,8 @@ def add_copyeditor_assignment(request, article_id):
     form = forms.CopyeditAssignmentForm(
         copyeditor_pks=copyeditor_pks,
         files=files,
+        editor=request.user,
+        article=article,
     )
 
     if request.POST:
@@ -137,13 +139,12 @@ def add_copyeditor_assignment(request, article_id):
             request.POST,
             copyeditor_pks=copyeditor_pks,
             files=files,
+            editor=request.user,
+            article=article,
         )
 
-        if form.is_valid():
-            copyedit = form.save(
-                editor=request.user,
-                article=article,
-            )
+        if form.is_valid() and form.is_confirmed():
+            copyedit = form.save()
 
             return redirect(
                 reverse(

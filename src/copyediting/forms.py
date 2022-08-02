@@ -12,7 +12,9 @@ from core import forms as core_forms
 from copyediting import models
 
 
-class CopyeditAssignmentForm(forms.ModelForm):
+class CopyeditAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+    QUESTION = _('Are you sure you want to create a copyediting assignment?')
+
     class Meta:
         model = models.CopyeditAssignment
         fields = (
@@ -32,6 +34,8 @@ class CopyeditAssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         copyeditor_pks = kwargs.pop('copyeditor_pks', None)
         files = kwargs.pop('files', None)
+        self.editor = kwargs.pop('editor', None)
+        self.article = kwargs.pop('article', None)
         super(CopyeditAssignmentForm, self).__init__(*args, **kwargs)
 
         if copyeditor_pks:
@@ -42,15 +46,11 @@ class CopyeditAssignmentForm(forms.ModelForm):
         if files:
             self.fields['files_for_copyediting'].queryset = files
 
-    def save(self, editor=None, article=None, commit=True):
+    def save(self, commit=True):
         copyedit = super(CopyeditAssignmentForm, self).save(commit=False)
         copyedit.copyeditor = self.cleaned_data.get('copyeditor')
-
-        if editor:
-            copyedit.editor = editor
-
-        if article:
-            copyedit.article = article
+        copyedit.editor = self.editor
+        copyedit.article = self.article
 
         if commit:
             copyedit.save()
@@ -61,6 +61,17 @@ class CopyeditAssignmentForm(forms.ModelForm):
             )
 
         return copyedit
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        copyeditor = self.cleaned_data.get('copyeditor', None)
+        message = self.check_for_inactive_account(copyeditor)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
 
 
 class CopyEditForm(forms.ModelForm):
