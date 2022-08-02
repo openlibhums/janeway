@@ -10,7 +10,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.views.decorators.http import require_POST
 
 from copyediting import models, logic, forms
 from core import models as core_models, files
