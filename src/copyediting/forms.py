@@ -82,6 +82,10 @@ class CopyEditForm(forms.ModelForm):
 
 class AuthorReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableForm):
 
+    # Note: This form uses ConfirmableForm rather than ConfirmableIfErrorsForm
+    # because there is no first step to the task creation, as with other stages,
+    # so the modal provides a way back if the button is accidentally clicked.
+
     # Confirmable form constants
     QUESTION = _('Are you sure you want to ask the author to review copyedits?')
     CONFIRMABLE_BUTTON_NAME = 'author_review'
