@@ -1507,6 +1507,15 @@ class Article(AbstractLastModifiedModel):
                 return '?workflow_element_url=no_element'
         return self.journal.site_url(path=path)
 
+    def next_workflow_element(self):
+        try:
+            current_workflow_element = self.current_workflow_element
+            journal_elements = list(self.journal.workflow().elements.all())
+            i = journal_elements.index(current_workflow_element)
+            return journal_elements[i+1]
+        except IndexError:
+            return 'No next workflow stage found'
+
     @cache(600)
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
