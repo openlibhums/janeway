@@ -223,9 +223,9 @@ def get_plugin_setting(
 
 
 def get_email_subject_setting(
-        setting_group,
-        setting_name,
-        journal,
+        setting_group="email_subject",
+        setting_name=None,
+        journal=None,
         default=True,
 ):
     try:

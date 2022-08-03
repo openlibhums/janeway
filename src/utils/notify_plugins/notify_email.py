@@ -19,8 +19,10 @@ def sanitize_from(from_):
     return re.sub(SANITIZE_FROM_RE, "", from_)
 
 
-def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
-
+def send_email(
+    subject, to, html, journal, request,
+    bcc=None, cc=None, attachment=None, replyto=None,
+):
     if journal:
         from_email = setting_handler.get_setting('general', 'from_address', journal).value
         html = "{0}<br />{1}".format(html, journal.name)
