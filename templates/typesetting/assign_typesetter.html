@@ -39,7 +39,7 @@
             </ul>
         </div>
     </div>
-    <form method="POST">
+    <form id="assign_typesetter" method="POST">
         {% include "elements/forms/errors.html" %}
         {% csrf_token %}
         <div class="box">
@@ -101,15 +101,23 @@
                 </div>
             {% endif %}
 
-            <button name="save" class="button">Save Step 1</button>
+            <button name="{{ form.CONFIRMABLE_BUTTON_NAME }}" class="button">Save Step 1</button>
 
         </div>
     </form>
 
-{% include "typesetting/elements/view_proofreading_comments.html" %}
+    {% include "typesetting/elements/view_proofreading_comments.html" %}
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="assign_typesetter" %}
+    {% endif %}
+
 {% endblock %}
 
 {% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
     {% include "elements/datatables.html" with target="#typesetter" %}
     {% include "elements/jqte.html" %}
     <script src="{% static "admin/js/check_all.js" %}"></script>

@@ -497,7 +497,7 @@ def typesetting_assign_typesetter(request, article_id):
             galleys=galleys,
         )
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             assignment = form.save()
             assignment.manager = request.user
             assignment.save()
@@ -1004,7 +1004,7 @@ def typesetting_assign_proofreader(request, article_id):
             user=request.user,
         )
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             assignment = form.save()
 
             messages.add_message(

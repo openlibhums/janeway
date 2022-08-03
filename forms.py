@@ -10,7 +10,10 @@ from plugins.typesetting import models
 from utils.forms import HTMLDateInput
 
 
-class AssignTypesetter(forms.ModelForm):
+class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+
+    # Confirmable form modification
+    QUESTION = _('Are you sure you want to create a typesetting assignment?')
 
     def __init__(self, *args, **kwargs):
         typesetters = kwargs.pop('typesetters')
@@ -69,8 +72,22 @@ class AssignTypesetter(forms.ModelForm):
         if not cleaned_data.get('files_to_typeset'):
             raise ValidationError("At least one file must be made picked")
 
+    def check_for_potential_errors(self):
+        # Confirmable form modification
+        potential_errors = []
 
-class AssignProofreader(forms.ModelForm):
+        typesetter = self.cleaned_data.get('typesetter', None)
+        message = self.check_for_inactive_account(typesetter)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
+
+
+class AssignProofreader(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+
+    # Confirmable form modification
+    QUESTION = _('Are you sure you want to create a proofreading assignment?')
 
     def __init__(self, *args, **kwargs):
         self.proofreaders = kwargs.pop('proofreaders')
@@ -97,6 +114,17 @@ class AssignProofreader(forms.ModelForm):
             assignment.save()
 
         return assignment
+
+    def check_for_potential_errors(self):
+        # Confirmable form modification
+        potential_errors = []
+
+        proofreader = self.cleaned_data.get('proofreader', None)
+        message = self.check_for_inactive_account(proofreader)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
 
 
 def decision_choices():
