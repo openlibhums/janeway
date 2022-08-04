@@ -639,8 +639,12 @@ class Issue(AbstractLastModifiedModel):
             if article.page_range:
                 page_numbers = article.page_range
             elif article.total_pages:
+                if article.total_pages != 1:
+                    label = ugettext('pages')
+                else:
+                    label = ugettext('page')
                 num_pages = str(article.total_pages)
-                page_numbers = f"{num_pages} {{% trans 'label' %}}"
+                page_numbers = f"{num_pages} {label}"
 
         return [volume, issue, year, issue_title, article_number, page_numbers]
 
