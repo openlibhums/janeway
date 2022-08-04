@@ -140,6 +140,15 @@ def get_best_galley(article, galleys):
             return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
+        try:
+
+            image_galley = galleys.get(
+                file__mime_type__in=files.IMAGE_MIMETYPES,
+                public=True,
+            )
+            return image_galley
+        except core_models.Galley.DoesNotExist:
+            pass
     except core_models.Galley.MultipleObjectsReturned:
         pass
 
