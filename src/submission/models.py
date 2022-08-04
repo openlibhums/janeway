@@ -21,6 +21,7 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
@@ -1212,17 +1213,24 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
+        """ The issue title in the context of the article
+
+        When an article renders its issue title, it can include article
+        dependant elements such as page ranges or article numbers. For this
+        reason, we cannot render database cached issue title.
+        """
         if not self.issue:
             return ''
 
         if self.issue.issue_type.code != 'issue':
             return self.issue.issue_title
         else:
-            return " • ".join([
-                    title_part
-                    for title_part in self.issue.issue_title_parts(article=self)
-                    if title_part
-            ])
+            template = Template(" • ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return mark_safe(template.render(Context()))
 
     def author_list(self):
         if self.is_accepted():
