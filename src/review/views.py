@@ -49,7 +49,8 @@ def home(request):
     articles = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_ASSIGNED) |
         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
-        Q(stage=submission_models.STAGE_UNDER_REVISION),
+        Q(stage=submission_models.STAGE_UNDER_REVISION) |
+        Q(stage=submission_models.STAGE_ACCEPTED),
         journal=request.journal
     )
 
