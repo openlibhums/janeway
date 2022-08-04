@@ -5,6 +5,7 @@ from django.urls import reverse
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
 from workflow import logic
+from events import logic as event_logic
 
 
 @has_journal
@@ -52,3 +53,26 @@ def manage_article_workflow(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@has_journal
+@editor_user_required
+def move_to_next_workflow_element(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+
+    workflow_kwargs = {
+        'handshake_url': article.current_workflow_element.handshake_url,
+        'request': request,
+        'article': article,
+        'switch_stage': True
+    }
+
+    return event_logic.Events.raise_event(
+        event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+        task_object=article,
+        **workflow_kwargs,
+    )
