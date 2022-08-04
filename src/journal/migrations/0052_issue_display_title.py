@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0050_issue_last_modified'),
+        ('journal', '0051_journal_is_archived'),
     ]
 
     operations = [
