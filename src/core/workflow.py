@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 
 
 ELEMENT_STAGES = {
+    'unassigned': submission_models.NEW_SUBMISSION_STAGES,
     'review': submission_models.REVIEW_STAGES,
     'copyediting': submission_models.COPYEDITING_STAGES,
     'production': [submission_models.STAGE_TYPESETTING],
@@ -26,6 +27,8 @@ ELEMENT_STAGES = {
 }
 
 STAGES_ELEMENTS = {
+    submission_models.STAGE_UNASSIGNED: 'unassigned',
+
     submission_models.STAGE_ASSIGNED: 'review',
     submission_models.STAGE_UNDER_REVIEW: 'review',
     submission_models.STAGE_UNDER_REVISION: 'review',

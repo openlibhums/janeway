@@ -42,10 +42,6 @@
         <li><a href="{% url 'core_active_submissions' %}"><i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions</a>
         </li>
         <li class="subtitle"><a href="#">Workflow</a></li>
-            <li>
-                <a href="{% url 'review_unassigned' %}"><i class="fa fa-angle-right">&nbsp;</i>  Unassigned</a>
-            </li>
-
             {% for element in request.journal.workflow.elements.all %}
                 <li>
                     <a href="{% url element.handshake_url %}"><i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}</a>

@@ -236,6 +236,10 @@ FINAL_STAGES = {
     STAGE_REJECTED,
 }
 
+NEW_SUBMISSION_STAGES = {
+    STAGE_UNASSIGNED,
+}
+
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
@@ -1463,6 +1467,13 @@ class Article(AbstractLastModifiedModel):
     def workflow_stages(self):
         from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
+
+    @property
+    def workflow_element_history(self):
+        from core import models as core_models
+        return core_models.WorkflowElement.objects.filter(
+            workflowlog__article=self,
+        )
 
     @property
     def current_workflow_element(self):

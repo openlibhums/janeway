@@ -1356,10 +1356,15 @@ class DomainAlias(AbstractSiteModel):
 
 
 BASE_ELEMENTS = [
+    {'name': 'unassigned',
+     'handshake_url': 'review_unassigned',
+     'jump_url': 'review_unassigned_article',
+     'stage': submission_models.STAGE_UNASSIGNED,
+     'article_url': True},
     {'name': 'review',
      'handshake_url': 'review_home',
      'jump_url': 'review_in_review',
-     'stage': submission_models.STAGE_UNASSIGNED,
+     'stage': submission_models.STAGE_ASSIGNED,
      'article_url': True},
     {'name': 'copyediting',
      'handshake_url': 'copyediting',
