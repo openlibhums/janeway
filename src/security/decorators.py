@@ -546,6 +546,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
     :return: either the function call or raises an Http404
     """
 
+    @wraps(func)
     def wrapper(request, *args, **kwargs):
         identifier_type = kwargs['identifier_type']
         identifier = kwargs['identifier']
@@ -753,6 +754,7 @@ def article_decision_not_made(func):
     :return: either the function call or raises an PermissionDenied
     """
 
+    @wraps(func)
     def wrapper(request, *args, **kwargs):
         try:
             article_object = models.Article.objects.get(pk=kwargs['article_id'], journal=request.journal)
@@ -760,7 +762,9 @@ def article_decision_not_made(func):
             article_object = review_models.ReviewAssignment.objects.get(pk=kwargs['review_id'],
                                                                         article__journal=request.journal).article
 
-        if article_object.stage in models.REVIEW_STAGES:
+        under_consideration = models.REVIEW_STAGES.copy()
+        under_consideration.remove(models.STAGE_ACCEPTED)
+        if article_object.stage in under_consideration:
             return func(request, *args, **kwargs)
         elif article_object.stage == models.STAGE_UNASSIGNED:
             messages.add_message(

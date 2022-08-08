@@ -1006,6 +1006,9 @@ class Article(AbstractLastModifiedModel):
         ).exists():
             return True
 
+        if self.stage == STAGE_ACCEPTED:
+            return True
+
         if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
             return True
 
