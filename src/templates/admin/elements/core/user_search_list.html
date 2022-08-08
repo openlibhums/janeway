@@ -9,8 +9,8 @@
         <th>First Name</th>
         <th>Last Name</th>
         <th>Account Active</th>
-        {% if settings.DEBUG %}
-            <th>Hijack</th>{% endif %}
+        {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
+            <th>Control</th>{% endif %}
     </tr>
     </thead>
     <tr>
@@ -24,7 +24,7 @@
                     {% csrf_token %}
                     <button type="submit" class="tiny button"
                             formaction="{% url 'hijack:login_with_id' user.id %}?next={% url 'core_dashboard' %}">
-                        Hijack User
+                        Control User
                     </button>
                 </form>
             </td>
