@@ -93,17 +93,18 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
 
         try:
             response = redirect(reverse(
-                next_element.handshake_url,
+                next_element.jump_url,
                 kwargs={'article_id': article.pk},
             ))
         except NoReverseMatch:
-            response = redirect(reverse(next_element.handshake_url))
+            try:
+                response = redirect(reverse(next_element.handshake_url))
+            except NoReverseMatch:
+                response = redirect(reverse('core_dashboard'))
 
     except Exception as e:
         logger.exception(e)
-        response = redirect(reverse('core_dashboard'))
 
-    if response.status_code == 302:
         response = redirect(reverse('core_dashboard'))
 
     messages.add_message(
