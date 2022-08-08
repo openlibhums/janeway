@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 
 from security.decorators import editor_user_required, has_journal
@@ -9,7 +10,7 @@ from events import logic as event_logic
 
 
 @has_journal
-@editor_user_required
+@staff_member_required
 def manage_article_workflow(request, article_id):
     """
     Presents an interface for an Editor user to move an article back along its workflow.
@@ -56,7 +57,7 @@ def manage_article_workflow(request, article_id):
 
 
 @has_journal
-@editor_user_required
+@staff_member_required
 def move_to_next_workflow_element(request, article_id):
     article = get_object_or_404(
         submission_models.Article,

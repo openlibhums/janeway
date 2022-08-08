@@ -27,6 +27,8 @@
         {% if request.user.is_superuser %}
             <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
                     class="fa fa-cogs"></i></a></li>
+        {% endif %}
+        {% if request.user.is_staff %}
             <li>
                 <a href="{% url 'manage_article_workflow' article.pk %}" target="_blank">Manage Workflow Stage</a>
             </li>
