@@ -1198,8 +1198,16 @@ def manage_issues(request, issue_id=None, event=None):
     if request.POST:
         if 'make_current' in request.POST:
             issue = models.Issue.objects.get(id=request.POST['make_current'])
-            request.journal.current_issue = issue
-            request.journal.save()
+
+            if issue.is_published():
+                request.journal.current_issue = issue
+                request.journal.save()
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Issues that have a future publication date cannot be set as the current issue for a journal.',
+                )
             issue = None
             return redirect(reverse('manage_issues'))
 

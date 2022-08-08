@@ -847,6 +847,11 @@ class Issue(AbstractLastModifiedModel):
                         latest_issue.issue,
                     )
 
+    def is_published(self):
+        if self.date and self.date < timezone.now():
+            return True
+        return False
+
     def __str__(self):
         return (
             '{self.issue_type.pretty_name}: '
