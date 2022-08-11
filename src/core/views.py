@@ -831,7 +831,6 @@ def edit_settings_group(request, display_group):
 
                     if display_group == 'images':
                         logic.handle_default_thumbnail(request, request.journal, attr_form)
-                        logic.handle_press_override_image(request, request.journal, attr_form)
                 else:
                     fire_redirect = False
 

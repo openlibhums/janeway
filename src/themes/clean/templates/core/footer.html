@@ -1,9 +1,10 @@
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 {% load i18n %}
 <div class="row">
     <div class="col-md-2">
         {% if request.journal.press_image_override %}
-            {% svg request.journal_cover %}
+            {% svg_or_image request.journal.press_image_override "img-fluid" %}
         {% else %}
             {% svg request.press_cover %}
         {% endif %}

@@ -90,11 +90,11 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('The default thumbnail for articles, not to be '
                            'confused with \'Default cover image\'.'),
     )
-    press_image_override = models.ForeignKey(
-        'core.File',
+    press_image_override = SVGImageField(
+        upload_to=cover_images_upload_path,
         null=True,
         blank=True,
-        related_name='press_image_override',
+        storage=fs,
         help_text=ugettext('Replaces the press logo in the footer.'),
     )
     default_cover_image = SVGImageField(

@@ -793,7 +793,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-
+    
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -918,7 +918,6 @@ class File(AbstractLastModifiedModel):
             indexed = True
 
         return indexed
-
 
     def __str__(self):
         return u'%s' % self.original_filename

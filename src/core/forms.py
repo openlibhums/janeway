@@ -326,13 +326,12 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
 
 class JournalImageForm(forms.ModelForm):
     default_thumbnail = forms.FileField(required=False)
-    press_image_override = forms.FileField(required=False)
 
     class Meta:
         model = journal_models.Journal
         fields = (
            'header_image', 'default_cover_image',
-           'default_large_image', 'favicon',
+           'default_large_image', 'favicon', 'press_image_override',
         )
 
 
