@@ -32,6 +32,11 @@ class Thread(models.Model):
     last_updated = models.DateTimeField(
         default=timezone.now,
     )
+    posters = models.ManyToManyField(
+        'core.Account',
+        blank=True,
+        related_name='posters',
+    )
 
     class Meta:
         ordering = ('-last_updated', 'pk')

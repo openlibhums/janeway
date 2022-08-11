@@ -118,6 +118,9 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        if request.user.is_staff:
+            return func(request, *args, **kwargs)
+
         if request.journal and request.user in request.journal.editor_list():
             return func(request, *args, **kwargs)
 

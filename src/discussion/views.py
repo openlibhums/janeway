@@ -36,11 +36,45 @@ def threads(request, object_type, object_id, thread_id=None):
 
     if thread_id:
         try:
-            thread = threads.get(pk=thread_id)
+            thread = threads.get(
+                pk=thread_id,
+            )
         except models.Thread.DoesNotExist:
             raise Http404
     else:
         thread = None
+
+    template = 'admin/discussion/threads.html'
+    context = {
+        'object': object_to_get,
+        'object_type': object_type,
+        'threads': threads,
+        'active_thread': thread,
+        'modal': modal,
+    }
+    return render(request, template, context)
+
+
+@editor_or_manager
+def manage_thread(request, object_type, object_id, thread_id=None):
+    thread = None
+    if thread_id:
+        thread = get_object_or_404(
+            models.Thread,
+            pk=thread_id,
+        )
+    if object_type == 'article':
+        object_to_get = get_object_or_404(
+            submission_models.Article,
+            pk=object_id,
+            journal=request.journal,
+        )
+    else:
+        object_to_get = get_object_or_404(
+            repository_models.Preprint,
+            pk=object_id,
+            repository=request.repository,
+        )
 
     form = forms.ThreadForm(
         object=object_to_get,
@@ -67,8 +101,51 @@ def threads(request, object_type, object_id, thread_id=None):
                     }
                 )
             )
-        else:
-            modal = 'new_thread'
+    template = 'admin/discussion/manage_thread.html'
+    context = {
+        'object': object_to_get,
+        'object_type': object_type,
+        'active_thread': thread,
+    }
+    return render(request, template, context)
+
+
+def user_threads(request, object_type, object_id, thread_id=None):
+    """
+    Grabs threads for an object type.
+    """
+    modal = None
+
+    if object_type == 'article':
+        object_to_get = get_object_or_404(
+            submission_models.Article,
+            pk=object_id,
+            journal=request.journal,
+        )
+        threads = models.Thread.objects.filter(
+            article=object_to_get,
+            posters__in=request.user,
+        )
+    else:
+        object_to_get = get_object_or_404(
+            repository_models.Preprint,
+            pk=object_id,
+            repository=request.repository,
+        )
+        threads = models.Thread.objects.filter(
+            preprint=object_to_get,
+            posters__in=request.user,
+        )
+
+    if thread_id:
+        try:
+            thread = threads.get(
+                pk=thread_id,
+            )
+        except models.Thread.DoesNotExist:
+            raise Http404
+    else:
+        thread = None
 
     template = 'admin/discussion/threads.html'
     context = {
@@ -76,7 +153,6 @@ def threads(request, object_type, object_id, thread_id=None):
         'object_type': object_type,
         'threads': threads,
         'active_thread': thread,
-        'form': form,
         'modal': modal,
     }
     return render(request, template, context)
