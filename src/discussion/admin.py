@@ -10,6 +10,7 @@ from discussion import models
 class ThreadAdmin(admin.ModelAdmin):
     list_display = ('pk', 'subject', 'owner', 'started', 'object_title')
     raw_id_fields = ('owner', 'article', 'preprint')
+    filter_horizontal = ('posters',)
 
 
 class PostAdmin(admin.ModelAdmin):

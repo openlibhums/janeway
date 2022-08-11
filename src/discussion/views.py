@@ -115,6 +115,7 @@ def user_threads(request, object_type, object_id, thread_id=None):
     Grabs threads for an object type.
     """
     modal = None
+    print(object_type, object_id, thread_id)
 
     if object_type == 'article':
         object_to_get = get_object_or_404(
@@ -124,7 +125,7 @@ def user_threads(request, object_type, object_id, thread_id=None):
         )
         threads = models.Thread.objects.filter(
             article=object_to_get,
-            posters__in=request.user,
+            posters=request.user,
         )
     else:
         object_to_get = get_object_or_404(
@@ -134,20 +135,22 @@ def user_threads(request, object_type, object_id, thread_id=None):
         )
         threads = models.Thread.objects.filter(
             preprint=object_to_get,
-            posters__in=request.user,
+            posters=request.user,
         )
 
     if thread_id:
         try:
             thread = threads.get(
                 pk=thread_id,
+                posters=request.user
             )
         except models.Thread.DoesNotExist:
-            raise Http404
+            print('Here')
+            raise Http404('We could not find that thread.')
     else:
         thread = None
 
-    template = 'admin/discussion/threads.html'
+    template = 'admin/discussion/user_threads.html'
     context = {
         'object': object_to_get,
         'object_type': object_type,
@@ -169,9 +172,15 @@ def add_post(request, thread_id):
         request.user,
         request.POST.get('new_post'),
     )
+    reverse_url_name = 'discussion_thread'
+    if request.POST.get('user'):
+        reverse_url_name = 'user_discussion_thread'
+
+    print(reverse_url_name)
+
     return redirect(
         reverse(
-            'discussion_thread',
+            reverse_url_name,
             kwargs={
                 'object_type': thread.object_string(),
                 'object_id': thread.object_id(),

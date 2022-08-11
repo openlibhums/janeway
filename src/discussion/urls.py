@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^(?P<object_type>preprint|article)/(?P<object_id>\d+)/thread/(?P<thread_id>\d+)/$', views.threads, name='discussion_thread'),
 
     url(r'^user/(?P<object_type>preprint|article)/(?P<object_id>\d+)/$', views.user_threads, name='user_discussion_threads'),
-    url(r'^user/(?P<object_type>preprint|article)/(?P<object_id>\d+)/thread/(?P<thread_id>\d+)$', views.user_threads, name='user_discussion_thread'),
+    url(r'^user/(?P<object_type>preprint|article)/(?P<object_id>\d+)/thread/(?P<thread_id>\d+)/$', views.user_threads, name='user_discussion_thread'),
 
     url(r'^thread/(?P<thread_id>\d+)/post/new/$', views.add_post, name='discussion_add_post'),
 
