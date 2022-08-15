@@ -1,0 +1,20 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}{{ object.title }} Discussions{% endblock %}
+{% block title-section %}{{ object_type|capfirst }} {{ object.title }} Discussions{% endblock %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-12">
+            <div class="box thread-box">
+                <div class="title-area">
+                    <a class="button" href="{% url 'new_discussion_thread' object_type object.pk %}">Add New Thread</a>
+                </div>
+                {{ form }}
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

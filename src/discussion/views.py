@@ -105,7 +105,7 @@ def manage_thread(request, object_type, object_id, thread_id=None):
     context = {
         'object': object_to_get,
         'object_type': object_type,
-        'active_thread': thread,
+        'form': form,
     }
     return render(request, template, context)
 

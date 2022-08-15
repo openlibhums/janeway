@@ -7,7 +7,7 @@ class ThreadForm(forms.ModelForm):
     class Meta:
         model = models.Thread
         fields = (
-            'subject',
+            'subject', 'posters',
         )
 
     def __init__(self, *args, **kwargs):
