@@ -208,6 +208,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
                                   verbose_name=_('Salutation'))
+    suffix = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        help_text=_('Name suffix eg. jr'),
+    )
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
     institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
@@ -427,6 +433,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'institution': self.institution,
             'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
+            'name_suffix': self.suffix,
         }
 
         frozen_author = self.frozen_author(article)

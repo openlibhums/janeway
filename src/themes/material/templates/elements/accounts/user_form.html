@@ -5,7 +5,7 @@
 
 <h5>{% trans "Core Data" %}</h5>
 <div class="row">
-    <div class="col m3">
+    <div class="col m2">
         {% bootstrap_field form.salutation %}
     </div>
     <div class="col m3">
@@ -16,6 +16,9 @@
     </div>
     <div class="col m3">
         {% bootstrap_field form.last_name %}
+    </div>
+    <div class="col m1">
+        {% bootstrap_field form.suffix %}
     </div>
 </div>
 <div class="row">
