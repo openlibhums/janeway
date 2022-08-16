@@ -1035,14 +1035,22 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    form = forms.ReviewAssignmentForm(journal=request.journal)
-    new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewer_candidates(article, request.user)
-    reviewer = None
+    form = forms.ReviewAssignmentForm(
+        journal=request.journal,
+        article=article,
+        editor=request.user,
+        reviewers=reviewers,
+    )
+    new_reviewer_form = core_forms.QuickUserForm()
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You should select files for review before adding reviewers.',
+        )
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1058,32 +1066,34 @@ def add_review_assignment(request, article_id):
                 user = None
 
             if user:
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)}))
+                return redirect(
+                    reverse(
+                        'review_add_review_assignment',
+                        kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)},)
+                )
 
             valid = new_reviewer_form.is_valid()
 
             if valid:
                 acc = logic.handle_reviewer_form(request, new_reviewer_form)
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
+                return redirect(
+                    reverse(
+                        'review_add_review_assignment', kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}),
+                )
             else:
                 form.modal = {'id': 'reviewer'}
         else:
-
-            form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
-            reviewer = logic.get_reviewer_from_post(request)
-
-            if not reviewer:
-                form.add_error(None, 'You must select a reviewer.')
-
-            elif form.is_valid() and form.is_confirmed():
-                review_assignment = form.save(commit=False)
-                review_assignment.reviewer = reviewer
-                review_assignment.article = article
-                review_assignment.editor = request.user
-                review_assignment.review_round = article.current_review_round_object()
-                review_assignment.access_code = uuid4()
-                review_assignment.save()
-
+            form = forms.ReviewAssignmentForm(
+                request.POST,
+                journal=request.journal,
+                article=article,
+                editor=request.user,
+                reviewers=reviewers,
+            )
+            if form.is_valid() and form.is_confirmed():
+                review_assignment = form.save()
                 article.stage = submission_models.STAGE_UNDER_REVIEW
                 article.save()
 
@@ -1095,16 +1105,18 @@ def add_review_assignment(request, article_id):
 
                 event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED, **kwargs)
 
-                return redirect(reverse('review_notify_reviewer',
-                                        kwargs={'article_id': article_id, 'review_id': review_assignment.id}))
+                return redirect(
+                    reverse(
+                        'review_notify_reviewer',
+                        kwargs={'article_id': article_id, 'review_id': review_assignment.id}
+                    )
+                )
 
-
-    template = 'review/add_review_assignment.html'
+    template = 'admin/review/add_review_assignment.html'
     context = {
         'article': article,
         'form': form,
         'reviewers': reviewers,
-        'selected_reviewer': reviewer or None,
         'new_reviewer_form': new_reviewer_form,
     }
 
@@ -1279,10 +1291,10 @@ def edit_review(request, article_id, review_id):
         messages.add_message(request, messages.WARNING, 'You cannot edit a review that is already complete.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
-    form = forms.ReviewAssignmentForm(instance=review, journal=request.journal)
+    form = forms.EditReviewAssignmentForm(instance=review, journal=request.journal)
 
     if request.POST:
-        form = forms.ReviewAssignmentForm(request.POST, instance=review, journal=request.journal)
+        form = forms.EditReviewAssignmentForm(request.POST, instance=review, journal=request.journal)
 
         if form.is_valid():
             form.save()

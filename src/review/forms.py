@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from datetime import timedelta
+from uuid import uuid4
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -12,8 +13,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.template.defaultfilters import linebreaksbr
 
-from review import models
-from review.logic import render_choices
+from review import models, logic
 from core import models as core_models, forms as core_forms
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput
@@ -47,16 +47,35 @@ class DraftDecisionForm(forms.ModelForm):
 class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ('visibility', 'form', 'date_due')
+        fields = ('visibility', 'form', 'date_due', 'reviewer')
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal', None)
+        self.article = kwargs.pop('article')
+        self.editor = kwargs.pop('editor')
+        self.reviewers = kwargs.pop('reviewers')
+
         super(ReviewAssignmentForm, self).__init__(*args, **kwargs)
+
         self.fields['form'].empty_label = None
-        default_visibility = setting_handler.get_setting('general', 'default_review_visibility', self.journal, create=True)
-        default_due = setting_handler.get_setting('general', 'default_review_days', self.journal, create=True).value
-        default_form = setting_handler.get_setting('general',
-                                                   'default_review_form', self.journal, create=True).processed_value
+        default_visibility = setting_handler.get_setting(
+            'general',
+            'default_review_visibility',
+            self.journal,
+            create=True,
+        )
+        default_due = setting_handler.get_setting(
+            'general',
+            'default_review_days',
+            self.journal,
+            create=True,
+        ).value
+        default_form = setting_handler.get_setting(
+            'general',
+            'default_review_form',
+            self.journal,
+            create=True,
+        ).processed_value
 
         if self.journal:
             self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=self.journal, deleted=False)
@@ -72,10 +91,25 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
             form = models.ReviewForm.objects.get(pk=default_form)
             self.fields['form'].initial = form
 
+        if self.reviewers:
+            self.fields['reviewer'].queryset = self.reviewers
+
         if self.instance.date_accepted:
             # Form should not be changed after request has been accepted
             self.fields['form'].initial = self.instance.form
             self.fields['form'].disabled = True
+
+    def save(self, commit=True):
+        review_assignment = super().save(commit=False)
+        review_assignment.editor = self.editor
+        review_assignment.article = self.article
+        review_assignment.review_round = self.article.current_review_round_object()
+        review_assignment.access_code = uuid4()
+
+        if commit:
+            review_assignment.save()
+
+        return review_assignment
 
     def check_for_potential_errors(self):
         # This customizes the confirmable form method
@@ -89,6 +123,18 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
                 potential_errors.append(message)
 
         return potential_errors
+
+
+class EditReviewAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewAssignment
+        fields = ('visibility', 'form', 'date_due')
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(EditReviewAssignmentForm, self).__init__(*args, **kwargs)
+        if self.journal:
+            self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=self.journal, deleted=False)
 
 
 class ReviewerDecisionForm(forms.ModelForm):
@@ -240,7 +286,7 @@ class GeneratedForm(forms.Form):
             elif element.kind == 'upload':
                 self.fields[str(element.pk)] = forms.FileField(required=element.required if fields_required else False)
             elif element.kind == 'select':
-                choices = render_choices(element.choices)
+                choices = logic.render_choices(element.choices)
                 self.fields[str(element.pk)] = forms.ChoiceField(
                     widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
                     required=element.required if fields_required else False)

@@ -46,7 +46,7 @@
                         <tbody>
                         {% for reviewer in suggested_reviewers %}
                             <tr style="color: forestgreen">
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == selected_reviewer.id %}checked=True{% endif %}></td>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
                                 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
@@ -59,7 +59,7 @@
                         {% for reviewer in reviewers %}
                             {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
                             <tr>
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == selected_reviewer.id %}checked=True{% endif %}></td>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
                                 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>

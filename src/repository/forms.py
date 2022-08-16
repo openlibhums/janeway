@@ -9,7 +9,7 @@ from django.contrib import messages
 from submission import models as submission_models
 from repository import models
 from press import models as press_models
-from review.forms import render_choices
+from review.logic import render_choices
 from core import models as core_models, workflow
 from utils import forms as utils_forms
 
