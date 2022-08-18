@@ -29,6 +29,13 @@
                             <p>{% blocktrans %}For more information read our <a href="#" data-toggle="modal" data-target="#passwordmodal">password guide</a>.{% endblocktrans %}</p>
 
                             {% bootstrap_form form %}
+                            <p>{% trans "By registering an account you agree to our" %}
+                                {% if journal_settings.general.privacy_policy_url %}
+                                    <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                                {% else %}
+                                    <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
+                                {% endif %}
+                            </p>
                             <p>{% trans 'By registering an account you agree to our' %} <a href="/site/privacy/">{% trans 'Privacy Policy' %}</a>.</p>
                             {% if journal_settings.general.display_register_page_notice %}
                             {{ journal_settings.general.register_page_notice|safe }}
