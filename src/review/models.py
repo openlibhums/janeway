@@ -248,8 +248,8 @@ class ReviewAssignment(models.Model):
 
     def visibility_statement(self):
         if self.for_author_consumption:
-            return "available for the author to read"
-        return "not available for the author to read"
+            return "available for the author to access"
+        return "not available for the author to access"
 
     def __str__(self):
         if self.reviewer:

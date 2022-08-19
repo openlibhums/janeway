@@ -143,7 +143,7 @@
 
                                 <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                                 <div class="accordion-content" data-tab-content>
-                                    <p>Currently this review is {{ review.visibility_statement }}.</p>
+                                    <p>Currently this review is {{ review.visibility_statement }}. <strong>Note</strong> that the author must have access to the review before they can access the review file.</p>
                                     <form method="POST">
                                         {% csrf_token %}
                                         {{ visibility_form }}
@@ -157,10 +157,8 @@
                                     <p>
                                         <small>
                                             The toggles below control the visibility of the individual review form
-                                            answers.
-                                            Note that changing these will have no effect unless the Review is
-                                            marked
-                                            as visible to the author using the <em>Author can access this review</em>
+                                            answers. Note that changing these will have no effect unless the Review is
+                                            marked as visible to the author using the <em>Author can access this review</em>
                                             toggle above.
                                         </small>
                                     </p>

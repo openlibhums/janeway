@@ -228,7 +228,7 @@ class ReviewVisibilityForm(forms.ModelForm):
         fields = ('for_author_consumption', 'display_review_file')
         labels = {
             "for_author_consumption": "Author can access this review",
-            "display_review_file": "Author can see review file",
+            "display_review_file": "Author can access review file",
         }
         widgets = {
             "for_author_consumption": HTMLSwitchInput(),
