@@ -8,6 +8,7 @@ from api.oai import exceptions
 from api.oai.base import OAIPagedModelView, metadata_formats
 from identifiers.models import Identifier
 from submission import models as submission_models
+from repository import models as repo_models
 from utils.upgrade import shared
 from journal import models as journal_models
 from xml.dom import minidom
@@ -46,6 +47,10 @@ class OAIListRecords(OAIPagedModelView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
+        if self.request.repository:
+            queryset = repo_models.Preprint.objects.filter(repository=self.request.repository)
+            return queryset
 
         if self.request.journal:
             queryset = queryset.filter(journal=self.request.journal)
@@ -94,15 +99,22 @@ class OAIListRecords(OAIPagedModelView):
         return qs
 
     def filter_is_published(self, qs):
-        return qs.filter(
-            stage=submission_models.STAGE_PUBLISHED,
-            date_published__lte=timezone.now(),
-        )
+        if self.request.repository:
+            return qs.filter(
+                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+                date_published__lte=timezone.now(),
+            )
+        else:
+            return qs.filter(
+                stage=submission_models.STAGE_PUBLISHED,
+                date_published__lte=timezone.now(),
+            )
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["is_preprints"] = self.request.repository
         return context
 
 
@@ -116,6 +128,7 @@ class OAIGetRecord(TemplateView):
         context["verb"] = self.request.GET.get("verb")
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
         context["jats"], context["stub"] = self.get_jats(context["article"])
+        context["is_preprints"] = self.request.repository
         return context
 
     def get_jats(self, article):
@@ -125,13 +138,16 @@ class OAIGetRecord(TemplateView):
         @return: JATS XML or a metadata stub, True or False for whether this is
         a stub (False = full JATS, True = stub only)
         """
+        if self.request.repository:
+            return None, True
+
         render_galley = article.get_render_galley
 
         # check if this is a JATS XML file
         try:
             if render_galley:
                 with open(render_galley.file.get_file_path(article),
-                          'r') as galley:
+                            'r') as galley:
                     contents = galley.read()
 
                     if 'DTD JATS' in contents:
@@ -139,7 +155,7 @@ class OAIGetRecord(TemplateView):
                         # we need to strip the XML header, though
                         domified_xml = minidom.parseString(contents)
                         return domified_xml.documentElement.toxml('utf-8'), \
-                               False
+                            False
         except:
             # a broad catch that lets us generate a stub if anything goes wrong
             pass
@@ -154,16 +170,22 @@ class OAIGetRecord(TemplateView):
             raise exceptions.OAIBadArgument()
 
         try:
-            if id_type == "id":
-                article = submission_models.Article.objects.get(
+            if self.request.repository:
+                article = repo_models.Preprint.objects.get(
                     id=identifier,
-                    stage=submission_models.STAGE_PUBLISHED,
+                    stage=repo_models.STAGE_PREPRINT_PUBLISHED,
                 )
             else:
-                article = Identifier.objects.get(
-                    id_type=id_type, identifier=identifier,
-                    article__stage=submission_models.STAGE_PUBLISHED,
-                ).article
+                if id_type == "id":
+                    article = submission_models.Article.objects.get(
+                        id=identifier,
+                        stage=submission_models.STAGE_PUBLISHED,
+                    )
+                else:
+                    article = Identifier.objects.get(
+                        id_type=id_type, identifier=identifier,
+                        article__stage=submission_models.STAGE_PUBLISHED,
+                    ).article
         except (
             Identifier.DoesNotExist,
             submission_models.Article.DoesNotExist,
@@ -218,6 +240,11 @@ class OAIListSets(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+
+        # No sets in preprints for now
+        if self.request.repository:
+            return context
+
         journals = journal_models.Journal.objects.all()
         all_issues = journal_models.Issue.objects.all()
         sections = submission_models.Section.objects.all()
