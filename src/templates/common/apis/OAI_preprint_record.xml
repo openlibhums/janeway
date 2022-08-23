@@ -18,7 +18,9 @@
       {% if article.date_published %}
       <dc:date>{{ article.date_published|date:"Y-m-d\TH:i:s\Z" }}</dc:date>
       {% endif %}
+      {% if article.current_version.date_time %}
       <dc:date>{{ article.current_version.date_time|date:"Y-m-d\TH:i:s\Z"}}</dc:date>
+      {% endif %}
       <dc:type>PREPRINTS</dc:type>
       <dc:publisher>{{ article.repository.press.name }}</dc:publisher>
       {% if article.doi %}

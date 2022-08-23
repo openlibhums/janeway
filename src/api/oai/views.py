@@ -32,7 +32,10 @@ def oai_view_factory(request, *args, **kwargs):
             verb = DEFAULT_ENDPOINT
         elif verb not in ROUTES:
             raise exceptions.OAIBadVerb()
-        view = ROUTES.get(verb)
+        if request.repository:
+            view = PREPRINT_ROUTES.get(verb)
+        else:
+            view = ROUTES.get(verb)
         return view(request, *args, **kwargs)
     except exceptions.OAIException as oai_error:
         return OAIErrorResponse.as_view(error=oai_error)(request)
@@ -47,11 +50,6 @@ class OAIListRecords(OAIPagedModelView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
-        if self.request.repository:
-            # No sets are implemented for preprints so always return all records
-            queryset = repo_models.Preprint.objects.filter(repository=self.request.repository)
-            return queryset
 
         if self.request.journal:
             queryset = queryset.filter(journal=self.request.journal)
@@ -100,24 +98,16 @@ class OAIListRecords(OAIPagedModelView):
         return qs
 
     def filter_is_published(self, qs):
-        if self.request.repository:
-            return qs.filter(
-                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                date_published__lte=timezone.now(),
-            )
-        else:
-            return qs.filter(
-                stage=submission_models.STAGE_PUBLISHED,
-                date_published__lte=timezone.now(),
-            )
+        return qs.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
-        context["is_preprints"] = self.request.repository
         return context
-
 
 class OAIGetRecord(TemplateView):
     template_name = "apis/OAI_GetRecord.xml"
@@ -129,7 +119,6 @@ class OAIGetRecord(TemplateView):
         context["verb"] = self.request.GET.get("verb")
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
         context["jats"], context["stub"] = self.get_jats(context["article"])
-        context["is_preprints"] = self.request.repository
         return context
 
     def get_jats(self, article):
@@ -139,9 +128,6 @@ class OAIGetRecord(TemplateView):
         @return: JATS XML or a metadata stub, True or False for whether this is
         a stub (False = full JATS, True = stub only)
         """
-        if self.request.repository:
-            return None, True
-
         render_galley = article.get_render_galley
 
         # check if this is a JATS XML file
@@ -171,22 +157,16 @@ class OAIGetRecord(TemplateView):
             raise exceptions.OAIBadArgument()
 
         try:
-            if self.request.repository:
-                article = repo_models.Preprint.objects.get(
+            if id_type == "id":
+                article = submission_models.Article.objects.get(
                     id=identifier,
-                    stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+                    stage=submission_models.STAGE_PUBLISHED,
                 )
             else:
-                if id_type == "id":
-                    article = submission_models.Article.objects.get(
-                        id=identifier,
-                        stage=submission_models.STAGE_PUBLISHED,
-                    )
-                else:
-                    article = Identifier.objects.get(
-                        id_type=id_type, identifier=identifier,
-                        article__stage=submission_models.STAGE_PUBLISHED,
-                    ).article
+                article = Identifier.objects.get(
+                    id_type=id_type, identifier=identifier,
+                    article__stage=submission_models.STAGE_PUBLISHED,
+                ).article
         except (
             Identifier.DoesNotExist,
             submission_models.Article.DoesNotExist,
@@ -242,10 +222,6 @@ class OAIListSets(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
 
-        # No sets in preprints for now
-        if self.request.repository:
-            return context
-
         journals = journal_models.Journal.objects.all()
         all_issues = journal_models.Issue.objects.all()
         sections = submission_models.Section.objects.all()
@@ -269,7 +245,6 @@ class OAIListSets(TemplateView):
 
         return context
 
-
 class OAIErrorResponse(TemplateView):
     """ Base Error response returned for raised OAI API errors
 
@@ -286,6 +261,98 @@ class OAIErrorResponse(TemplateView):
         context["error"] = self.error
         return context
 
+
+class OAIListPreprintRecords(OAIPagedModelView):
+    template_name = "apis/OAI_ListRecords.xml"
+    queryset = repo_models.Preprint.objects.all()
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.repository:
+            queryset = queryset.filter(repository=self.request.repository)
+        return queryset
+
+    def filter_is_published(self, qs):
+        return qs.filter(
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["is_preprints"] = self.request.repository
+        return context
+
+class OAIGetPreprintRecord(OAIGetRecord):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["is_preprints"] = self.request.repository
+        return context
+
+    def get_jats(self, article):
+        return None, True
+
+    def get_article(self):
+        id_param = self.request.GET.get("identifier")
+        try:
+           _, site_code, id_type, identifier = id_param.split(":")
+        except (ValueError, AttributeError):
+            raise exceptions.OAIBadArgument()
+
+        try:
+            article = repo_models.Preprint.objects.get(
+                id=identifier,
+                stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+            )
+        except (
+            Identifier.DoesNotExist,
+            submission_models.Article.DoesNotExist,
+        ):
+            raise exceptions.OAIDoesNotExist()
+
+        return article
+
+class OAIListPreprintIdentifiers(OAIListPreprintRecords):
+    template_name = "apis/OAI_ListIdentifiers.xml"
+
+class OAIPreprintIdentify(TemplateView):
+    template_name = "apis/OAI_PreprintIdentify.xml"
+    content_type = "application/xml"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['version'] = shared.current_version()
+
+        articles = repo_models.Preprint.objects.all()
+
+        if self.request.repository:
+            articles = articles.filter(
+                repository=self.request.repository,
+                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            )
+
+        context['earliest_article'] = articles.earliest('date_published')
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+
+        return context
+
+class OAIListPreprintSets(TemplateView):
+    template_name = "apis/OAI_ListSets.xml"
+    content_type = "application/xml"
+
+PREPRINT_ROUTES = {
+    "GetRecord": OAIGetPreprintRecord.as_view(),
+    "ListRecords": OAIListPreprintRecords.as_view(),
+    "ListIdentifiers": OAIListPreprintIdentifiers.as_view(),
+    "ListMetadataFormats": OAIListMetadataFormats.as_view(),
+    "Identify": OAIPreprintIdentify.as_view(),
+    "ListSets": OAIListPreprintSets.as_view(),
+}
 
 ROUTES = {
     "GetRecord": OAIGetRecord.as_view(),
