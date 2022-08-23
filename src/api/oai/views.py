@@ -49,6 +49,7 @@ class OAIListRecords(OAIPagedModelView):
         queryset = super().get_queryset()
 
         if self.request.repository:
+            # No sets are implemented for preprints so always return all records
             queryset = repo_models.Preprint.objects.filter(repository=self.request.repository)
             return queryset
 
