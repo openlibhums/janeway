@@ -40,20 +40,26 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <article-title>{{ article.title }}</article-title>
             </title-group>
             <contrib-group>
-            {% for author in article.authors %}
+            {% for author in article.preprintauthor_set.all %}
                 <contrib contrib-type="author">
+                    {% if author.account.orcid %}
                     <contrib-id>{{ author.account.orcid }}</contrib-id>
+                    {% endif %}
                     <name>
-                        <surname>{{ author.last_name }}</surname>
-                        <given-names>{{ author.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
+                        <surname>{{ author.account.last_name }}</surname>
+                        <given-names>{{ author.account.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
                     </name>
-                    <email>{{ author.email }}</email>                    
+                    <email>{{ author.account.email }}</email>
+                    {% if author.affiliation %}                 
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
+                    {% endif %}
                 </contrib>
             {% endfor %}
             </contrib-group>
             {% for author in article.preprintauthor_set.all %}
+            {% if author.affiliation %}
             <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
+            {% endif %}
             {% endfor %}
             <pub-date date-type="pub" iso-8601-date="{{ article.date_published|date:"Y-m-d" }}" publication-format="electronic">
                 <day>{{ article.date_published|date:"d" }}</day>
@@ -67,15 +73,19 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <year>{{ article.date_updated|date:"Y" }}</year>
             </pub-date>
             {% endif %}
+            {% if article.license %}
             <permissions>
                 <copyright-statement>{{ article.license.name }}</copyright-statement>
                 <copyright-year>{{ article.date_published|date:"Y" }}</copyright-year>
             </permissions>
+            {% endif %}
             <self-uri content-type="text/html" xlink:href="{{ article.url }}"/>
             {% if article.current_version.file %}
             <self-uri content-type="{{ article.current_version_file_type }}" xlink:href="{{ article.repository.site_url }}{{ article.current_version.file.download_url }}"/>
             {% endif %}
+            {% if article.abstract %}
             <abstract>{{ article.abstract }}</abstract>
+            {% endif %}
             {% if article.keywords.exists %}
             <kwd-group xml:lang="en">
                 <title>Keywords</title>
@@ -91,6 +101,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     </caption>
                 </supplementary-material>
             {% endfor %}
+            {% if article.preprintversion_set.exists %}
             <pub-history>
                 {% for v in article.preprintversion_set.all %}
                 <event event-type="pub">
@@ -106,6 +117,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 </event>
                 {% endfor %}
             </pub-history>
+            {% endif %}
         </article-meta>
     </front>
     </article>
