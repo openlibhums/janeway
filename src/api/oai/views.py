@@ -109,6 +109,7 @@ class OAIListRecords(OAIPagedModelView):
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
         return context
 
+
 class OAIGetRecord(TemplateView):
     template_name = "apis/OAI_GetRecord.xml"
     content_type = "application/xml"
@@ -134,7 +135,7 @@ class OAIGetRecord(TemplateView):
         try:
             if render_galley:
                 with open(render_galley.file.get_file_path(article),
-                            'r') as galley:
+                          'r') as galley:
                     contents = galley.read()
 
                     if 'DTD JATS' in contents:
@@ -142,7 +143,7 @@ class OAIGetRecord(TemplateView):
                         # we need to strip the XML header, though
                         domified_xml = minidom.parseString(contents)
                         return domified_xml.documentElement.toxml('utf-8'), \
-                            False
+                               False
         except:
             # a broad catch that lets us generate a stub if anything goes wrong
             pass
@@ -221,7 +222,6 @@ class OAIListSets(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-
         journals = journal_models.Journal.objects.all()
         all_issues = journal_models.Issue.objects.all()
         sections = submission_models.Section.objects.all()
@@ -244,6 +244,7 @@ class OAIListSets(TemplateView):
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
 
         return context
+
 
 class OAIErrorResponse(TemplateView):
     """ Base Error response returned for raised OAI API errors
