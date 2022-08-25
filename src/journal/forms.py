@@ -5,9 +5,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 from django.conf import settings
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.core.validators import validate_email, ValidationError
 
 from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
@@ -75,50 +75,36 @@ class ResendEmailForm(forms.Form):
         self.fields['body'].initial = mark_safe(log_entry.description)
 
 
-class EmailForm(forms.Form):
-    cc = forms.CharField(
-        required=False,
-        max_length=1000,
-        help_text='Separate email addresses with ;',
-    )
-    subject = forms.CharField(max_length=1000)
-    body = forms.CharField(widget=SummernoteWidget)
-
-    def clean_cc(self):
-        cc = self.cleaned_data['cc']
-        if not cc or cc == '':
-            return []
-
-        cc_list = [x.strip() for x in cc.split(';') if x]
-        for address in cc_list:
-            try:
-                validate_email(address)
-            except ValidationError:
-                self.add_error('cc', 'Invalid email address ({}).'.format(address))
-
-        return cc_list
-
-
 class SearchForm(forms.Form):
+    SEARCH_FILTERS = {
+        "title",
+        "abstract",
+        "authors",
+        "keywords",
+        "full_text",
+        "orcid",
+    }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data=None, *args, **kwargs):
+        if data:
+            data = {k: v for k, v in data.items()}
+        super().__init__(data, *args, **kwargs)
         if not settings.ENABLE_FULL_TEXT_SEARCH:
             self.fields.pop('full_text', None)
+            self.fields["sort"].choices = SEARCH_SORT_OPTIONS[1:]
+
+        if self.data and not self.has_filter:
+            for search_filter in self.SEARCH_FILTERS:
+                self.data[search_filter] = "on"
 
     article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
     title = LeftBooleanField(initial=True, label=_('Search Titles'), required=False)
     abstract = LeftBooleanField(initial=True, label=_('Search Abstract'), required=False)
     authors = LeftBooleanField(initial=True, label=_('Search Authors'), required=False)
-    keywords = LeftBooleanField(label=_("Search Keywords"), required=False)
+    keywords = LeftBooleanField(initial=True, label=_("Search Keywords"), required=False)
     full_text = LeftBooleanField(initial=True, label=_("Search Full Text"), required=False)
     orcid = LeftBooleanField(label=_("Search ORCIDs"), required=False)
     sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not settings.ENABLE_FULL_TEXT_SEARCH:
-            self.fields["sort"].choices = SEARCH_SORT_OPTIONS[1:]
 
     def get_search_filters(self):
         """ Generates a dictionary of search_filters from a search form"""
@@ -130,6 +116,14 @@ class SearchForm(forms.Form):
             "keywords": self.cleaned_data["keywords"],
             "orcid": self.cleaned_data["orcid"],
         }
+
+
+    @cached_property
+    def has_filter(self):
+        """Determines if the user has selected at least one search filter
+        :return: Boolean indicating if there are any search filters selected
+        """
+        return "on" in set(self.data.values())
 
 
 class IssueDisplayForm(forms.ModelForm):

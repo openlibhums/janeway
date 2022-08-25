@@ -47,6 +47,7 @@ EDITABLE_FORMAT = (
 
 IMAGE_MIMETYPES = (
     'image/jpeg',
+    'image/jpg',
     'image/png',
     'image/gif',
     'image/tiff',

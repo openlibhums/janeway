@@ -95,12 +95,19 @@
                         {{ info_form.custom_how_to_cite|foundation }}
                     </div>
                     <div class="large-12 columns">
-                        <label for="id_keywords">Keywords</label>
-                        <input type="text" id="id_keywords" name="keywords" value="
-                                {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
-                        <p>Hit Enter to add a new keyword.</p>
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <label for="id_keywords">Keywords</label>
+                                <input type="text" id="id_keywords" name="keywords" value="
 
+
+                                        {% if info_form.cleaned_data.keywords %}{{ info_form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                                <p>Hit Enter to add a new keyword.</p>
+                            </div>
+                        </div>
                     </div>
+
+                    {% include "admin/elements/submission/additional_fields.html" with form=info_form additional_fields=additional_fields %}
 
                     <div class="large-12 columns">
                         <button type="submit" name="metadata" class="small success button">Update Metadata</button>
