@@ -39,7 +39,6 @@ def update_settings_group(apps, setting_names, from_group, to_group):
     SettingGroup = apps.get_model("core", "SettingGroup")
     setting_group, _ = SettingGroup.objects.get_or_create(name=to_group)
     for setting_name in STYLING_SETTINGS:
-        import pdb;pdb.set_trace()
         settings = Setting.objects.filter(
             name=setting_name,
         )
