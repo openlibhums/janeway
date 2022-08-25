@@ -25,7 +25,7 @@
                             {% if plugin.manager_url %}
                                 <a class="button" href="{% url plugin.manager_url %}">{{ plugin.name|capfirst }}</a>
                             {% else %}
-                                <a class="button disabled" href="">{{ plugin.model.name|capfirst }}</a>
+                                <a class="button disabled" href="">{{ plugin.name|capfirst }}</a>
                             {% endif %}
                         {% endfor %}
                     </div>

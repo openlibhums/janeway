@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from importlib import import_module
 import json
 import pytz
+from operator import itemgetter
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -1608,7 +1609,7 @@ def plugin_list(request):
 
     template = 'core/manager/plugins.html'
     context = {
-        'plugins': plugin_list,
+        'plugins': sorted(plugin_list, key=itemgetter('name')),
     }
 
     return render(request, template, context)
