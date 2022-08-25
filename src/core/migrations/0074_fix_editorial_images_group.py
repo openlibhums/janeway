@@ -38,20 +38,22 @@ def update_settings_group(apps, setting_names, from_group, to_group):
     Setting = apps.get_model("core", "Setting")
     SettingGroup = apps.get_model("core", "SettingGroup")
     setting_group, _ = SettingGroup.objects.get_or_create(name=to_group)
-    settings = Setting.objects.filter(
-        name__in=STYLING_SETTINGS, group__name=from_group,
-    )
-    settings_with_from = settings.filter(group__name=from_group)
-    settings_with_to = settings.filter(group__name=to_group)
-    if settings_with_from.exists() and settings_with_to.exists():
-        # Case A
-        settings_with_from.delete()
-    elif settings_with_from.exists() and not settings_with_to.exists():
-        # Case B
-        setting = settings_with_from.first()
-        setting.group = setting_group
-        setting.save()
-        settings_with_from.delete()
+    for setting_name in STYLING_SETTINGS:
+        import pdb;pdb.set_trace()
+        settings = Setting.objects.filter(
+            name=setting_name,
+        )
+        settings_with_from = settings.filter(group__name=from_group)
+        settings_with_to = settings.filter(group__name=to_group)
+        if settings_with_from.exists() and settings_with_to.exists():
+            # Case A
+            settings_with_from.delete()
+        elif settings_with_from.exists() and not settings_with_to.exists():
+            # Case B
+            setting = settings_with_from.first()
+            setting.group = setting_group
+            setting.save()
+            settings_with_from.delete()
 
 
 def general_to_styling(apps, schema_editor):
