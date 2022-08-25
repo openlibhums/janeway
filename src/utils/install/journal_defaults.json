@@ -221,7 +221,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} <br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -371,7 +371,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -3462,6 +3462,36 @@
         },
         "value": {
             "default": "200"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to an author when an editor deletes their copyedit review task.",
+            "is_translatable": false,
+            "name": "author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Author Copyedit Deleted email.",
+            "is_translatable": false,
+            "name": "subject_author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted Subject",
+            "type": "text"
+        },
+        "value": {
+            "default": "Copyedit Review Request Deleted"
         }
     }
 

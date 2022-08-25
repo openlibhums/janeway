@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
@@ -1787,15 +1788,15 @@ def do_revisions(request, article_id, revision_id):
                     }
                 )
             )
-        else:
 
+        else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
                 form.add_error(
                     None,
                     'Your article must have at least one manuscript file.',
                 )
-            if form.is_valid():
+            if form.is_valid() and form.is_confirmed():
                 form.save()
 
                 kwargs = {

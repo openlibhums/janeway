@@ -108,6 +108,10 @@ class Events:
     # raised when an author completes their copyedit review
     ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE = 'on_copyedit_author_review_complete'
 
+    # kwargs author_review, request
+    # raised when an author review is deleted
+    ON_COPYEDIT_AUTHOR_REVIEW_DELETED = 'on_copyedit_author_review_delete'
+
     # kwargs: article, copyeditor assignment, request, skip (boolean)
     # raised when a copyedit assignment is acknowledged
     ON_COPYEDIT_ACKNOWLEDGE = 'on_copyedit_acknowledge'

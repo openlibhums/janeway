@@ -152,7 +152,7 @@
                                 </button>
                             </li>
                         {% endif %}
-                        {% if request.user.is_staff and preprint.date_declined and not preprint.date_published %}
+                        {% if preprint.date_declined and not preprint.date_published %}
                             <li>
                                 <button name="reset" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Un-reject
                                     this {{ request.repository.object_name }}
