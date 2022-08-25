@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='galley',
             name='type',
-            field=models.CharField(choices=[('pdf', 'PDF'), ('epub', 'EPUB'), ('html', 'HTML'), ('xml', 'XML'), ('doc', 'Word (Doc)'), ('docx', 'Word (DOCX)'), ('odt', 'OpenDocument Text Document'), ('tex', 'LaTeX'), ('rtf', 'RTF'), ('other', 'Other')], max_length=100),
+            field=models.CharField(choices=[('pdf', 'PDF'), ('epub', 'EPUB'), ('html', 'HTML'), ('xml', 'XML'), ('doc', 'Word (Doc)'), ('docx', 'Word (DOCX)'), ('odt', 'OpenDocument Text Document'), ('tex', 'LaTeX'), ('rtf', 'RTF'), ('other', 'Other'), ('image', 'Image')], max_length=100),
         ),
         migrations.AlterUniqueTogether(
             name='account',
