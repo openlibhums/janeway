@@ -14,9 +14,12 @@ from lxml import etree
 from api.oai.base import OAIPaginationMixin
 from submission import models as sm_models
 from utils.testing import helpers
+from utils.logic import get_janeway_version
 
 
 class TestOAIViews(TestCase):
+
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
@@ -201,7 +204,6 @@ class TestOAIViews(TestCase):
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
         )
-
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
@@ -342,7 +344,7 @@ LIST_RECORDS_DATA_JATS = """
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
                 </contrib-group>
-                <aff id="aff-1">Author institution Author Department</aff>
+                <aff id="aff-1">Author Department, Author institution</aff>
                 <pub-date date-type="pub" iso-8601-date="1986-07-12" publication-format="electronic">
                     <day>12</day>
                     <month>07</month>
@@ -498,7 +500,7 @@ GET_RECORD_DATA_JATS = """
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
                 </contrib-group>
-                <aff id="aff-1">Author institution Author Department</aff>
+                <aff id="aff-1">Author Department, Author institution</aff>
                 <pub-date date-type="pub" iso-8601-date="1986-07-12" publication-format="electronic">
                     <day>12</day>
                     <month>07</month>
@@ -540,6 +542,8 @@ LIST_IDENTIFIERS_JATS = """
     </OAI-PMH>
 """
 
+JANEWAY_VERSION = get_janeway_version()
+
 IDENTIFY_DATA_DC = """
 <?xml version="1.0" encoding="UTF-8"?>
  <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
@@ -567,14 +571,14 @@ IDENTIFY_DATA_DC = """
                     <name>Birkbeck, University of London</name>
                     <email>olh-tech@bbk.ac.uk</email>
                 </author>
-                <version></version>
+                <version>%s</version>
                 <URL>http://janeway.systems/</URL>
             </toolkit>
         </description>
     </Identify>
 
 </OAI-PMH>
-"""
+"""%JANEWAY_VERSION
 
 LIST_SETS_DATA_DC = """
 <?xml version="1.0" encoding="UTF-8"?>
