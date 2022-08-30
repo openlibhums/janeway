@@ -1,3 +1,4 @@
+''' Tests for the OAI endpoint for Janeway '''
 __copyright__ = "Copyright 2022 Birkbeck, University of London"
 __author__ = "Mauro Sanchez"
 __license__ = "AGPL v3"
@@ -18,6 +19,7 @@ from utils.logic import get_janeway_version
 
 
 class TestOAIViews(TestCase):
+    ''' TestOAIViews: All views should return expected results '''
 
     maxDiff = None
 
@@ -37,7 +39,7 @@ class TestOAIViews(TestCase):
             journal=cls.journal, vol=1, number=1,
             articles=[cls.article],
         )
-        cls.issue_2= helpers.create_issue(
+        cls.issue_2 = helpers.create_issue(
             journal=cls.journal, vol=1, number=2,
             articles=[cls.article],
         )
@@ -46,6 +48,8 @@ class TestOAIViews(TestCase):
 
     @classmethod
     def validate_oai_schema(cls, xml):
+        ''' validate_oai_schema: the xml returned should be valid against the
+        oai_dc schema '''
         xml_schema = etree.XMLSchema(
             "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
         )
@@ -56,6 +60,8 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_list_records_dc(self):
+        ''' test_list_records_dc: the OAI_list_records verb should return
+        expected results '''
         expected = LIST_RECORDS_DATA_DC
         response = self.client.get(reverse('OAI_list_records'), SERVER_NAME="testserver")
         self.assertEqual(str(response.rendered_content).split(), expected.split())
@@ -63,6 +69,8 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_list_records_jats(self):
+        ''' test_list_records_jats: the OAI_list_records verb should return
+        expected results when metadataPrefix is jats '''
         expected = LIST_RECORDS_DATA_JATS
         path = reverse('OAI_list_records')
         query_params = dict(
@@ -79,6 +87,8 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_get_record_dc(self):
+        ''' test_get_record_dc: the OAI_list records verb should return expected
+       results when metadataPrevix is oai_dc '''
         expected = GET_RECORD_DATA_DC
 
         path = reverse('OAI_list_records')
@@ -99,6 +109,8 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("1976-01-02")
     def test_get_records_until(self):
+        ''' test_get_records_until: the OAI_list_records verb shoud return
+        expected results when given an until parameter '''
         expected = GET_RECORD_DATA_UNTIL
 
         path = reverse('OAI_list_records')
@@ -134,6 +146,8 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_get_record_jats(self):
+        ''' test_get_record_jats: The OAI_list_records verb should return
+        expected results when given an identifier and a metadataPrefix of jats '''
         expected = GET_RECORD_DATA_JATS
 
         path = reverse('OAI_list_records')
@@ -153,7 +167,9 @@ class TestOAIViews(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
-    def test_get_record_jats(self):
+    def test_list_identifiers_jats(self):
+        ''' test_list_identifiers_jats: The ListIdentifiers verb should return
+        expected results when metadataPrefix is jats '''
         expected = LIST_IDENTIFIERS_JATS
 
         path = reverse('OAI_list_records')
@@ -173,6 +189,7 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_identify_dc(self):
+        ''' test_identify_dc: the Identify verb should return expected results '''
         expected = IDENTIFY_DATA_DC
 
         path = reverse('OAI_list_records')
@@ -191,6 +208,7 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
     def test_list_sets(self):
+        ''' test_list_sets: the ListSets verb should return expected results '''
         expected = LIST_SETS_DATA_DC
 
         path = reverse('OAI_list_records')
@@ -208,9 +226,12 @@ class TestOAIViews(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_oai_resumption_token_decode(self):
+        ''' test_oai_resumption_token_decode: resumptionToken should contain
+        paramters that can be decoded '''
         expected = {"custom-param": "custom-value"}
         encoded = {"resumptionToken": urlencode(expected)}
         class TestView(OAIPaginationMixin):
+            ''' Skip testing the OAI Pagination Mixin '''
             pass
 
         query_params = dict(
@@ -227,9 +248,11 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time("1980-01-01")
     def test_oai_resumption_token_encode(self):
+        ''' test_oai_resumption_token_encode: the resumption_token should
+        include an encoded query parameter '''
         expected = {"custom-param": "custom-value"}
-        expected_encoded = urlencode(expected) 
-        for i in range(1,102):
+        expected_encoded = urlencode(expected)
+        for _ in range(1, 102):
             helpers.create_submission(
                 journal_id=self.journal.pk,
                 stage=sm_models.STAGE_PUBLISHED,
@@ -474,7 +497,7 @@ GET_RECORD_DATA_JATS = """
                 <journal-id journal-id-type="issn">0000-0000</journal-id>
                 <journal-title-group>
                     <journal-title>Journal One</journal-title>
-                </journal-title-group1986-07-12T15:00:00Z>
+                </journal-title-group>
                 <issn pub-type="epub">0000-0000</issn>
                 <publisher>
                     <publisher-name></publisher-name>
@@ -596,7 +619,6 @@ LIST_SETS_DATA_DC = """
                     <setName>Journal One</setName>
                 </set>
 
-
                 <set>
                     <setSpec>TST:issue:2</setSpec>
                     <setName>Volume 1 Issue 2 2022</setName>
@@ -606,7 +628,6 @@ LIST_SETS_DATA_DC = """
                     <setSpec>TST:issue:1</setSpec>
                     <setName>Volume 1 Issue 1 2022</setName>
                 </set>
-
 
                 <set>
                     <setSpec>TST:section:1</setSpec>
