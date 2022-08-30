@@ -208,7 +208,7 @@
                 {% if article.competing_interests %}
                 <h2>{% trans "Competing Interests" %}</h2>
                 <ul>
-                    <li>{{ article.competing_interests }}</li>
+                    <li>{{ article.competing_interests|safe }}</li>
                 </ul>
                 {% endif %}
                 {% for field in article.custom_fields %}
