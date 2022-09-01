@@ -852,7 +852,7 @@ class Issue(AbstractLastModifiedModel):
             '-' if order == 'dsc' else '',
             sort_field,
         )
-        print(order_by_string)
+
         for section in self.all_sections:
             section_articles = self.articles.filter(
                 section=section
