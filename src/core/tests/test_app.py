@@ -277,7 +277,7 @@ class CoreTests(TestCase):
         self.assertTrue(role_check)
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
-    def test_register_as_reader(self):
+    def test_register_without_reader(self):
 
         data = {
             'email': 'reader@janeway.systems',
