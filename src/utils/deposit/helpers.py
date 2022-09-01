@@ -54,9 +54,6 @@ def get_best_deposit_xml_galley(article, galleys):
         public=True,
     ).order_by('-file__date_uploaded')
 
-    if article.render_galley:
-        return article.render_galley
-
     if xml_galleys:
         try:
             return xml_galleys.filter(public=True)[0]
