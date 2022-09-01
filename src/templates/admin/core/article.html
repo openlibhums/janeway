@@ -22,13 +22,13 @@
         </div>
     </div>
 
-    {% if not journal_settings.general.hide_review_data_pre_release or article.is_accepted or article.date_declined %}
+    {% if not journal_settings.general.hide_review_data_pre_release or article.peer_reviews_for_author_consumption %}
     <div class="box">
         <div class="title-area">
             <h2>Reviews</h2>
         </div>
         <div class="box">
-            {% if journal_settings.general.enable_peer_review_data_block %}
+            {% if journal_settings.general.enable_expanded_review_details %}
             <table class="scroll">
                 <tr>
                     <th>Date Requested</th>
