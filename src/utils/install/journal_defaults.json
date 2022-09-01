@@ -3683,7 +3683,7 @@
             "is_translatable": false,
             "name": "send_reader_notifications",
             "pretty_name": "Send Reader Notifications",
-            "type": "rich-text"
+            "type": "boolean"
         },
         "value": {
             "default": ""
