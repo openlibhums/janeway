@@ -260,7 +260,11 @@
                                         </div>
                                         {% endif %}
                                         <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
-                                            {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
+                                            {% if article.peer_reviewed %}
+                                                <h5>{% trans "Peer Reviewed" %}</h5>
+                                            {% else %}
+                                                <h5>{% trans 'This article has not been peer reviewed.' %}</h5>
+                                            {% endif %}
                                         </div>
                                         <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
