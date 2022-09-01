@@ -3199,7 +3199,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enable if you want to hide all review data from authors until released.",
+            "description": "Enable if you want to hide all review data from authors through the end of the review stage, except reviews that are individually shared with authors during review.",
             "is_translatable": false,
             "name": "hide_review_data_pre_release",
             "pretty_name": "Hide Review Data from Authors Before Release",
