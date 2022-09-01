@@ -16,7 +16,7 @@ from django.shortcuts import reverse
 from django.test.utils import override_settings
 import swapper
 
-from core.models import Account, File
+from core.models import Account, File, Galley
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -92,6 +92,25 @@ class SubmissionTests(TestCase):
         self.journal_one = self.create_journal()
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
+
+    def test_article_image_galley(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            date_published=dateparser.parse("2020-01-01"),
+            stage=models.STAGE_PUBLISHED,
+        )
+        galley_file = File.objects.create(
+            article_id=article.pk,
+            label="image",
+            mime_type="image/jpeg",
+            is_galley=True,
+        )
+
+        galley = create_galley(article, galley_file)
+        galley.label = "image"
+        expected = '<img class="responsive-img" src=/article/1/galley/1/download/ alt="image">'
+
+        self.assertEqual(galley.file_content().strip(), expected)
 
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(journal=self.journal_one)

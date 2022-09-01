@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
+from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -619,3 +620,59 @@ class CBVFacetForm(forms.Form):
         # function property like journal.name
 
         return queryset
+
+
+class EmailForm(forms.Form):
+    cc = forms.CharField(
+        required=False,
+        max_length=1000,
+        help_text='Separate email addresses with ;',
+    )
+    subject = forms.CharField(max_length=1000)
+    body = forms.CharField(widget=SummernoteWidget)
+
+    def clean_cc(self):
+        cc = self.cleaned_data['cc']
+        if not cc or cc == '':
+            return []
+
+        cc_list = [x.strip() for x in cc.split(';') if x]
+        for address in cc_list:
+            try:
+                validate_email(address)
+            except ValidationError:
+                self.add_error('cc', 'Invalid email address ({}).'.format(address))
+
+        return cc_list
+
+
+class ConfirmableForm(forms.Form):
+
+    CONFIRMABLE_BUTTON_NAME = 'confirmable'
+    CONFIRMED_BUTTON_NAME = 'confirmed'
+    QUESTION = _('Are you sure?')
+
+    def __init__(self, *args, **kwargs):
+        self.modal = None
+        super().__init__(*args, **kwargs)
+
+    def is_valid(self, *args, **kwargs):
+        parent_return = super().is_valid(*args, **kwargs)
+        if self.CONFIRMABLE_BUTTON_NAME in self.data:
+            self.create_modal()
+        return parent_return
+
+    def create_modal(self):
+
+        self.modal = {
+            'id': 'confirm_modal',
+            'confirmed_button_name': self.CONFIRMED_BUTTON_NAME,
+            'question': self.QUESTION,
+            'potential_errors': self.check_for_potential_errors(),
+        }
+
+    def check_for_potential_errors(self):
+        return []
+
+    def is_confirmed(self):
+        return self.CONFIRMED_BUTTON_NAME in self.data

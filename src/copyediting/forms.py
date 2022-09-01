@@ -5,8 +5,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django import forms
+from django.utils.translation import ugettext as _
 
 from core.models import Account
+from core import forms as core_forms
 from copyediting import models
 
 
@@ -67,7 +69,11 @@ class CopyEditForm(forms.ModelForm):
         fields = ('copyeditor_note',)
 
 
-class AuthorCopyeditForm(forms.ModelForm):
+class AuthorCopyeditForm(forms.ModelForm, core_forms.ConfirmableForm):
+
+    # Confirmable form constants
+    QUESTION = _('Are you sure you want to complete the copyedit task?')
+
     class Meta:
         model = models.AuthorReview
         fields = ('decision', 'author_note')
@@ -75,3 +81,27 @@ class AuthorCopyeditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AuthorCopyeditForm, self).__init__(*args, **kwargs)
         self.fields['decision'].required = True
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        if not self.cleaned_data.get('author_note', None):
+            message = 'The Note to the Editor field is empty.'
+            potential_errors.append(_(message))
+
+        copyedit = self.instance.assignment
+        ce_files = copyedit.copyeditor_files.all()
+        if ce_files:
+            last_upload = max(set(ce_file.date_uploaded for ce_file in ce_files))
+            last_editor_action = max(filter(bool, [
+                copyedit.copyeditor_completed,
+                copyedit.copyedit_reopened_complete,
+                copyedit.assigned
+            ]))
+            if last_editor_action > last_upload:
+                message = 'The copyedited files have not been changed.'
+                potential_errors.append(_(message))
+
+        return potential_errors
+

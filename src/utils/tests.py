@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
+import mock
 
 from utils import (
     merge_settings, models, oidc,
@@ -19,6 +20,7 @@ from utils.transactional_emails import *
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
 from utils.testing import helpers
+from utils.notify_plugins import notify_email
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
@@ -701,6 +703,36 @@ class TestModels(TestCase):
         log_entries = models.LogEntry.objects.filter(types='Submission')
         articles = [entry.target for entry in log_entries]
         self.assertEqual(self.ten_articles, articles)
+
+
+class NotifyEmail(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.request = mock.Mock()
+        cls.request.site_type.name = 'Mock request site type name'
+        cls.request.FILES = None
+
+    def test_send_email_reply_to(self):
+        args = [
+            'subject',
+            'to@example.com',
+            'html_body',
+            self.journal_one,
+            self.request,
+        ]
+
+        kwargs = {
+            'bcc': 'bcc@example.com',
+            'cc': 'cc@example.com',
+            'replyto': 'replyto@example.com',
+        }
+
+        with mock.patch('utils.notify_plugins.notify_email.EmailMultiAlternatives') as msg:
+            notify_email.send_email(*args, **kwargs)
+            self.assertIn(kwargs['replyto'], msg.call_args.kwargs['reply_to'])
 
 
 class TestOIDC(TestCase):
