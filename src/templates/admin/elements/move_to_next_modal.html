@@ -13,14 +13,18 @@
             </p>
         </div>
         <div class="card-section">
-            <div class="button-group expanded">
-                <a class="success button" type="submit" href="{% url 'move_to_next_workflow_element' article.pk %}">
-                    {% trans "Move to next stage" %}
-                </a>
-                <a class="alert button" data-close type="button">
-                    {% trans "Not right now" %}
-                </a>
-            </div>
+            <form method="post" action="{% url 'move_to_next_workflow_element' article.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="current_stage" value="{{ article.stage }}">
+                <div class="button-group expanded">
+                    <button class="success button" type="submit">
+                        {% trans "Move to next stage" %}
+                    </button>
+                    <button class="alert button" data-close type="button">
+                        {% trans "Not right now" %}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     <button class="close-button" data-close aria-label="Close reveal" type="button">
