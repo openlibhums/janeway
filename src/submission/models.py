@@ -1327,6 +1327,17 @@ class Article(AbstractLastModifiedModel):
         self.stage = STAGE_REJECTED
         self.save()
 
+    def undo_review_decision(self):
+        self.date_accepted = None
+        self.date_declined = None
+
+        if review_models.EditorAssignment.objects.filter(article=self):
+            self.stage = STAGE_ASSIGNED
+        else:
+            self.stage = STAGE_UNASSIGNED
+
+        self.save()
+
     def accept_preprint(self, date, time):
         self.date_accepted = timezone.now()
         self.date_declined = None

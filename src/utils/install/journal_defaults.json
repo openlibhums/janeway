@@ -379,6 +379,21 @@
             "name": "email"
         },
         "setting": {
+            "description": "Email sent to authors when a decision to decline an article is reversed.",
+            "is_translatable": true,
+            "name": "review_decision_undecline",
+            "pretty_name": "Undo Article Rejection",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We wish to inform you that the earlier decision to decline \"{{ article.title }}\" in {{ article.journal.name }} has been reversed. The article is now being reconsidered.<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
             "description": "Email sent to editors when they are unassigned from an article",
             "is_translatable": true,
             "name": "unassign_editor",
@@ -2454,6 +2469,21 @@
             "is_translatable": true,
             "description": "Subject for Email sent to authors when an article is declined.",
             "name": "subject_review_decision_decline"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {
+            "default": "Article Reconsidered"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Undo Article Rejection Subject",
+            "is_translatable": true,
+            "description": "Subject for email sent to authors when a decision to reject an article is reversed.",
+            "name": "subject_review_decision_undecline"
         },
         "group": {
             "name": "email_subject"
