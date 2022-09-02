@@ -1438,10 +1438,9 @@ def review_decision(request, article_id, decision):
     )
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
-    if article.date_accepted or article.date_declined:
-        if decision != 'undecline':
-            messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
-            return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+    if (article.date_accepted or article.date_declined) and decision != 'undecline':
+        messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
+        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
         email_content = request.POST.get('decision_rationale')

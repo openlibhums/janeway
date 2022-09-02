@@ -1706,8 +1706,11 @@ def manage_archive_article(request, article_id):
         note_form = submission_forms.PublisherNoteForm(instance=publisher_note)
         note_forms.append(note_form)
 
-    assigned_editors = [assignment.editor for assignment in
-                       review_models.EditorAssignment.objects.filter(article=article)]
+    assigned_editors = [
+        assignment.editor for assignment in review_models.EditorAssignment.objects.filter(
+            article=article
+        )
+    ]
 
     template = 'journal/manage/archive_article.html'
     context = {
