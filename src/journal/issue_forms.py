@@ -43,10 +43,11 @@ class IssueGalleyForm(core_forms.FileUploadForm):
 class SortForm(forms.Form):
     sort_field = forms.ChoiceField(
         choices=(
+            ('first_page', 'First Page'),
             ('date_published', 'Date Published'),
             ('title', 'Title, Alphabetically'),
             ('article_number', 'Article Number'),
-            ('page_numbers', 'Page Numbers'),
+            ('page_numbers', 'Page Numbers (Custom)'),
         )
     )
     order = forms.ChoiceField(

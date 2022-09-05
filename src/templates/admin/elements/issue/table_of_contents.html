@@ -24,12 +24,12 @@
                         <tr>
                             <th width="5%">ID</th>
                             <th width="30%">Title</th>
-                            <th>Date Submitted</th>
                             <th>Date Published</th>
                             <th width="15%">Authors</th>
                             <th width="10%">Section</th>
                             <th width="10%">DOI</th>
                             <th width="10%">Pub ID</th>
+                            <th>First Page</th>
                             <th width="10%">Page Numbers</th>
                              <th width="10%">Article Number</th>
                             <th width="10%"></th>
@@ -41,13 +41,13 @@
                                 <td>
                                     <a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a>
                                 </td>
-                                <td>{{ article.date_submitted }}</td>
                                 <td>{{ article.date_published }}</td>
                                 <td>{{ article.author_list }}</td>
                                 <td>{{ article.section.name }}</td>
                                 <td>{{ article.get_doi }}</td>
                                 <td>{{ article.get_pubid }}</td>
-                                <td>{{ article.page_range }}</td>
+                                <td>{{ article.first_page|default_if_none:"--" }}</td>
+                                <td>{{ article.page_range|default_if_none:"--"  }}</td>
                                 <td>{{ article.article_number }}</td>
                                 <td>
                                     <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
