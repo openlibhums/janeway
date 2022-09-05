@@ -380,8 +380,8 @@ def get_settings_to_edit(display_group, journal):
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
             {
-                'name': 'hide_review_metadata_from_authors',
-                'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
+                'name': 'enable_peer_review_data_on_review_Page',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_on_review_Page', journal),
             },
             {
                 'name': 'accept_article_warning',

@@ -3184,10 +3184,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enable if you want to hide review metadata from authors (date assigned, decision, date completed).",
+            "description": "Enable if you want to show review metadata to authors (date assigned, decision, date completed).",
             "is_translatable": false,
-            "name": "hide_review_metadata_from_authors",
-            "pretty_name": "Hide Review Metadata from Authors",
+            "name": "enable_peer_review_data_on_review_Page",
+            "pretty_name": "Enable Peer Review Data on Review Pages",
             "type": "boolean"
         },
         "value": {
