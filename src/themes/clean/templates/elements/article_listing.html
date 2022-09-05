@@ -4,7 +4,7 @@
 <div class="card">
     <div class="card-block">
         <div class="row">
-            {% if not journal.disable_article_images %}
+            {% if not journal_settings.article.disable_article_thumbnails %}
                 <div class="col-md-2">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"

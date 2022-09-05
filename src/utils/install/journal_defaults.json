@@ -1231,6 +1231,36 @@
     },
     {
         "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If checked, the article large image will not be displayed on the article page",
+            "is_translatable": false,
+            "name": "disable_article_large_image",
+            "pretty_name": "Disable article large image",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If checked, no article thumbnails will be rendered on public article lists",
+            "is_translatable": false,
+            "name": "disable_article_thumbnails",
+            "pretty_name": "Disable article thumbnails",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "styling"
         },
         "setting": {

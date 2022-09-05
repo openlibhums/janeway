@@ -431,6 +431,8 @@ def get_settings_to_edit(display_group, journal):
     elif display_group == 'article':
         article_settings = [
             'suppress_how_to_cite',
+            'disable_article_thumbnails',
+            'disable_article_large_image',
             'display_guest_editors',
             'suppress_citations_metric',
             'display_altmetric_badge',
