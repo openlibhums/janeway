@@ -438,8 +438,6 @@ def article(request, identifier_type, identifier):
         # exclude any HTML galleys.
         galleys = galleys.exclude(
             file__mime_type='text/html',
-            type='html',
-            label='HTML'
         )
 
     template = 'journal/article.html'
