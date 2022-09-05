@@ -27,10 +27,23 @@ Under review settings we can control how peer review operates for the given jour
     - If enabled this allows the Reviewer to download a copy of the review form in DOCX format to complete offline and then upload.
 - Enable save review progress
     - If enabled, reviewers will be able to save the progress in a peer-review assignment and come back later to complete it later (Only recommended for journals using custom review forms that are particularly long)
-- Enable Peer Review Data Block
-    - When this setting is enabled authors will have access to view more information about the reviews for their article (requested, due, and complete dates). If it is left off they will only have access to the review comments.
 - Accept Article Warning
     - This is a block of text displayed to the editor before they accept an article, prompting initial DOI and metadata registration with Crossref if the journal or press is set to use Crossref. You can use the setting to provide a readout of current metadata so the editor can do a quick check of what will be sent to Crossref. To show registration information, populate the setting with ``{{ article.registration_preview|safe }}``
+- Enable expanded review details
+    - When this setting is enabled, the Editor's review dashboard will show all active reviews, otherwise just a count of completed reviews.
+
+Displaying Review Data to Authors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Janeway has various controls for how review data is displayed to Authors. These settings are:
+
+- Hide Review Data Pre Release
+    - When this setting is enabled authors will so no information about active peer reviews until the editor makes them available, otherwise they will see a list of review assignments.
+- Enable Peer Review Data Block
+    - When this setting is enabled authors will have access to view more information about the reviews for their article (requested, due, and complete dates) on the Article page. If it is left off they will only have access to the review comments.
+- Enable Peer Review Data on Review Page
+    - When this setting is enabled authors will have access to view more information about their reviews on the review page.
+
+The settings "Enable Peer Review Data Block" and "Enable Peer Review Data on Review Page" do similar things but on different pages. "Enable Peer Review Data Block" is used on the author's article page, which they have access to from the point of submission. "Enable Peer Review Data on Review Page" is used on the review page which authors only get access to after an editor grants the author access. Both are off by default.
 
 Review Forms
 ------------
