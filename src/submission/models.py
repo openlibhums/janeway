@@ -1238,6 +1238,11 @@ class Article(AbstractLastModifiedModel):
         else:
             return ", ".join([author.full_name() for author in self.authors.all()])
 
+    def keyword_list_str(self, separator=","):
+        if self.keywords.exists():
+            return separator.join(kw.word for kw in self.keywords.all())
+        return ''
+
     def can_edit(self, user):
         # returns True if a user can edit an article
         # editing is always allowed when a user is staff
