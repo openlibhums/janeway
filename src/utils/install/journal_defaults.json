@@ -1684,6 +1684,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "Localised description of the journal specifically for the press' journal list page.",
+            "is_translatable": true,
+            "name": "press_journal_description",
+            "pretty_name": "Press Journal Description",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Enables the CI submission field.",
             "is_translatable": false,
             "name": "submission_competing_interests",
