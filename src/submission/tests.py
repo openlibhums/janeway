@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from datetime import datetime
 from dateutil import parser as dateparser
 from mock import Mock
 import os
@@ -21,6 +22,7 @@ from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
     decorators,
+    encoding,
     forms,
     logic,
     models,
@@ -80,7 +82,7 @@ class SubmissionTests(TestCase):
             'institution': 'Birkbeck, University of London',
         }
         author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
 
         return author_1, author_2
 
@@ -570,6 +572,82 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+
+    def test_article_encoding_bibtex(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: a test article",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 1, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        bibtex = encoding.encode_article_as_bibtex(article)
+        expected = """
+            @article{TST 1,
+                author = {Martin Eve, Mauro Sanchez},
+                title = {Test article: a test article},
+                volume = {2},
+                year = {1990},
+                url = {http://localhost/TST/article/id/1/},
+                issue = {1},
+                abstract = {test_abstract},
+                month = {1},
+                issn = {0000-0000},
+                publisher={},
+                journal = {Janeway JS}
+            }
+        """
+        bibtex_lines = [
+            line.strip() for line in bibtex.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(bibtex_lines, expected_lines)
+
+
+    def test_article_encoding_ris(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: A RIS export test case",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 2, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        ris = encoding.encode_article_as_ris(article)
+        expected = """
+            TY  - JOUR
+            AB  - test_abstract
+            AU  - Martin Eve, Mauro Sanchez
+            DA  - 1990/1//
+            IS  - 2
+            VL  - 2
+            PB  -
+            PY  - 1990
+            TI  - Test article: A RIS export test case
+            T2  - Janeway JS
+            UR  - http://localhost/TST/article/id/1/
+            ER  -
+        """
+        ris_lines = [
+            line.strip() for line in ris.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(ris_lines, expected_lines)
 class ArticleSearchTests(TransactionTestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,
@@ -734,6 +812,7 @@ class ArticleSearchTests(TransactionTestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
+
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod
