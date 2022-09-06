@@ -57,10 +57,10 @@ def home(request):
 
     filter = request.GET.get('filter', None)
     if filter == 'me':
-        articles = core_logic.restrict_articles_to_editor_assigned(request, articles)
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
 
     if not request.user.is_editor(request) and request.user.is_section_editor(request):
-        articles = core_logic.restrict_articles_to_editor_assigned(request, articles)
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
 
     template = 'review/home.html'
     context = {
@@ -82,7 +82,7 @@ def unassigned(request):
                                                         journal=request.journal)
 
     if not request.user.is_editor(request) and request.user.is_section_editor(request):
-        articles = core_logic.restrict_articles_to_editor_assigned(request, articles)
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
 
     template = 'review/unassigned.html'
     context = {
