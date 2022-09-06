@@ -560,9 +560,17 @@ def dashboard(request):
             accepted__isnull=False,
             completed__isnull=False,
             typesetter=request.user).count(),
-        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
-                                                                       journal=request.journal).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
+        'active_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal
+        ).exclude(
+            stage__in=[submission_models.STAGE_UNSUBMITTED, submission_models.STAGE_PUBLISHED],
+        ).order_by('-date_submitted'),
+        'published_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+        ).order_by('-date_published'),
         'progress_submissions': submission_models.Article.objects.filter(
             journal=request.journal,
             owner=request.user,
