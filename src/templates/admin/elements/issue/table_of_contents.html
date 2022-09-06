@@ -47,7 +47,7 @@
                                 <td>{{ article.get_doi }}</td>
                                 <td>{{ article.get_pubid }}</td>
                                 <td>{{ article.first_page|default_if_none:"--" }}</td>
-                                <td>{{ article.page_range|default_if_none:"--"  }}</td>
+                                <td>{{ article.page_numbers|default_if_none:"--"  }}</td>
                                 <td>{{ article.article_number }}</td>
                                 <td>
                                     <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
