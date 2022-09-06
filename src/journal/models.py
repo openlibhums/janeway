@@ -482,6 +482,20 @@ class Journal(AbstractSiteModel):
             element_name__in=workflow.core_workflow_element_names()
         )
 
+    @property
+    def description_for_press(self):
+        press_description = self.get_setting(
+            group_name='general',
+            setting_name='press_journal_description'
+        )
+        if press_description:
+            return press_description
+        else:
+            return self.get_setting(
+                group_name='general',
+                setting_name='journal_description',
+            )
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)
