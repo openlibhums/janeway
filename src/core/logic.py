@@ -920,7 +920,7 @@ def render_nested_setting(
 
     return rendered_string
 
-def restrict_articles_to_editor_assigned(request, articles):
+def filter_articles_to_editor_assigned(request, articles):
     assignments = review_models.EditorAssignment.objects.filter(
         article__journal=request.journal,
         editor=request.user
