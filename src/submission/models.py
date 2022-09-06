@@ -629,6 +629,10 @@ class Article(AbstractLastModifiedModel):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
