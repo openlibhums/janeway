@@ -30,12 +30,13 @@ from core import (
     models as core_models,
     plugin_loader,
     logic as core_logic,
+    forms as core_forms,
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
-from review import forms as review_forms
+from review import forms as review_forms, models as review_models
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
@@ -432,6 +433,12 @@ def article(request, identifier_type, identifier):
 
     if article_object.is_published:
         store_article_access(request, article_object, 'view')
+
+    if request.journal.disable_html_downloads:
+        # exclude any HTML galleys.
+        galleys = galleys.exclude(
+            file__mime_type='text/html',
+        )
 
     template = 'journal/article.html'
     context = {
@@ -1717,6 +1724,12 @@ def manage_archive_article(request, article_id):
         note_form = submission_forms.PublisherNoteForm(instance=publisher_note)
         note_forms.append(note_form)
 
+    assigned_editors = [
+        assignment.editor for assignment in review_models.EditorAssignment.objects.filter(
+            article=article
+        )
+    ]
+
     template = 'journal/manage/archive_article.html'
     context = {
         'article': article,
@@ -1725,6 +1738,7 @@ def manage_archive_article(request, article_id):
         'newnote_form': newnote_form,
         'note_forms': note_forms,
         'galley_form': galley_form,
+        'assigned_editors': assigned_editors,
     }
 
     return render(request, template, context)
@@ -2096,7 +2110,7 @@ def resend_logged_email(request, article_id, log_id):
 @editor_user_required
 def send_user_email(request, user_id, article_id=None):
     user = get_object_or_404(core_models.Account, pk=user_id)
-    form = forms.EmailForm(
+    form = core_forms.EmailForm(
         initial={'body': '<br/ >{signature}'.format(
             signature=request.user.signature)},
     )
@@ -2110,14 +2124,14 @@ def send_user_email(request, user_id, article_id=None):
         )
 
     if request.POST and 'send' in request.POST:
-        form = forms.EmailForm(request.POST)
+        form = core_forms.EmailForm(request.POST)
 
         if form.is_valid():
-            logic.send_email(
+            core_logic.send_email(
                 user,
                 form,
                 request,
-                article,
+                article=article,
             )
             close = True
 

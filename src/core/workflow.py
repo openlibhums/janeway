@@ -29,6 +29,7 @@ STAGES_ELEMENTS = {
     submission_models.STAGE_ASSIGNED: 'review',
     submission_models.STAGE_UNDER_REVIEW: 'review',
     submission_models.STAGE_UNDER_REVISION: 'review',
+    submission_models.STAGE_ACCEPTED: 'review',
 
     submission_models.STAGE_EDITOR_COPYEDITING: 'copyediting',
     submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',

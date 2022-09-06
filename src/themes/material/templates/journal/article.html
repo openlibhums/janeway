@@ -115,7 +115,7 @@
 
                     {% if article.is_published and galleys %}
                         <div class="show-on-small hide-on-med-and-up">
-                            <h2>{% trans "Downloads" %}</h2>
+                            <h2>{% trans "Download" %}</h2>
                             <p>
                                 {% for galley in galleys %}
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
@@ -259,14 +259,13 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
-                    {% with downloads=galleys|filter_html_downloads %}
-                    {% if article.is_published and downloads %}
+                    {% if article.is_published and galleys %}
                         <h4>
                             {% trans "Download" %}
                         </h4>
 
                         <ul>
-                            {% for galley in downloads %}
+                            {% for galley in galleys %}
                                 <li>
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
@@ -282,7 +281,6 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-                    {% endwith %}
 
                     {% include "elements/journal/article_issue_list.html" %}
                      <div class="spacer">

@@ -9,11 +9,12 @@ from django_summernote.widgets import SummernoteWidget
 
 from django import forms
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.template.defaultfilters import linebreaksbr
 
 from review import models
 from review.logic import render_choices
-from core import models as core_models
+from core import models as core_models, forms as core_forms
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput
 
@@ -129,7 +130,11 @@ class EditRevisionDue(forms.ModelForm):
         )
 
 
-class DoRevisions(forms.ModelForm):
+class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
+
+    # Confirmable form constants
+    QUESTION = _('Are you sure you want to complete the revision request?')
+
     class Meta:
         model = models.RevisionRequest
         fields = (
@@ -138,6 +143,26 @@ class DoRevisions(forms.ModelForm):
         widgets = {
             'author_note': SummernoteWidget(),
         }
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        if not self.cleaned_data.get('author_note', None):
+            message = 'The Covering Letter field is empty.'
+            potential_errors.append(_(message))
+
+        ms_files = self.instance.article.manuscript_files.all()
+        if ms_files:
+            last_upload = max(set(ms_file.date_uploaded for ms_file in ms_files))
+            if self.instance.date_requested > last_upload:
+                message = 'No manuscript files have been replaced or added.'
+                potential_errors.append(_(message))
+        else:
+            message = 'No manuscript files have been uploaded.'
+            potential_errors.append(_(message))
+
+        return potential_errors
 
 
 class GeneratedForm(forms.Form):

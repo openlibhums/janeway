@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 from copyediting import models, logic, forms
 from core import models as core_models, files
@@ -466,7 +467,6 @@ def editor_review(request, article_id, copyedit_id):
             author_review = models.AuthorReview.objects.create(
                 author=article.correspondence_author,
                 assignment=copyedit,
-                notified=True
             )
             return redirect(
                 reverse(
@@ -574,6 +574,71 @@ def request_author_copyedit(request, article_id, copyedit_id,
     return render(request, template, context)
 
 
+@editor_user_required
+def delete_author_review(request, article_id, copyedit_id, author_review_id):
+    author_review = get_object_or_404(
+        models.AuthorReview,
+        pk=author_review_id,
+        assignment__article__journal=request.journal,
+    )
+    email_template = logic.get_copyedit_message(
+        request,
+        article=author_review.assignment.article,
+        copyedit=author_review.assignment,
+        template='author_copyedit_deleted',
+        author_review=author_review,
+    )
+    email_subject = request.journal.get_setting(
+        'email_subject',
+        'subject_author_copyedit_deleted',
+    )
+
+    if request.POST:
+        event_kwargs = {
+            'user_message_content': request.POST.get('user_message_content'),
+            'subject': email_subject,
+            'author_review': author_review,
+            'request': request,
+            'skip': True if 'skip' in request.POST else False
+        }
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
+            **event_kwargs,
+        )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Author review for {} has been deleted.'.format(
+                author_review.assignment.article.title,
+            )
+        )
+        author_review.delete()
+
+        return redirect(
+            reverse(
+                'editor_review',
+                kwargs={
+                    'article_id': article_id,
+                    'copyedit_id': copyedit_id,
+                }
+            )
+        )
+
+    template = 'admin/copyediting/delete_author_review.html'
+    context = {
+        'author_review': author_review,
+        'article': author_review.assignment.article,
+        'copyedit': author_review.assignment,
+        'email_template': email_template,
+        'email_subject': email_subject,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
 @article_author_required
 def author_copyedit(request, article_id, author_review_id):
     """
@@ -593,7 +658,7 @@ def author_copyedit(request, article_id, author_review_id):
     if request.POST:
         form = forms.AuthorCopyeditForm(request.POST, instance=author_review)
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             author_review = form.save(commit=False)
             author_review.date_decided = timezone.now()
             author_review.save()

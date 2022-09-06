@@ -9,9 +9,9 @@ from journal import models
 
 
 class IssueAdmin(admin.ModelAdmin):
-    list_display = ('volume', 'issue', 'issue_title', 'journal', 'issue_type')
+    list_display = ('pk', 'volume', 'issue', 'issue_title', 'journal', 'issue_type')
     list_filter = ('journal', 'issue_type')
-    search_fields = ('issue_title',)
+    search_fields = ('pk', 'issue_title',)
     filter_horizontal = ('articles',)
 
 

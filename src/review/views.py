@@ -13,12 +13,14 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
+from django.utils.translation import ugettext_lazy as _
 
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
@@ -47,7 +49,8 @@ def home(request):
     articles = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_ASSIGNED) |
         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
-        Q(stage=submission_models.STAGE_UNDER_REVISION),
+        Q(stage=submission_models.STAGE_UNDER_REVISION) |
+        Q(stage=submission_models.STAGE_ACCEPTED),
         journal=request.journal
     )
 
@@ -1437,8 +1440,8 @@ def review_decision(request, article_id, decision):
     )
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
-    if article.date_accepted or article.date_declined:
-        messages.add_message(request, messages.WARNING, 'This article has already been accepted or declined.')
+    if (article.date_accepted or article.date_declined) and decision != 'undecline':
+        messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1457,18 +1460,49 @@ def review_decision(request, article_id, decision):
         if decision == 'accept':
             article.accept_article()
             article.snapshot_authors(article, force_update=False)
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
+            try:
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_ACCEPTED,
+                    task_object=article,
+                    **kwargs
+                )
 
-            workflow_kwargs = {'handshake_url': 'review_home',
-                               'request': request,
-                               'article': article,
-                               'switch_stage': True}
-            return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
-                                                  **workflow_kwargs)
+                workflow_kwargs = {
+                    'handshake_url': 'review_home',
+                    'request': request,
+                    'article': article,
+                    'switch_stage': True
+                }
+
+                return event_logic.Events.raise_event(
+                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                    task_object=article,
+                    **workflow_kwargs
+                )
+
+            except:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f'An error occurred when processing {article.title}'
+                )
+                return redirect(reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk}
+                ))
+
         elif decision == 'decline':
             article.decline_article()
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
             return redirect(reverse('core_dashboard'))
+
+        elif decision == 'undecline':
+            article.undo_review_decision()
+            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_UNDECLINED, task_object=article, **kwargs)
+            if article.stage == submission_models.STAGE_UNASSIGNED:
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+            elif article.stage == submission_models.STAGE_ASSIGNED:
+                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
         messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
@@ -1787,15 +1821,15 @@ def do_revisions(request, article_id, revision_id):
                     }
                 )
             )
-        else:
 
+        else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
                 form.add_error(
                     None,
                     'Your article must have at least one manuscript file.',
                 )
-            if form.is_valid():
+            if form.is_valid() and form.is_confirmed():
                 form.save()
 
                 kwargs = {

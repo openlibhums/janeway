@@ -13,6 +13,7 @@ The general journal settings page is home to various configuration settings for 
 
 - Journal information (title, ISSN, description, keywords, design theme)
 - Publisher information (name, website, contact)
+- Email settings for system-generated emails
 - Remote website settings
 - Language settings
 - Integration with Slack or Discord

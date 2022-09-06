@@ -431,7 +431,7 @@
 
     <xsl:template match="fn-group/fn">
         <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+            <xsl:number level="any" count="fn[not(ancestor::front| ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
         </xsl:variable>
         <li id="fn{$fn-number}">
             <span id="n{$fn-number}"></span>
@@ -3115,6 +3115,11 @@
 
                 <!-- Embed Youtube -->
                 <xsl:when test="contains(./@xlink:href, 'youtube.com')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="youtube"/>
+                  </div>
+                </xsl:when>
+                <xsl:when test="contains(./@xlink:href, 'youtu.be')">
                   <div class="media" data-doi="{$data-doi}">
                     <xsl:apply-templates select="." mode="youtube"/>
                   </div>

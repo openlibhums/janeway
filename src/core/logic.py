@@ -411,6 +411,7 @@ def get_settings_to_edit(display_group, journal):
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
             'display_register_page_notice', 'register_page_notice',
             'support_email', 'support_contact_message_for_staff',
+            'replyto_address',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -920,3 +921,31 @@ def render_nested_setting(
     )
 
     return rendered_string
+
+
+def send_email(user, form, request, article=None, preprint=None):
+    subject = form.cleaned_data['subject']
+    message = form.cleaned_data['body']
+
+    if article:
+        target = article
+    elif preprint:
+        target = preprint
+    else:
+        target = None
+
+    log_dict = {
+        'level': 'Info',
+        'action_type': 'Contact User',
+        'types': 'Email',
+        'target': target
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        user.email,
+        message,
+        log_dict=log_dict,
+        cc=form.cleaned_data['cc'],
+    )

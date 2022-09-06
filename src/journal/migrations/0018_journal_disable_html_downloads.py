@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='disable_html_downloads',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False,
+                help_text='Used to disable download links for HTML files on the Article page.',
+            ),
         ),
     ]
