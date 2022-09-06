@@ -3139,10 +3139,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see the requested, due, and complete date for their papers' review assignment. Otherwise, they will only have access to the review comments.",
+            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on the author page.",
             "is_translatable": false,
             "name": "enable_peer_review_data_block",
-            "pretty_name": "Enable Peer Review Data Block",
+            "pretty_name": "Enable Peer Review Data on Author Page",
             "type": "boolean"
         },
         "value": {
@@ -3184,7 +3184,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enable if you want to show review metadata to authors (date assigned, decision, date completed).",
+            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on review pages.",
             "is_translatable": false,
             "name": "enable_peer_review_data_on_review_page",
             "pretty_name": "Enable Peer Review Data on Review Pages",
