@@ -79,6 +79,9 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% if issue %}
+                        {% include "admin/elements/issue/sort_toc.html" %}
+                    {% endif %}
                 </div>
             </div>
         </div>

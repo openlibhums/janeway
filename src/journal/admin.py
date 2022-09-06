@@ -52,6 +52,11 @@ class ArticleOrderingAdmin(admin.ModelAdmin):
     search_fields = ('article__title',)
 
 
+class SectionOrderingAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'section', 'issue', 'order')
+    list_filter = ('section', 'issue')
+
+
 admin_list = [
     (models.Issue, IssueAdmin),
     (models.IssueType, IssueTypeAdmin),
@@ -60,7 +65,7 @@ admin_list = [
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
     (models.ArticleOrdering, ArticleOrderingAdmin),
-    (models.SectionOrdering,),
+    (models.SectionOrdering, SectionOrderingAdmin),
     (models.BannedIPs, BannedIPAdmin),
     (models.Notifications,),
 ]

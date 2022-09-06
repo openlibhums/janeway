@@ -33,7 +33,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic, install
+from utils import setting_handler, logic, install, shared
 from utils.function_cache import cache
 from utils.logger import get_logger
 
@@ -879,6 +879,29 @@ class Issue(AbstractLastModifiedModel):
                         latest_issue.issue,
                     )
 
+    def order_articles_in_sections(self, sort_field, order):
+        order_by_string = '{}{}'.format(
+            '-' if order == 'dsc' else '',
+            sort_field,
+        )
+
+        for section in self.all_sections:
+            section_articles = self.articles.filter(
+                section=section
+            ).order_by(
+                order_by_string,
+            )
+            ids_in_order = [section_article.pk for section_article in section_articles]
+            print(ids_in_order)
+            for article in section_articles:
+                article_ordering, _ = ArticleOrdering.objects.get_or_create(
+                    issue=self,
+                    section=section,
+                    article=article,
+                )
+                article_ordering.order = ids_in_order.index(article_ordering.article.pk)
+                article_ordering.save()
+
     def save(self, *args, **kwargs):
         # set save as False to avoid infinite recursion
         self.update_display_title(save=False)
@@ -1135,7 +1158,6 @@ def issue_articles_change(sender, **kwargs):
     update_side = kwargs.get('reverse')
 
     if issue_or_article and action in supported_actions:
-
         object_pks = kwargs.get('pk_set', [])
         for object_pk in object_pks:
 
@@ -1151,9 +1173,20 @@ def issue_articles_change(sender, **kwargs):
                     ordering = ArticleOrdering.objects.get(
                         issue=issue,
                         article=article,
-                    )
-                    ordering.delete()
+                    ).delete()
                 except ArticleOrdering.DoesNotExist:
+                    pass
+
+                # if this is the last Article of this Section, remove SectionOrdering for that Section.
+                try:
+                    if not issue.articles.filter(
+                        section=article.section,
+                    ).exists():
+                        section_ordering = SectionOrdering.objects.get(
+                            issue=issue,
+                            section=article.section,
+                        ).delete()
+                except SectionOrdering.DoesNotExist:
                     pass
 
                 if issue == article.primary_issue:
@@ -1174,5 +1207,6 @@ def issue_articles_change(sender, **kwargs):
                 if not article.primary_issue:
                     article.primary_issue = issue
                     article.save()
+
 
 m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

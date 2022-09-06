@@ -38,3 +38,21 @@ class IssueGalleyForm(core_forms.FileUploadForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, mimetypes=self.MIMETYPES, **kwargs)
+
+
+class SortForm(forms.Form):
+    sort_field = forms.ChoiceField(
+        choices=(
+            ('first_page', 'First Page'),
+            ('date_published', 'Date Published'),
+            ('title', 'Title, Alphabetically'),
+            ('article_number', 'Article Number'),
+            ('page_numbers', 'Page Numbers (Custom)'),
+        )
+    )
+    order = forms.ChoiceField(
+        choices=(
+            ('dsc', 'Descending'),
+            ('asc', 'Ascending'),
+        )
+    )
