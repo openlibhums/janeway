@@ -35,7 +35,10 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
-from security.decorators import editor_user_required, article_author_required, has_journal
+from security.decorators import (
+    editor_user_required, article_author_required, has_journal,
+    any_editor_user_required,
+)
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -572,14 +575,25 @@ def dashboard(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submissions(request):
     template = 'core/active_submissions.html'
-    context = {
-        'active_submissions': submission_models.Article.objects.exclude(
+
+    active_submissions = submission_models.Article.objects.exclude(
             stage=submission_models.STAGE_PUBLISHED).exclude(
             stage=submission_models.STAGE_REJECTED).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
+            stage=submission_models.STAGE_UNSUBMITTED).filter(
+            journal=request.journal
+        ).order_by('pk', 'title')
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        active_submissions = logic.filter_articles_to_editor_assigned(
+            request,
+            active_submissions
+        )
+
+    context = {
+        'active_submissions': active_submissions,
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
         'workflow_element_url': request.GET.get('workflow_element_url', False)
@@ -589,7 +603,7 @@ def active_submissions(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submission_filter(request):
     articles = logic.build_submission_list(request)
     html = ''
