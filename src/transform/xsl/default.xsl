@@ -430,21 +430,17 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
-        <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front| ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
-        </xsl:variable>
         <xsl:variable name="fn-id">
             <xsl:value-of select="@id"/>
         </xsl:variable>
           <xsl:variable name="nm-number">
               <xsl:number level="any" count="xref[@rid=@id]" from="article | sub-article | response"/>
           </xsl:variable>
-          <li id="fn{$fn-number}">
-              <span id="n{$fn-number}"></span>
+          <li id="{$fn-id}">
               <xsl:apply-templates/>
             <xsl:for-each select="//xref[@rid=$fn-id]">
               <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
-              [<a class="footnotemarker"  href="#fn{$fn-number}-nm{$i}"><sup>^</sup></a>]
+              [<a class="footnotemarker"  href="#{$fn-id}-nm{$i}"><sup>^</sup></a>]
             </xsl:for-each>
           </li>
     </xsl:template>
