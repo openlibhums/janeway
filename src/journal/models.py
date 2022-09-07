@@ -474,7 +474,7 @@ class Journal(AbstractSiteModel):
     def article_keywords(self):
         return submission_models.Keyword.objects.filter(
             article__in=self.published_articles
-        ).order_by('word')
+        ).order_by('word').distinct()
 
     @property
     def workflow_plugin_elements(self):
