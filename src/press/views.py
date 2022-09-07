@@ -12,6 +12,7 @@ from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
 
 from core import (
     files,
@@ -400,7 +401,7 @@ def edit_press_journal_description(request, journal_id):
             messages.add_message(
                 request,
                 messages.INFO,
-                'Description delted.',
+                _('Description deleted.'),
             )
             fire_redirect = True
         else:
@@ -413,7 +414,7 @@ def edit_press_journal_description(request, journal_id):
                 messages.add_message(
                     request,
                     messages.INFO,
-                    'Description saved.',
+                    _('Description saved.'),
                 )
                 fire_redirect = True
 
