@@ -1687,7 +1687,7 @@
             "description": "Localised description of the journal specifically for the press' journal list page.",
             "is_translatable": true,
             "name": "press_journal_description",
-            "pretty_name": "Press Journal Description",
+            "pretty_name": "Journal Description for Press Site",
             "type": "rich-text"
         },
         "value": {
