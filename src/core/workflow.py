@@ -65,9 +65,10 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     :param handshake_url: Current workflow element's handshake url
     :param request: HttpRequest object
     :param article: Article object
+    :param switch_stage: Boolean
     :return: HttpRedirect
     """
-
+    response = None
     workflow = models.Workflow.objects.get(journal=request.journal)
     workflow_elements = workflow.elements.all()
 
@@ -92,19 +93,27 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             article.stage = next_element.stage
             article.save()
 
-        try:
-            response = redirect(reverse(
-                next_element.handshake_url,
-                kwargs={'article_id': article.pk},
-            ))
-        except NoReverseMatch:
-            response = redirect(reverse(next_element.handshake_url))
+        if (
+                request.user.is_staff or
+                request.user.is_editor(request=request) or
+                request.user in article.editor_list()
+        ):
+            try:
+                response = redirect(reverse(
+                    next_element.jump_url,
+                    kwargs={'article_id': article.pk},
+                ))
+            except NoReverseMatch:
+                try:
+                    response = redirect(reverse(next_element.handshake_url))
+                except NoReverseMatch:
+                    response = redirect(reverse('core_dashboard'))
 
     except Exception as e:
         logger.exception(e)
-        response = redirect(reverse('core_dashboard'))
 
-    if response.status_code == 302:
+    # Fallback here.
+    if not response:
         response = redirect(reverse('core_dashboard'))
 
     messages.add_message(
