@@ -204,12 +204,19 @@ def handle_new_issue(request):
 
 def handle_assign_issue(request, article, issues):
     try:
-        issue_to_assign = journal_models.Issue.objects.get(pk=request.POST.get('assign_issue', None))
-
+        issue_to_assign = journal_models.Issue.objects.get(
+            pk=request.POST.get('assign_issue', None))
         if issue_to_assign in issues:
             issue_to_assign.articles.add(article)
             issue_to_assign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article assigned to issue.')
+            messages.add_message(
+                request, messages.SUCCESS, 'Article assigned to issue.')
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
+                article=article,
+                issue=issue_to_assign,
+                user=request.user,
+            )
         else:
 
             messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')

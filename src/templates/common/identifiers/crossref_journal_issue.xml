@@ -32,6 +32,12 @@
                     <volume>{{ crossref_issue.issue.volume }}</volume>
                 </journal_volume>
                 <issue>{{ crossref_issue.issue.issue }}</issue>
+                {% if crossref_issue.issue.doi %}
+                <doi_data>
+                    <doi>{{ crossref_issue.issue.doi }}</doi>
+                    <resource>{{ crossref_issue.issue.url }}</resource>
+                </doi_data>
+                {%endif%}
             </journal_issue>
             {% endif %}
 

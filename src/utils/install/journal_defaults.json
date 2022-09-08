@@ -3239,7 +3239,67 @@
             "default": ""
         }
     },
-   {
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The suffix pattern from which Issue DOIs are auto-generated. eg: 10.0001/myjournal.issue.1",
+            "is_translatable": false,
+            "name": "issue_doi_pattern",
+            "pretty_name": "Issue DOI Pattern",
+            "type": "char"
+        },
+        "value": {
+            "default": "{{ issue.journal.code }}.{{ issue.issue_type.code }}.{{ issue.id }}"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern",
+            "is_translatable": false,
+            "name": "register_issue_dois",
+            "pretty_name": "Auto-register issue-level DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Languages available for this journal.",
+            "is_translatable": false,
+            "name": "journal_languages",
+            "pretty_name": "Journal Languages",
+            "type": "json"
+        },
+        "value": {
+            "default": "[]"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The default language for the journal.",
+            "is_translatable": false,
+            "name": "default_journal_language",
+            "pretty_name": "Default Journal Language",
+            "type": "text"
+        },
+        "value": {
+            "default": "en"
+        }
+    },
+    {
         "group": {
             "name": "general"
         },
