@@ -18,24 +18,26 @@ def update_default_setting(apps, schema_editor):
     """
     Updates the review_assignment setting for a journal where it has not been edited.
     """
-    with translation.override(django_settings.LANGUAGE_CODE):
+    with translation.override('en'):
         SettingValue = apps.get_model('core', 'SettingValue')
-        setting_value = SettingValue.objects.get(
+        setting_value = SettingValue.objects.filter(
             setting__name='review_assignment',
             journal=None,
-        )
-        language_var = "value_{}".format(django_settings.LANGUAGE_CODE)
-        setattr(setting_value, language_var, NEW_VALUE)
-        setting_value.save()
+        ).first()
 
-        variants_to_delete = SettingValue.objects.filter(
-            setting__name='review_assignment',
-            journal__isnull=False,
-        )
+        if setting_value:
+            language_var = "value_{}".format('en')
+            setattr(setting_value, language_var, NEW_VALUE)
+            setting_value.save()
 
-        for variant in variants_to_delete:
-            if getattr(variant, language_var) in [OLD_DEFAULT_VALUE, VARIANT_ONE, VARIANT_TWO]:
-                variant.delete()
+            variants_to_delete = SettingValue.objects.filter(
+                setting__name='review_assignment',
+                journal__isnull=False,
+            )
+
+            for variant in variants_to_delete:
+                if getattr(variant, language_var) in [OLD_DEFAULT_VALUE, VARIANT_ONE, VARIANT_TWO]:
+                    variant.delete()
 
 
 class Migration(migrations.Migration):
