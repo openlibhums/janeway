@@ -81,6 +81,9 @@ To create an issue select *Create Issue* in the top right and in the modal that 
 
     New issue form
 
+- Issue DOI
+    - Issues can have a DOI, which will be registered with all of its articles in crossref. If you are using Janeway's autoregistration (recommended) or if you are not interested on registering DOIs for issues, you can leave this field blank.
+
 Issue Articles
 ~~~~~~~~~~~~~~
 You can manage the article associated with a given issue by selecting the *View* option, the data of the issue will be displayed along with a list of articles grouped by section.

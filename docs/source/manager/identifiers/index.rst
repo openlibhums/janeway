@@ -104,6 +104,23 @@ DOI Pattern
 
         ``{{ article.journal.code }}.{{ article.pk }}``
 
+Title DOI
+    The DOI (not in URL format) registered for this journal. It is included on all deposits for this journal. It must be registered ahead of time(eg.: 10.001/my-journal"
+    It is mandatory for a journal to have a DOI registered **only** when an ISSN is not available for a journal, as Crossref requires at least one unique identifier for a journal.
+    However, even if your journal has an ISSN, Crossref still recommends registering a DOI for your journal. We recommend using your journal code as the DOI. For example, with the prefix
+    of 10.0001, you could set the journal DOI to 10.0001/journal-code.
+
+Issue DOI Pattern
+    Janeway supports minting DOIs for journal issues automatically. With this setting, you can define the pattern used to generate the issue-level DOI that will be used for registration.
+    With the default pattern, an issue with ID 1 will have a generated DOI of XX.XXXX/journal-code.issue.1
+    A collection with an ID of 2 would have a generated DOI of XX.XXXX/journal-code.collection.2
+
+Auto-register issue-level DOIs
+    When enabled, issues will have a doi assigned and registered as soon as the first article in the issue is scheduled for publication. If an issue DOI has not been entered manually, 
+    Janeway will use the pattern defined in the setting above to generate one automatically.
+
+
+
 Crosscheck Settings
 -------------------
 Janeway also has support for Crosscheck (also called Similarity Check), which is provided by iThenticate. You can sign up for an account via Crossref and this will allow you to send submitted manuscripts for originality checking.
