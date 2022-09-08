@@ -7,6 +7,12 @@
                 {% if crossref_issue.journal.journal_issn and crossref_issue.journal.journal_issn != '0000-0000' %}
                 <issn media_type="electronic">{{ crossref_issue.journal.journal_issn }}</issn>
                 {% endif %}
+                {% if crossref_issue.journal.doi %}
+                <doi_data>
+                    <doi>{{ crossref_issue.journal.doi }}</doi>
+                    <resource>{{ crosref_issue.journal.url }}</resource>
+                </doi_data>
+                {% endif %}
             </journal_metadata>
 
             {% if crossref_issue.issue and crossref_issue.issue.date %}

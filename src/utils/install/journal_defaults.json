@@ -1477,7 +1477,7 @@
             "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
             "is_translatable": false,
             "name": "doi_pattern",
-            "pretty_name": "DOI Pattern",
+            "pretty_name": "Article DOI Pattern",
             "type": "char"
         },
         "value": {
@@ -3226,35 +3226,20 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "Identifiers"
         },
         "setting": {
-            "description": "Languages available for this journal.",
+            "description": "The DOI (not URL) registered for this journal. It is included on all deposits for this journal. It must be registered ahead of time(eg.: 10.001/my-journal",
             "is_translatable": false,
-            "name": "journal_languages",
-            "pretty_name": "Journal Languages",
-            "type": "json"
+            "name": "title_doi",
+            "pretty_name": "Title DOI",
+            "type": "char"
         },
         "value": {
-            "default": "[]"
+            "default": ""
         }
     },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
-            "description": "The default language for the journal.",
-            "is_translatable": false,
-            "name": "default_journal_language",
-            "pretty_name": "Default Journal Language",
-            "type": "text"
-        },
-        "value": {
-            "default": "en"
-        }
-    },
-    {
+   {
         "group": {
             "name": "general"
         },

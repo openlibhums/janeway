@@ -266,6 +266,15 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
 
     @property
+    @cached_property
+    def doi(self):
+        return setting_handler.get_setting('Identifiers', 'title_doi', self, default=True).value or None
+
+    @doi.setter
+    def doi(self, value):
+        setting_handler.save_setting('Identifiers', 'title_doi', self, value)
+
+    @property
     @cache(120)
     def print_issn(self):
         return setting_handler.get_setting('general', 'print_issn', self, default=True).value
@@ -553,6 +562,16 @@ class Issue(AbstractLastModifiedModel):
             " url for this issue. e.g: 'winter-special-issue'."
         ),
     )
+    doi = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='DOI',
+        help_text='The DOI (not URL) to be registered for the issue when registering'
+                  ' articles part this issue. If you have enabled issue auto-'
+                  'registration in your settings, this field should be ignored',
+    )
+
 
     @property
     def hero_image_url(self):
