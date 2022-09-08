@@ -11,7 +11,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
-from review.forms import render_choices
+from review.logic import render_choices
 from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
