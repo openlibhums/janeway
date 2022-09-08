@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='press',
             name='homepage_preprints',
-            field=models.ManyToManyField(to='submission.Article'),
+            field=models.ManyToManyField(to='submission.Article', blank=True),
         ),
         migrations.AddField(
             model_name='press',
