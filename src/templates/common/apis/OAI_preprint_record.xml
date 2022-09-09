@@ -9,7 +9,7 @@
       xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
       http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
       <dc:title>{{ article.title }}</dc:title>
-      {% for author in article.author_set.all %}
+      {% for author in article.preprintauthor_set.all %}
       <dc:creator>{{ author.dc_name }}</dc:creator>
       {% endfor %}
       {% if article.abstract %}
