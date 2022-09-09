@@ -11,7 +11,7 @@
         <tr>
             <td>{{ source_file.pk }}</td>
             <td>{{ source_file.original_filename|truncatechars:40 }}</td>
-            <td>{{ source_file.date_modified|date:"Y-m-d G:i" }}</td>
+            <td>{{ source_file.last_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a href="{% url 'article_file_download' 'id' article.pk source_file.pk %}"><i
                         class="fa fa-download">&nbsp;</i></a>
