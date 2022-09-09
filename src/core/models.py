@@ -10,6 +10,7 @@ import json
 from datetime import timedelta
 import pytz
 from hijack.signals import hijack_started, hijack_ended
+import warnings
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -921,6 +922,11 @@ class File(AbstractLastModifiedModel):
             indexed = True
 
         return indexed
+
+    @property
+    def date_modified(self):
+        warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
+        return self.last_modified
 
 
     def __str__(self):
