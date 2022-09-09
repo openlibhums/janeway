@@ -346,6 +346,14 @@ class OAIListPreprintSets(TemplateView):
     template_name = "apis/OAI_ListSets.xml"
     content_type = "application/xml"
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+
+        return context
+
 PREPRINT_ROUTES = {
     "GetRecord": OAIGetPreprintRecord.as_view(),
     "ListRecords": OAIListPreprintRecords.as_view(),
