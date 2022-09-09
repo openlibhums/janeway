@@ -168,7 +168,7 @@ class TestPreprintOAIViews(TestCase):
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="oai_dc",
-            until="2022-08-30",
+            until=str(datetime.datetime(2022, 8, 30, tzinfo=pytz.UTC)),
         )
         query_string = urlencode(query_params)
 
@@ -188,33 +188,6 @@ LIST_RECORDS_DATA_DC = """
     <responseDate>2022-09-01T00:00:00Z</responseDate>
     <request verb="ListRecords" metadataPrefix="oai_dc">http://repo.domain.com/api/oai/</request>
     <ListRecords>
-        <record>
-            <header>
-                <identifier>oai:testrepo:id:1</identifier>
-                <datestamp>2022-08-31T00:00:00Z</datestamp>
-            </header>
-            <metadata>
-                <oai_dc:dc
-                    xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
-                    xmlns:dc="http://purl.org/dc/elements/1.1/"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
-                    http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-
-                    <dc:title>This is a Test Preprint</dc:title>
-                    <dc:creator>Author, Preprint</dc:creator>
-                    <dc:description>This is a fake abstract.</dc:description>
-                    <dc:date>2022-08-31T00:00:00Z</dc:date>
-                    <dc:date>2022-08-31T00:00:00Z</dc:date>
-                    <dc:type>PREPRINTS</dc:type>
-                    <dc:publisher>Press</dc:publisher>
-                    <dc:identifier>http://repo.domain.com/repository/manager/1/download/1/</dc:identifier>
-                    <dc:identifier>1</dc:identifier>
-                    <dc:source>Test Repository</dc:source>
-                    <dc:subject>Repo Subject</dc:subject>
-                </oai_dc:dc>
-            </metadata>
-        </record>
         <record>
             <header>
                 <identifier>oai:testrepo:id:3</identifier>
@@ -242,6 +215,33 @@ LIST_RECORDS_DATA_DC = """
                 </oai_dc:dc>
             </metadata>
         </record>
+        <record>
+            <header>
+                <identifier>oai:testrepo:id:1</identifier>
+                <datestamp>2022-08-31T00:00:00Z</datestamp>
+            </header>
+            <metadata>
+                <oai_dc:dc
+                    xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                    xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
+                    http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+
+                    <dc:title>This is a Test Preprint</dc:title>
+                    <dc:creator>Author, Preprint</dc:creator>
+                    <dc:description>This is a fake abstract.</dc:description>
+                    <dc:date>2022-08-31T00:00:00Z</dc:date>
+                    <dc:date>2022-08-31T00:00:00Z</dc:date>
+                    <dc:type>PREPRINTS</dc:type>
+                    <dc:publisher>Press</dc:publisher>
+                    <dc:identifier>http://repo.domain.com/repository/manager/1/download/1/</dc:identifier>
+                    <dc:identifier>1</dc:identifier>
+                    <dc:source>Test Repository</dc:source>
+                    <dc:subject>Repo Subject</dc:subject>
+                </oai_dc:dc>
+            </metadata>
+        </record>
     </ListRecords>
 </OAI-PMH>
 """
@@ -256,78 +256,6 @@ LIST_RECORDS_DATA_JATS = """
         <responseDate>2022-09-01T00:00:00Z</responseDate>
         <request verb="ListRecords" metadataPrefix="jats">http://repo.domain.com/api/oai/</request>
         <ListRecords>
-            <record>
-                <header>
-                    <identifier>oai:testrepo:id:1</identifier>
-                    <datestamp>2022-08-31T00:00:00Z</datestamp>
-                </header>
-                <metadata>
-                    <article
-                        article-type="research-article"
-                        dtd-version="1.0" xml:lang="en"
-                        xmlns="https://jats.nlm.nih.gov/publishing/1.2/"
-                        xmlns:mml="http://www.w3.org/1998/Math/MathML"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                        <front>
-                            <journal-meta>
-                                <journal-id journal-id-type="publisher">testrepo</journal-id>
-                                <journal-title-group>
-                                    <journal-title>Test Repository</journal-title>
-                                </journal-title-group>
-                                <publisher>
-                                    <publisher-name>Press</publisher-name>
-                                </publisher>
-                            </journal-meta>
-                            <article-meta>
-                                <article-id pub-id-type="publisher-id">1</article-id>
-                                <article-version vocab="JAV" vocab-identifier="http://www.niso.org/publications/rp/RP-8-2008.pdf" article-version-type="AO" vocab-term="Author's Original">preprint</article-version>
-                                <article-version article-version-type="publisher-id">1</article-version>
-                                <article-categories>
-                                    <subj-group>
-                                        <subject>Repo Subject</subject>
-                                    </subj-group>
-                                </article-categories>
-                                <title-group>
-                                    <article-title>This is a Test Preprint</article-title>
-                                </title-group>
-                                <contrib-group>
-                                    <contrib contrib-type="author">
-                                        <name>
-                                            <surname>Author</surname>
-                                            <given-names>Preprint</given-names>
-                                        </name>
-                                        <email>preprintauthor@test.edu</email>
-                                        <xref ref-type="aff" rid="aff-1"/>
-                                    </contrib>
-                                </contrib-group>
-                                <aff id="aff-1">Made Up University</aff>
-                                <pub-date date-type="pub" iso-8601-date="2022-08-31" publication-format="electronic">
-                                    <day>31</day>
-                                    <month>08</month>
-                                    <year>2022</year>
-                                </pub-date>
-                                <self-uri content-type="text/html" xlink:href="http://repo.domain.com/repository/view/1/"/>
-                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
-                                <abstract>This is a fake abstract.</abstract>
-                                <pub-history>
-                                    <event event-type="pub">
-                                        <event-desc>Version of Record published:
-                                            <string-date iso-8601-date="2022-08-31">
-                                                <day>31</day>
-                                                <month>08</month>
-                                                <year>2022</year>
-                                            </string-date>
-                                            (version 1)
-                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
-                                        </event-desc>
-                                    </event>
-                                </pub-history>
-                            </article-meta>
-                        </front>
-                    </article>
-                </metadata>
-            </record>
             <record>
                 <header>
                     <identifier>oai:testrepo:id:3</identifier>
@@ -392,6 +320,78 @@ LIST_RECORDS_DATA_JATS = """
                                             </string-date>
                                             (version 1)
                                             <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/3/download/3/"/>
+                                        </event-desc>
+                                    </event>
+                                </pub-history>
+                            </article-meta>
+                        </front>
+                    </article>
+                </metadata>
+            </record>
+            <record>
+                <header>
+                    <identifier>oai:testrepo:id:1</identifier>
+                    <datestamp>2022-08-31T00:00:00Z</datestamp>
+                </header>
+                <metadata>
+                    <article
+                        article-type="research-article"
+                        dtd-version="1.0" xml:lang="en"
+                        xmlns="https://jats.nlm.nih.gov/publishing/1.2/"
+                        xmlns:mml="http://www.w3.org/1998/Math/MathML"
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <front>
+                            <journal-meta>
+                                <journal-id journal-id-type="publisher">testrepo</journal-id>
+                                <journal-title-group>
+                                    <journal-title>Test Repository</journal-title>
+                                </journal-title-group>
+                                <publisher>
+                                    <publisher-name>Press</publisher-name>
+                                </publisher>
+                            </journal-meta>
+                            <article-meta>
+                                <article-id pub-id-type="publisher-id">1</article-id>
+                                <article-version vocab="JAV" vocab-identifier="http://www.niso.org/publications/rp/RP-8-2008.pdf" article-version-type="AO" vocab-term="Author's Original">preprint</article-version>
+                                <article-version article-version-type="publisher-id">1</article-version>
+                                <article-categories>
+                                    <subj-group>
+                                        <subject>Repo Subject</subject>
+                                    </subj-group>
+                                </article-categories>
+                                <title-group>
+                                    <article-title>This is a Test Preprint</article-title>
+                                </title-group>
+                                <contrib-group>
+                                    <contrib contrib-type="author">
+                                        <name>
+                                            <surname>Author</surname>
+                                            <given-names>Preprint</given-names>
+                                        </name>
+                                        <email>preprintauthor@test.edu</email>
+                                        <xref ref-type="aff" rid="aff-1"/>
+                                    </contrib>
+                                </contrib-group>
+                                <aff id="aff-1">Made Up University</aff>
+                                <pub-date date-type="pub" iso-8601-date="2022-08-31" publication-format="electronic">
+                                    <day>31</day>
+                                    <month>08</month>
+                                    <year>2022</year>
+                                </pub-date>
+                                <self-uri content-type="text/html" xlink:href="http://repo.domain.com/repository/view/1/"/>
+                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
+                                <abstract>This is a fake abstract.</abstract>
+                                <pub-history>
+                                    <event event-type="pub">
+                                        <event-desc>Version of Record published:
+                                            <string-date iso-8601-date="2022-08-31">
+                                                <day>31</day>
+                                                <month>08</month>
+                                                <year>2022</year>
+                                            </string-date>
+                                            (version 1)
+                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
                                         </event-desc>
                                     </event>
                                 </pub-history>
@@ -579,12 +579,12 @@ LIST_IDENTIFIERS_JATS = """
     <request verb="ListIdentifiers" metadataPrefix="jats">http://repo.domain.com/api/oai/</request>
     <ListIdentifiers>
         <header>
-            <identifier>oai:testrepo:id:1</identifier>
-            <datestamp>2022-08-31T00:00:00Z</datestamp>
-        </header>
-        <header>
             <identifier>oai:testrepo:id:3</identifier>
             <datestamp>2022-08-29T00:00:00Z</datestamp>
+        </header>
+        <header>
+            <identifier>oai:testrepo:id:1</identifier>
+            <datestamp>2022-08-31T00:00:00Z</datestamp>
         </header>
     </ListIdentifiers>
 </OAI-PMH>

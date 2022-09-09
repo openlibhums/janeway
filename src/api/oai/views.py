@@ -272,7 +272,7 @@ class OAIListPreprintRecords(OAIPagedModelView):
         queryset = super().get_queryset()
 
         if self.request.repository:
-            queryset = queryset.filter(repository=self.request.repository)
+            queryset = queryset.filter(repository=self.request.repository).order_by('date_published')
         return queryset
 
     def filter_is_published(self, qs):
