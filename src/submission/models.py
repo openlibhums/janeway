@@ -751,7 +751,7 @@ class Article(AbstractLastModifiedModel):
         doi_str = ""
         pages_str = ""
         if self.page_range:
-            pages_str = " p.{0}.".format(self.page_range)
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
