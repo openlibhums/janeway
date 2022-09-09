@@ -570,6 +570,34 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    def test_page_range_first_last(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+        )
+        self.assertEqual(article.page_range, '3–5')
+
+    def test_page_range_first_only(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+        )
+        self.assertEqual(article.page_range, '3')
+
+    def test_page_range_custom(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+            page_numbers='custom'
+        )
+        self.assertEqual(article.page_range, 'custom')
+
+
 class ArticleSearchTests(TransactionTestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,
