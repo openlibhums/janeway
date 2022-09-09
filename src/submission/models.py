@@ -772,9 +772,12 @@ class Article(AbstractLastModifiedModel):
     def page_range(self):
         if self.page_numbers:
             return self.page_numbers
-        if self.first_page and self.last_page:
+        elif self.first_page and self.last_page:
             return "{}–{}".format(self.first_page, self.last_page)
-        return self.first_page
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
