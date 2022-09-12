@@ -157,7 +157,7 @@
      *    IE on Windows Phone and in iOS.
      */
 html {
-  font-family: sans-serif;
+  font-family: "Open Sans", sans-serif;
   /* 1 */
   line-height: 1.15;
   /* 2 */
@@ -371,7 +371,7 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: sans-serif;
+  font-family: "Open Sans", sans-serif;
   /* 1 */
   font-size: 100%;
   /* 1 */
