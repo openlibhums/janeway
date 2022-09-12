@@ -3229,7 +3229,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The DOI (not URL) registered for this journal. It is included on all deposits for this journal. It must be registered ahead of time(eg.: 10.001/my-journal",
+            "description": "The DOI (not in URL format) registered for this journal (e.g. 10.001/my-journal). It is included on all deposits for this journal. It must be registered ahead of time.",
             "is_translatable": false,
             "name": "title_doi",
             "pretty_name": "Title DOI",
@@ -3244,7 +3244,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The suffix pattern from which Issue DOIs are auto-generated. eg: 10.0001/myjournal.issue.1",
+            "description": "The suffix pattern from which Issue DOIs are auto-generated (e.g. 10.0001/myjournal.issue.1)",
             "is_translatable": false,
             "name": "issue_doi_pattern",
             "pretty_name": "Issue DOI Pattern",

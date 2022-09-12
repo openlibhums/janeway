@@ -567,10 +567,11 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         null=True,
         verbose_name='DOI',
-        help_text='The DOI (not URL) to be registered for the issue when registering'
-                  ' articles part this issue. If you have enabled issue auto-'
-                  'registration in your settings, this field should be ignored',
-    )
+        help_text='The DOI (not URL) to be registered for the issue when registering '
+                  'articles that are part of this issue. If you have enabled issue '
+                  'autoregistration in your settings, this field should not be '
+                  'entered manually.',
+        )
 
 
     @property
