@@ -388,8 +388,8 @@ class TestLogic(TestCase):
         mock_messages = mock.patch('journal.logic.messages').start()
         mock_messages.messages = mock.MagicMock()
         save_setting('Identifiers', 'register_issue_dois', self.journal_one, '')
-        from events import registration
-        journal_logic.handle_assign_issue(self.request, self.article_one, [issue])
+        from events import registration # Forces events to load into memory
+        journal_logic.handle_assign_issue(self.request, self.article_one, issue)
         issue.refresh_from_db()
         self.assertTrue(issue.doi)
 

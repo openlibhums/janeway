@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
 from django.utils.timezone import make_aware
@@ -202,26 +203,30 @@ def handle_new_issue(request):
     return [form, 'issue', new_issue]
 
 
-def handle_assign_issue(request, article, issues):
-    try:
-        issue_to_assign = journal_models.Issue.objects.get(
-            pk=request.POST.get('assign_issue', None))
-        if issue_to_assign in issues:
-            issue_to_assign.articles.add(article)
-            issue_to_assign.save()
-            messages.add_message(
-                request, messages.SUCCESS, 'Article assigned to issue.')
-            event_logic.Events.raise_event(
-                event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
-                article=article,
-                issue=issue_to_assign,
-                user=request.user,
-            )
-        else:
-
-            messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')
-    except journal_models.Issue.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Issue does no exist.')
+def handle_assign_issue(request, article, issue):
+    added = False
+    if not article.section:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _('Articles without a section cannot be added to an issue.'),
+        )
+    elif issue not in article.journal.issues:
+        messages.add_message(
+            request, messages.WARNING, 'Issue not in this journals issue list.')
+    else:
+        issue.articles.add(article)
+        issue.save()
+        messages.add_message(
+            request, messages.SUCCESS, 'Article assigned to issue.')
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
+            article=article,
+            issue=issue,
+            user=request.user,
+        )
+        added = True
+    return added
 
 
 def handle_unassign_issue(request, article, issues):
