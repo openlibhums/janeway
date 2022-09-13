@@ -28,8 +28,9 @@
             <h2>Reviews</h2>
         </div>
         <div class="box">
-            {% if journal_settings.general.enable_expanded_review_details %}
-            <table class="scroll">
+            {% if journal_settings.general.enable_peer_review_data_block %}
+            <!-- table id for unit testing -->
+            <table id="peer_review_data_block" class="scroll">
                 <tr>
                     <th>Date Requested</th>
                     <th>Date Due</th>
