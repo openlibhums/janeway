@@ -65,7 +65,9 @@
                                     </div>
                                     <div class="row" data-equalizer data-equalize-on="medium">
                                         <p>
+                                            {% blocktrans %}
                                             These files are the versions sent out to reviewers in Round {{ round.round_number }} of review.
+                                            {% endblocktrans %}
                                         </p>
                                         {% for file in round.review_files.all %}
                                             <div class="large-3 columns{% if forloop.last %} end{% endif %}">
@@ -194,7 +196,9 @@
                     <div class="content">
                         <p>
                             <small>
+                                {% blocktrans %}
                                 The latest manuscript and figure files for this article. When a revision task is completed these will be updated with the latest versions from the authors.
+                                {% endblocktrans %}
                             </small>
                         </p>
                         <table>
