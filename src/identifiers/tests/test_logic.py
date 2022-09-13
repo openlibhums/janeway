@@ -382,6 +382,34 @@ class TestLogic(TestCase):
         if not found:
             raise AssertionError("No Issue DOI found on article deposit")
 
+    def test_journal_doi_deposited_correctly(self):
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        issue = self.article_one.issue
+        journal_doi = "10.0001/journal"
+        save_setting('Identifiers', 'title_doi', issue.journal, journal_doi)
+        identifier = self.article_one.get_doi_object
+        clear_cache()
+
+        template_context = logic.create_crossref_doi_batch_context(
+            self.article_one.journal,
+            {identifier},
+        )
+        deposit = logic.render_to_string(template, template_context)
+
+        soup = BeautifulSoup(deposit, 'lxml')
+        # There should be one doi_batch
+        journal_soup = soup.find('journal_metadata')
+        found = False
+        if journal_soup:
+            doi_soup = journal_soup.find("doi_data")
+            if doi_soup:
+                self.assertEqual(doi_soup.find("doi").string, journal_doi)
+                self.assertEqual(
+                    doi_soup.find("resource").string, issue.journal.site_url())
+                found = True
+        if not found:
+            raise AssertionError("No Issue DOI found on article deposit")
+
     def test_issue_doi_auto_assigned(self):
         issue = helpers.create_issue(self.journal_one, vol=99, number=99)
         self.request.POST = {"assign_issue": issue.pk}
