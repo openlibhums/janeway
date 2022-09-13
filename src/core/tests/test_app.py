@@ -16,6 +16,7 @@ from django.urls.base import clear_script_prefix
 from utils.testing import helpers
 from utils import setting_handler, install
 from core import models
+from review import models as review_models
 
 
 class CoreTests(TestCase):
@@ -248,6 +249,15 @@ class CoreTests(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_hide_review_details_on(self):
+        # Make sure there aren't any review assignments
+        # for author consumption as that would corrupt
+        # this test.
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=False
+        )
+
         self.client.force_login(
             self.article_one.owner,
         )
@@ -267,9 +277,13 @@ class CoreTests(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
-    def test_hide_review_details_on_accepted(self):
-        self.article_one.date_published = timezone.now()
-        self.article_one.save()
+    def test_peer_reviews_for_author_consumption_overrides_hide_review_data(self):
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=True
+        )
+
         self.client.force_login(
             self.article_one.owner,
         )
@@ -289,9 +303,18 @@ class CoreTests(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
-    def test_hide_review_details_on_declined(self):
-        self.article_one.date_declined = timezone.now()
-        self.article_one.save()
+    def test_enable_peer_review_data_block(self):
+        # Test will fail without a review assignment available
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=True
+        )
+
+        # Set setting being tested
+        setting_handler.save_setting(
+            'general', 'enable_peer_review_data_block', self.journal_one, 'on'
+        )
         self.client.force_login(
             self.article_one.owner,
         )
@@ -307,8 +330,9 @@ class CoreTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'Reviews'
+            'peer_review_data_block'
         )
+
 
     def setUp(self):
         self.press = helpers.create_press()
@@ -340,4 +364,11 @@ class CoreTests(TestCase):
         )
         self.article_one.stage = 'Unassigned'
         self.article_one.save()
+
+        review_assignment = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=self.article_one,
+            reviewer=self.second_user,
+        )
+
         clear_script_prefix()
