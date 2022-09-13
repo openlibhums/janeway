@@ -311,12 +311,17 @@ def create_crossref_journal_context(
     ISSN_override=None,
     publication_title=None
 ):
-    return {
+    journal_data = {
         'title': publication_title or journal.name,
         'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn,
         'press': journal.press,
     }
+    if journal.doi:
+        journal_data["doi"] = journal.doi
+        journal_data["url"] = journal.site_url()
+
+    return journal_data
 
 def create_crossref_article_context(article, identifier=None):
     template_context = {

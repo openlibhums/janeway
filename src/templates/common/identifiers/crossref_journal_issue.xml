@@ -10,7 +10,7 @@
                 {% if crossref_issue.journal.doi %}
                 <doi_data>
                     <doi>{{ crossref_issue.journal.doi }}</doi>
-                    <resource>{{ crosref_issue.journal.url }}</resource>
+                    <resource>{{ crossref_issue.journal.url }}</resource>
                 </doi_data>
                 {% endif %}
             </journal_metadata>

@@ -34,7 +34,7 @@ from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModif
 from press import models as press_models
 from submission import models as submission_models
 from utils import setting_handler, logic, install, shared
-from utils.function_cache import cache
+from utils.function_cache import cache, mutable_cached_property
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -265,8 +265,7 @@ class Journal(AbstractSiteModel):
     def issn(self):
         return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
 
-    @property
-    @cached_property
+    @mutable_cached_property
     def doi(self):
         return setting_handler.get_setting('Identifiers', 'title_doi', self, default=True).value or None
 
