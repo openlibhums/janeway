@@ -79,7 +79,7 @@ def stages_in_between(from_stage, to_stage, article):
     return stages[:stage_index+1]
 
 
-def move_to_stage(from_stage, to_stage, article, all=False):
+def move_to_stage(from_stage, to_stage, article):
     stages_to_process = stages_in_between(from_stage, to_stage, article)
 
     for stage in stages_to_process:

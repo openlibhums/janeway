@@ -470,7 +470,6 @@ def correction_requests(request):
     return render(request, template, context)
 
 
-
 @proofreader_for_article_required
 def do_proofing(request, proofing_task_id, article_id=None):
     """
@@ -484,15 +483,14 @@ def do_proofing(request, proofing_task_id, article_id=None):
 
     if not article_id:
         proofing_task = get_object_or_404(
-            models.ProofingTask,
-            ~Q(round__assignment__article__stage=submission_models.STAGE_ARCHIVED),
+            models.ProofingTask.active_objects,
             pk=proofing_task_id,
             completed__isnull=True,
         )
         proofing_manager = False
     else:
         proofing_task = get_object_or_404(
-            models.ProofingTask,
+            models.ProofingTask.active_objects,
             pk=proofing_task_id,
             completed__isnull=False,
         )
@@ -672,8 +670,7 @@ def typesetting_corrections(request, typeset_task_id):
     :return: HttpRedirect or HttpResponse
     """
     typeset_task = get_object_or_404(
-        models.TypesetterProofingTask,
-        ~Q(proofing_task__round__assignment__article__stage=submission_models.STAGE_ARCHIVED),
+        models.TypesetterProofingTask.active_objects,
         pk=typeset_task_id,
         completed__isnull=True,
 

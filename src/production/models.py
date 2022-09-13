@@ -8,6 +8,8 @@ from datetime import date
 from django.db import models
 from django.utils import timezone
 
+from submission import models as submission_models
+
 
 class ProductionAssignment(models.Model):
     article = models.OneToOneField('submission.Article')
@@ -33,6 +35,13 @@ class ProductionAssignment(models.Model):
 
     def completed_typeset_tasks(self):
         return self.typesettask_set.filter(completed__isnull=False)
+
+
+class ActiveTypesetTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTypesetTaskManager, self).get_queryset().exclude(
+            assignment__article__stage=submission_models.STAGE_ARCHIVED
+        )
 
 
 class TypesetTask(models.Model):
@@ -69,6 +78,9 @@ class TypesetTask(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
 
     editor_reviewed = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    active_objects = ActiveTypesetTaskManager()
 
     @property
     def is_active(self):

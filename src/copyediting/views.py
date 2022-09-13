@@ -265,13 +265,13 @@ def copyedit_requests(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    new_requests = models.CopyeditAssignment.objects.filter(
+    new_requests = models.CopyeditAssignment.active_objects.filter(
         copyeditor=request.user,
         decision__isnull=True,
         article__journal=request.journal
     )
 
-    active_requests = models.CopyeditAssignment.objects.filter(
+    active_requests = models.CopyeditAssignment.active_objects.filter(
         (Q(copyeditor=request.user) &
          Q(decision='accept') &
          Q(copyedit_reopened__isnull=True) &
@@ -279,7 +279,7 @@ def copyedit_requests(request):
         article__journal=request.journal
     )
 
-    reopened_requests = models.CopyeditAssignment.objects.filter(
+    reopened_requests = models.CopyeditAssignment.active_objects.filter(
         copyeditor=request.user,
         copyeditor_completed__isnull=False,
         copyedit_reopened__isnull=False,
@@ -288,7 +288,7 @@ def copyedit_requests(request):
         article__journal=request.journal,
     )
 
-    completed_requests = models.CopyeditAssignment.objects.filter(
+    completed_requests = models.CopyeditAssignment.active_objects.filter(
         Q(copyeditor=request.user,
           decision='accept',
           copyedit_accepted__isnull=False) |
@@ -351,8 +351,7 @@ def do_copyedit(request, copyedit_id):
     :return: HttpResponse object
     """
     copyedit = get_object_or_404(
-        models.CopyeditAssignment,
-        ~Q(article__stage=submission_models.STAGE_ARCHIVED),
+        models.CopyeditAssignment.active_objects,
         Q(copyeditor_completed__isnull=True) | Q(copyedit_reopened__isnull=False),
         copyedit_reopened_complete__isnull=True,
         pk=copyedit_id,
@@ -587,8 +586,7 @@ def author_copyedit(request, article_id, author_review_id):
     :return: contextualised template
     """
     author_review = get_object_or_404(
-        models.AuthorReview,
-        ~Q(assignment__article__stage=submission_models.STAGE_ARCHIVED),
+        models.AuthorReview.active_objects,
         pk=author_review_id,
         assignment__article__id=article_id,
         date_decided__isnull=True,

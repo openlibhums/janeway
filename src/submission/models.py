@@ -517,6 +517,13 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             return cursor.mogrify(sql, params).decode()
 
 
+class ActiveArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveArticleManager, self).get_queryset().exclude(
+            stage=STAGE_ARCHIVED,
+        )
+
+
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -701,6 +708,7 @@ class Article(AbstractLastModifiedModel):
     funders = models.ManyToManyField('Funder', blank=True)
 
     objects = ArticleSearchManager()
+    active_objects = ActiveArticleManager()
 
     class Meta:
         ordering = ('-date_published', 'title')

@@ -540,17 +540,17 @@ def dashboard(request):
             (Q(copyeditor=request.user) & Q(copyeditor_completed__isnull=False) &
              Q(copyedit_reopened_complete__isnull=False)), article__journal=request.journal).count(),
 
-        'typeset_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=True,
             completed__isnull=True,
             typesetter=request.user).count(),
-        'typeset_in_progress_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_in_progress_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
             completed__isnull=True,
             typesetter=request.user).count(),
-        'typeset_completed_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_completed_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
             completed__isnull=False,
