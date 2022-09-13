@@ -22,4 +22,5 @@ class Command(BaseCommand):
         call_command('send_digest_emails')
         call_command('send_reminders')
         call_command('poll_crossref')
+        call_command('clearsessions')
         models.CronTask.run_tasks()

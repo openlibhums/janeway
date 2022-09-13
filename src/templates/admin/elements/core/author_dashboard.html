@@ -8,7 +8,7 @@
                 {% endif %}
             </div>
             <div class="content">
-                <table class="scroll">
+                <table class="scroll" id="incomplete">
                     <thead>
                     <tr>
                         <th>Title</th>
@@ -20,7 +20,7 @@
                     <tbody>
                     {% for article in progress_submissions %}
                         <tr>
-                            <td>{% if article.title %}{{ article.title }}{% else %}No Title
+                            <td>{% if article.title %}{{ article.title|safe }}{% else %}No Title
                                 Assigned{% endif %}</td>
                             <td>{{ article.step_name }}</td>
                             <td>{{ article.date_started }}</td>
@@ -35,25 +35,25 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Submitted Articles</h2>
+                <h2>Active Articles</h2>
             </div>
             <div class="content">
-                <table class="table scroll">
+                <table class="table scroll" id="active">
                     <thead>
                     <tr>
                         <th>Title</th>
                         <th>Current Stage</th>
-                        <th>Date Started</th>
+                        <th>Date Submitted</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for article in active_submissions %}
                         <tr>
-                            <td>{% if article.title %}{{ article.title }}{% else %}No Title
+                            <td>{% if article.title %}{{ article.title|safe }}{% else %}No Title
                                 Assigned{% endif %}</td>
                             <td>{{ article.get_stage_display }}</td>
-                            <td>{{ article.date_started }}</td>
+                            <td>{{ article.date_submitted }}</td>
                             <td>
                                 <a class="small button" href="{% url 'core_dashboard_article' article.pk %}">View Status</a>
                                 {% for revision in article.active_revision_requests %}
@@ -75,4 +75,39 @@
             </div>
         </div>
     </div>
+
+    {% if published_submissions %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Published Articles</h2>
+            </div>
+            <div class="content">
+                <table class="table scroll" id="published">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Current Stage</th>
+                        <th>Date Published</th>
+                        <th>View Live</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for article in published_submissions %}
+                        <tr>
+                            <td>{{ article.title|safe }}</td>
+                            <td>{{ article.get_stage_display }}</td>
+                            <td>{{ article.date_published }}</td>
+                            <td>
+                                <a class="small button" href="{{ article.url }}">View Live</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>

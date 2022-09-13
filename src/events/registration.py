@@ -34,6 +34,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_COMPLETE,
                                       transactional_emails.send_review_complete_acknowledgements)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_DECLINED,
                                       transactional_emails.send_article_decision)
+event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNDECLINED,
+                                      transactional_emails.send_article_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       transactional_emails.send_article_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION,

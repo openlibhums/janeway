@@ -17,6 +17,7 @@ from identifiers import logic
 from utils import shared
 from utils.logger import get_logger
 from utils import setting_handler
+from utils.function_cache import cache
 
 from django.conf import settings
 
@@ -82,6 +83,7 @@ class CrossrefDeposit(models.Model):
         ordering = ('-date_time',)
 
     @property
+    @cache(30)
     def journal(self):
         journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
         if len(journals) > 1:
@@ -93,13 +95,8 @@ class CrossrefDeposit(models.Model):
     def poll(self):
         self.polling_attempts += 1
         self.save()
-        test_mode = setting_handler.get_setting('Identifiers',
-                                                'crossref_test',
-                                                self.journal).processed_value or settings.DEBUG
-        username = setting_handler.get_setting('Identifiers', 'crossref_username',
-                                               self.journal).processed_value
-        password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                               self.journal).processed_value
+
+        test_mode, username, password = logic.get_poll_settings(self.journal)
 
         if test_mode:
             test_var = 'test'
@@ -231,9 +228,7 @@ class CrossrefStatus(models.Model):
 
     @property
     def latest_deposit(self):
-        deposits = self.deposits.all()
-        if deposits.count() > 0:
-            return deposits[0]
+        return self.deposits.first()
 
     class Meta:
         verbose_name = 'Crossref status'
@@ -268,13 +263,6 @@ class Identifier(models.Model):
             return True
 
         return False
-
-    @property
-    def crossref_status(self):
-        try:
-            return self.crossrefstatus
-        except ObjectDoesNotExist:
-            return None
 
 
 class BrokenDOI(models.Model):

@@ -15,6 +15,9 @@ The Article Display Settings page has settings for controlling the way articles 
 - Disable Metrics Display
 - Suppress Citation Metrics
 
+How To Cite is an auto-generated citation based on a custom OLH citation style.  Note that a previous version of the citation included "p" before page ranges. To get this back, enter a custom value in Page Numbers in the Edit Metadata pane for each article.
+
+You can suppress How To Cite for all articles with Suppress How To Cite. You can also override it for individual articles by entering a custom citation in the Edit Metadata pane for each article.
 
 Article Images Manager
 ----------------------

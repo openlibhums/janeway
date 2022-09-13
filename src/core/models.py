@@ -10,6 +10,7 @@ import json
 from datetime import timedelta
 import pytz
 from hijack.signals import hijack_started, hijack_ended
+import warnings
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -47,6 +48,9 @@ from utils import logic as utils_logic
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
 
+IMAGE_GALLEY_TEMPLATE = """
+    <img class="responsive-img" src={url} alt="{alt}">
+"""
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -926,6 +930,11 @@ class File(AbstractLastModifiedModel):
 
         return indexed
 
+    @property
+    def date_modified(self):
+        warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
+        return self.last_modified
+
 
     def __str__(self):
         return u'%s' % self.original_filename
@@ -1025,7 +1034,8 @@ def galley_type_choices():
         ('odt', 'OpenDocument Text Document'),
         ('tex', 'LaTeX'),
         ('rtf', 'RTF'),
-        ('other', 'Other'),
+        ('other', _('Other')),
+        ('image', _('Image')),
     )
 
 
@@ -1128,6 +1138,16 @@ class Galley(AbstractLastModifiedModel):
             return self.file.get_file(self.article)
         elif self.file.mime_type in files.XML_MIMETYPES:
             return self.render(recover=recover)
+        elif self.file.mime_type in files.IMAGE_MIMETYPES:
+            url = reverse(
+                'article_download_galley',
+                kwargs={"article_id": self.article.id, "galley_id": self.id}
+            )
+            contents = IMAGE_GALLEY_TEMPLATE.format(
+                url=url,
+                alt=self.label,
+            )
+            return contents
 
     def path(self):
         url = reverse('article_download_galley',

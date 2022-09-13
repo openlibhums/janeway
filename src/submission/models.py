@@ -21,6 +21,7 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
@@ -36,6 +37,7 @@ from core.model_utils import(
 )
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
+from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
 from review import models as review_models
@@ -239,7 +241,8 @@ FINAL_STAGES = {
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
-    STAGE_UNDER_REVISION
+    STAGE_UNDER_REVISION,
+    STAGE_ACCEPTED,
 }
 
 COPYEDITING_STAGES = {
@@ -626,6 +629,10 @@ class Article(AbstractLastModifiedModel):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
@@ -744,7 +751,7 @@ class Article(AbstractLastModifiedModel):
         doi_str = ""
         pages_str = ""
         if self.page_range:
-            pages_str = " p.{0}.".format(self.page_range)
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -765,9 +772,12 @@ class Article(AbstractLastModifiedModel):
     def page_range(self):
         if self.page_numbers:
             return self.page_numbers
-        if self.first_page and self.last_page:
+        elif self.first_page and self.last_page:
             return "{}–{}".format(self.first_page, self.last_page)
-        return self.first_page
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
@@ -956,7 +966,6 @@ class Article(AbstractLastModifiedModel):
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
-        from identifiers import models as identifier_models
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)
@@ -983,6 +992,7 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('doi', object=True)
 
     @property
+    @cache(30)
     def doi_pattern_preview(self):
         return id_logic.render_doi_from_pattern(self)
 
@@ -1003,6 +1013,9 @@ class Article(AbstractLastModifiedModel):
             article=self,
             stage_to=STAGE_ACCEPTED,
         ).exists():
+            return True
+
+        if self.stage == STAGE_ACCEPTED:
             return True
 
         if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
@@ -1211,17 +1224,24 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
+        """ The issue title in the context of the article
+
+        When an article renders its issue title, it can include article
+        dependant elements such as page ranges or article numbers. For this
+        reason, we cannot render database cached issue title.
+        """
         if not self.issue:
             return ''
 
         if self.issue.issue_type.code != 'issue':
             return self.issue.issue_title
         else:
-            return " • ".join([
-                    title_part
-                    for title_part in self.issue.issue_title_parts(article=self)
-                    if title_part
-            ])
+            template = Template(" • ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return mark_safe(template.render(Context()))
 
     def author_list(self):
         if self.is_accepted():
@@ -1316,6 +1336,17 @@ class Article(AbstractLastModifiedModel):
         self.date_declined = timezone.now()
         self.date_accepted = None
         self.stage = STAGE_REJECTED
+        self.save()
+
+    def undo_review_decision(self):
+        self.date_accepted = None
+        self.date_declined = None
+
+        if review_models.EditorAssignment.objects.filter(article=self):
+            self.stage = STAGE_ASSIGNED
+        else:
+            self.stage = STAGE_UNASSIGNED
+
         self.save()
 
     def accept_preprint(self, date, time):

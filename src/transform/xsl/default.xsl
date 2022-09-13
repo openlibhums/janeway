@@ -431,7 +431,7 @@
 
     <xsl:template match="fn-group/fn">
         <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+            <xsl:number level="any" count="fn[not(ancestor::front| ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
         </xsl:variable>
         <li id="fn{$fn-number}">
             <span id="n{$fn-number}"></span>
@@ -905,45 +905,36 @@
 
     <!-- START handling citation objects -->
     <xsl:template match="xref">
-        <xsl:choose>
-            <xsl:when test="ancestor::fn">
-                <span class="xref-table">
-                    <xsl:apply-templates/>
-                </span>
-            </xsl:when>
-            <xsl:otherwise>
-                <a>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="concat('xref-', ./@ref-type)"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="href">
-                        <!-- If xref has multiple elements in rid, then the link should points to 1st -->
-                        <xsl:choose>
-                            <xsl:when test="contains(@rid, ' ')">
-                                <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="concat('#',@rid)"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
+      <a>
+          <xsl:attribute name="class">
+              <xsl:value-of select="concat('xref-', ./@ref-type)"/>
+          </xsl:attribute>
+          <xsl:attribute name="href">
+              <!-- If xref has multiple elements in rid, then the link should points to 1st -->
+              <xsl:choose>
+                  <xsl:when test="contains(@rid, ' ')">
+                      <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:value-of select="concat('#',@rid)"/>
+                  </xsl:otherwise>
+              </xsl:choose>
 
-                    </xsl:attribute>
+          </xsl:attribute>
 
-                    <xsl:choose>
-                    <xsl:when test="contains(@ref-type, 'fn')">
-                        <xsl:attribute name="id">
-                            <xsl:text>nm</xsl:text>
-                            <xsl:number level="any" count="xref[@ref-type='fn']"/>
-                        </xsl:attribute>
-                        <sup><xsl:apply-templates/></sup>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates/>
-                    </xsl:otherwise>
-                    </xsl:choose>
-                </a>
-            </xsl:otherwise>
-        </xsl:choose>
+          <xsl:choose>
+          <xsl:when test="contains(@ref-type, 'fn')">
+              <xsl:attribute name="id">
+                  <xsl:text>nm</xsl:text>
+                  <xsl:number level="any" count="xref[@ref-type='fn']"/>
+              </xsl:attribute>
+              <sup><xsl:apply-templates/></sup>
+          </xsl:when>
+          <xsl:otherwise>
+              <xsl:apply-templates/>
+          </xsl:otherwise>
+          </xsl:choose>
+      </a>
     </xsl:template>
     <!-- END handling citation objects -->
 
@@ -3115,6 +3106,11 @@
 
                 <!-- Embed Youtube -->
                 <xsl:when test="contains(./@xlink:href, 'youtube.com')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="youtube"/>
+                  </div>
+                </xsl:when>
+                <xsl:when test="contains(./@xlink:href, 'youtu.be')">
                   <div class="media" data-doi="{$data-doi}">
                     <xsl:apply-templates select="." mode="youtube"/>
                   </div>

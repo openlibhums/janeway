@@ -140,6 +140,15 @@ def get_best_galley(article, galleys):
             return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
+        try:
+
+            image_galley = galleys.get(
+                file__mime_type__in=files.IMAGE_MIMETYPES,
+                public=True,
+            )
+            return image_galley
+        except core_models.Galley.DoesNotExist:
+            pass
     except core_models.Galley.MultipleObjectsReturned:
         pass
 
@@ -425,7 +434,7 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         sort = request.GET.get('sort', 'title')
         if sort == "relevance":
             sort = 'title'
-        form = SearchForm(request.GET)
+        form = SearchForm(request.GET or None)
 
         return search_term, keyword, sort, form, None
 
@@ -511,27 +520,6 @@ def resend_email(article, log_entry, request, form):
                 'target': article}
 
     notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)
-
-
-def send_email(user, form, request, article):
-    subject = form.cleaned_data['subject']
-    message = form.cleaned_data['body']
-
-    log_dict = {
-        'level': 'Info',
-        'action_type': 'Contact User',
-        'types': 'Email',
-        'target': article if article else user
-    }
-
-    notify_helpers.send_email_with_body_from_user(
-        request,
-        subject,
-        user.email,
-        message,
-        log_dict=log_dict,
-        cc=form.cleaned_data['cc'],
-    )
 
 
 def get_table_from_html(table_name, content):

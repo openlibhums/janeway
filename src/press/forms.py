@@ -6,10 +6,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 
+from django_summernote.widgets import SummernoteWidget
+
 from press import models
 from core.widgets import JanewayFileInput
 from core import files, logic
 from core.middleware import GlobalRequestMiddleware
+from utils import setting_handler
 
 
 class PressForm(forms.ModelForm):
@@ -54,3 +57,27 @@ class PressForm(forms.ModelForm):
 
         return press
 
+
+class PressJournalDescription(forms.Form):
+    description = forms.CharField(
+        widget=SummernoteWidget,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal')
+        super(PressJournalDescription, self).__init__(*args, **kwargs)
+        self.fields['description'].initial = self.journal.get_setting(
+            group_name='general',
+            setting_name='press_journal_description',
+        )
+
+    def save(self, commit=True):
+        description = self.cleaned_data.get('description')
+
+        if commit:
+            setting_handler.save_setting(
+                'general',
+                'press_journal_description',
+                self.journal,
+                description,
+            )

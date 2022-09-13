@@ -58,6 +58,10 @@ class Events:
     ON_ARTICLE_DECLINED = 'on_article_declined'
 
     # kwargs: article, request, user_message_content, decision, skip (boolean)
+    # raised when an editor undeclines an article
+    ON_ARTICLE_UNDECLINED = 'on_article_undeclined'
+
+    # kwargs: article, request, user_message_content, decision, skip (boolean)
     # raised when an editor accepts or accepts an article
     ON_ARTICLE_ACCEPTED = 'on_article_accepted'
 
