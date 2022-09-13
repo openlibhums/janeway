@@ -79,7 +79,6 @@ class TestLogic(TestCase):
         response = self.client.get(
             reverse('typesetter_requests')
         )
-        print(response.content)
         self.assertContains(
             response,
             'Active Task',

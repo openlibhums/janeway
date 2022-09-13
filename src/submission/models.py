@@ -1029,16 +1029,12 @@ class Article(AbstractLastModifiedModel):
                 article = Article.objects.filter(
                     id=identifier,
                     journal=journal,
-                ).exclude(
-                    stage=STAGE_ARCHIVED,
                 )[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type,
                     identifier=identifier,
-                ).exclude(
-                    article__stage=STAGE_ARCHIVED,
                 )[0].article
 
                 if not article.journal == journal:
