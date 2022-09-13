@@ -811,8 +811,7 @@ def typesetting_delete_galley(request, galley_id):
 @decorators.typesetter_user_required
 def typesetting_assignment(request, assignment_id):
     assignment = get_object_or_404(
-        models.TypesettingAssignment,
-        ~Q(round__article__stage=submission_models.STAGE_ARCHIVED),
+        models.TypesettingAssignment.active_objects,
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
@@ -1210,8 +1209,7 @@ def typesetting_proofreading_assignments(request):
 @security.proofreader_for_article_required
 def typesetting_proofreading_assignment(request, assignment_id):
     assignment = get_object_or_404(
-        models.GalleyProofing,
-        ~Q(round__article__stage=submission_models.STAGE_ARCHIVED),
+        models.GalleyProofing.active_objects,
         pk=assignment_id,
         completed__isnull=True,
         cancelled=False,
