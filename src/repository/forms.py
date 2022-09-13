@@ -163,7 +163,6 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         return preprint
 
     def clean_doi(self):
-        print('CLEAN')
         doi_string = self.cleaned_data.get('doi')
 
         if doi_string and not URL_DOI_RE.match(doi_string):
