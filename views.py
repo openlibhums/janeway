@@ -696,7 +696,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
 @decorators.typesetter_user_required
 def typesetting_assignments(request):
 
-    assignments = models.TypesettingAssignment.objects.filter(
+    assignments = models.TypesettingAssignment.active_objects.filter(
         typesetter=request.user,
         round__article__journal=request.journal,
     )
@@ -945,7 +945,6 @@ def typesetting_delete_correction(request, correction_id):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-
 @decorators.has_journal
 @decorators.production_user_or_editor_required
 def typesetting_assign_proofreader(request, article_id):
@@ -1184,7 +1183,7 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
 
 @login_required
 def typesetting_proofreading_assignments(request):
-    assignments = models.GalleyProofing.objects.filter(
+    assignments = models.GalleyProofing.active_objects.filter(
         proofreader=request.user,
         round__article__journal=request.journal,
     )
