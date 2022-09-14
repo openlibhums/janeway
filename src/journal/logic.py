@@ -213,7 +213,7 @@ def handle_assign_issue(request, article, issue):
         )
     elif issue not in article.journal.issues:
         messages.add_message(
-            request, messages.WARNING, 'Issue not in this journals issue list.')
+            request, messages.WARNING, 'Issue not in this journal’s issue list.')
     else:
         issue.articles.add(article)
         issue.save()
@@ -236,12 +236,12 @@ def handle_unassign_issue(request, article, issues):
         if issue_to_unassign in issues:
             issue_to_unassign.articles.remove(article)
             issue_to_unassign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article unassigned from Issue.')
+            messages.add_message(request, messages.SUCCESS, 'Article unassigned from issue.')
         else:
 
-            messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')
+            messages.add_message(request, messages.WARNING, 'Issue not in this journal’s issue list.')
     except journal_models.Issue.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Issue does no exist.')
+        messages.add_message(request, messages.WARNING, 'Issue does not exist.')
 
 
 def handle_set_pubdate(request, article):

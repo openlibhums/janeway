@@ -982,7 +982,7 @@ def publish_article(request, article_id):
             except models.Issue.DoesNotExist:
                 messages.add_message(
                     request, messages.WARNING,
-                    _('Issue not in this journals issue list.')
+                    _('Issue not in this journal’s issue list.')
                 )
 
             return redirect(
