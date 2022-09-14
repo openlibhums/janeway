@@ -43,7 +43,7 @@ def update_default_setting(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0073_auto_20220630_1608'),
+        ('core', '0074_account_suffix'),
     ]
 
     operations = [

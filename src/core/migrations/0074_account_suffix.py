@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0073_auto_20220630_1608'),
+        ('core', '0074_fix_editorial_images_group'),
     ]
 
     operations = [
