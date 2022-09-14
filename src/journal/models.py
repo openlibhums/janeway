@@ -605,7 +605,7 @@ class Issue(AbstractLastModifiedModel):
 
     @property
     def url(self):
-        if self.is_serial:
+        if not self.is_serial:
             path = reverse("journal_issue", kwargs={"issue_id": self.pk})
         else:
             path = reverse(
