@@ -7,6 +7,7 @@ from core import models as core_models, workflow
 from utils import transactional_emails, workflow_tasks
 from events import logic as event_logic
 from journal import logic as journal_logic
+from identifiers import logic as id_logic
 
 # wire up event notifications
 
@@ -181,3 +182,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COM
 # N.B. this is critical to the operation of the task framework. It automatically tears down tasks that have registered
 # for event listeners
 event_logic.Events.register_for_event('destroy_tasks', core_models.Task.destroyer)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
+    id_logic.on_article_assign_to_issue,
+)

@@ -975,16 +975,15 @@ def publish_article(request, article_id):
     if request.POST:
         if 'assign_issue' in request.POST:
             try:
-                logic.handle_assign_issue(request, article, issues)
-            except IntegrityError as integrity_error:
-                if not article.section:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        _('Your article must have a section assigned.'),
-                    )
-                else:
-                    raise integrity_error
+                issue = models.Issue.objects.get(
+                    pk=request.POST['assign_issue'],
+                )
+                logic.handle_assign_issue(request, article, issue)
+            except models.Issue.DoesNotExist:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _('Issue not in this journal’s issue list.')
+                )
 
             return redirect(
                 '{0}?m=issue'.format(
@@ -1422,18 +1421,15 @@ def issue_add_article(request, issue_id):
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
-        article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
-
-        if not article.section:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                _('Articles without a section cannot be added to an issue.'),
-            )
-            return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
+        article = get_object_or_404(
+            submission_models.Article, pk=article_id, journal=request.journal)
+        added = logic.handle_assign_issue(request, article, issue)
+        if added:
+            return redirect(reverse(
+                'manage_issues_id', kwargs={'issue_id': issue.pk}))
         else:
-            issue.articles.add(article)
-        return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+            return redirect(reverse(
+                'issue_add_article', kwargs={'issue_id': issue.pk}))
 
     template = 'journal/manage/issue_add_article.html'
     context = {
