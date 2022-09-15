@@ -570,11 +570,11 @@ class SubmissionTests(TestCase):
                 issue = {1},
                 abstract = {test_abstract},
                 month = {1},
-                issn = {0000-0000},
+                issn = {%s},
                 publisher={},
                 journal = {Janeway JS}
             }
-        """
+        """ % (article.journal.issn)
         bibtex_lines = [
             line.strip() for line in bibtex.splitlines() if line.strip()
         ]
