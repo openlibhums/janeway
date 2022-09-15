@@ -131,6 +131,8 @@
                                         <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
                                         <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
                                         <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> Download RIS</a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}"> Download BibTeX</a></li>
                                     </ul>
                                 </li>
                             </ul>

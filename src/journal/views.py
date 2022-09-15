@@ -37,6 +37,7 @@ from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
+from submission import encoding
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
@@ -2403,6 +2404,44 @@ def serve_article_xml(request, identifier_type, identifier):
         xml_galley.file.get_file(article_object),
         content_type=xml_galley.file.mime_type,
     )
+
+
+def serve_article_ris(request, identifier_type, identifier):
+    article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article:
+        raise Http404
+
+    response = HttpResponse(
+        encoding.encode_article_as_ris(article).encode("utf-8"),
+        content_type="application/x-research-info-systems",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{article.pk}.ris"'
+
+    return response
+
+
+def serve_article_bib(request, identifier_type, identifier):
+    article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article:
+        raise Http404
+
+    response = HttpResponse(
+        encoding.encode_article_as_bibtex(article).encode("utf-8"),
+        content_type="application/x-bibtex",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{article.pk}.bib"'
+
+    return response
 
 
 def serve_article_pdf(request, identifier_type, identifier):

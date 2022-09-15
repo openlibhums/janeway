@@ -246,6 +246,12 @@
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
                             APA-Style Citation
                         </button>
+                        <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
+                            {% trans 'Download RIS' %}
+                        </a>
+                        <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
+                            {% trans 'Download BibTeX' %}
+                        </a>
                         <br/>
                     </div>
                     <h2>File Checksums (MD5)</h2>
