@@ -139,9 +139,7 @@ class Journal(AbstractSiteModel):
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(
         default=False,
-        help_text=ugettext('When checked, articles will not have header images'
-                           'or thumbnail images. Does not affect figures and'
-                           'tables within an article.'),
+        help_text=ugettext('This field has been deprecated in v1.4.3'),
     )
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(

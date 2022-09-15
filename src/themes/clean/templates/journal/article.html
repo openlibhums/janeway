@@ -13,7 +13,7 @@
 {% block body %}
 
     <div class="row">
-    {% if not journal.disable_article_images %}
+    {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
             <div class="card">
                     <img class="card-img img-fluid article-img"
@@ -69,7 +69,7 @@
 
         <div class="col-md-7">
             <div id="article">
-                {% if journal.disable_article_images %}
+                {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
                 {% endif %}
@@ -130,7 +130,7 @@
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
-                {% if journal.disable_article_images %}
+                {% if journal_settings.article.disable_article_large_image %}
                     <h2>{% trans "Authors" %}</h2>
                     <ul>
                     {% for author in article.frozen_authors.all %}

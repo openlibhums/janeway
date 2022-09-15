@@ -359,7 +359,6 @@ class JournalArticleForm(forms.ModelForm):
         fields = (
             'view_pdf_button',
             'disable_metrics_display',
-            'disable_article_images',
             'disable_html_downloads',
         )
 
