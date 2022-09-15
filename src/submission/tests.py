@@ -110,7 +110,7 @@ class SubmissionTests(TestCase):
 
         galley = create_galley(article, galley_file)
         galley.label = "image"
-        expected = '<img class="responsive-img" src=/article/1/galley/1/download/ alt="image">'
+        expected = f'<img class="responsive-img" src=/article/{article.pk}/galley/{galley.pk}/download/ alt="image">'
 
         self.assertEqual(galley.file_content().strip(), expected)
 
