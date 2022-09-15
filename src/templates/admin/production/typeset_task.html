@@ -76,7 +76,7 @@
                         <td>{{ galley.label }}</td>
                         <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                         <td>Galley</td>
-                        <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
+                        <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
                         <td><a href="{% url 'edit_galley' typeset_task.pk galley.pk %}" class="fa fa-edit"></a></td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
@@ -161,7 +161,7 @@
                     <tr>
                         <td>{{ file.original_filename|truncatechars:40 }}</td>
                         <td>Source File</td>
-                        <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                        <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a>{% endif %}

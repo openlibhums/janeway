@@ -25,7 +25,7 @@
                     <h3>{% trans "Publications" %}</h3>
                     <hr />
                     {% for article in user.published_articles %}
-                        {% include "elements/journal/box_article.html" with article=article %}
+                        {% include "elements/article_listing.html" with article=article %}
                         <hr />
                     {% endfor %}
                 {% endif %}

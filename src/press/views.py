@@ -12,6 +12,7 @@ from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
 
 from core import (
     files,
@@ -27,7 +28,7 @@ from journal import (
 from press import models as press_models, forms, decorators
 from security.decorators import press_only
 from submission import models as submission_models
-from utils import install, logger
+from utils import install, logger, setting_handler
 from utils.logic import get_janeway_version
 from repository import views as repository_views, models
 from core.model_utils import merge_models
@@ -374,3 +375,63 @@ def merge_users(request):
 @method_decorator(staff_member_required, name='dispatch')
 class IdentifierManager(identifier_views.IdentifierManager):
     template_name = 'core/manager/identifier_manager.html'
+
+
+@staff_member_required
+def edit_press_journal_description(request, journal_id):
+    """
+    Allows a staff member to edit the press specific description for a Journal.
+    """
+    journal = get_object_or_404(
+        journal_models.Journal,
+        pk=journal_id,
+    )
+    form = forms.PressJournalDescription(
+        journal=journal
+    )
+    if request.POST:
+        fire_redirect = False
+        if 'clear' in request.POST:
+            setting_handler.save_setting(
+                setting_group_name='general',
+                setting_name='press_journal_description',
+                journal=journal,
+                value='',
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                _('Description deleted.'),
+            )
+            fire_redirect = True
+        else:
+            form = forms.PressJournalDescription(
+                request.POST,
+                journal=journal,
+            )
+            if form.is_valid():
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    _('Description saved.'),
+                )
+                fire_redirect = True
+
+        if fire_redirect:
+            return redirect(
+                reverse(
+                    'edit_press_journal_description',
+                    kwargs={'journal_id': journal.pk},
+                )
+            )
+    context = {
+        'journal': journal,
+        'form': form,
+    }
+    template = 'press/edit_press_journal_description.html'
+    return render(
+        request,
+        template,
+        context,
+    )

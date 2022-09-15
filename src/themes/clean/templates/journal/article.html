@@ -77,9 +77,13 @@
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
-                {% if article.keywords and article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong>
-                    {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
-                    {% endif %}{% endfor %}</p>{% endif %}
+                {% if article.keywords and article.keywords.count > 0 %}
+                    <p><strong>{% trans "Keywords" %}:</strong>
+                    {% for keyword in article.keywords.all %}
+                        {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}
+                    {{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}</p>
+                {% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
                     {{ article.how_to_cite|safe }} </p>

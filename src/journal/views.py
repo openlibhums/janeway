@@ -435,6 +435,12 @@ def article(request, identifier_type, identifier):
     if article_object.is_published:
         store_article_access(request, article_object, 'view')
 
+    if request.journal.disable_html_downloads:
+        # exclude any HTML galleys.
+        galleys = galleys.exclude(
+            file__mime_type='text/html',
+        )
+
     template = 'journal/article.html'
     context = {
         'article': article_object,
@@ -970,16 +976,15 @@ def publish_article(request, article_id):
     if request.POST:
         if 'assign_issue' in request.POST:
             try:
-                logic.handle_assign_issue(request, article, issues)
-            except IntegrityError as integrity_error:
-                if not article.section:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        _('Your article must have a section assigned.'),
-                    )
-                else:
-                    raise integrity_error
+                issue = models.Issue.objects.get(
+                    pk=request.POST['assign_issue'],
+                )
+                logic.handle_assign_issue(request, article, issue)
+            except models.Issue.DoesNotExist:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _('Issue not in this journal’s issue list.')
+                )
 
             return redirect(
                 '{0}?m=issue'.format(
@@ -1181,12 +1186,13 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form, galley_form = None, None, issue_forms.NewIssue(journal=request.journal), None
+    issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(journal=request.journal), None, None
 
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
         form = issue_forms.NewIssue(instance=issue, journal=issue.journal)
         galley_form = issue_forms.IssueGalleyForm()
+        sort_form = issue_forms.SortForm()
         if event == 'edit':
             modal = 'issue'
         if event == 'delete':
@@ -1213,23 +1219,32 @@ def manage_issues(request, issue_id=None, event=None):
             logic.sort_issues(request, issue_list)
             return redirect(reverse('manage_issues'))
 
-        if issue:
-            form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue, journal=request.journal)
-        else:
-            form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
+        if issue and 'sort_articles' in request.POST:
+            sort_form = issue_forms.SortForm(request.POST)
+            if sort_form.is_valid():
+                issue.order_articles_in_sections(
+                    sort_field=sort_form.cleaned_data.get('sort_field'),
+                    order=sort_form.cleaned_data.get('order'),
+                )
 
-        if form.is_valid():
-            save_issue = form.save(commit=False)
-            save_issue.journal = request.journal
-            save_issue.save()
-            if request.FILES and save_issue.large_image:
-                resize_and_crop(save_issue.large_image.path, [750, 324])
+        if 'save_issue' in request.POST:
             if issue:
-                return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+                form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue, journal=request.journal)
             else:
-                return redirect(reverse('manage_issues'))
-        else:
-            modal = 'issue'
+                form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
+
+            if form.is_valid():
+                save_issue = form.save(commit=False)
+                save_issue.journal = request.journal
+                save_issue.save()
+                if request.FILES and save_issue.large_image:
+                    resize_and_crop(save_issue.large_image.path, [750, 324])
+                if issue:
+                    return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+                else:
+                    return redirect(reverse('manage_issues'))
+            else:
+                modal = 'issue'
 
     template = 'journal/manage/issues.html'
     context = {
@@ -1239,6 +1254,7 @@ def manage_issues(request, issue_id=None, event=None):
         'modal': modal,
         'galley_form': galley_form,
         'articles': issue.get_sorted_articles(published_only=False) if issue else None,
+        'sort_form': sort_form,
     }
 
     return render(request, template, context)
@@ -1406,18 +1422,15 @@ def issue_add_article(request, issue_id):
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
-        article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
-
-        if not article.section:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                _('Articles without a section cannot be added to an issue.'),
-            )
-            return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
+        article = get_object_or_404(
+            submission_models.Article, pk=article_id, journal=request.journal)
+        added = logic.handle_assign_issue(request, article, issue)
+        if added:
+            return redirect(reverse(
+                'manage_issues_id', kwargs={'issue_id': issue.pk}))
         else:
-            issue.articles.add(article)
-        return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+            return redirect(reverse(
+                'issue_add_article', kwargs={'issue_id': issue.pk}))
 
     template = 'journal/manage/issue_add_article.html'
     context = {

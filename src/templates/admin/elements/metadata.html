@@ -103,6 +103,12 @@
         <td>{{ article.page_numbers }}</td>
         <td>{{ article.total_pages }}</td>
     </tr>
+    <tr>
+        <th colspan="4">Rights</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ article.rights|safe }}</td>
+    </tr>
     {% for field_answer in article.fieldanswer_set.all %}
         <tr>
             <th colspan="4">{{ field_answer.field.name }}</th>

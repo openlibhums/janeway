@@ -115,33 +115,6 @@ class SubmissionTests(TestCase):
         self.assertEqual(galley.file_content().strip(), expected)
 
     def test_article_how_to_cite(self):
-        issue = journal_models.Issue.objects.create(journal=self.journal_one)
-        journal_models.Issue
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-            primary_issue=issue,
-            date_published=dateparser.parse("2020-01-01"),
-            page_numbers = "2-4"
-        )
-        author = models.FrozenAuthor.objects.create(
-            article=article,
-            first_name="Mauro",
-            middle_name="Middle",
-            last_name="Sanchez",
-        )
-        id_logic.generate_crossref_doi_with_pattern(article)
-
-        expected = """
-        <p>
-         Sanchez, M. M.,
-        (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1(1), p.2-4.
-        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
-        """.format(article.get_doi())
-        self.assertHTMLEqual(expected, article.how_to_cite)
-
-    def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(
                 journal=self.journal_one,
                 issue="0",
@@ -166,7 +139,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1, p.2-4.
+        <i>Janeway JS</i> 1, 2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
@@ -572,7 +545,6 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
-
     def test_article_encoding_bibtex(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -648,6 +620,35 @@ class SubmissionTests(TestCase):
             line.strip() for line in expected.splitlines() if line.strip()
         ]
         self.assertEqual(ris_lines, expected_lines)
+
+    def test_page_range_first_last(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+        )
+        self.assertEqual(article.page_range, '3–5')
+
+    def test_page_range_first_only(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+        )
+        self.assertEqual(article.page_range, '3')
+
+    def test_page_range_custom(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+            page_numbers='custom'
+        )
+        self.assertEqual(article.page_range, 'custom')
+
+
 class ArticleSearchTests(TransactionTestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,

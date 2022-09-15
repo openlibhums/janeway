@@ -26,7 +26,7 @@ ipaddress==1.0.16
 jsmin==2.2.1
 kitchen==1.2.4
 libsass==0.11.1
-lxml==4.6.5
+lxml==4.9.1
 markdown2
 mock
 mozilla-django-oidc==1.2.4

@@ -13,7 +13,7 @@
 
 {% block body %}
     <div class="large-12 columns">
-        <form method="POST" novalidate>
+        <form method="POST" id="revision_request" novalidate>
             {% csrf_token %}
             <div class="box">
                 <div class="title-area">
@@ -52,15 +52,22 @@
                             {{ form.date_due|foundation }}
                         </div>
                     </div>
-                    <button class="button success">Next</button>
+                    <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">Next</button>
                 </div>
             </div>
         </form>
     </div><!--/col-lg-12 -->
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="revision_request" %}
+    {% endif %}
 
 {% endblock body %}
 
 {% block js %}
     {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% include "elements/jqte.html" %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
 {% endblock js %}

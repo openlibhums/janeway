@@ -360,6 +360,7 @@ class JournalArticleForm(forms.ModelForm):
             'view_pdf_button',
             'disable_metrics_display',
             'disable_article_images',
+            'disable_html_downloads',
         )
 
 
@@ -647,6 +648,19 @@ class EmailForm(forms.Form):
 
 
 class ConfirmableForm(forms.Form):
+    """
+    Adds a modal at form submission asking
+    the user a question and showing them
+    potential problems with how they
+    completed the form. Different from
+    validation because potential errors
+    are more nuanced than invalid data.
+
+    The modal always appears on submission,
+    even if there are no potential errors.
+    For a version where the modal only appears
+    if there are errrors, see ConfirmableIfErrorsForm.
+    """
 
     CONFIRMABLE_BUTTON_NAME = 'confirmable'
     CONFIRMED_BUTTON_NAME = 'confirmed'
@@ -674,5 +688,32 @@ class ConfirmableForm(forms.Form):
     def check_for_potential_errors(self):
         return []
 
+    def check_for_inactive_account(self, account):
+        if not isinstance(account, models.Account):
+            account = models.Account.objects.get(id=account)
+        if not account.is_active:
+            return _('The account belonging to %(email)s has not yet been activated, ' \
+                     'so the recipient of this assignment may not be able ' \
+                     'to log in and view it.') % {'email': account.email}
+
     def is_confirmed(self):
         return self.CONFIRMED_BUTTON_NAME in self.data
+
+
+class ConfirmableIfErrorsForm(ConfirmableForm):
+    """
+    A variant of ConfirmableForm
+    that only shows the modal if
+    there are potential errors.
+    Otherwise it submits the form.
+    """
+
+    def create_modal(self):
+        if self.check_for_potential_errors():
+            super().create_modal()
+
+    def is_confirmed(self):
+        if self.check_for_potential_errors():
+            return super().is_confirmed()
+        else:
+            return True

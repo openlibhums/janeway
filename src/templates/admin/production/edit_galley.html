@@ -43,7 +43,7 @@
                     <td>{{ galley.label }}</td>
                     <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                     <td>Galley</td>
-                    <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
+                    <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
                     <td>{% if can_view_file_flag %}
                         <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                 class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -140,7 +140,7 @@
                         <td>{{ image.label }}</td>
                         <td>{{ image.original_filename }}</td>
                         <td>Galley Images</td>
-                        <td>{{ image.date_modified|date:"Y-m-d G:i" }}</td>
+                        <td>{{ image.last_modified|date:"Y-m-d G:i" }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk image.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a>{% endif %}

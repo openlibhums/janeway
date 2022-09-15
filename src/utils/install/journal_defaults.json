@@ -1477,7 +1477,7 @@
             "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
             "is_translatable": false,
             "name": "doi_pattern",
-            "pretty_name": "DOI Pattern",
+            "pretty_name": "Article DOI Pattern",
             "type": "char"
         },
         "value": {
@@ -1677,6 +1677,21 @@
         },
         "value": {
             "default": "A journal."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Localised description of the journal specifically for the press' journal list page.",
+            "is_translatable": true,
+            "name": "press_journal_description",
+            "pretty_name": "Journal Description for Press Site",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
         }
     },
     {
@@ -2731,6 +2746,21 @@
     },
     {
         "value": {
+            "default": "<strong>Submission is currently disabled for this journal.</strong>"
+        },
+        "setting": {
+            "type": "rich-text",
+            "pretty_name": "Disabled Submission Message",
+            "is_translatable": true,
+            "description": "A message that is displayed when Disable Submission is on.",
+            "name": "disable_journal_submission_message"
+        },
+        "group": {
+            "name": "general"
+        }
+    },
+    {
+        "value": {
             "default": ""
         },
         "setting": {
@@ -3222,6 +3252,51 @@
         },
         "value": {
             "default": "656"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The DOI (not in URL format) registered for this journal (e.g. 10.001/my-journal). It is included on all deposits for this journal. It must be registered ahead of time.",
+            "is_translatable": false,
+            "name": "title_doi",
+            "pretty_name": "Title DOI",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The suffix pattern from which Issue DOIs are auto-generated (e.g. 10.0001/myjournal.issue.1)",
+            "is_translatable": false,
+            "name": "issue_doi_pattern",
+            "pretty_name": "Issue DOI Pattern",
+            "type": "char"
+        },
+        "value": {
+            "default": "{{ issue.journal.code }}.{{ issue.issue_type.code }}.{{ issue.id }}"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern",
+            "is_translatable": false,
+            "name": "register_issue_dois",
+            "pretty_name": "Auto-register issue-level DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         }
     },
     {

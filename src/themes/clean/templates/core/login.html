@@ -22,7 +22,7 @@
                         <br/>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="{% url 'oidc_authentication_init' %}" class="btn btn-primary btn-block">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
+                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="btn btn-primary btn-block">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
                          <br/>
                         {% endif %}
                         <form method="POST">

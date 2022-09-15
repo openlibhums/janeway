@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import uuid
 import os
 from dateutil import parser as dateparser
+from itertools import chain
 
 from django.urls import reverse
 from django.db import connection, models
@@ -241,7 +242,8 @@ FINAL_STAGES = {
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
-    STAGE_UNDER_REVISION
+    STAGE_UNDER_REVISION,
+    STAGE_ACCEPTED,
 }
 
 COPYEDITING_STAGES = {
@@ -628,6 +630,10 @@ class Article(AbstractLastModifiedModel):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
@@ -746,7 +752,7 @@ class Article(AbstractLastModifiedModel):
         doi_str = ""
         pages_str = ""
         if self.page_range:
-            pages_str = " p.{0}.".format(self.page_range)
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -767,9 +773,12 @@ class Article(AbstractLastModifiedModel):
     def page_range(self):
         if self.page_numbers:
             return self.page_numbers
-        if self.first_page and self.last_page:
+        elif self.first_page and self.last_page:
             return "{}–{}".format(self.first_page, self.last_page)
-        return self.first_page
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
@@ -1005,6 +1014,9 @@ class Article(AbstractLastModifiedModel):
             article=self,
             stage_to=STAGE_ACCEPTED,
         ).exists():
+            return True
+
+        if self.stage == STAGE_ACCEPTED:
             return True
 
         if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
@@ -1636,6 +1648,9 @@ class Article(AbstractLastModifiedModel):
         ).exclude(
             decision='withdrawn',
         )
+
+    def ms_and_figure_files(self):
+        return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
