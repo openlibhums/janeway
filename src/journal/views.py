@@ -2424,7 +2424,7 @@ def serve_article_bib(request, identifier_type, identifier):
 
     response = HttpResponse(
         encoding.encode_article_as_bibtex(article).encode("utf-8"),
-        content_type="application/application/x-bibtex",
+        content_type="application/x-bibtex",
     )
     response["Content-Disposition"] = f'attachment; filename="{article.pk}.bib"'
 
