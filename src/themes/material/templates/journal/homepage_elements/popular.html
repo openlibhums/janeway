@@ -7,9 +7,9 @@
     </div>
     {% for article in popular_articles %}
         <div class="col m4">
-            <div {% if journal.disable_article_images %}class="card"{% else %}class="card feature-article-card"{% endif %}>
+            <div {% if journal_settings.article.disable_article_large_image %}class="card"{% else %}class="card feature-article-card"{% endif %}>
                 <div class="card-content">
-                    {% if not journal.disable_article_images %}
+                    {% if not journal_settings.article.disable_article_large_image %}
                         {% if article.large_image_file %}
                             <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
                                  alt="{{ article.title|striptags }}"

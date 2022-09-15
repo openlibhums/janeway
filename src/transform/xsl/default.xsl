@@ -910,30 +910,22 @@
 
     <!-- START handling citation objects -->
     <xsl:template match="xref">
-        <xsl:choose>
-            <xsl:when test="ancestor::fn">
-                <span class="xref-table">
-                    <xsl:apply-templates/>
-                </span>
-            </xsl:when>
-            <xsl:otherwise>
-                <a>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="concat('xref-', ./@ref-type)"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="href">
-                        <!-- If xref has multiple elements in rid, then the link should points to 1st -->
-                        <xsl:choose>
-                            <xsl:when test="contains(@rid, ' ')">
-                                <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="concat('#',@rid)"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
+      <a>
+          <xsl:attribute name="class">
+              <xsl:value-of select="concat('xref-', ./@ref-type)"/>
+          </xsl:attribute>
+          <xsl:attribute name="href">
+              <!-- If xref has multiple elements in rid, then the link should points to 1st -->
+              <xsl:choose>
+                  <xsl:when test="contains(@rid, ' ')">
+                      <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:value-of select="concat('#',@rid)"/>
+                  </xsl:otherwise>
+              </xsl:choose>
 
-                    </xsl:attribute>
-
+          </xsl:attribute>
                     <xsl:choose>
                     <xsl:when test="contains(@ref-type, 'fn')">
                     <!-- Construction of the note mention (nm) ID combining the fn item being referenced (rid) with the sequential

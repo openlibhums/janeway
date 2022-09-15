@@ -75,7 +75,7 @@
         </tr>
         <tr>
             <td colspan="4">
-                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+                {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No CI{% endif %}</td>
         </tr>
     {% endif %}
     <tr>
@@ -102,6 +102,12 @@
         <td>{{ article.last_page }}</td>
         <td>{{ article.page_numbers }}</td>
         <td>{{ article.total_pages }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Rights</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ article.rights|safe }}</td>
     </tr>
     {% for field_answer in article.fieldanswer_set.all %}
         <tr>

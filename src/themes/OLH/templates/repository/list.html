@@ -87,7 +87,7 @@
                         <h5>{% trans "Filter by Subject" %}</h5>
                         <ul>
                             {% for list_subject in subjects %}
-                                {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' request.repository.short_name list_subject.slug %}">{{ list_subject }}</a></li>{% endif %}
+                                {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' request.repository.short_name list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
                             {% endfor %}
                         </ul>
                         </div>

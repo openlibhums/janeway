@@ -8,7 +8,7 @@
     {% for fa in featured_articles %}
         <div class="col-md-4 row-eq-height">
             <div class="card">
-                {% if not journal.disable_article_images %}
+                {% if not journal_settings.article.disable_article_large_image %}
                     {% if fa.article.large_image_file %}
                         <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
                              alt="{{ article.title|striptags }}"

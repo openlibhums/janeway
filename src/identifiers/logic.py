@@ -311,12 +311,17 @@ def create_crossref_journal_context(
     ISSN_override=None,
     publication_title=None
 ):
-    return {
+    journal_data = {
         'title': publication_title or journal.name,
         'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn,
         'press': journal.press,
     }
+    if journal.doi:
+        journal_data["doi"] = journal.doi
+        journal_data["url"] = journal.site_url()
+
+    return journal_data
 
 def create_crossref_article_context(article, identifier=None):
     template_context = {
@@ -625,3 +630,28 @@ def register_preprint_doi(request, crossref_enabled, identifier):
             util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                            target=identifier.article)
             logger.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
+
+
+def generate_issue_doi_from_logic(issue):
+    doi_prefix = setting_handler.get_setting(
+        'Identifiers', 'crossref_prefix', issue.journal).value
+    doi_suffix = render_template.get_requestless_content(
+        {'issue': issue},
+        issue.journal,
+        'issue_doi_pattern',
+        group_name='Identifiers')
+    return '{0}/{1}'.format(doi_prefix, doi_suffix)
+
+
+def auto_assign_issue_doi(issue):
+    auto_assign_enabled = setting_handler.get_setting(
+        'Identifiers', 'use_crossref', issue.journal,
+        default=True,
+    ).processed_value
+    if auto_assign_enabled and not issue.doi:
+        issue.doi = generate_issue_doi_from_logic(issue)
+        issue.save()
+
+
+def on_article_assign_to_issue(article, issue, user):
+    auto_assign_issue_doi(issue)

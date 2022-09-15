@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from datetime import datetime
 from dateutil import parser as dateparser
 from mock import Mock
 import os
@@ -21,6 +22,7 @@ from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
     decorators,
+    encoding,
     forms,
     logic,
     models,
@@ -80,7 +82,7 @@ class SubmissionTests(TestCase):
             'institution': 'Birkbeck, University of London',
         }
         author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
 
         return author_1, author_2
 
@@ -108,36 +110,9 @@ class SubmissionTests(TestCase):
 
         galley = create_galley(article, galley_file)
         galley.label = "image"
-        expected = '<img class="responsive-img" src=/article/1/galley/1/download/ alt="image">'
+        expected = f'<img class="responsive-img" src=/article/{article.pk}/galley/{galley.pk}/download/ alt="image">'
 
         self.assertEqual(galley.file_content().strip(), expected)
-
-    def test_article_how_to_cite(self):
-        issue = journal_models.Issue.objects.create(journal=self.journal_one)
-        journal_models.Issue
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-            primary_issue=issue,
-            date_published=dateparser.parse("2020-01-01"),
-            page_numbers = "2-4"
-        )
-        author = models.FrozenAuthor.objects.create(
-            article=article,
-            first_name="Mauro",
-            middle_name="Middle",
-            last_name="Sanchez",
-        )
-        id_logic.generate_crossref_doi_with_pattern(article)
-
-        expected = """
-        <p>
-         Sanchez, M. M.,
-        (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1(1), p.2-4.
-        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
-        """.format(article.get_doi())
-        self.assertHTMLEqual(expected, article.how_to_cite)
 
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(
@@ -164,7 +139,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1, p.2-4.
+        <i>Janeway JS</i> 1, 2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
@@ -570,6 +545,110 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    def test_article_encoding_bibtex(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: a test article",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 1, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        bibtex = encoding.encode_article_as_bibtex(article)
+        expected = """
+            @article{TST 1,
+                author = {Martin Eve, Mauro Sanchez},
+                title = {Test article: a test article},
+                volume = {2},
+                year = {1990},
+                url = {http://localhost/TST/article/id/1/},
+                issue = {1},
+                abstract = {test_abstract},
+                month = {1},
+                issn = {%s},
+                publisher={},
+                journal = {Janeway JS}
+            }
+        """ % (article.journal.issn)
+        bibtex_lines = [
+            line.strip() for line in bibtex.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(bibtex_lines, expected_lines)
+
+
+    def test_article_encoding_ris(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: A RIS export test case",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 2, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        ris = encoding.encode_article_as_ris(article)
+        expected = """
+            TY  - JOUR
+            AB  - test_abstract
+            AU  - Martin Eve, Mauro Sanchez
+            DA  - 1990/1//
+            IS  - 2
+            VL  - 2
+            PB  -
+            PY  - 1990
+            TI  - Test article: A RIS export test case
+            T2  - Janeway JS
+            UR  - http://localhost/TST/article/id/1/
+            ER  -
+        """
+        ris_lines = [
+            line.strip() for line in ris.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(ris_lines, expected_lines)
+
+    def test_page_range_first_last(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+        )
+        self.assertEqual(article.page_range, '3–5')
+
+    def test_page_range_first_only(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+        )
+        self.assertEqual(article.page_range, '3')
+
+    def test_page_range_custom(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+            page_numbers='custom'
+        )
+        self.assertEqual(article.page_range, 'custom')
+
+
 class ArticleSearchTests(TransactionTestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,
@@ -734,6 +813,7 @@ class ArticleSearchTests(TransactionTestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
+
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod

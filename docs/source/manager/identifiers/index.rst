@@ -100,9 +100,27 @@ DOI Display Suffix
     Text to append to DOIs -- also used to generate DOI URLs
 
 DOI Pattern
-    The pattern for auto-generating DOIs. Defaults to using the journal code and article ID (e.g. orbit.123):
+    The pattern for auto-generating DOIs. Defaults to using the journal code and article ID (e.g. ``orbit.123``):
 
         ``{{ article.journal.code }}.{{ article.pk }}``
+
+Title DOI
+    The DOI (not in URL format) registered for this journal (e.g. ``10.001/my-journal``). It is included on all deposits for this journal. It must be registered ahead of time.
+
+    It is mandatory for a journal to have a DOI registered **only** when an ISSN is not available for a journal, as Crossref requires at least one unique identifier for every journal.
+
+    However, even if your journal has an ISSN, Crossref still recommends registering a DOI for your journal. We recommend using your journal code as the DOI. For example, with the prefix of ``10.0001`` and the journal code of ``abcd``, you could set the journal DOI to ``10.0001/abcd``.
+
+Issue DOI Pattern
+    Janeway supports minting DOIs for journal issues automatically. With this setting, you can define the pattern used to generate the issue-level DOI that will be used for registration.
+
+    With the default pattern, an issue with ID ``1`` (and prefix ``10.0001``, and journal code ``abcd``) will have a generated DOI of ``10.0001/abcd.issue.1``.
+
+    A collection with an ID of ``2`` would have a generated DOI of ``10.0001/abcd.collection.2``.
+
+Auto-register issue-level DOIs
+    When enabled, issues will have a DOI assigned and registered as soon as the first article in the issue is scheduled for publication. If an issue DOI has not been entered manually, Janeway will use the pattern defined in the setting above to generate one automatically.
+
 
 Crosscheck Settings
 -------------------

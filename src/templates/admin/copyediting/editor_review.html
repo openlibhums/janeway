@@ -148,11 +148,14 @@
                 {% if copyedit.actions_available %}
                     <ul class="menu vertical actions">
                         <li><a href="#" data-open="accept-modal"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Copyedit</a></li>
-                        <li><form method="POST">
-                    {% csrf_token %}
-                    <button name="author_review" type="submit" class="expanded"><i class="fa fa-envelope-o">&nbsp;</i>Request Author Review
-                    </button>
-                </form></li>
+                        <li>
+                            <form id="copyediting_author_review_assignment" method="POST">
+                            {% csrf_token %}
+                                <button name="{{ author_review_form.CONFIRMABLE_BUTTON_NAME }}" type="submit" class="expanded">
+                                    <i class="fa fa-envelope-o">&nbsp;</i>Request Author Review
+                                </button>
+                            </form>
+                        </li>
                         <li><a href="#" data-open="reset-modal"><i class="fa fa-inbox action-icon">&nbsp;</i>Reopen this Copyedit Task</a></li>
                     </ul>
                 {% else %}
@@ -244,10 +247,16 @@
         </button>
     </div>
 
+    {% if author_review_form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=author_review_form.modal form_id="copyediting_author_review_assignment" %}
+    {% endif %}
 
 {% endblock body %}
 
 {% block js %}
+    {% if author_review_form.modal %}
+        {% include "admin/elements/open_modal.html" with target=author_review_form.modal.id %}
+    {% endif %}
     {% include "elements/jqte.html" %}
     {% include "elements/datepicker.html" with target='#due' %}
 {% endblock js %}

@@ -37,6 +37,7 @@ from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
+from submission import encoding
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
@@ -975,16 +976,15 @@ def publish_article(request, article_id):
     if request.POST:
         if 'assign_issue' in request.POST:
             try:
-                logic.handle_assign_issue(request, article, issues)
-            except IntegrityError as integrity_error:
-                if not article.section:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        _('Your article must have a section assigned.'),
-                    )
-                else:
-                    raise integrity_error
+                issue = models.Issue.objects.get(
+                    pk=request.POST['assign_issue'],
+                )
+                logic.handle_assign_issue(request, article, issue)
+            except models.Issue.DoesNotExist:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _('Issue not in this journal’s issue list.')
+                )
 
             return redirect(
                 '{0}?m=issue'.format(
@@ -1422,18 +1422,15 @@ def issue_add_article(request, issue_id):
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
-        article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
-
-        if not article.section:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                _('Articles without a section cannot be added to an issue.'),
-            )
-            return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
+        article = get_object_or_404(
+            submission_models.Article, pk=article_id, journal=request.journal)
+        added = logic.handle_assign_issue(request, article, issue)
+        if added:
+            return redirect(reverse(
+                'manage_issues_id', kwargs={'issue_id': issue.pk}))
         else:
-            issue.articles.add(article)
-        return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+            return redirect(reverse(
+                'issue_add_article', kwargs={'issue_id': issue.pk}))
 
     template = 'journal/manage/issue_add_article.html'
     context = {
@@ -2407,6 +2404,44 @@ def serve_article_xml(request, identifier_type, identifier):
         xml_galley.file.get_file(article_object),
         content_type=xml_galley.file.mime_type,
     )
+
+
+def serve_article_ris(request, identifier_type, identifier):
+    article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article:
+        raise Http404
+
+    response = HttpResponse(
+        encoding.encode_article_as_ris(article).encode("utf-8"),
+        content_type="application/x-research-info-systems",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{article.pk}.ris"'
+
+    return response
+
+
+def serve_article_bib(request, identifier_type, identifier):
+    article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article:
+        raise Http404
+
+    response = HttpResponse(
+        encoding.encode_article_as_bibtex(article).encode("utf-8"),
+        content_type="application/x-bibtex",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{article.pk}.bib"'
+
+    return response
 
 
 def serve_article_pdf(request, identifier_type, identifier):

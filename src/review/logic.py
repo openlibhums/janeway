@@ -139,8 +139,8 @@ def get_reviewer_notification(
     <b>Article Details:</b>
         <b>Title</b>: {article.title}
         <b>Section</b>: {section}
-        Keywords: {keywords}
-        Abstract:
+        <b>Keywords</b>: {keywords}
+        <b>Abstract</b>:
             {article.abstract}
     """.format(
         article=article,

@@ -64,6 +64,11 @@
                                                 Files</a>{% endif %}
                                     </div>
                                     <div class="row" data-equalizer data-equalize-on="medium">
+                                        <p>
+                                            {% blocktrans %}
+                                            These files are the versions sent out to reviewers in Round {{ round.round_number }} of review.
+                                            {% endblocktrans %}
+                                        </p>
                                         {% for file in round.review_files.all %}
                                             <div class="large-3 columns{% if forloop.last %} end{% endif %}">
                                                 <div class="callout breakdown file" data-equalizer-watch>
@@ -180,8 +185,40 @@
                                         {% endif %}
                                     </td>
                                 </tr>
+                                <tr>
                             {% endfor %}
                             </tbody>
+                        </table>
+                    </div>
+                    <div class="title-area">
+                        <h2>Current Files</h2>
+                    </div>
+                    <div class="content">
+                        <p>
+                            <small>
+                                {% blocktrans %}
+                                The latest manuscript and figure files for this article. When a revision task is completed these will be updated with the latest versions from the authors.
+                                {% endblocktrans %}
+                            </small>
+                        </p>
+                        <table>
+                            <tr>
+                                <th>File ID</th>
+                                <th colspan="2">File Name</th>
+                                <th>Uploaded</th>
+                                <th>Download</th>
+                            </tr>
+                            {% for file in article.ms_and_figure_files %}
+                                <tr>
+                                    <td>{{ file.pk }}</td>
+                                    <td colspan="2">{{ file.original_filename }}</td>
+                                    <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'editor_file_download' article.pk file.pk %}"><i
+                                                class="fa fa-download">&nbsp;</i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </table>
                     </div>
                 </div>

@@ -23,7 +23,7 @@ class FrozenAuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = submission_models.FrozenAuthor
-        fields = ('first_name', 'middle_name', 'last_name', 'institution', 'department', 'country')
+        fields = ('first_name', 'middle_name', 'last_name', 'name_suffix', 'institution', 'department', 'country')
 
     country = serializers.ReadOnlyField(
         read_only=True,
