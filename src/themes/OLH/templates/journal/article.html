@@ -383,7 +383,7 @@
                          <div class="section">
                              <h3>{% trans "Competing Interests" %}</h3>
                              <ul>
-                                 <li>{{ article.competing_interests }}</li>
+                                 <li>{{ article.competing_interests|safe }}</li>
                              </ul>
                          </div>
                          {% endif %}

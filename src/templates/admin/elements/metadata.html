@@ -75,7 +75,7 @@
         </tr>
         <tr>
             <td colspan="4">
-                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+                {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No CI{% endif %}</td>
         </tr>
     {% endif %}
     <tr>

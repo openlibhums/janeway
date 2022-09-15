@@ -387,7 +387,7 @@
                     <h4>
                         {% trans "Competing Interests" %}
                     </h4>
-                    <p>{{ article.competing_interests }}</p>
+                    <p>{{ article.competing_interests|safe }}</p>
                     {% endif %}
                     <div class="spacer">
                         <div class="divider"></div>
