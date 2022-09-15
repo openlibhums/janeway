@@ -57,8 +57,8 @@ class LatestArticlesFeed(Feed):
     link = "/articles/"
 
     def get_object(self, request, *args, **kwargs):
-        return request.journal
-
+        return request.journal or request.press
+    
     def title(self, obj):
         return "{} Article Feed".format(obj.name)
 
