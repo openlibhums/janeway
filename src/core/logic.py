@@ -226,6 +226,9 @@ def get_settings_to_edit(display_group, journal):
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
              },
+            {'name': 'disable_journal_submission_message',
+             'object': setting_handler.get_setting('general', 'disable_journal_submission_message', journal)
+             },
             {'name': 'limit_access_to_submission',
              'object': setting_handler.get_setting('general', 'limit_access_to_submission', journal)
              },
@@ -387,7 +390,7 @@ def get_settings_to_edit(display_group, journal):
         xref_settings = [
             'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
-            'doi_pattern', 'doi_manager_action_maximum_size',
+            'doi_pattern', 'doi_manager_action_maximum_size', 'title_doi', 'issue_doi_pattern', 'register_issue_dois'
         ]
 
         settings = process_setting_list(xref_settings, 'Identifiers', journal)
@@ -951,3 +954,12 @@ def send_email(user, form, request, article=None, preprint=None):
         log_dict=log_dict,
         cc=form.cleaned_data['cc'],
     )
+
+
+def filter_articles_to_editor_assigned(request, articles):
+    assignments = review_models.EditorAssignment.objects.filter(
+        article__journal=request.journal,
+        editor=request.user
+    )
+    assignment_article_pks = [assignment.article.pk for assignment in assignments]
+    return articles.filter(pk__in=assignment_article_pks)

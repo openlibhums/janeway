@@ -140,7 +140,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Manuscript</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -158,7 +158,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Data/Figure</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -176,7 +176,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Copyedit</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -218,7 +218,7 @@
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ galley.public|bool_fa }}</td>
-                            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
@@ -303,7 +303,7 @@
                             <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -360,7 +360,7 @@
                             <td>{{ file.pk }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Source File</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}

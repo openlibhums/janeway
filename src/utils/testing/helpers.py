@@ -205,6 +205,9 @@ def create_article(journal, **kwargs):
         author.snapshot_self(article)
     else:
         article.save()
+    for k,v in kwargs.items():
+        setattr(article, k ,v)
+        article.save()
     return article
 
 def create_galley(article, file_obj=None):

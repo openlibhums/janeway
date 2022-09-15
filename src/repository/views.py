@@ -196,7 +196,7 @@ def repository_submit_update(request, preprint_id, action):
                         None,
                         'You must upload a PDF for your manuscript',
                     )
-        if version_form.is_valid() and file_form.is_valid() if file_form else True:
+        if version_form.is_valid() and (file_form.is_valid() if file_form else True):
             new_version = version_form.save(commit=False)
             new_version.update_type = action
 
@@ -283,14 +283,18 @@ def repository_subject_list(request):
 
 
 
-def repository_list(request, subject_slug=None):
+def repository_list(request, subject_id=None):
     """
     Displays a list of all published preprints.
     :param request: HttpRequest
     :return: HttpResponse
     """
-    if subject_slug:
-        subject = get_object_or_404(models.Subject, slug=subject_slug)
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
         preprints = subject.preprint_set.filter(
             repository=request.repository,
             date_published__lte=timezone.now(),
@@ -816,6 +820,7 @@ def preprints_manager(request):
     metrics_summary = repository_logic.metrics_summary(published_preprints)
     versisons = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
+        preprint__repository=request.repository,
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,

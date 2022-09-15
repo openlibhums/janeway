@@ -14,7 +14,7 @@
 
 {% block body %}
     <div class="box">
-        <form method="POST">
+        <form id="copyediting_assignment" method="POST">
             {% csrf_token %}
             <div class="title-area">
                 <h2>1. Select Copyeditor</h2>
@@ -104,7 +104,7 @@
                     <div class="large-6 columns">{{ form.editor_note|foundation }}</div>
                     <div class="large-6 columns">{{ form.due|foundation }}</div>
                     <div class="large-12 columns">
-                        <button class="button success" type="submit">Add Copyeditor</button>
+                        <button class="button success" type="submit" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">Add Copyeditor</button>
                     </div>
                 </div>
             </div>
@@ -114,9 +114,16 @@
     {% include "elements/roles/enrol_modal.html" with role="copyeditor" currentholders=copyeditors %}
     <input type="hidden" value="copyeditor" name="enrol_type" id="enrol_type" />
 
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="copyediting_assignment" %}
+    {% endif %}
+
 {% endblock body %}
 
 {% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
     {% include "elements/datatables.html" with target="#copyeditor" sort=2 order='asc' %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     {% include "elements/jqte.html" %}

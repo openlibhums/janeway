@@ -33,8 +33,8 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic, install
-from utils.function_cache import cache
+from utils import setting_handler, logic, install, shared
+from utils.function_cache import cache, mutable_cached_property
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -142,7 +142,10 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('This field has been deprecated in v1.4.3'),
     )
     enable_correspondence_authors = models.BooleanField(default=True)
-    disable_html_downloads = models.BooleanField(default=False)
+    disable_html_downloads = models.BooleanField(
+        default=False,
+        help_text='Used to disable download links for HTML files on the Article page.',
+    )
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(
         default=False,
@@ -259,6 +262,14 @@ class Journal(AbstractSiteModel):
     @cache(120)
     def issn(self):
         return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
+
+    @mutable_cached_property
+    def doi(self):
+        return setting_handler.get_setting('Identifiers', 'title_doi', self, default=True).value or None
+
+    @doi.setter
+    def doi(self, value):
+        setting_handler.save_setting('Identifiers', 'title_doi', self, value)
 
     @property
     @cache(120)
@@ -469,13 +480,27 @@ class Journal(AbstractSiteModel):
     def article_keywords(self):
         return submission_models.Keyword.objects.filter(
             article__in=self.published_articles
-        ).order_by('word')
+        ).order_by('word').distinct()
 
     @property
     def workflow_plugin_elements(self):
         return self.workflowelement_set.exclude(
             element_name__in=workflow.core_workflow_element_names()
         )
+
+    @property
+    def description_for_press(self):
+        press_description = self.get_setting(
+            group_name='general',
+            setting_name='press_journal_description'
+        )
+        if press_description:
+            return press_description
+        else:
+            return self.get_setting(
+                group_name='general',
+                setting_name='journal_description',
+            )
 
 
 class PinnedArticle(models.Model):
@@ -548,6 +573,17 @@ class Issue(AbstractLastModifiedModel):
             " url for this issue. e.g: 'winter-special-issue'."
         ),
     )
+    doi = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='DOI',
+        help_text='The DOI (not URL) to be registered for the issue when registering '
+                  'articles that are part of this issue. If you have enabled issue '
+                  'autoregistration in your settings, this field should not be '
+                  'entered manually.',
+        )
+
 
     @property
     def hero_image_url(self):
@@ -567,7 +603,7 @@ class Issue(AbstractLastModifiedModel):
 
     @property
     def url(self):
-        if not self.is_serial:
+        if self.is_serial:
             path = reverse("journal_issue", kwargs={"issue_id": self.pk})
         else:
             path = reverse(
@@ -874,6 +910,29 @@ class Issue(AbstractLastModifiedModel):
                         latest_issue.issue,
                     )
 
+    def order_articles_in_sections(self, sort_field, order):
+        order_by_string = '{}{}'.format(
+            '-' if order == 'dsc' else '',
+            sort_field,
+        )
+
+        for section in self.all_sections:
+            section_articles = self.articles.filter(
+                section=section
+            ).order_by(
+                order_by_string,
+            )
+            ids_in_order = [section_article.pk for section_article in section_articles]
+            print(ids_in_order)
+            for article in section_articles:
+                article_ordering, _ = ArticleOrdering.objects.get_or_create(
+                    issue=self,
+                    section=section,
+                    article=article,
+                )
+                article_ordering.order = ids_in_order.index(article_ordering.article.pk)
+                article_ordering.save()
+
     def save(self, *args, **kwargs):
         # set save as False to avoid infinite recursion
         self.update_display_title(save=False)
@@ -1130,7 +1189,6 @@ def issue_articles_change(sender, **kwargs):
     update_side = kwargs.get('reverse')
 
     if issue_or_article and action in supported_actions:
-
         object_pks = kwargs.get('pk_set', [])
         for object_pk in object_pks:
 
@@ -1146,9 +1204,20 @@ def issue_articles_change(sender, **kwargs):
                     ordering = ArticleOrdering.objects.get(
                         issue=issue,
                         article=article,
-                    )
-                    ordering.delete()
+                    ).delete()
                 except ArticleOrdering.DoesNotExist:
+                    pass
+
+                # if this is the last Article of this Section, remove SectionOrdering for that Section.
+                try:
+                    if not issue.articles.filter(
+                        section=article.section,
+                    ).exists():
+                        section_ordering = SectionOrdering.objects.get(
+                            issue=issue,
+                            section=article.section,
+                        ).delete()
+                except SectionOrdering.DoesNotExist:
                     pass
 
                 if issue == article.primary_issue:
@@ -1169,5 +1238,6 @@ def issue_articles_change(sender, **kwargs):
                 if not article.primary_issue:
                     article.primary_issue = issue
                     article.save()
+
 
 m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

@@ -264,7 +264,5 @@ class CoreTests(TestCase):
         self.admin_user.is_active = True
         self.admin_user.save()
 
-        self.journal_one.name = 'Journal One'
-        self.journal_two.name = 'Journal Two'
         call_command('install_plugins')
         call_command('load_default_settings')
