@@ -66,10 +66,18 @@ class LatestArticlesFeed(Feed):
         return "A feed of the 10 latest articles from {}".format(obj.name)
 
     def items(self, obj):
-        return submission_models.Article.objects.filter(
-            date_published__lte=timezone.now(),
-            journal=obj
-        ).order_by('-date_published')[:10]
+        try:
+            return submission_models.Article.objects.filter(
+                date_published__lte=timezone.now(),
+                journal=obj
+            ).order_by('-date_published')[:10]
+        except ValueError:
+            return submission_models.Article.objects.filter(
+                date_published__lte=timezone.now(),
+                journal__press=obj,
+                journal__hide_from_press=False,
+            ).order_by('-date_published')[:10]
+
 
     def item_title(self, item):
         return striptags(item.title)
