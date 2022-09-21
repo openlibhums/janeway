@@ -32,8 +32,7 @@ urlpatterns = [
         name='review_assignment_notification'),
     url(r'^unassigned/article/(?P<article_id>\d+)/move/review/$', views.move_to_review, name='review_move_to_review'),
     url(r'^article/(?P<article_id>\d+)/crosscheck/$', views.view_ithenticate_report, name='review_crosscheck'),
-
-    url(r'^article/(?P<article_id>\d+)/move/(?P<decision>accept|decline)/$', views.review_decision,
+    url(r'^article/(?P<article_id>\d+)/move/(?P<decision>accept|decline|undecline)/$', views.review_decision,
         name='review_decision'),
     url(r'^article/(?P<article_id>\d+)/summary/$', views.unassigned_article, name='review_summary'),
     url(r'^article/(?P<article_id>\d+)/$', views.in_review, name='review_in_review'),

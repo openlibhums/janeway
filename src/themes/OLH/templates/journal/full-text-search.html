@@ -20,7 +20,7 @@
         <div class="columns large-8">
             <hr />
             {% for article in articles %}
-                {% include "elements/article_listing.html" with article=article %}
+                {% include "elements/journal/box_article.html" with article=article %}
             {% empty %}
                 <p>No articles to display.</p>
             {% endfor %}

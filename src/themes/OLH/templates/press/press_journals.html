@@ -43,7 +43,7 @@
                                                 {{ current_journal.name }}</a>
                                             </h2>
                                             <span class="hide">{{ current_journal.name|lower }}</span>
-                                            {{ current_journal|setting:'journal_description'|safe }}
+                                            {{ current_journal.description_for_press|safe }}
                                             {% with keywords=current_journal.keywords.all %}{% if keywords %}
                                             <h6>{% trans 'Disciplines' %}</h6>
                                             {% for keyword in keywords %}

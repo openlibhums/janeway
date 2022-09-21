@@ -81,6 +81,7 @@
                                 <th>Notified</th>
                                 <th>Decision</th>
                                 <th>Decision Date</th>
+                                <th></th>
                                 {% if request.user.is_admin %}<th></th>{% endif %}
                             </tr>
 
@@ -88,11 +89,19 @@
                                 <td>{{ review.assigned|date:"Y-m-d" }}</td>
                                 <td>
                                     <i class="fa {% if review.notified %}fa-check-circle-o{% else %}fa-times-circle-o{% endif %}"></i>
+                                            {% if not review.notified %}<a href="{% url 'request_author_copyedit' article.pk copyedit.pk review.pk %}"> <i class="fa fa-send-o"> </i> Send Notification</a>{% endif %}
                                 </td>
                                 <td>{% if review.decision %} {{ review.get_decision_display }} {% else %}Awaiting
                                     response{% endif %}</td>
                                 <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }} {% else %}
                                     --{% endif %}</td>
+                                <td>
+                                    {% if review.decision %}
+                                        <small>Cannot delete a completed author review.</small>
+                                    {% else %}
+                                        <a href="{% url 'delete_author_review' article.id copyedit.id review.pk %}" class="small alert button delete">Delete Author Review</a>
+                                    {% endif %}
+                                </td>
                                 {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}
                             </tr>
                         </table>
@@ -139,11 +148,14 @@
                 {% if copyedit.actions_available %}
                     <ul class="menu vertical actions">
                         <li><a href="#" data-open="accept-modal"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Copyedit</a></li>
-                        <li><form method="POST">
-                    {% csrf_token %}
-                    <button name="author_review" type="submit" class="expanded"><i class="fa fa-envelope-o">&nbsp;</i>Request Author Review
-                    </button>
-                </form></li>
+                        <li>
+                            <form id="copyediting_author_review_assignment" method="POST">
+                            {% csrf_token %}
+                                <button name="{{ author_review_form.CONFIRMABLE_BUTTON_NAME }}" type="submit" class="expanded">
+                                    <i class="fa fa-envelope-o">&nbsp;</i>Request Author Review
+                                </button>
+                            </form>
+                        </li>
                         <li><a href="#" data-open="reset-modal"><i class="fa fa-inbox action-icon">&nbsp;</i>Reopen this Copyedit Task</a></li>
                     </ul>
                 {% else %}
@@ -235,10 +247,16 @@
         </button>
     </div>
 
+    {% if author_review_form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=author_review_form.modal form_id="copyediting_author_review_assignment" %}
+    {% endif %}
 
 {% endblock body %}
 
 {% block js %}
+    {% if author_review_form.modal %}
+        {% include "admin/elements/open_modal.html" with target=author_review_form.modal.id %}
+    {% endif %}
     {% include "elements/jqte.html" %}
     {% include "elements/datepicker.html" with target='#due' %}
 {% endblock js %}

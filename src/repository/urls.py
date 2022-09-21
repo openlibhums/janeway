@@ -53,7 +53,7 @@ urlpatterns = [
         views.repository_subject_list,
         name='repository_subject_list'),
 
-    url(r'^list/(?P<subject_slug>[-\w]+)/$',
+    url(r'^list/(?P<subject_id>\d+)/$',
         views.repository_list,
         name='preprints_list_subject'),
 
@@ -233,4 +233,8 @@ urlpatterns = [
     url(r'^manager/(?P<preprint_id>\d+)/send_to_journal/(?P<journal_id>\d+)/$',
         views.send_preprint_to_journal,
         name='repository_send_to_journal'),
+
+    # Popup email
+    url(r'^email/user/(?P<user_id>\d+)/preprint/(?P<preprint_id>\d+)/$',
+        views.send_user_email, name='send_user_email_preprint'),
 ]

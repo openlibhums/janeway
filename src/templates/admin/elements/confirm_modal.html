@@ -1,0 +1,33 @@
+{% load foundation %}
+
+<div class="reveal small-4" id="{{ modal.id }}" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% trans "Confirmation" %}</h4>
+        </div>
+        <div class="card-section">
+            <p>{{ modal.question }}</p>
+            {% if modal.potential_errors %}
+                {% for error in modal.potential_errors %}
+                    <div class="callout bs-callout-warning">
+                        <p><span class="fa fa-warning">&nbsp;</span>{{ error }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="card-section">
+            <div class="button-group expanded">
+                <button class="success button" form="{{ form_id }}" type="submit" name="{{ modal.confirmed_button_name }}">
+                    {% trans "Yes" %}
+                </button>
+                <button class="alert button" data-close type="button">
+                    {% trans "No, go back" %}
+                </button>
+            </div>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

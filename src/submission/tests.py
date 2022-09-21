@@ -2,12 +2,14 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from datetime import datetime
 from dateutil import parser as dateparser
 from mock import Mock
 import os
 
+from django.core.management import call_command
 from django.http import Http404
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils import translation
 from django.urls.base import clear_script_prefix
 from django.conf import settings
@@ -15,11 +17,12 @@ from django.shortcuts import reverse
 from django.test.utils import override_settings
 import swapper
 
-from core.models import Account, File
+from core.models import Account, File, Galley
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
     decorators,
+    encoding,
     forms,
     logic,
     models,
@@ -79,7 +82,7 @@ class SubmissionTests(TestCase):
             'institution': 'Birkbeck, University of London',
         }
         author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
 
         return author_1, author_2
 
@@ -92,32 +95,24 @@ class SubmissionTests(TestCase):
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
 
-    def test_article_how_to_cite(self):
-        issue = journal_models.Issue.objects.create(journal=self.journal_one)
-        journal_models.Issue
+    def test_article_image_galley(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-            primary_issue=issue,
+            journal=self.journal_one,
             date_published=dateparser.parse("2020-01-01"),
-            page_numbers = "2-4"
+            stage=models.STAGE_PUBLISHED,
         )
-        author = models.FrozenAuthor.objects.create(
-            article=article,
-            first_name="Mauro",
-            middle_name="Middle",
-            last_name="Sanchez",
+        galley_file = File.objects.create(
+            article_id=article.pk,
+            label="image",
+            mime_type="image/jpeg",
+            is_galley=True,
         )
-        id_logic.generate_crossref_doi_with_pattern(article)
 
-        expected = """
-        <p>
-         Sanchez, M. M.,
-        (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1(1), p.2-4.
-        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
-        """.format(article.get_doi())
-        self.assertHTMLEqual(expected, article.how_to_cite)
+        galley = create_galley(article, galley_file)
+        galley.label = "image"
+        expected = f'<img class="responsive-img" src=/article/{article.pk}/galley/{galley.pk}/download/ alt="image">'
+
+        self.assertEqual(galley.file_content().strip(), expected)
 
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(
@@ -144,7 +139,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1, p.2-4.
+        <i>Janeway JS</i> 1, 2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
@@ -550,6 +545,172 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    def test_article_encoding_bibtex(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: a test article",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 1, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        bibtex = encoding.encode_article_as_bibtex(article)
+        expected = """
+            @article{TST 1,
+                author = {Martin Eve, Mauro Sanchez},
+                title = {Test article: a test article},
+                volume = {2},
+                year = {1990},
+                url = {http://localhost/TST/article/id/1/},
+                issue = {1},
+                abstract = {test_abstract},
+                month = {1},
+                issn = {%s},
+                publisher={},
+                journal = {Janeway JS}
+            }
+        """ % (article.journal.issn)
+        bibtex_lines = [
+            line.strip() for line in bibtex.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(bibtex_lines, expected_lines)
+
+
+    def test_article_encoding_ris(self):
+        article = helpers.create_article(
+            journal=self.journal_one,
+            title="Test article: A RIS export test case",
+            stage="Published",
+            abstract="test_abstract",
+            date_published=datetime(1990, 1, 1, 12, 00),
+        )
+        helpers.create_issue(self.journal_one, 2, 2, articles=[article])
+        author_a, author_b = self.create_authors()
+        logic.add_user_as_author(author_a, article)
+        logic.add_user_as_author(author_b, article)
+
+        article.snapshot_authors()
+        ris = encoding.encode_article_as_ris(article)
+        expected = """
+            TY  - JOUR
+            AB  - test_abstract
+            AU  - Martin Eve, Mauro Sanchez
+            DA  - 1990/1//
+            IS  - 2
+            VL  - 2
+            PB  -
+            PY  - 1990
+            TI  - Test article: A RIS export test case
+            T2  - Janeway JS
+            UR  - http://localhost/TST/article/id/1/
+            ER  -
+        """
+        ris_lines = [
+            line.strip() for line in ris.splitlines() if line.strip()
+        ]
+        expected_lines = [
+            line.strip() for line in expected.splitlines() if line.strip()
+        ]
+        self.assertEqual(ris_lines, expected_lines)
+
+    def test_page_range_first_last(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+        )
+        self.assertEqual(article.page_range, '3–5')
+
+    def test_page_range_first_only(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+        )
+        self.assertEqual(article.page_range, '3')
+
+    def test_page_range_custom(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: A test of page ranges',
+            first_page=3,
+            last_page=5,
+            page_numbers='custom'
+        )
+        self.assertEqual(article.page_range, 'custom')
+
+
+class ArticleSearchTests(TransactionTestCase):
+    roles_path = os.path.join(
+        settings.BASE_DIR,
+        'utils',
+        'install',
+        'roles.json'
+    )
+    fixtures = [roles_path]
+
+    def test_new_journals_has_submission_configuration(self):
+        if not self.journal_one.submissionconfiguration:
+            self.fail('Journal does not have a submissionconfiguration object.')
+
+    @staticmethod
+    def create_journal():
+        """
+        Creates a dummy journal for testing
+        :return: a journal
+        """
+        update_xsl_files()
+        update_settings()
+        journal_one = journal_models.Journal(code="TST", domain="testserver")
+        journal_one.title = "Test Journal: A journal of tests"
+        journal_one.save()
+        update_issue_types(journal_one)
+
+        return journal_one
+
+    @staticmethod
+    def create_authors():
+        author_1_data = {
+            'is_active': True,
+            'password': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+        }
+        author_2_data = {
+            'is_active': True,
+            'password': 'this_is_a_password',
+            'salutation': 'Sr.',
+            'first_name': 'Mauro',
+            'last_name': 'Sanchez',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+        }
+        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
+        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+
+        return author_1, author_2
+
+    def setUp(self):
+        """
+        Setup the test environment.
+        :return: None
+        """
+        self.journal_one = self.create_journal()
+        self.editor = helpers.create_editor(self.journal_one)
+        self.press = helpers.create_press()
+
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_full_text_search(self):
         text_to_search = """
@@ -585,6 +746,9 @@ class SubmissionTests(TestCase):
         file_obj.text = text
         file_obj.save()
 
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
         search_filters = {"full_text": True}
         queryset = models.Article.objects.search(needle, search_filters)
         result = [a for a in queryset]
@@ -615,6 +779,9 @@ class SubmissionTests(TestCase):
             abstract="Random abstract crawl text",
         )
 
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
         search_filters = {"abstract": True}
         queryset = models.Article.objects.search(needle, search_filters)
         result = [a for a in queryset]
@@ -624,7 +791,7 @@ class SubmissionTests(TestCase):
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_title(self):
         text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
-        needle = "warp-drive"
+        needle = "diagnostic"
 
         article = models.Article.objects.create(
             journal=self.journal_one,
@@ -638,11 +805,15 @@ class SubmissionTests(TestCase):
             date_published=dateparser.parse("2020-01-01"),
         )
 
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
         search_filters = {"title": True}
         queryset = models.Article.objects.search(needle, search_filters)
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
+
 
 class FrozenAuthorModelTest(TestCase):
     @classmethod

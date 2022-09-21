@@ -1,8 +1,12 @@
 {% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
                 <titles>
+                    {% if article.scheduled %}
                     <title>{{ article.title }}</title>
+                    {% else %}
+                    <title>Title Pending {{ article.id }}</title>
+                    {% endif %}
                 </titles>
-                {% if article.authors %}
+                {% if article.authors and article.scheduled %}
                 <contributors>
                 {% for author in article.authors %}
                     {% if author.is_corporate %}
@@ -24,7 +28,7 @@
                 {% endfor %}
                 </contributors>
                 {% endif %}
-                {% if article.abstract %}
+                {% if article.abstract  and article.scheduled %}
                 <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
                 {% endif %}
                 <publication_date media_type="online">
@@ -35,7 +39,7 @@
                 {% else %}
                     <month>{{ now.month }}</month>
                     <day>{{ now.day }}</day>
-                    <year>{{ now.year }}</year>
+                    <year>{{ now.year|add:10 }}</year>
                 {% endif %}
                 </publication_date>
                 {% if article.date_accepted %}
@@ -53,6 +57,7 @@
                 <doi_data>
                     <doi>{{ article.doi }}</doi>
                     <resource>{{ article.url }}</resource>
+                    {% if article.scheduled %}
                     <collection property="crawler-based">
                         <item crawler="iParadigms">
                         {% if article.pdf_url %}
@@ -62,8 +67,9 @@
                         {% endif %}
                         </item>
                     </collection>
+                    {% endif %}
                 </doi_data>
-                {% if article.citation_list %}
+                {% if article.scheduled and article.citation_list %}
                     {{ article.citation_list|safe }}
                 {% endif %}
             </journal_article>

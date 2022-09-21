@@ -29,6 +29,10 @@ def load_modules():
 
     # load the modules
     for f in plugin_dir:
+        if f.startswith('.'):
+            # Ignore development files
+            continue
+
         f = os.path.splitext(f)[0]
 
         res[f] = __import__("utils.notify_plugins.{0}".format(f), fromlist=["utils"])

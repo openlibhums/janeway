@@ -8,14 +8,21 @@ from urllib.parse import urlparse
 import uuid
 import os
 from dateutil import parser as dateparser
+from itertools import chain
 
 from django.urls import reverse
 from django.db import connection, models
 from django.db.models.query import RawQuerySet
 from django.conf import settings
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    SearchVectorField,
+)
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
@@ -31,6 +38,7 @@ from core.model_utils import(
 )
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
+from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
 from review import models as review_models
@@ -234,7 +242,8 @@ FINAL_STAGES = {
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
-    STAGE_UNDER_REVISION
+    STAGE_UNDER_REVISION,
+    STAGE_ACCEPTED,
 }
 
 COPYEDITING_STAGES = {
@@ -489,7 +498,14 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if search_filters.get("abstract"):
             vectors.append(SearchVector('abstract', weight="C"))
         if search_filters.get("full_text"):
-            vectors.append(model_utils.SearchVector('galley__file__text__contents', weight="D"))
+            FileTextModel = swapper.load_model("core", "FileText")
+            field_type = FileTextModel._meta.get_field("contents")
+            if isinstance(field_type, SearchVectorField):
+                vectors.append(model_utils.SearchVector(
+                    'galley__file__text__contents', weight="D"))
+            else:
+                vectors.append(SearchVector(
+                    'galley__file__text__contents', weight="D"))
         if vectors:
             # Combine all vectors
             vector = vectors[0]
@@ -614,6 +630,10 @@ class Article(AbstractLastModifiedModel):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
@@ -732,7 +752,7 @@ class Article(AbstractLastModifiedModel):
         doi_str = ""
         pages_str = ""
         if self.page_range:
-            pages_str = " p.{0}.".format(self.page_range)
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -753,9 +773,12 @@ class Article(AbstractLastModifiedModel):
     def page_range(self):
         if self.page_numbers:
             return self.page_numbers
-        if self.first_page and self.last_page:
+        elif self.first_page and self.last_page:
             return "{}–{}".format(self.first_page, self.last_page)
-        return self.first_page
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
@@ -944,7 +967,6 @@ class Article(AbstractLastModifiedModel):
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
-        from identifiers import models as identifier_models
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)
@@ -971,6 +993,7 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('doi', object=True)
 
     @property
+    @cache(30)
     def doi_pattern_preview(self):
         return id_logic.render_doi_from_pattern(self)
 
@@ -991,6 +1014,9 @@ class Article(AbstractLastModifiedModel):
             article=self,
             stage_to=STAGE_ACCEPTED,
         ).exists():
+            return True
+
+        if self.stage == STAGE_ACCEPTED:
             return True
 
         if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
@@ -1199,23 +1225,35 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
+        """ The issue title in the context of the article
+
+        When an article renders its issue title, it can include article
+        dependant elements such as page ranges or article numbers. For this
+        reason, we cannot render database cached issue title.
+        """
         if not self.issue:
             return ''
 
         if self.issue.issue_type.code != 'issue':
             return self.issue.issue_title
         else:
-            return " • ".join([
-                    title_part
-                    for title_part in self.issue.issue_title_parts(article=self)
-                    if title_part
-            ])
+            template = Template(" • ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return mark_safe(template.render(Context()))
 
     def author_list(self):
         if self.is_accepted():
             return ", ".join([author.full_name() for author in self.frozen_authors()])
         else:
             return ", ".join([author.full_name() for author in self.authors.all()])
+
+    def keyword_list_str(self, separator=","):
+        if self.keywords.exists():
+            return separator.join(kw.word for kw in self.keywords.all())
+        return ''
 
     def can_edit(self, user):
         # returns True if a user can edit an article
@@ -1306,6 +1344,17 @@ class Article(AbstractLastModifiedModel):
         self.stage = STAGE_REJECTED
         self.save()
 
+    def undo_review_decision(self):
+        self.date_accepted = None
+        self.date_declined = None
+
+        if review_models.EditorAssignment.objects.filter(article=self):
+            self.stage = STAGE_ASSIGNED
+        else:
+            self.stage = STAGE_UNASSIGNED
+
+        self.save()
+
     def accept_preprint(self, date, time):
         self.date_accepted = timezone.now()
         self.date_declined = None
@@ -1342,6 +1391,10 @@ class Article(AbstractLastModifiedModel):
             return True
         else:
             return False
+
+    @property
+    def scheduled_for_publication(self):
+        return bool(self.stage == STAGE_PUBLISHED and self.date_published)
 
     def snapshot_authors(self, article=None, force_update=True):
         """ Creates/updates FrozenAuthor records for this article's authors
@@ -1491,6 +1544,15 @@ class Article(AbstractLastModifiedModel):
                 return '?workflow_element_url=no_element'
         return self.journal.site_url(path=path)
 
+    def next_workflow_element(self):
+        try:
+            current_workflow_element = self.current_workflow_element
+            journal_elements = list(self.journal.workflow().elements.all())
+            i = journal_elements.index(current_workflow_element)
+            return journal_elements[i+1]
+        except IndexError:
+            return 'No next workflow stage found'
+
     @cache(600)
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
@@ -1586,6 +1648,9 @@ class Article(AbstractLastModifiedModel):
         ).exclude(
             decision='withdrawn',
         )
+
+    def ms_and_figure_files(self):
+        return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
 
 class FrozenAuthor(AbstractLastModifiedModel):

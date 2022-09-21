@@ -93,7 +93,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Manuscript</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
                         </tr>
                     {% endfor %}
@@ -104,7 +104,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
                         </tr>
                     {% endfor %}
@@ -115,7 +115,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Copyedit</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
                         </tr>
                     {% endfor %}

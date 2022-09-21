@@ -24,6 +24,8 @@ urlpatterns = [
         name='editor_review'),
     url(r'^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/author_review/(?P<author_review_id>\d+)/$', views.request_author_copyedit,
         name='request_author_copyedit'),
+    url(r'^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/author_review/(?P<author_review_id>\d+)/delete/$', views.delete_author_review,
+        name='delete_author_review'),
 
     # Author URLs
     url(r'^author/article/(?P<article_id>\d+)/assignment/(?P<author_review_id>\d+)/$', views.author_copyedit,

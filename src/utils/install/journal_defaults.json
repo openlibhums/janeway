@@ -154,7 +154,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Addres set as the 'Reply-to' for system emails.",
+            "description": "Address set as the 'Reply-to' for system emails.",
             "is_translatable": false,
             "name": "replyto_address",
             "pretty_name": "Reply-To Address",
@@ -221,7 +221,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} <br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -371,7 +371,22 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to authors when a decision to decline an article is reversed.",
+            "is_translatable": true,
+            "name": "review_decision_undecline",
+            "pretty_name": "Undo Article Rejection",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We wish to inform you that the earlier decision to decline \"{{ article.title }}\" in {{ article.journal.name }} has been reversed. The article is now being reconsidered.<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -1171,7 +1186,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "styling"
         },
         "setting": {
             "description": "If checked, Editorial Team images will display.",
@@ -1216,7 +1231,37 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "article"
+        },
+        "setting": {
+            "description": "If checked, the article large image will not be displayed on the article page",
+            "is_translatable": false,
+            "name": "disable_article_large_image",
+            "pretty_name": "Disable article large image",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If checked, no article thumbnails will be rendered on public article lists",
+            "is_translatable": false,
+            "name": "disable_article_thumbnails",
+            "pretty_name": "Disable article thumbnails",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "styling"
         },
         "setting": {
             "description": "If checked, editorial groups will have their own pages.",
@@ -1462,7 +1507,7 @@
             "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
             "is_translatable": false,
             "name": "doi_pattern",
-            "pretty_name": "DOI Pattern",
+            "pretty_name": "Article DOI Pattern",
             "type": "char"
         },
         "value": {
@@ -1662,6 +1707,21 @@
         },
         "value": {
             "default": "A journal."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Localised description of the journal specifically for the press' journal list page.",
+            "is_translatable": true,
+            "name": "press_journal_description",
+            "pretty_name": "Journal Description for Press Site",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
         }
     },
     {
@@ -1899,6 +1959,21 @@
             "is_translatable": true,
             "description": "Subject for Email sent to Editor when an author copyedit review is complete.",
             "name": "subject_author_copyedit_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {
+            "default": "Copyediting Decision"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyediting Decision",
+            "is_translatable": true,
+            "description": "Subject for email sent to managing editor when a copyeditor accepts or declines a request.",
+            "name": "subject_copyediting_decision"
         },
         "group": {
             "name": "email_subject"
@@ -2461,6 +2536,21 @@
     },
     {
         "value": {
+            "default": "Article Reconsidered"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Undo Article Rejection Subject",
+            "is_translatable": true,
+            "description": "Subject for email sent to authors when a decision to reject an article is reversed.",
+            "name": "subject_review_decision_undecline"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {
             "default": "Review Assignment Declined"
         },
         "setting": {
@@ -2679,6 +2769,21 @@
             "is_translatable": false,
             "description": "If true, users cannot submit new articles.",
             "name": "disable_journal_submission"
+        },
+        "group": {
+            "name": "general"
+        }
+    },
+    {
+        "value": {
+            "default": "<strong>Submission is currently disabled for this journal.</strong>"
+        },
+        "setting": {
+            "type": "rich-text",
+            "pretty_name": "Disabled Submission Message",
+            "is_translatable": true,
+            "description": "A message that is displayed when Disable Submission is on.",
+            "name": "disable_journal_submission_message"
         },
         "group": {
             "name": "general"
@@ -3136,6 +3241,36 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If set to true the Registration Page Notice will display.",
+            "is_translatable": true,
+            "name": "display_register_page_notice",
+            "pretty_name": "Display Registration Page Notice",
+            "type": "boolean"
+        },
+        "value": {
+            "default": false
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Message to display if you enable Display Registration Page Notice.",
+            "is_translatable": true,
+            "name": "register_page_notice",
+            "pretty_name": "Registration Page Notice",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "crossref"
         },
         "setting": {
@@ -3147,6 +3282,51 @@
         },
         "value": {
             "default": "656"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The DOI (not in URL format) registered for this journal (e.g. 10.001/my-journal). It is included on all deposits for this journal. It must be registered ahead of time.",
+            "is_translatable": false,
+            "name": "title_doi",
+            "pretty_name": "Title DOI",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The suffix pattern from which Issue DOIs are auto-generated (e.g. 10.0001/myjournal.issue.1)",
+            "is_translatable": false,
+            "name": "issue_doi_pattern",
+            "pretty_name": "Issue DOI Pattern",
+            "type": "char"
+        },
+        "value": {
+            "default": "{{ issue.journal.code }}.{{ issue.issue_type.code }}.{{ issue.id }}"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern",
+            "is_translatable": false,
+            "name": "register_issue_dois",
+            "pretty_name": "Auto-register issue-level DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         }
     },
     {
@@ -3401,7 +3581,67 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "{{ article.registration_preview|safe }}"
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "kbart"
+        },
+        "setting": {
+            "description": "Optional period of embargo this journal is subject to. It must follow the kbart format such as 'R2Y' or 'P1Y'",
+            "is_translatable": false,
+            "name": "embargo_period",
+            "pretty_name": "Embargo Period (KBART)",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Maximum number of articles on which an action can be performed in the DOI Manager",
+            "is_translatable": false,
+            "name": "doi_manager_action_maximum_size",
+            "pretty_name": "DOI Manager Action Maximum Size",
+            "type": "number"
+        },
+        "value": {
+            "default": "200"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to an author when an editor deletes their copyedit review task.",
+            "is_translatable": false,
+            "name": "author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Author Copyedit Deleted email.",
+            "is_translatable": false,
+            "name": "subject_author_copyedit_deleted",
+            "pretty_name": "Author Copyedit Deleted Subject",
+            "type": "text"
+        },
+        "value": {
+            "default": "Copyedit Review Request Deleted"
         }
     }
 
