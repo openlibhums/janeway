@@ -411,8 +411,16 @@
                     {% if article.peer_reviewed %}
                         <p>
                             <i class="fa fa-check-circle-o" style="color: green"></i>
-                            {% trans "This article has been peer reviewed." %}
-                        </p>
+                            {% trans "This article has been peer reviewed." %}</p>
+                            {% if journal_settings.general.open_peer_review %}
+                                {% if article.public_reviews.count > 0 %}
+                                    <p>
+                                        {% for review in article.public_reviews %}
+                                            <button data-target="reviewmodal-{{ review.pk }}" class="btn modal-trigger">Review by {{ review.reviewer.full_name }}</button>
+                                        {% endfor %}<br/>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
                     {% else %}
                         <p>
                             {% trans "This article has not been peer reviewed." %}
@@ -458,6 +466,7 @@
 
     </div>
     {% include "elements/summary_modal.html" %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}
@@ -497,4 +506,5 @@
         child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
     });
     </script>
+
 {% endblock %}

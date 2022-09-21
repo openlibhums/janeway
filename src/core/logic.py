@@ -383,6 +383,10 @@ def get_settings_to_edit(display_group, journal):
                 'name': 'accept_article_warning',
                 'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
             },
+            {
+                'name': 'open_peer_review',
+                'object': setting_handler.get_setting('general', 'open_peer_review', journal),
+            },
         ]
         setting_group = 'general'
 

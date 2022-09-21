@@ -5097,6 +5097,26 @@ ul.actions li a {
     font-weight: 100;
     font-family: "Open sans", sans-serif;
     opacity: 0.05; }
+  .checklist:nth-child(7):before {
+    content: "7";
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 0;
+    font-size: 11.25rem;
+    font-weight: 100;
+    font-family: "Avenir Next", Avenir, sans-serif;
+    opacity: 0.05; }
+  .checklist:nth-child(8):before {
+    content: "8";
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 0;
+    font-size: 11.25rem;
+    font-weight: 100;
+    font-family: "Avenir Next", Avenir, sans-serif;
+    opacity: 0.05; }
 
 .header-icon {
   float: left;

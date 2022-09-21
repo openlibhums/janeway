@@ -22,6 +22,9 @@
                 <th>Due</th>
                 <th>Decision</th>
                 <th>Completed</th>
+                {% if journal_settings.general.open_peer_review %}
+                    <th>Open<br/>Permission</th>
+                {% endif %}
                 <th width="150px"></th>
             </tr>
             <tr>
@@ -40,6 +43,13 @@
                     --{% endif %}</td>
                 <td>{% if review.date_complete %}
                     {{ review.date_complete }}{% else %}--{% endif %}</td>
+                {% if journal_settings.general.open_peer_review %}
+                    <td>{% if review.permission_to_make_public %}
+                        <span style="color: green;"><i aria-hidden="true" title="Review can be made public"
+                                                       class="fa fa-check"></i></span>{% else %}
+                        <span style="color: red;"><i aria-hidden="true" title="Review is private"
+                                                     class="fa fa-times-circle"></i></span>{% endif %}</td>
+                {% endif %}
                 <td>
                     <div class="button-group">
                         <a href="{% url 'review_view_review' article.pk review.pk %}"

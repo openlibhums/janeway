@@ -21,6 +21,8 @@ Under review settings we can control how peer review operates for the given jour
     - If enabled a special access token is appended to the reviewer link in the assignment email, this link allows the reviewer to view the review without logging into the system. Once the review is complete the token is deleted so it cannot be reused. Tokens are UUID4s which are unique. 
 - Draft Decisions
     - If enabled, section editors will not be able to accept papers, instead they can make recommendations to senior editors who can then accept papers.
+- Enable open peer review
+    - Turns on the open peer review feature (see below).
 - Default Review Form
     - The default review form that will be automatically selected when assigning a reviewer.
 - Reviewer Form Download
@@ -81,3 +83,37 @@ As you go along you can use the Preview Form button to see what the form will lo
 .. figure:: ../../nstatic/review-forms-preview.png
 
     Review Form preview
+
+Open Peer Review
+----------------
+
+This feature allows peer reviews to be made public with the consent of the reviewer, and when chosen for public display by the editor. By default, this feature is off and peer reviews will remain confidential.
+
+.. note:: Open peer review only shows text that is typed into the peer review assignment box, not uploaded files. This is for accessibility and display purposes. Accordingly, if you enable open peer review, we recommend encouraging reviewers to use the text box rather than uploading files.
+
+When the setting is enabled, reviewers are asked for their permission to make the review public.
+
+.. figure:: ../../nstatic/review-form-open-peer-review.png
+
+    Reviewers are asked for permission to make reviews public
+
+Then, during prepublication, the editor can choose which of the consented reviews (if there are any) to make open.
+
+.. figure:: ../../nstatic/prepublication-open-peer-review.png
+
+    Editor selects peer reviews to display
+
+.. figure:: ../../nstatic/reviews-that-can-be-displayed.png
+
+    Reviews that can be displayed
+
+If a peer review has been approved for public display by both the author and the editor, readers will be able to open a pane to view the peer review text.
+
+.. figure:: ../../nstatic/open-peer-review-metadata.png
+
+    Button to open peer review
+
+.. figure:: ../../nstatic/open-peer-review-pane.png
+
+    Open peer review pane
+
