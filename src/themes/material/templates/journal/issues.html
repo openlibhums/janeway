@@ -27,7 +27,6 @@
                         <div class="card-content">
                             {% if issue.pretty_issue_identifier and issue.issue_title and journal.display_issue_title %}
                             <p>{{ issue.pretty_issue_identifier }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
-                            <span class="activator grey-text text-darken-4 fade fade-overflow-5">{{ issue.issue_title }}</span>
                             {% else %}
                             <p>{{ issue.display_title }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
                             {% endif %}
