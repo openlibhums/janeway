@@ -21,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files, logic as core_logic, forms as core_forms
 from journal import models as journal_models
+from submission import models as submission_models
 
 
 from utils import (
@@ -2302,6 +2303,42 @@ def manage_reviewers(request):
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def repository_licenses(request):
+    """
+    Allows a repository manage to select the active licenses from the Press set.
+    """
+    form = forms.ActiveLicenseForm(
+        instance=request.repository,
+    )
+    if request.POST:
+        form = forms.ActiveLicenseForm(
+            request.POST,
+            instance=request.repository,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Active Licenses Saved.'
+            )
+            return redirect(
+                reverse(
+                    'repository_licenses',
+                )
+            )
+    template = 'admin/repository/licenses.html'
+    context = {
+        'form': form,
     }
     return render(
         request,
