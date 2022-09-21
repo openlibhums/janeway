@@ -60,6 +60,9 @@ class CopyeditAssignment(models.Model):
     objects = models.Manager()
     active_objects = ActiveCopyeditAssignmentManager()
 
+    class Meta:
+        ordering = ('assigned',)
+
     def __str__(self):
         return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article.title)
 

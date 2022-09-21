@@ -47,6 +47,7 @@ EDITABLE_FORMAT = (
 
 IMAGE_MIMETYPES = (
     'image/jpeg',
+    'image/jpg',
     'image/png',
     'image/gif',
     'image/tiff',
@@ -929,7 +930,7 @@ def html_to_text(file_path):
         soup = BeautifulSoup(f.read(), "html.parser")
         body = soup.find("body")
         if body:
-            body.text
+            text = body.text
         else:
             text = soup.text
 

@@ -59,7 +59,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         if custom_reply_to:
             reply_to = (custom_reply_to,)
 
-
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")
 
@@ -119,6 +118,8 @@ def notify_hook(**kwargs):
             'html': html,
             'to': to,
             'email_subject': subject,
+            'cc': cc,
+            'bcc': bcc,
         }
         notify.notification(**notify_contents)
 

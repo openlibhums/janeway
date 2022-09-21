@@ -48,9 +48,11 @@
                            data-toggle="review-dropdown-{{ review.pk }}"><span
                                 class="show-for-sr">Show menu</span></a>
                     </div>
-                    <div class="dropdown-pane right"
+                    <div class="dropdown-pane {{ dropdown }}"
                          id="review-dropdown-{{ review.pk }}"
-                         data-dropdown data-close-on-click="true">
+                         data-dropdown data-close-on-click="true"
+                         data-alignment="bottom"
+                         >
                         <ul class="menu vertical actions">
                             {% if review.decision == 'withdrawn' or review.date_declined %}
                                 <li>

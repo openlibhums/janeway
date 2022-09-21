@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load files %}
+{% load i18n %}
 
 {% block title %}Revision for {{ revision_request.article.title }}{% endblock title %}
 {% block title-section %}Revision for {{ revision_request.article.title }}{% endblock %}
@@ -35,7 +36,7 @@
             <div class="content">
                 {% include "admin/elements/review/view_reviews.html" %}
             </div>
-            <form method="POST">
+            <form method="POST" id="do_revision">
                 {% csrf_token %}
                 <div class="title-area">
                     <h2>Files</h2>
@@ -102,11 +103,21 @@
                     <h2>Finishing Up</h2>
                 </div>
                 <div class="content">
-                     <p>When you have completed your revisions and finished writing your covering letter, click the 'Submit Revisions' button below to finish. Please note that you will not be able to make any further changes to your letter or revisions once you click 'Submit Revisions'</p>
-                    <button class="button success">Submit Revisions</button>
+                    <p>{% trans "When you have completed your revisions and finished writing your covering letter, click the 'Submit Revisions' button below to finish. Please note that you will not be able to make any further changes to your letter or revisions once you click 'Submit Revisions'" %}</p>
+                    <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">Submit Revisions</button>
                 </div>
             </form>
         </div>
     </div>
 
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="do_revision" %}
+    {% endif %}
+
 {% endblock body %}
+
+{% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+{% endblock js %}

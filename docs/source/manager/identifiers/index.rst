@@ -7,7 +7,8 @@ When Are DOIs Minted?
 ---------------------
 If all the settings are properly configured (see below), Janeway handles DOI registration for you, stepping in at a few key points in the publishing pipeline.
 
-By default, a DOI is registered (a.k.a. minted, deposited) with Crossref when an article is accepted for publication. Some provisional metadata is sent at this time. 
+By default, a DOI is registered (a.k.a. minted, deposited) with Crossref when an article is accepted for publication. Some provisional metadata is sent at this time (No author-identifiable details are shared).
+When an article is scheduled for publication, a new request is sent to Crossref to update all metadata records.
 
 .. tip::
     You can let editors see a preview of the data that gets sent before accepting an article. See **Accept Article Warning** under :ref:`Review Settings<reviewsettings>`.
@@ -25,6 +26,8 @@ DOI Manager
 You can see all the DOIs for a journal (if you are an editor) or for a press (if you are a staff member) in the DOI Manager.
 
 First, filter by date, registration status, or primary issue until you have an actionable set of articles.
+
+At the moment, the DOI Manager can handle small batches, such as 20 articles, with no problems, but it may not be able to handle larger batches very well. We will optimize it to handle large batches in the future.
 
 In some cases, you can preview the XML that will get sent to Crossref.
 
@@ -97,9 +100,27 @@ DOI Display Suffix
     Text to append to DOIs -- also used to generate DOI URLs
 
 DOI Pattern
-    The pattern for auto-generating DOIs. Defaults to using the journal code and article ID (e.g. orbit.123):
+    The pattern for auto-generating DOIs. Defaults to using the journal code and article ID (e.g. ``orbit.123``):
 
         ``{{ article.journal.code }}.{{ article.pk }}``
+
+Title DOI
+    The DOI (not in URL format) registered for this journal (e.g. ``10.001/my-journal``). It is included on all deposits for this journal. It must be registered ahead of time.
+
+    It is mandatory for a journal to have a DOI registered **only** when an ISSN is not available for a journal, as Crossref requires at least one unique identifier for every journal.
+
+    However, even if your journal has an ISSN, Crossref still recommends registering a DOI for your journal. We recommend using your journal code as the DOI. For example, with the prefix of ``10.0001`` and the journal code of ``abcd``, you could set the journal DOI to ``10.0001/abcd``.
+
+Issue DOI Pattern
+    Janeway supports minting DOIs for journal issues automatically. With this setting, you can define the pattern used to generate the issue-level DOI that will be used for registration.
+
+    With the default pattern, an issue with ID ``1`` (and prefix ``10.0001``, and journal code ``abcd``) will have a generated DOI of ``10.0001/abcd.issue.1``.
+
+    A collection with an ID of ``2`` would have a generated DOI of ``10.0001/abcd.collection.2``.
+
+Auto-register issue-level DOIs
+    When enabled, issues will have a DOI assigned and registered as soon as the first article in the issue is scheduled for publication. If an issue DOI has not been entered manually, Janeway will use the pattern defined in the setting above to generate one automatically.
+
 
 Crosscheck Settings
 -------------------

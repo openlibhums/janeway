@@ -20,104 +20,133 @@
             </div>
             <div class="row expanded">
                 <div class="large-12 columns">
+
+                    <p>{% blocktrans %}Please review your submission use the details below. If you need to make changes use the links above to move back along the submission steps. You must click the Complete Submission button at the foot of this page to complete the submission process, you will then receive a receipt email. {% endblocktrans %}</p>
+
+                    {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
+                        <div class="title-area">
+                            <h2>Agreements</h2>
+                        </div>
+                        <p>
+                        {% if request.journal.submissionconfiguration.publication_fees %}
+                            <i class="fa fa-check-circle green"></i> Agreed to Publication Fees statement.<br />
+                        {% endif %}
+
+                        {% if request.journal.submissionconfiguration.submission_check %}
+                            <i class="fa fa-check-circle green"></i> Agreed to Submission Checklist.<br />
+                        {% endif %}
+
+                        {% if request.journal.submissionconfiguration.copyright_notice %}
+                            <i class="fa fa-check-circle green"></i> Agreed to Copyright statement.<br />
+                        {% endif %}
+                        </p>
+
+                    {% endif %}
+
                     {% if article.comments_editor %}
-                    <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
-                    {{ article.comments_editor|linebreaksbr }}
+                        <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
+                        <div class="content">
+                            <p>{{ article.comments_editor|linebreaksbr }}</p>
+                        </div>
                     {% endif %}
                     <div class="title-area"><h2>{% trans "Article Info" %}</h2></div>
                     <table class="scroll small">
                         <tr>
                             <th colspan="{% if request.journal.submissionconfiguration.subtitle %}2{% else %}3{% endif %}">{% trans 'Title' %}</th>
-                            {% if request.journal.submissionconfiguration.subtitle %}<th>{% trans "Subtitle" %}</th>{% endif %}
+                            {% if request.journal.submissionconfiguration.subtitle %}
+                                <th>{% trans "Subtitle" %}</th>{% endif %}
                         </tr>
 
                         <tr>
                             <td colspan="{% if request.journal.submissionconfiguration.subtitle %}2{% else %}3{% endif %}">{{ article.title }}</td>
-                            {% if request.journal.submissionconfiguration.subtitle %}<td>{{ article.subtitle }}</td>{% endif %}
+                            {% if request.journal.submissionconfiguration.subtitle %}
+                                <td>{{ article.subtitle }}</td>{% endif %}
                         </tr>
 
                         {% if request.journal.submissionconfiguration.abstract %}
-                        <tr>
-                            <th colspan="3">{% trans "Abstract" %}</th>
-                        </tr>
-                        <tr>
-                            <td colspan="3">{{ article.abstract|safe }}</td>
-                        </tr>
+                            <tr>
+                                <th colspan="3">{% trans "Abstract" %}</th>
+                            </tr>
+                            <tr>
+                                <td colspan="3">{{ article.abstract|safe }}</td>
+                            </tr>
                         {% endif %}
 
                         <tr>
-                            {% if request.journal.submissionconfiguration.language %}<th>{% trans "Language" %}</th>{% endif %}
-                            {% if request.journal.submissionconfiguration.section %}<th>{% trans "Section" %}</th>{% endif %}
-                            {% if request.journal.submissionconfiguration.license %}<th>{% trans "Licence" %}</th>{% endif %}
+                            {% if request.journal.submissionconfiguration.language %}
+                                <th>{% trans "Language" %}</th>{% endif %}
+                            {% if request.journal.submissionconfiguration.section %}
+                                <th>{% trans "Section" %}</th>{% endif %}
+                            {% if request.journal.submissionconfiguration.license %}
+                                <th>{% trans "Licence" %}</th>{% endif %}
                         </tr>
                         <tr>
-                            {% if request.journal.submissionconfiguration.language %}<td>{{ article.get_language_display }}</td>{% endif %}
-                            {% if request.journal.submissionconfiguration.section %}<td>{{ article.section.name }}</td>{% endif %}
-                            {% if request.journal.submissionconfiguration.license %}<td>{{ article.license.name }}</td>{% endif %}
+                            {% if request.journal.submissionconfiguration.language %}
+                                <td>{{ article.get_language_display }}</td>{% endif %}
+                            {% if request.journal.submissionconfiguration.section %}
+                                <td>{{ article.section.name }}</td>{% endif %}
+                            {% if request.journal.submissionconfiguration.license %}
+                                <td>{{ article.license.name }}</td>{% endif %}
                         </tr>
+
+                        {% for field_answer in article.fieldanswer_set.all %}
+                        <tr>
+                            <th colspan="3">{{ field_answer.field.name }}</th>
+                        </tr>
+                        <tr>
+                            <td colspan="3">{{ field_answer.answer|safe }}</td>
+                        </tr>
+                    {% endfor %}
+
                     </table>
 
                     <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
-                    <div class="row expanded">
-                        <div class="large-6 columns">
-                            <ul class="list-group">
-                                {% for order in article.articleauthororder_set.all %}
-                                    <li class="list-group-item">
-                                        {{ order.author.full_name }} - {{ order.author.email }}
-                                    </li>
-                                    {% empty %}
-                                    <li class="list-group-item">
-                                        {% trans "No authors yet! Add one." %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+                    <table class="table small">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Last Name</th>
+                            <th>Email Address</th>
+                            <th>ORCID</th>
+                            <th>Affiliation</th>
+                        </tr>
+                        {% for order in article.articleauthororder_set.all %}
+                            <tr>
+                                <td>{{ order.author.first_name }}</td>
+                                <td>{{ order.author.middle_name|default_if_none:"--" }}</td>
+                                <td>{{ order.author.last_name }}</td>
+                                <td>{{ order.author.email }}</td>
+                                <td>{{ order.author.orcid|default_if_none:"No ORCID supplied" }}</td>
+                                <td>{{ order.author.affiliation }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
 
 
                     <div class="title-area"><h2>{% trans "Article Files" %}</h2></div>
-                    <div class="row expanded">
-                        <div class="large-6 columns">
-                            <p><strong>{% trans "Manuscript Files" %}</strong></p>
-                            <table class="scroll small">
-                                <tr>
-                                    <th>{% trans "Label" %}</th>
-                                    <th>{% trans "File Name" %}</th>
-                                </tr>
-                                {% for file in article.manuscript_files.all %}
-                                    <tr>
-                                        <td>{{ file.label }}</td>
-                                        <td>{{ file }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2">{% trans "No files uploaded" %}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
+                    <table class="scroll small">
+                        <tr>
+                            <th>{% trans "Label" %}</th>
+                            <th>{% trans "File Name" %}</th>
+                            <th>File Type</th>
+                        </tr>
+                        {% for file in article.manuscript_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file }}</td>
+                                <td>Manuscript</td>
+                            </tr>
+                        {% endfor %}
                         {% if request.journal.submissionconfiguration.figures_data %}
-                        <div class="large-6 columns">
-                            <p><strong>{% trans "Figure/Data" %}</strong></p>
-                            <table class="scroll small">
+                            {% for file in article.data_figure_files.all %}
                                 <tr>
-                                    <th>{% trans "Label" %}</th>
-                                    <th>{% trans "File Name" %}</th>
+                                    <td>{{ file.label }}</td>
+                                    <td>{{ file }}</td>
+                                    <td>Figure/Data</td>
                                 </tr>
-                                {% for file in article.data_figure_files.all %}
-                                    <tr>
-                                        <td>{{ file.label }}</td>
-                                        <td>{{ file }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2">{% trans "No files uploaded" %}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
+                            {% endfor %}
                         {% endif %}
-                    </div>
+                    </table>
 
                     {% hook 'submission_review' %}
 
@@ -126,6 +155,7 @@
                         </button>
                     </div>
                 </div>
+            </div>
         </form>
     </div>
 

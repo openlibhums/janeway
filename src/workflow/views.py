@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
 from workflow import logic
 from utils import models as utils_models
+from events import logic as event_logic
 
 
 @has_journal
@@ -69,3 +71,36 @@ def manage_article_workflow(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@has_journal
+@editor_user_required
+def move_to_next_workflow_element(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+
+    current_stage = request.POST.get('current_stage', None)
+    if current_stage != article.stage:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'Could not change stage or duplicate request.',
+        )
+        return redirect(article.current_workflow_element_url)
+
+    workflow_kwargs = {
+        'handshake_url': article.current_workflow_element.handshake_url,
+        'request': request,
+        'article': article,
+        'switch_stage': True
+    }
+
+    return event_logic.Events.raise_event(
+        event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+        task_object=article,
+        **workflow_kwargs,
+    )

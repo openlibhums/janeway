@@ -8,7 +8,7 @@ env_file:
 
 services:
   appserver:
-    type: python:3.5.9
+    type: python:3.6
     command: python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
     build_as_root:
       - grep '^deb ' /etc/apt/sources.list | perl -pe 's/deb /deb-src /' >> /etc/apt/sources.list

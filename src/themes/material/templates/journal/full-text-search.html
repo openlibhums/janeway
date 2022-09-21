@@ -35,7 +35,6 @@
                         <div class="form-group">
                             {% if not keyword %}
                                 <label for="id_article_search">{{ form.article_search.label }}</label>
-                                {% materialize_form form=form %}
                                 {{ form.article_search| addcss:''}}
                                 {{ form.title| addcss:''}}
                                 {{ form.abstract| addcss:''}}
@@ -43,8 +42,6 @@
                                 {{ form.keywords| addcss:''}}
                                 {{ form.full_text| addcss:''}}
                                 {{ form.orcid| addcss:''}}
-                                {{form.orcid.label}}
-                                {{form.orcid.name}}
                                 <br />
                                 <label for="id_sort">{{ form.sort.label }}</label>
                                 {{ form.sort| addcss:''}}

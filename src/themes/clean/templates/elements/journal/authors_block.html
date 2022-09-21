@@ -1,7 +1,7 @@
 <p>
     {% for author in article.frozen_authors.all %}
         {% if forloop.last %}
-            {% if article.frozen_authors.all|length > 1 %} and{% endif %}
+        {% if article.frozen_authors.all|length > 1 %} {% trans "and" %} {% endif %}
         {% endif %}
         {{ author.full_name }}
         {% if not forloop.last %}

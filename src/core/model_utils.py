@@ -560,4 +560,3 @@ class SearchVector(DjangoSearchVector):
     # Override template to ignore function
     function = None
     template = '%(expressions)s'
-

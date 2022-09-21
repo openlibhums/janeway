@@ -11,7 +11,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
-from review.forms import render_choices
+from review.logic import render_choices
 from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
@@ -74,7 +74,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                   'language', 'section', 'license', 'primary_issue',
                   'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
                   'first_page', 'last_page', 'page_numbers', 'total_pages',
-                  'competing_interests', 'custom_how_to_cite',)
+                  'competing_interests', 'custom_how_to_cite', 'rights')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
@@ -274,6 +274,7 @@ class AuthorForm(forms.ModelForm):
 
     def clean_orcid(self):
         orcid_string = self.cleaned_data.get('orcid')
+        print(orcid_string)
         try:
             return utility_clean_orcid(orcid_string)
         except ValueError:
@@ -356,16 +357,16 @@ class EditFrozenAuthor(forms.ModelForm):
         return obj
 
     def clean_frozen_orcid(self):
-        orcid_string = self.cleaned_data.get('fozen_orcid')
-        orcid, clean_orcid_found = utility_clean_orcid(orcid_string)
-
-        if not clean_orcid_found:
+        orcid_string = self.cleaned_data.get('frozen_orcid')
+        try:
+            return utility_clean_orcid(orcid_string)
+        except ValueError:
             self.add_error(
-                'orcid',
+                'frozen_orcid',
                 'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
                 ' 0000-0000-0000-0000',
             )
-        return orcid
+        return orcid_string
 
 
 class IdentifierForm(forms.ModelForm):
@@ -468,5 +469,8 @@ def utility_clean_orcid(orcid):
 
         if result:
             return result.group(0)
+        else:
+            raise ValueError('ORCID is not valid.')
 
-    raise ValueError('ORCID is not valid.')
+    # ORCID is None.
+    return orcid

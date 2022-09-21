@@ -2,7 +2,6 @@
 {% load static from staticfiles %}
 {% load foundation %}
 {% load i18n %}
-{% load field %}
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
 {% block css %}
@@ -77,18 +76,7 @@
                     <div class="clearfix"></div>
 
 
-
-                    {% if additional_fields %}
-                        <div class="title-area">
-                            <h2>{% trans 'Additional Fields' %}</h2>
-                        </div>
-                        {% for additional_field in additional_fields %}
-                            {% get_form_field form additional_field.name as field %}
-                            <div class="{{ field.field.widget.attrs.div_class }} columns">
-                                {{ field|foundation }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                    {% include "admin/elements/submission/additional_fields.html" with form=form additional_fields=additional_fields %}
 
                     <div class="large-12 columns">
                         <button class="success button pull-right" type="submit" name="start_submission"><i

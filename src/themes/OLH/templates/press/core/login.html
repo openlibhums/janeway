@@ -25,7 +25,7 @@
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
                         <a href="https://orcid.org/oauth/authorize?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="success button expanded">{% trans "Login with ORCiD" %}</a>
                         {% if settings.ENABLE_OIDC %}
-                        <a href="{% url 'oidc_authentication_init' %}" class="success button expanded">{% trans "Login with" %}{{ settings.OIDC_SERVICE_NAME }}</a>
+                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="success button expanded">{% trans "Login with" %}{{ settings.OIDC_SERVICE_NAME }}</a>
                         {% endif %}
                         <label>{% trans "Email" %}
                             <input name="user_name" type="text" placeholder="somebody@example.com">

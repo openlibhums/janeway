@@ -13,12 +13,14 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
+from django.utils.translation import ugettext_lazy as _
 
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
@@ -28,7 +30,8 @@ from security.decorators import (
     reviewer_user_for_assignment_required,
     file_user_required, article_decision_not_made, article_author_required,
     editor_is_not_author, senior_editor_user_required,
-    section_editor_draft_decisions, article_stage_review_required
+    section_editor_draft_decisions, article_stage_review_required,
+    any_editor_user_required
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
@@ -37,7 +40,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-@senior_editor_user_required
+@any_editor_user_required
 def home(request):
     """
     Displays a list of review articles.
@@ -47,16 +50,17 @@ def home(request):
     articles = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_ASSIGNED) |
         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
-        Q(stage=submission_models.STAGE_UNDER_REVISION),
+        Q(stage=submission_models.STAGE_UNDER_REVISION) |
+        Q(stage=submission_models.STAGE_ACCEPTED),
         journal=request.journal
     )
 
     filter = request.GET.get('filter', None)
     if filter == 'me':
-        assignments = models.EditorAssignment.objects.filter(article__journal=request.journal,
-                                                             editor=request.user)
-        assignment_article_pks = [assignment.article.pk for assignment in assignments]
-        articles = articles.filter(pk__in=assignment_article_pks)
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
 
     template = 'review/home.html'
     context = {
@@ -67,7 +71,7 @@ def home(request):
     return render(request, template, context)
 
 
-@senior_editor_user_required
+@any_editor_user_required
 def unassigned(request):
     """
     Displays a list of unassigned articles.
@@ -76,6 +80,9 @@ def unassigned(request):
     """
     articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_UNASSIGNED,
                                                         journal=request.journal)
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        articles = core_logic.filter_articles_to_editor_assigned(request, articles)
 
     template = 'review/unassigned.html'
     context = {
@@ -1028,14 +1035,22 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    form = forms.ReviewAssignmentForm(journal=request.journal)
-    new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewer_candidates(article, request.user)
-    modal = None
+    form = forms.ReviewAssignmentForm(
+        journal=request.journal,
+        article=article,
+        editor=request.user,
+        reviewers=reviewers,
+    )
+    new_reviewer_form = core_forms.QuickUserForm()
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You should select files for review before adding reviewers.',
+        )
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1051,54 +1066,58 @@ def add_review_assignment(request, article_id):
                 user = None
 
             if user:
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)}))
+                return redirect(
+                    reverse(
+                        'review_add_review_assignment',
+                        kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)},)
+                )
 
             valid = new_reviewer_form.is_valid()
 
             if valid:
                 acc = logic.handle_reviewer_form(request, new_reviewer_form)
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
+                return redirect(
+                    reverse(
+                        'review_add_review_assignment', kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}),
+                )
             else:
-                modal = 'reviewer'
+                form.modal = {'id': 'reviewer'}
         else:
+            form = forms.ReviewAssignmentForm(
+                request.POST,
+                journal=request.journal,
+                article=article,
+                editor=request.user,
+                reviewers=reviewers,
+            )
+            if form.is_valid() and form.is_confirmed():
+                review_assignment = form.save()
+                article.stage = submission_models.STAGE_UNDER_REVIEW
+                article.save()
 
-            form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
+                kwargs = {'user_message_content': '',
+                          'review_assignment': review_assignment,
+                          'request': request,
+                          'skip': False,
+                          'acknowledgement': False}
 
-            if form.is_valid():
-                reviewer = logic.get_reviewer_from_post(request)
+                event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED, **kwargs)
 
-                if not reviewer:
-                    form.add_error(None, 'You must select a reviewer.')
-                else:
-                    review_assignment = form.save(commit=False)
-                    review_assignment.reviewer = reviewer
-                    review_assignment.article = article
-                    review_assignment.editor = request.user
-                    review_assignment.review_round = article.current_review_round_object()
-                    review_assignment.access_code = uuid4()
-                    review_assignment.save()
+                return redirect(
+                    reverse(
+                        'review_notify_reviewer',
+                        kwargs={'article_id': article_id, 'review_id': review_assignment.id}
+                    )
+                )
 
-                    article.stage = submission_models.STAGE_UNDER_REVIEW
-                    article.save()
-
-                    kwargs = {'user_message_content': '',
-                              'review_assignment': review_assignment,
-                              'request': request,
-                              'skip': False,
-                              'acknowledgement': False}
-
-                    event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED, **kwargs)
-
-                    return redirect(reverse('review_notify_reviewer',
-                                            kwargs={'article_id': article_id, 'review_id': review_assignment.id}))
-
-    template = 'review/add_review_assignment.html'
+    template = 'admin/review/add_review_assignment.html'
     context = {
         'article': article,
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
-        'modal': modal,
     }
 
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):
@@ -1272,10 +1291,10 @@ def edit_review(request, article_id, review_id):
         messages.add_message(request, messages.WARNING, 'You cannot edit a review that is already complete.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
-    form = forms.ReviewAssignmentForm(instance=review, journal=request.journal)
+    form = forms.EditReviewAssignmentForm(instance=review, journal=request.journal)
 
     if request.POST:
-        form = forms.ReviewAssignmentForm(request.POST, instance=review, journal=request.journal)
+        form = forms.EditReviewAssignmentForm(request.POST, instance=review, journal=request.journal)
 
         if form.is_valid():
             form.save()
@@ -1437,8 +1456,8 @@ def review_decision(request, article_id, decision):
     )
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
-    if article.date_accepted or article.date_declined:
-        messages.add_message(request, messages.WARNING, 'This article has already been accepted or declined.')
+    if (article.date_accepted or article.date_declined) and decision != 'undecline':
+        messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1457,18 +1476,49 @@ def review_decision(request, article_id, decision):
         if decision == 'accept':
             article.accept_article()
             article.snapshot_authors(article, force_update=False)
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
+            try:
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_ACCEPTED,
+                    task_object=article,
+                    **kwargs
+                )
 
-            workflow_kwargs = {'handshake_url': 'review_home',
-                               'request': request,
-                               'article': article,
-                               'switch_stage': True}
-            return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
-                                                  **workflow_kwargs)
+                workflow_kwargs = {
+                    'handshake_url': 'review_home',
+                    'request': request,
+                    'article': article,
+                    'switch_stage': True
+                }
+
+                return event_logic.Events.raise_event(
+                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                    task_object=article,
+                    **workflow_kwargs
+                )
+
+            except:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f'An error occurred when processing {article.title}'
+                )
+                return redirect(reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk}
+                ))
+
         elif decision == 'decline':
             article.decline_article()
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
             return redirect(reverse('core_dashboard'))
+
+        elif decision == 'undecline':
+            article.undo_review_decision()
+            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_UNDECLINED, task_object=article, **kwargs)
+            if article.stage == submission_models.STAGE_UNASSIGNED:
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+            elif article.stage == submission_models.STAGE_ASSIGNED:
+                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
         messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
@@ -1579,7 +1629,7 @@ def request_revisions(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    form = forms.RevisionRequest()
+    form = forms.RevisionRequest(article=article, editor=request.user)
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
@@ -1593,13 +1643,10 @@ def request_revisions(request, article_id):
     )
 
     if request.POST:
-        form = forms.RevisionRequest(request.POST)
+        form = forms.RevisionRequest(request.POST, article=article, editor=request.user)
 
-        if form.is_valid():
-            revision_request = form.save(commit=False)
-            revision_request.editor = request.user
-            revision_request.article = article
-            revision_request.save()
+        if form.is_valid() and form.is_confirmed():
+            revision_request = form.save()
 
             article.stage = submission_models.STAGE_UNDER_REVISION
             article.save()
@@ -1788,15 +1835,15 @@ def do_revisions(request, article_id, revision_id):
                     }
                 )
             )
-        else:
 
+        else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
                 form.add_error(
                     None,
                     'Your article must have at least one manuscript file.',
                 )
-            if form.is_valid():
+            if form.is_valid() and form.is_confirmed():
                 form.save()
 
                 kwargs = {

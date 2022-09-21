@@ -41,16 +41,25 @@ class Command(BaseCommand):
                 'name': '{}_janeway_cron_job'.format(cwd),
                 'time': 30,
                 'task': 'execute_cron_tasks',
+                'type': 'mins',
             },
             {
                 'name': '{}_janeway_ithenticate_job'.format(cwd),
                 'time': 30,
                 'task': 'store_ithenticate_scores',
+                'type': 'mins',
             },
             {
                 'name': '{}_janeway_sitemaps_job'.format(cwd),
-                'time': 30,
+                'time': 4,
                 'task': 'generate_sitemaps',
+                'type': 'hourly',
+            },
+            {
+                'name': '{}_janeway_reader_notifications'.format(cwd),
+                'time': 23,
+                'task': 'send_publication_notifications',
+                'type': 'daily',
             },
         ]
 
@@ -60,6 +69,7 @@ class Command(BaseCommand):
                     'name': '{}_janeway_mailgun_job'.format(cwd),
                     'time': 60,
                     'task': 'check_mailgun_stat',
+                    'type': 'mins',
                 }
             )
 
@@ -74,7 +84,13 @@ class Command(BaseCommand):
                     command = '%s' % (django_command)
 
                 cron_job = tab.new(command, comment=job['name'])
-                cron_job.minute.every(job['time'])
+
+                if job.get('type') == 'daily':
+                    cron_job.setall('0 {} * * *'.format(job['time']))
+                elif job.get('type') == 'hourly':
+                    cron_job.setall('0 */{} * * *'.format(job['time']))
+                else:
+                    cron_job.minute.every(job['time'])
 
             else:
                 print("{name} cron job already exists.".format(name=job['name']))

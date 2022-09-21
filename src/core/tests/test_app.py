@@ -221,6 +221,86 @@ class CoreTests(TestCase):
                 "" % (email, login_email),
         )
 
+    @override_settings(URL_CONFIG="domain")
+    def test_create_user_form_mixed_case(self):
+        data = {
+            'email': 'test@test.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+        new_email = "TeSt@test.com"
+
+        self.client.force_login(self.admin_user)
+        response_1 = self.client.post(reverse('core_add_user'), data)
+        response_2 = self.client.post(
+            reverse('core_add_user'),
+            dict(data, email=new_email),
+        )
+
+        try:
+            models.Account.objects.get(email='test@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('User account has not been saved.')
+
+        self.assertEqual(response_2.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_register_as_reader(self):
+
+        data = {
+            'email': 'reader@janeway.systems',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+            'register_as_reader': True,
+        }
+
+        response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
+        user = models.Account.objects.get(username='reader@janeway.systems')
+        role_check = user.check_role(
+            self.journal_one,
+            'reader',
+        )
+        self.assertTrue(role_check)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_register_without_reader(self):
+
+        data = {
+            'email': 'reader@janeway.systems',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+            'register_as_reader': False,
+        }
+
+        response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
+        user = models.Account.objects.get(username='reader@janeway.systems')
+        role_check = user.check_role(
+            self.journal_one,
+            'reader',
+        )
+        self.assertFalse(role_check)
+
     def test_email_subjects(self):
         email_settings= models.Setting.objects.filter(
             group__name="email",
@@ -264,7 +344,5 @@ class CoreTests(TestCase):
         self.admin_user.is_active = True
         self.admin_user.save()
 
-        self.journal_one.name = 'Journal One'
-        self.journal_two.name = 'Journal Two'
         call_command('install_plugins')
         call_command('load_default_settings')

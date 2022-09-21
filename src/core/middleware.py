@@ -97,7 +97,7 @@ class SiteSettingsMiddleware(object):
             logger.set_prefix(journal.code)
             request.journal = journal
             request.journal_cover = journal.override_cover(request)
-            request.site_type = journal
+            request.site_type = request.site_object = journal
             request.model_content_type = ContentType.objects.get_for_model(
                     journal)
             request.repository = None
@@ -106,7 +106,7 @@ class SiteSettingsMiddleware(object):
             logger.set_prefix(repository.short_name)
             request.repository = repository
             request.journal = None
-            request.site_type = repository
+            request.site_type = request.site_object = repository
             request.model_content_type = ContentType.objects.get_for_model(
                 repository,
             )
@@ -115,7 +115,7 @@ class SiteSettingsMiddleware(object):
             logger.set_prefix("press")
             request.journal = None
             request.repository = None
-            request.site_type = press
+            request.site_type = request.site_object = press
             request.model_content_type = ContentType.objects.get_for_model(press)
             request.press_base_url = press.site_url()
         else:
@@ -131,8 +131,8 @@ class SiteSettingsMiddleware(object):
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
             if (
-                    request.site_type
-                    and request.site_type.is_secure
+                    request.site_object
+                    and request.site_object.is_secure
                     and not settings.DEBUG
             ):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))

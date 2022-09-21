@@ -7,6 +7,7 @@ from core import models as core_models, workflow
 from utils import transactional_emails, workflow_tasks
 from events import logic as event_logic
 from journal import logic as journal_logic
+from identifiers import logic as id_logic
 
 # wire up event notifications
 
@@ -33,6 +34,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_DECLINED,
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_COMPLETE,
                                       transactional_emails.send_review_complete_acknowledgements)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_DECLINED,
+                                      transactional_emails.send_article_decision)
+event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNDECLINED,
                                       transactional_emails.send_article_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       transactional_emails.send_article_decision)
@@ -64,6 +67,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVI
                                       transactional_emails.send_copyedit_author_review)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE,
                                       transactional_emails.send_author_copyedit_complete)
+event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
+                                      transactional_emails.send_author_copyedit_deleted)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_ASSIGNMENT_COMPLETE,
                                       transactional_emails.send_copyedit_complete)
 event_logic.Events.register_for_event(event_logic.Events.ON_COPYEDIT_REOPEN,
@@ -177,3 +182,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COM
 # N.B. this is critical to the operation of the task framework. It automatically tears down tasks that have registered
 # for event listeners
 event_logic.Events.register_for_event('destroy_tasks', core_models.Task.destroyer)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
+    id_logic.on_article_assign_to_issue,
+)

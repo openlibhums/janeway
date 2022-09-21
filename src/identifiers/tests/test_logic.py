@@ -1,8 +1,18 @@
+import datetime
+from io import BytesIO, StringIO
+import json
+import mock
+import pytz
+import os
+
+
 from django.test import TestCase
 from django.conf import settings
+from django.utils import timezone
 
 from identifiers import logic, models
 from core.models import SettingGroup
+from journal import logic as journal_logic
 from submission import models as submission_models
 from utils.testing import helpers
 from utils.setting_handler import save_setting
@@ -10,10 +20,6 @@ from utils.shared import clear_cache
 from lxml import etree
 from bs4 import BeautifulSoup
 import requests
-from io import BytesIO, StringIO
-import os
-import json
-
 class TestLogic(TestCase):
 
     @classmethod
@@ -43,6 +49,11 @@ class TestLogic(TestCase):
         cls.issue_five_three = helpers.create_issue(cls.journal_one, vol=5, number=3)
 
         cls.article_one = helpers.create_article(cls.journal_one, with_author=True)
+        cls.article_published = helpers.create_article(cls.journal_one, with_author=True)
+        cls.article_published.stage = submission_models.STAGE_PUBLISHED
+        cls.article_published.date_published = timezone.now()
+        cls.article_published.save()
+
         cls.doi_one = logic.generate_crossref_doi_with_pattern(cls.article_one)
         cls.issue_five_three.articles.add(cls.article_one)
         cls.article_one.primary_issue = cls.issue_five_three
@@ -215,7 +226,30 @@ class TestLogic(TestCase):
         self.assertEqual(expected_data, context)
 
 
-    def test_create_crossref_article_context(self):
+    def test_create_crossref_article_context_published(self):
+        self.maxDiff = None
+        expected_data = {
+            'title': self.article_published.title,
+            'abstract': '',
+            'url': self.article_published.url,
+            'authors': [
+                author.email for author in self.article_published.frozenauthor_set.all()
+            ],
+            'citation_list': None,
+            'date_accepted': None,
+            'date_published': self.article_published.date_published,
+            'doi': f'10.0000/TST.{self.article_published.id}',
+            'id': self.article_published.id,
+            'license': '',
+            'pages': self.article_published.page_numbers,
+            'scheduled': True,
+        }
+
+        context = logic.create_crossref_article_context(self.article_published)
+        context['authors'] = [author.email for author in context['authors']]
+        self.assertEqual(expected_data, context)
+
+    def test_create_crossref_article_context_not_published(self):
         expected_data = {
             'title': self.article_one.title,
             'abstract': self.article_one.abstract,
@@ -227,10 +261,12 @@ class TestLogic(TestCase):
             'date_accepted': None,
             'date_published': None,
             'doi': self.doi_one.identifier,
+            'id': self.article_one.id,
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
-            'pages': self.article_one.page_numbers
+            'pages': self.article_one.page_numbers,
+            'scheduled': False,
         }
 
         context = logic.create_crossref_article_context(self.article_one)
@@ -318,3 +354,86 @@ class TestLogic(TestCase):
         self.assertEqual(1, len(soup.find_all('event_metadata')))
         # There should be two conference papers (articles)
         self.assertEqual(2, len(soup.find_all('conference_paper')))
+
+    def test_issue_doi_deposited_correctly(self):
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        issue = self.article_one.issue
+        issue.doi = issue_doi = "10.0001/issue"
+        issue.save()
+        identifier = self.article_one.get_doi_object
+        clear_cache()
+
+        template_context = logic.create_crossref_doi_batch_context(
+            self.article_one.journal,
+            {identifier},
+        )
+        deposit = logic.render_to_string(template, template_context)
+
+        soup = BeautifulSoup(deposit, 'lxml')
+        # There should be one doi_batch
+        issue_soup = soup.find('journal_issue')
+        found = False
+        if issue_soup:
+            issue_doi_soup = issue_soup.find("doi_data")
+            if issue_doi_soup:
+                self.assertEqual(issue_doi_soup.find("doi").string, issue_doi)
+                self.assertEqual(issue_doi_soup.find("resource").string, issue.url)
+                found = True
+        if not found:
+            raise AssertionError("No Issue DOI found on article deposit")
+
+    def test_journal_doi_deposited_correctly(self):
+        template = 'common/identifiers/crossref_doi_batch.xml'
+        issue = self.article_one.issue
+        journal_doi = "10.0001/journal"
+        save_setting('Identifiers', 'title_doi', issue.journal, journal_doi)
+        identifier = self.article_one.get_doi_object
+        clear_cache()
+
+        template_context = logic.create_crossref_doi_batch_context(
+            self.article_one.journal,
+            {identifier},
+        )
+        deposit = logic.render_to_string(template, template_context)
+
+        soup = BeautifulSoup(deposit, 'lxml')
+        # There should be one doi_batch
+        journal_soup = soup.find('journal_metadata')
+        found = False
+        if journal_soup:
+            doi_soup = journal_soup.find("doi_data")
+            if doi_soup:
+                self.assertEqual(doi_soup.find("doi").string, journal_doi)
+                self.assertEqual(
+                    doi_soup.find("resource").string, issue.journal.site_url())
+                found = True
+        if not found:
+            raise AssertionError("No Issue DOI found on article deposit")
+
+    def test_issue_doi_auto_assigned(self):
+        issue = helpers.create_issue(self.journal_one, vol=99, number=99)
+        self.request.POST = {"assign_issue": issue.pk}
+        mock_messages = mock.patch('journal.logic.messages').start()
+        mock_messages.messages = mock.MagicMock()
+        save_setting('Identifiers', 'register_issue_dois', self.journal_one, '')
+        from events import registration # Forces events to load into memory
+        journal_logic.handle_assign_issue(self.request, self.article_one, issue)
+        issue.refresh_from_db()
+        self.assertTrue(issue.doi)
+
+    def test_check_crossref_settings(self):
+
+        # Missing settings
+        save_setting('Identifiers', 'crossref_prefix', self.journal_one, '')
+        save_setting('Identifiers', 'crossref_username', self.journal_one, '')
+        save_setting('Identifiers', 'crossref_password', self.journal_one, '')
+
+        use_crossref, test_mode, missing_settings = logic.check_crossref_settings(
+            self.journal_one
+        )
+
+        # Put need missing setting back
+        save_setting('Identifiers', 'crossref_prefix', self.journal_one, '10.0000')
+
+        self.assertEqual(use_crossref, True)
+        self.assertEqual(missing_settings, ['crossref_prefix', 'crossref_username', 'crossref_password'])

@@ -28,6 +28,7 @@
     <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.from_address %}
     {% include "admin/elements/forms/field.html" with field=edit_form.auto_signature %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.replyto_address%}
 </div>
 
 <div class="title-area">
@@ -78,6 +79,10 @@
     <p>If you want to display a special message on the login page you can add it here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_login_page_notice %}
     {% include "admin/elements/forms/field.html" with field=edit_form.login_page_notice %}
+
+    <p>If you want to display a special message on the registration page you can add it here.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_register_page_notice %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.register_page_notice %}
 </div>
 
 

@@ -7,6 +7,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from importlib import import_module
 import json
 import pytz
+import time
+import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -33,7 +35,10 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
-from security.decorators import editor_user_required, article_author_required, has_journal
+from security.decorators import (
+    editor_user_required, article_author_required, has_journal,
+    any_editor_user_required,
+)
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -277,10 +282,15 @@ def register(request):
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
 
-    form = forms.RegistrationForm()
+    form = forms.RegistrationForm(
+        journal=request.journal,
+    )
 
     if request.POST:
-        form = forms.RegistrationForm(request.POST)
+        form = forms.RegistrationForm(
+            request.POST,
+            journal=request.journal,
+        )
 
         password_policy_check = logic.password_policy_check(request)
 
@@ -410,6 +420,28 @@ def edit_profile(request):
 
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+
+        elif 'subscribe' in request.POST and request.journal:
+            request.user.add_account_role(
+                'reader',
+                request.journal,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully subscribed to article notifications.',
+            )
+
+        elif 'unsubscribe' in request.POST and request.journal:
+            request.user.remove_account_role(
+                'reader',
+                request.journal
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully unsubscribed from article notifications.',
+            )
 
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -555,9 +587,17 @@ def dashboard(request):
             accepted__isnull=False,
             completed__isnull=False,
             typesetter=request.user).count(),
-        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
-                                                                       journal=request.journal).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
+        'active_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal
+        ).exclude(
+            stage__in=[submission_models.STAGE_UNSUBMITTED, submission_models.STAGE_PUBLISHED],
+        ).order_by('-date_submitted'),
+        'published_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+        ).order_by('-date_published'),
         'progress_submissions': submission_models.Article.objects.filter(
             journal=request.journal,
             owner=request.user,
@@ -570,14 +610,25 @@ def dashboard(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submissions(request):
     template = 'core/active_submissions.html'
-    context = {
-        'active_submissions': submission_models.Article.objects.exclude(
+
+    active_submissions = submission_models.Article.objects.exclude(
             stage=submission_models.STAGE_PUBLISHED).exclude(
             stage=submission_models.STAGE_REJECTED).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
+            stage=submission_models.STAGE_UNSUBMITTED).filter(
+            journal=request.journal
+        ).order_by('pk', 'title')
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        active_submissions = logic.filter_articles_to_editor_assigned(
+            request,
+            active_submissions
+        )
+
+    context = {
+        'active_submissions': active_submissions,
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
         'workflow_element_url': request.GET.get('workflow_element_url', False)
@@ -587,7 +638,7 @@ def active_submissions(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submission_filter(request):
     articles = logic.build_submission_list(request)
     html = ''
@@ -918,7 +969,7 @@ def roles(request):
     """
     template = 'core/manager/roles/roles.html'
 
-    roles = models.Role.objects.all()
+    roles = models.Role.objects.all().exclude(slug='reader')
     for role in roles:
         role.user_count = request.journal.users_with_role_count(role.slug)
 
@@ -1184,11 +1235,12 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.all().order_by(('name')),
+        'roles': models.Role.objects.order_by(('name')),
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
-        'return': request.GET.get('return')
+        'return': request.GET.get('return'),
+        'reader': models.Role.objects.get(slug='reader'),
     }
     return render(request, template, context)
 
@@ -2168,6 +2220,9 @@ class FilteredArticlesListView(generic.ListView):
     paginate_by = '25'
     facets = {}
 
+    # None or integer
+    action_queryset_chunk_size = None
+
     def get_paginate_by(self, queryset):
         paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
         if paginate_by == 'all':
@@ -2205,6 +2260,11 @@ class FilteredArticlesListView(generic.ListView):
         params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
         context['version'] = get_janeway_version()
+        context['action_maximum_size'] = setting_handler.get_setting(
+            'Identifiers',
+            'doi_manager_action_maximum_size',
+            self.request.journal if self.request.journal else None,
+        ).processed_value
         return context
 
     def get_queryset(self, params_querydict=None):
@@ -2221,6 +2281,8 @@ class FilteredArticlesListView(generic.ListView):
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
+            # The following line prevents the user from passing any parameters
+            # other than those specified in the facets.
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
@@ -2257,38 +2319,46 @@ class FilteredArticlesListView(generic.ListView):
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
-            self.model.objects.all()
+            super().get_queryset()
         ).exclude(
             stage=submission_models.STAGE_UNSUBMITTED
         )
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
-        return queryset
+        return queryset.order_by()
 
     def get_actions(self):
         return []
 
     def post(self, request, *args, **kwargs):
 
-        action_status = ''
-        action_error = False
         params_string = request.POST.get('params_string')
         params_querydict = QueryDict(params_string, mutable=True)
-        actions = self.get_actions()
-        queryset = self.get_queryset(params_querydict=params_querydict)
-        if request.journal:
-            querysets = [queryset]
-        else:
-            querysets = []
-            for journal in {article.journal for article in queryset}:
-                querysets.append(queryset.filter(journal=journal))
 
+        actions = self.get_actions()
         if actions:
+            start = time.time()
+
+            action_status = ''
+            action_error = False
+
+            querysets = []
+            queryset = self.get_queryset(params_querydict=params_querydict)
+
+            if request.journal:
+                querysets.extend(self.split_up_queryset_if_needed(queryset))
+            else:
+                for journal in journal_models.Journal.objects.all():
+                    journal_queryset = queryset.filter(journal=journal)
+                    if journal_queryset:
+                        querysets.extend(self.split_up_queryset_if_needed(journal_queryset))
+
             for action in actions:
+                kwargs = {'start': start}
                 if action.get('name') in request.POST:
                     for queryset in querysets:
-                        action_status, action_error = action.get('action')(queryset)
+                        action_status, action_error = action.get('action')(queryset, **kwargs)
                         messages.add_message(
                             request,
                             messages.INFO if not action_error else messages.ERROR,
@@ -2299,6 +2369,14 @@ class FilteredArticlesListView(generic.ListView):
             return redirect(f'{request.path}?{params_string}')
         else:
             return redirect(request.path)
+
+    def split_up_queryset_if_needed(self, queryset):
+        if self.action_queryset_chunk_size:
+            n = self.action_queryset_chunk_size
+            querysets = [queryset[i:i + n] for i in range(0, queryset.count(), n)]
+            return querysets
+        else:
+            return [queryset]
 
 
     def filter_queryset_if_journal(self, queryset):

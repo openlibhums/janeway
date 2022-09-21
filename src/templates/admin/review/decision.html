@@ -22,7 +22,11 @@
                 {% if decision == 'accept' %}
                     {% if article.journal.use_crossref %}
                         <div class="bs-callout">
-                        <p>This journal is set to use Crossref for DOI registration. Article metadata is sent upon acceptance and resent upon publication.</p>
+                        <p>
+                            This journal is set to use Crossref for DOI registration.
+                            A DOI will be minted now, without registering any metadata. Author and article metadata will
+                            be fully registered once this article is set for publication.
+                        </p>
                         </div>
                     {% else %}
                         <div class="bs-callout bs-callout-danger">
@@ -61,11 +65,11 @@
                         </div>
                         <div class="card-divider">
                             <div class="button-group">
-                                <button name="delete" type="submit"
+                                <button name="action" type="submit"
                                         class="button {% if decision == 'decline' %}alert{% else %}success {% endif %}">{{ decision|capfirst }}
                                     Article
                                 </button>
-                                <button name="skip" type="submit" class="button warning">Skip</button>
+                                <button name="skip" type="submit" class="button warning">{{ decision|capfirst }} & Skip Notification</button>
                                 <a href="{% url 'review_in_review' article.pk %}"
                                    class="button {% if decision == 'accept' %}alert{% else %}success {% endif %}" type="submit">Cancel</a>
                             </div>

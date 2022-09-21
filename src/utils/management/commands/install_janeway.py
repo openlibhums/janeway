@@ -72,7 +72,7 @@ class Command(BaseCommand):
                     press.main_contact = input('Press main contact (email): ')
                 press.save()
 
-            print("Thanks! We will now set up out first journal.\n")
+            print("Thanks! We will now set up our first journal.\n")
             print("Installing settings and XSL fixtures... ", end="")
             update_xsl_files()
             update_settings()
