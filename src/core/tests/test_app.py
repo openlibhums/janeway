@@ -15,6 +15,7 @@ from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
 from utils import setting_handler, install
+from utils.shared import clear_cache
 from core import models
 from review import models as review_models
 
@@ -252,6 +253,8 @@ class CoreTests(TestCase):
         # Make sure there aren't any review assignments
         # for author consumption as that would corrupt
         # this test.
+        clear_script_prefix()
+        clear_cache()
         review_models.ReviewAssignment.objects.filter(
             article=self.article_one,
         ).update(
@@ -278,6 +281,8 @@ class CoreTests(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_peer_reviews_for_author_consumption_overrides_hide_review_data(self):
+        clear_script_prefix()
+        clear_cache()
         review_models.ReviewAssignment.objects.filter(
             article=self.article_one,
         ).update(
@@ -304,6 +309,8 @@ class CoreTests(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_enable_peer_review_data_block(self):
+        clear_script_prefix()
+        clear_cache()
         # Test will fail without a review assignment available
         review_models.ReviewAssignment.objects.filter(
             article=self.article_one,
