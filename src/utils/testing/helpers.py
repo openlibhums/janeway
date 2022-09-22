@@ -210,6 +210,7 @@ def create_article(journal, **kwargs):
         article.save()
     return article
 
+
 def create_galley(article, file_obj=None):
     galley = core_models.Galley.objects.create(
         article_id=article.pk,

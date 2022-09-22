@@ -417,7 +417,11 @@ def article(request, identifier_type, identifier):
     :param identifier: the identifier
     :return: a rendered template of the article
     """
-    article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
 
     content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
@@ -1634,7 +1638,10 @@ def manage_archive(request):
     )
     rejected_articles = submission_models.Article.objects.filter(
         journal=request.journal,
-        stage=submission_models.STAGE_REJECTED
+        stage__in=[
+            submission_models.STAGE_REJECTED,
+            submission_models.STAGE_ARCHIVED,
+        ],
     ).order_by(
         '-date_declined'
     )

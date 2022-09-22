@@ -653,7 +653,7 @@ def typesetter_requests(request, typeset_id=None, decision=None):
     """
     if typeset_id and decision:
         typeset_task = get_object_or_404(
-            models.TypesetTask,
+            models.TypesetTask.active_objects,
             pk=typeset_id,
             typesetter=request.user,
             assignment__article__journal=request.journal,
@@ -671,20 +671,26 @@ def typesetter_requests(request, typeset_id=None, decision=None):
         event_logic.Events.raise_event(event_logic.Events.ON_TYPESETTER_DECISION, **kwargs)
         return redirect(reverse('typesetter_requests'))
 
-    typeset_tasks = models.TypesetTask.objects.filter(accepted__isnull=True,
-                                                      completed__isnull=True,
-                                                      typesetter=request.user,
-                                                      assignment__article__journal=request.journal)
+    typeset_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=True,
+        completed__isnull=True,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
-    in_progress_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
-                                                          completed__isnull=True,
-                                                          typesetter=request.user,
-                                                          assignment__article__journal=request.journal)
+    in_progress_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=False,
+        completed__isnull=True,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
-    completed_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
-                                                        completed__isnull=False,
-                                                        typesetter=request.user,
-                                                        assignment__article__journal=request.journal)
+    completed_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=False,
+        completed__isnull=False,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
     template = 'production/typesetter_requests.html'
     context = {
@@ -705,7 +711,7 @@ def do_typeset_task(request, typeset_id):
     :return: HttpResponse or HttpRedirect
     """
     typeset_task = get_object_or_404(
-        models.TypesetTask,
+        models.TypesetTask.active_objects,
         pk=typeset_id,
         accepted__isnull=False,
         completed__isnull=True,
