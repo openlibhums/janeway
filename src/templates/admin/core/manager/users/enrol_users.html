@@ -76,7 +76,6 @@
                 "url": '{% url 'accountrole-list' %}',
                 "data": data,
                 "success": function (response) {
-                    console.log(response)
                     $(button_name).remove();
                     if ($(roles_td).html() === "User has no roles on this journal.") {
                         $(roles_td).html();
@@ -121,7 +120,10 @@
                         value: $(button_name).attr("value"),
                         onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
                     }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)
-                    $(roles_holder).append(add_button);
+                    console.log($(button_name))
+                    if ($(button_name).attr("value") != 'Reader') {
+                        $(roles_holder).append(add_button);
+                    }
                     toastr.warning(`User has had a role revoked: ${old_text}`)
                 },
                 "error": function (xhr, status, error) {

@@ -28,7 +28,7 @@ def create_setting(
         default_value=None,
 ):
     # If the setting is translatable use current lang, else use the default.
-    lang = translation.get_language() if not is_translatable else settings.LANGUAGE_CODE
+    lang = translation.get_language() if is_translatable else settings.LANGUAGE_CODE
 
     with translation.override(lang):
         group, c = core_models.SettingGroup.objects.get_or_create(
@@ -95,7 +95,7 @@ def get_setting(
         name=setting_name,
         group__name=setting_group_name,
     )
-    lang = translation.get_language() if not setting.is_translatable else settings.LANGUAGE_CODE
+    lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
     with translation.override(lang):
         try:
@@ -225,8 +225,7 @@ def get_email_subject_setting(
 ):
     try:
         setting = core_models.Setting.objects.get(name=setting_name)
-        lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
-        return get_setting(setting_group, setting, journal, lang, default=True).value
+        return get_setting(setting_group, setting, journal, create=False, default=True).value
     except (core_models.Setting.DoesNotExist, AttributeError):
         return setting_name
 

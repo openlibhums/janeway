@@ -9,8 +9,8 @@
         <th>First Name</th>
         <th>Last Name</th>
         <th>Account Active</th>
-        {% if settings.DEBUG %}
-            <th>Hijack</th>{% endif %}
+        {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
+            <th>Control User</th>{% endif %}
     </tr>
     </thead>
     <tr>
@@ -18,13 +18,17 @@
         <td>{{ user.first_name }}</td>
         <td>{{ user.last_name }}</td>
         <td>{% if user.is_active %}Yes{% else %}No{% endif %}</td>
-        {% if settings.DEBUG %}
+        {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
             <td>
-                <button type="submit" class="tiny button"
-                        formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
-                    Hijack User
-                </button>
-           </td>{% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="tiny button"
+                            formaction="{% url 'hijack:login_with_id' user.id %}?next={% url 'core_dashboard' %}">
+                        Control User
+                    </button>
+                </form>
+            </td>
+        {% endif %}
     </tr>
     <tr>
         <th colspan="{% if settings.DEBUG %}5{% else %}4{% endif %}">Current Roles</th>

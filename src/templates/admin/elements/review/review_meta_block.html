@@ -11,6 +11,8 @@
     {% endif %}
 </ul>
 
+<p><strong>Due Date</strong></p>
+<p>{{ review_request.date_due|date:"Y-m-d" }}</p>
 
 <p><strong>Abstract</strong></p>
 {{ review_request.article.abstract|safe }}

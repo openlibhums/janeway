@@ -1,0 +1,4 @@
+<header>
+  <identifier>oai:{{ article.repository.short_name }}:id:{{ article.pk }}</identifier>
+  <datestamp>{% if article.date_updated %}{{article.date_updated|date:"Y-m-d\TH:i:s\Z"}}{% else %}{{article.date_published|date:"Y-m-d\TH:i:s\Z"}}{% endif %}</datestamp>
+</header>

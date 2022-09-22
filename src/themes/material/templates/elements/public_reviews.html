@@ -1,0 +1,21 @@
+{% if journal_settings.general.open_peer_review %}
+    {% for review in article.public_reviews %}
+        <div class="modal" id="reviewmodal-{{ review.pk }}">
+        <div class="modal-content">
+            <h4><i class="fa fa-pencil">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}</h4>
+            {% for answer in review.review_form_answers %}
+                {% if answer.author_can_see %}
+                    <p class="{{ answer.element.width }}">
+                        <b>{{ answer.element.name }}</b>
+                        <br/>
+                        {{ answer.answer|linebreaksbr }}
+                        <br/><br/>
+                    </p>
+                {% endif %}
+            {% endfor %}
+
+            <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer review and
+                may pertain to an earlier version of the document.</p>
+        </div>
+    {% endfor %}
+{% endif %}

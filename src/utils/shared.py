@@ -132,3 +132,11 @@ def language_override_redirect(request, url_name, kwargs, query_strings=None):
         query_strings,
     )
     return redirect(reverse_string)
+
+
+def join_lists(*lists):
+    new_list = []
+    for l in lists:
+        if l:
+            new_list = new_list + list(l)
+    return new_list

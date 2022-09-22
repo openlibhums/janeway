@@ -21,16 +21,31 @@ Under review settings we can control how peer review operates for the given jour
     - If enabled a special access token is appended to the reviewer link in the assignment email, this link allows the reviewer to view the review without logging into the system. Once the review is complete the token is deleted so it cannot be reused. Tokens are UUID4s which are unique. 
 - Draft Decisions
     - If enabled, section editors will not be able to accept papers, instead they can make recommendations to senior editors who can then accept papers.
+- Enable open peer review
+    - Turns on the open peer review feature (see below).
 - Default Review Form
     - The default review form that will be automatically selected when assigning a reviewer.
 - Reviewer Form Download
     - If enabled this allows the Reviewer to download a copy of the review form in DOCX format to complete offline and then upload.
 - Enable save review progress
     - If enabled, reviewers will be able to save the progress in a peer-review assignment and come back later to complete it later (Only recommended for journals using custom review forms that are particularly long)
-- Enable Peer Review Data Block
-    - When this setting is enabled authors will have access to view more information about the reviews for their article (requested, due, and complete dates). If it is left off they will only have access to the review comments.
 - Accept Article Warning
     - This is a block of text displayed to the editor before they accept an article, prompting initial DOI and metadata registration with Crossref if the journal or press is set to use Crossref. You can use the setting to provide a readout of current metadata so the editor can do a quick check of what will be sent to Crossref. To show registration information, populate the setting with ``{{ article.registration_preview|safe }}``
+- Enable expanded review details
+    - When this setting is enabled, the editor's review dashboard will show all active reviews. Otherwise it will show just a count of completed reviews.
+
+Displaying Review Data to Authors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Janeway has various controls for how review data is displayed to authors. These settings are:
+
+- Hide Review Data from Authors Before Release
+    - When this setting is enabled, authors will see no information about active peer reviews until the editor makes them available. Otherwise they will see a list of review assignments.
+- Enable Peer Review Data on Author Page
+    - When this setting is enabled, authors will have access to more information about the reviews for their article (requested, due, and complete dates) on the article page. If it is left off, they will only have access to the review comments.
+- Enable Peer Review Data on Review Pages
+    - When this setting is enabled, authors will have access to more information about their reviews on the review page.
+
+The settings "Enable Peer Review Data on Author Page" and "Enable Peer Review Data on Review Pages" do similar things but on different pages. "Enable Peer Review on Author Page" is used on the author's article page, which they have access to from the point of submission. "Enable Peer Review Data on Review Pages" is used on the review page, which authors only get access to after an editor grants the author access. Both are off by default.
 
 Review Forms
 ------------
@@ -81,3 +96,37 @@ As you go along you can use the Preview Form button to see what the form will lo
 .. figure:: ../../nstatic/review-forms-preview.png
 
     Review Form preview
+
+Open Peer Review
+----------------
+
+This feature allows peer reviews to be made public with the consent of the reviewer, and when chosen for public display by the editor. By default, this feature is off and peer reviews will remain confidential.
+
+.. note:: Open peer review only shows text that is typed into the peer review assignment box, not uploaded files. This is for accessibility and display purposes. Accordingly, if you enable open peer review, we recommend encouraging reviewers to use the text box rather than uploading files.
+
+When the setting is enabled, reviewers are asked for their permission to make the review public.
+
+.. figure:: ../../nstatic/review-form-open-peer-review.png
+
+    Reviewers are asked for permission to make reviews public
+
+Then, during prepublication, the editor can choose which of the consented reviews (if there are any) to make open.
+
+.. figure:: ../../nstatic/prepublication-open-peer-review.png
+
+    Editor selects peer reviews to display
+
+.. figure:: ../../nstatic/reviews-that-can-be-displayed.png
+
+    Reviews that can be displayed
+
+If a peer review has been approved for public display by both the author and the editor, readers will be able to open a pane to view the peer review text.
+
+.. figure:: ../../nstatic/open-peer-review-metadata.png
+
+    Button to open peer review
+
+.. figure:: ../../nstatic/open-peer-review-pane.png
+
+    Open peer review pane
+

@@ -721,3 +721,7 @@ ul.menu {
     overflow-y: auto;
     margin-bottom: 20px;
 }
+
+.bg-white {
+    background-color: white;
+}

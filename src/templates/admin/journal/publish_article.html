@@ -67,6 +67,24 @@
         </div>
     </div>
 
+    {% if journal_settings.general.open_peer_review %}
+        <div id="select_open_reviewsbox" class="box {% if article.fixedpubcheckitems.select_open_reviews %}success{% else %}warning{% endif %} checklist">
+            <div class="row">
+                <div class="large-3 columns">
+                    <i class="fa fa-pencil pub-icon">&nbsp;</i>
+                </div>
+                <div class="large-9 columns">
+                    <h2>Select open peer reviews to display</h2>
+                    <p>Where we have permission, this journal will display peer reviews alongside the article. Please select from those reviews for which we have consent.</p>
+                    <div class="button-group">
+                        <input onclick="submit_check_item('fixed', 'select_open_reviews', this)" type="checkbox" id="select_open_reviews" {% if article.fixedpubcheckitems.select_open_reviews %}checked="checked"{% endif %}><label class="toggle" for="select_open_reviews">{% if article.fixedpubcheckitems.select_open_reviews %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                        <a href="#" data-open="reviewsmodal" class="button small success pub-button">Select reviews to display</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div id="select_render_galleybox" class="box {% if article.fixedpubcheckitems.select_render_galley %}success{% else %}warning{% endif %} checklist">
         <div class="row">
             <div class="large-3 columns">
@@ -76,7 +94,7 @@
                 <h2>Select a Galley for Rendering</h2>
                 <p>If you have HTML or XML galleys, you can select which one will render by default.</p>
                 <div class="button-group">
-                    <input onclick="submit_check_item('fixed', 'verify_doi', this)" type="checkbox" id="select_render_galley" {% if article.fixedpubcheckitems.select_render_galley %}checked="checked"{% endif %}><label class="toggle" for="select_render_galley">{% if article.fixedpubcheckitems.select_render_galley %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <input onclick="submit_check_item('fixed', 'select_render_galley', this)" type="checkbox" id="select_render_galley" {% if article.fixedpubcheckitems.select_render_galley %}checked="checked"{% endif %}><label class="toggle" for="select_render_galley">{% if article.fixedpubcheckitems.select_render_galley %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
                     <a href="#" data-open="galley" class="button small success pub-button">Select Galley</a>
                 </div>
             </div>
@@ -195,6 +213,7 @@
 {% include "elements/publish/author.html" %}
 {% include "elements/publish/galley.html" %}
 {% include "elements/publish/images.html" %}
+{% include "elements/publish/open_reviews.html" %}
 
 {% endblock body %}
 

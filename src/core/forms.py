@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
+from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -115,11 +116,23 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    register_as_reader = forms.BooleanField(
+        label='Register for Article Notifications',
+        help_text='Check this box if you would like to receive notifications of new articles published in this journal',
+        required=False,
+    )
 
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
                   'last_name', 'department', 'institution', 'country',)
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+
+        if not self.journal:
+            self.fields.pop('register_as_reader')
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -141,6 +154,11 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
         if commit:
             user.save()
+            if self.cleaned_data.get('register_as_reader') and self.journal:
+                user.add_account_role(
+                    role_slug="reader",
+                    journal=self.journal,
+                )
 
         return user
 
@@ -357,7 +375,7 @@ class JournalArticleForm(forms.ModelForm):
         fields = (
             'view_pdf_button',
             'disable_metrics_display',
-            'disable_article_images',
+            'disable_html_downloads',
         )
 
 
@@ -619,7 +637,45 @@ class CBVFacetForm(forms.Form):
 
         return queryset
 
+
+class EmailForm(forms.Form):
+    cc = forms.CharField(
+        required=False,
+        max_length=1000,
+        help_text='Separate email addresses with ;',
+    )
+    subject = forms.CharField(max_length=1000)
+    body = forms.CharField(widget=SummernoteWidget)
+
+    def clean_cc(self):
+        cc = self.cleaned_data['cc']
+        if not cc or cc == '':
+            return []
+
+        cc_list = [x.strip() for x in cc.split(';') if x]
+        for address in cc_list:
+            try:
+                validate_email(address)
+            except ValidationError:
+                self.add_error('cc', 'Invalid email address ({}).'.format(address))
+
+        return cc_list
+
+
 class ConfirmableForm(forms.Form):
+    """
+    Adds a modal at form submission asking
+    the user a question and showing them
+    potential problems with how they
+    completed the form. Different from
+    validation because potential errors
+    are more nuanced than invalid data.
+
+    The modal always appears on submission,
+    even if there are no potential errors.
+    For a version where the modal only appears
+    if there are errrors, see ConfirmableIfErrorsForm.
+    """
 
     CONFIRMABLE_BUTTON_NAME = 'confirmable'
     CONFIRMED_BUTTON_NAME = 'confirmed'
@@ -647,6 +703,32 @@ class ConfirmableForm(forms.Form):
     def check_for_potential_errors(self):
         return []
 
+    def check_for_inactive_account(self, account):
+        if not isinstance(account, models.Account):
+            account = models.Account.objects.get(id=account)
+        if not account.is_active:
+            return _('The account belonging to %(email)s has not yet been activated, ' \
+                     'so the recipient of this assignment may not be able ' \
+                     'to log in and view it.') % {'email': account.email}
+
     def is_confirmed(self):
         return self.CONFIRMED_BUTTON_NAME in self.data
 
+
+class ConfirmableIfErrorsForm(ConfirmableForm):
+    """
+    A variant of ConfirmableForm
+    that only shows the modal if
+    there are potential errors.
+    Otherwise it submits the form.
+    """
+
+    def create_modal(self):
+        if self.check_for_potential_errors():
+            super().create_modal()
+
+    def is_confirmed(self):
+        if self.check_for_potential_errors():
+            return super().is_confirmed()
+        else:
+            return True

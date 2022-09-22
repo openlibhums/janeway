@@ -10,8 +10,8 @@
             <p>{{ modal.question }}</p>
             {% if modal.potential_errors %}
                 {% for error in modal.potential_errors %}
-                    <div class="callout warning">
-                        <p>{{ error }}</p>
+                    <div class="callout bs-callout-warning">
+                        <p><span class="fa fa-warning">&nbsp;</span>{{ error }}</p>
                     </div>
                 {% endfor %}
             {% endif %}

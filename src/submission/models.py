@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import uuid
 import os
 from dateutil import parser as dateparser
+from itertools import chain
 
 from django.urls import reverse
 from django.db import connection, models
@@ -21,6 +22,7 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
@@ -36,6 +38,7 @@ from core.model_utils import(
 )
 from core import workflow, model_utils, files
 from identifiers import logic as id_logic
+from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
 from review import models as review_models
@@ -224,6 +227,7 @@ STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+STAGE_ARCHIVED = 'Archived'
 
 NEW_ARTICLE_STAGES = {
     STAGE_UNSUBMITTED,
@@ -234,12 +238,14 @@ FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
     STAGE_PUBLISHED,
     STAGE_REJECTED,
+    STAGE_ARCHIVED,
 }
 
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
-    STAGE_UNDER_REVISION
+    STAGE_UNDER_REVISION,
+    STAGE_ACCEPTED,
 }
 
 COPYEDITING_STAGES = {
@@ -274,7 +280,8 @@ STAGE_CHOICES = [
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
     (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
-    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
+    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published'),
+    (STAGE_ARCHIVED, 'Archived'),
 ]
 
 PLUGIN_WORKFLOW_STAGES = []
@@ -526,6 +533,13 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             return cursor.mogrify(sql, params).decode()
 
 
+class ActiveArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveArticleManager, self).get_queryset().exclude(
+            stage=STAGE_ARCHIVED,
+        )
+
+
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -626,6 +640,10 @@ class Article(AbstractLastModifiedModel):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
@@ -710,6 +728,7 @@ class Article(AbstractLastModifiedModel):
     funders = models.ManyToManyField('Funder', blank=True)
 
     objects = ArticleSearchManager()
+    active_objects = ActiveArticleManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -744,7 +763,7 @@ class Article(AbstractLastModifiedModel):
         doi_str = ""
         pages_str = ""
         if self.page_range:
-            pages_str = " p.{0}.".format(self.page_range)
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -765,9 +784,12 @@ class Article(AbstractLastModifiedModel):
     def page_range(self):
         if self.page_numbers:
             return self.page_numbers
-        if self.first_page and self.last_page:
+        elif self.first_page and self.last_page:
             return "{}–{}".format(self.first_page, self.last_page)
-        return self.first_page
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
@@ -956,7 +978,6 @@ class Article(AbstractLastModifiedModel):
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
-        from identifiers import models as identifier_models
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)
@@ -983,6 +1004,7 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('doi', object=True)
 
     @property
+    @cache(30)
     def doi_pattern_preview(self):
         return id_logic.render_doi_from_pattern(self)
 
@@ -1003,6 +1025,9 @@ class Article(AbstractLastModifiedModel):
             article=self,
             stage_to=STAGE_ACCEPTED,
         ).exists():
+            return True
+
+        if self.stage == STAGE_ACCEPTED:
             return True
 
         if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
@@ -1027,11 +1052,16 @@ class Article(AbstractLastModifiedModel):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.objects.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(
+                    id=identifier,
+                    journal=journal,
+                )[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
-                    id_type=identifier_type, identifier=identifier)[0].article
+                    id_type=identifier_type,
+                    identifier=identifier,
+                )[0].article
 
                 if not article.journal == journal:
                     return None
@@ -1211,23 +1241,35 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
+        """ The issue title in the context of the article
+
+        When an article renders its issue title, it can include article
+        dependant elements such as page ranges or article numbers. For this
+        reason, we cannot render database cached issue title.
+        """
         if not self.issue:
             return ''
 
         if self.issue.issue_type.code != 'issue':
             return self.issue.issue_title
         else:
-            return " • ".join([
-                    title_part
-                    for title_part in self.issue.issue_title_parts(article=self)
-                    if title_part
-            ])
+            template = Template(" • ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return mark_safe(template.render(Context()))
 
     def author_list(self):
         if self.is_accepted():
             return ", ".join([author.full_name() for author in self.frozen_authors()])
         else:
             return ", ".join([author.full_name() for author in self.authors.all()])
+
+    def keyword_list_str(self, separator=","):
+        if self.keywords.exists():
+            return separator.join(kw.word for kw in self.keywords.all())
+        return ''
 
     def can_edit(self, user):
         # returns True if a user can edit an article
@@ -1274,6 +1316,14 @@ class Article(AbstractLastModifiedModel):
         return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True)
 
     @property
+    def completed_reviews_with_permission(self):
+        return self.completed_reviews.filter(permission_to_make_public=True)
+
+    @property
+    def public_reviews(self):
+        return self.completed_reviews_with_permission.filter(display_public=True)
+
+    @property
     def completed_reviews_with_decision(self):
         return self.reviewassignment_set.filter(
             is_complete=True,
@@ -1316,6 +1366,17 @@ class Article(AbstractLastModifiedModel):
         self.date_declined = timezone.now()
         self.date_accepted = None
         self.stage = STAGE_REJECTED
+        self.save()
+
+    def undo_review_decision(self):
+        self.date_accepted = None
+        self.date_declined = None
+
+        if review_models.EditorAssignment.objects.filter(article=self):
+            self.stage = STAGE_ASSIGNED
+        else:
+            self.stage = STAGE_UNASSIGNED
+
         self.save()
 
     def accept_preprint(self, date, time):
@@ -1611,6 +1672,9 @@ class Article(AbstractLastModifiedModel):
         ).exclude(
             decision='withdrawn',
         )
+
+    def ms_and_figure_files(self):
+        return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
 
 class FrozenAuthor(AbstractLastModifiedModel):

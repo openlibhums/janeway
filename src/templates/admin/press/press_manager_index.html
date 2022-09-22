@@ -48,6 +48,7 @@
                             <th>Name</th>
                             <th>Code</th>
                             <th>Domain</th>
+                            <th>Description</th>
                             <th>Edit</th>
                         </tr>
                         <tbody id="sortable">
@@ -57,6 +58,7 @@
                                 <td><a href="{{ journal.site_url }}">{{ journal.name }}</a></td>
                                 <td>{{ journal.code }}</td>
                                 <td><a href="{% url 'press_journal_domain' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> {{ journal.domain }}</a></td>
+                                <td><a href="{% url 'edit_press_journal_description' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> Edit Description</a></td>
                                 <td><a class="" href="{% journal_base_url journal %}{% url 'core_manager_index' %}">Edit Settings</a></td>
                             </tr>
                             {% endfor %}

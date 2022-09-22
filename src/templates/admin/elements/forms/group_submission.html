@@ -13,6 +13,7 @@
 <div class="content">
     <p>At any time you can disable new submissions using the checkbox below. This will remove links to the submission system across the platform.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.disable_journal_submission %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.disable_journal_submission_message %}
     <p>You can also limit access to submission by forcing new users to request the author role before they can submit. When a user
     without the author role attempts to make a submission they will be directed to a page where they can request this.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.limit_access_to_submission %}
@@ -32,8 +33,6 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
     {% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
 </div>
 
 <div class="title-area">

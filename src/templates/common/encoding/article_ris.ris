@@ -1,0 +1,13 @@
+{% load settings %}TY  - {% if article.journal.is_conference %}CONF{% else %}JOUR{% endif %}
+AB  - {{ article.abstract|escape}}
+AU  - {{ article.author_list }}
+DA  - {{ article.date_published.year }}/{{article.date_published.month}}//
+{% if article.get_doi %}DO - {{ article.get_doi }}{% endif %}
+IS  - {{ article.issue.issue }}
+VL  - {{ article.issue.volume }}
+PB  - {{ article.journal|setting:'publisher_name' }}
+PY  - {{ article.date_published.year }}
+TI  - {{ article.title|escape}}
+T2  - {{ article.journal_title }}
+UR  - {{ article.url }}
+ER  -

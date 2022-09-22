@@ -82,9 +82,6 @@ def stages_in_between(from_stage, to_stage, article):
 def move_to_stage(from_stage, to_stage, article):
     stages_to_process = stages_in_between(from_stage, to_stage, article)
 
-    # TODO: Loop through the stages and call a function to reverse process
-    # the stage.
-
     for stage in stages_to_process:
         if stage == submissions_models.STAGE_READY_FOR_PUBLICATION:
             article.date_published = None

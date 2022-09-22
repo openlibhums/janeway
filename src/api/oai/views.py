@@ -8,6 +8,7 @@ from api.oai import exceptions
 from api.oai.base import OAIPagedModelView, metadata_formats
 from identifiers.models import Identifier
 from submission import models as submission_models
+from repository import models as repo_models
 from utils.upgrade import shared
 from journal import models as journal_models
 from xml.dom import minidom
@@ -31,7 +32,10 @@ def oai_view_factory(request, *args, **kwargs):
             verb = DEFAULT_ENDPOINT
         elif verb not in ROUTES:
             raise exceptions.OAIBadVerb()
-        view = ROUTES.get(verb)
+        if request.repository:
+            view = PREPRINT_ROUTES.get(verb)
+        else:
+            view = ROUTES.get(verb)
         return view(request, *args, **kwargs)
     except exceptions.OAIException as oai_error:
         return OAIErrorResponse.as_view(error=oai_error)(request)
@@ -258,6 +262,106 @@ class OAIErrorResponse(TemplateView):
         context["error"] = self.error
         return context
 
+
+class OAIListPreprintRecords(OAIPagedModelView):
+    template_name = "apis/OAI_ListRecords.xml"
+    queryset = repo_models.Preprint.objects.all()
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.repository:
+            queryset = queryset.filter(repository=self.request.repository).order_by('date_published')
+        return queryset
+
+    def filter_is_published(self, qs):
+        return qs.filter(
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["is_preprints"] = self.request.repository
+        return context
+
+class OAIGetPreprintRecord(OAIGetRecord):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["is_preprints"] = self.request.repository
+        return context
+
+    def get_jats(self, article):
+        return None, True
+
+    def get_article(self):
+        id_param = self.request.GET.get("identifier")
+        try:
+           _, site_code, id_type, identifier = id_param.split(":")
+        except (ValueError, AttributeError):
+            raise exceptions.OAIBadArgument()
+
+        try:
+            article = repo_models.Preprint.objects.get(
+                id=identifier,
+                stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+            )
+        except (
+            Identifier.DoesNotExist,
+            submission_models.Article.DoesNotExist,
+        ):
+            raise exceptions.OAIDoesNotExist()
+
+        return article
+
+class OAIListPreprintIdentifiers(OAIListPreprintRecords):
+    template_name = "apis/OAI_ListIdentifiers.xml"
+
+class OAIPreprintIdentify(TemplateView):
+    template_name = "apis/OAI_PreprintIdentify.xml"
+    content_type = "application/xml"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['version'] = shared.current_version()
+
+        articles = repo_models.Preprint.objects.all()
+
+        if self.request.repository:
+            articles = articles.filter(
+                repository=self.request.repository,
+                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            )
+
+        context['earliest_article'] = articles.earliest('date_published')
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+
+        return context
+
+class OAIListPreprintSets(TemplateView):
+    template_name = "apis/OAI_ListSets.xml"
+    content_type = "application/xml"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+
+        return context
+
+PREPRINT_ROUTES = {
+    "GetRecord": OAIGetPreprintRecord.as_view(),
+    "ListRecords": OAIListPreprintRecords.as_view(),
+    "ListIdentifiers": OAIListPreprintIdentifiers.as_view(),
+    "ListMetadataFormats": OAIListMetadataFormats.as_view(),
+    "Identify": OAIPreprintIdentify.as_view(),
+    "ListSets": OAIListPreprintSets.as_view(),
+}
 
 ROUTES = {
     "GetRecord": OAIGetRecord.as_view(),
