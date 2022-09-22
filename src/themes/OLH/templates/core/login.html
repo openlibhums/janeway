@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load recaptcha2 %}
 {% load orcid %}
+{% load fqdn %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
 
@@ -32,7 +33,7 @@
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="button expanded orcid-button">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="{% url 'oidc_authentication_init' %}" class="success button expanded">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
+                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="success button expanded">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
                         {% endif %}
                         {% if journal_settings.general.display_login_page_notice %}
                         {{ journal_settings.general.login_page_notice|safe }}

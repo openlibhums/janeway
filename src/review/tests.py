@@ -15,7 +15,7 @@ from django.core.management import call_command
 from core import models as core_models
 from journal import models as journal_models
 from production import models as production_models
-from review import models as review_models, forms
+from review import models as review_models, forms, logic
 from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
@@ -65,6 +65,38 @@ class ReviewTests(TestCase):
             self.article_review_completed.completed_reviews_with_decision.count(),
             1,
         )
+
+    def test_review_assignment_form_valid(self):
+        data = {
+            'visibility': 'double-blind',
+            'form': self.review_form.pk,
+            'date_due': '2900-01-01',
+            'reviewer': self.second_reviewer.pk,
+        }
+        form = forms.ReviewAssignmentForm(
+            journal=self.journal_one,
+            article=self.article_under_review,
+            editor=self.editor,
+            reviewers=logic.get_reviewer_candidates(self.article_under_review, self.editor),
+            data=data,
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_review_assignment_form_bad_reviewer(self):
+        data = {
+            'visibility': 'double-blind',
+            'form': self.review_form.pk,
+            'date_due': '2900-01-01',
+            'reviewer': self.regular_user.pk,
+        }
+        form = forms.ReviewAssignmentForm(
+            journal=self.journal_one,
+            article=self.article_under_review,
+            editor=self.editor,
+            reviewers=logic.get_reviewer_candidates(self.article_under_review, self.editor),
+            data=data,
+        )
+        self.assertFalse(form.is_valid())
 
     @staticmethod
     def create_user(username, roles=None, journal=None):

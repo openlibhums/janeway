@@ -16,4 +16,5 @@ Manager
    manager/identifiers/index
    manager/users/index
    manager/other/index
+   manager/other/template_variables
 

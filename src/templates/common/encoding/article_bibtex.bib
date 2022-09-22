@@ -1,0 +1,18 @@
+{% load settings %}
+{% load encoding %}
+{% if article.journal.is_conference %}@conference{% else %}@article{% endif %}{% templatetag openbrace %}{{ article.journal.code }} {{ article.id }},
+	author = {{ article.author_list|latex_conform }},
+	title = {{ article.title|escape|latex_conform }},
+	volume = {{ article.issue.volume|latex_conform }},
+	year = {{ article.date_published.year|latex_conform }},
+	url = {{ article.url|latex_conform }},
+	{% if article.issue|latex_conform %}issue = {{ article.issue.issue|latex_conform }},{% endif %}
+	{% if article.get_doi %}doi = {{ article.get_doi|latex_conform }},{% endif %}
+	abstract = {{ article.abstract|escape|latex_conform }},
+	month = {{ article.date_published.month|latex_conform }},
+	{% if article.page_range %}pages = {{ article.page_range|latex_conform }},{% endif %}
+	{% if article.keywords.exists %}keywords = {{ article.keyword_list_str|escape|latex_conform }},{% endif %}
+	{% if article.journal_issn %}issn = {{ article.journal_issn|latex_conform }},{% endif %}
+	publisher={{ article.journal|setting:'publisher_name'|latex_conform }},
+	journal = {{article.journal_title|latex_conform }}
+}

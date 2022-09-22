@@ -78,3 +78,49 @@ There is a command you can run once ``ENABLE_FULL_TEXT`` is set to True
 
 The above command will generate the relevant indexes for full-text search to work within Janeway.
 
+
+Theming
+--------
+Janeway includes three core themes by default:
+
+- OLH (Foudation)
+- material (Materialize)
+- clean (Bootstrap)
+
+A list of core themes is held in janeway_global_settings.py.
+
+Theme Structure
+~~~~~~~~~~~~~~~
+
+Generally themes follow this structure:
+
+- /path/to/janeway/src/themes/themename/
+    - assets/
+        - Contains CSS/JS/Images
+    - templates/
+        - Contains Django templates
+    - __init__.py
+    - build_assets.py
+        - Should contain at least one method called build that takes no arguments, it should know how to process any SCSS and copy the resulting files into the main static folder or just pass if not required. See path/to/janeway/src/themes/OLH/build_assets.py as an example.
+    - README.MD
+
+Creating a New Theme
+~~~~~~~~~~~~~~~~~~~~
+You are welcome to develop your own themes and can use one of the existing themes as a template of what is required. You should follow the structure above and have full template coverage.
+
+Creating a Sub Theme
+~~~~~~~~~~~~~~~~~~~~
+Creating a sub theme is much easier than creating one from scratch. A sub theme is essentially a copy of one of the existing themes but with the templates that aren't required stripped out. This is useful if say, for example, you only want to customise one or two templates as you will only need to track core changes to those files.
+
+Once you have created your sub theme you can then set for the whole install with the INSTALLATION_BASE_THEME setting or the Journal Base Theme setting for journals that are using the sub theme (located on the Manager > Journal Settings page, this setting will appear once you set the Journal Theme to your non-core theme).
+
+An example structure for a sub theme where we want to customise only the login page:
+
+- /path/to/janeway/src/themes/speciallogintheme/
+    - assets/
+    - templates/
+        - core/login.html
+        - press/core/login.html
+    - __init__.py
+    - build_assets.py
+    - README.MD

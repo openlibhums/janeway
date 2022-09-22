@@ -25,7 +25,7 @@
         <div class="row expanded columns">
             <div class="box">
                 {% if journal_settings.general.disable_journal_submission %}
-                <p><strong>{% trans 'Submission is currently disabled for this journal.' %}</strong></p>
+                <p>{{ journal_settings.general.disable_journal_submission_message|safe }}</p>
                 {% endif %}
                 {{ journal_settings.general.submission_intro_text|safe }}
               

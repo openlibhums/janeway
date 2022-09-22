@@ -112,7 +112,7 @@ class Press(AbstractSiteModel):
     preprint_decline = models.TextField(blank=True, null=True, default=press_text('decline'))
 
     random_homepage_preprints = models.BooleanField(default=False)
-    homepage_preprints = models.ManyToManyField('submission.Article')
+    homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
 
     disable_journals = models.BooleanField(
         default=False,

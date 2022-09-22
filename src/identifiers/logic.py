@@ -8,7 +8,7 @@ import datetime
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
-from time import sleep
+import time
 import itertools
 
 from django.urls import reverse
@@ -31,12 +31,13 @@ from submission import models as submission_models
 
 logger = get_logger(__name__)
 
+CROSSREF_TIMEOUT_SECONDS = 30
 
 def register_crossref_doi(identifier):
     return register_batch_of_crossref_dois([identifier.article])
 
 
-def register_batch_of_crossref_dois(articles):
+def register_batch_of_crossref_dois(articles, **kwargs):
     journals = set([article.journal for article in articles])
     if len(journals) > 1:
         status = 'Articles must all be from the same journal'
@@ -66,6 +67,7 @@ def register_batch_of_crossref_dois(articles):
         return status, error
 
 
+@cache(30)
 def check_crossref_settings(journal):
     use_crossref = setting_handler.get_setting(
         'Identifiers',
@@ -106,6 +108,18 @@ def check_crossref_settings(journal):
     return use_crossref, test_mode, missing_settings
 
 
+@cache(30)
+def get_poll_settings(journal):
+    test_mode = setting_handler.get_setting('Identifiers',
+                                            'crossref_test',
+                                            journal).processed_value or settings.DEBUG
+    username = setting_handler.get_setting('Identifiers', 'crossref_username',
+                                           journal).processed_value
+    password = setting_handler.get_setting('Identifiers', 'crossref_password',
+                                               journal).processed_value
+    return test_mode, username, password
+
+
 def get_dois_for_articles(articles, create=False):
     identifiers = []
     for article in articles:
@@ -120,28 +134,40 @@ def get_dois_for_articles(articles, create=False):
     return identifiers
 
 
-def poll_dois_for_articles(articles):
+def poll_dois_for_articles(articles, **kwargs):
     clear_cache()
+
+    start = kwargs.pop('start', time.time())
+    timeout = kwargs.pop('timeout', CROSSREF_TIMEOUT_SECONDS)
+
     status = ''
     error = False
     identifiers = get_dois_for_articles(articles)
     polled = set()
-    for identifier in identifiers:
+    for i, identifier in enumerate(identifiers):
+
+        # Time out gracefully
+        if timeout and time.time() > start + timeout:
+            error = True
+            journal_code = identifier.article.journal.code
+            status = f"Polling timed out before all articles could be checked. Polled: {i} of {len(identifiers)} ({journal_code})."
+            break
+
         try:
-            deposit = identifier.crossref_status.latest_deposit
+            deposit = identifier.crossrefstatus.latest_deposit
         except AttributeError:
             deposit = None
         if deposit and deposit not in polled:
             try:
-                sleep(1)
                 status, error = deposit.poll()
                 polled.add(deposit)
+                if len(polled) and len(polled) % 20 == 0:
+                    time.sleep(.15)
             except:
                 continue
 
-    for identifier in identifiers:
         try:
-            identifier.crossref_status.update()
+            identifier.crossrefstatus.update()
         except AttributeError:
             crossref_status = models.CrossrefStatus.objects.create(
                 identifier=identifier
@@ -279,17 +305,23 @@ def create_crossref_issue_context(
     return crossref_issue
 
 
+@cache(30)
 def create_crossref_journal_context(
     journal,
     ISSN_override=None,
     publication_title=None
 ):
-    return {
+    journal_data = {
         'title': publication_title or journal.name,
         'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn,
         'press': journal.press,
     }
+    if journal.doi:
+        journal_data["doi"] = journal.doi
+        journal_data["url"] = journal.site_url()
+
+    return journal_data
 
 def create_crossref_article_context(article, identifier=None):
     template_context = {
@@ -491,7 +523,6 @@ def render_doi_from_pattern(article):
                                                          article.journal,
                                                          'doi_pattern',
                                                          group_name='Identifiers')
-
     return '{0}/{1}'.format(doi_prefix, doi_suffix)
 
 
@@ -599,3 +630,28 @@ def register_preprint_doi(request, crossref_enabled, identifier):
             util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                            target=identifier.article)
             logger.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
+
+
+def generate_issue_doi_from_logic(issue):
+    doi_prefix = setting_handler.get_setting(
+        'Identifiers', 'crossref_prefix', issue.journal).value
+    doi_suffix = render_template.get_requestless_content(
+        {'issue': issue},
+        issue.journal,
+        'issue_doi_pattern',
+        group_name='Identifiers')
+    return '{0}/{1}'.format(doi_prefix, doi_suffix)
+
+
+def auto_assign_issue_doi(issue):
+    auto_assign_enabled = setting_handler.get_setting(
+        'Identifiers', 'use_crossref', issue.journal,
+        default=True,
+    ).processed_value
+    if auto_assign_enabled and not issue.doi:
+        issue.doi = generate_issue_doi_from_logic(issue)
+        issue.save()
+
+
+def on_article_assign_to_issue(article, issue, user):
+    auto_assign_issue_doi(issue)
