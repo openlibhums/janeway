@@ -923,7 +923,6 @@ class Issue(AbstractLastModifiedModel):
                 order_by_string,
             )
             ids_in_order = [section_article.pk for section_article in section_articles]
-            print(ids_in_order)
             for article in section_articles:
                 article_ordering, _ = ArticleOrdering.objects.get_or_create(
                     issue=self,

@@ -138,5 +138,5 @@ def join_lists(*lists):
     new_list = []
     for l in lists:
         if l:
-            new_list = new_list + l
+            new_list = new_list + list(l)
     return new_list

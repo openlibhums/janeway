@@ -561,20 +561,20 @@ class SubmissionTests(TestCase):
         article.snapshot_authors()
         bibtex = encoding.encode_article_as_bibtex(article)
         expected = """
-            @article{TST 1,
+            @article{TST %s,
                 author = {Martin Eve, Mauro Sanchez},
                 title = {Test article: a test article},
                 volume = {2},
                 year = {1990},
-                url = {http://localhost/TST/article/id/1/},
+                url = {http://localhost/TST/article/id/%s/},
                 issue = {1},
                 abstract = {test_abstract},
                 month = {1},
                 issn = {%s},
                 publisher={},
-                journal = {Janeway JS}
+                journal = {%s}
             }
-        """ % (article.journal.issn)
+        """ % (article.pk, article.pk, article.journal.issn, article.journal.name)
         bibtex_lines = [
             line.strip() for line in bibtex.splitlines() if line.strip()
         ]
@@ -582,7 +582,6 @@ class SubmissionTests(TestCase):
             line.strip() for line in expected.splitlines() if line.strip()
         ]
         self.assertEqual(bibtex_lines, expected_lines)
-
 
     def test_article_encoding_ris(self):
         article = helpers.create_article(
@@ -609,10 +608,10 @@ class SubmissionTests(TestCase):
             PB  -
             PY  - 1990
             TI  - Test article: A RIS export test case
-            T2  - Janeway JS
-            UR  - http://localhost/TST/article/id/1/
+            T2  - {journal_name}
+            UR  - http://localhost/TST/article/id/{article_id}/
             ER  -
-        """
+        """.format(article_id=article.pk, journal_name=article.journal.name)
         ris_lines = [
             line.strip() for line in ris.splitlines() if line.strip()
         ]
