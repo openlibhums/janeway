@@ -99,11 +99,18 @@ class UtilsTests(TestCase):
         }
 
         # Setup issues for sitemap testing
+        cls.issue_type, created = journal_models.IssueType.objects.get_or_create(
+            journal=cls.journal_one,
+            code='test_issue_type',
+            pretty_name='Test Issue Type',
+            custom_plural='Test Issues Type',
+        )
         cls.issue_one, created = journal_models.Issue.objects.get_or_create(
             journal=cls.journal_one,
             volume='1',
             issue='1',
             issue_title='V 1 I 1',
+            issue_type=cls.issue_type
         )
         cls.section, create = submission_models.Section.objects.get_or_create(
             journal=cls.journal_one,
@@ -390,7 +397,6 @@ class TransactionalReviewEmailTests(UtilsTests):
         subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
-
 
     def test_send_article_decision(self):
         kwargs = dict(**self.base_kwargs)
