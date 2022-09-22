@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.shortcuts import reverse
+from django.urls.base import clear_script_prefix
 
 from production.logic import remove_css_from_html
 from production import models
@@ -11,6 +12,7 @@ class TestLogic(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        clear_script_prefix()
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         cls.editor = helpers.create_user(
