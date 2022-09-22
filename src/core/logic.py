@@ -522,21 +522,6 @@ def handle_default_thumbnail(request, journal, attr_form):
     return None
 
 
-def handle_press_override_image(request, journal, attr_form):
-    if request.FILES.get('press_image_override'):
-        new_file = files.save_file_to_journal(request, request.FILES.get('press_image_override'), 'Press Override',
-                                              'default')
-        if journal.press_image_override:
-            journal.press_image_override.unlink_file(journal=journal)
-
-        journal.press_image_override = new_file
-        journal.save()
-
-        return new_file
-
-    return None
-
-
 def article_file(uploaded_file, article, request):
     new_file = files.save_file_to_article(uploaded_file, article, request.user)
     new_file.label = 'Banner image'

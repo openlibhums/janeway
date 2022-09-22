@@ -1,4 +1,5 @@
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 
 <div class="title-area">
     <h2>Journal Images</h2>
@@ -38,7 +39,7 @@
         </div>
         <div class="large-4 columns svg">
             {% if request.journal.press_image_override %}
-                {% svg request.journal_cover %}
+                {% svg_or_image request.journal.press_image_override "thumbnail" %}
             {% elif 'svg' in request.press_cover %}
                 {% svg request.press_cover %}
             {% else %}

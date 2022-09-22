@@ -173,7 +173,7 @@
     <div class="row expanded" data-equalizer data-equalize-on="medium">
         <div class="large-2 columns very-dark-primary-color text-center" data-equalizer-watch>
             {% if request.journal.press_image_override %}
-                {% svg request.journal_cover %}
+                {% svg_or_image request.journal.press_image_override %}
             {% elif 'svg' in request.press_cover %}
                 <a href="{% press_url request %}">{% svg request.press_cover %}</a>
             {% else %}
