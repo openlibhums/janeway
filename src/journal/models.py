@@ -910,6 +910,11 @@ class Issue(AbstractLastModifiedModel):
                         latest_issue.issue,
                     )
 
+    def is_published(self):
+        if self.date and self.date < timezone.now():
+            return True
+        return False
+
     def order_articles_in_sections(self, sort_field, order):
         order_by_string = '{}{}'.format(
             '-' if order == 'dsc' else '',
