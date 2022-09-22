@@ -7,6 +7,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db import models
 from django.utils import timezone
 
+from submission import models as submission_models
+
 
 def copyeditor_decisions():
     return (
@@ -21,6 +23,13 @@ def author_decisions():
         ('accept', 'Accept'),
         ('corrections', 'Corrections Required'),
     )
+
+
+class ActiveCopyeditAssignmentManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveCopyeditAssignmentManager, self).get_queryset().exclude(
+            article__stage=submission_models.STAGE_ARCHIVED,
+        )
 
 
 class CopyeditAssignment(models.Model):
@@ -47,6 +56,12 @@ class CopyeditAssignment(models.Model):
     copyedit_accepted = models.DateTimeField(blank=True, null=True)
 
     copyedit_acknowledged = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    active_objects = ActiveCopyeditAssignmentManager()
+
+    class Meta:
+        ordering = ('assigned',)
 
     def __str__(self):
         return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article.title)
@@ -100,6 +115,13 @@ class CopyeditAssignment(models.Model):
         return sorted(log, key=lambda k: k['date'])
 
 
+class ActiveAuthorReviewManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveAuthorReviewManager, self).get_queryset().exclude(
+            assignment__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class AuthorReview(models.Model):
     author = models.ForeignKey('core.Account')
     assignment = models.ForeignKey(CopyeditAssignment)
@@ -120,3 +142,6 @@ class AuthorReview(models.Model):
         verbose_name='files_updated',
         blank=True,
     )
+
+    objects = models.Manager()
+    active_objects = ActiveAuthorReviewManager()

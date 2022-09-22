@@ -1,0 +1,125 @@
+{% load settings %}<record>
+    {{ prefix }}
+    {% include "apis/OAI_preprint_record_header.xml" with article=article %}
+    <metadata>
+<article
+article-type="research-article"
+dtd-version="1.0" xml:lang="en"
+xmlns="https://jats.nlm.nih.gov/publishing/1.2/"
+xmlns:mml="http://www.w3.org/1998/Math/MathML"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <front>
+        <journal-meta>
+            <journal-id journal-id-type="publisher">{{ article.repository.short_name }}</journal-id>
+            <journal-title-group>
+                <journal-title>{{ article.repository.name }}</journal-title>
+            </journal-title-group>
+            <publisher>
+                <publisher-name>{{ article.repository.press.name }}</publisher-name>
+            </publisher>
+        </journal-meta>
+        <article-meta>
+            {% if article.doi %}
+            <article-id pub-id-type="doi">{{ article.doi }}</article-id>
+            {% endif %}
+            {% if article.preprint_doi %}
+            <article-id pub-id-type="publisher-id">{{ article.preprint_doi }}</article-id>
+            {% endif %}
+            <article-id pub-id-type="publisher-id">{{ article.pk }}</article-id>
+            <article-version vocab="JAV" vocab-identifier="http://www.niso.org/publications/rp/RP-8-2008.pdf" article-version-type="AO" vocab-term="Author's Original">preprint</article-version>
+            <article-version article-version-type="publisher-id">{{ article.current_version.version }}</article-version>
+            <article-categories>
+                <subj-group>
+                    {% for s in article.subject.all %}
+                        <subject>{{ s.name }}</subject>
+                    {% endfor %}
+                </subj-group>
+            </article-categories>
+            <title-group>
+                <article-title>{{ article.title }}</article-title>
+            </title-group>
+            <contrib-group>
+            {% for author in article.preprintauthor_set.all %}
+                <contrib contrib-type="author">
+                    {% if author.account.orcid %}
+                    <contrib-id>{{ author.account.orcid }}</contrib-id>
+                    {% endif %}
+                    <name>
+                        <surname>{{ author.account.last_name }}</surname>
+                        <given-names>{{ author.account.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
+                    </name>
+                    <email>{{ author.account.email }}</email>
+                    {% if author.affiliation %}                 
+                    <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
+                    {% endif %}
+                </contrib>
+            {% endfor %}
+            </contrib-group>
+            {% for author in article.preprintauthor_set.all %}
+            {% if author.affiliation %}
+            <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
+            {% endif %}
+            {% endfor %}
+            <pub-date date-type="pub" iso-8601-date="{{ article.date_published|date:"Y-m-d" }}" publication-format="electronic">
+                <day>{{ article.date_published|date:"d" }}</day>
+                <month>{{ article.date_published|date:"m" }}</month>
+                <year>{{ article.date_published|date:"Y" }}</year>
+            </pub-date>
+            {% if article.date_updated %}
+            <pub-date date-type="update" iso-8601-date="{{ article.date_updated|date:"Y-m-d" }}" publication-format="electronic">
+                <day>{{ article.date_updated|date:"d" }}</day>
+                <month>{{ article.date_updated|date:"m" }}</month>
+                <year>{{ article.date_updated|date:"Y" }}</year>
+            </pub-date>
+            {% endif %}
+            {% if article.license %}
+            <permissions>
+                <copyright-statement>{{ article.license.name }}</copyright-statement>
+                <copyright-year>{{ article.date_published|date:"Y" }}</copyright-year>
+            </permissions>
+            {% endif %}
+            <self-uri content-type="text/html" xlink:href="{{ article.url }}"/>
+            {% if article.current_version.file %}
+            <self-uri content-type="{{ article.current_version_file_type }}" xlink:href="{{ article.repository.site_url }}{{ article.current_version.file.download_url }}"/>
+            {% endif %}
+            {% if article.abstract %}
+            <abstract>{{ article.abstract }}</abstract>
+            {% endif %}
+            {% if article.keywords.exists %}
+            <kwd-group xml:lang="en">
+                <title>Keywords</title>
+                {% for keyword in article.keywords.all %}
+                <kwd>{{ keyword.word }}</kwd>
+                {% endfor %}
+            </kwd-group>
+            {% endif %}
+            {% for f in article.supplementaryfiles.all %}
+                <supplementary-material xlink:href="{{ f.url }}">
+                    <caption>
+                        {{ f.label }}
+                    </caption>
+                </supplementary-material>
+            {% endfor %}
+            {% if article.preprintversion_set.exists %}
+            <pub-history>
+                {% for v in article.preprintversion_set.all %}
+                <event event-type="pub">
+                    <event-desc>Version of Record published:
+                        <string-date iso-8601-date="{{ v.date_time|date:"Y-m-d" }}">
+                            <day>{{ v.date_time|date:"d" }}</day>
+                            <month>{{ v.date_time|date:"m" }}</month>
+                            <year>{{ v.date_time|date:"Y" }}</year>
+                        </string-date>
+                        (version {{ v.version}})
+                        <self-uri content-type="{{ v.file.mime_type }}" xlink:href="{{ article.repository.site_url }}{{ v.file.download_url }}"/>
+                    </event-desc>
+                </event>
+                {% endfor %}
+            </pub-history>
+            {% endif %}
+        </article-meta>
+    </front>
+    </article>
+    </metadata>
+</record>

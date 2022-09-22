@@ -2,7 +2,7 @@
     <h2>General Review Settings</h2>
 </div>
 <div class="content">
-    <p>{% trans 'You can set review file guidance and default review settings below. Review forms can be managed in the' %} <a href="{% url 'review_review_forms' %}">{% trans 'Review Form manager' %}.</a>.</p>
+    <p>{% trans 'You can set review file guidance and default review settings below. Review forms can be managed in the' %} <a href="{% url 'review_review_forms' %}">{% trans 'Review Form manager' %}</a>.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.review_file_help %}
     {% include "admin/elements/forms/field.html" with field=edit_form.default_review_form %}
     {% include "admin/elements/forms/field.html" with field=edit_form.default_review_days %}
@@ -10,13 +10,14 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
     {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_suggested_reviewers %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.open_peer_review %}
 </div>
 
 <div class="title-area">
     <h2>Review Forms</h2>
 </div>
 <div class="content">
-    <p>{% trans "Settings here determine the review form experience." %}.</p>
+    <p>{% trans "Settings here determine the review form experience." %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_guidelines %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_save_review_progress %}
     {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_form_download %}
@@ -24,12 +25,21 @@
 </div>
 
 <div class="title-area">
+    <h2>Editor Review Stage Display</h2>
+</div>
+<div class="content">
+    <p>{% trans "Settings here determine the review experience for editors." %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_expanded_review_details %}
+</div>
+
+<div class="title-area">
     <h2>Author Review Display</h2>
 </div>
 <div class="content">
-    <p>{% trans "Settings here determine the review experience for authors." %}.</p>
-    {% include "admin/elements/forms/field.html" with field=edit_form.enable_expanded_review_details %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.hide_review_metadata_from_authors %}
+    <p>{% trans "Settings here determine the review experience for authors." %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.hide_review_data_pre_release %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_peer_review_data_block %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_peer_review_data_on_review_page %}
 </div>
 
 <div class="title-area">

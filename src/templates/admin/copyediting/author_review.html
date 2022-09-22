@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 {% load foundation %}
 {% load files %}
 
@@ -82,14 +83,13 @@
         </div>
         <div class="content">
             {% include "elements/forms/errors.html" with form=form %}
-            <p>You can add a note to the editor, they can pass any requests on to the Copyeditor.</p>
-            <form method="POST">
+            <p>{% trans "You can add a note to the editor. They can pass any requests on to the copyeditor." %}</p>
+            <form method="POST" id="author_copyediting_review">
                 <div class="row expanded">
                     <div class="large-6 columns">
                         {{ form.author_note|foundation }}
-                        <button type="submit" class="button success" name="send"><i class="fa fa-check">&nbsp;</i>Complete
-                            Copyedit
-                            Task
+                        <button type="submit" class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
+                            <i class="fa fa-check">&nbsp;</i>{% trans "Complete Copyedit Task" %}
                         </button>
                     </div>
                     <div class="large-6 columns">
@@ -101,8 +101,15 @@
         </div>
     </div>
 
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="author_copyediting_review" %}
+    {% endif %}
+
 {% endblock body %}
 
 {% block js %}
     {% include "elements/jqte.html" %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
 {% endblock js %}

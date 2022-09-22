@@ -9,9 +9,10 @@ from django.contrib import messages
 from submission import models as submission_models
 from repository import models
 from press import models as press_models
-from review.forms import render_choices
+from review.logic import render_choices
 from core import models as core_models, workflow
 from utils import forms as utils_forms
+from identifiers.models import URL_DOI_RE
 
 
 class PreprintInfo(utils_forms.KeywordModelForm):
@@ -57,10 +58,12 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             enabled=True,
             repository=self.request.repository,
         )
-        self.fields['license'].queryset = submission_models.Licence.objects.filter(
-            press__isnull=False,
-            available_for_submission=True,
-        )
+        if self.admin:
+            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+                journal__isnull=True,
+            )
+        else:
+            self.fields['license'].queryset = self.request.repository.active_licenses.all()
         self.fields['license'].required = True
 
         if elements:
@@ -160,6 +163,17 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             preprint.save()
 
         return preprint
+
+    def clean_doi(self):
+        doi_string = self.cleaned_data.get('doi')
+
+        if doi_string and not URL_DOI_RE.match(doi_string):
+            self.add_error(
+                'doi',
+                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+            )
+
+        return doi_string
 
 
 class PreprintSupplementaryFileForm(forms.ModelForm):
@@ -327,6 +341,9 @@ class SubjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.repository = kwargs.pop('repository')
         super(SubjectForm, self).__init__(*args, **kwargs)
+        self.fields['parent'].queryset = models.Subject.objects.filter(
+            repository=self.repository,
+        )
 
     def save(self, commit=True):
         subject = super(SubjectForm, self).save(commit=False)
@@ -337,6 +354,29 @@ class SubjectForm(forms.ModelForm):
             subject.save()
 
         return subject
+
+
+class ActiveLicenseForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = ('active_licenses',)
+        widgets = {
+            'active_licenses': forms.CheckboxSelectMultiple,
+        }
+        labels = {
+            'active_licenses': 'Select the licenses that authors can pick from during submission',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ActiveLicenseForm, self).__init__(*args, **kwargs)
+        self.fields['active_licenses'].queryset = submission_models.Licence.objects.filter(
+            journal=None
+        )
+        self.fields['active_licenses'].label_from_instance = self.label_from_instance
+
+    @staticmethod
+    def label_from_instance(obj):
+        return obj.name
 
 
 class FileForm(forms.ModelForm):
@@ -381,6 +421,17 @@ class VersionForm(forms.ModelForm):
             version.save()
 
         return version
+
+    def clean_published_doi(self):
+        doi_string = self.cleaned_data.get('published_doi')
+
+        if doi_string and not URL_DOI_RE.match(doi_string):
+            self.add_error(
+                'published_doi',
+                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+            )
+
+        return doi_string
 
 
 class RepositoryBase(forms.ModelForm):

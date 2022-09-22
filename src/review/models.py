@@ -152,6 +152,9 @@ class ReviewAssignment(models.Model):
                                            verbose_name="Comments for the Editor")
     review_file = models.ForeignKey('core.File', blank=True, null=True)
     display_review_file = models.BooleanField(default=False)
+    permission_to_make_public = models.BooleanField(default=False, help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.')
+    display_public = models.BooleanField(default=False, help_text='Whether this review should be publicly displayed.')
+
 
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
@@ -421,7 +424,7 @@ class RevisionRequest(models.Model):
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
 
-    date_requested = models.DateField(default=timezone.now)
+    date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()
     date_completed = models.DateTimeField(blank=True, null=True)
 

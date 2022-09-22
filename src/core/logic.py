@@ -226,6 +226,9 @@ def get_settings_to_edit(display_group, journal):
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
              },
+            {'name': 'disable_journal_submission_message',
+             'object': setting_handler.get_setting('general', 'disable_journal_submission_message', journal)
+             },
             {'name': 'limit_access_to_submission',
              'object': setting_handler.get_setting('general', 'limit_access_to_submission', journal)
              },
@@ -369,16 +372,24 @@ def get_settings_to_edit(display_group, journal):
                 'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
             },
             {
+                'name': 'hide_review_data_pre_release',
+                'object': setting_handler.get_setting('general', 'hide_review_data_pre_release', journal),
+            },
+            {
                 'name': 'enable_suggested_reviewers',
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
             {
-                'name': 'hide_review_metadata_from_authors',
-                'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
+                'name': 'enable_peer_review_data_on_review_page',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_on_review_page', journal),
             },
             {
                 'name': 'accept_article_warning',
                 'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
+            },
+            {
+                'name': 'open_peer_review',
+                'object': setting_handler.get_setting('general', 'open_peer_review', journal),
             },
         ]
         setting_group = 'general'
@@ -387,7 +398,7 @@ def get_settings_to_edit(display_group, journal):
         xref_settings = [
             'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
-            'doi_pattern', 'doi_manager_action_maximum_size',
+            'doi_pattern', 'doi_manager_action_maximum_size', 'title_doi', 'issue_doi_pattern', 'register_issue_dois'
         ]
 
         settings = process_setting_list(xref_settings, 'Identifiers', journal)
@@ -411,6 +422,7 @@ def get_settings_to_edit(display_group, journal):
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
             'display_register_page_notice', 'register_page_notice',
             'support_email', 'support_contact_message_for_staff',
+            'replyto_address',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -430,6 +442,8 @@ def get_settings_to_edit(display_group, journal):
     elif display_group == 'article':
         article_settings = [
             'suppress_how_to_cite',
+            'disable_article_thumbnails',
+            'disable_article_large_image',
             'display_guest_editors',
             'suppress_citations_metric',
             'display_altmetric_badge',
@@ -920,3 +934,40 @@ def render_nested_setting(
     )
 
     return rendered_string
+
+
+def send_email(user, form, request, article=None, preprint=None):
+    subject = form.cleaned_data['subject']
+    message = form.cleaned_data['body']
+
+    if article:
+        target = article
+    elif preprint:
+        target = preprint
+    else:
+        target = None
+
+    log_dict = {
+        'level': 'Info',
+        'action_type': 'Contact User',
+        'types': 'Email',
+        'target': target
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        user.email,
+        message,
+        log_dict=log_dict,
+        cc=form.cleaned_data['cc'],
+    )
+
+
+def filter_articles_to_editor_assigned(request, articles):
+    assignments = review_models.EditorAssignment.objects.filter(
+        article__journal=request.journal,
+        editor=request.user
+    )
+    assignment_article_pks = [assignment.article.pk for assignment in assignments]
+    return articles.filter(pk__in=assignment_article_pks)

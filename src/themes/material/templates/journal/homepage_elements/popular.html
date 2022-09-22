@@ -7,20 +7,26 @@
     </div>
     {% for article in popular_articles %}
         <div class="col m4">
-            <div class="card feature-article-card">
+            <div {% if journal_settings.article.disable_article_large_image %}class="card"{% else %}class="card feature-article-card"{% endif %}>
                 <div class="card-content">
-                    {% if article.large_image_file %}
-                        <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                             alt="{{ article.title|striptags }}"
-                             class="feature-article-image">
-                    {% elif article.journal.default_large_image %}
-                        <img src="{{ article.journal.default_large_image.url }}"
-                             alt="{{ article.title|striptags }}"
-                             class="feature-article-image">
-                    {% else %}
-                        <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                             alt="{{ article.title|striptags }}"
-                             class="feature-article-image">
+                    {% if not journal_settings.article.disable_article_large_image %}
+                        {% if article.large_image_file %}
+                            <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                                 alt="{{ article.title|striptags }}"
+                                 class="feature-article-image">
+                        {% elif article.issue.large_image %}
+                            <img src="{{ article.issue.large_image.url }}"
+                                 alt="{{ article.title|striptags }}"
+                                 class="feature-article-image">
+                        {% elif article.journal.default_large_image %}
+                            <img src="{{ article.journal.default_large_image.url }}"
+                                 alt="{{ article.title|striptags }}"
+                                 class="feature-article-image">
+                        {% else %}
+                            <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                                 alt="{{ article.title|striptags }}"
+                                 class="feature-article-image">
+                        {% endif %}
                     {% endif %}
                     <p>
                         <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">

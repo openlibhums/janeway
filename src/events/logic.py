@@ -58,6 +58,10 @@ class Events:
     ON_ARTICLE_DECLINED = 'on_article_declined'
 
     # kwargs: article, request, user_message_content, decision, skip (boolean)
+    # raised when an editor undeclines an article
+    ON_ARTICLE_UNDECLINED = 'on_article_undeclined'
+
+    # kwargs: article, request, user_message_content, decision, skip (boolean)
     # raised when an editor accepts or accepts an article
     ON_ARTICLE_ACCEPTED = 'on_article_accepted'
 
@@ -107,6 +111,10 @@ class Events:
     # kwargs: article, copyedit, author_review, request
     # raised when an author completes their copyedit review
     ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE = 'on_copyedit_author_review_complete'
+
+    # kwargs author_review, request
+    # raised when an author review is deleted
+    ON_COPYEDIT_AUTHOR_REVIEW_DELETED = 'on_copyedit_author_review_delete'
 
     # kwargs: article, copyeditor assignment, request, skip (boolean)
     # raised when a copyedit assignment is acknowledged
@@ -200,7 +208,11 @@ class Events:
     # raised when proofing is complete
     ON_PROOFING_COMPLETE = 'on_proofing_complete'
 
-    #kwargs: request, article
+    # kwargs: article, issue, user
+    # raised when an article is assigned to an issue
+    ON_ARTICLE_ASSIGNED_TO_ISSUE = 'on_article_assigned_to_issue'
+
+    # kwargs: request, article
     # raised when an article is marked as published
     ON_ARTICLE_PUBLISHED = 'on_article_published'
 

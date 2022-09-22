@@ -48,7 +48,7 @@
     <div class="large-6 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Rejected Articles</h2>
+                <h2>Rejected & Archived Articles</h2>
             </div>
             <div class="content">
                 <table class="small article_list scroll">
@@ -66,7 +66,7 @@
                         <tr>
                             <td>{{ article.pk }}</td>
                             <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
-                            <td>{{ article.date_declined }}</td>
+                            <td>{{ article.date_declined|default_if_none:"Archived" }}</td>
                             <td>{{ article.identifier }}</td>
                         </tr>
                     {% endfor %}

@@ -10,20 +10,21 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 from copyediting import models, logic, forms
-from core import models as core_models, files
+from core import models as core_models, files, logic as core_logic
 from events import logic as event_logic
 from security.decorators import (
     production_user_or_editor_required, copyeditor_user_required,
     copyeditor_for_copyedit_required, article_author_required,
-    editor_user_required, senior_editor_user_required
+    editor_user_required, senior_editor_user_required,
+    any_editor_user_required
 )
 
 from submission import models as submission_models
 
-
-@senior_editor_user_required
+@any_editor_user_required
 def copyediting(request):
     """
     View shows the user a list of articles in Copyediting
@@ -33,6 +34,12 @@ def copyediting(request):
 
     articles_in_copyediting = submission_models.Article.objects.filter(stage__in=submission_models.COPYEDITING_STAGES,
                                                                        journal=request.journal)
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        articles_in_copyediting = core_logic.filter_articles_to_editor_assigned(
+            request,
+            articles_in_copyediting
+        )
 
     template = 'copyediting/copyediting.html'
     context = {
@@ -123,6 +130,8 @@ def add_copyeditor_assignment(request, article_id):
     form = forms.CopyeditAssignmentForm(
         copyeditor_pks=copyeditor_pks,
         files=files,
+        editor=request.user,
+        article=article,
     )
 
     if request.POST:
@@ -130,13 +139,12 @@ def add_copyeditor_assignment(request, article_id):
             request.POST,
             copyeditor_pks=copyeditor_pks,
             files=files,
+            editor=request.user,
+            article=article,
         )
 
-        if form.is_valid():
-            copyedit = form.save(
-                editor=request.user,
-                article=article,
-            )
+        if form.is_valid() and form.is_confirmed():
+            copyedit = form.save()
 
             return redirect(
                 reverse(
@@ -265,13 +273,13 @@ def copyedit_requests(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    new_requests = models.CopyeditAssignment.objects.filter(
+    new_requests = models.CopyeditAssignment.active_objects.filter(
         copyeditor=request.user,
         decision__isnull=True,
         article__journal=request.journal
     )
 
-    active_requests = models.CopyeditAssignment.objects.filter(
+    active_requests = models.CopyeditAssignment.active_objects.filter(
         (Q(copyeditor=request.user) &
          Q(decision='accept') &
          Q(copyedit_reopened__isnull=True) &
@@ -279,7 +287,7 @@ def copyedit_requests(request):
         article__journal=request.journal
     )
 
-    reopened_requests = models.CopyeditAssignment.objects.filter(
+    reopened_requests = models.CopyeditAssignment.active_objects.filter(
         copyeditor=request.user,
         copyeditor_completed__isnull=False,
         copyedit_reopened__isnull=False,
@@ -288,7 +296,7 @@ def copyedit_requests(request):
         article__journal=request.journal,
     )
 
-    completed_requests = models.CopyeditAssignment.objects.filter(
+    completed_requests = models.CopyeditAssignment.active_objects.filter(
         Q(copyeditor=request.user,
           decision='accept',
           copyedit_accepted__isnull=False) |
@@ -350,11 +358,13 @@ def do_copyedit(request, copyedit_id):
     :param copyedit_id: a CopyeditAssignment PK
     :return: HttpResponse object
     """
-    copyedit = get_object_or_404(models.CopyeditAssignment,
-                                 Q(copyeditor_completed__isnull=True) | Q(copyedit_reopened__isnull=False),
-                                 copyedit_reopened_complete__isnull=True,
-                                 pk=copyedit_id,
-                                 decision='accept')
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment.active_objects,
+        Q(copyeditor_completed__isnull=True) | Q(copyedit_reopened__isnull=False),
+        copyedit_reopened_complete__isnull=True,
+        pk=copyedit_id,
+        decision='accept',
+    )
     form = forms.CopyEditForm(instance=copyedit)
 
     if request.POST:
@@ -459,29 +469,41 @@ def editor_review(request, article_id, copyedit_id):
     )
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
+    author_review_form = forms.AuthorReviewAssignmentForm(
+        author=article.correspondence_author,
+        assignment=copyedit,
+    )
+
     if request.POST:
         if 'accept_note' in request.POST:
             logic.accept_copyedit(copyedit, article, request)
-        elif 'author_review' in request.POST:
-            author_review = models.AuthorReview.objects.create(
+
+            return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
+
+        elif 'author_review' in request.POST or author_review_form.CONFIRMED_BUTTON_NAME in request.POST:
+            author_review_form = forms.AuthorReviewAssignmentForm(
+                request.POST,
                 author=article.correspondence_author,
                 assignment=copyedit,
-                notified=True
             )
-            return redirect(
-                reverse(
-                    'request_author_copyedit',
-                    kwargs={
-                        'article_id': article.pk,
-                        'copyedit_id': copyedit.pk,
-                        'author_review_id': author_review.pk,
-                    }
+
+            if author_review_form.is_valid() and author_review_form.is_confirmed():
+                author_review = author_review_form.save()
+
+                return redirect(
+                    reverse(
+                        'request_author_copyedit',
+                        kwargs={
+                            'article_id': article.pk,
+                            'copyedit_id': copyedit.pk,
+                            'author_review_id': author_review.pk,
+                        }
+                    )
                 )
-            )
         elif 'reset_note' in request.POST:
             logic.reset_copyedit(copyedit, article, request)
 
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
+            return redirect(reverse('article_copyediting', kwargs={'article_id': article.id}))
 
     if request.GET.get('file_id'):
         return logic.attempt_to_serve_file(request, copyedit)
@@ -492,6 +514,7 @@ def editor_review(request, article_id, copyedit_id):
         'copyedit': copyedit,
         'accept_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_ack'),
         'reopen_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_reopen_task'),
+        'author_review_form': author_review_form,
     }
 
     return render(request, template, context)
@@ -574,6 +597,71 @@ def request_author_copyedit(request, article_id, copyedit_id,
     return render(request, template, context)
 
 
+@editor_user_required
+def delete_author_review(request, article_id, copyedit_id, author_review_id):
+    author_review = get_object_or_404(
+        models.AuthorReview,
+        pk=author_review_id,
+        assignment__article__journal=request.journal,
+    )
+    email_template = logic.get_copyedit_message(
+        request,
+        article=author_review.assignment.article,
+        copyedit=author_review.assignment,
+        template='author_copyedit_deleted',
+        author_review=author_review,
+    )
+    email_subject = request.journal.get_setting(
+        'email_subject',
+        'subject_author_copyedit_deleted',
+    )
+
+    if request.POST:
+        event_kwargs = {
+            'user_message_content': request.POST.get('user_message_content'),
+            'subject': email_subject,
+            'author_review': author_review,
+            'request': request,
+            'skip': True if 'skip' in request.POST else False
+        }
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
+            **event_kwargs,
+        )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Author review for {} has been deleted.'.format(
+                author_review.assignment.article.title,
+            )
+        )
+        author_review.delete()
+
+        return redirect(
+            reverse(
+                'editor_review',
+                kwargs={
+                    'article_id': article_id,
+                    'copyedit_id': copyedit_id,
+                }
+            )
+        )
+
+    template = 'admin/copyediting/delete_author_review.html'
+    context = {
+        'author_review': author_review,
+        'article': author_review.assignment.article,
+        'copyedit': author_review.assignment,
+        'email_template': email_template,
+        'email_subject': email_subject,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
 @article_author_required
 def author_copyedit(request, article_id, author_review_id):
     """
@@ -583,17 +671,19 @@ def author_copyedit(request, article_id, author_review_id):
     :param author_review_id: AuthorReview pk
     :return: contextualised template
     """
-    author_review = get_object_or_404(models.AuthorReview,
-                                      pk=author_review_id,
-                                      assignment__article__id=article_id,
-                                      date_decided__isnull=True)
+    author_review = get_object_or_404(
+        models.AuthorReview.active_objects,
+        pk=author_review_id,
+        assignment__article__id=article_id,
+        date_decided__isnull=True,
+    )
     copyedit = author_review.assignment
     form = forms.AuthorCopyeditForm(instance=author_review)
 
     if request.POST:
         form = forms.AuthorCopyeditForm(request.POST, instance=author_review)
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             author_review = form.save(commit=False)
             author_review.date_decided = timezone.now()
             author_review.save()

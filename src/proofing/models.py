@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from events import logic as event_logic
 from utils import setting_handler
+from submission import models as submission_models
 
 
 class ProofingAssignment(models.Model):
@@ -134,6 +135,13 @@ class ProofingRound(models.Model):
         return True
 
 
+class ActiveProofingTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveProofingTaskManager, self).get_queryset().exclude(
+            round__assignment__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class ProofingTask(models.Model):
     round = models.ForeignKey(ProofingRound)
     proofreader = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
@@ -149,6 +157,9 @@ class ProofingTask(models.Model):
     galleys_for_proofing = models.ManyToManyField('core.Galley')
     proofed_files = models.ManyToManyField('core.File')
     notes = models.ManyToManyField('proofing.Note')
+
+    objects = models.Manager()
+    active_objects = ActiveProofingTaskManager()
 
     def __str__(self):
         return "{0} proofing {1} in round {2}".format(self.proofreader.full_name(),
@@ -196,6 +207,13 @@ class ProofingTask(models.Model):
         self.save()
 
 
+class ActiveTypesetterProofingTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTypesetterProofingTaskManager, self).get_queryset().exclude(
+            proofing_task__round__assignment__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class TypesetterProofingTask(models.Model):
     proofing_task = models.ForeignKey(ProofingTask)
     typesetter = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
@@ -211,6 +229,9 @@ class TypesetterProofingTask(models.Model):
     galleys = models.ManyToManyField('core.Galley')
     files = models.ManyToManyField('core.File')
     notes = models.TextField(verbose_name="Correction Note", blank=True, null=True)
+
+    objects = models.Manager()
+    active_objects = ActiveTypesetterProofingTaskManager()
 
     class Meta:
         verbose_name = 'Correction Task'

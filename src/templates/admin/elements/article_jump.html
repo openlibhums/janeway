@@ -34,3 +34,17 @@
     </ul>
 </div>
 
+{% if article.stage == 'Archived' %}
+<div class="row expanded">
+    <div class="bs-callout bs-callout-danger bg-white">
+        <p class="no-bottom-margin">
+            <small>
+                <strong>
+                    Note:
+                </strong>
+                This article has been archived.
+            </small>
+        </p>
+    </div>
+</div>
+{% endif %}

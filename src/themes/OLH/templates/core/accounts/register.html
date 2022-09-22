@@ -28,13 +28,13 @@
                 <div class="callout">
                     <div class="row column log-in-form">
                         <h5>{% trans "Register for an" %}  {{ request.press.name }} {% trans "account" %}.</h5>
-                        <p>Password Rules:</p>
-                            <ul class="no-top-margin">
-                                <li>{% trans "Your password should be" %} {{ request.press.password_length }} {% trans "characters long" %}.</li>
-                        {% if request.press.password_upper %}<li>{% trans "Your password should contain at least one upper case letter." %}</li>{% endif %}
-                        {% if request.press.password_number %}<li>{% trans "Your password should contain at least one number." %}</li>{% endif %}
-                            </ul>
-                            <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
+                        <p>{% trans "Password Rules" %}:</p>
+                        <ul class="no-top-margin">
+                            <li>- {% blocktrans %}Your password should be {{ request.press.password_length }} characters long.{% endblocktrans %}</li>
+                            {% if request.press.password_upper %}<li>- {% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
+                            {% if request.press.password_number %}<li>- {% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
+                        </ul>
+                        <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
 
                         {% include "elements/forms/errors.html" with form=form %}
 
@@ -66,6 +66,13 @@
                                 {{ form.country|foundation }}
                             </div>
                         </div>
+                        {% if form.register_as_reader %}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                {{ form.register_as_reader|foundation }}
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="row">
                             <div class="large-6 columns">
                                 {{ form.password_1|foundation }}

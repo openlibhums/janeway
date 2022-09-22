@@ -64,6 +64,11 @@
                                                 Files</a>{% endif %}
                                     </div>
                                     <div class="row" data-equalizer data-equalize-on="medium">
+                                        <p>
+                                            {% blocktrans %}
+                                            These files are the versions sent out to reviewers in Round {{ round.round_number }} of review.
+                                            {% endblocktrans %}
+                                        </p>
                                         {% for file in round.review_files.all %}
                                             <div class="large-3 columns{% if forloop.last %} end{% endif %}">
                                                 <div class="callout breakdown file" data-equalizer-watch>
@@ -109,6 +114,7 @@
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
                                             Reviewer</a>{% endif %}
                                 </div>
+
                                 {% chain round.active_reviews round.inactive_reviews as reviews %}
                                 {% for review in reviews %}
                                     {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
@@ -180,8 +186,40 @@
                                         {% endif %}
                                     </td>
                                 </tr>
+                                <tr>
                             {% endfor %}
                             </tbody>
+                        </table>
+                    </div>
+                    <div class="title-area">
+                        <h2>Current Files</h2>
+                    </div>
+                    <div class="content">
+                        <p>
+                            <small>
+                                {% blocktrans %}
+                                The latest manuscript and figure files for this article. When a revision task is completed these will be updated with the latest versions from the authors.
+                                {% endblocktrans %}
+                            </small>
+                        </p>
+                        <table>
+                            <tr>
+                                <th>File ID</th>
+                                <th colspan="2">File Name</th>
+                                <th>Uploaded</th>
+                                <th>Download</th>
+                            </tr>
+                            {% for file in article.ms_and_figure_files %}
+                                <tr>
+                                    <td>{{ file.pk }}</td>
+                                    <td colspan="2">{{ file.original_filename }}</td>
+                                    <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'editor_file_download' article.pk file.pk %}"><i
+                                                class="fa fa-download">&nbsp;</i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </table>
                     </div>
                 </div>
@@ -224,6 +262,14 @@
                         <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
                         </li>
                         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
+                    {% if article.is_accepted %}
+                        <li>
+                            <a href="{% url 'move_to_next_workflow_element' article.pk %}">
+                                <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
+                                {% trans 'Move to Next Stage' %}
+                            </a>
+                        </li>
+                    {% else %}
                         <li>
                             <a href="{% url 'decision_helper' article.pk %}">
                                 <span class="fa fa-gavel"></span> Make a Decision
@@ -234,6 +280,7 @@
                                 <i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
                             </a>
                         </li>
+                    {% endif %}
                     </ul>
                 </div>
             </div>
@@ -241,10 +288,14 @@
     </div>
     {% include "admin/elements/summary_modal.html" %}
     {% include "admin/elements/review/new_round_modal.html" %}
+    {% include "admin/elements/move_to_next_modal.html" %}
 
 {% endblock body %}
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
     {% include "elements/notes/note_script.html" %}
+    {% if article.is_accepted %}
+        {% include "admin/elements/open_modal.html" with target='move_to_next_modal' %}
+    {% endif %}
 {% endblock js %}
