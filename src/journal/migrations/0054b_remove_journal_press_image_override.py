@@ -8,13 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0053_remove_journal_press_image_override'),
+        ('journal', '0054a_journal_press_image_override_temp'),
     ]
 
     operations = [
-        migrations.RenameField(
+        migrations.RemoveField(
             model_name='journal',
-            old_name='press_image_override_temp',
-            new_name='press_image_override',
+            name='press_image_override',
         ),
     ]

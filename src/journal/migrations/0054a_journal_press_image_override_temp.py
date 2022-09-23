@@ -36,7 +36,7 @@ def copy_press_image_override_temp(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0051_journal_is_archived'),
+        ('journal', '0053_display_article_images_settings'),
     ]
 
     operations = [
