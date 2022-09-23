@@ -826,6 +826,8 @@ class TestThemeMiddleware(TestCase):
             self.journal_one,
             'LCARS',
         )
+        # the middleware heavily caches these settings so we need to clear it.
+        clear_cache()
 
         request = helpers.Request()
         request.journal = self.journal_one
