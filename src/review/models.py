@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.db.models import Max, Q, Value
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext as _
 
 from utils import shared
 
@@ -248,6 +249,11 @@ class ReviewAssignment(models.Model):
                 'date': '',
                 'reminder': 'request',
             }
+
+    def visibility_statement(self):
+        if self.for_author_consumption:
+            return _("available for the author to access")
+        return _("not available for the author to access")
 
     def __str__(self):
         if self.reviewer:

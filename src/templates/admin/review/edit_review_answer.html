@@ -17,7 +17,7 @@
                 <h2>Reviewer Answer</h2>
             </div>
             <div class="content">
-                {{ answer.answer }}
+                {{ answer.answer|linebreaksbr }}
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
             <div class="content">
                 <form method="POST">
                     {% csrf_token %}
-                    {% include "elements/single_field_generate_form.html" with form=form %}
+                    {% include "admin/elements/single_field_generate_form.html" with form=form %}
                     <button type="submit" class="button success">Save Editor Version</button>
                 </form>
             </div>
