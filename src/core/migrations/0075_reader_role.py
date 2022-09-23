@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ).delete()
 
     dependencies = [
-        ('core', '0070_auto_20220506_1652'),
+        ('core', '0074_auto_20220721_1448'),
     ]
 
     operations = [
