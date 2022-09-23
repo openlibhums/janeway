@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}}
 {% load static from staticfiles %}
 {% load foundation %}
+{% load i18n %}
 
 {% block title %}View Review{% endblock title %}
 {% block title-section %}View Review{% endblock %}
@@ -17,39 +18,52 @@
         <div class="row expanded">
             <div class="large-12 columns"></div>
             <div class="title-area">
-                <h2>Review #{{ review.pk }} by {{ review.reviewer.full_name }}</h2>
+                <h2>
+                    {% blocktrans with review_id=review.pk reviewer_full_name=review.reviewer.full_name %}
+                        Review #{{ review_id }} by {{ reviewer_full_name }}
+                    {% endblocktrans %}
+                </h2>
                 {% if request.user.is_staff %}
                     <a target="_blank"
                        class="button"
                        href="{% url 'admin:review_reviewassignment_change' review.pk %}">
-                        <span class="fa fa-cogs"> </span> Edit in Admin
+                        <span class="fa fa-cogs"> </span> {% trans 'Edit in Admin' %}
                     </a>
                 {% endif %}
             </div>
             <div class="content">
-                <p>You can make this review available for the author to see using the <em>Review Availability Controls</em>
-                    below. If you need to make changes to the review you can do so by using the <em>Edit</em>
-                    button below each form element. You can also make individual review elements hidden or available.
+                <p>
+                    {% blocktrans %}
+                        You can make this review available for the author to see using
+                        the <em>Review Availability Controls</em> below. You can also
+                        make individual review elements hidden or available.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        If you need to make changes to the review you can do so by
+                        using the <em>Edit</em> button below each form element
+                    {% endblocktrans %}
                 </p>
                 <table class="small scroll">
                     <tr>
-                        <th>Reviewer</th>
-                        <th>Requested</th>
-                        <th>Request Decision</th>
-                        <th>Due</th>
-                        <th>Access Code</th>
-                        <th>Decision</th>
-                        <th>Completed</th>
+                        <th>{% trans 'Reviewer' %}</th>
+                        <th>{% trans 'Requested' %}</th>
+                        <th>{% trans 'Request Decision' %}</th>
+                        <th>{% trans 'Due' %}</th>
+                        <th>{% trans 'Access Code' %}</th>
+                        <th>{% trans 'Decision' %}</th>
+                        <th>{% trans 'Completed' %}</th>
                     </tr>
                     <tr>
-                        <td>{{ review.reviewer.full_name }} <span data-tooltip title="Email peer reviewer."><a
+                        <td>{{ review.reviewer.full_name }} <span data-tooltip title="{% trans 'Email peer reviewer' %}."><a
                                 onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span
                                 class="fa fa-envelope">&nbsp;</span></a></span></td>
                         <td>{{ review.date_requested|date:"Y-m-d" }}</td>
-                        <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
-                        {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
-                        {% elif review.date_declined %}Declined {{ review.date_declined|date:"Y-m-d" }}
-                        {% else %}Awaiting acknowledgement{% endif %}
+                        <td>{% if review.decision == 'withdrawn' %}{% trans 'Withdrawn' %} {{ review.date_complete|date:"Y-m-d" }}
+                        {% elif review.date_accepted %}{% trans 'Accepted' %} {{ review.date_accepted|date:"Y-m-d" }}
+                        {% elif review.date_declined %}{% trans 'Declined' %} {{ review.date_declined|date:"Y-m-d" }}
+                        {% else %}{% trans 'Awaiting acknowledgement' %}{% endif %}
                         </td>
                         <td>{{ review.date_due|date:"Y-m-d" }}</td>
                         <td>
@@ -64,17 +78,17 @@
             {% if review.date_complete or review.date_declined %}
                 <div class="large-7 columns">
                     <div class="title-area">
-                        <h2>Summary of Review</h2>
+                        <h2>{% trans 'Summary of Review' %}</h2>
                     </div>
                     <div class="content">
                         {% if review.decision == 'withdrawn' or review.date_declined %}
-                            <p>No review was undertaken.</p>
+                            <p>{% trans 'No review was undertaken.' %}</p>
                         {% elif review.is_complete %}
                             {% if review.review_file %}
                                 <div class="row expanded">
                                     <div class="large-12 columns">
                                         <div class="callout">
-                                            <strong>Review File</strong>
+                                            <strong>{% trans 'Review File' %}</strong>
                                             {% include "admin/elements/review/review_file_table_modal.html" with review=review %}
                                         </div>
                                     </div>
@@ -89,14 +103,15 @@
                                         <br/>
                                         {% if answer.edited_answer %}
                                             <br/>
-                                            <b>Edited Answer</b>
+                                            <b>{% trans 'Edited Answer' %}</b>
                                             <br/>
                                             {{ answer.edited_answer|linebreaksbr }}
                                             <br/>
                                         {% endif %}
                                         <br/>
-                                        <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}"><i
-                                                class="fa fa-edit">&nbsp;</i></a>Edit
+                                        <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}">
+                                            <i class="fa fa-edit">&nbsp;</i>
+                                        </a>{% trans 'Edit' %}
                                         {% if answer.edited_answer %}
                                             <form method="POST">
                                                 {% csrf_token %}
@@ -106,7 +121,7 @@
                                                            value="{{ answer.pk }}">
                                                     <i class="fa fa-refresh">&nbsp;</i>
                                                 </button>
-                                                Reset
+                                                {% trans 'Reset' %}
                                             </form>
                                         {% endif %}
                                     </div>
@@ -117,7 +132,7 @@
                                 <div class="large-12 columns">
                                     <div class="callout" style="padding-bottom:0px;">
                                         <div class="title-area">
-                                            <h2>Comments for the Editor</h2>
+                                            <h2>{% trans 'Comments for the Editor' %}</h2>
                                         </div>
                                         <div class="content">
                                             <p>{{ review.comments_for_editor|linebreaksbr }}</p>
@@ -133,40 +148,47 @@
 
                 <div class="large-5 columns">
                     <div class="title-area">
-                        <h2>Review Availability Controls</h2>
+                        <h2>{% trans 'Review Availability Controls' %}</h2>
                     </div>
                     <div class="content">
                         <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
                             <li class="accordion-item is-active" data-accordion-item>
                                 <!-- Accordion tab title -->
-                                <a href="#" class="accordion-title">Review Visibility</a>
+                                <a href="#" class="accordion-title">{% trans 'Review Visibility' %}</a>
 
                                 <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                                 <div class="accordion-content" data-tab-content>
-                                    <p>Currently this review is {{ review.visibility_statement }}. <strong>Note</strong> that the author must have access to the review before they can access the review file.</p>
+                                    <p>
+                                        {% blocktrans with visibility_statement=review.visibility_statement %}
+                                            Currently this review is {{ visibility_statement }}. Note that the author
+                                            must have access to the review before they can access the review file.
+                                        {% endblocktrans %}
+                                    </p>
                                     <form method="POST">
                                         {% csrf_token %}
                                         {{ visibility_form }}
-                                        <button class="button" name="visibility">Save</button>
+                                        <button class="button" name="visibility">{% trans 'Save' %}</button>
                                     </form>
                                 </div>
                             </li>
                             <li class="accordion-item{% if answer_visibility_form.errors or "answer_accordion" in request.GET %} is-active{% endif %}" data-accordion-item>
-                                <a href="#" class="accordion-title">Answer Visibility</a>
+                                <a href="#" class="accordion-title">{% trans 'Answer Visibility' %}</a>
                                 <div class="accordion-content" data-tab-content>
                                     <p>
                                         <small>
-                                            The toggles below control the visibility of the individual review form
-                                            answers. Note that changing these will have no effect unless the Review is
-                                            marked as visible to the author using the <em>Author can access this review</em>
-                                            toggle above.
+                                            {% blocktrans  %}
+                                                The toggles below control the visibility of the individual review form
+                                                answers. Note that changing these will have no effect unless the Review is
+                                                marked as visible to the author using the <em>Author can access this review</em>
+                                                toggle above.
+                                            {% endblocktrans %}
                                         </small>
                                     </p>
                                     <form method="POST">
                                         {% csrf_token %}
                                         {% include "admin/elements/forms/errors.html" with form=answer_visibility_form %}
                                         {{ answer_visibility_form }}
-                                        <button class="button" name="answer_visibility">Save</button>
+                                        <button class="button" name="answer_visibility">{% trans 'Save' %}</button>
                                     </form>
                                 </div>
                             </li>
@@ -179,7 +201,7 @@
 
     {% if review.date_declined %}
         <div class="title-area">
-            <h2>Suggested Reviewers</h2>
+            <h2>{% trans 'Suggested Reviewers' %}</h2>
         </div>
         <div class="content">
             {{ review.suggested_reviewers|safe }}

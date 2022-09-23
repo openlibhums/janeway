@@ -337,8 +337,8 @@ class ReviewVisibilityForm(forms.ModelForm):
         model = models.ReviewAssignment
         fields = ('for_author_consumption', 'display_review_file')
         labels = {
-            "for_author_consumption": "Author can access this review",
-            "display_review_file": "Author can access review file",
+            "for_author_consumption": _("Author can access this review"),
+            "display_review_file": _("Author can access review file"),
         }
         widgets = {
             "for_author_consumption": HTMLSwitchInput(),
@@ -358,8 +358,9 @@ class AnswerVisibilityForm(forms.Form):
         super(AnswerVisibilityForm, self).__init__(*args, **kwargs)
 
         for answer in self.review_assignment.review_form_answers():
+            label = _("Author can see ‘%(name)s’") % {'name': answer.original_element.name}
             self.fields[str(answer.pk)] = forms.BooleanField(
-                label="Author can see {}".format(answer.original_element.name),
+                label=label,
                 widget=HTMLSwitchInput(),
                 required=False,
                 initial=True if answer.author_can_see else False,

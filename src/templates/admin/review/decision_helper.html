@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load stages %}
 {% load roles %}
+{% load i18n %}
 
 {% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
 {% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
@@ -94,7 +95,7 @@
                                 <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
                                 <div class="pull-right">
                                     <label for="id_{{ review.pk }}">
-                                        Review is visible to the author:
+                                        {% trans 'Review is visible to the author:' %}
                                     </label>
                                     <div class="switch tiny pull-right">
                                         <input type="hidden" name="review_id" value="{{ review.pk }}">

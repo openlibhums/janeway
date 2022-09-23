@@ -65,7 +65,7 @@ Once the reviewer is assigned they will be able to access the system and let you
 
 Making Reviews Available to Authors
 -----------------------------------
-Once a peer review is complete editors then have the option to make them available to the the author to read. By default the review will not be available for the author to read. When the review has a file you will also have the option to make the file available for the author to read. Once you have opened a review you will see a details of the review assignment, a summary of the review and the review availability controls.
+Once a peer review is complete, editors then have the option to make it available to the the author to read. By default the review will not be available for the author to read. When the review has a file, you will also have the option to make the file available for the author to read. Once you have opened a review you will see a details of the review assignment, a summary of the review and the review availability controls.
 
 .. figure:: ../nstatic/review_view_page.png
 
@@ -79,7 +79,7 @@ You can make the review form visible to the author by toggling *Author can acces
 Controlling Individual Answers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to making the overall review available for authors to read you can control the individual form answers under *Answer Visibility*. Toggling the answers on or off will determine whether the author can see them when they look at the review.
+In addition to making the overall review available for authors to read, you can control the individual form answers under *Answer Visibility*. Toggling the answers on or off will determine whether the author can see them when they look at the review.
 
 .. figure:: ../nstatic/review_visibility_controls_2.png
 
