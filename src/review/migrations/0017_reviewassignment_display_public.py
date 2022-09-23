@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -22,5 +23,10 @@ class Migration(migrations.Migration):
             name='permission_to_make_public',
             field=models.BooleanField(default=False,
                                       help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.'),
+        ),
+        migrations.AlterField(
+            model_name='revisionrequest',
+            name='date_requested',
+            field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]
