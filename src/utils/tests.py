@@ -516,7 +516,6 @@ class CopyeditingEmailSubjectTests(UtilsTests):
             email_function(**kwargs)
             subject_setting = self.get_default_email_subject(subject_setting_name)
             expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-            # from nose.tools import set_trace; set_trace()
             self.assertEqual(expected_subject, mail.outbox[-1].subject)
 
 
