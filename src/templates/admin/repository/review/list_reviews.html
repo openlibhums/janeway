@@ -2,15 +2,15 @@
 {% load foundation %}
 {% load bool_fa %}
 
-{% block title %}Invited Reviews{% endblock %}
-{% block title-section %}Invited Reviews{% endblock %}
+{% block title %}Invited Review Comments{% endblock %}
+{% block title-section %}Invited Reviews Comments{% endblock %}
 {% block title-sub %}Lists reviewers invited to comment on a preprint.{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
     <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
     <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
-    <li>Invited Reviews</li>
+    <li>Invited Review Comments</li>
 {% endblock %}
 
 {% block body %}
@@ -19,7 +19,7 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Invited Reviewers</h2>
-                    <a href="{% url 'repository_new_review' preprint.pk %}" class="button"><i class="fa fa-plus"> </i> Add New Review</a>
+                    <a href="{% url 'repository_new_review' preprint.pk %}" class="button"><i class="fa fa-plus"> </i> Add New Invite</a>
                 </div>
                 <div class="content">
                     <p>Invited reviews that are active or complete are listed below.</p>
