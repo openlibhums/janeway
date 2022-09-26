@@ -246,8 +246,8 @@ class Migration(migrations.Migration):
             name='Role',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('slug', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=100, help_text='Display name for this role (can include spaces and capital letters)')),
+                ('slug', models.CharField(max_length=100, help_text='Normalized string representing this role containing only lowercase letters and hyphens.')),
             ],
             options={
                 'ordering': ('name', 'slug'),

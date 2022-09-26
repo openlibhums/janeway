@@ -429,7 +429,7 @@ class CoreTests(TestCase):
         self.journal_one, self.journal_two = helpers.create_journals()
         helpers.create_roles(["editor", "author", "reviewer", "proofreader",
                               "production", "copyeditor", "typesetter",
-                              "proofing_manager", "section-editor", "reader"])
+                              "proofing-manager", "section-editor", "reader"])
 
         self.regular_user = helpers.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
