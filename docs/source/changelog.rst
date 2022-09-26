@@ -13,38 +13,38 @@ As normal run the ``.upgrade.sh`` command.
 DOIs
 ^^^^
 
-- Added Support for title level DOIs
-- Added support for issue level DOIs
+- Added support for title-level DOIs
+- Added support for issue-level DOIs
 - Updated the DOI Manager page to make it scale better
 
 Peer Review
 ^^^^^^^^^^^
 
-- The interface for making reivews available to Authors has been updated to make it easier to use and easier for editors to see the current status
+- The interface for making reivews available to authors has been updated to make it easier to use and easier for editors to see the current status
 - Editors can now see reviews in the draft decisions interface
-- Where a peer reivew is open, and the reviewer gives explicit permission, that review can now be displayed on the article page
-- Additional metadata is now available to peer reviewers including due date
+- Where a peer review is open, and the reviewer gives explicit permission, that review can now be displayed on the article page
+- Additional metadata is now available to peer reviewers, including due date
 
 Workflow
 ^^^^^^^^
 
-- We've made various updates to make the workflow more user friendly
+- We've made various updates to make the workflow more user-friendly
 - Editors can now archive an article at any point in the workflow
-- When an editor completes a workflow stage instead of being redirected to the dashboard will no move to the next workflow element
+- When an editor completes a workflow stage, instead of being redirected to the dashboard, they will now move to the next workflow element
 - Workflow notification pages now display custom subjects properly
 - Popup contact email forms can now have attachments
 - Editors can now unreject articles and can move articles that are stuck in "Accepted" onto the next workflow element
-- Various Task completion tasks now ask the user to confirm the requested action
+- Various task completion tasks now ask the user to confirm the requested action
 
 Repository
 ^^^^^^^^^^
 
-- There are various fixes around the repository system including fixes to make Repository multi tenancy work better
+- There are various fixes around the repository system including fixes to make repository multi-tenancy work better
 
 Other
 ^^^^^
 
-- Update to article XSLT properly renders footnote numbers and allows footnotes to be references multiple times
+- Update to article XSLT properly renders footnote numbers and allows footnotes to be referenced multiple times
 - Update to article XSLT allows rendering xrefs in footnotes
 - Articles can now export references in Bibtex and RIS
 
@@ -140,7 +140,7 @@ v1.4.2
 
 Upgrade Notes
 ^^^^^^^^^^^^^
-If you intend on enabling full-text search, see the specific notes about this feature below prior to upgrading
+If you intend on enabling full-text search, see the specific notes about this feature below prior to upgrading.
 
 The ``upgrade.sh`` script should then cover the usual upgrade procedure.
 
@@ -150,18 +150,19 @@ as documented in https://janeway.readthedocs.io/en/latest/robotsandsitemaps.html
 
 Full-text Search
 ^^^^^^^^^^^^^^^^
-This version of Janeway includes built-in support for full-text-search. There is a feature flag controlling if this new feature should be enabled for an entire installation.
-If you intend on enabling this feature we recommend setting the following variables in your `settings.py`:
+This version of Janeway includes built-in support for full-text search. There is a feature flag controlling if this new feature should be enabled for an entire installation.
+
+If you intend on enabling this feature, we recommend setting the following variables in your `settings.py`:
 
 `ENABLE_FULL_TEXT_SEARCH = True`
 
-For installations running postgresql, it is also recommended to enable the following setting:
+For installations running PostgreSQL, it is also recommended to enable the following setting:
 `CORE_FILETEXT_MODEL = "core.PGFileText"` (More details at https://janeway.readthedocs.io/en/latest/configuration.html#full-text-search )
 
 
 OIDC
 ^^^^
-Janeway now supports authentication via OIDC. If you would like to enable this new authentication system we recommend having a look at the configuration instructions in the documentation:
+Janeway now supports authentication via OIDC. If you would like to enable this new authentication system, we recommend having a look at the configuration instructions in the documentation:
 https://janeway.readthedocs.io/en/latest/oidc.html
 
 
@@ -230,12 +231,13 @@ Changelog
 
 v1.4.1
 ------
-Version 1.4.1 Introduces Repositories, the brand-new repository system for Janeway.
+Version 1.4.1 introduces repositories, the brand-new repository system for Janeway.
 
 Upgrade notes
 ^^^^^^^^^^^^^
 
 With this release of Janeway, there are a couple of new commands to generate the `robots.txt` and `sitemap.xml` endpoints.
+
 After running the upgrade script `upgrade.sh`, you should run `python src/manage.py generate_robots` and `python src/manage.py generate_sitemaps`.
 
 Sitemaps will be regenerated on a daily basis as per the configuration of the cron tasks installed by Janeway.
