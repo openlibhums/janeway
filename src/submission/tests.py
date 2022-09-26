@@ -657,10 +657,6 @@ class ArticleSearchTests(TransactionTestCase):
     )
     fixtures = [roles_path]
 
-    def test_new_journals_has_submission_configuration(self):
-        if not self.journal_one.submissionconfiguration:
-            self.fail('Journal does not have a submissionconfiguration object.')
-
     @staticmethod
     def create_journal():
         """
