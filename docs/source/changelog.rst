@@ -1,6 +1,140 @@
 Changelog
 =========
 
+v1.4.3
+------
+
+This version of Janeway includes various new features and bugfixes.
+
+Upgrade Notes
+^^^^^^^^^^^^^
+As normal run the ``.upgrade.sh`` command.
+
+DOIs
+^^^^
+
+- Added Support for title level DOIs
+- Added support for issue level DOIs
+- Updated the DOI Manager page to make it scale better
+
+Peer Review
+^^^^^^^^^^^
+
+- The interface for making reivews available to Authors has been updated to make it easier to use and easier for editors to see the current status
+- Editors can now see reviews in the draft decisions interface
+- Where a peer reivew is open, and the reviewer gives explicit permission, that review can now be displayed on the article page
+- Additional metadata is now available to peer reviewers including due date
+
+Workflow
+^^^^^^^^
+
+- We've made various updates to make the workflow more user friendly
+- Editors can now archive an article at any point in the workflow
+- When an editor completes a workflow stage instead of being redirected to the dashboard will no move to the next workflow element
+- Workflow notification pages now display custom subjects properly
+- Popup contact email forms can now have attachments
+- Editors can now unreject articles and can move articles that are stuck in "Accepted" onto the next workflow element
+- Various Task completion tasks now ask the user to confirm the requested action
+
+Repository
+^^^^^^^^^^
+
+- There are various fixes around the repository system including fixes to make Repository multi tenancy work better
+
+Other
+^^^^^
+
+- Update to article XSLT properly renders footnote numbers and allows footnotes to be references multiple times
+- Update to article XSLT allows rendering xrefs in footnotes
+- Articles can now export references in Bibtex and RIS
+
+Changelog
+^^^^^^^^^
+
+* #2994 adds href to the manage reviewers link on the add reviewer page. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2995
+* Add confirmation pane to author-facing task submission buttons by @joemull in https://github.com/BirkbeckCTP/janeway/pull/2950
+* 3015 editors can now send author copyedit review notifications if they are initially skipped. Editors can also delete uncomplete author reviews with an optioinal email notification. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3049
+* #2847 replace hard coded next stage text when completing copyediting with calculation of next stage. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3023
+* Enable preprint moderators to un-reject preprint by @alainna in https://github.com/BirkbeckCTP/janeway/pull/3067
+* #3057 Fix hard-coded article IDs by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3058
+* #3052 Fixes default templates by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3053
+* b_1_4_2_1 merge by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3102
+* #3109 full text indexing will now work as expected for HTML with a body tag. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3110
+* #2320 the OLH theme will now display text when an article is not peer reviewed. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3013
+* Document and test reply-to setting by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3044
+* Fix logic on issue assignment during prepublication checklist by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3042
+* Bugfixes for popular and featured homepage elements by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3040
+* Fix some typos by @fingolfin in https://github.com/BirkbeckCTP/janeway/pull/3003
+* Add Undo Article Rejection button on archive page by @joemull in https://github.com/BirkbeckCTP/janeway/pull/2996
+* Debug email subject settings by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3030
+* #2840 added setting to form, updated to work on form. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3035
+* Copyeditors can now see the article ID on the list and detail pages. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2990
+* Fix an issue where table footnotes would lead article footnotes to no longer link correctly by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/2988
+* Adds controls for handling articles in Accepted stage by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3060
+* Make the translation markup changes identified in PR #2974 by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/2984
+* 1170 editors can now sort an issue's articles by date_published, title, article number or page numbers by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3012
+* Let section editors see more list views by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3115
+* #3074 the author section of the dashboard has been split to show published articles independently, datatables have been added and sections are ordered properly. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3083
+* #3063 remove the enable_digest field from themes as not all themes fail gracefully by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3064
+* Privacy policy link on the clean theme's registration page now renders the correct override. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3092
+* 3059 when an editor completes a workflow element they will automatically be moved onto the next one rather than being directed to the dashboard by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3069
+* Adds a warning when manually changing an article stage via admin by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3119
+* #3112 allows staff to override the journal description when displaying it on the press journal list page. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3113
+* #3038 when the keywords page is enabled, readers can click on article keywords to see a list of articles that use that keyword. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3050
+* #2755 added the Article Rights field to the View and Edit metadata pages. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3019
+* #2814 updated the decision page's skip button text to make it clearer. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3021
+* #2857 when a journal disables submission they can now set a custom message. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3031
+* #2851 added link to toc header for material. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3036
+* #2969 staff, editors and section editors can bypass funding_is_enabled decorator by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3029
+* Editors will be warned when they attempt to assign a task to a user whose account is not active. by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3054
+* 2841 fixes article links on profile pages by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3124
+* #2904 fixes an issue that caused modified dates for File objects not to show up by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3032
+* Fixes a bug with page ranges that caused articles not to appear in lists by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3132
+* Fixed a bug preventing output of internal links to references from footnotes via XSLT by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3129
+* Bump lxml from 4.6.5 to 4.9.1 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/2985
+* #3112 fixed a typo, made messages translatable by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3127
+* Standardize admin fonts to Open Sans by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3135
+* 2937 adds DOI pattern validation to repository submission and update. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2944
+* 2935 various multitenancy bugfixes for repositories by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2946
+* Control user button now also appears on the search user interface. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3065
+* #2820 Accounts now have a suffix field that will be snapshotted into Frozen Authors by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3084
+* Makes OIDC use the press url path and adds ?next for a redirect. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3095
+* Two submission settings were duplicated on the settings page, the duplicates have been removed. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3094
+* #2711 review due dates are now in the default invitation and on the review page. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3018
+* #2819 adds description to Review Files block to avoid confusion and adds the latest manuscript and figure files inline below a revision request. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3020
+* Adds support for Issue and Journal DOIs to Crossref Integration by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3128
+* #3138 Fixes bug that put 'collection' in issue urls by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3139
+* The Competing Interests field can now output HTML. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3103
+* Article citations can now be downloaded in RIS and BibTeX format for ingestion on citation managers. by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3118
+* Fix conflicts between core/0074 migrations by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3141
+* RSS feed titles and descriptions are now not terrible. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3123
+* Fix test_article_image_galley by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3143
+* Added new settings to disable article thumbnails and article large image independantly  by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3120
+* #2875 oai pmh endpoint for preprints by @everreau in https://github.com/BirkbeckCTP/janeway/pull/3098
+* XSLT: Allow footnotes to be referenced multiple times by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3117
+* Fix bug that duplicated issue title by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3148
+* #2934 repositories can now select active licenses from those available. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2955
+* 518 adds new reader role to which users can add themselves, they will then receive notifications when new articles are published by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2943
+* Removed status logic from manager_review_status_change setting. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3000
+* Add open peer review. #141 by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2602
+* #2737 Added new archive stage. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2929
+* #2028 adds a feature flag to disable the Reviews block on the author's article page before acceptance/rejection by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2945
+* Test fixes. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3151
+* #2992 installations and journals can now set which theme is used as the base theme by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/2998
+* Added clear script prefix. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3152
+* Issues that are not yet published can no longer be set as a journal's current issue. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3062
+* Allow the press image to be a non-svg by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3071
+* 2954 updates the review visibility settings to give them a unified style. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3016
+* Added fix for failing test by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3153
+
+**New Contributors**
+
+* @fingolfin made their first contribution in https://github.com/BirkbeckCTP/janeway/pull/3003
+* @everreau made their first contribution in https://github.com/BirkbeckCTP/janeway/pull/3098
+
+**Full Changelog**: https://github.com/BirkbeckCTP/janeway/compare/v1.4.2.1...v1.4.3-RC-1
+
+
 v1.4.2
 ------
 
