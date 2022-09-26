@@ -273,6 +273,8 @@ class CoreTests(TestCase):
             'register_as_reader': True,
         }
 
+        clear_script_prefix()
+        clear_cache()
         response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
         user = models.Account.objects.get(username='reader@janeway.systems')
         role_check = user.check_role(
