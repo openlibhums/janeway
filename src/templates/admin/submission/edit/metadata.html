@@ -117,144 +117,160 @@
                     </div>
                 </div>
             </form>
-            <div class="title-area">
-                <h2>Authors</h2>
-                <a href="#" class="button" data-open="author">Add Author</a>
-            </div>
-            <div class="content">
-                <form method="POST">
-                    {% csrf_token %}
-                    <table class="small scroll">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Display Email Link?</th>
-                            <th>Institution</th>
-                            <th>Correspondence Author</th>
-                            <th></th>
-                            <th></th>
+        </div>
+        <div class="title-area">
+            <h2>Authors</h2>
+            <a href="#" class="button" data-open="author">Add Author</a>
+        </div>
+        <div class="content">
+            <form method="POST">
+                {% csrf_token %}
+                <table class="small scroll">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Display Email Link?</th>
+                        <th>Institution</th>
+                        <th>Correspondence Author</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for f_author in article.frozen_authors %}
+                        <tr id="authors-{{ f_author.pk }}">
+                            <td><i class="fa fa-sort"></i></td>
+                            <td>{{ f_author.full_name }}</td>
+                            <td>{{ f_author.email }}</td>
+                            <td>{{ f_author.display_email|bool_fa }}</td>
+                            <td>{{ f_author.institution }}</td>
+                            <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
+                                <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                            <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
+                                    class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                            <td>
+                                <form method="POST">{% csrf_token %}
+                                    <button type="submit" name="delete" value="{{ f_author.pk }}"><i
+                                            class="fa fa-trash">&nbsp;</i>Delete
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody id="sortable">
-                        {% for f_author in article.frozen_authors %}
-                            <tr id="authors-{{ f_author.pk }}">
-                                <td><i class="fa fa-sort"></i></td>
-                                <td>{{ f_author.full_name }}</td>
-                                <td>{{ f_author.email }}</td>
-                                <td>{{ f_author.display_email|bool_fa }}</td>
-                                <td>{{ f_author.institution }}</td>
-                                <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
-                                    <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                                <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
-                                        class="fa fa-edit">&nbsp;</i>Edit</a></td>
-                                <td>
-                                    <form method="POST">{% csrf_token %}
-                                        <button type="submit" name="delete" value="{{ f_author.pk }}"><i
-                                                class="fa fa-trash">&nbsp;</i>Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <div class="title-area">
+             <h2>Funding</h2>
+        </div>
+        <div class="content submission-content">
+            <div class="row expanded">
+                <form method="GET" id="search_funder">
+                    <p>
+                        {% blocktrans %}
+                            You can search the <a href="https://www.crossref.org/services/funder-registry/">
+                            Crossref Funder Registry</a> to add known funders.
+                        {% endblocktrans %}
+                    </p>
+                    <div class="large-8 columns">
+                        <input
+                            type="text"
+                            name="funder_text"
+                            id="funder_text"
+                            onkeypress="javascript:onFunderTextEnterPress(event);"
+                        />
+                    </div>
+                    <div class="large-2 columns">
+                        <button type="button"
+                            class="button pull-right"
+                            onclick="javascript:search_fundref($('#funder_text').val())"
+                        >Search for funder</button>
+                    </div>
+                    <div class="large-2 columns">
+                        <input id="funder_name" type="hidden" value="use_raw"/>
+                        <input id="funder_doi" type="hidden" value=""/>
+                        <button
+                            type="button"
+                            class="warning button pull-right"
+                            data-open="add_funder_blank"
+                        ><i class="fa fa-plus">&nbsp;</i>Add funder manually</button>
+                    </div>
                 </form>
-             <div class="title-area">
-                        <h2>Funding</h2>
-                    </div>
-                    <div class="content submission-content">
-                        <div class="title-area">
-                            <h2>Add Funding Source</h2>
-                        </div>
-                        <div class="row expanded">
-                                <div class="large-8 columns">
-                                    <input type="text" name="funder_text" id="funder_text" />
-                                </div>
-                                <div class="large-2 columns">
-                                    <a class="button pull-right" onclick="javascript:search_fundref($('#funder_text').val())">Search for funder</a>
-                                </div>
-                                <div class="large-2 columns">
-                                    <input id="funder_name" type="hidden" value="use_raw"/><input id="funder_doi" type="hidden" value=""/>
-                                    <a class="warning button pull-right" data-open="add_funder_blank"><i class="fa fa-plus">&nbsp;</i>Add funder manually</a>
-                                </div>
-                        </div>
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <span name="funder_list" id="funder_list"></span>
-                        </div>
-                    </div>
-
-                    <div class="title-area">
-                        <h2>Current Funders</h2>
-                    </div>
-
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <table class="scroll">
-                                <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>FundRef ID</th>
-                                    <th>Grant Number</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody id="sortable">
-                                {% for funder in article.funders.all %}
-                                    <tr id="funder-{{ funder.pk }}">
-                                        <td>{{ funder.name }}</td>
-                                        <td>{{ funder.fundref_id }}</td>
-                                        <td>{{ funder.funding_id }}</td>
-                                        <td><a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}"><i
-                                                class="fa fa-trash">
-                                            &nbsp;</i></a></td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2">No funders added.</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
             </div>
-
-            <div class="small reveal" id="add_funder_blank" data-reveal>
-                <div class="card">
-                    <div class="card-divider">
-                        <h5>Add funder</h5>
-                    </div>
-                    <div class="card-section">
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" id="funder_name" name="funder_name"/>
-                                    <p class="help-text">Funder</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" id="funder_doi" name="funder_doi"/>
-                                    <p class="help-text">Funder DOI (optional)</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" name="grant_number" id="grant_number"/>
-                                    <p class="help-text">Funder grant number (optional)</p>
-                                </div>
-                            </div>
-                            <button type="submit" name="add_funder" class="success button">Add funder</button>
-                            <button type="button" data-close="" class="close-button">&times;</button>
-                        </form>
-                    </div>
-                </div>
+        </div>
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <span name="funder_list" id="funder_list"></span>
             </div>
+        </div>
+
+        <div class="title-area">
+            <h2>Current Funders</h2>
+        </div>
+
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <table class="scroll">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>FundRef ID</th>
+                        <th>Grant Number</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for funder in article.funders.all %}
+                        <tr id="funder-{{ funder.pk }}">
+                            <td>{{ funder.name }}</td>
+                            <td>{{ funder.fundref_id }}</td>
+                            <td>{{ funder.funding_id }}</td>
+                            <td><a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-trash">
+                                &nbsp;</i></a></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2">No funders added.</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="small reveal" id="add_funder_blank" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h5>Add funder</h5>
+                </div>
+                <div class="card-section">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <input type="text" id="funder_name" name="funder_name"/>
+                                <p class="help-text">Funder</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <input type="text" id="funder_doi" name="funder_doi"/>
+                                <p class="help-text">Funder DOI (optional)</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <input type="text" name="grant_number" id="grant_number"/>
+                                <p class="help-text">Funder grant number (optional)</p>
+                            </div>
+                        </div>
+                        <button type="submit" name="add_funder" class="success button">Add funder</button>
+                        <button type="button" data-close="" class="close-button">&times;</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -291,6 +307,15 @@
             }
         });
         $( "#sortable" ).disableSelection();
+    </script>
+    <script>
+        function onFunderTextEnterPress(event) {
+            var code = event.keyCode || event.which;
+            if(code == 13) {
+                event.preventDefault();
+                search_fundref($('#funder_text').val());
+            }
+        }
     </script>
     {% include "elements/jqte.html" %}
     {% include 'elements/fundref/fundref.html' %}
