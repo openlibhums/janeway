@@ -16,7 +16,7 @@ def remove_old_setting(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0070_auto_20220506_1652'),
+        ('core', '0075_reader_role'),
     ]
 
     operations = [
