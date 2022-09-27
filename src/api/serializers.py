@@ -68,42 +68,11 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         many=True
     )
 
-
-class PreprintAuthorSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = repository_models.Author
-        fields = ('first_name', 'middle_name', 'last_name', 'affiliation', 'orcid',)
-
-
 class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = repository_models.Subject
         fields = ('name',)
-
-class PreprintSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = repository_models.Preprint
-        fields = ('pk', 'title', 'abstract', 'license', 'keywords', 
-                  'date_submitted', 'date_accepted', 'date_published',
-                  'doi', 'preprint_doi', 'authors', 'subject',)
-
-    authors = PreprintAuthorSerializer(
-        many=True,
-        read_only=True,
-    )
-    license = LicenceSerializer()
-    keywords = KeywordsSerializer(
-        many=True,
-        read_only=True,
-    )
-    subject = PreprintSubjectSerializer(
-        many=True,
-        read_only=True,
-    )
-
 
 class IssueSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -164,3 +133,25 @@ class AccountRoleSerializer(serializers.ModelSerializer):
         else:
             account_role = core_models.AccountRole.objects.create(**validated_data)
             return account_role
+
+class PreprintSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = repository_models.Preprint
+        fields = ('pk', 'title', 'abstract', 'license', 'keywords', 
+                  'date_submitted', 'date_accepted', 'date_published',
+                  'doi', 'preprint_doi', 'authors', 'subject',)
+
+    authors = AccountSerializer(
+        many=True,
+        read_only=True,
+    )
+    license = LicenceSerializer()
+    keywords = KeywordsSerializer(
+        many=True,
+        read_only=True,
+    )
+    subject = PreprintSubjectSerializer(
+        many=True,
+        read_only=True,
+    )
