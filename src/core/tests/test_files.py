@@ -3,6 +3,7 @@ import shutil
 from tempfile import NamedTemporaryFile
 
 from django.urls import reverse
+from django.urls.base import clear_script_prefix
 from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
@@ -10,6 +11,7 @@ from django.utils import timezone
 import pdfkit
 
 from utils.testing import helpers
+from utils.shared import clear_cache
 from submission import models as submission_models
 from core import files
 
@@ -114,6 +116,9 @@ class TestFilesHandler(TestCase):
             self,
             self.test_file_two,
         )
+
+        clear_cache()
+        clear_script_prefix()
 
         url = reverse(
             'article_file_download',

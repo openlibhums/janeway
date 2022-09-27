@@ -15,20 +15,20 @@ class TestLogic(TestCase):
         cls.journal_one, cls.journal_two = helpers.create_journals()
         cls.editor = helpers.create_user(
             'typesetter@janeway.systems',
-            ['editor'],
+            roles=['editor'],
             journal=cls.journal_one,
             atrrs={'is_active': True}
         )
         cls.proofreader = helpers.create_user(
             'proofreader@janeway.systems',
-            ['Proofreader', 'proofreader'],
+            roles=['proofreader'],
             journal=cls.journal_one,
         )
         cls.proofreader.is_active = True
         cls.proofreader.save()
         cls.typesetter = helpers.create_user(
             'typesetter@janeway.systems',
-            ['Typesetter', 'typesetter'],
+            roles=['typesetter'],
             journal=cls.journal_one,
         )
         cls.typesetter.is_active = True

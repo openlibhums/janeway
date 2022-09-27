@@ -28,7 +28,7 @@ from repository import models as repository_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
-from utils.testing.helpers import create_repository, create_preprint
+from utils.testing import helpers
 
 
 class TestSecurity(TestCase):
@@ -3726,20 +3726,12 @@ class TestSecurity(TestCase):
         Creates a user with the specified permissions.
         :return: a user with the specified permissions
         """
-        # check this way to avoid mutable default argument
-        if roles is None:
-            roles = []
-
-        kwargs = {'username': username}
-        user = core_models.Account.objects.create_user(email=username, **kwargs)
-
-        for role in roles:
-            resolved_role = core_models.Role.objects.get(name=role)
-            core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
-
-        user.save()
-
-        return user
+        # For consistency, outsourced to newer testing helpers
+        return helpers.create_user(
+            username,
+            roles=roles,
+            journal=journal,
+        )
 
     @staticmethod
     def create_roles(roles=None):
@@ -3747,12 +3739,8 @@ class TestSecurity(TestCase):
         Creates the necessary roles for testing.
         :return: None
         """
-        # check this way to avoid mutable default argument
-        if roles is None:
-            roles = []
-
-        for role in roles:
-            core_models.Role(name=role, slug=role).save()
+        # For consistency, outsourced to newer testing helpers
+        helpers.create_roles(roles=roles)
 
     @staticmethod
     def create_journals():
@@ -3777,8 +3765,9 @@ class TestSecurity(TestCase):
         :return: None
         """
         self.journal_one, self.journal_two = self.create_journals()
-        self.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
-                           "proofing_manager", "section-editor"])
+        self.create_roles(["editor", "author", "reviewer", "proofreader",
+                           "production", "copyeditor", "typesetter",
+                           "proofing-manager", "section-editor"])
 
         self.regular_user = self.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
@@ -3831,8 +3820,11 @@ class TestSecurity(TestCase):
         self.other_typesetter.is_active = True
         self.other_typesetter.save()
 
-        self.proofing_manager = self.create_user("proofing_manager@martineve.com", ["proofing_manager"],
-                                                 journal=self.journal_one)
+        self.proofing_manager = self.create_user(
+            "proofing_manager@martineve.com",
+            ["proofing-manager"],
+            journal=self.journal_one
+        )
         self.proofing_manager.is_active = True
         self.proofing_manager.save()
 
@@ -4125,12 +4117,12 @@ class TestSecurity(TestCase):
 
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
 
-        self.repository, self.repository_subject = create_repository(
+        self.repository, self.repository_subject = helpers.create_repository(
             self.press,
             [self.admin_user, self.editor, self.repo_manager],
             [self.proofing_manager],
         )
-        self.preprint = create_preprint(
+        self.preprint = helpers.create_preprint(
             repository=self.repository,
             author=self.author,
             subject=self.repository_subject,

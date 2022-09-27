@@ -273,6 +273,8 @@ class CoreTests(TestCase):
             'register_as_reader': True,
         }
 
+        clear_script_prefix()
+        clear_cache()
         response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
         user = models.Account.objects.get(username='reader@janeway.systems')
         role_check = user.check_role(
@@ -425,8 +427,9 @@ class CoreTests(TestCase):
         self.press = helpers.create_press()
         self.press.save()
         self.journal_one, self.journal_two = helpers.create_journals()
-        helpers.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
-                            "proofing_manager", "section-editor"])
+        helpers.create_roles(["editor", "author", "reviewer", "proofreader",
+                              "production", "copyeditor", "typesetter",
+                              "proofing-manager", "section-editor", "reader"])
 
         self.regular_user = helpers.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
