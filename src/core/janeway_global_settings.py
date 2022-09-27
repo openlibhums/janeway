@@ -557,7 +557,6 @@ if ENABLE_OIDC:
         'django.contrib.auth.backends.ModelBackend',
     )
 
-    
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
     CORE_FILETEXT_MODEL = "core.PGFileText"
@@ -570,10 +569,11 @@ CORE_THEMES = [
     'material',
     'clean',
 ]
+
 INSTALLATION_BASE_THEME = 'OLH'
 
 # Use pagination for all of our APIs based on Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }
