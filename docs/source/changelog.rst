@@ -126,6 +126,11 @@ Changelog
 * Allow the press image to be a non-svg by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3071
 * 2954 updates the review visibility settings to give them a unified style. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3016
 * Added fix for failing test by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3153
+* Updates for #3155 and #3086 by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3156
+* Test fixes for version 1.4.3-release-candidate-0 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3158
+* Merge migrations for version 1.4.3 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3154
+* #3159 Fix bug that removed author when searching funders by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3162
+* Added keywords and meta block to OLH theme by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3161
 
 **New Contributors**
 
