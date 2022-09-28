@@ -69,15 +69,24 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             msg.attach(file.name, file.read(), file.content_type)
             file.close()
 
+    email_sent = msg.send()
+
     # Add a message to the user letting them know the email was sent.
     if request and request.user:
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Email sent.'
-        )
+        if email_sent:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Email sent.'
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Email not sent.'
+            )
 
-    return msg.send()
+    return email_sent
 
 
 def notify_hook(**kwargs):
