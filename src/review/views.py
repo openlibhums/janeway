@@ -493,11 +493,6 @@ def send_review_reminder(request, article_id, review_id, reminder_type):
                 review_assignment,
                 reminder_type
             )
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Email sent'
-            )
             return redirect(
                 reverse(
                     'review_in_review',
