@@ -35,6 +35,7 @@ Workflow
 - Popup contact email forms can now have attachments
 - Editors can now unreject articles and can move articles that are stuck in "Accepted" onto the next workflow element
 - Various task completion tasks now ask the user to confirm the requested action
+- Whenever you send an email using Janeway, you get a small green bar in the bottom right confirming "Email sent"
 
 Repository
 ^^^^^^^^^^
@@ -131,6 +132,7 @@ Changelog
 * Merge migrations for version 1.4.3 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3154
 * #3159 Fix bug that removed author when searching funders by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3162
 * Added keywords and meta block to OLH theme by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3161
+* #3171 adds an 'Email sent' message whenever an email has a request and request.user object by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3172
 
 **New Contributors**
 
