@@ -33,6 +33,19 @@ Uninstalling Janeway is as simple as running ``make uninstall`` which will delet
 
 4. We will never accept commits of, or ourselves write, paywall features into Janeway.
 
+# Current development
+
+What are we working on right now? For a high-level view, check out our [public roadmap on Trello](https://trello.com/b/Qnq2ySby/janeway-roadmap).
+
+You can get more detail by viewing our [project boards here on GitHub](https://github.com/orgs/BirkbeckCTP/projects). Open a project to see which issues it includes and what their status is. The status should be one of these:
+
+- To Do -- we plan to do this and include it in this release
+- In Progress -- someone is working on it at this very moment!
+- PR Submitted -- this means one developer has come up with a solution and is waiting for feedback from others
+- Done -- this means at least one other developer has approved the solution and it has been merged into the main codebase in preparation for the release
+
+We aim to build releases in 4-week sprints, though some development cycles have taken quite a bit longer.
+
 # Licensing
 Janeway is available under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE (Version 3, 19 November 2007).
 
