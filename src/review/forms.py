@@ -16,7 +16,7 @@ from django.template.defaultfilters import linebreaksbr
 from review import models, logic
 from core import models as core_models, forms as core_forms
 from utils import setting_handler
-from utils.forms import FakeModelForm, HTMLDateInput
+from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
 
 class DraftDecisionForm(forms.ModelForm):
@@ -146,7 +146,7 @@ class ReviewerDecisionForm(forms.ModelForm):
 
     class Meta:
         model = models.ReviewAssignment
-        fields = ('decision', 'comments_for_editor')
+        fields = ('decision', 'comments_for_editor', 'permission_to_make_public')
 
 
 class FakeReviewerDecisionForm(FakeModelForm, ReviewerDecisionForm):
@@ -330,3 +330,49 @@ class ElementForm(forms.ModelForm):
 class ReviewReminderForm(forms.Form):
     subject = forms.CharField(max_length=255, required=True)
     body = forms.CharField(widget=forms.Textarea, required=True)
+
+
+class ReviewVisibilityForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewAssignment
+        fields = ('for_author_consumption', 'display_review_file')
+        labels = {
+            "for_author_consumption": _("Author can access this review"),
+            "display_review_file": _("Author can access review file"),
+        }
+        widgets = {
+            "for_author_consumption": HTMLSwitchInput(),
+            "display_review_file": HTMLSwitchInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ReviewVisibilityForm, self).__init__(*args, **kwargs)
+        if not self.instance.review_file:
+            self.fields.pop('display_review_file')
+
+
+class AnswerVisibilityForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        self.review_assignment = kwargs.pop('review_assignment', None)
+        super(AnswerVisibilityForm, self).__init__(*args, **kwargs)
+
+        for answer in self.review_assignment.review_form_answers():
+            label = _("Author can see ‘%(name)s’") % {'name': answer.original_element.name}
+            self.fields[str(answer.pk)] = forms.BooleanField(
+                label=label,
+                widget=HTMLSwitchInput(),
+                required=False,
+                initial=True if answer.author_can_see else False,
+            )
+
+    def save(self, commit=True):
+        for answer_id, visibility in self.cleaned_data.items():
+            answer = self.review_assignment.review_form_answers().get(
+                pk=answer_id,
+            )
+            answer.author_can_see = visibility
+            if commit:
+                answer.save()
+
+        return self.review_assignment.review_form_answers()

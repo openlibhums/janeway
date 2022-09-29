@@ -33,7 +33,6 @@ class JournalAdmin(admin.ModelAdmin):
     raw_id_fields = (
         'current_issue',
         'thumbnail_image',
-        'press_image_override',
     )
     filter_horizontal = ('keywords',)
 

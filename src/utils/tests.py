@@ -4,29 +4,39 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import io
+import os
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
-import mock
+from django.conf import settings
+from django.template.engine import Engine
 
+import mock
 from utils import (
-    merge_settings, models, oidc,
-    setting_handler, notify
+    merge_settings,
+    models,
+    oidc,
+    template_override_middleware,
+    setting_handler,
+    notify,
 )
+
 from utils.transactional_emails import *
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
 from utils.testing import helpers
+from utils.install import update_xsl_files
+from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
+
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
-from copyediting import models as copyediting_models
-from utils.install import update_xsl_files
 from core import models as core_models, include_urls # include_urls so that notify modules load
+from copyediting import models as copyediting_models
 
 
 class UtilsTests(TestCase):
@@ -99,11 +109,18 @@ class UtilsTests(TestCase):
         }
 
         # Setup issues for sitemap testing
+        cls.issue_type, created = journal_models.IssueType.objects.get_or_create(
+            journal=cls.journal_one,
+            code='test_issue_type',
+            pretty_name='Test Issue Type',
+            custom_plural='Test Issues Type',
+        )
         cls.issue_one, created = journal_models.Issue.objects.get_or_create(
             journal=cls.journal_one,
             volume='1',
             issue='1',
             issue_title='V 1 I 1',
+            issue_type=cls.issue_type
         )
         cls.section, create = submission_models.Section.objects.get_or_create(
             journal=cls.journal_one,
@@ -391,7 +408,6 @@ class TransactionalReviewEmailTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
 
-
     def test_send_article_decision(self):
         kwargs = dict(**self.base_kwargs)
         kwargs['article'] = self.article_under_review
@@ -500,7 +516,6 @@ class CopyeditingEmailSubjectTests(UtilsTests):
             email_function(**kwargs)
             subject_setting = self.get_default_email_subject(subject_setting_name)
             expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
-            # from nose.tools import set_trace; set_trace()
             self.assertEqual(expected_subject, mail.outbox[-1].subject)
 
 
@@ -770,7 +785,6 @@ class TestOIDC(TestCase):
         OIDC_RP_CLIENT_ID='test',
         OIDC_RP_CLIENT_SECRET='test',
         OIDC_RP_SIGN_ALGO='RS256',
-
     )
     def test_update_user(self):
         user = core_models.Account.objects.create(
@@ -789,3 +803,80 @@ class TestOIDC(TestCase):
             oidc_user.first_name,
             'Andrew',
         )
+
+
+class TestThemeMiddleware(TestCase):
+    def setUp(self):
+        self.journal_one, self.journal_two = helpers.create_journals()
+
+    def test_unalatered_themes(self):
+        engine = Engine()
+        loader = template_override_middleware.Loader(engine)
+        dirs = loader.get_theme_dirs()
+        self.assertEqual(
+            dirs,
+            [os.path.join(settings.BASE_DIR, 'themes', settings.INSTALLATION_BASE_THEME, 'templates')]
+        )
+
+    def test_journal_dirs_with_theme(self):
+        setting_handler.save_setting(
+            'general',
+            'journal_theme',
+            self.journal_one,
+            'LCARS',
+        )
+        # the middleware heavily caches these settings so we need to clear it.
+        clear_cache()
+
+        request = helpers.Request()
+        request.journal = self.journal_one
+        with helpers.request_context(request):
+            engine = Engine()
+            loader = template_override_middleware.Loader(engine)
+            dirs = loader.get_theme_dirs()
+
+            # in this instance INSTALLATION_BASE_THEME and the base_theme setting will match so only one
+            # will appear
+            self.assertEqual(
+                dirs,
+                [
+                    os.path.join(settings.BASE_DIR, 'themes', 'LCARS', 'templates'),
+                    os.path.join(settings.BASE_DIR, 'themes', 'OLH', 'templates')
+                ]
+            )
+
+    def test_journal_dirs_with_theme_and_base_theme(self):
+        setting_handler.save_setting(
+            'general',
+            'journal_theme',
+            self.journal_one,
+            'LCARS',
+        )
+        setting_handler.save_setting(
+            'general',
+            'journal_base_theme',
+            self.journal_one,
+            'material',
+        )
+        # the middleware heavily caches these settings so we need to clear it.
+        clear_cache()
+
+        request = helpers.Request()
+        request.journal = self.journal_one
+        with helpers.request_context(request):
+            engine = Engine()
+            loader = template_override_middleware.Loader(engine)
+            dirs = loader.get_theme_dirs()
+
+            # in this instance all three themes should be in the dirs as they are all
+            # different.
+            self.assertEqual(
+                dirs,
+                [
+                    os.path.join(settings.BASE_DIR, 'themes', 'LCARS', 'templates'),
+                    os.path.join(settings.BASE_DIR, 'themes', 'material', 'templates'),
+                    os.path.join(settings.BASE_DIR, 'themes', 'OLH', 'templates')
+                ]
+            )
+
+

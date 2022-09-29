@@ -47,10 +47,10 @@ def create_user(username, roles=None, journal=None, **attrs):
 
     for role in roles:
         try:
-            resolved_role = core_models.Role.objects.get(name=role)
+            resolved_role = core_models.Role.objects.get(slug=role)
         except core_models.Role.DoesNotExist:
             create_roles(roles)
-            resolved_role = core_models.Role.objects.get(name=role)
+            resolved_role = core_models.Role.objects.get(slug=role)
         core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
 
     for attr, value in attrs.items():
@@ -71,7 +71,10 @@ def create_roles(roles=None):
         roles = []
 
     for role in roles:
-        core_models.Role(name=role, slug=role).save()
+        core_models.Role.objects.get_or_create(
+            name=role.replace('-', ' ').capitalize(),
+            slug=role.lower().replace(' ', '-')
+        )
 
 
 def create_journals():
@@ -201,6 +204,7 @@ def create_article(journal, **kwargs):
         }
         author = create_author(journal, **kwargs)
         article.authors.add(author)
+        article.owner = author
         article.save()
         author.snapshot_self(article)
     else:
@@ -209,6 +213,7 @@ def create_article(journal, **kwargs):
         setattr(article, k ,v)
         article.save()
     return article
+
 
 def create_galley(article, file_obj=None):
     galley = core_models.Galley.objects.create(
@@ -484,7 +489,7 @@ def create_revision_request(article, editor, **kwargs):
 
 def create_copyeditor(journal, **kwargs):
     username = kwargs.pop('username', 'copyeditor@example.com')
-    roles = kwargs.pop('roles', ['Copyeditor'])
+    roles = kwargs.pop('roles', ['copyeditor'])
     return create_user(username, roles=roles, journal=journal, **kwargs)
 
 

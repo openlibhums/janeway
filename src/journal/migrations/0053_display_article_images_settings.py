@@ -31,7 +31,7 @@ def update_setting_values(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0052_issue_display_title'),
+        ('journal', '0052_add_fields_to_fixedpubcheckitems_and_issue'),
     ]
 
     operations = [

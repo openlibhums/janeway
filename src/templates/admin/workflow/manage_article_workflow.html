@@ -18,9 +18,12 @@
     <div class="box">
         <div class="row expanded">
             <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Past Stages</h2>
+                </div>
                 <p>This tool should be used with extreme caution. Once and article is moved
                 back along the workflow it has to be manually moved forward again.</p>
-                <p>Article Current Stage: <strong>{{ article.get_stage_display }}</strong>. This article has been through the following stages:</p>
+                <p>Article Current Stage: <strong>{{ article.get_stage_display }}</strong>.</p><p>This article has been through the following stages:</p>
                 <form method="POST">
                     {% csrf_token %}
                     <table>
@@ -44,6 +47,20 @@
                         {% endfor %}
                     </table>
                 </form>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Archive</h2>
+                </div>
+                {% if article.stage == 'Archived' %}
+                <p>This article has already been archived.</p>
+                {% else %}
+                <p>Archiving an article will remove it from the workflow, essentially tombstoning it. You can still access it through the Article Archive.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button name="archive" class="danger button">Archive Article</button>
+                </form>
+                {% endif %}
             </div>
         </div>
     </div>

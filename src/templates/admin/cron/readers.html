@@ -1,0 +1,104 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Publication Notifications{% endblock title %}
+{% block title-section %}Publication Notifications{% endblock %}
+{% block title-sub %}View readers and sent notifications.{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cron_home' %}">Cron</a></li>
+    <li><a href="{% url 'cron_readers' %}">Publication Notifications</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-5 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Readers</h2>
+            </div>
+            <div class="content">
+                <p>Readers recieve notifications when new articles are published in a journal. Note: Only users themselves can add and remove themselves from the Reader role.</p>
+                <table class="table small" id="readers">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for reader in readers %}
+                        <tr>
+                            <td>{{ reader.pk }}</td>
+                            <td>{{ reader.full_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="large-7 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Sent Notifications</h2>
+            </div>
+            <div class="content">
+                <table class="table small" id="notifications">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date/Time</th>
+                            <th>Sent to</th>
+                            <th>Content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for notification in reader_notifications %}
+                        <tr>
+                            <td>{{ notification.pk }}</td>
+                            <td>{{ notification.date }}</td>
+                            <td>
+                                {% if notification.toaddress_set.count > 10 %}
+                                    <a href="#" data-open="notification-{{ notification.pk }}">Sent to {{ notification.toaddress_set.count }} recipients</a>
+                                {% else %}
+                                    {% for to in notification.toaddress_set.all %}
+                                        {{ to.email }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>{{ notification.description|safe }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% for notification in reader_notifications %}
+        <div class="reveal small" id="notification-{{ notification.pk }}" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4>{{ notification.pk }} Recipients</h4>
+            </div>
+            <div class="card-section">
+                <p>
+                    {% for to in notification.toaddress_set.all %}
+                        {{ to.email }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+{% endblock body %}
+
+{% block js %}
+    {% include "admin/elements/datatables.html" with target="#readers" sort=0 order='asc' %}
+    {% include "admin/elements/datatables.html" with target="#notifications" sort=1 order='desc' %}
+{% endblock js %}

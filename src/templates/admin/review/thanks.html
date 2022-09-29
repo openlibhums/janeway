@@ -22,6 +22,14 @@
         <div class="content">
             <p>{{ assignment.get_decision_display }}</p>
         </div>
+        {% if journal_settings.general.open_peer_review %}
+            <div class="title-area">
+                <h2>Open Peer Review</h2>
+            </div>
+            <div class="content">
+                <p>{% if assignment.permission_to_make_public %} We have permission to {% else %}We will <b>not</b>{% endif %} make your review and name public.</p>
+            </div>
+        {% endif %}
         <div class="title-area">
             <h2>Summary of Review</h2>
         </div>

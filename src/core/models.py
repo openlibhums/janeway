@@ -415,7 +415,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'typesetter')
 
     def is_proofing_manager(self, request):
-        return self.check_role(request.journal, 'proofing_manager')
+        return self.check_role(request.journal, 'proofing-manager')
 
     def is_repository_manager(self, repository):
         if self in repository.managers.all():
@@ -545,8 +545,16 @@ class PasswordResetToken(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        help_text='Display name for this role '
+                  '(can include spaces and capital letters)',
+    )
+    slug = models.CharField(
+        max_length=100,
+        help_text='Normalized string representing this role '
+                  'containing only lowercase letters and hyphens.',
+    )
 
     class Meta:
         ordering = ('name', 'slug')
@@ -804,7 +812,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-
+    
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -934,7 +942,6 @@ class File(AbstractLastModifiedModel):
     def date_modified(self):
         warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
         return self.last_modified
-
 
     def __str__(self):
         return u'%s' % self.original_filename

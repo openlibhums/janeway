@@ -227,6 +227,7 @@ STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+STAGE_ARCHIVED = 'Archived'
 
 NEW_ARTICLE_STAGES = {
     STAGE_UNSUBMITTED,
@@ -237,6 +238,7 @@ FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
     STAGE_PUBLISHED,
     STAGE_REJECTED,
+    STAGE_ARCHIVED,
 }
 
 REVIEW_STAGES = {
@@ -278,7 +280,8 @@ STAGE_CHOICES = [
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
     (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
-    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
+    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published'),
+    (STAGE_ARCHIVED, 'Archived'),
 ]
 
 PLUGIN_WORKFLOW_STAGES = []
@@ -530,6 +533,13 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             return cursor.mogrify(sql, params).decode()
 
 
+class ActiveArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveArticleManager, self).get_queryset().exclude(
+            stage=STAGE_ARCHIVED,
+        )
+
+
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -718,6 +728,7 @@ class Article(AbstractLastModifiedModel):
     funders = models.ManyToManyField('Funder', blank=True)
 
     objects = ArticleSearchManager()
+    active_objects = ActiveArticleManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -1041,11 +1052,16 @@ class Article(AbstractLastModifiedModel):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.objects.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(
+                    id=identifier,
+                    journal=journal,
+                )[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
-                    id_type=identifier_type, identifier=identifier)[0].article
+                    id_type=identifier_type,
+                    identifier=identifier,
+                )[0].article
 
                 if not article.journal == journal:
                     return None
@@ -1298,6 +1314,14 @@ class Article(AbstractLastModifiedModel):
     @property
     def completed_reviews(self):
         return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True)
+
+    @property
+    def completed_reviews_with_permission(self):
+        return self.completed_reviews.filter(permission_to_make_public=True)
+
+    @property
+    def public_reviews(self):
+        return self.completed_reviews_with_permission.filter(display_public=True)
 
     @property
     def completed_reviews_with_decision(self):

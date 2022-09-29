@@ -417,7 +417,11 @@ def article(request, identifier_type, identifier):
     :param identifier: the identifier
     :return: a rendered template of the article
     """
-    article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
 
     content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
@@ -1064,6 +1068,13 @@ def publish_article(request, article_id):
                 )
             )
 
+        if 'open_reviews' in request.POST:
+            logic.set_open_reviews(request, article)
+            reverse(
+                'publish_article',
+                kwargs={'article_id': article.pk},
+            )
+
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(force_update=False)
@@ -1206,8 +1217,16 @@ def manage_issues(request, issue_id=None, event=None):
     if request.POST:
         if 'make_current' in request.POST:
             issue = models.Issue.objects.get(id=request.POST['make_current'])
-            request.journal.current_issue = issue
-            request.journal.save()
+
+            if issue.is_published():
+                request.journal.current_issue = issue
+                request.journal.save()
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Issues that have a future publication date cannot be set as the current issue for a journal.',
+                )
             issue = None
             return redirect(reverse('manage_issues'))
 
@@ -1627,7 +1646,10 @@ def manage_archive(request):
     )
     rejected_articles = submission_models.Article.objects.filter(
         journal=request.journal,
-        stage=submission_models.STAGE_REJECTED
+        stage__in=[
+            submission_models.STAGE_REJECTED,
+            submission_models.STAGE_ARCHIVED,
+        ],
     ).order_by(
         '-date_declined'
     )

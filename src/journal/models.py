@@ -92,11 +92,11 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('The default thumbnail for articles, not to be '
                            'confused with \'Default cover image\'.'),
     )
-    press_image_override = models.ForeignKey(
-        'core.File',
+    press_image_override = SVGImageField(
+        upload_to=cover_images_upload_path,
         null=True,
         blank=True,
-        related_name='press_image_override',
+        storage=fs,
         help_text=ugettext('Replaces the press logo in the footer.'),
     )
     default_cover_image = SVGImageField(
@@ -910,6 +910,11 @@ class Issue(AbstractLastModifiedModel):
                         latest_issue.issue,
                     )
 
+    def is_published(self):
+        if self.date and self.date < timezone.now():
+            return True
+        return False
+
     def order_articles_in_sections(self, sort_field, order):
         order_by_string = '{}{}'.format(
             '-' if order == 'dsc' else '',
@@ -923,7 +928,6 @@ class Issue(AbstractLastModifiedModel):
                 order_by_string,
             )
             ids_in_order = [section_article.pk for section_article in section_articles]
-            print(ids_in_order)
             for article in section_articles:
                 article_ordering, _ = ArticleOrdering.objects.get_or_create(
                     issue=self,
@@ -1049,6 +1053,7 @@ class FixedPubCheckItems(models.Model):
     notify_the_author = models.BooleanField(default=False)
     select_render_galley = models.BooleanField(default=False)
     select_article_image = models.BooleanField(default=False)
+    select_open_reviews = models.BooleanField(default=False)
 
 
 class PresetPublicationCheckItem(models.Model):

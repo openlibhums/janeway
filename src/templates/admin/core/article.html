@@ -22,13 +22,15 @@
         </div>
     </div>
 
+    {% if not journal_settings.general.hide_review_data_pre_release or article.peer_reviews_for_author_consumption %}
     <div class="box">
         <div class="title-area">
             <h2>Reviews</h2>
         </div>
         <div class="box">
             {% if journal_settings.general.enable_peer_review_data_block %}
-            <table class="scroll">
+            <!-- table id for unit testing -->
+            <table id="peer_review_data_block" class="scroll">
                 <tr>
                     <th>Date Requested</th>
                     <th>Date Due</th>
@@ -64,6 +66,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 
 
     {% if article.is_published %}

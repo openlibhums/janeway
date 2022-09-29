@@ -16,7 +16,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.utils.text import slugify
 
-from utils.shared import get_ip_address
+from utils.shared import get_ip_address, join_lists
 from utils.importers.up import get_input_value_by_name
 
 
@@ -98,6 +98,8 @@ class LogEntry(models.Model):
             message_id=None,
             subject=None,
             email_subject=None,
+            cc=None,
+            bcc=None
     ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
@@ -119,8 +121,8 @@ class LogEntry(models.Model):
         }
         new_entry = LogEntry.objects.create(**kwargs)
 
-        if to:
-            for email in to:
+        if to or cc or bcc:
+            for email in join_lists(to, cc, bcc):
                 ToAddress.objects.create(
                     log_entry=new_entry,
                     email=email,

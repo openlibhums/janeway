@@ -114,6 +114,7 @@
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
                                             Reviewer</a>{% endif %}
                                 </div>
+
                                 {% chain round.active_reviews round.inactive_reviews as reviews %}
                                 {% for review in reviews %}
                                     {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
