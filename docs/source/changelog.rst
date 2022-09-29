@@ -140,7 +140,6 @@ Changelog
 
 **Full Changelog**: https://github.com/BirkbeckCTP/janeway/compare/v1.4.2.1...v1.4.3-RC-1
 
-
 v1.4.2
 ------
 

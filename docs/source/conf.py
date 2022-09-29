@@ -24,9 +24,9 @@ copyright = '2018, Andy Byers, Mauro Sanchez & Martin Paul Eve'
 author = 'Andy Byers, Mauro Sanchez & Martin Paul Eve'
 
 # The short X.Y version
-version = '1.4.2'
+version = '1.4.3'
 # The full version, including alpha/beta/rc tags
-release = '1.4.2.1'
+release = '1.4.3'
 
 
 # -- General configuration ---------------------------------------------------
