@@ -5,7 +5,6 @@ from collections import Iterable
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
-from django.contrib import messages
 
 from utils import setting_handler
 from utils import notify
