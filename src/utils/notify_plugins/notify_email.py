@@ -5,7 +5,6 @@ from collections import Iterable
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
-from django.contrib import messages
 
 from utils import setting_handler
 from utils import notify
@@ -68,14 +67,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             file.open()
             msg.attach(file.name, file.read(), file.content_type)
             file.close()
-
-    # Add a message to the user letting them know the email was sent.
-    if request and request.user:
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Email sent.'
-        )
 
     return msg.send()
 
