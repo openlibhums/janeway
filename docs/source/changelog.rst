@@ -8,7 +8,7 @@ This version of Janeway includes various new features and bugfixes.
 
 Upgrade Notes
 ^^^^^^^^^^^^^
-As normal run the ``.upgrade.sh`` command.
+As normal run the ``.update.sh`` command.
 
 DOIs
 ^^^^
@@ -132,7 +132,6 @@ Changelog
 * Merge migrations for version 1.4.3 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3154
 * #3159 Fix bug that removed author when searching funders by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3162
 * Added keywords and meta block to OLH theme by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3161
-* #3171 adds an 'Email sent' message whenever an email has a request and request.user object by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3172
 
 **New Contributors**
 
