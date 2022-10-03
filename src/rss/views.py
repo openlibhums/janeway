@@ -15,13 +15,16 @@ from submission import models as submission_models
 
 
 class LatestNewsFeed(Feed):
-    title = "News"
     link = "/news/"
-    description = "Updates on changes and additions to police beat central."
 
     def get_object(self, request, *args, **kwargs):
-
         return request.journal if request.journal else request.press
+
+    def title(self, obj):
+        return "{} News Feed".format(obj.name)
+
+    def description(self, obj):
+        return "A feed of the 10 latest news items from {}".format(obj.name)
 
     def items(self, obj):
         content_type = ContentType.objects.get_for_model(obj)
@@ -51,18 +54,30 @@ class LatestNewsFeed(Feed):
 
 
 class LatestArticlesFeed(Feed):
-    title = "Articles"
     link = "/articles/"
-    description = "Updates on changes and additions to police beat central."
 
     def get_object(self, request, *args, **kwargs):
-        return request.journal
+        return request.journal or request.press
+    
+    def title(self, obj):
+        return "{} Article Feed".format(obj.name)
+
+    def description(self, obj):
+        return "A feed of the 10 latest articles from {}".format(obj.name)
 
     def items(self, obj):
-        return submission_models.Article.objects.filter(
-            date_published__lte=timezone.now(),
-            journal=obj
-        ).order_by('-date_published')[:10]
+        try:
+            return submission_models.Article.objects.filter(
+                date_published__lte=timezone.now(),
+                journal=obj
+            ).order_by('-date_published')[:10]
+        except ValueError:
+            return submission_models.Article.objects.filter(
+                date_published__lte=timezone.now(),
+                journal__press=obj,
+                journal__hide_from_press=False,
+            ).order_by('-date_published')[:10]
+
 
     def item_title(self, item):
         return striptags(item.title)

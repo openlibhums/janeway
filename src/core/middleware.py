@@ -96,7 +96,7 @@ class SiteSettingsMiddleware(object):
         if journal is not None:
             logger.set_prefix(journal.code)
             request.journal = journal
-            request.journal_cover = journal.override_cover(request)
+            request.journal_cover = journal.press_image_override.path if journal.press_image_override else None
             request.site_type = request.site_object = journal
             request.model_content_type = ContentType.objects.get_for_model(
                     journal)

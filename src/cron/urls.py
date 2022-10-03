@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^reminders/(?P<reminder_id>\d+)/$', views.manage_reminder, name='cron_reminder'),
     url(r'^reminders/(?P<reminder_id>\d+)/template/(?P<template_name>.*)/$', views.create_template,
         name='cron_create_template'),
+
+    url(r'^readers/$', views.readers_index, name='cron_readers'),
 ]

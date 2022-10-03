@@ -23,7 +23,7 @@
                            class="btn wide-button orcid-button">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="{% url 'oidc_authentication_init' %}"
+                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
                            class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
                             <br />
                         {% endif %}

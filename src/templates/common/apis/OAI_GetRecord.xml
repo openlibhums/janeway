@@ -1,11 +1,18 @@
 {% extends "apis/OAI_base.xml" %}
 {% block body %}
 <GetRecord>
-    {% if metadataPrefix == 'jats' %}
-        {% include "apis/OAI_record_jats_stub.xml" with article=article %}
-    {% elif metadataPrefix == 'oai_dc' %}
-        {% include "apis/OAI_record.xml" with article=article %}
-
+    {% if is_preprints %}
+        {% if metadataPrefix == 'jats' %}
+            {% include "apis/OAI_preprint_record_jats_stub.xml" with article=article %}
+        {% elif metadataPrefix == 'oai_dc' %}
+            {% include "apis/OAI_preprint_record.xml" with article=article %}
+        {% endif %}
+    {% else %}
+        {% if metadataPrefix == 'jats' %}
+            {% include "apis/OAI_record_jats_stub.xml" with article=article %}
+        {% elif metadataPrefix == 'oai_dc' %}
+            {% include "apis/OAI_record.xml" with article=article %}
+        {% endif %}
     {% endif %}
 </GetRecord>
 {% endblock body %}

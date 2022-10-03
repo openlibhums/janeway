@@ -1,5 +1,6 @@
 @charset "UTF-8";
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
 /**
  * Foundation for Sites by ZURB
  * Version 6.3.0
@@ -156,7 +157,7 @@
      *    IE on Windows Phone and in iOS.
      */
 html {
-  font-family: sans-serif;
+  font-family: "Open Sans", sans-serif;
   /* 1 */
   line-height: 1.15;
   /* 2 */
@@ -370,7 +371,7 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: sans-serif;
+  font-family: "Open Sans", sans-serif;
   /* 1 */
   font-size: 100%;
   /* 1 */
@@ -1444,7 +1445,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   font-style: normal;
   font-weight: 300;
   color: inherit;
@@ -4777,7 +4778,7 @@ header {
     margin: 0; }
   header .button {
     background: #fefefe;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     color: #b7bac0;
     margin: 0.5625rem 0;
     font-size: 0.8125rem; }
@@ -4795,7 +4796,7 @@ header {
     font-size: 0.875rem;
     color: #5b5e61;
     font-weight: 500;
-    font-family: "Avenir Next", Avenir, sans-serif; }
+    font-family: "Open sans", sans-serif; }
 
 .avatar {
   display: inline-block;
@@ -4808,7 +4809,7 @@ header {
   color: #fefefe;
   overflow: hidden;
   margin-right: 0.3125rem;
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   font-weight: 300; }
 
 #profile-dropdown {
@@ -4823,7 +4824,7 @@ header {
     border-radius: 4px;
     border: 1px solid #f5f6f9;
     color: #5b5e61;
-    font-family: "Avenir Next", Avenir, sans-serif; }
+    font-family: "Open sans", sans-serif; }
     #profile-dropdown ul li a:hover {
       background: #b7bac0; }
   #profile-dropdown h3 {
@@ -4846,7 +4847,7 @@ header {
 
 .off-canvas .menu > li > a {
   width: 225px;
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #b7bac0;
@@ -4892,7 +4893,7 @@ main {
   margin: 0; }
 
 .title p {
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   color: #b7bac0;
   font-weight: 600;
   font-size: 0.8125rem;
@@ -4929,7 +4930,7 @@ main {
   .line-item:hover, .box .summary:hover {
     background: #f5f6f9; }
   .line-item .title, .box .summary .title {
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     color: #5b5e61;
     font-weight: 600; }
   .line-item .stat, .box .summary .stat {
@@ -5002,7 +5003,7 @@ a span.has-tip {
 
 ul.actions li a {
   color: #5b5e61;
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   font-size: 0.8125rem; }
   ul.actions li a img {
     width: 1.25rem;
@@ -5013,7 +5014,7 @@ ul.actions li a {
 
   ul.actions li button {
   color: #5b5e61;
-  font-family: "Avenir Next", Avenir, sans-serif;
+  font-family: "Open sans", sans-serif;
   font-size: 0.8125rem;
   display: block;
     padding: 0.7rem 1rem;
@@ -5044,7 +5045,7 @@ ul.actions li a {
     z-index: 0;
     font-size: 11.25rem;
     font-weight: 100;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     opacity: 0.05; }
   .checklist:nth-child(2):before {
     content: "2";
@@ -5054,7 +5055,7 @@ ul.actions li a {
     z-index: 0;
     font-size: 11.25rem;
     font-weight: 100;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     opacity: 0.05; }
   .checklist:nth-child(3):before {
     content: "3";
@@ -5064,7 +5065,7 @@ ul.actions li a {
     z-index: 0;
     font-size: 11.25rem;
     font-weight: 100;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     opacity: 0.05; }
   .checklist:nth-child(4):before {
     content: "4";
@@ -5074,7 +5075,7 @@ ul.actions li a {
     z-index: 0;
     font-size: 11.25rem;
     font-weight: 100;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     opacity: 0.05; }
   .checklist:nth-child(5):before {
     content: "5";
@@ -5084,10 +5085,30 @@ ul.actions li a {
     z-index: 0;
     font-size: 11.25rem;
     font-weight: 100;
-    font-family: "Avenir Next", Avenir, sans-serif;
+    font-family: "Open sans", sans-serif;
     opacity: 0.05; }
   .checklist:nth-child(6):before {
     content: "6";
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 0;
+    font-size: 11.25rem;
+    font-weight: 100;
+    font-family: "Open sans", sans-serif;
+    opacity: 0.05; }
+  .checklist:nth-child(7):before {
+    content: "7";
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 0;
+    font-size: 11.25rem;
+    font-weight: 100;
+    font-family: "Avenir Next", Avenir, sans-serif;
+    opacity: 0.05; }
+  .checklist:nth-child(8):before {
+    content: "8";
     position: absolute;
     top: 0;
     right: 0;

@@ -121,21 +121,21 @@ def create_html_snippet(note, proofing_task, galley):
 
 
 def get_tasks(request):
-    new = models.ProofingTask.objects.filter(
+    new = models.ProofingTask.active_objects.filter(
         completed__isnull=True,
         accepted__isnull=True,
         cancelled=False,
         proofreader=request.user,
         round__assignment__article__journal=request.journal,
     )
-    active = models.ProofingTask.objects.filter(
+    active = models.ProofingTask.active_objects.filter(
         completed__isnull=True,
         accepted__isnull=False,
         cancelled=False,
         proofreader=request.user,
         round__assignment__article__journal=request.journal,
     )
-    completed = models.ProofingTask.objects.filter(
+    completed = models.ProofingTask.active_objects.filter(
         completed__isnull=False,
         cancelled=False,
         proofreader=request.user,
@@ -146,21 +146,21 @@ def get_tasks(request):
 
 
 def get_typesetting_tasks(request):
-    new_typesetting = models.TypesetterProofingTask.objects.filter(
+    new_typesetting = models.TypesetterProofingTask.active_objects.filter(
         completed__isnull=True,
         accepted__isnull=True,
         cancelled=False,
         typesetter=request.user,
         proofing_task__round__assignment__article__journal=request.journal,
     )
-    active_typesetting = models.TypesetterProofingTask.objects.filter(
+    active_typesetting = models.TypesetterProofingTask.active_objects.filter(
         completed__isnull=True,
         accepted__isnull=False,
         cancelled=False,
         typesetter=request.user,
         proofing_task__round__assignment__article__journal=request.journal,
     )
-    completed_typesetting = models.TypesetterProofingTask.objects.filter(
+    completed_typesetting = models.TypesetterProofingTask.active_objects.filter(
         completed__isnull=False,
         cancelled=False,
         typesetter=request.user,

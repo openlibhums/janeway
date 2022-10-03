@@ -69,7 +69,7 @@
                         </tr>
                         <tr>
                             <td colspan="4">
-                                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No
+                                {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No
                                     CI{% endif %}</td>
                         </tr>
                     {% endif %}
@@ -156,7 +156,7 @@
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
-                                <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                                <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
@@ -185,7 +185,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a></td>
                             <td>n/a</td>

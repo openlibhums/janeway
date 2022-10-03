@@ -1,0 +1,8 @@
+<ul>
+    {% for license in request.journal.licence_set.all %}
+        {% if license.available_for_submission %}
+            <li><strong><a href="{{ license.url }}">{{ license }}</a></strong>
+                <br/><span class="help-text">{{ license.text }}</span></li>
+        {% endif %}
+    {% endfor %}
+</ul>

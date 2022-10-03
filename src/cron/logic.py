@@ -83,11 +83,11 @@ def process_reviewer_digest(journal, user_role):
 
 def process_digest_items(journal, user_role):
     text = None
-    if user_role.role.name == 'Editor':
+    if user_role.role.slug == 'editor':
         text = process_editor_digest(journal, user_role)
-    elif user_role.role.name == 'Author':
+    elif user_role.role.slug == 'author':
         text = process_revision_digest(journal, user_role)
-    elif user_role.role.name == 'Reviewer':
+    elif user_role.role.slug == 'reviewer':
         text = process_reviewer_digest(journal, user_role)
 
     return text

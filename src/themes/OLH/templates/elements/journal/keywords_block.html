@@ -1,0 +1,12 @@
+{% load i18n %}
+
+
+<p>{% trans "Keywords used by articles in this journal are listed below. Select a keyword to view which articles use it." %}</p>
+
+<ul>
+    {% for keyword in keywords %}
+        <li><a href="{% url 'keyword' keyword.pk %}">{{ keyword.word }}</a></li>
+        {% empty %}
+        <li>{% trans "This journal has no keywords to display." %}</li>
+    {% endfor %}
+</ul>

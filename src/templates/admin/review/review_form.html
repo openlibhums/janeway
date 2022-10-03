@@ -155,6 +155,7 @@
                     </div>
                     <div class="content">
                         <div class="form-group">
+                            {% if journal_settings.general.open_peer_review %}{{ decision_form.permission_to_make_public|foundation }}{% endif %}
                             {{ decision_form.decision|foundation }}
                             {{ decision_form.comments_for_editor|foundation }}
                         </div>

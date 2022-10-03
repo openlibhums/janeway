@@ -7,6 +7,8 @@ from contextlib import ContextDecorator
 
 from django.utils import translation, timezone
 from django.conf import settings
+from django.utils import timezone
+import datetime
 
 from core import (
     middleware,
@@ -16,6 +18,8 @@ from core import (
 from journal import models as journal_models
 from press import models as press_models
 from submission import models as sm_models
+from review import models as review_models
+from copyediting import models as copyediting_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -43,10 +47,10 @@ def create_user(username, roles=None, journal=None, **attrs):
 
     for role in roles:
         try:
-            resolved_role = core_models.Role.objects.get(name=role)
+            resolved_role = core_models.Role.objects.get(slug=role)
         except core_models.Role.DoesNotExist:
             create_roles(roles)
-            resolved_role = core_models.Role.objects.get(name=role)
+            resolved_role = core_models.Role.objects.get(slug=role)
         core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
 
     for attr, value in attrs.items():
@@ -67,7 +71,10 @@ def create_roles(roles=None):
         roles = []
 
     for role in roles:
-        core_models.Role(name=role, slug=role).save()
+        core_models.Role.objects.get_or_create(
+            name=role.replace('-', ' ').capitalize(),
+            slug=role.lower().replace(' ', '-')
+        )
 
 
 def create_journals():
@@ -130,11 +137,30 @@ def create_second_user(journal):
     return second_user
 
 
-def create_editor(journal):
-    editor = create_user("editoruser@martineve.com", ["editor"], journal=journal)
+def create_editor(journal, **kwargs):
+    email = kwargs.pop("email", "editoruser@martineve.com")
+    editor = create_user(email, ["editor"], journal=journal)
     editor.is_active = True
     editor.save()
     return editor
+
+
+def create_section_editor(journal, **kwargs):
+    email = kwargs.pop('email', 'section_editor@example.com')
+    roles = ['section-editor']
+    se = create_user(email, roles=roles, journal=journal)
+    se.is_active = True
+    se.save()
+    return se
+
+
+def create_peer_reviewer(journal, **kwargs):
+    email = kwargs.pop('email', 'peer_reviewer@example.com')
+    roles = ['reviewer']
+    reviewer = create_user(email, roles=roles, journal=journal)
+    reviewer.is_active = True
+    reviewer.save()
+    return reviewer
 
 
 def create_author(journal, **kwargs):
@@ -161,9 +187,8 @@ def create_author(journal, **kwargs):
 
 
 def create_article(journal, **kwargs):
-    from submission import models as submission_models
 
-    article = submission_models.Article.objects.create(
+    article = sm_models.Article.objects.create(
         journal=journal,
         title='Test Article from Utils Testing Helpers',
         article_agreement='Test Article',
@@ -179,11 +204,16 @@ def create_article(journal, **kwargs):
         }
         author = create_author(journal, **kwargs)
         article.authors.add(author)
+        article.owner = author
         article.save()
         author.snapshot_self(article)
     else:
         article.save()
+    for k,v in kwargs.items():
+        setattr(article, k ,v)
+        article.save()
     return article
+
 
 def create_galley(article, file_obj=None):
     galley = core_models.Galley.objects.create(
@@ -193,9 +223,8 @@ def create_galley(article, file_obj=None):
     return galley
 
 def create_section(journal):
-    from submission import models as submission_models
 
-    section, created = submission_models.Section.objects.get_or_create(
+    section, created = sm_models.Section.objects.get_or_create(
         journal=journal,
         number_of_reviewers=2,
         name='Article',
@@ -356,7 +385,6 @@ class request_context(ContextDecorator):
 
 
 def create_review_form(journal):
-    from review import models as review_models
     return review_models.ReviewForm.objects.create(
         name="A Form",
         slug="A Slug",
@@ -386,13 +414,10 @@ def create_review_assignment(
     if not editor:
         editor = create_editor(journal)
     if not due_date:
-        from django.utils import timezone
-        import datetime
         due_date = timezone.now() + datetime.timedelta(days=3)
     if not review_form:
         review_form = create_review_form(journal)
 
-    from review import models as review_models
     return review_models.ReviewAssignment.objects.create(
         article=article,
         reviewer=reviewer,
@@ -434,3 +459,68 @@ def create_reminder(journal=None, reminder_type=None):
     )
 
     return reminder
+
+
+def create_editor_assignment(article, editor, **kwargs):
+    assignment_type = kwargs.get('assignment_type','editor')
+    assignment, created = review_models.EditorAssignment.objects.get_or_create(
+        article=article,
+        editor=editor,
+        editor_type=assignment_type,
+    )
+    return assignment
+
+
+def create_revision_request(article, editor, **kwargs):
+    note = kwargs.get('note', 'Test note')
+    decision = kwargs.get('decision', review_models.review_decision()[0][0])
+    if isinstance(decision, tuple):
+        decision = decision[0]
+    date_due = kwargs.get('date_due', timezone.now() + datetime.timedelta(days=3))
+    revision = review_models.RevisionRequest.objects.create(
+        article=article,
+        editor=editor,
+        editor_note=note,
+        type=decision,
+        date_due=date_due,
+    )
+    return revision
+
+
+def create_copyeditor(journal, **kwargs):
+    username = kwargs.pop('username', 'copyeditor@example.com')
+    roles = kwargs.pop('roles', ['copyeditor'])
+    return create_user(username, roles=roles, journal=journal, **kwargs)
+
+
+def create_copyedit_assignment(article, copyeditor, **kwargs):
+    editor = kwargs.get('editor', None)
+    assigned = kwargs.get('assigned', timezone.now() - datetime.timedelta(minutes=3))
+    notified = kwargs.get('notified', False)
+    decision = kwargs.get('decision', False)
+    date_decided = kwargs.get('date_decided', None)
+    copyeditor_completed = kwargs.get('copyeditor_completed', None)
+    copyedit_accepted = kwargs.get('copyedit_accepted', None)
+
+    assignment = copyediting_models.CopyeditAssignment.objects.create(
+        article=article,
+        copyeditor=copyeditor,
+        editor=editor,
+        assigned=assigned,
+        notified=notified,
+        decision=decision,
+        date_decided=date_decided,
+        copyeditor_completed=copyeditor_completed,
+        copyedit_accepted=copyedit_accepted,
+    )
+    return assignment
+
+def create_access_request(journal, user, role, **kwargs):
+    role = core_models.Role.objects.get(slug=role)
+    access_request, created = core_models.AccessRequest.objects.get_or_create(
+        journal=journal,
+        user=user,
+        role=role,
+        text='Automatic request as author added to an article.',
+    )
+    return access_request

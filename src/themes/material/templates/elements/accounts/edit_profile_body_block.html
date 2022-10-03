@@ -1,4 +1,6 @@
-{% load i18n %}
+{% load i18n roles %}
+{% user_has_role request 'reader' as reader %}
+
 <div class="row">
         <div class="col m6">
             <div class="card">
@@ -23,6 +25,28 @@
     <div class="col m6">
         <div class="card">
             <div class="card-content">
+                {% if request.journal %}
+                    <span class="card-title">{% trans "Register for Article Notifications" %}</span>
+                    <form method="POST">
+                        <p>
+                            {% blocktrans %}Use the button below to register to receive notifications of new articles
+                                published in this journal {% endblocktrans %}
+                            <br/><br/>
+
+                            {% csrf_token %}
+                            {% if reader %}
+                                <button name="unsubscribe" class="btn btn-warning">
+                                    {% trans "Unsubscribe from Article Notifications" %}
+                                </button>
+                            {% else %}
+                                <button name="subscribe" class="btn btn-warning">
+                                    {% trans "Subscribe to Article Notifications" %}
+                                </button>
+                            {% endif %}
+
+                        </p>
+                    </form>
+                {% endif %}
                 <span class="card-title">{% trans "Data Export" %}</span>
                 <p>{% trans "You may export your data into a JSON file for reuse." %}</p>
                 <form method="POST">

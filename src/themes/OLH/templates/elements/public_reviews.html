@@ -1,0 +1,32 @@
+{% if journal_settings.general.open_peer_review %}
+    {% for review in article.public_reviews %}
+        <div class="reveal small" id="reviewmodal-{{ review.pk }}" data-reveal data-animation-in="slide-in-up"
+             data-animation-out="slide-out-down">
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-pencil">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}
+                    </h4>
+                </div>
+                <div class="card-section">
+                    {% for answer in review.review_form_answers %}
+                        {% if answer.author_can_see %}
+                            <p class="{{ answer.element.width }}">
+                                <b>{{ answer.element.name }}</b>
+                                <br/>
+                                {{ answer.answer|linebreaksbr }}
+                                <br/><br/>
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                    <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
+                        review and may pertain to an earlier version of the document.</p>
+                    <button class="close-button" data-close aria-label="Close reveal" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
