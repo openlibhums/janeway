@@ -65,11 +65,11 @@
                         </div>
                         <div class="card-divider">
                             <div class="button-group">
-                                <button name="delete" type="submit"
+                                <button name="action" type="submit"
                                         class="button {% if decision == 'decline' %}alert{% else %}success {% endif %}">{{ decision|capfirst }}
                                     Article
                                 </button>
-                                <button name="skip" type="submit" class="button warning">Skip</button>
+                                <button name="skip" type="submit" class="button warning">{{ decision|capfirst }} & Skip Notification</button>
                                 <a href="{% url 'review_in_review' article.pk %}"
                                    class="button {% if decision == 'accept' %}alert{% else %}success {% endif %}" type="submit">Cancel</a>
                             </div>

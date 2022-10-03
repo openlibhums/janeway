@@ -1,0 +1,9 @@
+{% if user.website or user.twitter or user.facebook or user.github or user.linkedin %}
+<p><small>
+{% if user.website %}<a href="{{ user.website }}" aria-label="{{ member.user.full_name }}'s website" ><span class="fa fa-globe"></span> {% trans 'Website' %}</a>{% endif %}
+{% if user.twitter %}<a href="https://www.twitter.com/{{ user.twitter }}" aria-label="{{ member.user.full_name }}'s twitter profile"><span class="fa fa-twitter-square"></span> {% trans 'Twitter' %}</a>{% endif %}
+{% if user.facebook %}<a href="https://www.facebook.com/{{ user.facebook }}" aria-label="{{ member.user.full_name }}'s facebook profile"><span class="fa fa-facebook-square"></span> {% trans 'Facebook' %}</a>{% endif %}
+{% if user.github %}<a href="https://www.github.com/{{ user.github}}" aria-label="{{ member.user.full_name }}'s github profile"><span class="fa fa-github-square"></span> {% trans 'Github' %}</a>{% endif %}
+{% if user.linkedin %}<a href="https://www.linkedin.com/in/{{ user.linkedin }}" aria-label="{{ member.user.full_name }}'s linkedin profile"><span class="fa fa-linkedin-square"></span> {% trans 'Linkedin' %}</a>{% endif %}
+</small></p>
+{% endif %}

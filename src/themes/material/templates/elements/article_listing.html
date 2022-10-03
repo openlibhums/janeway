@@ -4,7 +4,7 @@
 
 <div class="card-panel">
     <div class="row">
-	{% if not journal.disable_article_images %}
+	{% if not journal_settings.article.disable_article_thumbnails %}
         <div class="col m2 hide-on-small-and-down">
             {% if article.thumbnail_image_file %}
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
@@ -17,8 +17,8 @@
             {% endif %}
         </div>
 	{% endif %}
-	<div class="col m{% if not journal.disable_article_images %}10{% else %}12{% endif %} s12">
-            <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
+	<div class="col m{% if not journal_settings.article.disable_article_thumbnails %}10{% else %}12{% endif %} s12">
+            <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                 <h5 class="article-title">{{ article.title|safe }}</h5>
             </a>
             <p>{% for author in article.frozen_authors.all %}{% if forloop.last %}
@@ -33,7 +33,7 @@
 
                 {% if article.issue %}
                     <i class="fa fa-book"></i>
-                    <a class="issue-link" href="{% url 'journal_issue' article.issue.pk %}">
+                    <a class="issue-link" href="{{ article.issue.url }}">
                         {{ article.issue_title }}
                     </a>
                 {% endif %}
@@ -43,7 +43,7 @@
                   {% if other != article.issue %}
                   <p>
                     <i class="fa fa-book"></i>
-                    <a class="issue-link" href={% if other.issue_type.code == 'issue'%}"{% url 'journal_issue' other.pk %}"{% else %}"{% url 'journal_collection' other.pk%}"{% endif %}>
+                    <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
                     </a>
                   </p>

@@ -1,0 +1,38 @@
+{% for review in article.public_reviews %}
+    <div class="modal fade" id="reviewmodal-{{ review.pk }}" tabindex="-1" role="dialog"
+         aria-labelledby="Peer Review {{ review.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa fa-pencil">&nbsp;</i>Open peer review
+                        from {{ review.reviewer.full_name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% for answer in review.review_form_answers %}
+                        {% if answer.author_can_see %}
+                        <p class="{{ answer.element.width }}">
+                            <b>{{ answer.element.name }}</b>
+                            <br/>
+                            {% if answer.edited_answer %}
+                            {{ answer.edited_answer|linebreaksbr }}
+                            {% else %}
+                            {{ answer.answer|linebreaksbr }}
+                            {% endif %}
+                            <br/><br/>
+                        </p>
+                        {% endif %}
+                    {% endfor %}
+                    <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
+                        review and may pertain to an earlier version of the document.</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

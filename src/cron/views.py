@@ -6,11 +6,12 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.contenttypes.models import ContentType
 
 from cron import models, forms, logic
 from core import models as core_models
-from utils import setting_handler
-from security.decorators import editor_user_required
+from utils import setting_handler, models as utils_models
+from security.decorators import editor_user_required, has_journal
 
 
 @staff_member_required
@@ -128,3 +129,25 @@ def create_template(request, reminder_id, template_name):
     }
 
     return render(request, template, context)
+
+
+@has_journal
+@editor_user_required
+def readers_index(request):
+    readers = request.journal.users_with_role('reader')
+    content_type = ContentType.objects.get_for_model(request.journal)
+    reader_notifications = utils_models.LogEntry.objects.filter(
+        types='Publication Notification',
+        content_type=content_type,
+        object_id=request.journal.pk,
+    )
+    template = 'admin/cron/readers.html'
+    context = {
+        'readers': readers,
+        'reader_notifications': reader_notifications,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )

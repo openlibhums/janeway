@@ -12,18 +12,24 @@
     {% for article in popular_articles %}
         <div class="col-md-4 row-eq-height">
             <div class="card">
-                {% if article.large_image_file %}
-                    <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                         alt="{{ article.title|striptags }}"
-                         class="card-img-top">
-                {% elif article.journal.default_large_image %}
-                    <img src="{{ article.journal.default_large_image.url }}"
-                         alt="{{ article.title|striptags }}"
-                         class="card-img-top">
-                {% else %}
-                    <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                         alt="{{ article.title|striptags }}"
-                         class="card-img-top">
+                {% if not journal_settings.article.disable_article_large_image %}
+                    {% if article.large_image_file %}
+                        <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                             alt="{{ article.title|striptags }}"
+                             class="card-img-top">
+                    {% elif article.issue.large_image %}
+                        <img src="{{ article.issue.large_image.url }}"
+                             alt="{{ article.title|striptags }}"
+                             class="card-img-top">
+                    {% elif article.journal.default_large_image %}
+                        <img src="{{ article.journal.default_large_image.url }}"
+                             alt="{{ article.title|striptags }}"
+                             class="card-img-top">
+                    {% else %}
+                        <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                             alt="{{ article.title|striptags }}"
+                             class="card-img-top">
+                    {% endif %}
                 {% endif %}
                 <div class="card-body">
                     <p class="card-text">{{ article.author_list }}</p>

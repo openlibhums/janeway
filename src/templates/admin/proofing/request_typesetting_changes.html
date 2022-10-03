@@ -68,7 +68,7 @@
                             <td><input type="checkbox" name="galleys_for_proofing" value="{{ galley.id }}"
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
                             <td>{{ galley.label }}</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley {% if galley in proofing_task.galleys_for_proofing.all %}(Proofed){% else %}(Not Proofed){% endif %}</td>
                             <td>{% if can_view_file_flag %}
@@ -106,7 +106,7 @@
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
-                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                             <td>Proofing</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i

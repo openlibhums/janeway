@@ -10,9 +10,14 @@ from django.core.management import call_command
 from django.db import connection, IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
+from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
+from utils import setting_handler, install
+from utils.shared import clear_cache
 from core import models
+from review import models as review_models
 
 
 class CoreTests(TestCase):
@@ -221,6 +226,88 @@ class CoreTests(TestCase):
                 "" % (email, login_email),
         )
 
+    @override_settings(URL_CONFIG="domain")
+    def test_create_user_form_mixed_case(self):
+        data = {
+            'email': 'test@test.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+        new_email = "TeSt@test.com"
+
+        self.client.force_login(self.admin_user)
+        response_1 = self.client.post(reverse('core_add_user'), data)
+        response_2 = self.client.post(
+            reverse('core_add_user'),
+            dict(data, email=new_email),
+        )
+
+        try:
+            models.Account.objects.get(email='test@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('User account has not been saved.')
+
+        self.assertEqual(response_2.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_register_as_reader(self):
+
+        data = {
+            'email': 'reader@janeway.systems',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+            'register_as_reader': True,
+        }
+
+        clear_script_prefix()
+        clear_cache()
+        response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
+        user = models.Account.objects.get(username='reader@janeway.systems')
+        role_check = user.check_role(
+            self.journal_one,
+            'reader',
+        )
+        self.assertTrue(role_check)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_register_without_reader(self):
+
+        data = {
+            'email': 'reader@janeway.systems',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+            'register_as_reader': False,
+        }
+
+        response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
+        user = models.Account.objects.get(username='reader@janeway.systems')
+        role_check = user.check_role(
+            self.journal_one,
+            'reader',
+        )
+        self.assertFalse(role_check)
+
     def test_email_subjects(self):
         email_settings= models.Setting.objects.filter(
             group__name="email",
@@ -238,18 +325,111 @@ class CoreTests(TestCase):
 
     @patch.object(models.Setting, 'validate')
     def test_setting_validation(self, mock_method):
-        from utils import setting_handler
         setting_handler.save_setting(
             'email', 'editor_assignment', self.journal_one, 'test'
         )
         mock_method.assert_called()
 
+    @override_settings(URL_CONFIG="domain")
+    def test_hide_review_details_on(self):
+        # Make sure there aren't any review assignments
+        # for author consumption as that would corrupt
+        # this test.
+        clear_script_prefix()
+        clear_cache()
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=False
+        )
+
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'Reviews'
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_peer_reviews_for_author_consumption_overrides_hide_review_data(self):
+        clear_script_prefix()
+        clear_cache()
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=True
+        )
+
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Reviews'
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_enable_peer_review_data_block(self):
+        clear_script_prefix()
+        clear_cache()
+        # Test will fail without a review assignment available
+        review_models.ReviewAssignment.objects.filter(
+            article=self.article_one,
+        ).update(
+            for_author_consumption=True
+        )
+
+        # Set setting being tested
+        setting_handler.save_setting(
+            'general', 'enable_peer_review_data_block', self.journal_one, 'on'
+        )
+        self.client.force_login(
+            self.article_one.owner,
+        )
+        response = self.client.get(
+            reverse(
+                'core_dashboard_article',
+                kwargs={
+                    'article_id': self.article_one.pk,
+                }
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'peer_review_data_block'
+        )
+
+
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
         self.journal_one, self.journal_two = helpers.create_journals()
-        helpers.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
-                            "proofing_manager", "section-editor"])
+        helpers.create_roles(["editor", "author", "reviewer", "proofreader",
+                              "production", "copyeditor", "typesetter",
+                              "proofing-manager", "section-editor", "reader"])
 
         self.regular_user = helpers.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
@@ -264,7 +444,19 @@ class CoreTests(TestCase):
         self.admin_user.is_active = True
         self.admin_user.save()
 
-        self.journal_one.name = 'Journal One'
-        self.journal_two.name = 'Journal Two'
         call_command('install_plugins')
-        call_command('load_default_settings')
+        install.update_settings(management_command=False)
+        self.article_one = helpers.create_article(
+            self.journal_one,
+            with_author=True,
+        )
+        self.article_one.stage = 'Unassigned'
+        self.article_one.save()
+
+        review_assignment = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=self.article_one,
+            reviewer=self.second_user,
+        )
+
+        clear_script_prefix()

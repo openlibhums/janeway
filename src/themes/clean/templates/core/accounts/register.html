@@ -20,16 +20,22 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h5>{% trans "Register for an" %} {{ request.press.name }} {% trans "account" %}.</h5>
-                            <p>Password Rules:</p>
+                            <p>{% trans "Password Rules" %}:</p>
                             <ul class="no-top-margin">
-                                <li>{% trans "Your password should be" %} {{ request.press.password_length }} {% trans "characters long" %}.</li>
-                        {% if request.press.password_upper %}<li>{% trans "Your password should contain at least one upper case letter." %}</li>{% endif %}
-                        {% if request.press.password_number %}<li>{% trans "Your password should contain at least one number." %}</li>{% endif %}
+                                <li>- {% blocktrans %}Your password should be {{ request.press.password_length }} characters long.{% endblocktrans %}</li>
+                                {% if request.press.password_upper %}<li>- {% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
+                                {% if request.press.password_number %}<li>- {% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
                             </ul>
                             <p>{% blocktrans %}For more information read our <a href="#" data-toggle="modal" data-target="#passwordmodal">password guide</a>.{% endblocktrans %}</p>
 
                             {% bootstrap_form form %}
-                            <p>{% trans 'By registering an account you agree to our' %} <a href="/site/privacy/">{% trans 'Privacy Policy' %}</a>.</p>
+                            <p>{% trans "By registering an account you agree to our" %}
+                                {% if journal_settings.general.privacy_policy_url %}
+                                    <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                                {% else %}
+                                    <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
+                                {% endif %}
+                            </p>
                             {% if journal_settings.general.display_register_page_notice %}
                             {{ journal_settings.general.register_page_notice|safe }}
                             {% endif %}

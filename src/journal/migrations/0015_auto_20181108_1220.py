@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='disable_article_images',
             field=models.BooleanField(
                 default=False,
-                help_text='When checked, articles will not have header imagesor thumbnail images. Does not affect figures andtables within an article.',
+                help_text='This field has been deprecated in v1.4.3',
             ),
         ),
         migrations.AlterField(

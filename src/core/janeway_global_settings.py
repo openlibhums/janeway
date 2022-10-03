@@ -116,7 +116,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'core.middleware.TimezoneMiddleware',
     'core.middleware.SiteSettingsMiddleware',
-    'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
     'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
@@ -548,3 +547,11 @@ if os.environ.get("DB_VENDOR") == "postgres":
     CORE_FILETEXT_MODEL = "core.PGFileText"
 
 ENABLE_FULL_TEXT_SEARCH = False
+
+# A core theme must include ALL templates.
+CORE_THEMES = [
+    'OLH',
+    'material',
+    'clean',
+]
+INSTALLATION_BASE_THEME = 'OLH'

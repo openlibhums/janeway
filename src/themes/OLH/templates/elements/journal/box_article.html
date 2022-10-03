@@ -2,10 +2,10 @@
 {% load i18n %}
 
 <div class="box article">
-    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}"
+    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}"
        class="box-link"></a>
        <div class="clearfix">
-        {% if not journal.disable_article_images %}
+        {% if not journal_settings.article.disable_article_thumbnails %}
          <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
             <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
@@ -17,7 +17,7 @@
                  class="article-thumbnail"> {% endif %}
         </div>
         {% endif %}
-    <div class="{% if not journal.disable_article_images %}large-10{% endif %} columns end">
+    <div class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
             <h2>{{ article.title|safe }}{% if article.is_remote %}&nbsp;<i class="fa fa-external-link small-icon-text"></i>{% endif %}</h2>
            {% include "elements/journal/authors_block.html" %}
             <p><span class="date"><i
@@ -29,7 +29,7 @@
               {% if other != article.issue %}
               <p>
                 <i class="fa fa-book"></i>
-                <a class="issue-link" href={% if other.issue_type.code == 'issue'%}"{% url 'journal_issue' other.pk %}"{% else %}"{% url 'journal_collection' other.pk%}"{% endif %}>
+                <a class="issue-link" href="{{ other.url }}">
                     {{other.issue_type.pretty_name}}: {{ other.display_title }}
                 </a>
               </p>

@@ -1,10 +1,13 @@
+
 {% with issue_length=article.issues_list|length %}
     <h4>{% if issue_length > 1 %}Issues{% else %}Issue{% endif %}</h4>
 {% endwith %}
 <ul>
     {% if article.primary_issue %}
         <li>
-            <a href="{% url 'journal_issue' article.primary_issue.pk %}">{{ article.primary_issue.display_title }}</a>
+            <a href="{% url 'journal_issue' article.primary_issue.pk %}">
+                {% if article.issues_list.count > 1 %}{% trans 'Primary: ' %}{% endif %}{{ article.primary_issue.display_title }}
+            </a>
             {% if journal_settings.article.display_guest_editors %}
                 <br/>
                 {% include "common/elements/guest_editors.html" with issue=article.primary_issue small="small" %}

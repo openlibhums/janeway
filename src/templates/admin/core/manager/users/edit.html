@@ -19,7 +19,7 @@
 {% block title-sub %}{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}{% endblock %}
 
 {% block body %}
-<div class="large-8 columns end">
+<div class="large-12 columns end">
 
     <div class="box">
         <div class="title-area">
@@ -58,14 +58,14 @@
                     </div>
                 </div>
                 {% endif %}
-                {% include "elements/forms/errors.html" with form=form %}
-                {% include "elements/accounts/user_form.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/accounts/user_form.html" with form=form %}
 
                 <button name="register" id="register" type="submit" class="pull-right success button"
                         style="width:150px;margin-left:15px;">
                     <i class="fa fa-user"></i> {% if active == 'update' %}Update Profile{% else %}Save New User{% endif %}
                 </button>
-                </br> </br>
+                <br/> <br/>
             </form>
         </div>
     </div>

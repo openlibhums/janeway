@@ -65,27 +65,31 @@ Once the reviewer is assigned they will be able to access the system and let you
 
 Making Reviews Available to Authors
 -----------------------------------
-Once a round of Peer Review is complete, you can choose whether to ‘Hide’ or ‘Make Visible’ the different elements of the review from authors.
+Once a peer review is complete, editors then have the option to make it available to the the author to read. By default the review will not be available for the author to read. When the review has a file, you will also have the option to make the file available for the author to read. Once you have opened a review you will see a details of the review assignment, a summary of the review and the review availability controls.
 
-**Allow Author to See**
+.. figure:: ../nstatic/review_view_page.png
 
-Click through to ‘View’ a completed review: 
+Allow Author to Read Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first "Allow Author to See" button pertains to the review assignment itself. If this says ‘Allow Author to See’, the author cannot currently see this report.
+You can make the review form visible to the author by toggling *Author can access this review*, and the file available by toggling *Author can access review file*.
 
-If this button reads ‘Hide from Author’, the author can see the report.
+.. figure:: ../nstatic/review_visibility_controls_1.png
 
-.. figure:: ../nstatic/review_visibility_1.png
+Controlling Individual Answers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The "Allow Author to See" checkbox pertains to the ‘Summary of Review’ field or individual elements of the review form, if enabled. The default here is "Allow Author to See". If this box is checked, the author can see review text input into Janeway. If this field has been changed by an editor, the author only sees the edited version (but editors can see both versions on their screen). If this box is unchecked, the author cannot see the review text (if a review form with multiple elements, editors can check some and uncheck others on a per-field basis).
+In addition to making the overall review available for authors to read, you can control the individual form answers under *Answer Visibility*. Toggling the answers on or off will determine whether the author can see them when they look at the review.
 
-.. figure:: ../nstatic/review_visibility_2.png
+.. figure:: ../nstatic/review_visibility_controls_2.png
 
-If you make a change to the Summary of Review visibility options, click ‘Update Individual View Options’ to save.  
+Editing Answers
+~~~~~~~~~~~~~~~
 
-The third "Allow Author to See" button pertains to a review file, if uploaded. The default here is "Hide from Author". If this button appears as ‘Allow Author to View File’, the author cannot currently see the review file. Note: the editor must check and anonymise this file before making available to the author if working on a blinded basis. If this button reads "Hide File", the author can see the review file.
+You can edit individual answers to create an *edited version*. When viewing the review the author will see only your edited version and not the original version from the reviewer. You can reset the answer at any given time. Note that Janeway will retain a copy of the original and display it for other editors to see.
 
-.. figure:: ../nstatic/review_visibility_3.png
+.. figure:: ../nstatic/review_form_elements.png
+
 
 Once you have adjusted the visibility of Peer Review reports, and have clicked through to ‘Make a Decision’, you will see a summary of the Peer Reviews and what is and what is not revealed to authors before sending your Decision.
 
@@ -152,13 +156,13 @@ Editors:
 
 .. figure:: ../nstatic/review_draft_a_decision.gif
 
-Examples of Draft Decisions are: Accept, Minor Revisions, Major Revisions or Decline. Editors are required to approve these Draft Decisions (DD) before they are sent to Authors. 
+Examples of Draft Decisions are: Accept, Minor Revisions, Major Revisions or Decline. Editors are required to approve these Draft Decisions (DD) before they are sent to Authors.
 
-If the DD is Accept, an article is moved into Copyediting. 
+If the DD is Accept, an article is moved into Copyediting.
 
-If the DD is Minor Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers.  
+If the DD is Minor Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers.
 
-If the DD is Major Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers. If an article requires Major Revisions, then another round of Peer Review must be undertaken once the Major Revisions are complete.  
+If the DD is Major Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers. If an article requires Major Revisions, then another round of Peer Review must be undertaken once the Major Revisions are complete.
 
 If the DD is Decline, the article will be archived and the author notified.
 

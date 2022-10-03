@@ -193,6 +193,10 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         help_text='Will be notified of new submission access requests.',
     )
+    active_licenses = models.ManyToManyField(
+        'submission.Licence',
+        blank=True,
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'

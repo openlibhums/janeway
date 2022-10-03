@@ -19,8 +19,9 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
-from core import models as core_models, files
+from core import models as core_models, files, logic as core_logic, forms as core_forms
 from journal import models as journal_models
+from submission import models as submission_models
 
 
 from utils import (
@@ -196,7 +197,7 @@ def repository_submit_update(request, preprint_id, action):
                         None,
                         'You must upload a PDF for your manuscript',
                     )
-        if version_form.is_valid() and file_form.is_valid() if file_form else True:
+        if version_form.is_valid() and (file_form.is_valid() if file_form else True):
             new_version = version_form.save(commit=False)
             new_version.update_type = action
 
@@ -283,14 +284,18 @@ def repository_subject_list(request):
 
 
 
-def repository_list(request, subject_slug=None):
+def repository_list(request, subject_id=None):
     """
     Displays a list of all published preprints.
     :param request: HttpRequest
     :return: HttpResponse
     """
-    if subject_slug:
-        subject = get_object_or_404(models.Subject, slug=subject_slug)
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
         preprints = subject.preprint_set.filter(
             repository=request.repository,
             date_published__lte=timezone.now(),
@@ -816,6 +821,7 @@ def preprints_manager(request):
     metrics_summary = repository_logic.metrics_summary(published_preprints)
     versisons = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
+        preprint__repository=request.repository,
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,
@@ -2241,8 +2247,8 @@ def manage_reviewers(request):
 
         user_search = core_models.Account.objects.filter(
             **filters, is_active=True,
-        ).difference(
-            request.repository.reviewer_accounts(),
+        ).exclude(
+            pk__in=request.repository.reviewer_accounts().values("id"),
         )
 
     if request.POST and ('add_reviewer' in request.POST or 'remove_reviewer' in request.POST):
@@ -2303,3 +2309,76 @@ def manage_reviewers(request):
         template,
         context,
     )
+
+
+@is_repository_manager
+def repository_licenses(request):
+    """
+    Allows a repository manage to select the active licenses from the Press set.
+    """
+    form = forms.ActiveLicenseForm(
+        instance=request.repository,
+    )
+    if request.POST:
+        form = forms.ActiveLicenseForm(
+            request.POST,
+            instance=request.repository,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Active Licenses Saved.'
+            )
+            return redirect(
+                reverse(
+                    'repository_licenses',
+                )
+            )
+    template = 'admin/repository/licenses.html'
+    context = {
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def send_user_email(request, user_id, preprint_id):
+    user = get_object_or_404(core_models.Account, pk=user_id)
+    form = core_forms.EmailForm(
+        initial={'body': '<br/ >{signature}'.format(
+            signature=request.user.signature)},
+    )
+    close, article, preprint = False, None, None
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+
+    if request.POST and 'send' in request.POST:
+        form = core_forms.EmailForm(request.POST)
+
+        if form.is_valid():
+            core_logic.send_email(
+                user,
+                form,
+                request,
+                article,
+                preprint,
+            )
+            close = True
+
+    template = 'admin/journal/send_user_email.html'
+    context = {
+        'user': user,
+        'close': close,
+        'form': form,
+        'article': article,
+    }
+    return render(request, template, context)

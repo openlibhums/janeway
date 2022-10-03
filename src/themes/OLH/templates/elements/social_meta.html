@@ -1,0 +1,17 @@
+    {% load truncate %}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ news_item.title }}">
+    <meta name="twitter:description" content="{{ news_item.body|striptags|truncatesmart:400 }}">
+    {% if news_item.best_image_url %}
+        <meta name="twitter:image" content="{{ news_item.best_image_url }}">
+    {% endif %}
+
+    <meta property="og:title" content="{{ news_item.title }}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    {% if news_item.best_image_url %}
+        <meta name="og:image" content="{{ news_item.best_image_url }}">
+    {% endif %}
+
+    <meta property="og:description" content="{{ news_item.body|striptags|truncatesmart:400 }}" />
+    <meta property="og:site_name" content="{{ request.press.name }}" />

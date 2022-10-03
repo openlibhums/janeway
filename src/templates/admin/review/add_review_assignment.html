@@ -12,7 +12,7 @@
 
 {% block body %}
     <div class="large-12 columns">
-        <form method="POST">
+        <form id="review_assignment_form" method="POST">
             {% include "elements/forms/errors.html" with form=form %}
             {% csrf_token %}
             <div class="box">
@@ -46,7 +46,7 @@
                         <tbody>
                         {% for reviewer in suggested_reviewers %}
                             <tr style="color: forestgreen">
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
                                 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
@@ -59,7 +59,7 @@
                         {% for reviewer in reviewers %}
                             {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
                             <tr>
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
                                 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
@@ -91,7 +91,7 @@
                         <div class="large-4 columns">{{ form.date_due|foundation }}</div>
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <button class="button success" name="delete" type="submit">Add Reviewer</button>
+                            <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}" type="submit">Add Reviewer</button>
                             &nbsp;
                         </div>
                     </div>
@@ -169,13 +169,17 @@
         </div>
     </div>
 
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="review_assignment_form" %}
+    {% endif %}
+
 {% endblock body %}
 
 {% block js %}
     {% include "elements/datatables.html" with target="#reviewers" %}
     {% include "elements/datepicker.html" with target="#id_date_due" %}
-    {% if modal %}
-        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
 

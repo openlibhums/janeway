@@ -91,6 +91,10 @@ class HTMLDateInput(DateInput):
         super().__init__(**kwargs)
 
 
+class HTMLSwitchInput(CheckboxInput):
+    template_name = 'admin/elements/forms/foundation_switch_input.html'
+
+
 class CaptchaForm(Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -21,7 +21,7 @@
                 <div class="col-lg-9 col-md-8 journal-description-box">
                     <span class="d-none">{{ current_journal.name|lower }}</span>
                     <h2 class="journal-name">{{ current_journal.name }}</h2>
-                    <span>{{ current_journal|setting:'journal_description'|safe }}</span>
+                    <span>{{ current_journal.description_for_press|safe }}</span>
                     <div class="journal-button-block">
                         {% if current_journal.is_remote %}
                             {% if not submission_disabled %}

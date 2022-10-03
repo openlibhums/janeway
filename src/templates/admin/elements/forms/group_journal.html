@@ -7,6 +7,9 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.print_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
+    {% if edit_form.journal_base_theme %}
+        {% include "admin/elements/forms/field.html" with field=edit_form.journal_base_theme %}
+    {% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
     {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
@@ -28,6 +31,7 @@
     <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.from_address %}
     {% include "admin/elements/forms/field.html" with field=edit_form.auto_signature %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.replyto_address%}
 </div>
 
 <div class="title-area">

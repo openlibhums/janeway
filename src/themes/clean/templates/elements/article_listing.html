@@ -4,7 +4,7 @@
 <div class="card">
     <div class="card-block">
         <div class="row">
-            {% if not journal.disable_article_images %}
+            {% if not journal_settings.article.disable_article_thumbnails %}
                 <div class="col-md-2">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
@@ -19,7 +19,7 @@
                 </div>
             {% endif %}
             <div class="col article-block">
-                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
+                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                     <h2 class="card-title article-title">{{ article.title|safe }}{% if article.is_remote %}&nbsp;
                         <span class="fa fa-external-link small-icon-text"></span>{% endif %}</h2>
                 </a>
@@ -31,7 +31,7 @@
                     <span class="date"><span class="fa fa-calendar"></span> {{ article.date_published|date:"Y-m-d" }}</span>
                     {% if article.issue %}
                     <span class="fa fa-book"></span>
-                    <a href="{% url 'journal_issue' article.issue.pk %}">
+                    <a href="{{ article.issue.url }}">
                         {{ article.issue_title }}
                     </a>
                     {% endif %}
@@ -42,7 +42,7 @@
                   {% if other != article.issue %}
                   <p>
                     <span class="fa fa-book"></span>
-                    <a class="issue-link" href={% if other.issue_type.code == 'issue'%}"{% url 'journal_issue' other.pk %}"{% else %}"{% url 'journal_collection' other.pk%}"{% endif %}>
+                    <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
                     </a>
                   </p>

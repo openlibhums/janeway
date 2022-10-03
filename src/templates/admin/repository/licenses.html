@@ -1,0 +1,41 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{{ request.repository.name }} Licenses{% endblock %}
+{% block title-section %}{{ request.repository.name }} Licenses{% endblock %}
+{% block title-sub %}Management interface for {{ request.repository.name }} Licenses{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
+    <li>Licenses</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-12 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Select Active Licenses</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <button name="save" class="success button">Save Active Licenses</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "admin/elements/post_check.html" %}
+    {% include "admin/elements/datatables.html" with target="#editors" page_length=10 sort=1 order="asc" %}
+{% endblock %}

@@ -48,8 +48,8 @@
                             <th width="15%">Last Name</th>
                             <th width="20%">Email</th>
                             <th width="15%">History</th>
-                            <th width="12%">Control</th>
-                            {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}<th width="9%">Hijack</th>{% endif %}
+                            <th width="12%">Edit</th>
+                            {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}<th width="9%">Control User</th>{% endif %}
                         </tr>
                         </thead>
                         {% for user in users %}
