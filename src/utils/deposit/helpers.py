@@ -34,6 +34,10 @@ def prepare_temp_folder(request=None, issue=None, article=None, loc_code=None):
             vol=issue.volume,
             issue=issue.issue,
             year=issue.date.year)
+    elif article and request:
+        folder_string = '{journal_code}_{article_id}'.format(
+            journal_code=request.journal.code,
+            article_id=article.pk)
     elif loc_code:
         folder_string = loc_code
 
