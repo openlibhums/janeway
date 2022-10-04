@@ -13,8 +13,10 @@ def update_setting_values(apps, schema_editor):
     setting_group, _ = SettingGroup.objects.get_or_create(
         name="article")
     call_command('load_default_settings')
-    thumb_setting = Setting.objects.get_or_create(name="disable_article_thumbnails")
-    large_image_setting= Setting.objects.get(name="disable_article_large_image")
+
+    thumb_setting, c = Setting.objects.get_or_create(name="disable_article_thumbnails")
+    large_image_setting = Setting.objects.get(name="disable_article_large_image")
+
     for journal in Journal.objects.filter(disable_article_images=True):
         SettingValue.objects.get_or_create(
             setting=thumb_setting,
