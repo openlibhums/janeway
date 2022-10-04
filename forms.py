@@ -5,12 +5,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_summernote.widgets import SummernoteWidget
 
-from core import models as core_models
+from core import models as core_models, forms as core_forms
 from plugins.typesetting import models
 from utils.forms import HTMLDateInput
 
 
-class AssignTypesetter(forms.ModelForm):
+class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+
+    # Confirmable form modification
+    QUESTION = _('Are you sure you want to create a typesetting assignment?')
 
     def __init__(self, *args, **kwargs):
         typesetters = kwargs.pop('typesetters')
@@ -69,8 +72,22 @@ class AssignTypesetter(forms.ModelForm):
         if not cleaned_data.get('files_to_typeset'):
             raise ValidationError("At least one file must be made picked")
 
+    def check_for_potential_errors(self):
+        # Confirmable form modification
+        potential_errors = []
 
-class AssignProofreader(forms.ModelForm):
+        typesetter = self.cleaned_data.get('typesetter', None)
+        message = self.check_for_inactive_account(typesetter)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
+
+
+class AssignProofreader(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+
+    # Confirmable form modification
+    QUESTION = _('Are you sure you want to create a proofreading assignment?')
 
     def __init__(self, *args, **kwargs):
         self.proofreaders = kwargs.pop('proofreaders')
@@ -97,6 +114,17 @@ class AssignProofreader(forms.ModelForm):
             assignment.save()
 
         return assignment
+
+    def check_for_potential_errors(self):
+        # Confirmable form modification
+        potential_errors = []
+
+        proofreader = self.cleaned_data.get('proofreader', None)
+        message = self.check_for_inactive_account(proofreader)
+        if message:
+            potential_errors.append(message)
+
+        return potential_errors
 
 
 def decision_choices():
@@ -165,7 +193,11 @@ class EditProofingAssignment(forms.ModelForm):
         }
 
 
-class ProofingForm(forms.ModelForm):
+class ProofingForm(forms.ModelForm, core_forms.ConfirmableForm):
+
+    # Confirmable form constants
+    QUESTION = _('Are you sure you want to complete the proofreading task?')
+
     class Meta:
         model = models.GalleyProofing
         fields = ('notes',)
@@ -178,6 +210,43 @@ class ProofingForm(forms.ModelForm):
                 attrs={'summernote': summernote_attrs},
             ),
         }
+
+    def check_for_potential_errors(self):
+        # This customizes the confirmable form method
+        potential_errors = []
+
+        # Check for unproofed galleys
+        galleys = core_models.Galley.objects.filter(
+            article=self.instance.round.article,
+        )
+        unproofed_galleys = self.instance.unproofed_galleys(galleys)
+        if unproofed_galleys:
+            message = _('You have not proofed some galleys:')+' {}.'.format(
+                        ", ".join([g.label for g in unproofed_galleys])
+                    )
+            potential_errors.append(message)
+
+        # Check if a note was added
+        if not self.cleaned_data.get('notes', None):
+            message = 'The Notes field is empty.'
+            potential_errors.append(_(message))
+
+        # Check if new files were added
+        annotated_files = self.instance.annotated_files.all()
+        if annotated_files:
+            last_upload = max(set(an_file.date_uploaded for an_file in annotated_files))
+            last_editor_or_typesetter_action = max(filter(bool, [
+                self.instance.completed,
+                self.instance.assigned,
+            ]))
+            if last_editor_or_typesetter_action > last_upload:
+                message = 'The annotated files have not been changed.'
+                potential_errors.append(_(message))
+        else:
+            message = 'No annotated files have been uploaded.'
+            potential_errors.append(_(message))
+
+        return potential_errors
 
 
 class GalleyForm(forms.ModelForm):

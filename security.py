@@ -22,7 +22,7 @@ def proofreader_for_article_required(func):
             return redirect(
                 '{0}?next={1}'.format(
                     reverse('core_login'),
-                    request.path_info,
+                    request.path,
                 )
             )
 
@@ -59,7 +59,7 @@ def can_preview_typesetting_article(func):
             return redirect(
                 '{0}?next={1}'.format(
                     reverse('core_login'),
-                    request.path_info,
+                    request.path,
                 )
             )
 
@@ -149,7 +149,7 @@ def can_manage_file(request, file_object):
         return redirect(
             '{0}?next={1}'.format(
                 reverse('core_login'),
-                request.path_info
+                request.path
             )
         )
 

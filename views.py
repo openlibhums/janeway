@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.utils.translation import ugettext as _
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
@@ -142,6 +143,24 @@ def typesetting_article(request, article_id):
                 'typesetting_article',
                 kwargs={'article_id': article.pk},
             )
+        )
+    elif request.POST and 'edit-label' in request.POST:
+        label = request.POST.get('edit-label', 'Supplementary File')
+        supp_file = get_object_or_404(
+            core_models.SupplementaryFile,
+            id=int(request.POST.get("supp-id", 0)),
+        )
+        file_obj = supp_file.file
+        # Cope with file not having foreign key to article
+        if file_obj.article != article:
+            raise Http404()
+        file_obj.label = label
+        file_obj.save()
+
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Label updated: %s' % label,
         )
 
     template = 'typesetting/typesetting_article.html'
@@ -479,7 +498,7 @@ def typesetting_assign_typesetter(request, article_id):
             galleys=galleys,
         )
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             assignment = form.save()
             assignment.manager = request.user
             assignment.save()
@@ -986,7 +1005,7 @@ def typesetting_assign_proofreader(request, article_id):
             user=request.user,
         )
 
-        if form.is_valid():
+        if form.is_valid() and form.is_confirmed():
             assignment = form.save()
 
             messages.add_message(
@@ -1223,9 +1242,6 @@ def typesetting_proofreading_assignment(request, assignment_id):
     if request.POST:
         form = forms.ProofingForm(request.POST, instance=assignment)
 
-        if form.is_valid():
-            form.save()
-
         if request.FILES:
             logic.handle_proofreader_file(
                 request,
@@ -1233,9 +1249,10 @@ def typesetting_proofreading_assignment(request, assignment_id):
                 assignment.round.article,
             )
 
-        if 'complete' in request.POST:
-            unproofed_galleys = assignment.unproofed_galleys(galleys)
-            if not unproofed_galleys:
+        if form.is_valid():
+            form.save()
+
+            if form.is_confirmed():
                 assignment.complete(
                     user=request.user
                 )
@@ -1253,21 +1270,6 @@ def typesetting_proofreading_assignment(request, assignment_id):
                         'core_dashboard',
                     )
                 )
-            else:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    'You must proof {}.'.format(
-                        ", ".join([g.label for g in unproofed_galleys])
-                    )
-                )
-
-        return redirect(
-            reverse(
-                'typesetting_proofreading_assignment',
-                kwargs={'assignment_id': assignment.pk},
-            )
-        )
 
     template = 'typesetting/typesetting_proofreading_assignment.html'
     context = {
@@ -1480,4 +1482,3 @@ def mint_supp_doi(request, supp_file_id):
             )
 
     return redirect(request.META.get('HTTP_REFERER'))
-
