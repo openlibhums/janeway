@@ -1,0 +1,19 @@
+<div class="reveal" id="edit_supp_label_{{supp_file.pk}}" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-upload">&nbsp;</i>Mint DOI for Supplementary file #{{ supp_file.pk }}: {{ supp_file.label }}</h4>
+        </div>
+    </div>
+    <div class="card-section">
+        <div class="row expanded">
+         <form method="POST" action={% url 'typesetting_article' article.pk %}>
+            {% csrf_token %}
+            <label for="doi">File Label</label>
+            <input type="text" name="edit-label" value="{{ supp_file.label }}" required></input>
+            <input type="hidden" name="supp-id" value="{{ supp_file.pk }}"></input>
+            <button class="success button">Save</button>
+           </form>
+        </div>
+    </div>
+</div>

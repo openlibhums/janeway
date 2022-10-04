@@ -27,7 +27,7 @@
             </ul>
         </div>
     </div>
-    <form method="POST">
+    <form id="assign_proofreader" method="POST">
         {% csrf_token %}
         <div class="box">
 
@@ -52,14 +52,21 @@
                 {{ form.task|foundation }}
             </div>
 
-            <button name="save" class="button">Save</button>
+            <button name="{{ form.CONFIRMABLE_BUTTON_NAME }}" class="button">Save</button>
 
         </div>
     </form>
 
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="assign_proofreader" %}
+    {% endif %}
+
 {% endblock %}
 
 {% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
     {% include "elements/datatables.html" with target="#typesetter" %}
     <script src="{% static "admin/js/check_all.js" %}"></script>
 {% endblock js %}
