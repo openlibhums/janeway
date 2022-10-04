@@ -714,7 +714,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
 @decorators.typesetter_user_required
 def typesetting_assignments(request):
 
-    assignments = models.TypesettingAssignment.objects.filter(
+    assignments = models.TypesettingAssignment.active_objects.filter(
         typesetter=request.user,
         round__article__journal=request.journal,
     )
@@ -829,7 +829,7 @@ def typesetting_delete_galley(request, galley_id):
 @decorators.typesetter_user_required
 def typesetting_assignment(request, assignment_id):
     assignment = get_object_or_404(
-        models.TypesettingAssignment,
+        models.TypesettingAssignment.active_objects,
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
@@ -961,7 +961,6 @@ def typesetting_delete_correction(request, correction_id):
                 'Confirmed',
             )
     return redirect(request.META.get('HTTP_REFERER'))
-
 
 
 @decorators.has_journal
@@ -1202,7 +1201,7 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
 
 @login_required
 def typesetting_proofreading_assignments(request):
-    assignments = models.GalleyProofing.objects.filter(
+    assignments = models.GalleyProofing.active_objects.filter(
         proofreader=request.user,
         round__article__journal=request.journal,
     )
@@ -1227,7 +1226,7 @@ def typesetting_proofreading_assignments(request):
 @security.proofreader_for_article_required
 def typesetting_proofreading_assignment(request, assignment_id):
     assignment = get_object_or_404(
-        models.GalleyProofing,
+        models.GalleyProofing.active_objects,
         pk=assignment_id,
         completed__isnull=True,
         cancelled=False,

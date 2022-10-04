@@ -9,11 +9,12 @@ from django.test import TestCase
 from django.utils import timezone
 from django.http import HttpRequest
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import reverse
 
 from plugins.typesetting import plugin_settings, models, security
 from submission import models as submission_models
 from utils.testing import helpers
-from core import models as core_models
+from core import models as core_models, urls
 
 
 class TestTypesetting(TestCase):
@@ -172,7 +173,51 @@ class TestTypesetting(TestCase):
             self.assertFalse(
                 func.called,
                 "Security Error: Non priviledged user can manage file."
-            ) 
+            )
+
+    def test_archive_stage_hides_task(self):
+        self.client.force_login(self.typesetter)
+        response = self.client.get(
+            reverse('typesetting_assignments')
+        )
+        self.assertContains(
+            response,
+            'Active Article',
+        )
+        self.assertNotContains(
+            response,
+            'Archived Article'
+        )
+
+    def test_archived_article_task_404s(self):
+        self.client.force_login(self.typesetter)
+        response = self.client.get(
+            reverse(
+                'typesetting_assignment',
+                kwargs={
+                    'assignment_id': self.archived_typesetting_task.pk
+                }
+            )
+        )
+        self.assertTrue(
+            response.status_code,
+            404,
+        )
+
+    def test_active_article_task_200s(self):
+        self.client.force_login(self.typesetter)
+        response = self.client.get(
+            reverse(
+                'typesetting_assignment',
+                kwargs={
+                    'assignment_id': self.active_typesetting_task.pk
+                }
+            )
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
 
     @classmethod
     def setUpTestData(self):
@@ -187,7 +232,7 @@ class TestTypesetting(TestCase):
             "typesetter",
             "proofreader",
         ]
-
+        helpers.create_press()
         self.journal_one, self.journal_two = helpers.create_journals()
         helpers.create_roles(roles_to_setup)
 
@@ -213,13 +258,15 @@ class TestTypesetting(TestCase):
             roles=['typesetter'],
             journal=self.journal_one,
         )
+        self.typesetter.is_active = True
+        self.typesetter.save()
 
         self.article_in_typesetting = submission_models.Article.objects.create(
-        	owner=self.article_owner, 
-        	title="A Test Article",
-			abstract="An abstract",
-			stage=plugin_settings.STAGE,
-			journal_id=self.journal_one.id
+            owner=self.article_owner,
+            title="A Test Article",
+            abstract="An abstract",
+            stage=plugin_settings.STAGE,
+            journal_id=self.journal_one.id
         )
 
         self.private_file = core_models.File.objects.create(
@@ -272,4 +319,45 @@ class TestTypesetting(TestCase):
             proofreader=self.proofreader,
             due=timezone.now(),
             notified=True,
+        )
+
+        self.author = helpers.create_user(
+            'author@janeway.systems',
+            ['author'],
+            journal=self.journal_one,
+        )
+        self.author.is_active = True
+        self.author.save()
+        self.active_article = helpers.create_article(
+            journal=self.journal_one,
+        )
+        self.active_article.title = 'Active Article'
+        self.active_article.save()
+        self.active_article.authors.add(self.author)
+        self.archived_article = helpers.create_article(
+            journal=self.journal_one,
+        )
+        self.archived_article.stage = submission_models.STAGE_ARCHIVED
+        self.archived_article.title = 'Archived Article'
+        self.archived_article.save()
+        self.archived_article.authors.add(self.author)
+
+        self.active_typesetting_round = models.TypesettingRound.objects.create(
+            article=self.active_article,
+        )
+        self.active_typesetting_task = models.TypesettingAssignment.objects.create(
+            round=self.active_typesetting_round,
+            manager=self.editor,
+            typesetter=self.typesetter,
+            task='Active Task',
+        )
+
+        self.archived_typesetting_round = models.TypesettingRound.objects.create(
+            article=self.archived_article,
+        )
+        self.archived_typesetting_task = models.TypesettingAssignment.objects.create(
+            round=self.archived_typesetting_round,
+            manager=self.editor,
+            typesetter=self.typesetter,
+            task='Archived Task',
         )
