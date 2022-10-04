@@ -5,7 +5,6 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
