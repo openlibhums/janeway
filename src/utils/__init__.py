@@ -35,6 +35,12 @@ def load_janeway_settings():
                 k: v for k, v in custom_module.__dict__.items()
                 if k.isupper()
             }
+            for k, v in custom_settings.items():
+                if k in MERGEABLE_SETTINGS:
+                    janeway_settings[k] = merge_settings(janeway_settings[k], v)
+                else:
+                    janeway_settings[k] = v
+            # create_logging_path(janeway_settings)
             logging.info(
                 "Loading settings from %s" % (
                     os.environ["JANEWAY_SETTINGS_MODULE"],
@@ -43,11 +49,6 @@ def load_janeway_settings():
                     "Loading the following custom settings: %s" %(
                     custom_settings.keys(),
             ))
-            for k, v in custom_settings.items():
-                if k in MERGEABLE_SETTINGS:
-                    janeway_settings[k] = merge_settings(janeway_settings[k], v)
-                else:
-                    janeway_settings[k] = v
 
         settings.configure(**janeway_settings)
 
@@ -73,3 +74,16 @@ def merge_dict_settings(base, override):
             merged[k] = v
 
     return dict(base, **merged)
+
+def create_logging_path(path):
+    """
+    Tries to create logging path specified in janeway_settings
+    """
+    try:
+        logging_path = os.path.dirname(janeway_settings["handler"]["log_file"]["filename"])
+        if not os.path.exists(logging_path):
+            os.makedirs(logging_path)
+    except KeyError:
+        logging.warning("Logging path not found in %s" % (
+            os.environ["JANEWAY_SETTINGS_MODULE"])
+        )
