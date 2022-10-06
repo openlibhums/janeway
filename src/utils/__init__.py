@@ -75,7 +75,7 @@ def merge_dict_settings(base, override):
 
     return dict(base, **merged)
 
-def create_logging_path(path):
+def create_logging_path(janeway_settings):
     """
     Tries to create logging path specified in janeway_settings
     """
