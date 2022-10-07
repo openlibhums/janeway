@@ -96,7 +96,6 @@ INSTALLED_APPS = [
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
     'hijack',
-    #'compat',
     'hcaptcha',
 
     # Forms
