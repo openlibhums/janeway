@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 from django.utils.safestring import mark_safe
 
 

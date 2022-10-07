@@ -11,7 +11,7 @@ import itertools
 from django import forms
 from django.forms.fields import Field
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q

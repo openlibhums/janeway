@@ -49,10 +49,11 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
+'django.contrib.contenttypes',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -95,7 +96,7 @@ INSTALLED_APPS = [
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
     'hijack',
-    'compat',
+    #'compat',
     'hcaptcha',
 
     # Forms
@@ -236,16 +237,16 @@ LOCALE_PATHS = [
 ] + plugin_installed_apps.load_plugin_locales(BASE_DIR)
 
 
-def ugettext(s):
+def gettext(s):
     return s
 
 
 LANGUAGES = (
-    ('en', ugettext('English')),
-    ('fr', ugettext('French')),
-    ('de', ugettext('German')),
-    ('nl', ugettext('Dutch')),
-    ('cy', ugettext('Welsh')),
+    ('en', gettext('English')),
+    ('fr', gettext('French')),
+    ('de', gettext('German')),
+    ('nl', gettext('Dutch')),
+    ('cy', gettext('Welsh')),
 )
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'

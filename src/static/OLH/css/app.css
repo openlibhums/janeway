@@ -4530,7 +4530,6 @@ header #main-menu {
     background-color: var(--topbar-background-color); }
   header .top-bar-image {
     max-height: 90px;
-    min-height: 90px;
     max-width: 330px;
     padding: 5px;
     margin-top: -20px; } }
@@ -5349,3 +5348,21 @@ button.list-group-item-danger.active:focus {
 #search-menu {
   max-width: 200px;
   float: right; }
+
+.is-drilldown {
+  overflow-y: scroll; }
+
+.homepage-element-about {
+  margin-top: 30px; }
+
+.homepage-element-about {
+  margin-top: 30px; }
+
+.homepage-element-search-bar {
+  font-size: 1.5rem; }
+
+.homepage-element-search-bar input[type="text"] {
+  font-size: 1.5rem; }
+
+.table-wrap {
+  overflow-x: scroll; }

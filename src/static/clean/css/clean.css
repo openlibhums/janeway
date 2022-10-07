@@ -253,6 +253,7 @@ main a:hover {
 .card-block {
     padding: 20px;
 }
+
 #carousel-buttons {
     margin-left: 100px;
     position: absolute;
@@ -331,6 +332,7 @@ footer svg {
 .article-img {
     filter: brightness(50%);
 }
+
 .journal-name {
     font-size: 2.5rem;
     margin-bottom: .5rem;
@@ -348,10 +350,88 @@ footer svg {
     display: inline-block;
 }
 
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+}
+
 .article-table {
   display: block;
   overflow-x: scroll;}
 
 .table-caption {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
+
+.journal-card-title {
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.row-smaller-gutters {
+    margin-left: -9px;
+    margin-right: -9px;
+}
+.row-smaller-gutters > div[class^="col"] {
+    padding-left: 9px;
+    padding-right: 9px;
+}
+header svg {
+    max-height: 120px;
+    max-width: 100%;
+}
+.journal-div {
+    padding-bottom:15px;
+}
+.journal-name {
+    font-size: 1.4rem;
+}
+.journal-button-block {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.responsive-img {
+    max-width: 100%;
+}
+
+.article-table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.article-table th,
+.article-table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+.article-table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.article-table tbody + tbody {
+  border-top: 2px solid #dee2e6;
+}
+
+.article-table-sm th,
+.article-table-sm td {
+  padding: 0.3rem;
+}
+
+
+.homepage-element-search-bar input[type="text"] {
+    font-size: 1.5rem;
+}
+
+.homepage-element-search-bar .input-group-text {
+    font-size: 1.5rem;
+}
+
+#main_article {
+    margin-top: 30px;
+}
+

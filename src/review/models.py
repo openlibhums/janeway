@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db.models import Max, Q, Value
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from utils import shared
 
@@ -19,8 +19,14 @@ assignment_choices = (
 
 
 class EditorAssignment(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
     editor_type = models.CharField(max_length=20, choices=assignment_choices)
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
@@ -41,7 +47,7 @@ def review_decision():
 def review_type():
     return (
         ('traditional', 'Traditional'),
-        #('annotation', 'Annotation'),
+        # ('annotation', 'Annotation'),
     )
 
 
@@ -54,7 +60,10 @@ def review_visibilty():
 
 
 class ReviewRound(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     round_number = models.IntegerField()
     review_files = models.ManyToManyField('core.File')
     date_started = models.DateTimeField(auto_now_add=True)
@@ -98,7 +107,7 @@ class ReviewRound(models.Model):
             ORDER BY "review_reviewround"."round_number" DESC
 
         """
-        latest_round = cls.objects.filter( article=article,).annotate(
+        latest_round = cls.objects.filter(article=article, ).annotate(
             # Annotate all rows with the same value to force a group by
             constant=Value(1),
         ).values("constant").annotate(
@@ -110,14 +119,32 @@ class ReviewRound(models.Model):
 
 class ReviewAssignment(models.Model):
     # FKs
-    article = models.ForeignKey('submission.Article')
-    reviewer = models.ForeignKey('core.Account', related_name='reviewer', help_text='User to undertake the review',
-                                 null=True, on_delete=models.SET_NULL)
-    editor = models.ForeignKey('core.Account', related_name='editor', help_text='Editor requesting the review',
-                               null=True, on_delete=models.SET_NULL)
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    reviewer = models.ForeignKey(
+        'core.Account',
+        related_name='reviewer',
+        help_text='User to undertake the review',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        related_name='editor',
+        help_text='Editor requesting the review',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     # Info
-    review_round = models.ForeignKey(ReviewRound, blank=True, null=True)
+    review_round = models.ForeignKey(
+        ReviewRound,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     decision = models.CharField(
         max_length=20,
         blank=True,
@@ -151,11 +178,16 @@ class ReviewAssignment(models.Model):
                                            help_text="If you have any comments for the Editor you can add them here; \
                                            these will not be shared with the Author.",
                                            verbose_name="Comments for the Editor")
-    review_file = models.ForeignKey('core.File', blank=True, null=True)
+    review_file = models.ForeignKey(
+        'core.File',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     display_review_file = models.BooleanField(default=False)
-    permission_to_make_public = models.BooleanField(default=False, help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.')
+    permission_to_make_public = models.BooleanField(default=False,
+                                                    help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.')
     display_public = models.BooleanField(default=False, help_text='Whether this review should be publicly displayed.')
-
 
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
@@ -266,7 +298,10 @@ class ReviewAssignment(models.Model):
 
 
 class ReviewForm(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
@@ -328,12 +363,11 @@ class BaseReviewFormElement(models.Model):
 
 
 class ReviewFormElement(BaseReviewFormElement):
-
     class Meta(BaseReviewFormElement.Meta):
         pass
 
     def snapshot(self, answer):
-        frozen , _= FrozenReviewFormElement.objects.update_or_create(
+        frozen, _ = FrozenReviewFormElement.objects.update_or_create(
             answer=answer,
             defaults=dict(
                 form_element=self,
@@ -351,9 +385,15 @@ class ReviewFormElement(BaseReviewFormElement):
 
 
 class ReviewAssignmentAnswer(models.Model):
-    assignment = models.ForeignKey(ReviewAssignment)
+    assignment = models.ForeignKey(
+        ReviewAssignment,
+        on_delete=models.CASCADE,
+    )
     original_element = models.ForeignKey(
-        ReviewFormElement, null=True, on_delete=models.SET_NULL)
+        ReviewFormElement,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     answer = models.TextField(blank=True, null=True)
     edited_answer = models.TextField(null=True, blank=True)
     author_can_see = models.BooleanField(default=True)
@@ -369,25 +409,44 @@ class ReviewAssignmentAnswer(models.Model):
 class FrozenReviewFormElement(BaseReviewFormElement):
     """ A snapshot of a review form element at the time an answer is created"""
     form_element = models.ForeignKey(
-        ReviewFormElement, null=True, on_delete=models.SET_NULL)
+        ReviewFormElement,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     answer = models.OneToOneField(
-        ReviewAssignmentAnswer, related_name="frozen_element")
+        ReviewAssignmentAnswer,
+        related_name="frozen_element",
+        on_delete=models.CASCADE,
+    )
 
     class Meta(BaseReviewFormElement.Meta):
         pass
 
 
 class ReviewFormAnswer(models.Model):
-    review_assignment = models.ForeignKey(ReviewAssignment)
-    form_element = models.ForeignKey(ReviewFormElement)
+    review_assignment = models.ForeignKey(
+        ReviewAssignment,
+        on_delete=models.CASCADE,
+    )
+    form_element = models.ForeignKey(
+        ReviewFormElement,
+        on_delete=models.CASCADE,
+    )
     answer = models.TextField()
 
 
 class ReviewerRating(models.Model):
-    assignment = models.OneToOneField(ReviewAssignment)
+    assignment = models.OneToOneField(
+        ReviewAssignment,
+        on_delete=models.CASCADE,
+    )
     rating = models.IntegerField(validators=[MinValueValidator(1),
                                              MaxValueValidator(10)])
-    rater = models.ForeignKey('core.Account')
+    rater = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self):
         return "Reviewer: {0}, Article: {1}, Rating: {2}".format(
@@ -398,7 +457,11 @@ class ReviewerRating(models.Model):
 class RevisionAction(models.Model):
     text = models.TextField()
     logged = models.DateTimeField(default=None, null=True, blank=True)
-    user = models.ForeignKey('core.Account')
+    user = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self):
         return "Revision Action by {0}: {1}".format(self.user.full_name(), self.text)
