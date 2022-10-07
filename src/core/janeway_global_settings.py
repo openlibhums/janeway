@@ -49,7 +49,6 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
-'django.contrib.contenttypes',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -59,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.postgres',
+    'django.contrib.contenttypes',
 
     # Installed Apps
     'cms',
