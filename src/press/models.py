@@ -65,7 +65,6 @@ class Press(AbstractSiteModel):
         blank=True,
         related_name='press_thumbnail_image',
         verbose_name='Press Logo',
-        on_delete=models.SET_NULL,
     )
     footer_description = models.TextField(
         null=True,
@@ -77,7 +76,13 @@ class Press(AbstractSiteModel):
     homepage_news_items = models.PositiveIntegerField(default=5)
     carousel_type = models.CharField(max_length=30, default='articles', choices=press_carousel_choices())
     carousel_items = models.PositiveIntegerField(default=4)
-    carousel = models.OneToOneField('carousel.Carousel', related_name='press', null=True, blank=True)
+    carousel = models.OneToOneField(
+        'carousel.Carousel',
+        related_name='press',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     default_carousel_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     random_featured_journals = models.BooleanField(default=False)

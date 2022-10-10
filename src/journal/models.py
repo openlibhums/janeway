@@ -82,7 +82,13 @@ class Journal(AbstractSiteModel):
     ))
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
-    carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
+    carousel = models.OneToOneField(
+        'carousel.Carousel',
+        related_name='journal',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     thumbnail_image = models.ForeignKey(
         'core.File',
         null=True,
