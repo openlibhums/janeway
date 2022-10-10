@@ -65,6 +65,7 @@ class Press(AbstractSiteModel):
         blank=True,
         related_name='press_thumbnail_image',
         verbose_name='Press Logo',
+        on_delete=models.SET_NULL,
     )
     footer_description = models.TextField(
         null=True,
