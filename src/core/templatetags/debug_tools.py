@@ -22,8 +22,6 @@ class TraceNode(template.Node):
         except ImportError:
             import pdb
             pdb.set_trace()           # Debugger will stop here
-        except ImportError:
-            logger.info("Cannot import library for set_trace.")
         return ''
 
 
