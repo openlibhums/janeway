@@ -47,11 +47,15 @@
                     <div class="large-12 columns">
                         {{ form.issue_description|foundation }}
                     </div>
-                    <div class="large-6 columns">
+                    <div class="large-12 columns">
                         {{ form.issue_type|foundation }}
                     </div>
                     <div class="large-6 columns">
                         {{ form.doi|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.isbn|foundation }}
+                    </div>
                     <div class="large-12 columns">
                         <button name="save_issue" type="submit" class="button success">{% if issue %}Edit{% else %}Add{% endif %} Issue</button>
                     </div>
