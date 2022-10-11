@@ -24,6 +24,7 @@
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
     <meta name="DC.Source.ISSN" content="{{ article.journal.issn }}"/>
+    {% if article.issue.isbn %}<meta name="DC.Source.ISBN" content="{{ article.issue.isbn }}"/>{% endif %}
     {% if article.issue.issue %}<meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>{% endif %}
     {% if article.issue.volume %}<meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>{% endif %}
     <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
