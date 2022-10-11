@@ -37,10 +37,10 @@ class Migration(migrations.Migration):
                 ('random_featured_journals', models.BooleanField(default=False)),
                 ('password_reset_text', models.TextField(blank=True, null=True)),
                 ('registration_text', models.TextField(blank=True, null=True)),
-                ('carousel', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press', to='carousel.Carousel')),
+                ('carousel', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='press', to='carousel.Carousel')),
                 ('carousel_news_items', models.ManyToManyField(blank=True, null=True, to='core.NewsItem')),
                 ('featured_journals', models.ManyToManyField(blank=True, null=True, to='journal.Journal')),
-                ('thumbnail_image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_thumbnail_image', to='core.File')),
+                ('thumbnail_image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='press_thumbnail_image', to='core.File')),
             ],
         ),
     ]
