@@ -475,8 +475,15 @@ def revision_type():
 
 
 class RevisionRequest(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     editor_note = models.TextField()  # Note from Editor to Author
     author_note = models.TextField(
         blank=True,
@@ -497,8 +504,14 @@ class RevisionRequest(models.Model):
 
 
 class EditorOverride(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
     overwritten = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -506,9 +519,22 @@ class EditorOverride(models.Model):
 
 
 class DecisionDraft(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account', related_name='draft_editor', null=True)
-    section_editor = models.ForeignKey('core.Account', related_name='draft_section_editor')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        related_name='draft_editor',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    section_editor = models.ForeignKey(
+        'core.Account',
+        related_name='draft_section_editor',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     decision = models.CharField(
         max_length=100,
         choices=review_decision(),

@@ -84,7 +84,11 @@ def repo_media_upload(instance, filename):
 
 
 class Repository(model_utils.AbstractSiteModel):
-    press = models.ForeignKey('press.Press')
+    press = models.ForeignKey(
+        'press.Press',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     name = models.CharField(max_length=255)
     short_name = models.CharField(
         max_length=15,
@@ -259,7 +263,10 @@ class Repository(model_utils.AbstractSiteModel):
 
 
 class RepositoryRole(models.Model):
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+    )
     user = models.ForeignKey(
         'core.Account',
         on_delete=models.CASCADE,
@@ -278,7 +285,10 @@ class RepositoryRole(models.Model):
 
 
 class RepositoryField(models.Model):
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=255)
     input_type = models.CharField(
         max_length=255,
@@ -321,7 +331,10 @@ class RepositoryFieldAnswer(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
-    preprint = models.ForeignKey('Preprint')
+    preprint = models.ForeignKey(
+        'Preprint',
+        on_delete=models.CASCADE,
+    )
     answer = models.TextField()
 
     def __str__(self):
@@ -699,8 +712,14 @@ class Preprint(models.Model):
 
 
 class KeywordPreprint(models.Model):
-    keyword = models.ForeignKey("submission.Keyword")
-    preprint = models.ForeignKey(Preprint)
+    keyword = models.ForeignKey(
+        "submission.Keyword",
+        on_delete=models.CASCADE,
+    )
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -715,7 +734,10 @@ class KeywordPreprint(models.Model):
 
 
 class PreprintFile(models.Model):
-    preprint = models.ForeignKey(Preprint)
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
     file = models.FileField(
         upload_to=preprint_file_upload,
         storage=preprint_file_store,
@@ -766,7 +788,10 @@ class PreprintFile(models.Model):
 
 
 class PreprintSupplementaryFile(models.Model):
-    preprint = models.ForeignKey(Preprint)
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
     url = models.URLField()
     label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
     order = models.PositiveIntegerField(default=0)
@@ -777,11 +802,24 @@ class PreprintSupplementaryFile(models.Model):
 
 
 class PreprintAccess(models.Model):
-    preprint = models.ForeignKey(Preprint)
-    file = models.ForeignKey(PreprintFile, blank=True, null=True)
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(
+        PreprintFile,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey('core.Country', blank=True, null=True)
+    country = models.ForeignKey(
+        'core.Country',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     @property
     def access_type(self):
@@ -796,12 +834,19 @@ class PreprintAuthorManager(models.Manager):
 
 
 class PreprintAuthor(models.Model):
-    preprint = models.ForeignKey('Preprint')
-    account = models.ForeignKey('core.Account', null=True)
-    author = models.ForeignKey('Author', blank=True, null=True)  # Author is no longer in use, it will be removed.
+    preprint = models.ForeignKey(
+        'Preprint',
+        on_delete=models.CASCADE,
+    )
+    account = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     order = models.PositiveIntegerField(default=0)
-    objects = PreprintAuthorManager()
     affiliation = models.TextField(blank=True, null=True)
+
+    objects = PreprintAuthorManager()
 
     class Meta:
         ordering = ('order',)
@@ -872,14 +917,21 @@ class Author(models.Model):
 
 
 class PreprintVersion(models.Model):
-    preprint = models.ForeignKey(Preprint)
-    file = models.ForeignKey(PreprintFile)
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(
+        PreprintFile,
+        on_delete=models.CASCADE,
+    )
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
     moderated_version = models.ForeignKey(
         'VersionQueue',
         blank=True,
         null=True,
+        on_delete=models.SET_NULL,
     )
     title = models.CharField(
         max_length=300,
@@ -960,7 +1012,10 @@ class Comment(models.Model):
 
 
 class Subject(models.Model):
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=255)
     slug = models.SlugField(blank=True, max_length=255)
     editors = models.ManyToManyField('core.Account', blank=True)
@@ -1001,8 +1056,15 @@ def version_choices():
 
 
 class VersionQueue(models.Model):
-    preprint = models.ForeignKey(Preprint)
-    file = models.ForeignKey(PreprintFile, null=True)
+    preprint = models.ForeignKey(
+        Preprint,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(
+        PreprintFile,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     update_type = models.CharField(max_length=20, choices=version_choices())
 
     date_submitted = models.DateTimeField(default=timezone.now)
@@ -1152,6 +1214,7 @@ class Review(models.Model):
         'Comment',
         blank=True,
         null=True,
+        on_delete=models.SET_NULL,
     )
     anonymous = models.BooleanField(
         default=False,

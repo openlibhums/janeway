@@ -82,7 +82,13 @@ class Journal(AbstractSiteModel):
     ))
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
-    carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
+    carousel = models.OneToOneField(
+        'carousel.Carousel',
+        related_name='journal',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     thumbnail_image = models.ForeignKey(
         'core.File',
         null=True,
@@ -301,7 +307,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def press(self):
-        press = press_models.Press.objects.all()[0]
+        press = press_models.Press.objects.all().first()
         return press
 
     @classmethod
@@ -504,8 +510,14 @@ class Journal(AbstractSiteModel):
 
 
 class PinnedArticle(models.Model):
-    journal = models.ForeignKey(Journal)
-    article = models.ForeignKey('submission.Article')
+    journal = models.ForeignKey(
+        Journal,
+        on_delete=models.CASCADE,
+    )
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -519,7 +531,10 @@ ISSUE_CODE_RE = re.compile("^[a-zA-Z0-9-_]+$")
 
 
 class Issue(AbstractLastModifiedModel):
-    journal = models.ForeignKey(Journal)
+    journal = models.ForeignKey(
+        Journal,
+        on_delete=models.CASCADE,
+    )
 
     # issue metadata
     volume = models.IntegerField(default=1)
@@ -955,7 +970,10 @@ class Issue(AbstractLastModifiedModel):
 
 
 class IssueType(models.Model):
-    journal = models.ForeignKey(Journal)
+    journal = models.ForeignKey(
+        Journal,
+        on_delete=models.CASCADE,
+    )
     code = models.CharField(max_length=255)
 
     pretty_name = models.CharField(max_length=255)
@@ -980,9 +998,16 @@ class IssueType(models.Model):
 class IssueGalley(models.Model):
     FILES_PATH = 'issues'
 
-    file = models.ForeignKey('core.File')
+    file = models.ForeignKey(
+        'core.File',
+        on_delete=models.CASCADE,
+    )
     # An Issue can only have one galley at this time (PDF)
-    issue = models.OneToOneField('journal.Issue', related_name='galley')
+    issue = models.OneToOneField(
+        'journal.Issue',
+        related_name='galley',
+        on_delete=models.CASCADE,
+    )
 
     @transaction.atomic
     def replace_file(self, other):
@@ -1006,8 +1031,14 @@ class IssueGalley(models.Model):
 
 
 class IssueEditor(models.Model):
-    account = models.ForeignKey('core.Account')
-    issue = models.ForeignKey(Issue)
+    account = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        Issue,
+        on_delete=models.CASCADE,
+    )
     role = models.CharField(max_length=255, default='Guest Editor')
 
     def __str__(self):
@@ -1018,8 +1049,14 @@ class IssueEditor(models.Model):
 
 
 class SectionOrdering(models.Model):
-    section = models.ForeignKey('submission.Section')
-    issue = models.ForeignKey(Issue)
+    section = models.ForeignKey(
+        'submission.Section',
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        Issue,
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=1)
 
     def __str__(self):
@@ -1030,9 +1067,18 @@ class SectionOrdering(models.Model):
 
 
 class ArticleOrdering(models.Model):
-    article = models.ForeignKey('submission.Article')
-    issue = models.ForeignKey(Issue)
-    section = models.ForeignKey('submission.Section')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        Issue,
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        'submission.Section',
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -1044,7 +1090,10 @@ class ArticleOrdering(models.Model):
 
 
 class FixedPubCheckItems(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
 
     metadata = models.BooleanField(default=False)
     verify_doi = models.BooleanField(default=False)
@@ -1057,7 +1106,10 @@ class FixedPubCheckItems(models.Model):
 
 
 class PresetPublicationCheckItem(models.Model):
-    journal = models.ForeignKey(Journal)
+    journal = models.ForeignKey(
+        Journal,
+        on_delete=models.CASCADE,
+    )
 
     title = models.TextField()
     text = models.TextField()
@@ -1065,10 +1117,18 @@ class PresetPublicationCheckItem(models.Model):
 
 
 class PrePublicationChecklistItem(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
 
     completed = models.BooleanField(default=False)
-    completed_by = models.ForeignKey('core.Account', blank=True, null=True)
+    completed_by = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     completed_on = models.DateTimeField(blank=True, null=True)
 
     title = models.TextField()
@@ -1094,8 +1154,14 @@ def notification_type():
 
 
 class Notifications(models.Model):
-    journal = models.ForeignKey(Journal)
-    user = models.ForeignKey('core.Account')
+    journal = models.ForeignKey(
+        Journal,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
     domain = models.CharField(max_length=100)
     type = models.CharField(max_length=10, choices=notification_type())
     active = models.BooleanField(default=False)
