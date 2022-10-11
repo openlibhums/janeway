@@ -579,6 +579,7 @@ class Issue(AbstractLastModifiedModel):
             " url for this issue. e.g: 'winter-special-issue'."
         ),
     )
+
     doi = models.CharField(
         max_length=255,
         blank=True,
@@ -590,6 +591,16 @@ class Issue(AbstractLastModifiedModel):
                   'entered manually.',
         )
 
+    isbn = models.CharField(
+        max_length=28,
+        blank=True,
+        null=True,
+        verbose_name="ISBN",
+        help_text=ugettext(
+            "An ISBN is relevant for non-serial collections such as"
+            " conference proceedings"
+        ),
+    )
 
     @property
     def hero_image_url(self):
