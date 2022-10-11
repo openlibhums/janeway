@@ -32,6 +32,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='press',
             name='thumbnail_image',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_thumbnail_image', to='core.File', verbose_name='Press Logo'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='press_thumbnail_image', to='core.File', verbose_name='Press Logo'),
         ),
     ]
