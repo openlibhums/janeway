@@ -124,7 +124,7 @@ class Carousel(models.Model):
 
 
 class CarouselObject(models.Model):
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True)
+    large_image_file = models.ForeignKey('core.File', null=True, blank=True, on_delete=models.SET_NULL)
     url = models.CharField(max_length=5000, blank=True, null=True)
     title = models.CharField(max_length=300)
     index = models.IntegerField(default=1)

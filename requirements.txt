@@ -26,10 +26,10 @@ django-markdown-deux==1.0.5
 -e git+https://github.com/BirkbeckCTP/django-materialize.git@97328e75a6ae723eff1035dd553a29e33a4ce530#egg=django_materialize
 django-modeltranslation==0.13
 django-nose==1.4.7
-django-recaptcha2==1.0.3
+django-recaptcha2==1.4.1
 django-settings-export==1.2.1
 -e git+https://github.com/BirkbeckCTP/django-simple-math-captcha@275f7d4e0c1bc79ba249aa343ba01a9ea88ae382#egg=django_simple_math_captcha
-django-summernote==0.8.11.1
+django-summernote==0.8.20.0
 djangorestframework==3.11.2
 docutils==0.19
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites

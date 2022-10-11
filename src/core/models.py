@@ -233,7 +233,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     confirmation_code = models.CharField(max_length=200, blank=True, null=True)
     signature = models.TextField(null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(Country, null=True, blank=True, verbose_name=_('Country'))
+    country = models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        verbose_name=_('Country'),
+        on_delete=models.SET_NULL,
+    )
     preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
 
     is_active = models.BooleanField(default=False)
@@ -525,15 +531,20 @@ class OrcidToken(models.Model):
 
 
 class PasswordResetToken(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     token = models.CharField(max_length=300, default=uuid.uuid4)
     expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
     expired = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Account: {0}, Expiry: {1}, [{2}]".format(self.account.full_name(),
-                                                         self.expiry,
-                                                         'Expired' if self.expired else 'Active')
+        return "Account: {0}, Expiry: {1}, [{2}]".format(
+            self.account.full_name(),
+            self.expiry,
+            'Expired' if self.expired else 'Active',
+        )
 
     def has_expired(self):
         if self.expired:
@@ -567,9 +578,18 @@ class Role(models.Model):
 
 
 class AccountRole(models.Model):
-    user = models.ForeignKey(Account)
-    journal = models.ForeignKey('journal.Journal')
-    role = models.ForeignKey(Role)
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = ('journal', 'user', 'role')
@@ -631,7 +651,10 @@ class SettingGroup(models.Model):
 class Setting(models.Model):
     VALIDATORS = {}
     name = models.CharField(max_length=100)
-    group = models.ForeignKey(SettingGroup)
+    group = models.ForeignKey(
+        SettingGroup,
+        on_delete=models.CASCADE,
+    )
     types = models.CharField(max_length=20, choices=setting_types)
     pretty_name = models.CharField(max_length=100, default='')
     description = models.TextField(null=True, blank=True)
@@ -663,8 +686,16 @@ class Setting(models.Model):
 
 
 class SettingValue(models.Model):
-    journal = models.ForeignKey('journal.Journal', null=True, blank=True)
-    setting = models.ForeignKey(Setting)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    setting = models.ForeignKey(
+        Setting,
+        models.CASCADE,
+    )
     value = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -1048,8 +1079,16 @@ def galley_type_choices():
 
 class Galley(AbstractLastModifiedModel):
     # Local Galley
-    article = models.ForeignKey('submission.Article', null=True)
-    file = models.ForeignKey(File)
+    article = models.ForeignKey(
+        'submission.Article',
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(
+        File,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
@@ -1187,7 +1226,8 @@ def upload_to_journal(instance, filename):
 class XSLFile(models.Model):
     file = models.FileField(
         upload_to=upload_to_journal,
-        storage=JanewayFileSystemStorage('files/xsl'))
+        storage=JanewayFileSystemStorage('files/xsl'),
+    )
     journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
                                 blank=True, null=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
@@ -1212,7 +1252,10 @@ def default_xsl():
 
 
 class SupplementaryFile(models.Model):
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(
+        File,
+        on_delete=models.CASCADE,
+    )
     doi = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -1250,7 +1293,13 @@ class Task(models.Model):
     complete_events = models.ManyToManyField('core.TaskCompleteEvents')
     link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
     assignees = models.ManyToManyField(Account)
-    completed_by = models.ForeignKey(Account, blank=True, null=True, related_name='completed_by')
+    completed_by = models.ForeignKey(
+        Account,
+        blank=True,
+        null=True,
+        related_name='completed_by',
+        on_delete=models.SET_NULL,
+    )
 
     created = models.DateTimeField(default=timezone.now)
     due = models.DateTimeField(blank=True, null=True)
@@ -1305,7 +1354,10 @@ class TaskCompleteEvents(models.Model):
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True, null=True)
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField()
 
     class Meta:
@@ -1320,8 +1372,14 @@ class EditorialGroup(models.Model):
 
 
 class EditorialGroupMember(models.Model):
-    group = models.ForeignKey(EditorialGroup)
-    user = models.ForeignKey(Account)
+    group = models.ForeignKey(
+        EditorialGroup,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField()
 
     class Meta:
@@ -1368,8 +1426,18 @@ class DomainAlias(AbstractSiteModel):
             help_text="If enabled, the site will throw a 301 redirect to the "
                 "master domain."
     )
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     @property
     def site_object(self):
@@ -1423,12 +1491,18 @@ BASE_ELEMENT_NAMES = [
 
 
 class Workflow(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     elements = models.ManyToManyField('WorkflowElement')
 
 
 class WorkflowElement(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     jump_url = models.CharField(max_length=255)
@@ -1467,8 +1541,14 @@ class WorkflowElement(models.Model):
 
 
 class WorkflowLog(models.Model):
-    article = models.ForeignKey('submission.Article')
-    element = models.ForeignKey(WorkflowElement)
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    element = models.ForeignKey(
+        WorkflowElement,
+        on_delete=models.CASCADE,
+    )
     timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
