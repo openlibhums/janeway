@@ -29,7 +29,7 @@ class NewIssue(forms.ModelForm):
         fields = (
             'issue_title', 'volume', 'issue', 'date', 'issue_description',
             'short_description', 'cover_image', 'large_image', 'issue_type',
-            'code', 'doi',
+            'code', 'doi', 'isbn',
         )
 
 
