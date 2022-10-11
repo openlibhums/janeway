@@ -29,6 +29,10 @@
       <dc:journalTitle>{{ article.journal.name}}</dc:journalTitle>
       {% if article.identifier.id_type == 'doi' %}<dc:doi>{{article.identifier.identifier}}</dc:doi>{% endif %}
       <dc:identifier>{% if article.identifier.id_type == 'doi' %}https://doi.org/{{article.identifier.identifier}}{% else %}{% journal_url 'article_view' 'id' article.id %}{% endif %}</dc:identifier>
+      {% if article.issue and article.issue.isbn %}
+      <dc:relation>info:eu-repo/semantics/reference/isbn/{{ article.issue.isbn }}</dc:relation>{# openAIRE ISBN #}
+      <dc:relation>isbn:{{ article.issue.isbn }}</dc:relation>
+      {% endif %}
       <dc:fullTextUrl>{% journal_url 'article_view' 'id' article.id %}</dc:fullTextUrl>
       {% if article.journal.issn %}<dc:source>{{ article.journal.issn}}</dc:source>{% endif %}
       {% if article.license.url %}<dc:rights>{{ article.license.url }}</dc:rights>{% endif %}
