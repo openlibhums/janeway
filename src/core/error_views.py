@@ -1,5 +1,4 @@
-from django.shortcuts import render_to_response, render
-from django.template import RequestContext
+from django.shortcuts import render
 
 
 def handler404(request, *args, **argv):
@@ -14,7 +13,8 @@ def handler404(request, *args, **argv):
 
 
 def handler500(request, *args, **argv):
-    response = render_to_response(
+    response = render(
+        None,
         '500.html',
     )
     response.status_code = 404

@@ -11,12 +11,8 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-class LanguageMiddleware(object):
-    @staticmethod
-    def process_request(request):
-        """
-        Checks that the currently set language is okay for the current journal.
-        """
+def language_middleware(get_response):
+    def middleware(request):
         if request.journal and settings.USE_I18N:
             current_language = translation.get_language()
             available_languages = request.journal.get_setting(
@@ -43,3 +39,5 @@ class LanguageMiddleware(object):
             request.available_languages = set(available_languages)
             request.default_language = default_language
             request.current_language = translation.get_language()
+        return get_response(request)
+    return middleware

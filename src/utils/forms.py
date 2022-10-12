@@ -14,8 +14,8 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from modeltranslation import forms as mt_forms, translator
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox as ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
 from hcaptcha.fields import hCaptchaField
 

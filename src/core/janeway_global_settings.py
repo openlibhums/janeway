@@ -87,13 +87,12 @@ INSTALLED_APPS = [
     # 3rd Party
     'mozilla_django_oidc',
     'django_summernote',
-    'markdown_deux',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
     'foundationform',
     'materialize',
-    'snowpenguin.django.recaptcha2',
+    'captcha',
     'simplemathcaptcha',
     'hijack',
     'hcaptcha',
@@ -105,7 +104,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps(BASE_DIR)
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,7 +122,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'journal.middleware.LanguageMiddleware',
+    'journal.middleware.language_middleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -555,3 +554,5 @@ CORE_THEMES = [
     'clean',
 ]
 INSTALLATION_BASE_THEME = 'OLH'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

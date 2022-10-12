@@ -1,14 +1,9 @@
 {% extends "core/base.html" %}
 {% load materialize %}
 {% load i18n %}
-{% load recaptcha2 %}
 {% load static %}
 
 {% block title %}{% trans "Register" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
 

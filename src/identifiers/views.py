@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.http import HttpResponse
-from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
+from django.shortcuts import reverse, get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.db.models import OuterRef, Subquery
@@ -156,7 +156,7 @@ def show_doi(request, article_id, identifier_id):
     except AttributeError:
         template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))
         template = 'common/identifiers/crossref_doi_batch.xml'
-        return render_to_response(template, template_context, content_type="application/xml")
+        return render(None, template, template_context, content_type="application/xml")
 
 
 @production_user_or_editor_required

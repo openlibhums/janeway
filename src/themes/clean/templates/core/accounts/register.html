@@ -1,13 +1,8 @@
 {% extends "core/base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
-{% load recaptcha2 %}
 
 {% block title %}{% trans "Register" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
 

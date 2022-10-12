@@ -1,13 +1,8 @@
 {% extends "core/base.html" %}
 {% load foundation %}
 {% load i18n %}
-{% load recaptcha2 %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
     <section id="content" class="no-padding">

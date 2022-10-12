@@ -17,7 +17,7 @@ from core import janeway_global_settings
 
 LOCK = threading.Lock()
 
-MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE_CLASSES"}
+MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE"}
 
 def load_janeway_settings():
 
