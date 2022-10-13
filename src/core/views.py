@@ -15,7 +15,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
@@ -1630,6 +1630,7 @@ def plugin_list(request):
     """
 
     plugin_list = list()
+    failed_to_load = []
 
     if request.journal:
         plugins = util_models.Plugin.objects.filter(
@@ -1647,19 +1648,25 @@ def plugin_list(request):
         try:
             module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
             plugin_settings = import_module(module_name)
+            manager_url = getattr(plugin_settings, 'MANAGER_URL', '')
+            if manager_url:
+                reverse(manager_url)
             plugin_list.append(
                 {'model': plugin,
-                 'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
+                 'manager_url': manager_url,
                  'name': getattr(plugin_settings, 'PLUGIN_NAME')
                  },
             )
-        except ImportError as e:
+        except (ImportError, NoReverseMatch) as e:
+            failed_to_load.append(plugin)
             logger.error("Importing plugin %s failed: %s" % (plugin, e))
-            pass
+            logger.exception(e)
+
 
     template = 'core/manager/plugins.html'
     context = {
         'plugins': plugin_list,
+        'failed_to_load': failed_to_load,
     }
 
     return render(request, template, context)
