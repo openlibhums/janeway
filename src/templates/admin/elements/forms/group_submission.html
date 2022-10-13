@@ -32,7 +32,7 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.user_automatically_author %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}
+    {% if request.user.is_admin %}{% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}{% endif %}
 </div>
 
 <div class="title-area">
