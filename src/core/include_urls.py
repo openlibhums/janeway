@@ -243,7 +243,7 @@ if plugins:
             ]
             logger.debug("Loaded URLs for %s", plugin.name)
         except ImportError as e:
-            logger.debug("Plugin %s has no urls.py module", plugin.name)
+            logger.debug("Plugin {name} error: {error}".format(name=plugin.name, error=e))
 
 # load the notification plugins
 if len(settings.NOTIFY_FUNCS) == 0:
