@@ -4,9 +4,11 @@ from __future__ import unicode_literals
 
 from django.db import (
     connection,
+    InternalError,
     migrations,
     models,
     ProgrammingError,
+    DatabaseError,
 )
 from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe
@@ -35,7 +37,7 @@ def add_cached_display_title(apps, schema_editor):
     cursor = connection.cursor()
     try:
         cursor.execute(SQL)
-    except ProgrammingError:
+    except (ProgrammingError, InternalError, DatabaseError) as err:
         # Column already exists
         pass
 
@@ -47,6 +49,7 @@ class Migration(migrations.Migration):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('journal', '0051_journal_is_archived'),
