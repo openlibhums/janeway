@@ -255,6 +255,7 @@ if plugins:
                 ),
             ]
             logger.debug("Loaded URLs for %s", plugin.name)
+
         except ImportError as error:
             logger.warning(
                 "Failed to import urls for plugin %s: %s", plugin.name, error,
