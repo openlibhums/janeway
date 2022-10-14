@@ -616,7 +616,7 @@ IDENTIFY_DATA_DC = """
                     <name>Birkbeck, University of London</name>
                     <email>olh-tech@bbk.ac.uk</email>
                 </author>
-                <version>1.4.2</version>
+                <version></version>
                 <URL>http://janeway.systems/</URL>
             </toolkit>
         </description>
