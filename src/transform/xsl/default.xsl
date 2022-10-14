@@ -924,32 +924,29 @@
                       <xsl:value-of select="concat('#',@rid)"/>
                   </xsl:otherwise>
               </xsl:choose>
-
           </xsl:attribute>
-                    <xsl:choose>
-                    <xsl:when test="contains(@ref-type, 'fn')">
-                    <!-- Construction of the note mention (nm) ID combining the fn item being referenced (rid) with the sequential
-                        number of this mention of the fn. So if an xref of type 'fn' with the same rid is referenced twice,
-                        they will get uniquely identifiable IDs. As an example, two mentions of an fn with rid 'fn1' would lead to
-                        two objects with ids of 'fn1-nm1' and 'fn1-nm2'. Then the fn in the footnotes section
-                        can render individual links to each nm in the body.
-                    -->
-                        <xsl:variable name="rid" select="@rid"/>
-                        <xsl:attribute name="id">
-                            <xsl:value-of select="@rid"/>
-                            <xsl:text>-</xsl:text>
-                            <xsl:text>nm</xsl:text>
-                            <xsl:number level="any" count="xref[@rid=$rid]"/>
-                        </xsl:attribute>
-                        <sup><xsl:apply-templates/></sup>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates/>
-                    </xsl:otherwise>
-                    </xsl:choose>
-                </a>
+          <xsl:choose>
+            <xsl:when test="contains(@ref-type, 'fn')">
+              <!-- Construction of the note mention (nm) ID combining the fn item being referenced (rid) with the sequential
+                  number of this mention of the fn. So if an xref of type 'fn' with the same rid is referenced twice,
+                  they will get uniquely identifiable IDs. As an example, two mentions of an fn with rid 'fn1' would lead to
+                  two objects with ids of 'fn1-nm1' and 'fn1-nm2'. Then the fn in the footnotes section
+                  can render individual links to each nm in the body.
+              -->
+              <xsl:variable name="rid" select="@rid"/>
+              <xsl:attribute name="id">
+                  <xsl:value-of select="@rid"/>
+                  <xsl:text>-</xsl:text>
+                  <xsl:text>nm</xsl:text>
+                  <xsl:number level="any" count="xref[@rid=$rid]"/>
+              </xsl:attribute>
+              <sup><xsl:apply-templates/></sup>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates/>
             </xsl:otherwise>
-        </xsl:choose>
+          </xsl:choose>
+      </a>
     </xsl:template>
     <!-- END handling citation objects -->
 
