@@ -8,7 +8,7 @@ from django.db import migrations
 from django.conf import settings
 
 OLD_LABEL = "Janeway default (1.4.2)"
-LATEST_LABEL = "Janeway default (1.4.2)"
+LATEST_LABEL = "Janeway default (1.4.3)"
 FILE_NAME = "default-v1.4.3.xsl"
 COMMENTS = """
 Changes from v1.4.2
