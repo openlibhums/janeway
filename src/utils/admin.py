@@ -18,8 +18,9 @@ class PluginAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'target')
-
+    list_display = ('pk', 'types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'email_subject', 'target')
+    list_filter = ('date', 'is_email', 'email_subject', 'types', 'actor')
+    search_fields = ('types', 'email_subject')
 
 class VersionAdmin(admin.ModelAdmin):
     list_display = ('number', 'date', 'rollback')
