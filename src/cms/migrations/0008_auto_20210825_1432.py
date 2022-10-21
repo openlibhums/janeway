@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='navigationitem',
             name='link',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.CharField(blank=True, help_text='In most cases, this should be the the relative URL path to the page. The relative path is formed from 1) the journal code (acronym or abbreviation) if your journal homepage URL ends with the journal code, 2) the word “site”, and 3) whatever you put into the Link field for the corresponding page. For example, to link to a custom page you created, if the journal homepage URL is “example.com/abc”, and you put “research-integrity” in the Link field for the page, then the Link field for the nav item should be “abc/site/research-integrity”. For top-level nav items that should not also appear as sub-nav items (under themselves), leave the Link field empty. For external links, it should be an absolute URL.', max_length=100, null=True),
         ),
     ]
