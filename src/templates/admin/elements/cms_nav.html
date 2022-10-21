@@ -16,7 +16,12 @@
             </li>
         {% endif %}
         {% for nav in top_nav_items %}
-            <li class="list-group-item">{{ nav.link_name }} ({{ nav.link }})
+        <li class="list-group-item">
+            {{ nav.link_name }}
+            {% if nav.link %}
+                ({{ nav.link }})
+            {% endif %}
+            (sequence {{ nav.sequence }})
               <span class="float-right">
                 <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"> Edit</i></a>
                 <button class="tiny button alert" name="delete_nav" value="{{ nav.pk }}"><i class="fa fa-trash"></i> Delete</button>
@@ -25,7 +30,12 @@
             <br />
                 <ul>
                     {% for sub_nav in nav.sub_nav_items %}
-                        <li class="padded-group-item">{{ sub_nav.link_name }} ({{ sub_nav.link }})
+                        <li class="padded-group-item">
+                            {{ sub_nav.link_name }}
+                            {% if sub_nav.link %}
+                                ({{ sub_nav.link }})
+                            {% endif %}
+                            (sequence {{ sub_nav.sequence }})
                             <span class="float-right">
                             <a class="tiny button" href="{% url 'cms_nav_edit' sub_nav.pk %}"><i class="fa fa-edit"></i> Edit</a>
                             <button class="tiny button alert" name="delete_nav" value="{{ sub_nav.pk }}">
