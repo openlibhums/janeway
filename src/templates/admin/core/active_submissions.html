@@ -15,7 +15,7 @@
 
         <div class="row expanded">
             {% include "admin/elements/no_stage.html" %}
-            <div class="large-8 columns end">
+            <div class="{% if editor %}large-8{% else %}large-12{% endif %} columns end">
                 <div class="box">
                     <div class="title-area">
                         <h2>Submission List</h2>
