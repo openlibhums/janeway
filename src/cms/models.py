@@ -64,10 +64,7 @@ class NavigationItem(models.Model):
         return self.link_name
 
     def sub_nav_items(self):
-        return NavigationItem.objects.filter(
-            top_level_nav=self,
-            link__isnull=False,
-        )
+        return NavigationItem.objects.filter(top_level_nav=self)
 
     @property
     def build_url_for_request(self):

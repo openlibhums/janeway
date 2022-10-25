@@ -6,7 +6,7 @@
         <li><a href="/">{% trans 'Home' %}</a></li>
         {% for item in navigation_items %}
             {% if item.has_sub_nav %}
-                <li class=".is-dropdown-submenu-parent"><a href="/{{ item.link }}"
+                <li class=".is-dropdown-submenu-parent"><a href="#"
                                                            data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
                     <ul class="menu vertical medium-horizontal">
                         {% if item.link %}<li><a href="{{ item.url }}">{{ item.link_name }}</a></li>{% endif %}
