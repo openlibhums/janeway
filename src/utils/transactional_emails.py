@@ -1357,11 +1357,11 @@ def preprint_submission(**kwargs):
         url=url,
         title=preprint.title
     )
-    for editor in request.press.preprint_editors():
+    for manager in request.repository.managers.all():
         notify_helpers.send_email_with_body_from_user(
             request,
             '{} Submission'.format(request.repository.object_name),
-            editor.email,
+            manager.email,
             editor_email_text,
             log_dict=log_dict,
         )
