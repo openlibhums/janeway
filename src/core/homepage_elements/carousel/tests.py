@@ -36,6 +36,15 @@ class TestCarousel(TestCase):
             date_published=datetime.datetime.strptime(
                 '2018-06-29 08:15:27.243860', '%Y-%m-%d %H:%M:%S.%f',
             ),
+            title='Carousel Article One',
+        )
+        cls.article = sm_models.Article.objects.create(
+            journal=cls.journal_one,
+            stage=sm_models.STAGE_PUBLISHED,
+            date_published=datetime.datetime.strptime(
+                '2019-06-29 08:15:27.243860', '%Y-%m-%d %H:%M:%S.%f',
+            ),
+            title='Carousel Article Two',
         )
 
     def test_carousel(self):
@@ -50,6 +59,16 @@ class TestCarousel(TestCase):
         result = self.journal_one.carousel.get_items()[0]
 
         self.assertEqual(expected, result)
+
+    def test_latest_articles_limit(self):
+        carousel = models.Carousel.objects.create(
+            latest_articles=True,
+            article_limit=1,
+        )
+        self.journal_one.carousel = carousel
+        self.journal_one.save()
+
+        self.assertEqual(1, len(self.journal_one.carousel.get_items()))
 
     def test_selected_articles(self):
         carousel = models.Carousel.objects.create(latest_articles=True)
