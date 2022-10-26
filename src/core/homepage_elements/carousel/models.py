@@ -91,6 +91,8 @@ class Carousel(models.Model):
                 articles |= core_logic.latest_articles(self, 'press')
             elif hasattr(self, 'journal'):
                 articles |= core_logic.latest_articles(self, 'journal')
+            if self.article_limit > 0:
+                articles = articles[:self.article_limit]
 
         if self.articles.exists():
             if self.exclude:
