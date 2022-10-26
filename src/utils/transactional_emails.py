@@ -1353,14 +1353,14 @@ def preprint_submission(**kwargs):
     )
     editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
         object=request.repository.object_name,
-        press=request.press.name,
+        press=request.repository.name,
         url=url,
         title=preprint.title
     )
     for manager in request.repository.managers.all():
         notify_helpers.send_email_with_body_from_user(
             request,
-            '{} Submission'.format(request.repository.object_name),
+            'New {} Submission'.format(request.repository.object_name),
             manager.email,
             editor_email_text,
             log_dict=log_dict,
