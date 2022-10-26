@@ -118,6 +118,14 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
             'salutation', 'orcid', 'is_active',
         )
 
+class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = core_models.Account
+        fields = (
+            'pk', 'first_name', 'middle_name', 'last_name',
+            'salutation', 'orcid',
+        )
 
 class AccountRoleSerializer(serializers.ModelSerializer):
 
@@ -142,7 +150,7 @@ class PreprintSerializer(serializers.HyperlinkedModelSerializer):
                   'date_submitted', 'date_accepted', 'date_published',
                   'doi', 'preprint_doi', 'authors', 'subject',)
 
-    authors = AccountSerializer(
+    authors = PreprintAccountSerializer(
         many=True,
         read_only=True,
     )
