@@ -1795,12 +1795,12 @@ def become_reviewer(request):
     code = 'not-logged-in'
     message = _('You must login before you can become a reviewer. Click the button below to login.')
 
-    if request.user and request.user.is_authenticated() and not request.user.is_reviewer(request):
+    if request.user and request.user.is_authenticated and not request.user.is_reviewer(request):
         # We have a user, they are logged in and not yet a reviewer
         code = 'not-reviewer'
         message = _('You are not yet a reviewer for this journal. Click the button below to become a reviewer.')
 
-    elif request.user and request.user.is_authenticated() and request.user.is_reviewer(request):
+    elif request.user and request.user.is_authenticated and request.user.is_reviewer(request):
         # The user is logged in, and is already a reviewer
         code = 'already-reviewer'
         message = _('You are already a reviewer.')
@@ -2214,8 +2214,8 @@ def delete_note(request, article_id, note_id):
 def download_journal_file(request, file_id):
     file = get_object_or_404(core_models.File, pk=file_id)
 
-    if file.privacy == 'public' or (request.user.is_authenticated() and request.user.is_staff) or \
-            (request.user.is_authenticated() and request.user.is_editor(request)):
+    if file.privacy == 'public' or (request.user.is_authenticated and request.user.is_staff) or \
+            (request.user.is_authenticated and request.user.is_editor(request)):
         return files.serve_journal_cover(request, file)
     else:
         raise Http404

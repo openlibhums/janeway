@@ -15,7 +15,7 @@ def is_author(context):
 @register.simple_tag(takes_context=True)
 def is_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.is_editor(request)
 
@@ -23,7 +23,7 @@ def is_editor(context):
 @register.simple_tag(takes_context=True)
 def is_section_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.is_section_editor(request)
 
@@ -31,7 +31,7 @@ def is_section_editor(context):
 @register.simple_tag(takes_context=True)
 def is_any_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.has_an_editor_role(request)
 
