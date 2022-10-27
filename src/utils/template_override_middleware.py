@@ -9,12 +9,12 @@ import os
 import warnings
 
 from django.conf import settings
-from django.template.loaders.base import Loader as BaseLoader
+from django.template.loaders.filesystem import Loader as FileSystemLoader
 
 from utils import setting_handler, function_cache, logic as utils_logic
 
 
-class Loader(BaseLoader):
+class Loader(FileSystemLoader):
 
     @staticmethod
     @function_cache.cache(120)
