@@ -16,14 +16,14 @@ coverage==6.5.0
 crossrefapi==1.5.0
 cryptography==38.0.1
 decorator==5.1.1
-Django==4.1.2
+Django==3.2.16
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 django-debug-toolbar==3.7.0
 django-hCaptcha==0.2.0
 django-hijack==3.2.1
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git@8f97af5a4133934f939826c00a30f1357478b139#egg=django_mailgun
 -e git+https://github.com/BirkbeckCTP/django-materialize.git@97328e75a6ae723eff1035dd553a29e33a4ce530#egg=django_materialize
-django-modeltranslation==0.13
+django-modeltranslation==0.17
 django-nose==1.4.7
 django-recaptcha==3.0.0
 django-settings-export==1.2.1
