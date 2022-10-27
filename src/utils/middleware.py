@@ -13,6 +13,24 @@ logger = get_logger(__name__)
 _local = threading.local()
 
 
+class BaseMiddleware():
+    def __init__(self, callable):
+        self.get_response = callable
+
+    def __call__(self, request):
+        """ Base implementation to ease the transition to Django 3.2
+
+        Prior versions of Django used a method called 'process_request'. In
+        this base implementation we maintain that behaviour by calling the older
+        interface from the new one. The remaining implementation follows the
+        django documentation for 3.2+
+        """
+
+        if hasattr(self, 'process_request'):
+            self.process_request(request)
+        return self.get_response(request)
+
+
 class ThemeEngineMiddleware(object):
     """ Handles theming through middleware
     """
