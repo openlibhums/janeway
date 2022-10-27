@@ -20,14 +20,13 @@ class PageAdmin(admin.ModelAdmin):
     list_filter = ('display_name', 'name', 'content_type')
     date_hierarchy = ('edited')
     search_fields = ('display_name', 'name')
-    view_on_site = True
 
 
 class SubmissionItemAdmin(admin.ModelAdmin):
     list_display = ('title', 'journal', 'order')
     list_filter = ('journal',)
     raw_id_fields = ('journal', 'existing_setting')
-    search_fields = ('title', )
+    search_fields = ('title', 'journal__code', )
 
 
 class MediaFileAdmin(admin.ModelAdmin):
