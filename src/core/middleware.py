@@ -8,8 +8,6 @@ import threading
 
 import pytz
 
-from django.core.exceptions import ObjectDoesNotExist, \
-    MultipleObjectsReturned, ImproperlyConfigured
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
@@ -19,7 +17,7 @@ from django.urls import set_script_prefix
 from django.utils import timezone
 
 from press import models as press_models
-from utils import models as util_models, setting_handler
+from utils import setting_handler
 from utils.logger import get_logger
 from utils.middleware import BaseMiddleware
 from core import models as core_models

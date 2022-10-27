@@ -122,7 +122,7 @@ MIDDLEWARE = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'journal.middleware.language_middleware',
+    'journal.middleware.LanguageMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
