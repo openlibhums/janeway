@@ -158,7 +158,9 @@
         {% endif %}
 
         {% for element in request.journal.workflow_plugin_elements %}
-            {% include element.settings.dashboard_template %}
+            {% if element.settings.dashboard_template %}
+                {% include element.settings.dashboard_template %}
+            {% endif %}
         {% endfor %}
 
 
