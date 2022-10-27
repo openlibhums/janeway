@@ -103,7 +103,7 @@ class LogEntry(models.Model):
     ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
-            if actor.is_anonymous():
+            if actor.is_anonymous:
                 actor = None
 
         kwargs = {
