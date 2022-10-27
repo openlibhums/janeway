@@ -1333,7 +1333,7 @@ class Article(AbstractLastModifiedModel):
             return True
         elif user in self.section_editors():
             return True
-        elif not user.is_anonymous() and user.is_editor(
+        elif not user.is_anonymous and user.is_editor(
                 request=None,
                 journal=self.journal,
         ):
