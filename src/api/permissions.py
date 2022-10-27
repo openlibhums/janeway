@@ -8,7 +8,7 @@ class IsEditor(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        if request.user and not request.user.is_authenticated():
+        if request.user and not request.user.is_authenticated:
             raise PermissionDenied
 
         if request.user.is_editor(request) or request.user.is_staff:

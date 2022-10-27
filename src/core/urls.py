@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 include('events.registration')
 
 urlpatterns = [
-    re_path(r'', press_views.index, name='website_index'),
+    path('', press_views.index, name='website_index'),
     path('admin/', admin.site.urls),
     path('summernote/', include('django_summernote.urls')),
     path('', include('core.include_urls')),
@@ -33,7 +33,7 @@ try:
             re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
             re_path(r'^404/$', error_views.handler404),
             re_path(r'^500/$', error_views.handler500),
-            re_path(r'^__debug__/', include(debug_toolbar.urls)),
+            path('__debug__/', include('debug_toolbar.urls')),
         ]
 except AttributeError:
     pass
