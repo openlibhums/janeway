@@ -11,7 +11,8 @@ class NavigationItemAdmin(admin.ModelAdmin):
     list_display = ('link_name', 'link', 'is_external',
                     'sequence', 'top_level_nav', 'has_sub_nav',
                     'object', 'content_type')
-    list_filter = ('is_external', 'top_level_nav', 'has_sub_nav', 'content_type', 'link_name', 'link', )
+    list_filter = ('is_external', 'top_level_nav', 'has_sub_nav',
+                   'content_type', 'link_name', 'link', )
     search_fields = ('link_name', 'link')
 
 
