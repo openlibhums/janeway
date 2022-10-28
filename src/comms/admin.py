@@ -14,8 +14,9 @@ class TagAdmin(admin.ModelAdmin):
 
 class NewsItemAdmin(admin.ModelAdmin):
     list_display = ('title', 'object', 'posted', 'posted_by', 'start_display', 'end_display')
-    list_filter = ('posted_by', 'content_type')
-    search_fields = ('title', 'posted_by')
+    list_filter = ('posted', 'start_display', 'end_display', 'content_type')
+    search_fields = ('title', 'body', 'tag__text', 'posted_by__email', 'posted_by__first_name', 'posted_by__last_name', 'custom_byline')
+    date_hierarchy = ('posted')
 
 
 admin_list = [
