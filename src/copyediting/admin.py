@@ -10,19 +10,29 @@ from copyediting import models
 
 class CopyeditAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'copyeditor', 'editor', 'assigned',
-                    'due', 'decision', 'date_decided', 'copyedit_reopened')
-    list_filter = ('copyeditor', 'editor', 'article')
-    search_fields = ('article__title',)
-    filter_horizontal = ('files_for_copyediting', 'copyeditor_files')
+                    'decision', 'due')
+    list_filter = ('assigned', 'due', 'date_decided',
+                   'copyedit_reopened', 'decision')
+    search_fields = ('article__title', 'copyeditor__first_name',
+                     'copyeditor__last_name', 'copyeditor__email',
+                     'editor__first_name', 'editor__last_name',
+                     'editor__email', 'editor_note', 'copyeditor_note')
     raw_id_fields = ('article', 'copyeditor', 'editor')
+    filter_horizontal = ('files_for_copyediting', 'copyeditor_files')
+    date_hierarchy = ('assigned')
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('assignment', 'author', 'assigned', 'notified', 'decision',
-                    'date_decided')
-    list_filter = ('author',)
+    list_display = ('pk', 'author', 'assigned', 'notified', 'decision',
+                    'date_decided', 'assignment')
+    list_filter = ('assigned', 'notified', 'decision',
+                   'date_decided')
+    search_fields = ('assignment__article__title', 'author__first_name',
+                     'author__last_name', 'author__email',
+                     'assignment__editor_note', 'assignment__copyeditor_note')
     raw_id_fields = ('author', 'assignment')
     filter_horizontal = ('files_updated',)
+    date_hierarchy = ('assigned')
 
 
 admin_list = [
