@@ -8,6 +8,14 @@ from django.contrib import admin
 from copyediting import models
 
 
+class AuthorInline(admin.TabularInline):
+    model = models.AuthorReview
+    exclude = ('files_updated',)
+
+    def get_extra(self, request, obj=None, **kwargs):
+        return 0
+
+
 class CopyeditAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'copyeditor', 'editor', 'assigned',
                     'decision', 'due')
@@ -21,6 +29,10 @@ class CopyeditAdmin(admin.ModelAdmin):
     filter_horizontal = ('files_for_copyediting', 'copyeditor_files')
     date_hierarchy = ('assigned')
 
+    inlines = [
+        AuthorInline
+    ]
+
 
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('pk', 'author', 'assigned', 'notified', 'decision',
@@ -33,6 +45,7 @@ class AuthorAdmin(admin.ModelAdmin):
     raw_id_fields = ('author', 'assignment')
     filter_horizontal = ('files_updated',)
     date_hierarchy = ('assigned')
+    exclude = ('files_updated',)
 
 
 admin_list = [
