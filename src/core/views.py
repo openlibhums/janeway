@@ -9,7 +9,6 @@ import json
 import pytz
 import time
 import datetime
-from operator import itemgetter
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -1660,7 +1659,7 @@ def plugin_list(request):
 
     template = 'core/manager/plugins.html'
     context = {
-        'plugins': sorted(plugin_list, key=itemgetter('name')),
+        'plugins': plugin_list,
     }
 
     return render(request, template, context)
