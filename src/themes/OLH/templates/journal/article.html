@@ -436,9 +436,9 @@
                         </div>
 
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "Peer Review" %}</h3>
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
+                                    <h3>{% trans "Peer Review" %}</h3>
                                     <p>
                                         {% for review in article.public_reviews %}
                                             <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>

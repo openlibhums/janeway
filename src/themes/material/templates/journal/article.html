@@ -405,13 +405,14 @@
                     {% endif %}
                     {% endwith %}
 
-                    <h4>
-                        {% trans "Peer Review" %}
-                    </h4>
                     {% if article.peer_reviewed %}
+                        <h4>
+                            {% trans "Peer Review" %}
+                        </h4>
                         <p>
                             <i class="fa fa-check-circle-o" style="color: green"></i>
-                            {% trans "This article has been peer reviewed." %}</p>
+                            {% trans "This article has been peer reviewed." %}
+                        </p>
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
                                     <p>
