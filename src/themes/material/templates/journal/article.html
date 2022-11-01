@@ -424,16 +424,19 @@
                             {% endif %}
                     {% endif %}
 
-                    {% for field in article.custom_fields %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    <h4>{% trans field.field.name %}</h4>
-                      <p>{{ field.answer|safe }}</p>
-                    {% endfor %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
+                    {% if article.custom_fields %}
+                        {% for field in article.custom_fields %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        <h4>{% trans field.field.name %}</h4>
+                          <p>{{ field.answer|safe }}</p>
+                        {% endfor %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
+
                     {% if article.is_published %}
                         <h4>
                             {% trans "File Checksums" %} (MD5)
