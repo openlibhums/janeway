@@ -11,9 +11,7 @@ from copyediting import models
 class AuthorInline(admin.TabularInline):
     model = models.AuthorReview
     exclude = ('files_updated',)
-
-    def get_extra(self, request, obj=None, **kwargs):
-        return 0
+    extra = 0
 
 
 class CopyeditAdmin(admin.ModelAdmin):
