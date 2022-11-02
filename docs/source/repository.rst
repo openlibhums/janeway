@@ -1,7 +1,7 @@
 Repository Framework
 ====================
 
-Janeway supports hosting preprint repositories within the same press environment as journals.
+Janeway supports hosting repositories for preprints, postprints, field reports, and other publication types within the same press environment as journals.
 
 Getting Started
 ---------------
