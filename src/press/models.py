@@ -109,7 +109,8 @@ class Press(AbstractSiteModel):
 
     enable_preprints = models.BooleanField(
         default=False,
-        help_text='Enables the preprints system for this press.',
+        help_text='Enables the repository system for this press.',
+        verbose_name='Enable repository system',
     )
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)

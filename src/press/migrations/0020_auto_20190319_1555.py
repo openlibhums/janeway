@@ -17,7 +17,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='press',
             name='enable_preprints',
-            field=models.BooleanField(default=False, help_text='Enables the preprints system for this press.'),
+            field=models.BooleanField(default=False, help_text='Enables the repository system for this press.'),
+            verbose_name='Enable repository system',
         ),
         migrations.AlterField(
             model_name='press',
