@@ -28,7 +28,13 @@ class BaseMiddleware():
 
         if hasattr(self, 'process_request'):
             self.process_request(request)
-        return self.get_response(request)
+
+        response = self.get_response(request)
+
+        if hasattr(self, 'process_response'):
+            self.process_response(request, response)
+
+        return response
 
 
 class ThemeEngineMiddleware(object):
@@ -44,9 +50,10 @@ class ThemeEngineMiddleware(object):
         return response
 
 
-class TimeMonitoring(object):
+class TimeMonitoring(BaseMiddleware):
     """Monitors the resource usage of a request/response cycle """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.usage_start = None
 
     def process_request(self, _request):
