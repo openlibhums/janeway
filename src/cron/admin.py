@@ -14,10 +14,17 @@ class CronTaskAdmin(admin.ModelAdmin):
 
 class SentReminderAdmin(admin.ModelAdmin):
     list_display = ('type', 'object_id', 'sent')
+    list_filter = ('type', 'sent')
+    search_fields = ('type', 'object_id')
+    date_hierarchy = ('sent')
 
 
 class ReminderAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'journal', 'type', 'run_type', 'days', 'subject')
+    list_display = ('pk', 'journal', 'type', 'run_type',
+                    'template_name', 'days', 'target_date',
+                    'subject',)
+    list_filter = ('journal', 'type', 'run_type', 'days', 'template_name')
+    search_fields = ('journal__code', 'type', 'run_type', 'template_name')
 
 
 admin_list = [
