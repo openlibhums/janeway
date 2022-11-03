@@ -232,6 +232,12 @@ class CrossrefStatus(models.Model):
     def latest_deposit(self):
         return self.deposits.first()
 
+    def __str__(self):
+        if self.latest_deposit:
+            return f'{self.message} {self.latest_deposit.date_time}'
+        else:
+            return self.message
+
     class Meta:
         verbose_name = 'Crossref status'
         verbose_name_plural = 'Crossref statuses'
