@@ -190,7 +190,7 @@ def poll_doi(request, article_id, identifier_id):
         )
         identifier.crossrefstatus.update()
     else:
-        crossref_status = models.CrossrefStatus.objects.create(
+        crossref_status, created = models.CrossrefStatus.objects.get_or_create(
             identifier=identifier
         )
         crossref_status.update()
