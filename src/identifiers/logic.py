@@ -405,12 +405,14 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
     elif isinstance(identifiers, list):
         identifiers = set(identifiers)
     if not journal:
-        journal = identifiers.pop().article.journal
-
+        journal = identifiers.copy().pop().article.journal
     error = False
 
     template = 'common/identifiers/crossref_doi_batch.xml'
-    template_context = create_crossref_doi_batch_context(journal, identifiers)
+    template_context = create_crossref_doi_batch_context(
+        journal,
+        identifiers.copy(),
+    )
     document = render_to_string(template, template_context)
 
     filename = uuid4()
