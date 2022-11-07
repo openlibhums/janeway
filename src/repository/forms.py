@@ -13,6 +13,7 @@ from review.logic import render_choices
 from core import models as core_models, workflow
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
+from core.widgets import TableMultiSelectUser
 
 
 class PreprintInfo(utils_forms.KeywordModelForm):
@@ -503,6 +504,7 @@ class RepositorySubmission(RepositoryBase):
             'submission_agreement',
             'limit_upload_to_pdf',
             'managers',
+            'submission_notification_recipients',
         )
 
         widgets = {
@@ -512,8 +514,15 @@ class RepositorySubmission(RepositoryBase):
                 "Accounts",
                 False,
                 attrs={'rows': '2'},
-            )
+            ),
+            'submission_notification_recipients': TableMultiSelectUser()
         }
+
+    def __init__(self, *args, **kwargs):
+        super(RepositorySubmission, self).__init__(*args, **kwargs)
+        repo_managers = kwargs['instance'].managers.all()
+        self.fields['submission_notification_recipients'].queryset = repo_managers
+        self.fields['submission_notification_recipients'].choices = [(m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers]
 
 
 class RepositoryEmails(RepositoryBase):
