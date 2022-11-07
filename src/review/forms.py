@@ -358,7 +358,7 @@ class AnswerVisibilityForm(forms.Form):
         super(AnswerVisibilityForm, self).__init__(*args, **kwargs)
 
         for answer in self.review_assignment.review_form_answers():
-            label = _("Author can see ‘%(name)s’") % {'name': answer.original_element.name}
+            label = _("Author can see ‘%(name)s’") % {'name': answer.best_label}
             self.fields[str(answer.pk)] = forms.BooleanField(
                 label=label,
                 widget=HTMLSwitchInput(),
