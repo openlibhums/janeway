@@ -879,4 +879,60 @@ class TestThemeMiddleware(TestCase):
                 ]
             )
 
+class PreprintsUtilsTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.repo_manager1 = helpers.create_user("repo_man@example.com")
+        cls.repo_manager2 = helpers.create_user("repo_man2@example.com")
+        cls.other_user = helpers.create_user("other@example.com")
+
+        cls.repository, cls.subject = helpers.create_repository(cls.press, [cls.repo_manager1, cls.repo_manager2], [])
+
+        cls.submitted_preprint = helpers.create_preprint(cls.repository, cls.other_user, cls.subject)
+
+        cls.request = helpers.Request()
+        cls.request.user = cls.other_user
+        cls.request.repository = cls.repository
+        cls.request.press = cls.press
+        cls.request.site_type = cls.repository
+        cls.request.model_content_type = ContentType.objects.get_for_model(cls.request.repository)
+
+class PreprintsTransactionalEmailTests(PreprintsUtilsTests):
+
+    def test_send_submission_notification_all_managers(self):
+        kwargs = {
+            'request': self.request,
+            'preprint': self.submitted_preprint
+        }
+
+        preprint_submission(**kwargs)
+
+        # There should be 3 emails sent 1 to author, 2 to managers
+        self.assertEqual(len(mail.outbox), 3)
+
+        expected_recipients = [self.repo_manager1.email, self.repo_manager2.email]
+        self.assertIn(mail.outbox[1].to[0], expected_recipients)
+        self.assertIn(mail.outbox[2].to[0], expected_recipients)
+
+    def test_send_submission_notification_one(self):
+        self.repository.submission_notification_recipients.add(self.repo_manager1)
+        self.repository.save()
+
+        kwargs = {
+            'request': self.request,
+            'preprint': self.submitted_preprint
+        }
+
+        preprint_submission(**kwargs)
+
+        expected_recipients = [self.repo_manager1.email]
+
+        self.assertEqual(len(expected_recipients), len(mail.outbox[1].to))
+        for r in expected_recipients:
+            self.assertIn(r, mail.outbox[1].to)
+
+
+
 
