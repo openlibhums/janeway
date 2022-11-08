@@ -89,7 +89,7 @@
                                     const add_funder_form = document.createElement('form');
                                     add_funder_form.setAttribute('method', 'POST');
                                     add_funder_card_section.appendChild(add_funder_form);
-                                    add_funder_form.innerHTML = "{% csrf_token %}";
+                                    add_funder_form.innerHTML = "<input type=\"hidden\" name=\"csrfmiddlewaretoken\" value=\"{{csrf_token}}\">"
 
 
                                     // Add the funder field to the modal

@@ -140,7 +140,7 @@ def submit_funding(request, article_id):
         article.funders.add(funder)
         article.save()
 
-    template = 'admin/submission//submit_funding.html'
+    template = 'admin/submission/submit_funding.html'
     context = {
         'article': article,
         'form': form,

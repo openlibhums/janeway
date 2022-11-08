@@ -831,7 +831,7 @@ class PreprintAccess(models.Model):
 
 class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('author')
+        return super().get_queryset().select_related('account')
 
 
 class PreprintAuthor(models.Model):
