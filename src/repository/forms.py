@@ -504,7 +504,6 @@ class RepositorySubmission(RepositoryBase):
             'submission_agreement',
             'limit_upload_to_pdf',
             'managers',
-            'submission_notification_recipients',
         )
 
         widgets = {
@@ -515,14 +514,7 @@ class RepositorySubmission(RepositoryBase):
                 False,
                 attrs={'rows': '2'},
             ),
-            'submission_notification_recipients': TableMultiSelectUser()
         }
-
-    def __init__(self, *args, **kwargs):
-        super(RepositorySubmission, self).__init__(*args, **kwargs)
-        repo_managers = kwargs['instance'].managers.all()
-        self.fields['submission_notification_recipients'].queryset = repo_managers
-        self.fields['submission_notification_recipients'].choices = [(m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers]
 
 
 class RepositoryEmails(RepositoryBase):
@@ -538,6 +530,7 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation',
             'manager_review_status_change',
             'reviewer_review_status_change',
+            'submission_notification_recipients',
         )
 
         widgets = {
@@ -550,8 +543,14 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation': SummernoteWidget,
             'manager_review_status_change': SummernoteWidget,
             'reviewer_review_status_change': SummernoteWidget,
+            'submission_notification_recipients': TableMultiSelectUser()
         }
 
+    def __init__(self, *args, **kwargs):
+        super(RepositoryEmails, self).__init__(*args, **kwargs)
+        repo_managers = kwargs['instance'].managers.all()
+        self.fields['submission_notification_recipients'].queryset = repo_managers
+        self.fields['submission_notification_recipients'].choices = [(m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers]
 
 class RepositoryLiveForm(RepositoryBase):
     class Meta:
