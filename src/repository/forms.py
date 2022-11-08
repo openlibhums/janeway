@@ -513,7 +513,7 @@ class RepositorySubmission(RepositoryBase):
                 "Accounts",
                 False,
                 attrs={'rows': '2'},
-            ),
+            )
         }
 
 
