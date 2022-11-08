@@ -1359,11 +1359,11 @@ def preprint_submission(**kwargs):
     )
     repo = request.repository
     recipients = repo.submission_notification_recipients if repo.submission_notification_recipients.count() > 0 else repo.managers
-    for manager in recipients.all():
+    for r in recipients.all():
         notify_helpers.send_email_with_body_from_user(
             request,
             '{} Submission'.format(request.repository.object_name),
-            manager.email,
+            r.email,
             editor_email_text,
             log_dict=log_dict,
         )
