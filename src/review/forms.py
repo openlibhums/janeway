@@ -88,8 +88,10 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
             self.fields['date_due'].initial = due_date
 
         if default_form and not self.instance.form:
-            form = models.ReviewForm.objects.get(pk=default_form)
-            self.fields['form'].initial = form
+            try:
+                self.fields['form'].initial = models.ReviewForm.objects.get(pk=default_form)
+            except models.ReviewForm.DoesNotExist:
+                self.fields['form'].initial = ''
 
         if self.reviewers:
             self.fields['reviewer'].queryset = self.reviewers
