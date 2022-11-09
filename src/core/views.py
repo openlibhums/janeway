@@ -298,12 +298,11 @@ def register(request):
     token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
-        if not request.POST:
-            orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-            initial["first_name"] = orcid_details.get("first_name")
-            initial["last_name"] = orcid_details.get("last_name")
-            if orcid_details.get("emails"):
-                initial["email"] = orcid_details["emails"][0]
+        orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+        initial["first_name"] = orcid_details.get("first_name")
+        initial["last_name"] = orcid_details.get("last_name")
+        if orcid_details.get("emails"):
+            initial["email"] = orcid_details["emails"][0]
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -328,6 +327,17 @@ def register(request):
                 new_user.orcid = token_obj.orcid
                 new_user.save()
                 token_obj.delete()
+                # If the email matches the user email on ORCID, log them in
+                if new_user.email == initial.get("email"):
+                    new_user.is_active = True
+                    new_user.save()
+                    login(request, new_user)
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))
+                    elif request.journal:
+                        return redirect(reverse('core_dashboard'))
+                    else:
+                        return redirect(reverse('website_index'))
             else:
                 new_user = form.save()
 
