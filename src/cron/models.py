@@ -15,6 +15,9 @@ from journal import models as journal_models
 from utils import render_template, notify_helpers
 from submission import models as submission_models
 from review import logic as review_logic
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class CronTask(models.Model):
@@ -193,11 +196,11 @@ class Reminder(models.Model):
                 )
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
-                print('Reminder sent for {0}'.format(item))
+                logger.info('Reminder sent for {0}'.format(item))
             elif test:
-                print("[TEST] reminder for {} due on {}".format(item, item.date_due))
+                logger.info("[TEST] reminder for {} due on {}".format(item, item.date_due))
             else:
-                print('Reminder {0} for object {1} has already been sent'.format(self, item))
+                logger.info('Reminder {0} for object {1} has already been sent'.format(self, item))
 
 
 class Request(object):
