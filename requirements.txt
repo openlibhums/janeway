@@ -31,6 +31,7 @@ markdown2
 mock
 mozilla-django-oidc==1.2.4
 mysqlclient==1.3.12
+orcid==1.0.3
 pdfkit
 pdfminer
 Pillow>=8.4.0
