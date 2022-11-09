@@ -294,12 +294,20 @@ def register(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    initial = {}
     token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
+        if not request.POST:
+            orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+            initial["first_name"] = orcid_details.get("first_name")
+            initial["last_name"] = orcid_details.get("last_name")
+            if orcid_details.get("emails"):
+                initial["email"] = orcid_details["emails"][0]
 
     form = forms.RegistrationForm(
         journal=request.journal,
+        initial=initial,
     )
 
     if request.POST:
