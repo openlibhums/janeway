@@ -18,7 +18,7 @@
             {% csrf_token %}
             <div class="title-area">
                 <h2>1. Select Copyeditor</h2>
-                <a href="#" data-open="enrol" class="button">Enrol Users</a>
+                <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
             </div>
             <div class="content">
                 <p>Select a copyeditor from the list of users below. <strong>Note: </strong> if a copyeditor already has an active copyediting task for this article they will not appear in the list, you should first close that task if you wish to assign them again.</p>
@@ -110,9 +110,6 @@
             </div>
         </form>
     </div><!--/col-lg-12 -->
-
-    {% include "elements/roles/enrol_modal.html" with role="copyeditor" currentholders=copyeditors %}
-    <input type="hidden" value="copyeditor" name="enrol_type" id="enrol_type" />
 
     {% if form.modal %}
         {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="copyediting_assignment" %}
