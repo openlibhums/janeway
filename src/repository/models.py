@@ -99,6 +99,7 @@ class Repository(model_utils.AbstractSiteModel):
         help_text='eg. preprints or articles',
     )
     managers = models.ManyToManyField('core.Account', blank=True)
+    submission_notification_recipients = models.ManyToManyField('core.Account', blank=True, related_name='submission_notification_repositories')
     logo = model_utils.SVGImageField(
         blank=True,
         null=True,
