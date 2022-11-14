@@ -121,7 +121,7 @@ class LeftCheckboxInput(CheckboxInput):
         self.choice_label = kwargs.pop('choice_label', '')
         super().__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         attrs = attrs or self.attrs
         label_attrs = ['class="checkbox-inline"']
         if 'id' in self.attrs:
