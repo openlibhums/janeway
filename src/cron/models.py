@@ -8,10 +8,16 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 from datetime import timedelta
+from django.shortcuts import reverse
 
 from cron import logic
 from journal import models as journal_models
 from utils import render_template, notify_helpers
+from submission import models as submission_models
+from review import logic as review_logic
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class CronTask(models.Model):
@@ -116,15 +122,18 @@ class Reminder(models.Model):
             model = review_models.ReviewAssignment
             query = (Q(date_declined__isnull=True) &
                      Q(date_complete__isnull=True) &
-                     Q(date_accepted__isnull=True))
+                     Q(date_accepted__isnull=True) &
+                     Q(article__stage__in=submission_models.REVIEW_STAGES))
         elif self.type == 'accepted-review':
             model = review_models.ReviewAssignment
             query = (Q(date_declined__isnull=True) &
                      Q(date_complete__isnull=True) &
-                     Q(date_accepted__isnull=False))
+                     Q(date_accepted__isnull=False) &
+                     Q(article__stage__in=submission_models.REVIEW_STAGES))
         elif self.type == 'revisions':
             model = review_models.RevisionRequest
-            query = Q(date_completed__isnull=True)
+            query = (Q(date_completed__isnull=True) &
+                     Q(article__stage__in=submission_models.REVIEW_STAGES))
 
         target_date = self.target_date()
         if target_date:
@@ -153,9 +162,24 @@ class Reminder(models.Model):
             if isinstance(item, review_models.ReviewAssignment):
                 to = item.reviewer.email
                 context['review_assignment'] = item
+
+                # get the review_url for the email context
+                review_url = review_logic.get_review_url(request, item)
+                context['review_url'] = review_url
+
             elif isinstance(item, review_models.RevisionRequest):
                 to = item.article.correspondence_author.email
                 context['revision'] = item
+
+                # get the do_revisions url
+                do_revisions_url = request.journal.site_url(path=reverse(
+                    'do_revisions',
+                    kwargs={
+                        'article_id': item.article.pk,
+                        'revision_id': item.pk,
+                    }
+                ))
+                context['do_revisions_url'] = do_revisions_url
 
             if not test and not sent_check and to:
                 message = render_template.get_requestless_content(
@@ -172,11 +196,11 @@ class Reminder(models.Model):
                 )
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
-                print('Reminder sent for {0}'.format(object))
+                logger.info('Reminder sent for {0}'.format(item))
             elif test:
-                print("[TEST] reminder for {} due on {}".format(item, item.date_due))
+                logger.info("[TEST] reminder for {} due on {}".format(item, item.date_due))
             else:
-                print('Reminder {0} for object {1} has already been sent'.format(self, item))
+                logger.info('Reminder {0} for object {1} has already been sent'.format(self, item))
 
 
 class Request(object):

@@ -91,24 +91,28 @@ class Carousel(models.Model):
                 articles |= core_logic.latest_articles(self, 'press')
             elif hasattr(self, 'journal'):
                 articles |= core_logic.latest_articles(self, 'journal')
+            if self.article_limit > 0:
+                articles = articles[:self.article_limit]
 
         if self.articles.exists():
             if self.exclude:
-                articles = articles.exclude(id__in=self.articles.all().values("id"))[:self.article_limit]
+                articles = articles.exclude(id__in=self.articles.all().values("id"))
             else:
-                articles = chain(self.articles.all(), articles[:self.article_limit])
+                articles = chain(self.articles.all(), articles)
 
         if self.latest_news:
             if hasattr(self, 'press'):
                 news |= core_logic.news_items(self, 'press')
             elif hasattr(self, 'journal'):
                 news |= core_logic.news_items(self, 'journal')
+            if self.news_limit > 0:
+                news = news[:self.news_limit]
 
         if self.news_articles.exists():
             if self.exclude:
-                news = news.exclude(pk__in=self.news_articles.all().values("id")[:self.news_limit])
+                news = news.exclude(pk__in=self.news_articles.all().values("id"))
             else:
-                news = chain(self.news_articles.all(), news[:self.news_limit])
+                news = chain(self.news_articles.all(), news)
 
         if self.issues.exists():
             if self.exclude:

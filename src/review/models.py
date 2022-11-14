@@ -365,6 +365,15 @@ class ReviewAssignmentAnswer(models.Model):
     def element(self):
         return self.frozen_element
 
+    @property
+    def best_label(self):
+        if self.original_element:
+            return self.original_element.name
+        elif self.frozen_element:
+            return self.frozen_element.name
+        else:
+            return 'element'  # this is a fallback incase the two links above are removed.
+
 
 class FrozenReviewFormElement(BaseReviewFormElement):
     """ A snapshot of a review form element at the time an answer is created"""

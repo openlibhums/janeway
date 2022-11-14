@@ -1353,7 +1353,7 @@ def preprint_submission(**kwargs):
     )
     editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
         object=request.repository.object_name,
-        press=request.press.name,
+        press=request.repository.name,
         url=url,
         title=preprint.title
     )

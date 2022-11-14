@@ -54,8 +54,8 @@
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        {% if ident.crossref_status %}
-                            {{ ident.crossref_status.get_message_display }}
+                        {% if ident.crossrefstatus %}
+                            {{ ident.crossrefstatus.get_message_display }}
                         {% endif %}
                     {% else %}
                         <i class="fa fa-check"></i>
@@ -71,7 +71,7 @@
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
                         <a class="small success button" href="{% url 'show_doi' article.pk ident.pk %}">
-                            {% if ident.crossref_status.latest_deposit %}
+                            {% if ident.crossrefstatus.latest_deposit %}
                                 View XML
                             {% else %}
                                 Preview XML
@@ -80,7 +80,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if ident.get_id_type_display == 'DOI' and ident.crossref_status.latest_deposit %}
+                    {% if ident.get_id_type_display == 'DOI' and ident.crossrefstatus.latest_deposit %}
                         <a class="small success button" href="{% url 'poll_doi_output' article.pk ident.pk %}">
                             View XML
                         </a>

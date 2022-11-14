@@ -15,7 +15,7 @@
 
         <div class="row expanded">
             {% include "admin/elements/no_stage.html" %}
-            <div class="large-8 columns end">
+            <div class="{% if editor %}large-8{% else %}large-12{% endif %} columns end">
                 <div class="box">
                     <div class="title-area">
                         <h2>Submission List</h2>
@@ -31,14 +31,12 @@
                     </div>
                 </div>
             </div>
-            <div class="large-4 columns">
-                <div class="box">
-
-                    <div class="content">
-
-                        <div class="row">
-                            <form id="filter_form" class="autoSubmit" method="POST">
-                                {% if editor %}
+            {% if editor %}
+                <div class="large-4 columns">
+                    <div class="box">
+                        <div class="content">
+                            <div class="row">
+                                <form id="filter_form" class="autoSubmit" method="POST">
                                     <div class="title-area">
                                         <h2>Assignments</h2>
                                     </div>
@@ -73,29 +71,27 @@
                                             <p>{{ section.name }}</p>
                                         </div>
                                     {% endfor %}
-                                {% endif %}
 
-                                <div class="title-area">
-                                    <h2>Order</h2>
-                                </div>
-                                <div class="large-12 columns">
-                                    <select name="order">
-                                        <option value="pk">Article ID</option>
-                                        <option value="title">Title</option>
-                                        <option value="section">Section</option>
-                                        <option value="stage">Stage</option>
-                                    </select>
-                                    {% if editor %}
+                                    <div class="title-area">
+                                        <h2>Order</h2>
+                                    </div>
+                                    <div class="large-12 columns">
+                                        <select name="order">
+                                            <option value="pk">Article ID</option>
+                                            <option value="title">Title</option>
+                                            <option value="section">Section</option>
+                                            <option value="stage">Stage</option>
+                                        </select>
                                         <button type="button" class="success button" id="filter" onclick="send_post()"><i
                                                 class="fa fa-filter">&nbsp;</i> Filter
                                         </button>
-                                    {% endif %}
-                                </div>
-                            </form>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock body %}

@@ -181,19 +181,28 @@ def poll_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    if identifier.crossrefstatus and identifier.crossrefstatus.latest_deposit:
+    # Scenario 1: The identifier has not been polled or deposited before.
+    # It needs a CrossrefStatus object created.
+    if not identifier.crossrefstatus:
+        models.CrossrefStatus.objects.create(identifier=identifier)
+
+    # Scenario 2: The identifier has been deposited before.
+    # It will have a CrossrefStatus and a CrossrefDeposit already.
+    elif identifier.crossrefstatus.latest_deposit:
         status, error = identifier.crossrefstatus.latest_deposit.poll()
         messages.add_message(
             request,
             messages.INFO if not error else messages.ERROR,
             status
         )
-        identifier.crossrefstatus.update()
-    else:
-        crossref_status = models.CrossrefStatus.objects.create(
-            identifier=identifier
-        )
-        crossref_status.update()
+
+    # Scenario 3: The identifier has only been polled before
+    # but not deposited. It will have a CrossrefStatus already,
+    # but no CrossrefDeposit. This is OK, and the status should be
+    # updated and returned on this basis.
+
+    # In all scenarios, update the CrossrefStatus last.
+    identifier.crossrefstatus.update()
 
     return redirect(
         reverse(

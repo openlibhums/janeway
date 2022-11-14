@@ -266,13 +266,15 @@ def create_crossref_issues_context(journal, identifiers):
                 publication_title=article.publication_title,
             )
             crossref_issues.append(crossref_issue)
-    identifiers -= identifiers_covered
+    remaining_identifiers = identifiers - identifiers_covered
 
     # Then handle the rest
-    for issue in set([identifier.article.issue for identifier in identifiers]):
+    for issue in set(
+        (identifier.article.issue for identifier in remaining_identifiers)
+    ):
         crossref_issue = create_crossref_issue_context(
             journal,
-            identifiers,
+            remaining_identifiers,
             issue,
         )
         crossref_issues.append(crossref_issue)
@@ -394,23 +396,31 @@ def extract_citations_for_crossref(article):
 
 
 def send_crossref_deposit(test_mode, identifiers, journal=None):
-    # todo: work out whether this is acceptance or publication
-    # if it's acceptance, then we use "0" for volume and issue
-    # if publication, then use real values
-    # the code here is for acceptance
+    """
+    Generates the crossref deposit model instances,
+    crossref status model instances, and XML documents,
+    attempts to send the deposits, and creates logs.
+    :param test_mode: boolean
+    :param identifiers: iterable of Identifier model instances
+    :return: tuple consisting of (str, bool)
+    """
 
-    # Backwards compatibility
-    if isinstance(identifiers, models.Identifier):
-        identifiers = set([identifiers])
-    elif isinstance(identifiers, list):
-        identifiers = set(identifiers)
+    # Form a set from the iterable passed in
+    identifiers = set((i for i in identifiers))
+
+    # Get the journal
+    # It assumes all the identifiers are for the same journal
     if not journal:
-        journal = identifiers.pop().article.journal
+        first, *_ = identifiers
+        journal = first.article.journal
 
     error = False
 
     template = 'common/identifiers/crossref_doi_batch.xml'
-    template_context = create_crossref_doi_batch_context(journal, identifiers)
+    template_context = create_crossref_doi_batch_context(
+        journal,
+        identifiers,
+    )
     document = render_to_string(template, template_context)
 
     filename = uuid4()
