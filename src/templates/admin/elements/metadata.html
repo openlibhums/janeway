@@ -88,7 +88,13 @@
     </tr>
     <tr>
         <td colspan="4">
-            {% if article.peer_reviewed %}This article has been marked as having been reviewed in the metadata{% else %}This article has not been marked as having been reviewed. If this article has completed reviews above this may be incorrect.{% endif %}
+            {% if article.peer_reviewed %}
+                This article has been marked as peer reviewed.
+            {% elif not article.is_accepted and article.completed_reviews_with_decision %}
+                If this article is accepted, it will be marked as peer reviewed.
+            {% else %}
+                This article has not been marked as peer reviewed.
+            {% endif %}
         </td>
     </tr>
     <tr>
