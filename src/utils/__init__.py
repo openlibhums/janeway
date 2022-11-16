@@ -50,9 +50,6 @@ def load_janeway_settings():
                 else:
                     janeway_settings[k] = v
 
-        janeway_settings["CHOSEN_TEST_RUNNER"] = janeway_settings.get("TEST_RUNNER")
-        janeway_settings["TEST_RUNNER"] = 'utils.janeway_test_runner_wrapper'
-
         settings.configure(**janeway_settings)
 
 @singledispatch
@@ -86,7 +83,7 @@ def janeway_test_runner_wrapper(*args, **kwargs):
     state exists in the database before the test runs
     """
 
-    if not hasattr(settings, 'CHOSEN_TEST_RUNNER'):
+    if not getattr(settings, 'CHOSEN_TEST_RUNNER', None):
         settings.CHOSEN_TEST_RUNNER = 'django.test.runner.DiscoverRunner'
     from utils import install
     install.update_settings(management_command=False)

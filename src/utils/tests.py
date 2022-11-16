@@ -24,6 +24,7 @@ from utils import (
     notify,
 )
 
+from utils import install
 from utils.transactional_emails import *
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
@@ -39,6 +40,12 @@ from core import models as core_models, include_urls # include_urls so that noti
 from copyediting import models as copyediting_models
 
 
+def setUpModule():
+    install.update_settings(management_command=False)
+    install.update_emails(management_command=False)
+    install.update_xsl_files(management_command=False)
+
+
 class UtilsTests(TestCase):
 
     @classmethod
@@ -48,7 +55,6 @@ class UtilsTests(TestCase):
         cls.journal_one, cls.journal_two = helpers.create_journals()
         helpers.create_roles(['reviewer', 'editor', 'author', 'section-editor'])
 
-        update_xsl_files()
         cls.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
         cls.regular_user = helpers.create_regular_user()
@@ -646,7 +652,6 @@ class TestForms(TestCase):
         helpers.create_press()
         helpers.create_journals()
 
-        update_xsl_files()
         cls.journal = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
     def test_fake_model_form(self):
@@ -665,7 +670,6 @@ class TestForms(TestCase):
 
         class KeywordTestForm(KeywordModelForm):
             class Meta:
-                update_xsl_files()
                 model = journal_models.Journal
                 fields = ("code",)
                 exclude = tuple()
@@ -684,7 +688,6 @@ class TestForms(TestCase):
 
         class KeywordTestForm(KeywordModelForm):
             class Meta:
-                update_xsl_files()
                 model = journal_models.Journal
                 fields = ('keywords', )
                 exclude = tuple()
