@@ -40,7 +40,7 @@ This file is usually created during the setup process and can be based on the pr
 Full-text search
 ----------------
 
-Janeway provides opt-in RDBMS-backed full-text search. In order to enable full-text search and indexing, the ``ENABLE_FULL_TEXT`` setting must be set to ``True`` under your settings file.
+Janeway provides opt-in RDBMS-backed full-text search. In order to enable full-text search and indexing, the ``ENABLE_FULL_TEXT_SEARCH`` setting must be set to ``True`` under your settings file.
 When enabling full-text search, the search interface will be different, offering users the ability to select what fields to perform the search on as well as allowing for results to be ordered by relevance 
 (i.e. objects will be sorted by the frequency of the term in the selected fields)
 Full-text search is supported on both MySQL and Postgresql backends, however due to the different implementation existing on each backend, there are a couple of extra steps to take on each.
