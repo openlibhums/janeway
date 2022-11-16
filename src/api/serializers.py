@@ -153,6 +153,11 @@ class AccountRoleSerializer(serializers.ModelSerializer):
             account_role = core_models.AccountRole.objects.create(**validated_data)
             return account_role
 
+class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.RepositoryFieldAnswer
+        fields = ['pk', 'answer']
+
 class PreprintSerializer(serializers.ModelSerializer):
 
     class Meta:
