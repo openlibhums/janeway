@@ -91,10 +91,14 @@ def get_setting(
     :default: If True, returns the default SettingValue when no journal specific
         value is present
     """
-    setting = core_models.Setting.objects.get(
-        name=setting_name,
-        group__name=setting_group_name,
-    )
+    try:
+        setting = core_models.Setting.objects.get(
+            name=setting_name,
+            group__name=setting_group_name,
+        )
+    except ObjectDoesNotExist as e:
+        e.args += (setting_name, setting_group_name)
+        raise e
     lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
     with translation.override(lang):
@@ -104,7 +108,7 @@ def get_setting(
                 setting=setting,
                 journal=journal,
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             if journal is not None:
                 if create:
                     logger.warning(
@@ -123,7 +127,8 @@ def get_setting(
                 else:
                     return None
             else:
-                raise
+                e.args += (setting_name, setting_group_name)
+                raise e
 
 
 def get_requestless_setting(setting_group, setting, journal):
