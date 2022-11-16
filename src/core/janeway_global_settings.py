@@ -493,7 +493,6 @@ DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.4.3)'
 # Skip migrations by default on sqlite for faster execution
 if (
     IN_TEST_RUNNER
-    #and os.environ.get("DB_VENDOR") == "sqlite"
     and "--keepdb" not in COMMAND
 ):
     from collections.abc import Mapping
