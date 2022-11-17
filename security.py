@@ -145,7 +145,7 @@ def can_manage_file(request, file_object):
     """
     Determines if a user can view and download a file in the Typesetting Plugin.
     """
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return redirect(
             '{0}?next={1}'.format(
                 reverse('core_login'),
