@@ -655,7 +655,7 @@ def generate_issue_doi_from_logic(issue):
 
 def auto_assign_issue_doi(issue):
     auto_assign_enabled = setting_handler.get_setting(
-        'Identifiers', 'use_crossref', issue.journal,
+        'Identifiers', 'register_issue_dois', issue.journal,
         default=True,
     ).processed_value
     if auto_assign_enabled and not issue.doi:
