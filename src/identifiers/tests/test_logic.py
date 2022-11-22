@@ -410,7 +410,18 @@ class TestLogic(TestCase):
         if not found:
             raise AssertionError("No Issue DOI found on article deposit")
 
-    def test_issue_doi_auto_assigned(self):
+    def test_issue_doi_auto_assign_enabled(self):
+        issue = helpers.create_issue(self.journal_one, vol=99, number=99)
+        self.request.POST = {"assign_issue": issue.pk}
+        mock_messages = mock.patch('journal.logic.messages').start()
+        mock_messages.messages = mock.MagicMock()
+        save_setting('Identifiers', 'register_issue_dois', self.journal_one, 'on')
+        from events import registration # Forces events to load into memory
+        journal_logic.handle_assign_issue(self.request, self.article_one, issue)
+        issue.refresh_from_db()
+        self.assertTrue(issue.doi)
+
+    def test_issue_doi_auto_assigned_disabled(self):
         issue = helpers.create_issue(self.journal_one, vol=99, number=99)
         self.request.POST = {"assign_issue": issue.pk}
         mock_messages = mock.patch('journal.logic.messages').start()
@@ -419,7 +430,7 @@ class TestLogic(TestCase):
         from events import registration # Forces events to load into memory
         journal_logic.handle_assign_issue(self.request, self.article_one, issue)
         issue.refresh_from_db()
-        self.assertTrue(issue.doi)
+        self.assertEqual(issue.doi, None)
 
     def test_check_crossref_settings(self):
 
