@@ -225,7 +225,10 @@ class Journal(AbstractSiteModel):
     disable_front_end = models.BooleanField(default=False)
 
     def __str__(self):
-        return u'{0}: {1}'.format(self.code, self.domain)
+        if self.domain:
+            return u'{0}: {1}'.format(self.code, self.domain)
+        else:
+            return self.code
 
     @staticmethod
     def override_cover(request, absolute=True):
