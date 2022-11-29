@@ -78,31 +78,53 @@ class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
         )
 
 
+class ToAddressInline(admin.TabularInline):
+    model = models.ToAddress
+    extra = 0
+
+
 class ImportCacheAdmin(admin.ModelAdmin):
     list_display = ('url', 'mime_type', 'date_time')
     list_filter = ('url', 'mime_type')
+    search_fields = ('url', 'on_disk')
+    date_hierarchy = ('date_time')
 
 
 class PluginAdmin(admin.ModelAdmin):
-    list_display = ('name', 'version', 'date_installed', 'enabled', 'display_name', 'press_wide')
+    list_display = ('name', 'display_name', 'version', 'date_installed',
+                    'enabled', 'press_wide')
+    list_filter = ('name', 'display_name', 'version', 'date_installed',
+                   'enabled', 'press_wide')
+    search_fields = ('name', 'display_name')
+    date_hierarchy = ('date_installed')
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'types', 'date', 'level', 'actor', 'ip_address',
-                    'is_email', 'email_subject', 'content_type', 'target')
+    list_display = ('pk', 'types', 'date', 'level', 'actor', 'to',
+                    'is_email', 'email_subject', 'target')
     list_filter = (GenericRelationArticleJournalFilter,
                    GenericRelationPreprintRepositoryFilter,
                    'date', 'is_email', 'types')
     search_fields = ('types', 'email_subject', 'actor__email',
                      'actor__first_name', 'actor__last_name',
-                     'ip_address', 'email_subject')
+                     'ip_address', 'email_subject', 'toaddress__email')
     date_hierarchy = ('date')
     raw_id_fields = ('actor',)
 
+    inlines = [
+        ToAddressInline,
+    ]
+
+    def to(self, obj):
+        if obj:
+            return ", ".join([to.email for to in obj.toaddress_set.all()])
 
 
 class VersionAdmin(admin.ModelAdmin):
     list_display = ('number', 'date', 'rollback')
+    list_filter = ('number', 'date', 'rollback')
+    search_fields = ('number',)
+    date_hierarchy = ('date')
 
 
 admin_list = [
