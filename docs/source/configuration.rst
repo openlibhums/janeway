@@ -35,6 +35,9 @@ This file is usually created during the setup process and can be based on the pr
       - Uses Google's reCaptcha2. Has been shown to be less effective recently but v3 is not GDPR compliant. You should complete 'RECAPTCHA_PRIVATE_KEY' and 'RECAPTCHA_PUBLIC_KEY' otherwise you will get an error.
     - hcaptcha
       - Uses hcaptcha, a new addition to Janeway. You should complete 'HCAPTCHA_SITEKEY' and 'HCAPTCHA_SECRET' otherwise you will get an error.
+- LOGGING
+    - Provides the configuration for Python's logger. We recommend following the steps described in the `Django documentation <https://docs.djangoproject.com/en/1.11/topics/logging/>`_ for configuration.
+    - By default, Janeway will log both to the console as well as to the file located at `logs/janeway.log` and rotates the file every 50MB. For production systems, you may want to change the location and/or rotation strategy as per the Django documentation
 
 
 Full-text search
