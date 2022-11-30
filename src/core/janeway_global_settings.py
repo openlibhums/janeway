@@ -571,3 +571,9 @@ CORE_THEMES = [
     'clean',
 ]
 INSTALLATION_BASE_THEME = 'OLH'
+
+# Use pagination for all of our APIs based on Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
