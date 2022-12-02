@@ -134,6 +134,13 @@ def create_template(request, reminder_id, template_name):
 @has_journal
 @editor_user_required
 def readers_index(request):
+
+    switch_value = setting_handler.get_setting(
+        'notifications',
+        'send_reader_notifications',
+        request.journal
+    ).value
+
     readers = request.journal.users_with_role('reader')
     content_type = ContentType.objects.get_for_model(request.journal)
     reader_notifications = utils_models.LogEntry.objects.filter(
@@ -143,6 +150,7 @@ def readers_index(request):
     )
     template = 'admin/cron/readers.html'
     context = {
+        'send_reader_notifications': switch_value,
         'readers': readers,
         'reader_notifications': reader_notifications,
     }
