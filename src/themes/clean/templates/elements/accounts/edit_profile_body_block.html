@@ -1,5 +1,5 @@
 {% load i18n roles %}
-{% user_has_role request 'reader' as reader %}
+{% user_has_role request 'reader' staff_override=False as reader %}
 
 <div class="row">
     <div class="col-md-12">
