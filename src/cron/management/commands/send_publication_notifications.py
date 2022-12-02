@@ -43,8 +43,8 @@ class Command(BaseCommand):
 
         for journal in journals:
             if setting_handler.get_setting(
-                setting_group_name='notification',
-                setting_name='send_reader_publication_notifications',
+                setting_group_name='notifications',
+                setting_name='send_reader_notifications',
                 journal=journal,
             ).value:
                 print('Sending notification for {}'.format(journal.name))
