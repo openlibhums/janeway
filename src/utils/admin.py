@@ -18,7 +18,7 @@ class GenericRelationArticleJournalFilter(admin.SimpleListFilter):
     journal by a Generic Foreign Key and an article-journal relationship.
     An example is utils.LogEntry.
     This and similar classes are implemented here in utils.admin
-    to avoid circular imports.
+    rather than their various apps to avoid circular imports.
     """
 
     title = 'journal'
@@ -49,7 +49,7 @@ class GenericRelationArticleJournalFilter(admin.SimpleListFilter):
 class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
     """
     Provides a repository list filter for objects that are separated from the
-    repository by a Generic Foreign Key and an preprint-repository relationship.
+    repository by a Generic Foreign Key and a preprint-repository relationship.
     An example is utils.LogEntry.
     """
 
