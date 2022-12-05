@@ -25,7 +25,7 @@
     <div class="col m6">
         <div class="card">
             <div class="card-content">
-                {% if request.journal %}
+                {% if request.journal and send_reader_notifications %}
                     <span class="card-title">{% trans "Register for Article Notifications" %}</span>
                     <form method="POST">
                         <p>

@@ -410,8 +410,14 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
-
     form = forms.EditAccountForm(instance=user)
+    send_reader_notifications = False
+    if request.journal:
+        send_reader_notifications = setting_handler.get_setting(
+            'notifications',
+            'send_reader_notifications',
+            request.journal
+        ).value
 
     if request.POST:
         if 'email' in request.POST:
@@ -455,7 +461,7 @@ def edit_profile(request):
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
 
-        elif 'subscribe' in request.POST and request.journal:
+        elif 'subscribe' in request.POST and request.journal and send_reader_notifications:
             request.user.add_account_role(
                 'reader',
                 request.journal,
@@ -466,7 +472,7 @@ def edit_profile(request):
                 'Successfully subscribed to article notifications.',
             )
 
-        elif 'unsubscribe' in request.POST and request.journal:
+        elif 'unsubscribe' in request.POST and request.journal and send_reader_notifications:
             request.user.remove_account_role(
                 'reader',
                 request.journal
@@ -492,6 +498,7 @@ def edit_profile(request):
     context = {
         'form': form,
         'user_to_edit': user,
+        'send_reader_notifications': send_reader_notifications,
     }
 
     return render(request, template, context)
