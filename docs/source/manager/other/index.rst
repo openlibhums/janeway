@@ -65,3 +65,18 @@ When editing a template you will see the default version of the email at the top
 .. figure:: ../../nstatic/edit_template.png
 
     Editing an email template.
+
+Publication Notifications (Readers)
+-----------------------------------
+
+Anyone with an account can sign up to receive emails when new articles are published.
+
+.. figure:: ../../nstatic/register-for-reader-notifications.png
+
+    Registering for reader notifications.
+
+.. figure:: ../../nstatic/publication-notifications.png
+
+    Viewing readers and notifications in Manager.
+
+
