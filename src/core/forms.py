@@ -133,6 +133,14 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
         if not self.journal:
             self.fields.pop('register_as_reader')
+        elif self.journal:
+            send_reader_notifications = setting_handler.get_setting(
+                'notifications',
+                'send_reader_notifications',
+                self.journal
+            ).value
+            if not send_reader_notifications:
+                self.fields.pop('register_as_reader')
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
