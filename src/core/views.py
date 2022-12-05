@@ -461,7 +461,7 @@ def edit_profile(request):
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
 
-        elif 'subscribe' in request.POST and request.journal and send_reader_notifications:
+        elif 'subscribe' in request.POST and send_reader_notifications:
             request.user.add_account_role(
                 'reader',
                 request.journal,
@@ -472,7 +472,7 @@ def edit_profile(request):
                 'Successfully subscribed to article notifications.',
             )
 
-        elif 'unsubscribe' in request.POST and request.journal and send_reader_notifications:
+        elif 'unsubscribe' in request.POST and send_reader_notifications:
             request.user.remove_account_role(
                 'reader',
                 request.journal
