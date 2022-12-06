@@ -258,7 +258,12 @@ class CoreTests(TestCase):
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_register_as_reader(self):
-
+        setting_handler.save_setting(
+            setting_group_name='notifications',
+            setting_name='send_reader_notifications',
+            journal=self.journal_one,
+            value='On',
+        )
         data = {
             'email': 'reader@janeway.systems',
             'is_active': True,
