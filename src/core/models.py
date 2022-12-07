@@ -1417,6 +1417,9 @@ class Contacts(models.Model):
     sequence = models.PositiveIntegerField(default=999)
 
     class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the below model `Contact`
+        # in the admin area.
         verbose_name_plural = 'contacts'
         ordering = ('sequence', 'name')
 
@@ -1438,6 +1441,9 @@ class Contact(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
         verbose_name_plural = 'contact messages'
 
 
