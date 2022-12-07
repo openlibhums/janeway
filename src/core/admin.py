@@ -256,18 +256,22 @@ class WorkflowElementAdmin(admin.ModelAdmin):
 
 
 class WorkflowLogAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'article', 'element', 'stage', 'timestamp')
-    list_filter = ('element', )
+    list_display = ('pk', 'article', 'journal', 'workflow_element',
+                    'stage', 'timestamp')
+    list_filter = ('element__journal', 'element__element_name',
+                   'timestamp')
     search_fields = ('article__title', 'element__element_name',
                      'element__stage', 'element__journal__code')
     date_hierarchy = ('timestamp')
 
-    def stage(self, obj):
-        if obj:
-            return obj.element.stage
-        else:
-            return ''
+    def journal(self, obj):
+        return obj.element.journal.code if obj else ''
 
+    def stage(self, obj):
+        return obj.element.stage if obj else ''
+
+    def workflow_element(self, obj):
+        return obj.element.element_name if obj else ''
 
 class OrcidTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'orcid', 'expiry')

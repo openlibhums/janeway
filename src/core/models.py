@@ -1562,7 +1562,7 @@ class WorkflowElement(models.Model):
         return workflow.workflow_plugin_settings(self)
 
     def __str__(self):
-        return f'{self.element_name} ({self.journal.code})'
+        return self.element_name
 
 
 class WorkflowLog(models.Model):
