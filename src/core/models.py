@@ -1281,12 +1281,6 @@ class SupplementaryFile(models.Model):
     def mime_type(self):
         return files.file_path_mime(self.path())
 
-    def date_uploaded(self):
-        return self.file.date_uploaded
-
-    def last_modified(self):
-        return self.file.last_modified
-
     def url(self):
         path = reverse(
             'article_download_supp_file',

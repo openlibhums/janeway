@@ -204,7 +204,14 @@ class XSLFileAdmin(admin.ModelAdmin):
 class SupplementaryFileAdmin(admin.ModelAdmin):
     list_display = ('label', 'file', 'date_uploaded', 'last_modified',
                     'doi', 'path', 'mime_type')
+    list_filter = ('file__date_uploaded', 'file__last_modified')
     search_fields = ('file__label', 'doi', 'file__original_filename')
+
+    def date_uploaded(self, obj):
+        return obj.file.date_uploaded if obj else ''
+
+    def last_modified(self, obj):
+        return obj.file.last_modified if obj else ''
 
 
 class InterestAdmin(admin.ModelAdmin):
