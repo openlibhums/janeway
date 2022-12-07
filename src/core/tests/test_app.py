@@ -3,21 +3,22 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import datetime
 from mock import patch
 
 from django.core.management import call_command
-from django.db import connection, IntegrityError
+from django.db import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 from django.urls.base import clear_script_prefix
+from django.utils import timezone
+from django.core import mail
 
 from utils.testing import helpers
 from utils import setting_handler, install
 from utils.shared import clear_cache
 from core import models
 from review import models as review_models
+from submission import models as submission_models
 
 
 class CoreTests(TestCase):
@@ -289,6 +290,44 @@ class CoreTests(TestCase):
         self.assertTrue(role_check)
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_sending_reader_notification(self):
+        setting_handler.save_setting(
+            setting_group_name='notifications',
+            setting_name='send_reader_notifications',
+            journal=self.journal_one,
+            value='On',
+        )
+        reader_email = 'another_reader@janeway.systems'
+        data = {
+            'email': reader_email,
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+            'register_as_reader': True,
+        }
+        clear_script_prefix()
+        clear_cache()
+        response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
+
+        call_command('send_publication_notifications', self.article_two.journal.code)
+
+        email = None
+
+        for message in mail.outbox:
+            if message.subject == '[TST] New Articles Published':
+                email = message
+
+        self.assertTrue(email)
+        self.assertIn(reader_email, email.bcc)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_register_without_reader(self):
 
         data = {
@@ -455,8 +494,17 @@ class CoreTests(TestCase):
             self.journal_one,
             with_author=True,
         )
-        self.article_one.stage = 'Unassigned'
+        self.article_one.stage = submission_models.STAGE_UNASSIGNED
         self.article_one.save()
+
+        self.article_two = helpers.create_article(
+            self.journal_one,
+            with_author=True,
+        )
+        self.article_two.stage = submission_models.STAGE_PUBLISHED
+        self.article_two.date_published = timezone.now()
+        self.article_two.title = 'There is coffee in that nebula!'
+        self.article_two.save()
 
         review_assignment = helpers.create_review_assignment(
             journal=self.journal_one,
