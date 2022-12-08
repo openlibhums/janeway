@@ -19,7 +19,7 @@ class TraceNode(template.Node):
         try:
             from nose import tools
             tools.set_trace()         # Debugger will stop here
-        except ImportError:
+        except (ModuleNotFoundError, ImportError):
             import pdb
             pdb.set_trace()           # Debugger will stop here
         return ''
