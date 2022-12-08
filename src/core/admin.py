@@ -51,7 +51,7 @@ class EditorialGroupMemberInline(admin.TabularInline):
 class WorkflowLogInline(admin.TabularInline):
     model = models.WorkflowLog
     extra = 0
-    raw_id_fields = ('article',)
+    raw_id_fields = ('element', 'article',)
 
 
 class AccountRoleAdmin(admin.ModelAdmin):
