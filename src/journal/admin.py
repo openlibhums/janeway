@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 
 from journal import models
-from submission.admin import ArticleInline
+from utils import admin_utils
 
 
 class IssueAdmin(admin.ModelAdmin):
@@ -20,7 +20,7 @@ class IssueAdmin(admin.ModelAdmin):
     filter_horizontal = ('articles',)
 
     inlines = [
-        ArticleInline
+        admin_utils.ArticleOrderingInline
     ]
 
 
@@ -104,8 +104,7 @@ class ArticleOrderingAdmin(admin.ModelAdmin):
     raw_id_fields = ('article',)
 
     def journal(self, obj):
-        if obj:
-            return obj.article.journal.code
+        return obj.article.journal.code if obj else ''
 
 
 class FixedPubCheckItemsAdmin(admin.ModelAdmin):

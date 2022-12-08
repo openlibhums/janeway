@@ -8,50 +8,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 
+from utils import admin_utils
 from core import models, forms
-
-
-class PasswordResetInline(admin.TabularInline):
-    model = models.PasswordResetToken
-    extra = 0
-
-
-class AccountRoleInline(admin.TabularInline):
-    model = models.AccountRole
-    extra = 0
-
-
-class SettingInline(admin.TabularInline):
-    model = models.Setting
-    extra = 0
-
-
-class SettingValueInline(admin.TabularInline):
-    model = models.SettingValue
-    extra = 0
-    fields = ('journal', 'value')
-
-
-class FileInline(admin.TabularInline):
-    model = models.File
-    extra = 0
-    fields = ('journal', 'value')
-
-
-class TaskCompleteEventInline(admin.TabularInline):
-    model = models.Task.complete_events.through
-    extra = 0
-
-
-class EditorialGroupMemberInline(admin.TabularInline):
-    model = models.EditorialGroupMember
-    extra = 0
-
-
-class WorkflowLogInline(admin.TabularInline):
-    model = models.WorkflowLog
-    extra = 0
-    raw_id_fields = ('element', 'article',)
 
 
 class AccountRoleAdmin(admin.ModelAdmin):
@@ -72,7 +30,7 @@ class SettingAdmin(admin.ModelAdmin):
     list_display_links = ('name', 'pretty_name',)
 
     inlines = [
-        SettingValueInline
+        admin_utils.SettingValueInline
     ]
 
 
@@ -106,9 +64,9 @@ class AccountAdmin(UserAdmin):
     raw_id_fields = ('interest',)
 
     inlines = [
-        PasswordResetInline,
-        AccountRoleInline,
-        EditorialGroupMemberInline,
+        admin_utils.PasswordResetInline,
+        admin_utils.AccountRoleInline,
+        admin_utils.EditorialGroupMemberInline,
     ]
 
 
@@ -235,7 +193,7 @@ class TaskCompleteEventsAdmin(admin.ModelAdmin):
     list_display_links = ('pk', 'event_name',)
 
     inlines = [
-        TaskCompleteEventInline
+        admin_utils.TaskCompleteEventInline
     ]
 
 
@@ -251,7 +209,7 @@ class WorkflowElementAdmin(admin.ModelAdmin):
     search_fields = ('journal__code', 'element_name', 'stage')
 
     inlines = [
-        WorkflowLogInline
+        admin_utils.WorkflowLogInline
     ]
 
 
@@ -287,7 +245,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
     inlines = [
-        SettingInline
+        admin_utils.SettingInline
     ]
 
 
@@ -328,7 +286,7 @@ class EditorialGroupAdmin(admin.ModelAdmin):
     search_fields = ('name', 'journal__code')
 
     inlines = [
-        EditorialGroupMemberInline
+        admin_utils.EditorialGroupMemberInline
     ]
 
 

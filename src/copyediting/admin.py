@@ -5,13 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.contrib import admin
+from utils import admin_utils
 from copyediting import models
-
-
-class AuthorInline(admin.TabularInline):
-    model = models.AuthorReview
-    exclude = ('files_updated',)
-    extra = 0
 
 
 class CopyeditAdmin(admin.ModelAdmin):
@@ -28,7 +23,7 @@ class CopyeditAdmin(admin.ModelAdmin):
     date_hierarchy = ('assigned')
 
     inlines = [
-        AuthorInline
+        admin_utils.AuthorReviewInline
     ]
 
 

@@ -4,13 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from utils import admin_utils
 from identifiers import models
-
-
-class CrossrefStatusInline(admin.TabularInline):
-    model = models.CrossrefStatus
-    extra = 0
-    filter_horizontal = ('deposits',)
 
 
 class BrokenDOIAdmin(admin.ModelAdmin):
@@ -38,7 +33,7 @@ class IdentifierAdmin(admin.ModelAdmin):
             return ''
 
     inlines = [
-        CrossrefStatusInline,
+        admin_utils.CrossrefStatusInline,
     ]
 
 

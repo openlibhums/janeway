@@ -1,0 +1,215 @@
+__copyright__ = "Copyright 2022 Birkbeck, University of London"
+__author__ = "Martin Paul Eve, Andy Byers, Mauro Sanchez and Joseph Muller"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck, University of London"
+
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import admin
+from utils import models as utils_models
+from discussion import models as discussion_models
+from review import models as review_models
+from identifiers import models as identifier_models
+from copyediting import models as copyediting_models
+from submission import models as submission_models
+from journal import models as journal_models
+from cron import models as cron_models
+from core import models as core_models
+from repository import models as repository_models
+
+
+class PostInline(admin.TabularInline):
+    model = discussion_models.Post
+    extra = 0
+    raw_id_fields = ('owner', 'thread')
+    exclude = ('read_by',)
+
+
+class ReviewAssignmentAnswerInline(admin.TabularInline):
+    model = review_models.ReviewAssignmentAnswer
+    extra = 0
+
+
+class RevisionActionInline(admin.TabularInline):
+    model = review_models.RevisionAction
+    extra = 0
+
+
+class ToAddressInline(admin.TabularInline):
+    model = utils_models.ToAddress
+    extra = 0
+
+
+class CrossrefStatusInline(admin.TabularInline):
+    model = identifier_models.CrossrefStatus
+    extra = 0
+    filter_horizontal = ('deposits',)
+
+
+class AuthorReviewInline(admin.TabularInline):
+    model = copyediting_models.AuthorReview
+    exclude = ('files_updated',)
+    extra = 0
+
+
+class ArticleInline(admin.TabularInline):
+    model = submission_models.Article
+    extra = 0
+    fields = ('title', 'correspondence_author', 'journal')
+    readonly_fields = ('title', 'correspondence_author', 'journal')
+    fk_name = 'primary_issue'
+
+
+class ArticleOrderingInline(admin.TabularInline):
+    model = journal_models.ArticleOrdering
+    extra = 0
+    raw_id_fields = ('article', 'issue', 'section')
+
+
+class CronTaskInline(admin.TabularInline):
+    model = cron_models.CronTask
+    extra = 0
+    raw_id_fields = ('article',)
+
+
+class IdentifierInline(admin.TabularInline):
+    model = identifier_models.Identifier
+    extra = 0
+    raw_id_fields = ('article',)
+
+
+class NoteInline(admin.TabularInline):
+    model = submission_models.Note
+    extra = 0
+    raw_id_fields = ('article', 'creator')
+
+
+class FieldAnswerInline(admin.TabularInline):
+    model = submission_models.FieldAnswer
+    extra = 0
+    raw_id_fields = ('article',)
+
+
+class ArticleStageLogInline(admin.TabularInline):
+    model = submission_models.ArticleStageLog
+    extra = 0
+
+
+class KeywordArticleInline(admin.TabularInline):
+    model = submission_models.KeywordArticle
+    extra = 0
+    raw_id_fields = ('article', 'keyword')
+
+
+class GalleyInline(admin.TabularInline):
+    model = core_models.Galley
+    extra = 0
+    fields = ('file', 'public', 'label', 'type', 'sequence')
+    raw_id_fields = ('article', 'file', 'css_file',
+                     'images', 'xsl_file')
+
+
+class PasswordResetInline(admin.TabularInline):
+    model = core_models.PasswordResetToken
+    extra = 0
+
+
+class AccountRoleInline(admin.TabularInline):
+    model = core_models.AccountRole
+    extra = 0
+
+
+class SettingInline(admin.TabularInline):
+    model = core_models.Setting
+    extra = 0
+
+
+class SettingValueInline(admin.TabularInline):
+    model = core_models.SettingValue
+    extra = 0
+    fields = ('journal', 'value')
+
+
+class FileInline(admin.TabularInline):
+    model = core_models.File
+    extra = 0
+    fields = ('journal', 'value')
+
+
+class TaskCompleteEventInline(admin.TabularInline):
+    model = core_models.Task.complete_events.through
+    extra = 0
+
+
+class EditorialGroupMemberInline(admin.TabularInline):
+    model = core_models.EditorialGroupMember
+    extra = 0
+
+
+class WorkflowLogInline(admin.TabularInline):
+    model = core_models.WorkflowLog
+    extra = 0
+    raw_id_fields = ('element', 'article',)
+
+
+class GenericRelationArticleJournalFilter(admin.SimpleListFilter):
+    """
+    Provides a journal list filter for objects that are separated from the
+    journal by a Generic Foreign Key and an article-journal relationship.
+    An example is utils.LogEntry.
+    """
+
+    title = 'journal'
+    parameter_name = 'journal'
+
+    def lookups(self, request, model_admin):
+        return (
+            (journal.id, journal.code)
+            for journal in journal_models.Journal.objects.all()
+        )
+
+    def queryset(self, request, queryset):
+        journal_pk = request.GET.get('journal', None)
+        if not journal_pk:
+            return queryset
+        articles = submission_models.Article.objects.filter(
+            journal__id=journal_pk
+        )
+        if not articles:
+            return queryset.none()
+        content_type = ContentType.objects.get_for_model(articles.first())
+        return queryset.filter(
+            object_id__in=[article.pk for article in articles],
+            content_type=content_type,
+        )
+
+
+class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
+    """
+    Provides a repository list filter for objects that are separated from the
+    repository by a Generic Foreign Key and a preprint-repository relationship.
+    An example is utils.LogEntry.
+    """
+
+    title = 'repository'
+    parameter_name = 'repository'
+
+    def lookups(self, request, model_admin):
+        return (
+            (repository.id, repository.short_name)
+            for repository in repository_models.Repository.objects.all()
+        )
+
+    def queryset(self, request, queryset):
+        repo_pk = request.GET.get('repository', None)
+        if not repo_pk:
+            return queryset
+        preprints = repository_models.Preprint.objects.filter(
+           repository__id=repo_pk
+        )
+        if not preprints:
+            return queryset.none()
+        content_type = ContentType.objects.get_for_model(preprints.first())
+        return queryset.filter(
+            object_id__in=[preprint.pk for preprint in preprints],
+            content_type=content_type,
+        )

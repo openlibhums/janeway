@@ -4,14 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from utils import admin_utils
 from discussion import models
-
-
-class PostInline(admin.TabularInline):
-    model = models.Post
-    extra = 0
-    raw_id_fields = ('owner', 'thread')
-    exclude = ('read_by',)
 
 
 class ThreadAdmin(admin.ModelAdmin):
@@ -24,7 +18,7 @@ class ThreadAdmin(admin.ModelAdmin):
     date_hierarchy = ('last_updated')
 
     inlines = [
-        PostInline
+        admin_utils.PostInline
     ]
 
 

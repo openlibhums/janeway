@@ -4,18 +4,9 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from utils import admin_utils
 from review import models
 from core.templatetags.truncate import truncatesmart
-
-
-class ReviewAssignmentAnswerInline(admin.TabularInline):
-    model = models.ReviewAssignmentAnswer
-    extra = 0
-
-
-class RevisionActionInline(admin.TabularInline):
-    model = models.RevisionAction
-    extra = 0
 
 
 class EditorialAdmin(admin.ModelAdmin):
@@ -73,7 +64,7 @@ class ReviewAdmin(admin.ModelAdmin):
         return truncatesmart(str(obj.article), 30) if obj else ''
 
     inlines = [
-        ReviewAssignmentAnswerInline,
+        admin_utils.ReviewAssignmentAnswerInline,
     ]
 
 
