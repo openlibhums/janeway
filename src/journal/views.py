@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
 from django.db import IntegrityError
