@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -382,7 +383,7 @@ def send_submission_acknowledgement(**kwargs):
         log_dict=log_dict,
     )
 
-    # send to all authors
+    # send to all editors
     editors_to_email = setting_handler.get_setting(
         'general', 'editors_for_notification', request.journal).processed_value
 
@@ -409,6 +410,7 @@ def send_submission_acknowledgement(**kwargs):
         editor_emails,
         context,
         log_dict=log_dict,
+        custom_reply_to=f"noreply{settings.DUMMY_EMAIL_DOMAIN}"
     )
 
 
