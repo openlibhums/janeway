@@ -12,7 +12,7 @@ from django.core.management import call_command
 from django.http import HttpResponse, Http404
 from django.utils import translation
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from core import (
     files,

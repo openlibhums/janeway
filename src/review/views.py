@@ -13,14 +13,14 @@ from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
