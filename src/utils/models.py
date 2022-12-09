@@ -150,7 +150,10 @@ class LogEntry(models.Model):
 
 
 class ToAddress(models.Model):
-    log_entry = models.ForeignKey(LogEntry)
+    log_entry = models.ForeignKey(
+        LogEntry,
+        on_delete=models.CASCADE,
+    )
     email = models.EmailField(max_length=300)
 
     def __str__(self):
