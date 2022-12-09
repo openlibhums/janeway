@@ -270,6 +270,9 @@ class TypesettingAssignment(models.Model):
         else:
             return GalleyProofing.objects.none()
 
+    def __str__(self):
+        return f'Typesetter {self.typesetter} assigned to article {self.round.article}'
+
 
 class GalleyProofing(models.Model):
     round = models.ForeignKey(
