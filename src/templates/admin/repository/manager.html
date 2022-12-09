@@ -8,6 +8,8 @@
     <li>Preprint Manager</li>
 {% endblock %}
 
+{% load cache %}
+
 {% block body %}
     <div class="row expanded" data-equalizer data-equalize-on="medium">
         <div class="large-7 columns">
@@ -119,7 +121,7 @@
             </div>
         </div>
 
-        <div class="large-12 columns">
+    <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
                     <h2>Metrics Summary</h2>
@@ -130,9 +132,12 @@
             </div>
         </div>
 
+
     </div>
 
 {% endblock %}
+
+{% cache 600 metrics %}
 
 {% block js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
@@ -179,3 +184,4 @@
     {% include "elements/datatables.html" with target="#unpub" page_length=10 sort=1 order='desc' %}
     {% include "elements/datatables.html" with target="#pubd" page_length=10 sort=2 order='desc' %}
 {% endblock %}
+{% endcache %}
