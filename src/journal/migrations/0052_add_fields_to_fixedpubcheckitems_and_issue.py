@@ -10,8 +10,7 @@ from django.db import (
     ProgrammingError,
     DatabaseError,
 )
-from django.utils.translation import ugettext
-from django.utils.safestring import mark_safe
+from django.db import migrations, models
 
 
 SQL = "ALTER TABLE journal_issue ADD COLUMN cached_display_title varchar(300) NULL"

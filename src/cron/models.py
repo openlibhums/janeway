@@ -25,11 +25,21 @@ class CronTask(models.Model):
     task_data = models.TextField(blank=True, null=True)
     added = models.DateTimeField(default=timezone.now)
     run_at = models.DateTimeField(default=timezone.now)
-    article = models.ForeignKey('submission.Article', blank=True, null=True)
+    article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     email_to = models.EmailField(blank=True, null=True)
     email_subject = models.CharField(max_length=255, blank=True, null=True)
-    email_journal = models.ForeignKey(journal_models.Journal, blank=True, null=True)
+    email_journal = models.ForeignKey(
+        journal_models.Journal,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     email_html = models.TextField(blank=True, null=True)
     email_cc = models.CharField(max_length=255, blank=True, null=True)
     email_bcc = models.CharField(max_length=255, blank=True, null=True)
@@ -84,7 +94,10 @@ class SentReminder(models.Model):
 
 
 class Reminder(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(help_text="The number of days before or after this reminder should fire")

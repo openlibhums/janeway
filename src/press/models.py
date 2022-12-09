@@ -317,7 +317,10 @@ class Press(AbstractSiteModel):
 
 
 class PressSetting(models.Model):
-    press = models.ForeignKey(Press)
+    press = models.ForeignKey(
+        Press,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=255)
     value = models.TextField(blank=True, null=True)
     is_boolean = models.BooleanField(default=False)

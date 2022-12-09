@@ -21,7 +21,7 @@ from django.contrib.postgres.search import (
     SearchVectorField,
 )
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
@@ -297,7 +297,10 @@ class Funder(models.Model):
 
 
 class ArticleStageLog(models.Model):
-    article = models.ForeignKey('Article')
+    article = models.ForeignKey(
+        'Article',
+        on_delete=models.CASCADE,
+    )
     stage_from = models.CharField(max_length=200, blank=False, null=False)
     stage_to = models.CharField(max_length=200, blank=False, null=False)
     date_time = models.DateTimeField(default=timezone.now)
@@ -315,7 +318,12 @@ class ArticleStageLog(models.Model):
 class PublisherNote(AbstractLastModifiedModel):
     text = models.TextField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
-    creator = models.ForeignKey('core.Account', default=None)
+    creator = models.ForeignKey(
+        'core.Account',
+        default=None,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -333,8 +341,14 @@ class Keyword(models.Model):
 
 
 class KeywordArticle(models.Model):
-    keyword = models.ForeignKey("submission.Keyword")
-    article = models.ForeignKey("submission.Article")
+    keyword = models.ForeignKey(
+        "submission.Keyword",
+        on_delete=models.CASCADE,
+    )
+    article = models.ForeignKey(
+        "submission.Article",
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -541,9 +555,18 @@ class ActiveArticleManager(models.Manager):
 
 
 class Article(AbstractLastModifiedModel):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     # Metadata
-    owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     title = models.CharField(max_length=999, help_text=_('Your article title'))
     subtitle = models.CharField(
         # Note: subtitle is deprecated as of version 1.4.2
@@ -722,7 +745,12 @@ class Article(AbstractLastModifiedModel):
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
-    preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
+    preprint_journal_article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
@@ -1678,8 +1706,18 @@ class Article(AbstractLastModifiedModel):
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
-    article = models.ForeignKey('submission.Article', blank=True, null=True)
-    author = models.ForeignKey('core.Account', blank=True, null=True)
+    article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     name_prefix = models.CharField(
         max_length=300, null=True, blank=True,
@@ -1707,7 +1745,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     " for the account will be populated instead."
                    ),
     )
-    country = models.ForeignKey('core.Country', null=True, blank=True)
+    country = models.ForeignKey(
+        'core.Country',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     order = models.PositiveIntegerField(default=1)
 
@@ -1853,7 +1896,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
 
 class Section(AbstractLastModifiedModel):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     number_of_reviewers = models.IntegerField(default=2)
 
     editors = models.ManyToManyField(
@@ -1955,8 +2001,15 @@ class Licence(AbstractLastModifiedModel):
 
 
 class Note(models.Model):
-    article = models.ForeignKey(Article)
-    creator = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
+    creator = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     text = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)
 
@@ -1984,8 +2037,18 @@ def width_choices():
 
 
 class Field(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
     width = models.CharField(max_length=50, choices=width_choices(), default='full')
@@ -2015,13 +2078,22 @@ class Field(models.Model):
 
 class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
-    article = models.ForeignKey(Article)
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
     answer = models.TextField()
 
 
 class ArticleAuthorOrder(models.Model):
-    article = models.ForeignKey(Article)
-    author = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -2029,7 +2101,10 @@ class ArticleAuthorOrder(models.Model):
 
 
 class SubmissionConfiguration(models.Model):
-    journal = models.OneToOneField('journal.Journal')
+    journal = models.OneToOneField(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
 
     publication_fees = models.BooleanField(default=True)
     submission_check = models.BooleanField(default=True)
@@ -2055,6 +2130,7 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         help_text=_('The default license applied when no option is presented'),
+        on_delete=models.SET_NULL,
     )
     default_language = models.CharField(
         max_length=200,
@@ -2069,6 +2145,7 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_('The default section of '
                     'articles when no option is presented'),
+        on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(
         max_length=255,
