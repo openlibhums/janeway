@@ -8,8 +8,6 @@ import threading
 
 import pytz
 
-from django.core.exceptions import ObjectDoesNotExist, \
-    MultipleObjectsReturned, ImproperlyConfigured
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
@@ -19,8 +17,9 @@ from django.urls import set_script_prefix
 from django.utils import timezone
 
 from press import models as press_models
-from utils import models as util_models, setting_handler
+from utils import setting_handler
 from utils.logger import get_logger
+from utils.middleware import BaseMiddleware
 from core import models as core_models
 from journal import models as journal_models
 from repository import models as repository_models
@@ -72,7 +71,7 @@ def get_site_resources(request):
     return journal, repository, press, redirect_obj, site_path
 
 
-class SiteSettingsMiddleware(object):
+class SiteSettingsMiddleware(BaseMiddleware):
     @staticmethod
     def process_request(request):
         """ This middleware class sets a series of variables for templates
@@ -138,7 +137,7 @@ class SiteSettingsMiddleware(object):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
 
-class MaintenanceModeMiddleware(object):
+class MaintenanceModeMiddleware(BaseMiddleware):
     @staticmethod
     def process_request(request):
         if request.journal is not None:
@@ -157,7 +156,7 @@ class MaintenanceModeMiddleware(object):
                 raise PermissionDenied(request, maintenance_mode_message)
 
 
-class CounterCookieMiddleware(object):
+class CounterCookieMiddleware(BaseMiddleware):
 
     @staticmethod
     def process_response(request, response):
@@ -172,7 +171,7 @@ class CounterCookieMiddleware(object):
         return response
 
 
-class PressMiddleware(object):
+class PressMiddleware(BaseMiddleware):
 
     @staticmethod
     def process_request(request):
@@ -206,7 +205,7 @@ class PressMiddleware(object):
 _threadlocal = threading.local()
 
 
-class GlobalRequestMiddleware(object):
+class GlobalRequestMiddleware(BaseMiddleware):
     @classmethod
     def get_current_request(cls):
         return _threadlocal.request
@@ -216,7 +215,7 @@ class GlobalRequestMiddleware(object):
         _threadlocal.request = request
 
 
-class TimezoneMiddleware(object):
+class TimezoneMiddleware(BaseMiddleware):
     def process_request(self, request):
         if request.user.is_authenticated and request.user.preferred_timezone:
             tzname = request.user.preferred_timezone
@@ -234,4 +233,3 @@ class TimezoneMiddleware(object):
                 logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
             logger.warning("Failed to activate timezone %s: %s" % (tzname, e))
-
