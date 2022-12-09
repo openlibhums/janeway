@@ -7,8 +7,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from cron import models
 from django.conf import settings
 
+from utils.middleware import BaseMiddleware
 
-class CronMiddleware(object):
+
+class CronMiddleware(BaseMiddleware):
 
     @staticmethod
     def process_request(request):
