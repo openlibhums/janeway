@@ -92,6 +92,7 @@ def notify_hook(**kwargs):
     attachment = kwargs.pop('attachment', None)
     request = kwargs.pop('request', None)
     task = kwargs.pop('task', None)
+    custom_reply_to = kwargs.pop('custom_reply_to')
 
     if request and request.journal:
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
@@ -99,10 +100,17 @@ def notify_hook(**kwargs):
 
     # call the method
     if not task:
-        response = send_email(subject, to, html, request.journal, request, bcc, cc, attachment)
+        response = send_email(
+            subject, to, html, request.journal,
+            request, bcc, cc, attachment,
+            replyto=custom_reply_to,
+        )
     else:
-        response = send_email(task.email_subject, task.email_to, task.email_html, task.email_journal, request,
-                              task.email_bcc, task.email_cc)
+        response = send_email(
+            task.email_subject, task.email_to, task.email_html,
+            task.email_journal, request,task.email_bcc, task.email_cc,
+            replyto=custom_reply_to,
+        )
 
     log_dict = kwargs.get('log_dict', None)
 
