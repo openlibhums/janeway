@@ -1,6 +1,5 @@
 {% extends "core/base.html" %}
 {% load i18n %}
-{% load recaptcha2 %}
 {% load orcid %}
 {% load fqdn %}
 
@@ -14,10 +13,6 @@
     }
 </style>
 {% endblock css %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
 
