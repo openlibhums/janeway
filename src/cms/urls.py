@@ -4,38 +4,38 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from cms import views
 
 urlpatterns = [
     # Probably needs some multi-journal logic here
-    url(r'^$', views.index, name='cms_index'),
-    url(r'^page/new/$', views.page_manage, name='cms_page_new'),
-    url(r'^page/(?P<page_id>\d+)/$', views.page_manage, name='cms_page_edit'),
-    url(r'^(?P<page_name>w+?)$', views.view_page, name='cms_page'),
+    re_path(r'^$', views.index, name='cms_index'),
+    re_path(r'^page/new/$', views.page_manage, name='cms_page_new'),
+    re_path(r'^page/(?P<page_id>\d+)/$', views.page_manage, name='cms_page_edit'),
+    re_path(r'^(?P<page_name>w+?)$', views.view_page, name='cms_page'),
 
-    url(r'^nav/$', views.nav, name='cms_nav'),
-    url(r'^nav/(?P<nav_id>\d+)/$', views.nav, name='cms_nav_edit'),
+    re_path(r'^nav/$', views.nav, name='cms_nav'),
+    re_path(r'^nav/(?P<nav_id>\d+)/$', views.nav, name='cms_nav_edit'),
 
-    url(r'^submission_items/$', views.submission_items, name='cms_submission_items'),
-    url(r'^submission_items/add/$',
+    re_path(r'^submission_items/$', views.submission_items, name='cms_submission_items'),
+    re_path(r'^submission_items/add/$',
         views.order_submission_items,
         name='cms_order_submission_items',
         ),
-    url(r'^submission_items/order/$',
+    re_path(r'^submission_items/order/$',
         views.edit_or_create_submission_item,
         name='cms_add_submission_item',
         ),
-    url(r'^submission_items/(?P<item_id>\d+)/$',
+    re_path(r'^submission_items/(?P<item_id>\d+)/$',
         views.edit_or_create_submission_item,
         name='cms_edit_submission_item',
         ),
-    url(r'^media_files/$',
+    re_path(r'^media_files/$',
         views.file_list,
         name='cms_file_list',
         ),
-    url(r'^media_files/upload/$',
+    re_path(r'^media_files/upload/$',
         views.file_upload,
         name='cms_file_upload',
         ),
