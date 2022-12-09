@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files, logic as core_logic, forms as core_forms
