@@ -6,5 +6,5 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.apps import AppConfig
 
 
-class WebsiteConfig(AppConfig):
-    name = 'website'
+class PressConfig(AppConfig):
+    name = 'press'
