@@ -21,7 +21,7 @@ from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache

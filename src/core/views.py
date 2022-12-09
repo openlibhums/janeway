@@ -28,7 +28,7 @@ from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils import translation
 from django.db.models import Q
 from django.utils.decorators import method_decorator

@@ -37,7 +37,7 @@ class Loader(BaseLoader):
 
         if request:
             if request.journal:
-                # this is a journal and we should attempt to retrieve any theme settings
+                # this is a journal, and we should attempt to retrieve any theme settings
                 try:
                     theme_setting = self.journal_theme(request.journal)
                 except core_models.Setting.DoesNotExist:
