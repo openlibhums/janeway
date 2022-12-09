@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import re_path, include
 
 from rest_framework import routers
 
@@ -17,8 +17,8 @@ router.register(r'accounts', views.AccountViewSet, 'accounts')
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^oai/$', oai_views.oai_view_factory, name='OAI_list_records'),
-    url(r'^kbart/$', views.kbart, name='kbart'),
-    url(r'^kbart/csv$', views.kbart_csv, name='kbart'),
+    re_path(r'^', include(router.urls)),
+    re_path(r'^oai/$', oai_views.oai_view_factory, name='OAI_list_records'),
+    re_path(r'^kbart/$', views.kbart, name='kbart'),
+    re_path(r'^kbart/csv$', views.kbart_csv, name='kbart'),
 ]

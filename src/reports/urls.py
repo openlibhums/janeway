@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from reports import views
 
@@ -12,8 +12,8 @@ from reports import views
 urlpatterns = [
 
     # Editor URLs
-    url(r'^$', views.index, name='reports_index'),
-    url(r'^metrics/$', views.metrics, name='reports_metrics'),
-    url(r'^doiresolution/$', views.dois, name='reports_dois'),
+    re_path(r'^$', views.index, name='reports_index'),
+    re_path(r'^metrics/$', views.metrics, name='reports_metrics'),
+    re_path(r'^doiresolution/$', views.dois, name='reports_dois'),
 
 ]
