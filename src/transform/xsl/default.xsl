@@ -3129,6 +3129,7 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <a href="{@xlink:href}">Video URL</a>
+                  <xsl:apply-templates/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
@@ -3142,7 +3143,8 @@
                   </div>
                 </xsl:when>
                 <xsl:otherwise>
-                  <a href="{@xlink:href}">Video URL</a>
+                  <a href="{@xlink:href}">Audio URL</a>
+                  <xsl:apply-templates/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
