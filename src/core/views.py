@@ -648,7 +648,7 @@ def dashboard(request):
 def active_submissions(request):
     template = 'core/active_submissions.html'
 
-    active_submissions = submission_models.Article.objects.exclude(
+    active_submissions = submission_models.Article.active_objects.exclude(
             stage=submission_models.STAGE_PUBLISHED).exclude(
             stage=submission_models.STAGE_REJECTED).exclude(
             stage=submission_models.STAGE_UNSUBMITTED).filter(
