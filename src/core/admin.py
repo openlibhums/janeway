@@ -66,6 +66,7 @@ class AccountAdmin(UserAdmin):
     inlines = [
         admin_utils.PasswordResetInline,
         admin_utils.AccountRoleInline,
+        admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
     ]
 

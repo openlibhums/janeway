@@ -151,6 +151,69 @@ class WorkflowLogInline(admin.TabularInline):
     raw_id_fields = ('element', 'article',)
 
 
+class RepositoryRoleInline(admin.TabularInline):
+    model = repository_models.RepositoryRole
+    extra = 0
+
+
+class CommentInline(admin.TabularInline):
+    model = repository_models.Comment
+    extra = 0
+    raw_id_fields = ('reply_to', 'preprint', 'author')
+
+
+class RepositoryFieldAnswerInline(admin.TabularInline):
+    model = repository_models.RepositoryFieldAnswer
+    extra = 0
+    raw_id_fields = ('field', 'preprint',)
+
+
+class PreprintVersionInline(admin.TabularInline):
+    model = repository_models.PreprintVersion
+    extra = 0
+    raw_id_fields = ('preprint', 'file', 'moderated_version')
+    exclude = ('abstract', 'published_doi')
+
+
+class KeywordPreprintInline(admin.TabularInline):
+    model = repository_models.KeywordPreprint
+    extra = 0
+    raw_id_fields = ('preprint', 'keyword')
+
+
+class PreprintFileInline(admin.TabularInline):
+    model = repository_models.PreprintFile
+    extra = 0
+    raw_id_fields = ('preprint',)
+
+
+class PreprintSupplementaryFileInline(admin.TabularInline):
+    model = repository_models.PreprintSupplementaryFile
+    extra = 0
+    raw_id_fields = ('preprint',)
+
+
+class PreprintAuthorInline(admin.TabularInline):
+    model = repository_models.PreprintAuthor
+    extra = 0
+    raw_id_fields = ('preprint', 'account', 'author')
+
+
+class VersionQueueInline(admin.TabularInline):
+    model = repository_models.VersionQueue
+    extra = 0
+    raw_id_fields = ('preprint', 'file')
+    exclude = ('abstract', 'published_doi')
+
+
+class RepositoryReviewInline(admin.TabularInline):
+    model = repository_models.Review
+    extra = 0
+    raw_id_fields = ('preprint', 'manager', 'reviewer')
+    fields = ('manager', 'reviewer', 'date_due',
+              'date_accepted', 'date_completed', 'status')
+
+
 class GenericRelationArticleJournalFilter(admin.SimpleListFilter):
     """
     Provides a journal list filter for objects that are separated from the
