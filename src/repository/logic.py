@@ -346,14 +346,22 @@ def subject_article_pks(user):
 
 
 def get_unpublished_preprints(request, user_subject_pks):
+    author_name_subq = models.PreprintAuthor.objects.filter(
+        preprint=OuterRef('pk')
+    ).annotate(
+        full_name=Concat(
+            "account__first_name", Value(" "), "account__last_name",
+            output_field=CharField(),
+        )
+    ).values('full_name')
     unpublished_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=False,
         date_declined__isnull=True,
         date_accepted__isnull=True,
         repository=request.repository,
-    ).prefetch_related(
-        'preprintauthor_set'
+    ).annotate(
+        author_full_name=Subquery(author_name_subq[:1])
     )
 
     if request.user.is_staff or request.user.is_repository_manager(request.repository):
