@@ -24,6 +24,11 @@ class Command(BaseCommand):
         parser.add_argument('short_name')
         parser.add_argument('number', nargs='?', default=1, type=int)
         parser.add_argument('owner', nargs='?', default=None)
+        parser.add_argument(
+            '--metrics',
+            type=int, default=None,
+            help="number of PreprintAccess to create by article",
+        )
 
     def handle(self, *args, **options):
         """Allows an admin to generate random preprints"
@@ -35,6 +40,7 @@ class Command(BaseCommand):
         short_name = options.get('short_name')
         number = options.get('number')
         owner = options.get('owner')
+        metrics = options.get('metrics', 0)
         fake = Faker()
 
         try:
@@ -59,7 +65,7 @@ class Command(BaseCommand):
         ]
 
         for subject in subjects:
-            models.Subject.objects.create(
+            models.Subject.objects.get_or_create(
                 repository=repo,
                 name=subject,
                 slug=slugify(subject),
@@ -97,22 +103,34 @@ class Command(BaseCommand):
 
             preprint.submission_file = file
 
-            for y in range (0,2):
+            for y in range (0,1):
                 author = models.Author.objects.create(
                     first_name=fake.first_name(),
                     last_name=fake.last_name(),
                     email_address='{uuid}@example.com'.format(uuid=uuid4()),
                     affiliation=fake.sentence(),
+
                 )
 
                 models.PreprintAuthor.objects.create(
                     preprint=preprint,
                     author=author,
                     order=y,
+                    account=owner,
                 )
 
             if preprint.stage == models.STAGE_PREPRINT_PUBLISHED:
                 preprint.date_accepted = timezone.now()
                 preprint.date_published = timezone.now()
+            print("Created Preprint %d" % preprint.id)
+
+            if metrics:
+                print("Inserting Metrics...")
+                models.PreprintAccess.objects.bulk_create([
+                    models.PreprintAccess(
+                        preprint=preprint,
+                        file=file,
+                    ) for i in range(0, metrics)])
+
 
             preprint.save()
