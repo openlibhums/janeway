@@ -15,6 +15,7 @@ from journal import models as journal_models
 from cron import models as cron_models
 from core import models as core_models
 from repository import models as repository_models
+from press import models as press_models
 
 
 class PostInline(admin.TabularInline):
@@ -214,7 +215,63 @@ class RepositoryReviewInline(admin.TabularInline):
               'date_accepted', 'date_completed', 'status')
 
 
-class GenericRelationArticleJournalFilter(admin.SimpleListFilter):
+class GenericRelationJournalFilter(admin.SimpleListFilter):
+    """
+    Provides a journal list filter for objects that are connected to
+    the journal by a Generic Foreign Key.
+    An example is cms.NavigationItem.
+    """
+
+    title = 'journal'
+    parameter_name = 'journal'
+
+    def lookups(self, request, model_admin):
+        return (
+            (journal.id, journal.code)
+            for journal in journal_models.Journal.objects.all()
+        )
+
+    def queryset(self, request, queryset):
+        journal_pk = request.GET.get('journal', None)
+        if not journal_pk:
+            return queryset
+        journal = journal_models.Journal.objects.get(id=journal_pk)
+        content_type = ContentType.objects.get_for_model(journal)
+        return queryset.filter(
+            object_id=journal_pk,
+            content_type=content_type,
+        )
+
+
+class GenericRelationPressFilter(admin.SimpleListFilter):
+    """
+    Provides a press list filter for objects that are connected to
+    the press by a Generic Foreign Key.
+    An example is cms.NavigationItem.
+    """
+
+    title = 'press'
+    parameter_name = 'press'
+
+    def lookups(self, request, model_admin):
+        return (
+            (press.id, press.name)
+            for press in press_models.Press.objects.all()
+        )
+
+    def queryset(self, request, queryset):
+        press_pk = request.GET.get('press', None)
+        if not press_pk:
+            return queryset
+        press = press_models.Press.objects.get(id=press_pk)
+        content_type = ContentType.objects.get_for_model(press)
+        return queryset.filter(
+            object_id=press_pk,
+            content_type=content_type,
+        )
+
+
+class GenericRelationArticleJournalFilter(GenericRelationJournalFilter):
     """
     Provides a journal list filter for objects that are separated from the
     journal by a Generic Foreign Key and an article-journal relationship.
