@@ -16,6 +16,7 @@ class NavigationItemAdmin(admin.ModelAdmin):
                    admin_utils.GenericRelationPressFilter,
                    'is_external', 'top_level_nav', 'has_sub_nav')
     search_fields = ('link_name', 'link')
+    raw_id_fields = ('page', 'top_level_nav')
 
 
 class PageAdmin(admin.ModelAdmin):
