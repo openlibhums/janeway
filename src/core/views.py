@@ -649,11 +649,10 @@ def active_submissions(request):
     template = 'core/active_submissions.html'
 
     active_submissions = submission_models.Article.active_objects.exclude(
-            stage=submission_models.STAGE_PUBLISHED).exclude(
-            stage=submission_models.STAGE_REJECTED).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).filter(
-            journal=request.journal
-        ).order_by('pk', 'title')
+        stage=submission_models.STAGE_PUBLISHED,
+    ).filter(
+        journal=request.journal
+    ).order_by('pk', 'title')
 
     if not request.user.is_editor(request) and request.user.is_section_editor(request):
         active_submissions = logic.filter_articles_to_editor_assigned(
