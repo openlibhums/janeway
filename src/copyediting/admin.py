@@ -11,8 +11,8 @@ from copyediting import models
 
 class CopyeditAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'copyeditor', 'editor', 'assigned',
-                    'decision', 'due')
-    list_filter = ('assigned', 'due', 'date_decided',
+                    'decision', 'due', 'journal')
+    list_filter = ('article__journal', 'assigned', 'due', 'date_decided',
                    'copyedit_reopened', 'decision')
     search_fields = ('article__title', 'copyeditor__first_name',
                      'copyeditor__last_name', 'copyeditor__email',
@@ -20,25 +20,29 @@ class CopyeditAdmin(admin.ModelAdmin):
                      'editor__email', 'editor_note', 'copyeditor_note')
     raw_id_fields = ('article', 'copyeditor', 'editor')
     filter_horizontal = ('files_for_copyediting', 'copyeditor_files')
-    date_hierarchy = ('assigned')
 
     inlines = [
         admin_utils.AuthorReviewInline
     ]
 
+    def journal(self, obj):
+        return obj.article.journal.code if obj else ''
+
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'assigned', 'notified', 'decision',
-                    'date_decided', 'assignment')
-    list_filter = ('assigned', 'notified', 'decision',
-                   'date_decided')
+    list_display = ('pk', 'author', 'assigned',
+                    'assignment', 'journal')
+    list_filter = ('assignment__article__journal', 'assigned',
+                   'notified', 'date_decided', 'decision')
     search_fields = ('assignment__article__title', 'author__first_name',
                      'author__last_name', 'author__email',
                      'assignment__editor_note', 'assignment__copyeditor_note')
     raw_id_fields = ('author', 'assignment')
     filter_horizontal = ('files_updated',)
-    date_hierarchy = ('assigned')
     exclude = ('files_updated',)
+
+    def journal(self, obj):
+        return obj.assignment.article.journal.code if obj else ''
 
 
 admin_list = [
