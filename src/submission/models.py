@@ -536,7 +536,7 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 class ActiveArticleManager(models.Manager):
     def get_queryset(self):
         return super(ActiveArticleManager, self).get_queryset().exclude(
-            stage=STAGE_ARCHIVED,
+            stage__in=[STAGE_ARCHIVED, STAGE_REJECTED, STAGE_UNSUBMITTED],
         )
 
 
