@@ -68,8 +68,10 @@ class JournalAdmin(admin.ModelAdmin):
     )
     list_filter = ('is_remote', 'is_conference', 'hide_from_press')
     raw_id_fields = (
+        'carousel',
         'current_issue',
         'thumbnail_image',
+        'xsl',
     )
     filter_horizontal = ('keywords',)
 
