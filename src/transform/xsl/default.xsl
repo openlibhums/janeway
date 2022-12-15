@@ -1618,7 +1618,7 @@
   </xsl:template>
 
   <!-- becomes content of table cell, column 1-->
-  <xsl:template match="ref/label | element-citation/label">
+  <xsl:template match="element-citation/label">
     <strong>
       <em>
         <xsl:apply-templates/>
@@ -1627,6 +1627,10 @@
     </strong>
   </xsl:template>
 
+  <xsl:template match="ref/label">
+        <xsl:apply-templates/>
+        <xsl:text>&#160;</xsl:text>
+  </xsl:template>
 
   <!-- ============================================================= -->
   <!--  54. CITATION (for NLM Archiving DTD)                         -->
