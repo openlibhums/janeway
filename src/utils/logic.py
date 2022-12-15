@@ -270,7 +270,7 @@ def write_subject_sitemap(subject):
         file.close()
 
 
-def write_all_sitemaps(cli=False):
+def write_all_sitemaps(cli=False, press_sitemap=True, journal_sitemap=True, repository_sitemap=True):
     """
     Utility function that generates and writes all sitemaps to disk in one go.
     """
@@ -282,40 +282,44 @@ def write_all_sitemaps(cli=False):
     if not os.path.exists(storage_path):
         os.makedirs(storage_path)
 
-    # Generate the press level sitemap
-    press = press_models.Press.objects.all().first()
-    journals = journal_models.Journal.objects.all()
-    repos = repo_models.Repository.objects.all()
-    file_path = os.path.join(
-        storage_path,
-        'sitemap.xml'
-    )
-    with open(file_path, 'w') as file:
-        generate_sitemap(file, press=press)
-        file.close()
+    if press_sitemap:
+        # Generate the press level sitemap
+        press = press_models.Press.objects.all().first()
 
-    # Generate Journal Sitemaps
-    for journal in journals:
-        if cli:
-            print("Generating sitemaps for {}".format(journal.name))
-        write_journal_sitemap(journal)
+        file_path = os.path.join(
+            storage_path,
+            'sitemap.xml'
+        )
+        with open(file_path, 'w') as file:
+            generate_sitemap(file, press=press)
+            file.close()
 
-        # Generate Issue Sitemap
-        for issue in journal.published_issues:
+    if journal_sitemap:
+        # Generate Journal Sitemaps
+        journals = journal_models.Journal.objects.all()
+        for journal in journals:
             if cli:
-                print("Generating sitemap for issue {}".format(issue))
-            write_issue_sitemap(issue)
+                print("Generating sitemaps for {}".format(journal.name))
+            write_journal_sitemap(journal)
 
-    # Generate Repo Sitemap
-    for repo in repos:
-        if cli:
-            print("Generating sitemaps for {}".format(repo.name))
-        write_repository_sitemap(repo)
+            # Generate Issue Sitemap
+            for issue in journal.published_issues:
+                if cli:
+                    print("Generating sitemap for issue {}".format(issue))
+                write_issue_sitemap(issue)
 
-        for subject in repo.subject_set.all():
+    if repository_sitemap:
+        # Generate Repo Sitemap
+        repos = repo_models.Repository.objects.all()
+        for repo in repos:
             if cli:
-                print("Generating sitemap for subject {}".format(subject.name))
-            write_subject_sitemap(subject)
+                print("Generating sitemaps for {}".format(repo.name))
+            write_repository_sitemap(repo)
+
+            for subject in repo.subject_set.all():
+                if cli:
+                    print("Generating sitemap for subject {}".format(subject.name))
+                write_subject_sitemap(subject)
 
 
 def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
