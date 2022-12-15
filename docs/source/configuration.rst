@@ -35,12 +35,15 @@ This file is usually created during the setup process and can be based on the pr
       - Uses Google's reCaptcha2. Has been shown to be less effective recently but v3 is not GDPR compliant. You should complete 'RECAPTCHA_PRIVATE_KEY' and 'RECAPTCHA_PUBLIC_KEY' otherwise you will get an error.
     - hcaptcha
       - Uses hcaptcha, a new addition to Janeway. You should complete 'HCAPTCHA_SITEKEY' and 'HCAPTCHA_SECRET' otherwise you will get an error.
+- LOGGING
+    - Provides the configuration for Python's logger. We recommend following the steps described in the `Django documentation <https://docs.djangoproject.com/en/1.11/topics/logging/>`_ for configuration.
+    - By default, Janeway will log both to the console as well as to the file located at `logs/janeway.log` and rotates the file every 50MB. For production systems, you may want to change the location and/or rotation strategy as per the Django documentation
 
 
 Full-text search
 ----------------
 
-Janeway provides opt-in RDBMS-backed full-text search. In order to enable full-text search and indexing, the ``ENABLE_FULL_TEXT`` setting must be set to ``True`` under your settings file.
+Janeway provides opt-in RDBMS-backed full-text search. In order to enable full-text search and indexing, the ``ENABLE_FULL_TEXT_SEARCH`` setting must be set to ``True`` under your settings file.
 When enabling full-text search, the search interface will be different, offering users the ability to select what fields to perform the search on as well as allowing for results to be ordered by relevance 
 (i.e. objects will be sorted by the frequency of the term in the selected fields)
 Full-text search is supported on both MySQL and Postgresql backends, however due to the different implementation existing on each backend, there are a couple of extra steps to take on each.
@@ -78,3 +81,49 @@ There is a command you can run once ``ENABLE_FULL_TEXT`` is set to True
 
 The above command will generate the relevant indexes for full-text search to work within Janeway.
 
+
+Theming
+--------
+Janeway includes three core themes by default:
+
+- OLH (Foudation)
+- material (Materialize)
+- clean (Bootstrap)
+
+A list of core themes is held in janeway_global_settings.py.
+
+Theme Structure
+~~~~~~~~~~~~~~~
+
+Generally themes follow this structure:
+
+- /path/to/janeway/src/themes/themename/
+    - assets/
+        - Contains CSS/JS/Images
+    - templates/
+        - Contains Django templates
+    - __init__.py
+    - build_assets.py
+        - Should contain at least one method called build that takes no arguments, it should know how to process any SCSS and copy the resulting files into the main static folder or just pass if not required. See path/to/janeway/src/themes/OLH/build_assets.py as an example.
+    - README.MD
+
+Creating a New Theme
+~~~~~~~~~~~~~~~~~~~~
+You are welcome to develop your own themes and can use one of the existing themes as a template of what is required. You should follow the structure above and have full template coverage.
+
+Creating a Sub Theme
+~~~~~~~~~~~~~~~~~~~~
+Creating a sub theme is much easier than creating one from scratch. A sub theme is essentially a copy of one of the existing themes but with the templates that aren't required stripped out. This is useful if say, for example, you only want to customise one or two templates as you will only need to track core changes to those files.
+
+Once you have created your sub theme you can then set for the whole install with the INSTALLATION_BASE_THEME setting or the Journal Base Theme setting for journals that are using the sub theme (located on the Manager > Journal Settings page, this setting will appear once you set the Journal Theme to your non-core theme).
+
+An example structure for a sub theme where we want to customise only the login page:
+
+- /path/to/janeway/src/themes/speciallogintheme/
+    - assets/
+    - templates/
+        - core/login.html
+        - press/core/login.html
+    - __init__.py
+    - build_assets.py
+    - README.MD

@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='press',
             name='enable_preprints',
-            field=models.BooleanField(default=False, help_text='Enables the preprints system for this press.'),
+            field=models.BooleanField(default=False, help_text='Enables the repository system for this press.', verbose_name='Enable repository system',)
         ),
         migrations.AlterField(
             model_name='press',
@@ -32,6 +32,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='press',
             name='thumbnail_image',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_thumbnail_image', to='core.File', verbose_name='Press Logo'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='press_thumbnail_image', to='core.File', verbose_name='Press Logo'),
         ),
     ]

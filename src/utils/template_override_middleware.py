@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import errno
 import io
 import os
-import threading
 import warnings
 
 from django.conf import settings
@@ -16,60 +15,70 @@ from django.template.loaders.base import Loader as BaseLoader
 from django.utils._os import safe_join
 from django.utils.deprecation import RemovedInDjango20Warning
 
-from utils import setting_handler, function_cache
-
-_local = threading.local()
-
-
-class ThemeEngineMiddleware(object):
-    """ Handles theming through middleware
-    """
-
-    def process_request(self, request):
-        _local.request = request
-
-    def process_response(self, request, response):
-        if hasattr(_local, 'request'):
-            del _local.request
-        return response
+from utils import setting_handler, function_cache, logic as utils_logic
 
 
 class Loader(BaseLoader):
 
+    @staticmethod
     @function_cache.cache(120)
-    def query_theme_dirs(self, journal):
+    def journal_theme(journal):
         return setting_handler.get_setting('general', 'journal_theme', journal).value
 
+    @staticmethod
+    @function_cache.cache(120)
+    def base_theme(journal):
+        return setting_handler.get_setting('general', 'journal_base_theme', journal).value
+
     def get_theme_dirs(self):
+        from core import models as core_models
+        request = utils_logic.get_current_request()
+        base_theme, theme_setting = None, None
 
-        if hasattr(_local, 'request'):
-
-            if _local.request.journal:
+        if request:
+            if request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
-                    theme_setting = self.query_theme_dirs(_local.request.journal)
-                except Exception:
-                    theme_setting = 'clean'
+                    theme_setting = self.journal_theme(request.journal)
+                except core_models.Setting.DoesNotExist:
+                    pass
 
-            elif _local.request.repository:
+                try:
+                    base_theme = self.base_theme(request.journal)
+                except core_models.Setting.DoesNotExist:
+                    pass
+
+            elif request.repository:
+                # only the material theme supports repositories at the moment.
                 theme_setting = 'material'
             else:
                 # this is the press site
-                theme_setting = _local.request.press.theme
-        else:
-            # for some reason the request has not been pulled into the local thread.
-            # we shouldn't really ever arrive here during a request that requires a template
-            theme_setting = 'clean'
+                theme_setting = request.press.theme
 
-        # this is a backup for a missed setting get above.
-        if not theme_setting:
-            theme_setting = 'clean'
+        # allows servers in debug mode to override the theme with ?theme=name in the URL
+        if settings.DEBUG and request and request.GET.get('theme'):
+            theme_setting = request.GET.get('theme')
 
-        if settings.DEBUG and hasattr(_local, 'request') and _local.request.GET.get('theme'):
-            theme_setting = _local.request.GET.get('theme')
+        # order up the themes and return them with engine dirs
+        themes_in_order = list()
 
-        return [os.path.join(settings.BASE_DIR, 'themes', theme_setting, 'templates'),
-                os.path.join(settings.BASE_DIR, 'themes', 'clean', 'templates')] + self.engine.dirs
+        if theme_setting:
+            themes_in_order.append(
+                os.path.join(settings.BASE_DIR, 'themes', theme_setting, 'templates')
+            )
+        if base_theme:
+            themes_in_order.append(
+                os.path.join(settings.BASE_DIR, 'themes', base_theme, 'templates')
+            )
+
+        # if the base_theme and INSTALLATION_BASE_THEME are different,
+        # append the INSTALLATION_BASE_THEME.
+        if not base_theme == settings.INSTALLATION_BASE_THEME:
+            themes_in_order.append(
+                os.path.join(settings.BASE_DIR, 'themes', settings.INSTALLATION_BASE_THEME, 'templates')
+            )
+
+        return themes_in_order + self.engine.dirs
 
     def get_dirs(self):
         return self.get_theme_dirs()

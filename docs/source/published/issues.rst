@@ -108,3 +108,21 @@ You can upload a Galley file for the whole issue, usually a PDF so that users ca
 
 .. tip::
     If you don't upload a Galley for the issue then Janeway will allow users to download a zip file of all the individual article galley files.
+
+Issue DOIs
+^^^^^^^^^^
+
+Issues can be assigned a DOI in Janeway. This can be done ad-hoc for each issue by editing the issue details and inputting
+the DOI manually, or by letting Janeway generate a DOI for you, based on a pattern (a DOI pattern can be set from the Crossref Settings page)
+
+When the Crossref integration is enabled, issue DOIs will be registered with Crossref whenever an article in that issue is registered with Crossref. This will be the
+case both for DOIs generated for Janeway as well as for those manually set.
+
+
+.. tip::
+    If you are migrating a Janeway installation from a version that did not support issue DOIs and would like to register issue DOIs for your
+    back content, this can be done by populating the DOI field on those issues and then re-registering any of the articles in the issue with Crossref.
+
+.. warning::
+    When an article is part of two or more issues, only the primary issue DOI will be registered with Crossref. In a future version,
+    it will be possible to register issue DOIs on their own, even when they have no articles or all its articles are part of multiple issues.

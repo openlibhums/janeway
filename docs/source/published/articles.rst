@@ -20,6 +20,7 @@ From this page you can:
 - Manage identifiers
 - Manage galley files
 - Manage which issues an article appears in
+- If an article is rejected, unreject the article
 
 Metadata
 --------
@@ -87,3 +88,9 @@ You can see the issues that an article is part of at the bottom of the Article A
 
     Archive issue block
 
+
+Actions
+-------
+You can unreject a previously rejected article using this button. You will have the opportunity to write an email to the author before the change takes effect.
+
+If the article was previously assigned to an editor, the article will move to the Review stage. Otherwise, it will move to the Unassigned stage.

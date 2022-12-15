@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n roles %}
+{% user_has_role request 'reader' staff_override=False as reader %}
 
 <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns login">
@@ -20,6 +21,31 @@
         </div>
     </div>
 
+    {% if request.journal and send_reader_notifications %}
+    <div class="row">
+        <div class="medium-12 medium-centered large-12 large-centered columns">
+            <div class="callout">
+                <h5>{% trans "Register for Article Notifications" %}</h5>
+                <form method="POST">
+                    <p>
+                        {% blocktrans %}Use the button below to register to receive notifications of new articles
+                            published in this journal {% endblocktrans %}
+                    </p>
+                    {% csrf_token %}
+                    {% if reader %}
+                        <button name="unsubscribe" class="warning button">
+                            {% trans "Unsubscribe from Article Notifications" %}
+                        </button>
+                    {% else %}
+                        <button name="subscribe" class="warning button">
+                            {% trans "Subscribe to Article Notifications" %}
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns login">
             <div class="callout">

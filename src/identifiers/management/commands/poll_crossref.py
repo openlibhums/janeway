@@ -68,6 +68,14 @@ class Command(BaseCommand):
                 print("[FAILURE]{}".format(deposit))
                 self.stderr.write("[FAILURE]{}".format(deposit))
 
+            # Update existing CrossrefStatus objects.
+            # Assumes that if a deposit exists, a status exists
+            # for each identifier in the deposit batch.
+            for status in models.CrossrefStatus.objects.filter(
+                deposits=deposit
+            ):
+                status.update()
+
         stale_attempts = models.CrossrefDeposit.objects.filter(
                 polling_attempts__gt=MAX_POLLING_ATTEMPTS,
                 success=False,

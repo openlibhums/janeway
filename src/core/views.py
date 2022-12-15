@@ -7,13 +7,15 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from importlib import import_module
 import json
 import pytz
+import time
+import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
@@ -33,7 +35,10 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
-from security.decorators import editor_user_required, article_author_required, has_journal
+from security.decorators import (
+    editor_user_required, article_author_required, has_journal,
+    any_editor_user_required,
+)
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -167,9 +172,25 @@ def user_login_orcid(request):
                     return redirect(reverse('website_index'))
 
             except models.Account.DoesNotExist:
-                # Set Token and Redirect
+                # Lookup ORCID email addresses
+                orcid_details = orcid.get_orcid_record_details(orcid_id)
+                for email in orcid_details.get("emails"):
+                    candidates = models.Account.objects.filter(email=email)
+                    if candidates.exists():
+                        # Store ORCID for future authentication requests
+                        candidates.update(orcid=orcid_id)
+                        login(request, candidates.first())
+                        if request.GET.get('next'):
+                            return redirect(request.GET.get('next'))
+                        elif request.journal:
+                            return redirect(reverse('core_dashboard'))
+                        else:
+                            return redirect(reverse('website_index'))
+
+                # Prepare ORCID Token for registration and redirect
                 models.OrcidToken.objects.filter(orcid=orcid_id).delete()
                 new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+
                 return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
         else:
             messages.add_message(
@@ -273,14 +294,26 @@ def register(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    initial = {}
     token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
+        orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+        initial["first_name"] = orcid_details.get("first_name")
+        initial["last_name"] = orcid_details.get("last_name")
+        if orcid_details.get("emails"):
+            initial["email"] = orcid_details["emails"][0]
 
-    form = forms.RegistrationForm()
+    form = forms.RegistrationForm(
+        journal=request.journal,
+        initial=initial,
+    )
 
     if request.POST:
-        form = forms.RegistrationForm(request.POST)
+        form = forms.RegistrationForm(
+            request.POST,
+            journal=request.journal,
+        )
 
         password_policy_check = logic.password_policy_check(request)
 
@@ -294,6 +327,17 @@ def register(request):
                 new_user.orcid = token_obj.orcid
                 new_user.save()
                 token_obj.delete()
+                # If the email matches the user email on ORCID, log them in
+                if new_user.email == initial.get("email"):
+                    new_user.is_active = True
+                    new_user.save()
+                    login(request, new_user)
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))
+                    elif request.journal:
+                        return redirect(reverse('core_dashboard'))
+                    else:
+                        return redirect(reverse('website_index'))
             else:
                 new_user = form.save()
 
@@ -366,8 +410,14 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
-
     form = forms.EditAccountForm(instance=user)
+    send_reader_notifications = False
+    if request.journal:
+        send_reader_notifications = setting_handler.get_setting(
+            'notifications',
+            'send_reader_notifications',
+            request.journal
+        ).value
 
     if request.POST:
         if 'email' in request.POST:
@@ -411,6 +461,28 @@ def edit_profile(request):
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
 
+        elif 'subscribe' in request.POST and send_reader_notifications:
+            request.user.add_account_role(
+                'reader',
+                request.journal,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully subscribed to article notifications.',
+            )
+
+        elif 'unsubscribe' in request.POST and send_reader_notifications:
+            request.user.remove_account_role(
+                'reader',
+                request.journal
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Successfully unsubscribed from article notifications.',
+            )
+
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
 
@@ -426,6 +498,7 @@ def edit_profile(request):
     context = {
         'form': form,
         'user_to_edit': user,
+        'send_reader_notifications': send_reader_notifications,
     }
 
     return render(request, template, context)
@@ -540,24 +613,32 @@ def dashboard(request):
             (Q(copyeditor=request.user) & Q(copyeditor_completed__isnull=False) &
              Q(copyedit_reopened_complete__isnull=False)), article__journal=request.journal).count(),
 
-        'typeset_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=True,
             completed__isnull=True,
             typesetter=request.user).count(),
-        'typeset_in_progress_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_in_progress_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
             completed__isnull=True,
             typesetter=request.user).count(),
-        'typeset_completed_tasks': production_models.TypesetTask.objects.filter(
+        'typeset_completed_tasks': production_models.TypesetTask.active_objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
             completed__isnull=False,
             typesetter=request.user).count(),
-        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
-                                                                       journal=request.journal).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
+        'active_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal
+        ).exclude(
+            stage__in=[submission_models.STAGE_UNSUBMITTED, submission_models.STAGE_PUBLISHED],
+        ).order_by('-date_submitted'),
+        'published_submissions': submission_models.Article.objects.filter(
+            authors=request.user,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+        ).order_by('-date_published'),
         'progress_submissions': submission_models.Article.objects.filter(
             journal=request.journal,
             owner=request.user,
@@ -570,14 +651,24 @@ def dashboard(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submissions(request):
     template = 'core/active_submissions.html'
+
+    active_submissions = submission_models.Article.active_objects.exclude(
+        stage=submission_models.STAGE_PUBLISHED,
+    ).filter(
+        journal=request.journal
+    ).order_by('pk', 'title')
+
+    if not request.user.is_editor(request) and request.user.is_section_editor(request):
+        active_submissions = logic.filter_articles_to_editor_assigned(
+            request,
+            active_submissions
+        )
+
     context = {
-        'active_submissions': submission_models.Article.objects.exclude(
-            stage=submission_models.STAGE_PUBLISHED).exclude(
-            stage=submission_models.STAGE_REJECTED).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
+        'active_submissions': active_submissions,
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
         'workflow_element_url': request.GET.get('workflow_element_url', False)
@@ -587,7 +678,7 @@ def active_submissions(request):
 
 
 @has_journal
-@editor_user_required
+@any_editor_user_required
 def active_submission_filter(request):
     articles = logic.build_submission_list(request)
     html = ''
@@ -831,7 +922,6 @@ def edit_settings_group(request, display_group):
 
                     if display_group == 'images':
                         logic.handle_default_thumbnail(request, request.journal, attr_form)
-                        logic.handle_press_override_image(request, request.journal, attr_form)
                 else:
                     fire_redirect = False
 
@@ -918,7 +1008,7 @@ def roles(request):
     """
     template = 'core/manager/roles/roles.html'
 
-    roles = models.Role.objects.all()
+    roles = models.Role.objects.all().exclude(slug='reader')
     for role in roles:
         role.user_count = request.journal.users_with_role_count(role.slug)
 
@@ -1184,11 +1274,12 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.all().order_by(('name')),
+        'roles': models.Role.objects.order_by(('name')),
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
-        'return': request.GET.get('return')
+        'return': request.GET.get('return'),
+        'reader': models.Role.objects.get(slug='reader'),
     }
     return render(request, template, context)
 
@@ -1579,6 +1670,7 @@ def plugin_list(request):
     """
 
     plugin_list = list()
+    failed_to_load = []
 
     if request.journal:
         plugins = util_models.Plugin.objects.filter(
@@ -1596,19 +1688,25 @@ def plugin_list(request):
         try:
             module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
             plugin_settings = import_module(module_name)
+            manager_url = getattr(plugin_settings, 'MANAGER_URL', '')
+            if manager_url:
+                reverse(manager_url)
             plugin_list.append(
                 {'model': plugin,
-                 'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
+                 'manager_url': manager_url,
                  'name': getattr(plugin_settings, 'PLUGIN_NAME')
                  },
             )
-        except ImportError as e:
+        except (ImportError, NoReverseMatch) as e:
+            failed_to_load.append(plugin)
             logger.error("Importing plugin %s failed: %s" % (plugin, e))
-            pass
+            logger.exception(e)
+
 
     template = 'core/manager/plugins.html'
     context = {
         'plugins': plugin_list,
+        'failed_to_load': failed_to_load,
     }
 
     return render(request, template, context)
@@ -2168,6 +2266,9 @@ class FilteredArticlesListView(generic.ListView):
     paginate_by = '25'
     facets = {}
 
+    # None or integer
+    action_queryset_chunk_size = None
+
     def get_paginate_by(self, queryset):
         paginate_by = self.request.GET.get('paginate_by', self.paginate_by)
         if paginate_by == 'all':
@@ -2226,6 +2327,8 @@ class FilteredArticlesListView(generic.ListView):
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
         for keyword, value_list in params_querydict.lists():
+            # The following line prevents the user from passing any parameters
+            # other than those specified in the facets.
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
@@ -2262,38 +2365,46 @@ class FilteredArticlesListView(generic.ListView):
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
-            self.model.objects.all()
+            super().get_queryset()
         ).exclude(
             stage=submission_models.STAGE_UNSUBMITTED
         )
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
-        return queryset
+        return queryset.order_by()
 
     def get_actions(self):
         return []
 
     def post(self, request, *args, **kwargs):
 
-        action_status = ''
-        action_error = False
         params_string = request.POST.get('params_string')
         params_querydict = QueryDict(params_string, mutable=True)
-        actions = self.get_actions()
-        queryset = self.get_queryset(params_querydict=params_querydict)
-        if request.journal:
-            querysets = [queryset]
-        else:
-            querysets = []
-            for journal in {article.journal for article in queryset}:
-                querysets.append(queryset.filter(journal=journal))
 
+        actions = self.get_actions()
         if actions:
+            start = time.time()
+
+            action_status = ''
+            action_error = False
+
+            querysets = []
+            queryset = self.get_queryset(params_querydict=params_querydict)
+
+            if request.journal:
+                querysets.extend(self.split_up_queryset_if_needed(queryset))
+            else:
+                for journal in journal_models.Journal.objects.all():
+                    journal_queryset = queryset.filter(journal=journal)
+                    if journal_queryset:
+                        querysets.extend(self.split_up_queryset_if_needed(journal_queryset))
+
             for action in actions:
+                kwargs = {'start': start}
                 if action.get('name') in request.POST:
                     for queryset in querysets:
-                        action_status, action_error = action.get('action')(queryset)
+                        action_status, action_error = action.get('action')(queryset, **kwargs)
                         messages.add_message(
                             request,
                             messages.INFO if not action_error else messages.ERROR,
@@ -2304,6 +2415,14 @@ class FilteredArticlesListView(generic.ListView):
             return redirect(f'{request.path}?{params_string}')
         else:
             return redirect(request.path)
+
+    def split_up_queryset_if_needed(self, queryset):
+        if self.action_queryset_chunk_size:
+            n = self.action_queryset_chunk_size
+            querysets = [queryset[i:i + n] for i in range(0, queryset.count(), n)]
+            return querysets
+        else:
+            return [queryset]
 
 
     def filter_queryset_if_journal(self, queryset):

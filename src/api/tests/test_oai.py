@@ -82,7 +82,8 @@ class TestOAIViews(TestCase):
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
         )
-        self.assertEqual(str(response.rendered_content).split(), expected.split())
+        result = str(response.rendered_content)
+        self.assertEqual(result.split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
     @freeze_time("2012-01-14")
@@ -222,7 +223,10 @@ class TestOAIViews(TestCase):
             f'{path}?{query_string}',
             SERVER_NAME="testserver"
         )
-        self.assertEqual(str(response.rendered_content).split(), expected.split())
+
+        result = str(response.rendered_content)
+
+        self.assertEqual(result.split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
     def test_oai_resumption_token_decode(self):
@@ -246,13 +250,18 @@ class TestOAIViews(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("1980-01-01")
+    @freeze_time("1990-01-01")
     def test_oai_resumption_token_encode(self):
-        ''' test_oai_resumption_token_encode: the resumption_token should
-        include an encoded query parameter '''
-        expected = {"custom-param": "custom-value"}
+
+        custom_param = {"custom-param": "custom-value"}
+        expected = {
+            "metadataPrefix": "jats",
+            "custom-param": "custom-value",
+            "page": 2,
+        }
         expected_encoded = urlencode(expected)
-        for _ in range(1, 102):
+        for i in range(1, 102):
+
             helpers.create_submission(
                 journal_id=self.journal.pk,
                 stage=sm_models.STAGE_PUBLISHED,
@@ -264,7 +273,7 @@ class TestOAIViews(TestCase):
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="jats",
-            **expected,
+            **custom_param,
         )
         query_string = urlencode(query_params)
         response = self.client.get(
@@ -620,13 +629,13 @@ LIST_SETS_DATA_DC = """
                 </set>
 
                 <set>
-                    <setSpec>TST:issue:2</setSpec>
-                    <setName>Volume 1 Issue 2 2022</setName>
+                    <setSpec>TST:issue:1</setSpec>
+                    <setName>Volume 1 Issue 1 2022 Test Issue from Utils Testing Helpers</setName>
                 </set>
 
                 <set>
-                    <setSpec>TST:issue:1</setSpec>
-                    <setName>Volume 1 Issue 1 2022</setName>
+                    <setSpec>TST:issue:2</setSpec>
+                    <setName>Volume 1 Issue 2 2022 Test Issue from Utils Testing Helpers</setName>
                 </set>
 
                 <set>

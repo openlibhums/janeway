@@ -17,7 +17,7 @@
     <div class="row">
         <div class="col m12">
             <div class="card">
-            {% if not journal.disable_article_images %}
+            {% if not journal_settings.article.disable_article_large_image %}
                 <div class="card-image article-card waves-effect waves-block waves-light">
                         <img class="orbit-image"
                             {% if article.large_image_file.id %}
@@ -61,7 +61,7 @@
         <div id="article" class="col m8 s12">
             <div class="card">
                 <div class="card-content">
-                    {% if journal.disable_article_images %}
+                    {% if journal_settings.article.disable_article_large_image %}
                         <span class="card-title">
                                 <small class="article_section">{{ article.section.name }}</small>
                                 <h1>{{ article.title|safe }}</h1>
@@ -78,7 +78,8 @@
 
                     {% if article.keywords.count > 0 %}
                         <h2>{% trans "Keywords" %}</h2>
-                        <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
+                        <p>{% for keyword in article.keywords.all %}
+                            {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
                         <div class="spacer">
                             <div class="divider"></div>
@@ -115,7 +116,7 @@
 
                     {% if article.is_published and galleys %}
                         <div class="show-on-small hide-on-med-and-up">
-                            <h2>{% trans "Downloads" %}</h2>
+                            <h2>{% trans "Download" %}</h2>
                             <p>
                                 {% for galley in galleys %}
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
@@ -259,14 +260,13 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
-                    {% with downloads=galleys|filter_html_downloads %}
-                    {% if article.is_published and downloads %}
+                    {% if article.is_published and galleys %}
                         <h4>
                             {% trans "Download" %}
                         </h4>
 
                         <ul>
-                            {% for galley in downloads %}
+                            {% for galley in galleys %}
                                 <li>
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
@@ -282,7 +282,6 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-                    {% endwith %}
 
                     {% include "elements/journal/article_issue_list.html" %}
                      <div class="spacer">
@@ -388,7 +387,7 @@
                     <h4>
                         {% trans "Competing Interests" %}
                     </h4>
-                    <p>{{ article.competing_interests }}</p>
+                    <p>{{ article.competing_interests|safe }}</p>
                     {% endif %}
                     <div class="spacer">
                         <div class="divider"></div>
@@ -406,30 +405,38 @@
                     {% endif %}
                     {% endwith %}
 
-                    <h4>
-                        {% trans "Peer Review" %}
-                    </h4>
                     {% if article.peer_reviewed %}
+                        <h4>
+                            {% trans "Peer Review" %}
+                        </h4>
                         <p>
                             <i class="fa fa-check-circle-o" style="color: green"></i>
                             {% trans "This article has been peer reviewed." %}
                         </p>
-                    {% else %}
-                        <p>
-                            {% trans "This article has not been peer reviewed." %}
-                        </p>
+                            {% if journal_settings.general.open_peer_review %}
+                                {% if article.public_reviews.count > 0 %}
+                                    <p>
+                                        {% for review in article.public_reviews %}
+                                            <button data-target="reviewmodal-{{ review.pk }}" class="btn modal-trigger">Review by {{ review.reviewer.full_name }}</button>
+                                        {% endfor %}<br/>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
                     {% endif %}
 
-                    {% for field in article.custom_fields %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    <h4>{% trans field.field.name %}</h4>
-                      <p>{{ field.answer|safe }}</p>
-                    {% endfor %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
+                    {% if article.custom_fields %}
+                        {% for field in article.custom_fields %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        <h4>{% trans field.field.name %}</h4>
+                          <p>{{ field.answer|safe }}</p>
+                        {% endfor %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
+
                     {% if article.is_published %}
                         <h4>
                             {% trans "File Checksums" %} (MD5)
@@ -459,6 +466,7 @@
 
     </div>
     {% include "elements/summary_modal.html" %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}
@@ -498,4 +506,5 @@
         child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
     });
     </script>
+
 {% endblock %}

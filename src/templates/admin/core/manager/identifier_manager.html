@@ -11,6 +11,11 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    {% if not journal %}
+        <li><a href="{% url 'press_identifier_manager' %}">DOI Manager</a></li>
+    {% else %}
+        <li><a href="{% url 'journal_identifier_manager' %}">DOI Manager</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -30,14 +35,14 @@
                             {% for field in facet_form %}
                                 <div class="columns small-12 medium-6">
                                     <fieldset style="padding-bottom: 24px">
-                                        <legend>{{ field.label }}</legend>
+                                        <legend>{{ field.label|safe }}</legend>
                                         <div class="facet">
                                             {% with field.field.widget|classname as widgetclass %}
                                                 {% if widgetclass == 'CheckboxSelectMultiple' %}
                                                     {% for checkbox in field %}
                                                         <label for="{{ checkbox.id_for_label }}">
                                                             {{ checkbox.tag }}
-                                                            {{ checkbox.choice_label }}
+                                                            {{ checkbox.choice_label|safe }}
                                                         </label>
                                                     {% endfor %}
                                                 {% elif widgetclass == 'HTMLDateInput' %}
@@ -80,61 +85,63 @@
                     <tbody>
                         {% for article in article_list %}
                         <tr>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <td>{{ article.pk }}</td>
-                                <td>
-                                    {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
-                                        <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
-                                    {% else %}
-                                        <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
-                                    {% endif %}
-                                </td>
-                                {% if not journal %}
-                                    <td>{{ article.journal.name }}</td>
+                        <form method="POST">
+                        {% with doi=article.get_doi_object article_journal=article.journal %}
+                            {% csrf_token %}
+                            <td>{{ article.pk }}</td>
+                            <td>
+                                {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                {% else %}
+                                    <a href="{% external_journal_url article_journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
                                 {% endif %}
-                                <td>
-                                    {% if article.get_doi %}
-                                        {{ article.get_doi }}
-                                    {% else %}
-                                        {{ article.doi_pattern_preview }} (pattern preview)
-                                    {% endif %}
-                                    <a class="tiny secondary button" href="{% external_journal_url article.journal 'article_identifiers' article.pk %}">
-                                        <span class="fa fa-edit"></span>
-                                    </a>
-                                </td>
-                                <td>
-                                    {{ article.get_doi_object.crossref_status.get_message_display }}
-                                </td>
-                                <td>
-                                    {% if article.get_doi_object %}
-                                        <a class="small button" href="{% external_journal_url article.journal 'show_doi' article.pk article.get_doi_object.pk %}">
-                                            {% if article.get_doi_object.crossref_status.latest_deposit.document %}
-                                                View XML
-                                            {% elif article.get_doi_object %}
-                                                Preview XML
-                                            {% endif %}
-                                        </a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if article.get_doi_object.crossref_status.latest_deposit.result_text %}
-                                        <a class="small button" href="{% external_journal_url article.journal 'poll_doi_output' article.pk article.get_doi_object.pk %}">
+                            </td>
+                            {% if not journal %}
+                                <td>{{ article_journal.name }}</td>
+                            {% endif %}
+                            <td>
+                                {% if doi %}
+                                    {{ doi }}
+                                {% else %}
+                                    {{ article.doi_pattern_preview }} (pattern preview)
+                                {% endif %}
+                                <a class="tiny secondary button" href="{% external_journal_url article_journal 'article_identifiers' article.pk %}">
+                                    <span class="fa fa-edit"></span>
+                                </a>
+                            </td>
+                            <td>
+                                {{ doi.crossrefstatus.get_message_display }}
+                            </td>
+                            <td>
+                                {% if doi %}
+                                    <a class="small button" href="{% external_journal_url article_journal 'show_doi' article.pk doi.pk %}">
+                                        {% if doi.crossrefstatus.latest_deposit.document %}
                                             View XML
-                                        </a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                {% if article.date_published %}
-                                    {{ article.date_published }}
+                                        {% elif doi %}
+                                            Preview XML
+                                        {% endif %}
+                                    </a>
                                 {% endif %}
-                                </td>
-                                <td>
-                                {% if article.primary_issue %}
-                                    {{ article.primary_issue.pretty_issue_identifier }}
+                            </td>
+                            <td>
+                                {% if doi.crossrefstatus.latest_deposit.result_text %}
+                                    <a class="small button" href="{% external_journal_url article_journal 'poll_doi_output' article.pk doi.pk %}">
+                                        View XML
+                                    </a>
                                 {% endif %}
-                                </td>
-                            </form>
+                            </td>
+                            <td>
+                            {% if article.date_published %}
+                                {{ article.date_published }}
+                            {% endif %}
+                            </td>
+                            <td>
+                            {% if article.primary_issue %}
+                                {{ article.primary_issue.display_title|safe }}
+                            {% endif %}
+                            </td>
+                        {% endwith %}
+                        </form>
                         </tr>
                         {% empty %}
                             <tr>
@@ -162,7 +169,7 @@
                         <div class="button-group">
                             {% for action in actions %}
                                 <button action="" class="success button" type="submit" name="{{ action.name }}" {% if page_obj.paginator.count > action_maximum_size %}disabled{% endif %}>
-                                    {{ action.value }}
+                                    {{ action.value|safe }}
                                 </button>
                             {% endfor %}
                         </div>

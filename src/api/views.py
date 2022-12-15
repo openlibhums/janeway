@@ -309,3 +309,21 @@ def kbart(request, tsv=True):
         writer.writerow(journal_line)
 
     return response
+
+def swagger_ui(request):
+    
+    template = 'apis/swagger_ui.html'
+    context = {
+        'schema_url':'openapi-schema'
+    }
+
+    return render(request, template, context)
+
+def redoc(request):
+    
+    template = 'apis/redoc.html'
+    context = {
+        'schema_url':'openapi-schema'
+    }
+
+    return render(request, template, context)

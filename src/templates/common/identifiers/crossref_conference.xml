@@ -21,7 +21,11 @@
                     <day>{{ crossref_issue.issue.date.day }}</day>
                     <year>{{ crossref_issue.issue.date.year }}</year>
                 </publication_date>
+                {% if crossref_issue.issue.isbn %}
+                <isbn>{{ crossref_issue.issue.isbn }}</isbn>
+                {% else %}
                 <noisbn reason="simple_series"/>
+                {% endif %}
             </proceedings_metadata>
             {% for article in crossref_issue.articles %}
                 {% include "common/identifiers/crossref_conference_paper.xml" with article=article %}

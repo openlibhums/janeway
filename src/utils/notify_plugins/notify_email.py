@@ -49,9 +49,12 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         else:
             full_from_string = from_email
 
+    # if a replyto is passed to this function, use that.
     if replyto:
         reply_to = replyto
 
+    # if there is no reply_to set yet, check if the journal has a custom replyto_address and
+    # use that.
     if not reply_to:
         custom_reply_to = setting_handler.get_setting(
             'general', 'replyto_address', journal,
@@ -59,6 +62,9 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         if custom_reply_to:
             reply_to = (custom_reply_to,)
 
+    # reply_to must always be a tuple or list.
+    if reply_to and not isinstance(reply_to, (tuple, list)):
+        reply_to = [reply_to]
 
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")
@@ -93,6 +99,7 @@ def notify_hook(**kwargs):
     attachment = kwargs.pop('attachment', None)
     request = kwargs.pop('request', None)
     task = kwargs.pop('task', None)
+    custom_reply_to = kwargs.pop('custom_reply_to', None)
 
     if request and request.journal:
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
@@ -100,10 +107,17 @@ def notify_hook(**kwargs):
 
     # call the method
     if not task:
-        response = send_email(subject, to, html, request.journal, request, bcc, cc, attachment)
+        response = send_email(
+            subject, to, html, request.journal,
+            request, bcc, cc, attachment,
+            replyto=custom_reply_to,
+        )
     else:
-        response = send_email(task.email_subject, task.email_to, task.email_html, task.email_journal, request,
-                              task.email_bcc, task.email_cc)
+        response = send_email(
+            task.email_subject, task.email_to, task.email_html,
+            task.email_journal, request,task.email_bcc, task.email_cc,
+            replyto=custom_reply_to,
+        )
 
     log_dict = kwargs.get('log_dict', None)
 
@@ -119,6 +133,8 @@ def notify_hook(**kwargs):
             'html': html,
             'to': to,
             'email_subject': subject,
+            'cc': cc,
+            'bcc': bcc,
         }
         notify.notification(**notify_contents)
 

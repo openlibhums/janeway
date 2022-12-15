@@ -179,6 +179,9 @@ urlpatterns = [
     url(r'^manager/press/journal/(?P<journal_id>\d+)/domain/$',
         press_views.journal_domain,
         name='press_journal_domain'),
+    url(r'^manager/press/journal/(?P<journal_id>\d+)/description/$',
+        press_views.edit_press_journal_description,
+        name='edit_press_journal_description'),
 
     # Workflow
     url(r'^workflow/$',
@@ -212,21 +215,31 @@ urlpatterns = [
 
 # Journal homepage block loading
 
-blocks = plugin_loader.load(os.path.join('core', 'homepage_elements'), prefix='core.homepage_elements',
-                            permissive=True)
+blocks = plugin_loader.load(
+    os.path.join('core', 'homepage_elements'),
+    prefix='core.homepage_elements',
+    permissive=True,
+)
 
 if blocks:
     for block in blocks:
         try:
             urlpatterns += [
-                url(r'^homepage/elements/{0}/'.format(block.name),
-                    include('core.homepage_elements.{0}.urls'.format(block.name))),
+                url(
+                    r'^homepage/elements/{0}/'.format(block.name),
+                    include(
+                        'core.homepage_elements.{0}.urls'.format(block.name))
+                ),
             ]
             logger.debug("Loaded URLs for %s", block.name)
-        except ImportError as e:
-            logger.debug(
-                "Homepage Element %s has no urls.py module", block.name
+        except ImportError as error:
+            logger.warning(
+                "Failed to import urls for homepage element %s: %s",
+                block.name, error,
             )
+        except Exception as error:
+            logger.error("Error loading homepage element %s", block.name)
+            logger.exception(error)
 
 # Plugin Loading
 # TODO: plugin_loader should handle the logic below
@@ -236,11 +249,20 @@ if plugins:
     for plugin in plugins:
         try:
             urlpatterns += [
-                url(r'^plugins/{0}/'.format(plugin.best_name(slug=True)), include('plugins.{0}.urls'.format(plugin.name))),
+                url(
+                    r'^plugins/{0}/'.format(plugin.best_name(slug=True)),
+                    include('plugins.{0}.urls'.format(plugin.name))
+                ),
             ]
             logger.debug("Loaded URLs for %s", plugin.name)
-        except ImportError as e:
-            logger.debug("Plugin %s has no urls.py module", plugin.name)
+
+        except ImportError as error:
+            logger.warning(
+                "Failed to import urls for plugin %s: %s", plugin.name, error,
+            )
+        except Exception as error:
+            logger.error("Error loading plugin %s", block.name)
+            logger.exception(error)
 
 # load the notification plugins
 if len(settings.NOTIFY_FUNCS) == 0:

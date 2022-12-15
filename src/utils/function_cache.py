@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from hashlib import sha1
 
 from django.core.cache import cache as django_cache
+from django.utils.functional import cached_property
 
 
 def cache(seconds=900):
@@ -24,3 +25,25 @@ def cache(seconds=900):
             return result
         return y
     return do_cache
+
+
+class mutable_cached_property(cached_property):
+    """ Expands django's cached property to allow property mutation
+
+    A property mutation (__set__) will clear the previously cached value
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fsetter = None
+
+    def __set__(self, obj, value):
+        if self.fsetter is None:
+            raise AttributeError(f"property '{self.name}' has no setter")
+        self.fsetter(obj, value)
+        obj.__dict__[self.name] = self.func(obj)
+
+    def setter(self, fsetter):
+        prop = type(self)(self.func, self.name)
+        prop.setter = fsetter
+        return prop
+

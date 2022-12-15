@@ -96,7 +96,7 @@ class Carousel(models.Model):
 
         if self.articles.exists():
             if self.exclude:
-                articles = articles.difference(self.articles.all())
+                articles = articles.exclude(id__in=self.articles.all().values("id"))
             else:
                 articles = chain(self.articles.all(), articles)
 
@@ -110,13 +110,13 @@ class Carousel(models.Model):
 
         if self.news_articles.exists():
             if self.exclude:
-                news = news.difference(self.news_articles.all())
+                news = news.exclude(pk__in=self.news_articles.all().values("id"))
             else:
                 news = chain(self.news_articles.all(), news)
 
         if self.issues.exists():
             if self.exclude:
-                issues = issues.difference(self.issues.all())
+                issues = issues.exclude(pk__in=self.issues.all().values("id"))
             else:
                 issues = chain(self.issues.all(), issues)
 

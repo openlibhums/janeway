@@ -113,6 +113,11 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         if not label:
             label = 'PDF'
 
+    elif new_file.mime_type in files.IMAGE_MIMETYPES:
+        type_ = 'image'
+        if not label:
+            label = 'Image'
+
     if not label:
         label = 'Other'
     if not type_:

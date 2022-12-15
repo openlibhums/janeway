@@ -13,7 +13,7 @@
 {% block body %}
 
     <div class="row">
-    {% if not journal.disable_article_images %}
+    {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
             <div class="card">
                     <img class="card-img img-fluid article-img"
@@ -69,7 +69,7 @@
 
         <div class="col-md-7">
             <div id="article">
-                {% if journal.disable_article_images %}
+                {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
                 {% endif %}
@@ -77,9 +77,13 @@
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
-                {% if article.keywords and article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong>
-                    {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
-                    {% endif %}{% endfor %}</p>{% endif %}
+                {% if article.keywords and article.keywords.count > 0 %}
+                    <p><strong>{% trans "Keywords" %}:</strong>
+                    {% for keyword in article.keywords.all %}
+                        {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}
+                    {{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}</p>
+                {% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
                     {{ article.how_to_cite|safe }} </p>
@@ -126,7 +130,7 @@
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
-                {% if journal.disable_article_images %}
+                {% if journal_settings.article.disable_article_large_image %}
                     <h2>{% trans "Authors" %}</h2>
                     <ul>
                     {% for author in article.frozen_authors.all %}
@@ -193,8 +197,9 @@
                     {% if article.publication_title %}
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
-                    <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}
-                        <span class="fa fa-check-circle"></span>{% else %}<span class="fa fa-times-circle"></span>{% endif %}</li>
+                    {% if article.peer_reviewed %}
+                    <li>{% trans "Peer Reviewed" %} <span class="fa fa-check-circle"></span> </li>
+                    {% endif %}
                     {% if article.license %}
                     <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                  title="{{ article.license.text }}">{{ article.license.name }}</a></li>{% endif %}
@@ -208,7 +213,7 @@
                 {% if article.competing_interests %}
                 <h2>{% trans "Competing Interests" %}</h2>
                 <ul>
-                    <li>{{ article.competing_interests }}</li>
+                    <li>{{ article.competing_interests|safe }}</li>
                 </ul>
                 {% endif %}
                 {% for field in article.custom_fields %}
@@ -216,6 +221,18 @@
                 <p>{{ field.answer|safe }}</p>
                 {% endfor %}
                 {% if article.is_published %}
+
+                    {% if journal_settings.general.open_peer_review %}
+                        {% if article.public_reviews.count > 0 %}
+                            <h2>{% trans "Open Peer Reviews" %}</h2>
+                            <ul>
+                                {% for review in article.public_reviews %}
+                                    <li><a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
+                                {% endfor %}<br/>
+                            </ul>
+                        {% endif %}
+                    {% endif %}
+
                     {% if not request.journal.disable_metrics_display %}
                     <h2>{% trans "Metrics" %}</h2>
                     <ul>
@@ -242,6 +259,12 @@
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
                             APA-Style Citation
                         </button>
+                        <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
+                            {% trans 'Download RIS' %}
+                        </a>
+                        <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
+                            {% trans 'Download BibTeX' %}
+                        </a>
                         <br/>
                     </div>
                     <h2>File Checksums (MD5)</h2>
@@ -267,6 +290,7 @@
     {% if journal_settings.general.submission_summary %}
         {% include "elements/journal/summary_modal.html" %}
     {% endif %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}

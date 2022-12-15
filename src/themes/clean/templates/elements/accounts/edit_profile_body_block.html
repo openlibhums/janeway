@@ -1,3 +1,6 @@
+{% load i18n roles %}
+{% user_has_role request 'reader' staff_override=False as reader %}
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -29,6 +32,34 @@
     </div>
 </div>
 
+{% if request.journal and send_reader_notifications %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-block">
+                <h5>{% trans "Register for Article Notifications" %}</h5>
+                <form method="POST">
+                    <p>
+                        {% blocktrans %}Use the button below to register to receive notifications of new articles
+                            published in this journal {% endblocktrans %}
+                    </p>
+                    {% csrf_token %}
+                    {% if reader %}
+                        <button name="unsubscribe" class="btn btn-warning">
+                            {% trans "Unsubscribe from Article Notifications" %}
+                        </button>
+                    {% else %}
+                        <button name="subscribe" class="btn btn-warning">
+                            {% trans "Subscribe to Article Notifications" %}
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -39,7 +70,8 @@
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-md-4">
-                            <label for="current_password">{% trans 'Current Password' %}</label><input type="password" name="current_password" id="current_password">
+                            <label for="current_password">{% trans 'Current Password' %}</label>
+                            <input type="password" name="current_password" id="current_password">
                         </div>
                         <div class="col-md-4">
                             <label for="new_password_one">{% trans 'Enter New Password' %}</label>

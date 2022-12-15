@@ -28,7 +28,7 @@
                     {{ form|foundation }}
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <p>If you want to upload and link to a file use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
+                            <p>If you want to upload and link to a file, use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
                                 Files</a> system.</p>
                             <button type="submit" class="button success">Save</button>
                             <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"

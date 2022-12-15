@@ -65,3 +65,21 @@ When editing a template you will see the default version of the email at the top
 .. figure:: ../../nstatic/edit_template.png
 
     Editing an email template.
+
+Publication Notifications (Readers)
+-----------------------------------
+Janeway (as of version 1.4.4) supports publication notifications via a new role called "reader". This feature can be toggled on or off for any given journal. Once the setting is toggled on anyone with an account can sign up to receive emails when new articles are published via their profile page. This feature has been designed with continuous publication in mind but will also work well for those who publish full issues.
+
+.. figure:: ../../nstatic/publication-notifications.png
+
+    Viewing readers and notifications in Manager.
+
+Journal staff can toggle the feature on by visiting Manager > Publication Notification (Readers) and using the link displayed on that page (see figure above).
+
+.. figure:: ../../nstatic/register-for-reader-notifications.png
+
+    Registering for reader notifications.
+
+Readers can signup for notifications by logging into a journal and selecting the Edit Profile link from the account menu (top right hand of any page).
+
+Emails are sent in a digest format (all published articles sent in one email) once per day. On days when no articles are published no notifications are sent. Emails are sent using BCC so only a single email is sent.

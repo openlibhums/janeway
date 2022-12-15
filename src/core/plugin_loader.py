@@ -25,6 +25,25 @@ def get_dirs(directory):
     return dirs
 
 
+def register_hooks(hooks: list):
+    """Register plugin hooks."""
+    # Hooks are dictionaries. For a description,
+    # see "Technical Configuration" (docs/source/configuration.rst)
+    if settings.PLUGIN_HOOKS:
+        super_hooks = settings.PLUGIN_HOOKS
+    else:
+        settings.PLUGIN_HOOKS = {}
+        super_hooks = {}
+
+    for _dict in hooks:
+        if _dict:
+            for k, v in _dict.items():
+                super_hooks.setdefault(k, []).append(v)
+
+    for k, v in super_hooks.items():
+        settings.PLUGIN_HOOKS[k] = v
+
+
 def load(directory="plugins", prefix="plugins", permissive=False):
     # Get all of the folders in the plugins folder, check if they are
     # installed and then load up their hooks.
@@ -61,21 +80,7 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             # Call event registry
             register_for_events(plugin_settings)
 
-    # Register plugin hooks
-    if settings.PLUGIN_HOOKS:
-        super_hooks = settings.PLUGIN_HOOKS
-    else:
-        settings.PLUGIN_HOOKS = {}
-        super_hooks = {}
-
-    for _dict in hooks:
-        if _dict:
-            for k, v in _dict.items():
-                super_hooks.setdefault(k, []).append(v)
-
-    for k, v in super_hooks.items():
-        settings.PLUGIN_HOOKS[k] = v
-
+    register_hooks(hooks)
     return plugins
 
 
@@ -123,7 +128,7 @@ def get_plugin(module_name, permissive):
     except (
             models.Plugin.DoesNotExist,
             models.Plugin.MultipleObjectsReturned,
-            ProgrammingError, 
+            ProgrammingError,
             OperationalError,
         ) as e:
         if settings.DEBUG:

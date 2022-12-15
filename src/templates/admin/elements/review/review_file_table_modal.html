@@ -1,7 +1,4 @@
 {% if review.review_file %}
-    <div class="title-area">
-        <h2>Review File</h2>
-    </div>
     <div class="content">
 
         <table class="scroll small">
@@ -10,7 +7,6 @@
                 <th>Name</th>
                 <th>Download</th>
                 <th>Replace</th>
-                <th width="20%">Visible to Author</th>
             </tr>
             <tr>
                 <td>{{ review.review_file.pk }}</td>
@@ -21,16 +17,6 @@
                 <td>
                     <a href="{% url 'article_file_replace' 'id' article.pk review.review_file.pk %}?return={{ request.path }}"><i
                             class="fa fa-cloud-upload">&nbsp;</i></a>
-                </td>
-                <td>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="review", value="{{ review.pk }}">
-                        <button name="review_file_visible" class="success button"
-                                value="{% if review.display_review_file %}false{% else %}true{% endif %}">
-                            {% if review.display_review_file %}Hide File{% else %}Allow Author to
-                                View File{% endif %}</button>
-                    </form>
                 </td>
             </tr>
         </table>

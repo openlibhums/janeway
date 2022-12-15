@@ -17,6 +17,18 @@ def journal_url(context, url_name=None, *args):
     else:
         return path
 
+@register.simple_tag(takes_context=True)
+def repository_url(context, url_name=None, *args):
+    request = context.get('request')
+    if url_name is not None:
+        path = reverse(url_name, args=args)
+    else:
+        path = None
+
+    if request and request.repository:
+        return request.repository.site_url(path=path)
+    else:
+        return path
 
 @register.simple_tag(takes_context=True)
 def site_url(context, url_name=None, *args):

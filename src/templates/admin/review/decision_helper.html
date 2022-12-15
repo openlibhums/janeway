@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load stages %}
 {% load roles %}
+{% load i18n %}
 
 {% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
 {% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
@@ -89,16 +90,27 @@
                         {% endif %}
                         <p>This review was completed on {{ review.date_complete }} and the reviewers recommendation was : <strong>{{ review.get_decision_display }}</strong></p>
                         <form method="POST">
-                          {% csrf_token %}
-                          <div class="button-group small">
-                            <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
-                              <input type="hidden" name="review" value="{{ review.pk }}">
-                              {% if review.for_author_consumption %}
-                              <button name="hide_review" class="button alert pull-right"><span class="fa fa-eye-slash"></span> Hide from author</button>
-                              {% else%}
-                              <button name="reveal_review" class="button success pull-right"><span class="fa fa-eye"></span> Reveal to author</button>
-                              {% endif %}
-                          </div>
+                            {% csrf_token %}
+                            <div class="button-group small">
+                                <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
+                                <div class="pull-right">
+                                    <label for="id_{{ review.pk }}">
+                                        {% trans 'Review is visible to the author:' %}
+                                    </label>
+                                    <div class="switch tiny pull-right">
+                                        <input type="hidden" name="review_id" value="{{ review.pk }}">
+                                        <input class="switch-input" type="checkbox" name="visibility"
+                                               id="{{ review.pk }}"
+                                               {% if review.for_author_consumption %}checked="checked"{% endif %}
+                                               onclick="this.form.submit()"
+                                        >
+                                        <label class="switch-paddle" for="{{ review.pk }}">
+                                            <span class="switch-active" aria-hidden="true">{% trans 'Yes' %}</span>
+                                            <span class="switch-inactive" aria-hidden="true">{% trans 'No' %}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <br />

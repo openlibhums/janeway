@@ -23,16 +23,30 @@ class Page(models.Model):
 
     name = models.CharField(
         max_length=300,
-        help_text="Page name displayed in the URL bar eg. about or contact",
-        verbose_name="URL Name"
+        help_text='The relative URL path to the page, using lowercase '
+                  'letters and hyphens. For example, a page about '
+                  'research integrity might be “research-integrity”.',
+        verbose_name='Link',
     )
     display_name = models.CharField(
         max_length=100,
-        help_text='Name of the page, max 100 chars, displayed '
-                  'in the nav and on the header of the page eg. '
-                  'About or Contact',
+        help_text='Name of the page, in 100 characters or fewer, '
+                  'displayed in the nav and in the top-level heading '
+                  'on the page (e.g. “Research Integrity”).',
     )
-    content = models.TextField(null=True, blank=True)
+    content = models.TextField(
+        null=True,
+        blank=True,
+        help_text='The content of the page. For headings, we recommend '
+                  'using the Style dropdown (looks like a wand) and '
+                  'selecting a heading level from 2 to 6, as the display '
+                  'name field occupies the place of heading level 1. '
+                  'Note that copying and pasting from a word processor '
+                  'can produce unwanted results, but you can use Remove '
+                  'Font Style (looks like an eraser) to remove some '
+                  'unwanted formatting. To edit the page as HTML, '
+                  'turn on the Code View (<>).',
+    )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
 
@@ -45,17 +59,59 @@ class NavigationItem(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    link_name = models.CharField(max_length=100)
+    link_name = models.CharField(
+        max_length=100,
+        help_text='The text that will appear in the nav bar '
+                  '(e.g. “About” or “Research Integrity”)',
+        verbose_name='Display name',
+    )
     link = models.CharField(
         max_length=100,
         blank=True,
         null=True,
+        help_text='In most cases, this should be the the '
+                  'relative URL path to the page. The '
+                  'relative path is formed from 1) the '
+                  'journal code (acronym or abbreviation) '
+                  'if your journal homepage URL ends with '
+                  'the journal code, 2) the word “site”, and '
+                  '3) whatever you put into the Link field for '
+                  'the corresponding page. For example, '
+                  'to link to a custom page you created, '
+                  'if the journal homepage URL is “example.com/abc”, '
+                  'and you put “research-integrity” in the Link field '
+                  'for the page, then the Link field for the nav item '
+                  'should be “abc/site/research-integrity”. For top-level '
+                  'nav items that should not also appear as sub-nav '
+                  'items (under themselves), leave the Link field empty. '
+                  'For external links, it should be an absolute URL.',
     )
-    is_external = models.BooleanField(default=False)
-    sequence = models.IntegerField(default=99)
+    is_external = models.BooleanField(
+        default=False,
+        help_text='Whether the link is to an external website.',
+    )
+    sequence = models.IntegerField(
+        default=99,
+        help_text='The order in which custom nav items appear relative '
+                  'to other custom nav items. Note that fixed (default) '
+                  'nav items do not have a sequence field, so you have '
+                  'to replace them with custom elements to change their '
+                  'order.',
+    )
     page = models.ForeignKey(Page, blank=True, null=True)
-    has_sub_nav = models.BooleanField(default=False, verbose_name="Has Sub Navigation")
-    top_level_nav = models.ForeignKey("self", blank=True, null=True, verbose_name="Top Level Nav Item")
+    has_sub_nav = models.BooleanField(
+        default=False,
+        verbose_name="Has sub navigation",
+        help_text='Whether this item has sub-nav items under it.',
+    )
+    top_level_nav = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        verbose_name="Top-level nav item",
+        help_text='If this is a sub-nav item, which top-level '
+                  'item should it go under?',
+    )
 
     class Meta:
         ordering = ('sequence',)

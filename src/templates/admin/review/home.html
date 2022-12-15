@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 
+{% load securitytags %}
+
 {% block title %}Articles in Review{% endblock %}
 
 {% block breadcrumbs %}
@@ -8,13 +10,17 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
+{% is_editor as editor %}
+
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Articles in Review</h2>
-                {% if filter == 'me' %}
-                    <a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}
-                    <a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
+                {% if editor and filter == 'me' %}
+                    <a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>
+                {% elif editor %}
+                    <a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>
+                {% endif %}
                 <a href="#" data-open="statuskey" class="button">Review Status Key</a>
             </div>
             <div class="content">

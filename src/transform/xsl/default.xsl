@@ -430,14 +430,19 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
-        <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+        <xsl:variable name="fn-id">
+            <xsl:value-of select="@id"/>
         </xsl:variable>
-        <li id="fn{$fn-number}">
-            <span id="n{$fn-number}"></span>
-            <xsl:apply-templates/>
-            [<a class="footnotemarker"  href="#nm{$fn-number}"><sup>^</sup></a>]
-        </li>
+          <xsl:variable name="nm-number">
+              <xsl:number level="any" count="xref[@rid=@id]" from="article | sub-article | response"/>
+          </xsl:variable>
+          <li id="{$fn-id}">
+              <xsl:apply-templates/>
+            <xsl:for-each select="//xref[@rid=$fn-id]">
+              <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
+              [<a class="footnotemarker"  href="#{$fn-id}-nm{$i}"><sup>^</sup></a>]
+            </xsl:for-each>
+          </li>
     </xsl:template>
 
     <xsl:template match="fn-group/fn/p">
@@ -905,45 +910,43 @@
 
     <!-- START handling citation objects -->
     <xsl:template match="xref">
-        <xsl:choose>
-            <xsl:when test="ancestor::fn">
-                <span class="xref-table">
-                    <xsl:apply-templates/>
-                </span>
+      <a>
+          <xsl:attribute name="class">
+              <xsl:value-of select="concat('xref-', ./@ref-type)"/>
+          </xsl:attribute>
+          <xsl:attribute name="href">
+              <!-- If xref has multiple elements in rid, then the link should points to 1st -->
+              <xsl:choose>
+                  <xsl:when test="contains(@rid, ' ')">
+                      <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:value-of select="concat('#',@rid)"/>
+                  </xsl:otherwise>
+              </xsl:choose>
+          </xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="contains(@ref-type, 'fn')">
+              <!-- Construction of the note mention (nm) ID combining the fn item being referenced (rid) with the sequential
+                  number of this mention of the fn. So if an xref of type 'fn' with the same rid is referenced twice,
+                  they will get uniquely identifiable IDs. As an example, two mentions of an fn with rid 'fn1' would lead to
+                  two objects with ids of 'fn1-nm1' and 'fn1-nm2'. Then the fn in the footnotes section
+                  can render individual links to each nm in the body.
+              -->
+              <xsl:variable name="rid" select="@rid"/>
+              <xsl:attribute name="id">
+                  <xsl:value-of select="@rid"/>
+                  <xsl:text>-</xsl:text>
+                  <xsl:text>nm</xsl:text>
+                  <xsl:number level="any" count="xref[@rid=$rid]"/>
+              </xsl:attribute>
+              <sup><xsl:apply-templates/></sup>
             </xsl:when>
             <xsl:otherwise>
-                <a>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="concat('xref-', ./@ref-type)"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="href">
-                        <!-- If xref has multiple elements in rid, then the link should points to 1st -->
-                        <xsl:choose>
-                            <xsl:when test="contains(@rid, ' ')">
-                                <xsl:value-of select="concat('#',substring-before(@rid, ' '))"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="concat('#',@rid)"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-
-                    </xsl:attribute>
-
-                    <xsl:choose>
-                    <xsl:when test="contains(@ref-type, 'fn')">
-                        <xsl:attribute name="id">
-                            <xsl:text>nm</xsl:text>
-                            <xsl:number level="any" count="xref[@ref-type='fn']"/>
-                        </xsl:attribute>
-                        <sup><xsl:apply-templates/></sup>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates/>
-                    </xsl:otherwise>
-                    </xsl:choose>
-                </a>
+              <xsl:apply-templates/>
             </xsl:otherwise>
-        </xsl:choose>
+          </xsl:choose>
+      </a>
     </xsl:template>
     <!-- END handling citation objects -->
 
@@ -1615,7 +1618,7 @@
   </xsl:template>
 
   <!-- becomes content of table cell, column 1-->
-  <xsl:template match="ref/label | element-citation/label">
+  <xsl:template match="element-citation/label">
     <strong>
       <em>
         <xsl:apply-templates/>
@@ -1624,6 +1627,10 @@
     </strong>
   </xsl:template>
 
+  <xsl:template match="ref/label">
+        <xsl:apply-templates/>
+        <xsl:text>&#160;</xsl:text>
+  </xsl:template>
 
   <!-- ============================================================= -->
   <!--  54. CITATION (for NLM Archiving DTD)                         -->
@@ -3119,8 +3126,14 @@
                     <xsl:apply-templates select="." mode="youtube"/>
                   </div>
                 </xsl:when>
+                <xsl:when test="contains(./@xlink:href, 'youtu.be')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="youtube"/>
+                  </div>
+                </xsl:when>
                 <xsl:otherwise>
                   <a href="{@xlink:href}">Video URL</a>
+                  <xsl:apply-templates/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
@@ -3134,7 +3147,8 @@
                   </div>
                 </xsl:when>
                 <xsl:otherwise>
-                  <a href="{@xlink:href}">Video URL</a>
+                  <a href="{@xlink:href}">Audio URL</a>
+                  <xsl:apply-templates/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
@@ -3680,7 +3694,6 @@
     <xsl:template match="author-notes/fn[@fn-type='other']/label"/>
     <xsl:template match="author-notes/corresp/label"/>
     <xsl:template match="abstract/title"/>
-    <xsl:template match="ref/label"/>
     <xsl:template match="fig/graphic"/>
     <xsl:template match="fig-group//object-id | fig-group//graphic | fig//label"/>
     <xsl:template match="ack/title"/>

@@ -15,7 +15,7 @@
 {% block body %}
 
     <article>
-    {% if not journal.disable_article_images %}
+    {% if not journal_settings.article.disable_article_large_image %}
         <section class="no-padding meta show-for-small-only">
             <div class="row">
                 <div class="large-8 columns">
@@ -131,6 +131,8 @@
                                         <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
                                         <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
                                         <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> Download RIS</a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}"> Download BibTeX</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -145,7 +147,7 @@
                 <div class="large-8 columns border-right">
                     <div class="row">
                         <div id="article" class="large-10 columns">
-                {% if journal.disable_article_images %}
+                {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>
                     <div class="section show-for-small-only">
@@ -170,7 +172,7 @@
                                 <h3>{% trans "Abstract" %}</h3>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
-                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
                             {{ article.how_to_cite|safe }} </p>
@@ -260,7 +262,9 @@
                                         </div>
                                         {% endif %}
                                         <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
-                                            {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
+                                            {% if article.peer_reviewed %}
+                                                <h5>{% trans "Peer Reviewed" %}</h5>
+                                            {% endif %}
                                         </div>
                                         <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
@@ -285,7 +289,7 @@
                           data-anchor="content" data-sticky-on="large">
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
-                            {% if journal.disable_article_images %}
+                            {% if journal_settings.article.disable_article_large_image %}
                                 <div class="section">
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
@@ -379,7 +383,7 @@
                          <div class="section">
                              <h3>{% trans "Competing Interests" %}</h3>
                              <ul>
-                                 <li>{{ article.competing_interests }}</li>
+                                 <li>{{ article.competing_interests|safe }}</li>
                              </ul>
                          </div>
                          {% endif %}
@@ -430,6 +434,19 @@
                                 {% endfor %}
                             </ul>
                         </div>
+
+                        <div class="section hide-for-small-only">
+                            {% if journal_settings.general.open_peer_review %}
+                                {% if article.public_reviews.count > 0 %}
+                                    <h3>{% trans "Peer Review" %}</h3>
+                                    <p>
+                                        {% for review in article.public_reviews %}
+                                            <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
+                                        {% endfor %}<br/>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 </aside>
             </div>
@@ -439,6 +456,7 @@
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
     {% include "elements/journal/summary_modal.html" %}
+    {% include "elements/public_reviews.html" %}
     {% for table in tables_in_galley %}
         {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
     {% endfor %}

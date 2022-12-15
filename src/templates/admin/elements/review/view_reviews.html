@@ -5,7 +5,7 @@
     <li class="accordion-item" data-accordion-item>
         <a href="#" class="accordion-title">View Review #{{ review.pk }}{% if reviewer_names %} - {{ review.reviewer.full_name }}{% endif %}</a>
         <div class="accordion-content" data-tab-content>
-            {% if not journal_settings.general.hide_review_metadata_from_authors %}
+            {% if journal_settings.general.enable_peer_review_data_on_review_page %}
             <h5>Details</h5>
             <table class="small scroll">
                 <tr>

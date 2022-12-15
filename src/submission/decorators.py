@@ -43,6 +43,22 @@ def funding_is_enabled(func):
     """
     @wraps(func)
     def funding_is_enabled(request, *args, **kwargs):
+        if "article_id" in kwargs:
+            article_id = kwargs['article_id']
+            article = models.Article.get_article(
+                request.journal, 'id', article_id)
+
+            # Staff and editors can bypass this requirement.
+            if (
+                request.user.is_staff
+                or request.user in article.section_editors()
+                or request.user.is_editor(
+                    request=None,
+                    journal=article.journal,
+                )
+            ):
+                return func(request, *args, **kwargs)
+
         configuration = request.journal.submissionconfiguration
         if not configuration.funding:
             raise Http404

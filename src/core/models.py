@@ -10,6 +10,7 @@ import json
 from datetime import timedelta
 import pytz
 from hijack.signals import hijack_started, hijack_ended
+import warnings
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -47,6 +48,9 @@ from utils import logic as utils_logic
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
 
+IMAGE_GALLEY_TEMPLATE = """
+    <img class="responsive-img" src={url} alt="{alt}">
+"""
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -208,6 +212,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
                                   verbose_name=_('Salutation'))
+    suffix = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        help_text=_('Name suffix eg. jr'),
+    )
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
     institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
@@ -361,12 +371,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
         role = Role.objects.get(slug=role_slug)
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
-    def check_role(self, journal, role):
-        return AccountRole.objects.filter(
-            user=self,
-            journal=journal,
-            role__slug=role
-        ).exists() or self.is_staff
+    def check_role(self, journal, role, staff_override=True):
+        if staff_override and self.is_staff:
+            return True
+        else:
+            return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug=role
+            ).exists()
 
     def is_editor(self, request, journal=None):
         if not journal:
@@ -405,7 +418,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'typesetter')
 
     def is_proofing_manager(self, request):
-        return self.check_role(request.journal, 'proofing_manager')
+        return self.check_role(request.journal, 'proofing-manager')
 
     def is_repository_manager(self, repository):
         if self in repository.managers.all():
@@ -427,6 +440,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'institution': self.institution,
             'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
+            'name_suffix': self.suffix,
         }
 
         frozen_author = self.frozen_author(article)
@@ -534,8 +548,16 @@ class PasswordResetToken(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        help_text='Display name for this role '
+                  '(can include spaces and capital letters)',
+    )
+    slug = models.CharField(
+        max_length=100,
+        help_text='Normalized string representing this role '
+                  'containing only lowercase letters and hyphens.',
+    )
 
     class Meta:
         ordering = ('name', 'slug')
@@ -793,7 +815,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-
+    
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -919,6 +941,10 @@ class File(AbstractLastModifiedModel):
 
         return indexed
 
+    @property
+    def date_modified(self):
+        warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
+        return self.last_modified
 
     def __str__(self):
         return u'%s' % self.original_filename
@@ -1018,7 +1044,8 @@ def galley_type_choices():
         ('odt', 'OpenDocument Text Document'),
         ('tex', 'LaTeX'),
         ('rtf', 'RTF'),
-        ('other', 'Other'),
+        ('other', _('Other')),
+        ('image', _('Image')),
     )
 
 
@@ -1121,6 +1148,16 @@ class Galley(AbstractLastModifiedModel):
             return self.file.get_file(self.article)
         elif self.file.mime_type in files.XML_MIMETYPES:
             return self.render(recover=recover)
+        elif self.file.mime_type in files.IMAGE_MIMETYPES:
+            url = reverse(
+                'article_download_galley',
+                kwargs={"article_id": self.article.id, "galley_id": self.id}
+            )
+            contents = IMAGE_GALLEY_TEMPLATE.format(
+                url=url,
+                alt=self.label,
+            )
+            return contents
 
     def path(self):
         url = reverse('article_download_galley',

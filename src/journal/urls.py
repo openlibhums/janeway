@@ -44,6 +44,12 @@ urlpatterns = [
     url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/xml/$',
         views.serve_article_xml,
         name='serve_article_xml'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/ris/$',
+        views.serve_article_ris,
+        name='serve_article_ris'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/bib/$',
+        views.serve_article_bib,
+        name='serve_article_bib'),
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/table/(?P<table_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,

@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -29,12 +30,16 @@ def send_reviewer_withdrawl_notice(**kwargs):
     description = '{0}\'s review of "{1}" has been withdrawn by {2}'.format(review_assignment.reviewer.full_name(),
                                                                             review_assignment.article.title,
                                                                             request.user.full_name())
-
     if not skip:
         log_dict = {'level': 'Info', 'action_text': description, 'types': 'Review Withdrawl',
                     'target': review_assignment.article}
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_withdrawl', review_assignment.reviewer.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_review_withdrawl',
+            review_assignment.reviewer.email,
+            user_message_content,
+            log_dict=log_dict
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -54,7 +59,7 @@ def send_editor_unassigned_notice(request, message, assignment, skip=False):
 
         notify_helpers.send_email_with_body_from_user(
                 request,
-                'subject_review_withdrawl',
+                'subject_unassign_editor',
                 assignment.editor.email,
                 message,
                 log_dict=log_dict,
@@ -98,9 +103,13 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
 
     # send to assigned editor
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_editor_assignment',
-                                                      editor_assignment.editor.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_editor_assignment',
+            editor_assignment.editor.email,
+            user_message_content,
+            log_dict=log_dict
+        )
 
     # send to editor
     if not acknowledgement:
@@ -224,7 +233,7 @@ def send_review_complete_acknowledgements(**kwargs):
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_complete_acknowledgement',
-            'subject_review_complete_reviewer_acknowledgement',
+            'subject_review_complete_acknowledgement',
             editor.email,
             context,
         )
@@ -374,7 +383,7 @@ def send_submission_acknowledgement(**kwargs):
         log_dict=log_dict,
     )
 
-    # send to all authors
+    # send to all editors
     editors_to_email = setting_handler.get_setting(
         'general', 'editors_for_notification', request.journal).processed_value
 
@@ -401,6 +410,7 @@ def send_submission_acknowledgement(**kwargs):
         editor_emails,
         context,
         log_dict=log_dict,
+        custom_reply_to=[f"noreply{settings.DUMMY_EMAIL_DOMAIN}"]
     )
 
 
@@ -425,10 +435,22 @@ def send_article_decision(**kwargs):
                 'types': 'Article Decision',
                 'target': article}
 
+    if decision == 'accept':
+        subject = 'subject_review_decision_accept'
+    elif decision == 'decline':
+        subject = 'subject_review_decision_decline'
+    elif decision == 'undecline':
+        subject = 'subject_review_decision_undecline'
+
+
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'Article Review Decision',
-                                                      article.correspondence_author.email,
-                                                      user_message_content, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            subject,
+            article.correspondence_author.email,
+            user_message_content,
+            log_dict=log_dict
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -482,7 +504,7 @@ def send_revisions_complete(**kwargs):
     )
     notify_helpers.send_email_with_body_from_user(
         request,
-        'Article Revisions Complete',
+        'subject_revisions_complete_receipt',
         {editor.email for editor in get_assignment_editors(revision)},
         description,
     )
@@ -618,7 +640,7 @@ def send_copyedit_decision(**kwargs):
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyediting Decision',
                 'target': copyedit_assignment.article}
 
-    notify_helpers.send_email_with_body_from_user(request, 'Article Copyediting Decision',
+    notify_helpers.send_email_with_body_from_user(request, 'subject_copyediting_decision',
                                                   copyedit_assignment.editor.email,
                                                   description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -1179,7 +1201,7 @@ def send_author_publication_notification(**kwargs):
                 'target': article}
 
     notify_helpers.send_email_with_body_from_user(request,
-                                                  '{0} Publication'.format(article.title),
+                                                  'subject_author_publication',
                                                   article.correspondence_author.email,
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -1190,7 +1212,7 @@ def send_author_publication_notification(**kwargs):
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 'section_editor_pub_notification',
-                'Article set for publication',
+                'subject_section_editor_pub_notification',
                 editor.email,
                 {'article': article, 'editor': editor},
             )
@@ -1201,7 +1223,7 @@ def send_author_publication_notification(**kwargs):
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 'peer_reviewer_pub_notification',
-                'Article set for publication',
+                'subject_peer_reviewer_pub_notification',
                 reviewer.email,
                 {'article': article, 'reviewer': reviewer},
             )
@@ -1333,15 +1355,17 @@ def preprint_submission(**kwargs):
     )
     editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
         object=request.repository.object_name,
-        press=request.press.name,
+        press=request.repository.name,
         url=url,
         title=preprint.title
     )
-    for editor in request.press.preprint_editors():
+    repo = request.repository
+    recipients = repo.submission_notification_recipients if repo.submission_notification_recipients.count() > 0 else repo.managers
+    for r in recipients.all():
         notify_helpers.send_email_with_body_from_user(
             request,
             '{} Submission'.format(request.repository.object_name),
-            editor.email,
+            r.email,
             editor_email_text,
             log_dict=log_dict,
         )
@@ -1655,6 +1679,7 @@ def preprint_review_status_change(**kwargs):
     request = kwargs.get('request')
     review = kwargs.get('review')
     status_change = kwargs.get('status_change')
+    status_text = None
 
     description = "Status of review {} by {} is now: {}".format(
         review.pk,
@@ -1670,6 +1695,12 @@ def preprint_review_status_change(**kwargs):
 
     if status_change in ['accept', 'decline', 'complete']:
         to = review.manager.email
+        if status_change == 'accept':
+            status_text = 'The reviewer has agreed to add a comment.'
+        elif status_change == 'decline':
+            status_text = 'The reviewer has declined to add a comment.'
+        elif status_change == 'complete':
+            status_text = 'The reviewer has submitted their comment.'
         template = request.repository.manager_review_status_change
     else:  # withdraw
         to = review.reviewer.email
@@ -1677,7 +1708,7 @@ def preprint_review_status_change(**kwargs):
 
     context = {
         'review': review,
-        'status_change': status_change,
+        'status_text': status_text,
         'url': request.repository.site_url(path=reverse(
             'repository_review_detail',
             kwargs={

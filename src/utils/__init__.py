@@ -11,6 +11,7 @@ import os
 import threading
 
 from django.conf import settings
+from django.test.utils import get_runner
 
 from core import janeway_global_settings
 
@@ -73,3 +74,21 @@ def merge_dict_settings(base, override):
             merged[k] = v
 
     return dict(base, **merged)
+
+
+def janeway_test_runner_wrapper(*args, **kwargs):
+    """ A test runner wrapper that will initialise the test database
+
+    The original test runner will still be returned, but ensuring the required
+    state exists in the database before the test runs
+    """
+
+    if not getattr(settings, 'CHOSEN_TEST_RUNNER', None):
+        settings.CHOSEN_TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+    from utils import install
+    install.update_settings(management_command=False)
+    install.update_emails(management_command=False)
+    install.update_xsl_files(management_command=False)
+    settings.TEST_RUNNER = settings.CHOSEN_TEST_RUNNER
+    TestRunner =  get_runner(settings)
+    return TestRunner(*args, **kwargs)

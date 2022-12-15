@@ -3,11 +3,22 @@
 </div>
 <div class="content">
     <p>{% trans 'A set of controls for how things display on the article page' %}.</p>
-    {% include "admin/elements/forms/field.html" with field=attr_form.disable_article_images %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.disable_article_thumbnails %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.disable_article_large_image %}
     {% include "admin/elements/forms/field.html" with field=edit_form.display_guest_editors %}
     {% include "admin/elements/forms/field.html" with field=edit_form.suppress_how_to_cite %}
-    {% include "admin/elements/forms/field.html" with field=attr_form.view_pdf_button %}
+
     {% include "admin/elements/forms/field.html" with field=edit_form.hide_author_email_links %}
+</div>
+
+
+<div class="title-area">
+    <h2>Download/View Links</h2>
+</div>
+<div class="content">
+    <p>{% trans "Settings to control the display of view and download links on article pages" %}.</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.view_pdf_button %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.disable_html_downloads %}
 </div>
 
 <div class="title-area">

@@ -1,16 +1,21 @@
 {% extends "admin/core/base.html" %}
+
 {% load static from staticfiles %}
+{% load securitytags %}
 
 {% block title %}Active Submissions{% endblock title %}
 {% block title-section %}Active Submissions{% endblock title-section %}
 
+{% is_editor as editor %}
+
 {% block body %}
+{% is_editor as editor %}
 
     <div class="large-12 columns">
 
         <div class="row expanded">
             {% include "admin/elements/no_stage.html" %}
-            <div class="large-8 columns end">
+            <div class="{% if editor %}large-8{% else %}large-12{% endif %} columns end">
                 <div class="box">
                     <div class="title-area">
                         <h2>Submission List</h2>
@@ -26,68 +31,67 @@
                     </div>
                 </div>
             </div>
-            <div class="large-4 columns">
-                <div class="box">
-
-                    <div class="content">
-
-                        <div class="row">
-                            <form id="filter_form" class="autoSubmit" method="POST">
-                                <div class="title-area">
-                                    <h2>Assignments</h2>
-                                </div>
-                                <div class="medium-2 columns">
-                                    <div class="switch tiny">
-                                        <input class="switch-input" id="tinySwitch" type="checkbox"
-                                               name="my_assignments">
-                                        <label class="switch-paddle" for="tinySwitch">
-                                            <span class="show-for-sr">Tiny Sandwiches Enabled</span>
-                                        </label>
+            {% if editor %}
+                <div class="large-4 columns">
+                    <div class="box">
+                        <div class="content">
+                            <div class="row">
+                                <form id="filter_form" class="autoSubmit" method="POST">
+                                    <div class="title-area">
+                                        <h2>Assignments</h2>
                                     </div>
-                                </div>
-                                <div class="medium-10 columns">
-                                    <p>My Assignments</p>
-                                </div>
-
-                                <div class="title-area">
-                                    <h2>Section</h2>
-                                </div>
-
-                                {% for section in sections %}
                                     <div class="medium-2 columns">
                                         <div class="switch tiny">
-                                            <input class="switch-input" id="section_{{ section.pk }}" type="checkbox"
-                                                   name="section_{{ section.pk }}">
-                                            <label class="switch-paddle" for="section_{{ section.pk }}">
-                                                <span class="show-for-sr">{{ section.name }}</span>
+                                            <input class="switch-input" id="tinySwitch" type="checkbox"
+                                                   name="my_assignments">
+                                            <label class="switch-paddle" for="tinySwitch">
+                                                <span class="show-for-sr">Tiny Sandwiches Enabled</span>
                                             </label>
                                         </div>
                                     </div>
-
                                     <div class="medium-10 columns">
-                                        <p>{{ section.name }}</p>
+                                        <p>My Assignments</p>
                                     </div>
-                                {% endfor %}
+                                    <div class="title-area">
+                                        <h2>Section</h2>
+                                    </div>
 
-                                <div class="title-area">
-                                    <h2>Order</h2>
-                                </div>
-                                <div class="large-12 columns">
-                                    <select name="order">
-                                        <option value="pk">Article ID</option>
-                                        <option value="title">Title</option>
-                                        <option value="section">Section</option>
-                                        <option value="stage">Stage</option>
-                                    </select>
-                                    <button type="button" class="success button" id="filter" onclick="send_post()"><i
-                                            class="fa fa-filter">&nbsp;</i> Filter
-                                    </button>
-                                </div>
-                            </form>
+                                    {% for section in sections %}
+                                        <div class="medium-2 columns">
+                                            <div class="switch tiny">
+                                                <input class="switch-input" id="section_{{ section.pk }}" type="checkbox"
+                                                       name="section_{{ section.pk }}">
+                                                <label class="switch-paddle" for="section_{{ section.pk }}">
+                                                    <span class="show-for-sr">{{ section.name }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="medium-10 columns">
+                                            <p>{{ section.name }}</p>
+                                        </div>
+                                    {% endfor %}
+
+                                    <div class="title-area">
+                                        <h2>Order</h2>
+                                    </div>
+                                    <div class="large-12 columns">
+                                        <select name="order">
+                                            <option value="pk">Article ID</option>
+                                            <option value="title">Title</option>
+                                            <option value="section">Section</option>
+                                            <option value="stage">Stage</option>
+                                        </select>
+                                        <button type="button" class="success button" id="filter" onclick="send_post()"><i
+                                                class="fa fa-filter">&nbsp;</i> Filter
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock body %}

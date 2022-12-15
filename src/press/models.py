@@ -65,6 +65,7 @@ class Press(AbstractSiteModel):
         blank=True,
         related_name='press_thumbnail_image',
         verbose_name='Press Logo',
+        on_delete=models.SET_NULL,
     )
     footer_description = models.TextField(
         null=True,
@@ -76,7 +77,13 @@ class Press(AbstractSiteModel):
     homepage_news_items = models.PositiveIntegerField(default=5)
     carousel_type = models.CharField(max_length=30, default='articles', choices=press_carousel_choices())
     carousel_items = models.PositiveIntegerField(default=4)
-    carousel = models.OneToOneField('carousel.Carousel', related_name='press', null=True, blank=True)
+    carousel = models.OneToOneField(
+        'carousel.Carousel',
+        related_name='press',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     default_carousel_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     random_featured_journals = models.BooleanField(default=False)
@@ -102,7 +109,8 @@ class Press(AbstractSiteModel):
 
     enable_preprints = models.BooleanField(
         default=False,
-        help_text='Enables the preprints system for this press.',
+        help_text='Enables the repository system for this press.',
+        verbose_name='Enable repository system',
     )
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)
@@ -112,7 +120,7 @@ class Press(AbstractSiteModel):
     preprint_decline = models.TextField(blank=True, null=True, default=press_text('decline'))
 
     random_homepage_preprints = models.BooleanField(default=False)
-    homepage_preprints = models.ManyToManyField('submission.Article')
+    homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
 
     disable_journals = models.BooleanField(
         default=False,

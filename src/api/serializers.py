@@ -23,7 +23,7 @@ class FrozenAuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = submission_models.FrozenAuthor
-        fields = ('first_name', 'middle_name', 'last_name', 'institution', 'department', 'country')
+        fields = ('first_name', 'middle_name', 'last_name', 'name_suffix', 'institution', 'department', 'country')
 
     country = serializers.ReadOnlyField(
         read_only=True,
@@ -118,3 +118,12 @@ class AccountRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.AccountRole
         fields = ('pk', 'journal', 'user', 'role')
+
+    def create(self, validated_data):
+        role = validated_data.get("role")
+
+        if role.slug == 'reader':
+            raise serializers.ValidationError({"role": "You cannot add a user as a reader via the API."})
+        else:
+            account_role = core_models.AccountRole.objects.create(**validated_data)
+            return account_role

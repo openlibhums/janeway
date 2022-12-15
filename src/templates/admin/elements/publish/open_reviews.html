@@ -1,0 +1,27 @@
+<div class="reveal small" id="reviewsmodal" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-pencil">&nbsp;</i>Open peer reviews
+            </h4>
+        </div>
+        <div class="card-section">
+            <div class="line-item">
+                <span class="title">Reviews that can be displayed:</span>
+                <form method="POST">
+                {% csrf_token %}
+                    {% for review in article.completed_reviews_with_permission %}
+                        {% if review.permission_to_make_public %}
+                            <input type="checkbox" {% if review.display_public %}checked="checked"{% endif %} name="open-review-{{ review.pk }}" id="open-review-{{ review.pk }}"><label for="open-review-{{ review.pk }}" class="toggle">Review by {{ review.reviewer.full_name }} ({% if 'accept' in review.decision %}<span style="color:green;">{% elif 'revision' in review.decision %}<span style="color:orange;">{% elif 'reject' in review.decision %}<span style="color:red;">{% else %}<span>{% endif %}{{ review.decision|title }}</span>) [Round {{ review.review_round.round_number }}] [<a href="{% url 'review_view_review' article.pk review.pk %}">View review</a>]</label>
+                            <br />
+                        {% endif %}
+                    {% endfor %}
+                <button type="submit" name="open_reviews" class="small success button">Save list of public reviews</button>
+                </form>
+            </div>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>

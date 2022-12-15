@@ -1,8 +1,7 @@
-{% load truncate %}
 <li class="list-group-item list-group-item-dashboard">
     <div class="row expanded">
         <div class="medium-9 columns">
-            <p class="submission">{{ article.pk }} - {{ article.title|truncatesmart:80 }} ({{ article.correspondence_author.last_name }})<br/>
+            <p class="submission">{{ article.pk }} - {{ article.title|truncatechars_html:200|safe }} ({{ article.correspondence_author.last_name }})<br/>
                 <small>
                     Authors: {{ article.author_list }}<br/>
                     {% for editor in article.editors %}{% if forloop.first %}Editors: {% endif %}{{ editor.editor.full_name }} (

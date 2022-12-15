@@ -150,7 +150,7 @@
                         {% for comment in comments %}
                             <div class="row" id="comment-{{ comment.pk }}">
                                 <div class="col m2">
-                                    {% if comment.author.profile_image %}
+                                    {% if comment.author.profile_image and not comment.review.anonymous %}
                                         <img src="{{ comment.author.profile_image.url }}"
                                              class="responsive-img circle">
                                     {% else %}
@@ -188,10 +188,6 @@
 
         {% hook 'article_footer_block' %}
     </div>
-    </div>
-
-    {% include "elements/journal/citation_modals.html" %}
-
 
 {% endblock %}
 
