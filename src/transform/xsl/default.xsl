@@ -3690,7 +3690,6 @@
     <xsl:template match="author-notes/fn[@fn-type='other']/label"/>
     <xsl:template match="author-notes/corresp/label"/>
     <xsl:template match="abstract/title"/>
-    <xsl:template match="ref/label"/>
     <xsl:template match="fig/graphic"/>
     <xsl:template match="fig-group//object-id | fig-group//graphic | fig//label"/>
     <xsl:template match="ack/title"/>
