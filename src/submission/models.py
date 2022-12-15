@@ -1141,7 +1141,7 @@ class Article(AbstractLastModifiedModel):
             return reverse('submit_authors', kwargs={'article_id': self.id})
         elif self.current_step == 3:
             return reverse('submit_files', kwargs={'article_id': self.id})
-        elif self.current_step == 4:
+        elif self.current_step >= 4:
             return reverse('submit_review', kwargs={'article_id': self.id})
         else:
             return None
