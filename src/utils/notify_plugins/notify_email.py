@@ -49,15 +49,24 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         else:
             full_from_string = from_email
 
+    # if a replyto is passed to this function, use that.
     if replyto:
         reply_to = replyto
 
+    # if there is no reply_to set yet, check if the journal has a custom replyto_address and
+    # use that.
     if not reply_to:
         custom_reply_to = setting_handler.get_setting(
             'general', 'replyto_address', journal,
         ).value
         if custom_reply_to:
             reply_to = (custom_reply_to,)
+
+    # reply_to must always be a tuple or list.
+    if reply_to and not isinstance(reply_to, (tuple, list)):
+        reply_to = [reply_to]
+
+    from nose.tools import set_trace; set_trace()
 
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")
