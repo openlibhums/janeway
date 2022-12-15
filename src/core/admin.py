@@ -10,11 +10,14 @@ from django.utils.safestring import mark_safe
 
 from utils import admin_utils
 from core import models, forms
+from core.templatetags.truncate import truncatesmart
+from journal import models as journal_models
+from repository import models as repository_models
 
 
 class AccountRoleAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'journal')
-    list_filter = ('role', 'journal')
+    list_filter = ('journal', 'role')
     search_fields = ('user__first_name', 'user__last_name',
                      'user__email', 'user__orcid',
                      'role__slug', 'role__name', 'journal__code')
@@ -37,8 +40,10 @@ class SettingAdmin(admin.ModelAdmin):
 class AccountAdmin(UserAdmin):
     """Displays Account objects in the Django admin interface."""
     list_display = ('email', 'orcid', 'first_name', 'middle_name',
-                    'last_name', 'institution', 'last_login')
-    list_filter = ('is_active', 'is_staff', 'is_admin', 'is_superuser')
+                    'last_name', 'institution', 'roles_in', 'last_login')
+    list_filter = ('accountrole__journal__code',
+                   'repositoryrole__repository__short_name',
+                   'is_active', 'is_staff', 'is_admin', 'is_superuser')
     search_fields = ('username', 'email', 'first_name', 'middle_name',
                      'last_name', 'orcid', 'institution',
                      'biography', 'signature')
@@ -64,11 +69,26 @@ class AccountAdmin(UserAdmin):
     raw_id_fields = ('interest',)
 
     inlines = [
-        admin_utils.PasswordResetInline,
         admin_utils.AccountRoleInline,
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
+        admin_utils.PasswordResetInline,
     ]
+
+    def roles_in(self, obj):
+        if obj:
+            journals = journal_models.Journal.objects.filter(
+                accountrole__user=obj,
+            ).distinct()
+            repositories = repository_models.Repository.objects.filter(
+                repositoryrole__user=obj,
+            ).distinct()
+            return ', '.join(
+                [journal.code for journal in journals] +
+                [repository.short_name for repository in repositories]
+            )
+        else:
+            return ''
 
 
 class RoleAdmin(admin.ModelAdmin):
@@ -90,8 +110,8 @@ class PasswordResetAdmin(admin.ModelAdmin):
 class SettingValueAdmin(admin.ModelAdmin):
     list_display = ('setting_pretty_name', 'journal', 'value')
     list_filter = ('journal', )
-    search_fields = ('journal__code', 'setting__name',
-                     'setting__pretty_name', 'setting__group__name')
+    search_fields = ('setting__name', 'setting__pretty_name',
+                     'setting__group__name', 'value')
     raw_id_fields = (
         'setting', 'journal',
     )
@@ -113,31 +133,39 @@ class HomepageElementAdmin(admin.ModelAdmin):
     """Displays Setting objects in the Django admin interface."""
     list_display = ('name', 'active', 'object', 'sequence', 'configure_url',
                     'template_path', 'available_to_press', 'has_config')
-    list_filter = ('name', 'active', 'has_config', 'configure_url',
+    list_filter = (admin_utils.GenericRelationJournalFilter,
+                   admin_utils.GenericRelationPressFilter,
+                   'name', 'active', 'has_config', 'configure_url',
                    'template_path')
     search_fields = ('name', 'object__code')
 
 
 class FileAdmin(admin.ModelAdmin):
     """displays files"""
-    list_display = ('id', 'original_filename', 'label',
-                    'self_article_path', 'owner', 'article_pk')
+    list_display = ('id', 'original_filename', 'last_modified', 'label',
+                    'owner', 'article_pk', 'journal')
     list_display_links = ('original_filename',)
-    list_filter = ('last_modified', 'date_uploaded', 'mime_type',
+    list_filter = (admin_utils.ArticleIDJournalFilter,
+                   'last_modified', 'date_uploaded', 'mime_type',
                    'label', 'is_galley')
     search_fields = ('original_filename', 'article_id', 'label',
                      'description')
     raw_id_fields = ('owner',)
     filter_horizontal = ('history',)
     readonly_fields = ['article_id']
-    date_hierarchy = ('last_modified')
 
     def article_pk(self, obj):
-        if obj.article:
-            link = '<a href="/admin/submission/article/{pk}/change/">{pk}</a>'.format(pk=obj.article.pk)
+        if obj and obj.article_id:
+            link = '<a href="/admin/submission/article/{pk}/change/">{pk}</a>'.format(pk=obj.article_id)
             return mark_safe(link)
         else:
             return '-'
+
+    def journal(self, obj):
+        if obj and obj.article_id:
+            return journal_models.Journal.objects.get(
+                article__pk=obj.article_id
+            ).code
 
 
 class FileHistoryAdmin(admin.ModelAdmin):
@@ -154,16 +182,22 @@ class FileHistoryAdmin(admin.ModelAdmin):
 class XSLFileAdmin(admin.ModelAdmin):
     """Displays Setting objects in the Django admin interface."""
     list_display = ('label', 'date_uploaded', 'file',
-                    'original_filename')
-    list_filter = ('date_uploaded', 'label')
+                    'original_filename', 'journal', '_comments')
+    list_filter = ('journal', 'date_uploaded', 'label')
     search_fields = ('label', 'original_filename', 'comments')
     date_hierarchy = ('date_uploaded')
 
+    def _comments(self, obj):
+        return truncatesmart(obj.comments) if obj else ''
+
 
 class SupplementaryFileAdmin(admin.ModelAdmin):
-    list_display = ('label', 'file', 'date_uploaded', 'last_modified',
-                    'doi', 'path', 'mime_type')
-    list_filter = ('file__date_uploaded', 'file__last_modified')
+    list_display = ('label', 'file', 'last_modified',
+                    'doi', 'mime_type', 'journal')
+    list_filter = (admin_utils.FileArticleIDJournalFilter,
+                   'file__date_uploaded',
+                   'file__last_modified',
+                   'file__mime_type')
     search_fields = ('file__label', 'doi', 'file__original_filename')
 
     def date_uploaded(self, obj):
@@ -172,21 +206,42 @@ class SupplementaryFileAdmin(admin.ModelAdmin):
     def last_modified(self, obj):
         return obj.file.last_modified if obj else ''
 
+    def journal(self, obj):
+        if obj and obj.file.article_id:
+            return journal_models.Journal.objects.get(
+                article__pk=obj.file.article_id
+            ).code
+
 
 class InterestAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name',)
+    list_display = ('pk', 'name', 'journals')
     list_display_links = ('pk', 'name',)
+    list_filter = ('account__accountrole__journal__code',)
     search_fields = ('pk', 'name',)
+
+    def journals(self, obj):
+        if obj and obj.account_set:
+            journals = journal_models.Journal.objects.filter(
+                accountrole__user__interest=obj,
+            ).distinct()
+            return ', '.join([journal.code for journal in journals])
+        else:
+            return ''
+
+    inlines = [
+        admin_utils.AccountInterestInline,
+    ]
 
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'title', 'object', 'link', 'completed_by',
+    list_display = ('pk', 'title', 'object', 'completed_by',
                     'created', 'due', 'completed')
     list_display_links = ('pk', 'title',)
-    list_filter = ('title', 'created', 'due', 'completed')
+    list_filter = (admin_utils.GenericRelationArticleJournalFilter,
+                   admin_utils.GenericRelationPreprintRepositoryFilter,
+                   'title', 'created', 'due', 'completed')
     search_fields = ('pk', 'title', 'link', 'completed_by__first_name',
                      'completed_by__last_name', 'completed_by__email')
-    date_hierarchy = ('created')
 
 
 class TaskCompleteEventsAdmin(admin.ModelAdmin):
@@ -200,7 +255,7 @@ class TaskCompleteEventsAdmin(admin.ModelAdmin):
 
 class WorkflowAdmin(admin.ModelAdmin):
     list_display = ('journal',)
-    filter_horizontal = ('elements',)
+    raw_id_fields = ('elements',)
 
 
 class WorkflowElementAdmin(admin.ModelAdmin):
@@ -222,6 +277,7 @@ class WorkflowLogAdmin(admin.ModelAdmin):
     search_fields = ('article__title', 'element__element_name',
                      'element__stage', 'element__journal__code')
     date_hierarchy = ('timestamp')
+    raw_id_fields = ('article',)
 
     def journal(self, obj):
         return obj.element.journal.code if obj else ''
@@ -231,6 +287,7 @@ class WorkflowLogAdmin(admin.ModelAdmin):
 
     def workflow_element(self, obj):
         return obj.element.element_name if obj else ''
+
 
 class OrcidTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'orcid', 'expiry')
@@ -251,34 +308,35 @@ class SettingGroupAdmin(admin.ModelAdmin):
 
 
 class GalleyAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'label', 'type',
-                    'article_pk', 'file_link', 'file')
-    list_display_links = ('label',)
-    list_filter = ('type', 'is_remote', 'public')
+    list_display = ('pk', 'label', 'last_modified', 'type',
+                    'article_pk', 'file_link', 'file', 'journal')
+    list_filter = (admin_utils.ArticleIDJournalFilter,
+                   'last_modified', 'label', 'type', 'is_remote', 'public')
     search_fields = ('label', 'article__title', 'file__original_filename',
                      'article__id')
     raw_id_fields = ('article', 'file', 'css_file')
     filter_horizontal = ('images',)
+    date_hierarchy = ('last_modified')
 
     def article_pk(self, obj):
-        if obj.article:
-            link = '<a href="/admin/submission/article/{pk}/change/">{pk}</a>'.format(pk=obj.article.pk)
+        if obj and obj.article_id:
+            link = '<a href="/admin/submission/article/{pk}/change/">{pk}</a>'.format(pk=obj.article_id)
             return mark_safe(link)
         else:
             return '-'
 
     def file_link(self, obj):
-        if obj.file:
+        if obj and obj.file:
             link = '<a href="/admin/core/file/{pk}/change/">{pk}</a>'.format(pk=obj.file.pk)
             return mark_safe(link)
         else:
             return '-'
 
-    def original_filename(self, obj):
-        if obj.file:
-            return obj.file.original_filename
-        else:
-            return '-'
+    def journal(self, obj):
+        if obj and obj.article_id:
+            return journal_models.Journal.objects.get(
+                article__pk=obj.article_id
+            ).code
 
 
 class EditorialGroupAdmin(admin.ModelAdmin):
@@ -292,30 +350,38 @@ class EditorialGroupAdmin(admin.ModelAdmin):
 
 
 class EditorialMemberAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'group', 'sequence')
-    list_filter = ('group', )
+    list_display = ('pk', 'user', 'group', 'journal', 'sequence')
+    list_filter = ('group', 'group__journal')
     raw_id_fields = ('user', )
     search_fields = ('pk', 'user__first_name', 'user__last_name',
                      'user__email', 'group__name', 'group__description',
                      'group__journal__code')
 
+    def journal(self, obj):
+        return obj.group.journal if obj else ''
+
 
 class ContactsAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'role', 'object', 'sequence')
+    list_filter = (admin_utils.GenericRelationJournalFilter,
+                   admin_utils.GenericRelationPressFilter)
     search_fields = ('name', 'email', 'role')
 
 
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('subject', 'sender', 'recipient',
                     'client_ip', 'date_sent', 'object')
-    list_filter = ('date_sent', 'recipient')
+    list_filter = (admin_utils.GenericRelationJournalFilter,
+                   admin_utils.GenericRelationPressFilter,
+                   'date_sent', 'recipient')
     search_fields = ('subject', 'sender', 'recipient',)
     date_hierarchy = ('date_sent')
 
 
 class DomainAliasAdmin(admin.ModelAdmin):
     list_display = ('domain', 'redirect', 'site_object', 'redirect_url')
-    search_fields = ('domain', 'journal__code', 'press__name')
+    list_filter = ('journal', 'press')
+    search_fields = ('domain',)
 
 
 class LoginAttemptAdmin(admin.ModelAdmin):

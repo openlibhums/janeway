@@ -18,6 +18,12 @@ from repository import models as repository_models
 from press import models as press_models
 
 
+class AccountInterestInline(admin.TabularInline):
+    model = core_models.Account.interest.through
+    extra = 0
+    raw_id_fields = ('account',)
+
+
 class PostInline(admin.TabularInline):
     model = discussion_models.Post
     extra = 0
@@ -144,6 +150,7 @@ class TaskCompleteEventInline(admin.TabularInline):
 class EditorialGroupMemberInline(admin.TabularInline):
     model = core_models.EditorialGroupMember
     extra = 0
+    raw_id_fields = ('user',)
 
 
 class WorkflowLogInline(admin.TabularInline):
@@ -215,11 +222,9 @@ class RepositoryReviewInline(admin.TabularInline):
               'date_accepted', 'date_completed', 'status')
 
 
-class GenericRelationJournalFilter(admin.SimpleListFilter):
+class JournalFilterBase(admin.SimpleListFilter):
     """
-    Provides a journal list filter for objects that are connected to
-    the journal by a Generic Foreign Key.
-    An example is cms.NavigationItem.
+    A base class for other journal filters
     """
 
     title = 'journal'
@@ -231,6 +236,43 @@ class GenericRelationJournalFilter(admin.SimpleListFilter):
             for journal in journal_models.Journal.objects.all()
         )
 
+
+class ArticleIDJournalFilter(JournalFilterBase):
+    """
+    A journal filter for objects that just store article ids,
+    like core.File.
+    """
+    def queryset(self, request, queryset):
+        journal_pk = request.GET.get('journal', None)
+        if not journal_pk:
+            return queryset
+        articles = submission_models.Article.objects.filter(
+            journal__pk=journal_pk,
+        )
+        return queryset.filter(article_id__in=articles)
+
+
+class FileArticleIDJournalFilter(JournalFilterBase):
+    """
+    A journal filter for objects related to files,
+    like core.SupplementaryFile.
+    """
+    def queryset(self, request, queryset):
+        journal_pk = request.GET.get('journal', None)
+        if not journal_pk:
+            return queryset
+        articles = submission_models.Article.objects.filter(
+            journal__pk=journal_pk,
+        )
+        return queryset.filter(file__article_id__in=articles)
+
+
+class GenericRelationJournalFilter(JournalFilterBase):
+    """
+    A journal list filter for objects that are connected to
+    the journal by a Generic Foreign Key.
+    An example is cms.NavigationItem.
+    """
     def queryset(self, request, queryset):
         journal_pk = request.GET.get('journal', None)
         if not journal_pk:
@@ -271,21 +313,12 @@ class GenericRelationPressFilter(admin.SimpleListFilter):
         )
 
 
-class GenericRelationArticleJournalFilter(GenericRelationJournalFilter):
+class GenericRelationArticleJournalFilter(JournalFilterBase):
     """
     Provides a journal list filter for objects that are separated from the
     journal by a Generic Foreign Key and an article-journal relationship.
     An example is utils.LogEntry.
     """
-
-    title = 'journal'
-    parameter_name = 'journal'
-
-    def lookups(self, request, model_admin):
-        return (
-            (journal.id, journal.code)
-            for journal in journal_models.Journal.objects.all()
-        )
 
     def queryset(self, request, queryset):
         journal_pk = request.GET.get('journal', None)
