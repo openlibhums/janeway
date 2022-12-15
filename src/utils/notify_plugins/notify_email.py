@@ -92,7 +92,7 @@ def notify_hook(**kwargs):
     attachment = kwargs.pop('attachment', None)
     request = kwargs.pop('request', None)
     task = kwargs.pop('task', None)
-    custom_reply_to = kwargs.pop('custom_reply_to')
+    custom_reply_to = kwargs.pop('custom_reply_to', None)
 
     if request and request.journal:
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
