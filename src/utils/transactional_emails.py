@@ -410,7 +410,7 @@ def send_submission_acknowledgement(**kwargs):
         editor_emails,
         context,
         log_dict=log_dict,
-        custom_reply_to=f"noreply{settings.DUMMY_EMAIL_DOMAIN}"
+        custom_reply_to=[f"noreply{settings.DUMMY_EMAIL_DOMAIN}"]
     )
 
 
