@@ -234,7 +234,8 @@ class CrossrefStatus(models.Model):
 
     def __str__(self):
         if self.latest_deposit:
-            return f'{self.message} {self.latest_deposit.date_time}'
+            return f'{self.identifier} {self.message} ' \
+                   f'{self.latest_deposit.date_time}'
         else:
             return self.message
 

@@ -6,25 +6,32 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from identifiers import models
+from journal import models as journal_models
 
 
 class BrokenDOIAdmin(admin.ModelAdmin):
-    list_display = ('identifier', 'resolves_to', 'expected_to_resolve_to', 'checked')
+    list_display = ('identifier', 'resolves_to', 'expected_to_resolve_to',
+                    'checked', 'journal')
+    list_filter = ('identifier__article__journal', 'checked')
     raw_id_fields = ('article', 'identifier')
+    search_fields = ('identifier__identifier', 'identifier__article__pk',
+                     'identifier__article__title')
+    date_hierarchy = ('checked')
+
+    def journal(self, obj):
+        return obj.identifier.article.journal if obj else ''
 
 
 class IdentifierAdmin(admin.ModelAdmin):
     list_display = ('pk', 'id_type', 'identifier',
-                    'registration_status', 'article_url', 'article')
+                    'registration_status', 'article_url', 'article', 'journal')
+    list_filter = ('article__journal', 'id_type')
     list_display_links = ('identifier', )
     search_fields = ('pk', 'id_type', 'identifier', 'article__title')
     raw_id_fields = ('article',)
 
     def article_url(self, obj):
-        if obj:
-            return obj.article.url
-        else:
-            return ''
+        return obj.article.url if obj else ''
 
     def registration_status(self, obj):
         if obj and obj.crossrefstatus:
@@ -32,26 +39,42 @@ class IdentifierAdmin(admin.ModelAdmin):
         else:
             return ''
 
+    def journal(self, obj):
+        return obj.article.journal if obj else ''
+
     inlines = [
-        admin_utils.CrossrefStatusInline,
+        admin_utils.IdentifierCrossrefStatusInline,
     ]
 
 
 class CrossrefStatusAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'message', 'identifier', 'latest_deposit')
+    list_display = ('pk', 'message', 'identifier', 'latest_deposit', 'journal')
+    list_filter = ('identifier__article__journal', 'message')
     list_display_links = ('message', )
     search_fields = ('pk', 'identifier__identifier', 'message')
-    list_filter = ('message',)
+    raw_id_fields = ('identifier',)
+    readonly_fields = ('deposits', 'message')
+
+    def journal(self, obj):
+        return obj.identifier.article.journal if obj else ''
 
 
 class CrossrefDepositAdmin(admin.ModelAdmin):
     list_display = ('pk', 'file_name', 'has_result', 'queued',
                     'success', 'citation_success',
-                    'date_time', 'polling_attempts')
-    list_filter = ('has_result', 'queued', 'success', 'citation_success',
+                    'date_time', 'polling_attempts', 'journal')
+    list_filter = ('crossrefstatus__identifier__article__journal',
+                   'has_result', 'queued', 'success', 'citation_success',
                    'date_time', 'polling_attempts')
     search_fields = ('pk', 'file_name', 'document', 'result_text')
     date_hierarchy = ('date_time')
+
+    def journal(self, obj):
+        return obj.journal if obj else ''
+
+    inlines = [
+        admin_utils.DepositCrossrefStatusInline,
+    ]
 
 
 admin_list = [

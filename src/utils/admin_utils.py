@@ -46,10 +46,16 @@ class ToAddressInline(admin.TabularInline):
     extra = 0
 
 
-class CrossrefStatusInline(admin.TabularInline):
+class IdentifierCrossrefStatusInline(admin.TabularInline):
     model = identifier_models.CrossrefStatus
     extra = 0
     filter_horizontal = ('deposits',)
+
+
+class DepositCrossrefStatusInline(admin.TabularInline):
+    model = identifier_models.CrossrefStatus.deposits.through
+    extra = 0
+    raw_id_fields = ('crossrefstatus',)
 
 
 class AuthorReviewInline(admin.TabularInline):
