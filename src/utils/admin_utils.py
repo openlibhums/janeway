@@ -48,8 +48,9 @@ class ReviewAssignmentAnswerInline(admin.TabularInline):
 
 
 class RevisionActionInline(admin.TabularInline):
-    model = review_models.RevisionAction
+    model = review_models.RevisionRequest.actions.through
     extra = 0
+    raw_id_fields = ('revisionaction',)
 
 
 class ToAddressInline(admin.TabularInline):

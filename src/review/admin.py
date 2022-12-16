@@ -7,6 +7,7 @@ from django.contrib import admin
 from utils import admin_utils
 from review import models
 from core.templatetags.truncate import truncatesmart
+from submission import models as submission_models
 
 
 class EditorialAdmin(admin_utils.ArticleFKModelAdmin):
@@ -82,7 +83,7 @@ class FrozenReviewFormElementAdmin(admin.ModelAdmin):
 
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ('pk', 'element_answer', 'assignment', 'frozen_element',
-                    'author_can_see')
+                    'author_can_see', 'journal')
     list_display_links = ('element_answer',)
     list_filter = ('assignment__article__journal', 'assignment__date_complete',
                    'assignment__date_due')
@@ -96,6 +97,9 @@ class AnswerAdmin(admin.ModelAdmin):
 
     def element_answer(self, obj):
         return truncatesmart(obj.answer, 25) if obj else ''
+
+    def journal(self, obj):
+        return obj.assignment.article.journal if obj else ''
 
 
 class RatingAdmin(admin.ModelAdmin):
@@ -144,6 +148,10 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article', 'editor')
     filter_horizontal = ('actions',)
     date_hierarchy = ('date_requested')
+
+    inlines = [
+        admin_utils.RevisionActionInline,
+    ]
 
     def _article(self, obj):
         return truncatesmart(str(obj.article), 30) if obj else ''
