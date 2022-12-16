@@ -9,7 +9,7 @@ from discussion import models
 from core.templatetags.truncate import truncatesmart
 
 
-class ThreadAdmin(admin.ModelAdmin):
+class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'subject', 'owner', 'started', 'object_title',
                     'journal')
     list_filter = ('article__journal', 'subject', 'started', 'last_updated')
@@ -22,9 +22,6 @@ class ThreadAdmin(admin.ModelAdmin):
     inlines = [
         admin_utils.PostInline
     ]
-
-    def journal(self, obj):
-        return obj.article.journal if obj else ''
 
 
 class PostAdmin(admin.ModelAdmin):

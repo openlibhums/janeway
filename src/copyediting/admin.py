@@ -9,7 +9,7 @@ from utils import admin_utils
 from copyediting import models
 
 
-class CopyeditAdmin(admin.ModelAdmin):
+class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'article', 'copyeditor', 'editor', 'assigned',
                     'decision', 'due', 'journal')
     list_filter = ('article__journal', 'assigned', 'due', 'date_decided',
@@ -24,9 +24,6 @@ class CopyeditAdmin(admin.ModelAdmin):
     inlines = [
         admin_utils.AuthorReviewInline
     ]
-
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
 
 class AuthorAdmin(admin.ModelAdmin):

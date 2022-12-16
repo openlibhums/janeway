@@ -22,7 +22,7 @@ class BrokenDOIAdmin(admin.ModelAdmin):
         return obj.identifier.article.journal if obj else ''
 
 
-class IdentifierAdmin(admin.ModelAdmin):
+class IdentifierAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'id_type', 'identifier',
                     'registration_status', 'article_url', 'article', 'journal')
     list_filter = ('article__journal', 'id_type')
@@ -38,9 +38,6 @@ class IdentifierAdmin(admin.ModelAdmin):
             return obj.crossrefstatus.get_message_display()
         else:
             return ''
-
-    def journal(self, obj):
-        return obj.article.journal if obj else ''
 
     inlines = [
         admin_utils.IdentifierCrossrefStatusInline,

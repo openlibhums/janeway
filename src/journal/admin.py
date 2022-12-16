@@ -99,18 +99,15 @@ class NotificationsAdmin(admin.ModelAdmin):
     raw_id_fields = ('user',)
 
 
-class ArticleOrderingAdmin(admin.ModelAdmin):
-    list_display = ('order', 'article', 'issue', 'journal', 'section')
+class ArticleOrderingAdmin(admin_utils.ArticleFKModelAdmin):
+    list_display = ('order', 'article', 'issue', 'section', 'journal')
     list_filter = ('article__journal',)
     search_fields = ('article__title', 'section__name', 'issue__issue_title',
                      'issue__journal__code', 'issue__volume', 'issue__issue')
     raw_id_fields = ('article',)
 
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
-
-class FixedPubCheckItemsAdmin(admin.ModelAdmin):
+class FixedPubCheckItemsAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('article', 'journal', 'metadata', 'verify_doi',
                     'select_issue', 'set_pub_date', 'notify_the_author',
                     'select_render_galley', 'select_article_image',
@@ -122,9 +119,6 @@ class FixedPubCheckItemsAdmin(admin.ModelAdmin):
     search_fields = ('article__pk', 'article__title', 'article__journal__code')
     raw_id_fields = ('article',)
 
-    def journal(self, obj):
-        return obj.article.journal if obj else ''
-
 
 class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
     list_display = ('journal', 'title', 'enabled')
@@ -132,7 +126,7 @@ class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
     search_fields = ('journal__code', 'title', 'text')
 
 
-class PrePublicationChecklistItemAdmin(admin.ModelAdmin):
+class PrePublicationChecklistItemAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('article', 'journal', 'completed', 'completed_by',
                     'completed_on')
     list_filter = ('article__journal', 'completed', 'completed_on')
@@ -144,9 +138,6 @@ class PrePublicationChecklistItemAdmin(admin.ModelAdmin):
         'completed_by',
         'article',
     )
-
-    def journal(self, obj):
-        return obj.article.journal if obj else ''
 
 
 class SectionOrderingAdmin(admin.ModelAdmin):

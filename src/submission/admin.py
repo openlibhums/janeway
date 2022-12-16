@@ -21,7 +21,7 @@ class FunderAdmin(admin.ModelAdmin):
     search_fields = ('name', 'fundref_id', 'funding_id')
 
 
-class FrozenAuthorAdmin(admin.ModelAdmin):
+class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
                     'frozen_email', 'frozen_orcid', 'institution', 'journal')
     list_filter = ('article__journal',)
@@ -29,9 +29,6 @@ class FrozenAuthorAdmin(admin.ModelAdmin):
                      'first_name', 'last_name',
                      'institution', 'frozen_biography', )
     raw_id_fields = ('article', 'author',)
-
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
 
 class ArticleAdmin(admin.ModelAdmin):
@@ -89,7 +86,7 @@ class ArticleAdmin(admin.ModelAdmin):
         return self.model.objects.get_queryset()
 
 
-class ArticleLogAdmin(admin.ModelAdmin):
+class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('_article', 'journal', 'stage_from',
                     'stage_to', 'date_time')
     list_filter = ('article__journal', 'stage_from', 'stage_to')
@@ -101,9 +98,6 @@ class ArticleLogAdmin(admin.ModelAdmin):
     def _article(self, obj):
         return truncatesmart(str(obj.article)) if obj else ''
 
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
-
 
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'short_name', 'journal', 'url', '_text')
@@ -114,7 +108,7 @@ class LicenseAdmin(admin.ModelAdmin):
         return truncatesmart(obj.text, 50) if obj else ''
 
 
-class NoteAdmin(admin.ModelAdmin):
+class NoteAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('_text', '_article', 'journal', 'creator', 'date_time')
     list_filter = ('article__journal', 'date_time',)
     raw_id_fields = ('article', 'creator')
@@ -129,9 +123,6 @@ class NoteAdmin(admin.ModelAdmin):
 
     def _article(self, obj):
         return truncatesmart(str(obj.article), 30) if obj else ''
-
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
 
 class PublisherNoteAdmin(admin.ModelAdmin):
@@ -178,7 +169,7 @@ class FieldAdmin(admin.ModelAdmin):
     search_fields = ('name', 'help_text', 'choices')
 
 
-class FieldAnswerAdmin(admin.ModelAdmin):
+class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('field', '_answer', '_article', 'journal')
     list_filter = ('article__journal',)
     search_fields = ('field__name', 'article__pk', 'article__title',
@@ -189,9 +180,6 @@ class FieldAnswerAdmin(admin.ModelAdmin):
 
     def _article(self, obj):
         return truncatesmart(str(obj.article), 30) if obj else ''
-
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
 
 class SubmissionConfigAdmin(admin.ModelAdmin):
@@ -205,7 +193,7 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
     raw_id_fields = ('default_license', 'default_section')
 
 
-class ArticleAuthorOrderAdmin(admin.ModelAdmin):
+class ArticleAuthorOrderAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('order', '_article', 'author', 'journal')
     list_filter = ('article__journal', 'order')
     search_fields = ('article__pk', 'article__title', 'author__email',
@@ -214,9 +202,6 @@ class ArticleAuthorOrderAdmin(admin.ModelAdmin):
 
     def _article(self, obj):
         return truncatesmart(str(obj.article), 30) if obj else ''
-
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
 
 admin_list = [
