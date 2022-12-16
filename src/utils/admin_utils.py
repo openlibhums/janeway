@@ -121,6 +121,18 @@ class GalleyInline(admin.TabularInline):
                      'images', 'xsl_file')
 
 
+class IssueGalleyInline(admin.TabularInline):
+    model = journal_models.IssueGalley
+    extra = 0
+    raw_id_fields = ('file',)
+
+
+class SectionOrderingInline(admin.TabularInline):
+    model = journal_models.SectionOrdering
+    extra = 0
+    raw_id_fields = ('section', 'issue')
+
+
 class PasswordResetInline(admin.TabularInline):
     model = core_models.PasswordResetToken
     extra = 0

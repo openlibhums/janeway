@@ -18,43 +18,43 @@ class IssueAdmin(admin.ModelAdmin):
                      'journal__code')
     date_hierarchy = ('date')
     filter_horizontal = ('articles',)
+    raw_id_fields = ('issue_type',)
 
     inlines = [
-        admin_utils.ArticleOrderingInline
+        admin_utils.IssueGalleyInline,
+        admin_utils.SectionOrderingInline,
+        admin_utils.ArticleOrderingInline,
     ]
 
 
 class IssueTypeAdmin(admin.ModelAdmin):
-    list_display = ('display_name',)
+    list_display = ('code', 'pretty_name', 'journal')
     list_filter = ('journal',)
-    search_fields = ('pretty_name', 'code', 'journal__code')
-
-    def display_name(self, obj):
-        if obj:
-            return f'{obj.pretty_name} ({obj.journal.code})'
+    search_fields = ('code', 'pretty_name')
 
 
 class IssueGalleyAdmin(admin.ModelAdmin):
     list_display = ('pk', 'file', 'issue', 'journal')
     list_display_links = ('pk', 'file')
+    list_filter = ('issue__journal',)
     search_fields = ('pk', 'file__original_filename', 'issue__journal__code',
                      'issue__issue_title', 'issue__volume', 'issue__issue')
 
     def journal(self, obj):
-        if obj:
-            return obj.issue.journal.code
+        return obj.issue.journal if obj else ''
 
 
 class IssueEditorAdmin(admin.ModelAdmin):
     list_display = ('account', 'issue', 'journal', 'role')
-    list_filter = ('role',)
+    list_filter = ('issue__journal', 'role',)
     search_fields = ('account__email', 'account__first_name',
                      'account__last_name', 'role', 'issue__issue_title',
                      'issue__journal__code')
 
+    raw_id_fields = ('account', 'issue')
+
     def journal(self, obj):
-        if obj:
-            return obj.issue.journal.code
+        return obj.issue.journal if obj else ''
 
 
 class JournalAdmin(admin.ModelAdmin):
@@ -101,6 +101,7 @@ class NotificationsAdmin(admin.ModelAdmin):
 
 class ArticleOrderingAdmin(admin.ModelAdmin):
     list_display = ('order', 'article', 'issue', 'journal', 'section')
+    list_filter = ('article__journal',)
     search_fields = ('article__title', 'section__name', 'issue__issue_title',
                      'issue__journal__code', 'issue__volume', 'issue__issue')
     raw_id_fields = ('article',)
@@ -114,7 +115,7 @@ class FixedPubCheckItemsAdmin(admin.ModelAdmin):
                     'select_issue', 'set_pub_date', 'notify_the_author',
                     'select_render_galley', 'select_article_image',
                     'select_open_reviews')
-    list_filter = ('metadata', 'verify_doi',
+    list_filter = ('article__journal', 'metadata', 'verify_doi',
                    'select_issue', 'set_pub_date', 'notify_the_author',
                    'select_render_galley', 'select_article_image',
                    'select_open_reviews')
@@ -122,8 +123,7 @@ class FixedPubCheckItemsAdmin(admin.ModelAdmin):
     raw_id_fields = ('article',)
 
     def journal(self, obj):
-        if obj:
-            return obj.article.journal.code
+        return obj.article.journal if obj else ''
 
 
 class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
@@ -135,7 +135,7 @@ class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
 class PrePublicationChecklistItemAdmin(admin.ModelAdmin):
     list_display = ('article', 'journal', 'completed', 'completed_by',
                     'completed_on')
-    list_filter = ('completed', 'completed_on')
+    list_filter = ('article__journal', 'completed', 'completed_on')
     search_fields = ('article__title', 'article__journal__code',
                      'completed_by__email', 'completed_by__first_name',
                      'completed_by__last_name')
@@ -146,8 +146,7 @@ class PrePublicationChecklistItemAdmin(admin.ModelAdmin):
     )
 
     def journal(self, obj):
-        if obj:
-            return obj.article.journal.code
+        return obj.article.journal if obj else ''
 
 
 class SectionOrderingAdmin(admin.ModelAdmin):
@@ -157,8 +156,7 @@ class SectionOrderingAdmin(admin.ModelAdmin):
                      'issue__journal__code', 'issue__volume', 'issue__issue')
 
     def journal(self, obj):
-        if obj:
-            return obj.issue.journal.code
+        return obj.issue.journal if obj else ''
 
 
 admin_list = [
