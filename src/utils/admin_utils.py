@@ -18,6 +18,17 @@ from repository import models as repository_models
 from press import models as press_models
 
 
+class ArticleFKModelAdmin(admin.ModelAdmin):
+    """
+    An abstract ModelAdmin base class for objects
+    that relate to Article with a foreign key `article`.
+    Adds a journal function for use in list_display.
+    """
+
+    def journal(self, obj):
+        return obj.article.journal if obj else ''
+
+
 class AccountInterestInline(admin.TabularInline):
     model = core_models.Account.interest.through
     extra = 0

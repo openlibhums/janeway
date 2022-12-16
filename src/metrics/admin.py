@@ -7,6 +7,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
+from utils import admin_utils
 from metrics import models
 from submission import models as submission_models
 
@@ -26,11 +27,11 @@ def _export_as_csv(self, request, queryset):
     return response
 
 
-class ArticleAccessAdmin(admin.ModelAdmin):
+class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
     """Displays objects in the Django admin interface."""
-    list_display = ('accessed', 'country', 'journal', 'type', 'galley_type',
-                    'article')
-    list_filter = ('accessed', 'type', 'galley_type',)
+    list_display = ('article', 'accessed', 'country',
+                    'type', 'galley_type', 'journal')
+    list_filter = ('article__journal', 'accessed', 'type', 'galley_type',)
     search_fields = ('article__title', 'article__pk', 'identifier',
                      'article__journal__code',
                      'type', 'galley_type', 'accessed', 'country__code',
@@ -43,28 +44,26 @@ class ArticleAccessAdmin(admin.ModelAdmin):
         form.base_fields['article'].queryset = submission_models.Article.objects.all()
         return form
 
-    def journal(self, obj):
-        if obj:
-            return obj.article.journal.code
 
-
-class HistoricArticleAccessAdmin(admin.ModelAdmin):
-    list_display = ('article', 'views', 'downloads')
+class HistoricArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
+    list_display = ('article', 'views', 'downloads', 'journal')
+    list_filter = ('article__journal',)
     raw_id_fields = ('article',)
 
 
-class AltMetricAdmin(admin.ModelAdmin):
-    list_display = ('article', 'source', 'pid')
-    list_filter = ('source', 'timestamp')
+class AltMetricAdmin(admin_utils.ArticleFKModelAdmin):
+    list_display = ('article', 'source', 'pid', 'journal')
+    list_filter = ('article__journal', 'source', 'timestamp')
     search_fields = ('article__title', 'article__pk', 'source',
                      'pid')
     date_hierarchy = ('timestamp')
     raw_id_fields = ('article',)
 
 
-class ArticleLinkAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'object_type', 'doi', 'year', 'article')
-    list_filter = ('object_type', 'year',)
+class ArticleLinkAdmin(admin_utils.ArticleFKModelAdmin):
+    list_display = ('pk', 'object_type', 'doi', 'year', 'article',
+                    'journal')
+    list_filter = ('article__journal', 'object_type', 'year',)
     search_fields = ('article__title', 'article__pk', 'doi', 'year',
                      'article_title', 'journal_title', 'journal_issn')
 
@@ -76,9 +75,10 @@ class ArticleLinkAdmin(admin.ModelAdmin):
     export_as_csv.short_description = "Export Selected"
 
 
-class BookLinkAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'object_type', 'doi', 'year', 'article')
-    list_filter = ('object_type', 'year',)
+class BookLinkAdmin(admin_utils.ArticleFKModelAdmin):
+    list_display = ('pk', 'object_type', 'doi', 'year', 'article',
+                    'journal')
+    list_filter = ('article__journal', 'object_type', 'year',)
     search_fields = ('article__title', 'article__pk', 'doi', 'year',
                      'title', 'isbn_print', 'isbn_electronic')
 
