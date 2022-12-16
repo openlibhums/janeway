@@ -35,10 +35,10 @@ def base_check(request, login_redirect=False):
     """
 
     if (
-        request is None
-        or request.user is None
-        or request.user.is_anonymous()
-        or not request.user.is_active
+            request is None
+            or request.user is None
+            or request.user.is_anonymous()
+            or not request.user.is_active
     ):
         if login_redirect is True:
             params = urlencode({"next": request.path})
