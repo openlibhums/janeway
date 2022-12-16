@@ -267,6 +267,29 @@ class FileArticleIDJournalFilter(JournalFilterBase):
         return queryset.filter(file__article_id__in=articles)
 
 
+class SentReminderJournalFilter(JournalFilterBase):
+    """
+    A journal filter for SentReminder, which stores object IDs and types.
+    """
+    def queryset(self, request, queryset):
+        journal_pk = request.GET.get('journal', None)
+        if not journal_pk or not queryset:
+            return queryset
+        if queryset.first().type == 'review':
+            model = review_models.ReviewAssignment
+        elif queryset.first().type == 'accepted-review':
+            model = review_models.ReviewAssignment
+        elif queryset.first().type == 'revisions':
+            model = review_models.RevisionRequest
+        else:
+            return queryset
+
+        objects = model.objects.filter(
+            article__journal__pk=journal_pk,
+        )
+        return queryset.filter(object_id__in=objects)
+
+
 class GenericRelationJournalFilter(JournalFilterBase):
     """
     A journal list filter for objects that are connected to
