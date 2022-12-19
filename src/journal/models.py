@@ -550,7 +550,7 @@ class Issue(AbstractLastModifiedModel):
     cover_image = SVGImageField(
         upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
         help_text=ugettext(
-            "Image representing the the cover of a printed issue or volume",
+            "Image representing the cover of a printed issue or volume",
         )
     )
     large_image = SVGImageField(
