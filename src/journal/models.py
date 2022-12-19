@@ -12,7 +12,6 @@ import os
 import re
 
 from django.conf import settings
-from django.core import validators
 from django.db import models, transaction
 from django.db.models import OuterRef, Subquery, Value
 from django.db.models.signals import post_save, m2m_changed
@@ -33,7 +32,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic, install, shared
+from utils import setting_handler, logic, install
 from utils.function_cache import cache, mutable_cached_property
 from utils.logger import get_logger
 
@@ -606,7 +605,7 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         null=True,
         verbose_name="ISBN",
-        help_text=ugettext(
+        help_text=gettext(
             "An ISBN is relevant for non-serial collections such as"
             " conference proceedings"
         ),
