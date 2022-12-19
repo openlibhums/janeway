@@ -40,10 +40,10 @@ from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
-from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from utils import setting_handler
 
 logger = get_logger(__name__)
 
@@ -1135,27 +1135,40 @@ class Article(AbstractLastModifiedModel):
         return url
 
     def step_to_url(self):
+        funding_enabled = False
+        if self.journal and self.journal.submissionconfiguration:
+            funding_enabled = self.journal.submissionconfiguration.funding
+
         if self.current_step == 1:
             return reverse('submit_info', kwargs={'article_id': self.id})
         elif self.current_step == 2:
             return reverse('submit_authors', kwargs={'article_id': self.id})
         elif self.current_step == 3:
             return reverse('submit_files', kwargs={'article_id': self.id})
+        elif self.current_step == 4 and funding_enabled:
+            return reverse('submit_funding', kwargs={'article_id': self.id})
         elif self.current_step == 4:
             return reverse('submit_review', kwargs={'article_id': self.id})
         else:
-            return None
+            return reverse('submit_review', kwargs={'article_id': self.id})
 
     def step_name(self):
+        funding_enabled = False
+        if self.journal and self.journal.submissionconfiguration:
+            funding_enabled = self.journal.submissionconfiguration.funding
         if self.current_step == 1:
             return 'Article Information'
         elif self.current_step == 2:
             return 'Article Authors'
         elif self.current_step == 3:
             return 'Article Files'
+        elif self.current_step == 4 and funding_enabled:
+            return 'Article Funding'
         elif self.current_step == 4:
             return 'Review Article Submission'
-        elif self.current_step == 5:
+        elif self.current_step == 5 and funding_enabled:
+            return 'Review Article Submission'
+        else:
             return 'Submission Complete'
 
     def save(self, *args, **kwargs):
