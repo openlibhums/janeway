@@ -1675,10 +1675,8 @@ class SettingValueTranslation(models.Model):
         db_table = 'core_settingvalue_translation'
 
 
-def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
+def log_hijack_started(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    hijacker = Account.objects.get(pk=hijacker_id)
-    hijacked = Account.objects.get(pk=hijacked_id)
     action = '{} ({}) has hijacked {} ({})'.format(
         hijacker.full_name(),
         hijacker.pk,
@@ -1696,10 +1694,8 @@ def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
     )
 
 
-def log_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
+def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    hijacker = Account.objects.get(pk=hijacker_id)
-    hijacked = Account.objects.get(pk=hijacked_id)
     action = '{} ({}) has released {} ({})'.format(
         hijacker.full_name(),
         hijacker.pk,
