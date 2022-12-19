@@ -124,6 +124,7 @@ MIDDLEWARE = (
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'journal.middleware.LanguageMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
