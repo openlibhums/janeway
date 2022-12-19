@@ -1136,7 +1136,9 @@ class Article(AbstractLastModifiedModel):
 
     def step_to_url(self):
         funding_enabled = False
-        if self.journal and self.journal.submissionconfiguration:
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
             funding_enabled = self.journal.submissionconfiguration.funding
 
         if self.current_step == 1:
@@ -1154,7 +1156,9 @@ class Article(AbstractLastModifiedModel):
 
     def step_name(self):
         funding_enabled = False
-        if self.journal and self.journal.submissionconfiguration:
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
             funding_enabled = self.journal.submissionconfiguration.funding
         if self.current_step == 1:
             return 'Article Information'
