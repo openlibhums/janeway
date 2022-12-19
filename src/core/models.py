@@ -191,7 +191,6 @@ class AccountManager(BaseUserManager):
 
         account.is_staff = True
         account.is_admin = True
-        account.is_legal_admin = True
         account.is_active = True
         account.is_superuser = True
         account.save()
@@ -240,7 +239,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    is_legal_admin = models.BooleanField(default=False)
 
     enable_digest = models.BooleanField(default=False)
     enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
