@@ -389,6 +389,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def is_section_editor(self, request):
         return self.check_role(request.journal, 'section-editor')
+    
+    def is_journal_manager(self, request):
+        return self.check_role(request.journal, 'journal-manager')
 
     def has_an_editor_role(self, request):
         editor = self.is_editor(request)

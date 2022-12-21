@@ -1,3 +1,6 @@
+{% load roles %}
+{% user_has_role request 'journal_manager' as user_is_journal_manager %}
+
 <p>Settings for Submission are split across three interfaces.</p>
 <p>
     <ul>
@@ -32,7 +35,7 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.user_automatically_author %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
     {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
-    {% if request.user.is_admin %}{% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}{% endif %}
+    {% if user_is_journal_manager %}{% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}{% endif %}
 </div>
 
 <div class="title-area">

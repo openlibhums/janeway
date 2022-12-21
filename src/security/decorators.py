@@ -168,6 +168,23 @@ def proofing_manager_roles(func):
 
     return wrapper
 
+def journal_manager_user_required(func):
+    """ This decorator checks that a user is a Journal Manager
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+
+        if request.user.is_journal_manager(request) or request.user.is_staff:
+            return func(request, *args, **kwargs)
+
+        else:
+            deny_access(request)
+
+    return wrapper
+
 
 def editor_user_required(func):
     """ This decorator checks that a user is an editor, or
