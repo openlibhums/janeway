@@ -264,10 +264,6 @@ class WorkflowElementAdmin(admin.ModelAdmin):
     list_filter = ('journal', 'element_name', 'stage')
     search_fields = ('journal__code', 'element_name', 'stage')
 
-    inlines = [
-        admin_utils.WorkflowLogInline
-    ]
-
 
 class WorkflowLogAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'journal', 'workflow_element',
@@ -301,10 +297,6 @@ class SettingGroupAdmin(admin.ModelAdmin):
     list_filter = ('enabled',)
     search_fields = ('name',)
     list_display_links = ('name',)
-
-    inlines = [
-        admin_utils.SettingInline
-    ]
 
 
 class GalleyAdmin(admin.ModelAdmin):

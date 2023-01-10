@@ -40,6 +40,7 @@ class PostInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ('owner', 'thread')
     exclude = ('read_by',)
+    ordering = ('posted',)
 
 
 class ReviewAssignmentAnswerInline(admin.TabularInline):
@@ -198,6 +199,7 @@ class CommentInline(admin.TabularInline):
     model = repository_models.Comment
     extra = 0
     raw_id_fields = ('reply_to', 'preprint', 'author')
+    ordering = ('date_time',)
 
 
 class RepositoryFieldAnswerInline(admin.TabularInline):
