@@ -102,9 +102,10 @@ class LogEntry(models.Model):
             bcc=None
     ):
 
-        if actor is not None and callable(getattr(actor, "is_anonymous", None)):
-            if actor.is_anonymous:
-                actor = None
+        # When a user is not logged in request.user is a SimpleLazyObject
+        # so we check if the actor is_anonymous.
+        if actor is not None and actor.is_anonymous:
+            actor = None
 
         kwargs = {
             'types': types,
