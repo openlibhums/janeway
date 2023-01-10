@@ -17,7 +17,6 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
                      'subject', 'owner__first_name', 'owner__last_name',
                      'owner__email', 'post__body')
     raw_id_fields = ('owner', 'article', 'preprint')
-    date_hierarchy = ('last_updated')
 
     inlines = [
         admin_utils.PostInline

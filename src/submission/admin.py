@@ -45,8 +45,18 @@ class ArticleAdmin(admin.ModelAdmin):
         'owner__first_name',
         'owner__last_name',
     )
-    list_filter = ('journal', 'stage', 'is_import',)
-    date_hierarchy = ('date_submitted')
+    list_filter = (
+        'journal',
+        'stage',
+        'is_import',
+        'license',
+        'peer_reviewed',
+        'date_accepted',
+        'date_declined',
+        'date_submitted',
+        'date_published',
+        'date_updated',
+    )
     raw_id_fields = (
         'section',
         'owner',

@@ -45,7 +45,6 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
                      'reviewer__email', 'reviewer__first_name',
                      'reviewer__last_name',
                      'competing_interests', 'comments_for_editor')
-    date_hierarchy = ('date_requested')
     raw_id_fields = ('article', 'reviewer', 'editor', 'review_round',
                      'form', 'review_file')
 
@@ -93,7 +92,6 @@ class AnswerAdmin(admin.ModelAdmin):
                      'assignment__reviewer__last_name',
                      'answer', 'edited_answer')
     raw_id_fields = ('assignment',)
-    date_hierarchy = ('assignment__date_complete')
 
     def element_answer(self, obj):
         return truncatesmart(obj.answer, 25) if obj else ''
@@ -147,7 +145,6 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
                      'editor_note', 'author_note')
     raw_id_fields = ('article', 'editor')
     filter_horizontal = ('actions',)
-    date_hierarchy = ('date_requested')
 
     inlines = [
         admin_utils.RevisionActionInline,
@@ -194,7 +191,6 @@ class DraftAdmin(admin_utils.ArticleFKModelAdmin):
                      'message_to_editor', 'email_message',
                      'editor_decline_rationale')
     raw_id_fields = ('article', 'editor', 'section_editor')
-    date_hierarchy = ('drafted')
 
     def _article(self, obj):
         return truncatesmart(str(obj.article), 30) if obj else ''

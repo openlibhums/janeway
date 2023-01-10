@@ -43,11 +43,11 @@ class AccountAdmin(UserAdmin):
                     'last_name', 'institution', 'roles_in', 'last_login')
     list_filter = ('accountrole__journal__code',
                    'repositoryrole__repository__short_name',
-                   'is_active', 'is_staff', 'is_admin', 'is_superuser')
+                   'is_active', 'is_staff', 'is_admin', 'is_superuser',
+                   'last_login')
     search_fields = ('username', 'email', 'first_name', 'middle_name',
                      'last_name', 'orcid', 'institution',
                      'biography', 'signature')
-    date_hierarchy = ('last_login')
 
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
