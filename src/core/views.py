@@ -47,7 +47,6 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
-from utils.logic import get_janeway_version
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
 from utils.logic import get_janeway_version
@@ -737,7 +736,6 @@ def manager_index(request):
             journal=request.journal
         ).select_related('section')[:25],
         'support_message': support_message,
-        'version': get_janeway_version(),
     }
     return render(request, template, context)
 
@@ -2323,7 +2321,6 @@ class FilteredArticlesListView(generic.ListView):
         params_querydict.pop('action_status', '')
         params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
-        context['version'] = get_janeway_version()
         context['action_maximum_size'] = setting_handler.get_setting(
             'Identifiers',
             'doi_manager_action_maximum_size',
