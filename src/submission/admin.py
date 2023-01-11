@@ -49,13 +49,13 @@ class ArticleAdmin(admin.ModelAdmin):
         'journal',
         'stage',
         'is_import',
-        'license',
         'peer_reviewed',
+        'date_submitted',
         'date_accepted',
         'date_declined',
-        'date_submitted',
         'date_published',
         'date_updated',
+        'last_modified',
     )
     raw_id_fields = (
         'section',
