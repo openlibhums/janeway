@@ -33,7 +33,7 @@
                                     <div class="float-right">
                                         <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
                                                 class="fa fa-edit"></i></a>
-                                        {% if user_is_journal_manager or request.user.is_staff %}
+                                        {% if user_is_journal_manager %}
                                         <a href="{% url 'submission_delete_license' license.pk %}" class="tiny alert button"><i
                                                 class="fa fa-trash"></i></a>
                                         {% endif %}
