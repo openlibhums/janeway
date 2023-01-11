@@ -134,7 +134,7 @@ class PreprintAccessAdmin(admin.ModelAdmin):
 class PreprintAuthorAdmin(admin.ModelAdmin):
     list_display = ('pk', 'preprint', 'account', 'order', 'repository')
     list_filter = ('preprint__repository__short_name', 'account', 'preprint')
-    raw_id_fields = ('preprint', 'account', 'author')
+    raw_id_fields = ('preprint', 'account')
     search_fields = ('preprint__pk', 'preprint__title',
                      'account__email', 'account__orcid',
                      'account__first_name', 'account__last_name')

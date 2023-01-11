@@ -236,7 +236,7 @@ class PreprintSupplementaryFileInline(admin.TabularInline):
 class PreprintAuthorInline(admin.TabularInline):
     model = repository_models.PreprintAuthor
     extra = 0
-    raw_id_fields = ('preprint', 'account', 'author')
+    raw_id_fields = ('preprint', 'account')
 
 
 class VersionQueueInline(admin.TabularInline):
