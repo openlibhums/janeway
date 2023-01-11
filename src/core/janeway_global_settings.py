@@ -151,6 +151,7 @@ TEMPLATES = [
                 'core.context_processors.press',
                 'core.context_processors.active',
                 'core.context_processors.navigation',
+                'core.context_processors.version',
                 'django_settings_export.settings_export',
                 'django.template.context_processors.i18n'
             ],
