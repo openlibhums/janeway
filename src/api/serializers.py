@@ -121,7 +121,7 @@ class AccountRoleSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         role = validated_data.get("role")
-        disallowed_roles = ['reader', 'journal_manager']
+        disallowed_roles = ['reader', 'journal-manager']
 
         if role.slug in disallowed_roles:
             raise serializers.ValidationError({"role": "You cannot add a user as a " + role + " via the API."})
