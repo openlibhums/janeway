@@ -177,7 +177,7 @@ def journal_manager_user_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
 
-        if request.user.is_journal_manager(request) or request.user.is_staff:
+        if request.user.is_journal_manager(request):
             return func(request, *args, **kwargs)
 
         else:
