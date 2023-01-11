@@ -157,7 +157,6 @@ class TypesettingCorrectionAdmin(admin.ModelAdmin):
         'task__typesetter__first_name',
         'task__typesetter__last_name',
     )
-    date_hierarchy = ('date_requested')
 
     def article(self, obj):
         return obj.task.round.article if obj else ''
