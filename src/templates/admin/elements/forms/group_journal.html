@@ -30,14 +30,18 @@
 <div class="title-area">
     <h2>Email</h2>
 </div>
-{% if user_is_journal_manager %} 
+
 <div class="content">
-    <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
-    {% include "admin/elements/forms/field.html" with field=edit_form.from_address %}
+    {% if user_is_journal_manager %}
+        <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
+    {% else %}
+        <p>{% trans 'You can set the base signature that will be included in emails from your journal.' %}</p>
+    {% endif %}
+    {% if user_is_journal_manager %}{% include "admin/elements/forms/field.html" with field=edit_form.from_address %}{% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.auto_signature %}
     {% include "admin/elements/forms/field.html" with field=edit_form.replyto_address%}
 </div>
-{% endif %}
+
 <div class="title-area">
     <h2>Remote Journals</h2>
 </div>

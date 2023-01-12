@@ -31,6 +31,7 @@
                                     <i class="fa fa-arrows">&nbsp;</i>
                                     {{ license.name }}
                                     <div class="float-right">
+                                        {% if user_is_journal_manager %}
                                         <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
                                                 class="fa fa-edit"></i></a>
                                         {% if user_is_journal_manager %}
@@ -45,6 +46,7 @@
                     </form>
                 </div>
             </div>
+            {% if user_is_journal_manager %}
             <div class="large-6 columns">
                 <div class="title-area">
                     {% if license %}
@@ -62,6 +64,7 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
