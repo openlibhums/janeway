@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load bootstrap4 %}
+{% load roles %}
+{% user_has_role request 'journal-manager' as user_is_journal_manager %}
 
 
 {% block title %}Setting : {{ setting.pretty_name }}{% endblock title %}
@@ -32,6 +34,7 @@
     <section>
         <div class="row expanded">
             <div class="large-12 columns">
+                {% if user_is_journal_manager %}
                 <div class="box">
                     <div class="title-area">
                         <h2>Edit {{ setting.pretty_name }} ({{ setting.name }})</h2>
@@ -82,6 +85,11 @@
                         </form>
                     </div>
                 </div>
+                {% else %}
+                <div class="box">
+                    <p>Only users with the journal-manager role may configure journal settings.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
         </div>
