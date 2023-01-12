@@ -2,7 +2,7 @@
 {% load static from staticfiles %}
 {% load foundation %}
 {% load roles %}
-{% user_has_role request 'journal_manager' as user_is_journal_manager %}
+{% user_has_role request 'journal-manager' as user_is_journal_manager %}
 
 {% block title %}Submission Configurator{% endblock %}
 {% block title-section %}Submission Configurator{% endblock %}
@@ -29,7 +29,7 @@
                     <button class="success button">Save Configuration</button>
                 </form>
                 {% else %}
-                <p>Only users with the journal_manager role may configure the submission system fields.</p>
+                <p>Only users with the journal-manager role may configure the submission system fields.</p>
                 {% endif %}
             </div>
         </div>
