@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
-
+{% load roles %}
+{% user_has_role request 'journal-manager' as user_is_journal_manager %}
 
 {% block title %}Settings{% endblock title %}
 {% block title-section %}All Settings{% endblock %}
@@ -13,6 +14,7 @@
 
 {% block body %}
     <section>
+        {% if user_is_journal_manager %}
         <div class="box">
             <div class="content">
             <p>You can filter the settings by using the search box. It will filter across all rows. Plugin settings will be prefixed by "Plugin:"</p>
@@ -46,6 +48,11 @@
             </table>
             </div>
         </div>
+        {% else %}
+        <div class="content">
+            <p>Only users with the journal-manager role may configure this.</p>
+        </div>
+        {% endif %}
     </section>
 {% endblock body %}
 
