@@ -54,7 +54,7 @@ This is an end all button, it will remove the files and reviewers from the curre
 Add Reviewer
 ------------------
 
-When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(visibility, form and due date\) or, if you've setup the required defaults, you can "Assign with Defaults". This will use the default type, visibility, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
+When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(anonimity, form and due date\) or, if you've setup the required defaults, you can "Assign with Defaults". This will use the default type, anonimity, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
 
 Assuming you choose to select the options yourself, when you press "Add Reviewer" you will be taken to the "Notify" page where you can edit the outgoing email to the user. There is an option available to skip sending this email if you wish.
 

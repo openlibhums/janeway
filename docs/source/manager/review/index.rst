@@ -14,7 +14,7 @@ Under review settings we can control how peer review operates for the given jour
 - Review Guidelines
     - A set of generic review guidelines that a reviewer should follow.
 - Default Review Visibility
-    - Either Open, Blind or Double Blind, this is the default information visibility for a review assignment. If open, authors can see reviewers and vice versa, if blind reviewers can see authors, if double blind neither can see information on the other. When using double blind the editor must ensure the manuscript files are anonymous.
+    - Either Open, Anonymous or Double Anonymous, this is the default information visibility for a review assignment. If open, authors can see reviewers and vice versa, if single anonymous reviewers can see authors, if double anonymous neither can see information on the other. When using double anonymous review, the editor must ensure the manuscript files are anonymous.
 - Default Review Days
     - The default number of days a reviewer is given, this is used to then control reminders. This field is set to 56 days (8 weeks) initially. The due date can be changed on a per review basis.
 - One Click Access
