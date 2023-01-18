@@ -14,10 +14,10 @@ SETTING_VALUES_TO_FIX = {
 
 DESCRIPTIONS_TO_FIX = {
     "review_file_help": "Text displayed when a journal defaults to single anonymous or double anonymous review ensuring that files remain anonymous.",
-    "defaul_review_visibility": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonimity drop down when creating a review assignment.",
+    "defaul_review_visibility": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
 }
 NAMES_TO_FIX = {
-    "defaul_review_visibility": "Default Review Anonimity",
+    "defaul_review_visibility": "Default Review Anonymity",
 }
 
 

@@ -1624,10 +1624,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonimity drop down when creating a review assignment.",
+            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
             "is_translatable": false,
             "name": "default_review_visibility",
-            "pretty_name": "Default Review Anonimity",
+            "pretty_name": "Default Review Anonymity",
             "type": "select"
         },
         "value": {

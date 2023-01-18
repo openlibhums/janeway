@@ -134,7 +134,7 @@ class ReviewAssignment(models.Model):
     visibility = models.CharField(
         max_length=20, choices=review_visibilty(),
         default='double-blind',
-        verbose_name=_("Anonimity"),
+        verbose_name=_("Anonymity"),
     )
     form = models.ForeignKey('ReviewForm', null=True, on_delete=models.SET_NULL)
     access_code = models.CharField(max_length=100, blank=True, null=True)
