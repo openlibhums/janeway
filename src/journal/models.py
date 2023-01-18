@@ -222,6 +222,7 @@ class Journal(AbstractSiteModel):
         )
     )
     display_article_page_numbers = models.BooleanField(default=True)
+    display_issue_doi = models.BooleanField(default=True)
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -601,6 +602,12 @@ class Issue(AbstractLastModifiedModel):
             " conference proceedings"
         ),
     )
+
+    @cached_property
+    def doi_url(self):
+        if self.doi:
+            return f"https://doi.org/{self.doi}"
+        return ''
 
     @property
     def hero_image_url(self):
