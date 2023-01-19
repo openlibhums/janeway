@@ -90,7 +90,7 @@ class KeywordPreprintAdmin(admin.ModelAdmin):
     list_display = ('keyword', 'preprint', 'order', 'repository')
     list_filter = ('preprint__repository__short_name',)
     raw_id_fields = ('keyword', 'preprint')
-    search_fields = ('keyword', 'preprint__pk', 'preprint__title',)
+    search_fields = ('keyword__word', 'preprint__pk', 'preprint__title',)
 
     def repository(self, obj):
         return obj.preprint.repository if obj else ''

@@ -25,7 +25,7 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
                     'frozen_email', 'frozen_orcid', 'institution', 'journal')
     list_filter = ('article__journal',)
-    search_fields = ('frozen_email', 'frozen_orcid,'
+    search_fields = ('frozen_email', 'frozen_orcid',
                      'first_name', 'last_name',
                      'institution', 'frozen_biography', )
     raw_id_fields = ('article', 'author',)

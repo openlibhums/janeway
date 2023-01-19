@@ -137,7 +137,7 @@ class HomepageElementAdmin(admin.ModelAdmin):
                    admin_utils.GenericRelationPressFilter,
                    'name', 'active', 'has_config', 'configure_url',
                    'template_path')
-    search_fields = ('name', 'object__code')
+    search_fields = ('name',)
 
 
 class FileAdmin(admin.ModelAdmin):
