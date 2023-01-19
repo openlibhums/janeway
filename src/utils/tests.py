@@ -10,6 +10,8 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
+from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.engine import Engine
@@ -937,5 +939,45 @@ class PreprintsTransactionalEmailTests(PreprintsUtilsTests):
             self.assertIn(r, mail.outbox[1].to)
 
 
+class AdminViewTestsMeta(type):
+
+    def __new__(cls, name, bases, attrs):
+        admin_registry = admin.site._registry
+        for model, admin_class in admin_registry.items():
+            test_case_name, test_case = cls.admin_search_test_builder(model, admin_class)
+            attrs[test_case_name] = test_case
+        return type(name, bases, attrs)
+
+    @staticmethod
+    def admin_search_test_builder(model, admin_class):
+
+        app_label = model._meta.app_label
+        model_name = model._meta.model_name
+        test_case_name = f'test_admin_search_{app_label}_{model_name}'
+        url_name = f'admin:{app_label}_{model_name}_changelist'
+        url = reverse(url_name) + "?q=test search"
+
+        def fn(self):
+            response = self.client.get(url, SERVER_NAME=self.press.domain)
+            self.assertEqual(response.status_code, 200)
+
+        return test_case_name, fn
 
 
+class AdminViewTests(TestCase, metaclass=AdminViewTestsMeta):
+
+    @classmethod
+    def setUpTestData(cls):
+        user_model = get_user_model()
+        cls.superuser = user_model.objects.create_superuser(
+            username='super',
+            password='secret',
+            email='super@example.com',
+        )
+        cls.press = helpers.create_press()
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_do_nothing(self):
+        self.assertTrue(False)
