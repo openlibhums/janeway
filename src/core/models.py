@@ -664,6 +664,12 @@ class Setting(models.Model):
 
     is_translatable = models.BooleanField(default=False)
 
+    editable_by = models.ManyToManyField(
+        Role,
+        blank=True,
+        help_text='Determines who can edit this setting based on their assigned roles.',
+    )
+
     class Meta:
         ordering = ('group', 'name')
 

@@ -90,6 +90,7 @@
             "default": ""
         },
         "editable_by": [
+            "editor",
             "journal-manager"
         ]
     },
@@ -184,6 +185,7 @@
             "default": "janeway@voyager.com"
         },
         "editable_by": [
+            "editor",
             "journal-manager"
         ]
     },
