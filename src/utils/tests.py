@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
 from django.contrib import admin
+from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
@@ -939,33 +940,43 @@ class PreprintsTransactionalEmailTests(PreprintsUtilsTests):
             self.assertIn(r, mail.outbox[1].to)
 
 
-class AdminViewTestsMeta(type):
+class AdminTestMeta(type):
+    """ A Metaclass for generating test cases directly from the admin registry
 
+    A new test is generated for each admin class registered via the admin.py
+    modules in the application
+    ChildrenMustImplement: build_test_case
+    """
     def __new__(cls, name, bases, attrs):
-        admin_registry = admin.site._registry
-        for model, admin_class in admin_registry.items():
-            test_case_name, test_case = cls.admin_search_test_builder(model, admin_class)
-            attrs[test_case_name] = test_case
+        def test_bar(instance):
+            instance.assertTrue(False)
+        for test_name, test_case in cls.build_tests():
+            attrs[test_name] = test_case
         return type(name, bases, attrs)
 
-    @staticmethod
-    def admin_search_test_builder(model, admin_class):
+    @classmethod
+    def build_tests(cls):
+        admin_registry = site._registry
+        for model, admin_class in admin_registry.items():
+            yield cls.build_test_case(model, admin_class)
 
+    @classmethod
+    def build_test_case(cls, model, admin_class):
+        raise NotImplementedError()
+
+class AdminSearchTestMeta(AdminTestMeta):
+    def build_test_case(model, admin_class):
         app_label = model._meta.app_label
         model_name = model._meta.model_name
-        test_case_name = f'test_admin_search_{app_label}_{model_name}'
         url_name = f'admin:{app_label}_{model_name}_changelist'
-        url = reverse(url_name) + "?q=test search"
+        url = reverse(url_name)
+        def test_case(instance):
+            response = instance.client.get(url, SERVER_NAME=instance.press.domain)
+            instance.assertEqual(response.status_code, 200)
+        test_name = f'test_admin_view_{app_label}_{model_name}'
+        return test_name, test_case
 
-        def fn(self):
-            response = self.client.get(url, SERVER_NAME=self.press.domain)
-            self.assertEqual(response.status_code, 200)
-
-        return test_case_name, fn
-
-
-class AdminViewTests(TestCase, metaclass=AdminViewTestsMeta):
-
+class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
     @classmethod
     def setUpTestData(cls):
         user_model = get_user_model()
@@ -978,6 +989,3 @@ class AdminViewTests(TestCase, metaclass=AdminViewTestsMeta):
 
     def setUp(self):
         self.client.force_login(self.superuser)
-
-    def test_do_nothing(self):
-        self.assertTrue(False)
