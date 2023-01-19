@@ -12,25 +12,25 @@
         var url_from = "/api/accounts/?search=" + search_term_from;
 
         $.get(url_from, function (data) {
-            data.forEach((item) => {
+            data.results.forEach((item) => {
                  var active = (item.is_active) ? "Active":"Inactive";
                 var radio_input = "<input type=\"radio\" name=\"" + radio_name_from + "\" value=\"" + item.pk + "\" required>"
                 var table_row = "<tr><td>" + radio_input + "</td><td>" + item.email + "</td><td>" + item.first_name + "</td><td>" + item.last_name + "</td><td>" + active + "</td></tr>"
                 $(tbody_from).append(table_row);
             });
-            if (jQuery.isEmptyObject(data)) {
+            if (jQuery.isEmptyObject(data.results)) {
                 $(tbody_from).append("<tr><td colspan=\"4\">No results returned.</td>");
             }
         });
 
         $.get(url_into, function (data) {
-            data.forEach((item) => {
+            data.results.forEach((item) => {
                 var active = (item.is_active) ? "Active":"Inactive";
                 var radio_input = "<input type=\"radio\" name=\"" + radio_name_into + "\" value=\"" + item.pk + "\" required>"
                 var table_row = "<tr><td>" + radio_input + "</td><td>" + item.email + "</td><td>" + item.first_name + "</td><td>" + item.last_name + "</td><td>" + active + "</td></tr>"
                 $(tbody_into).append(table_row);
             });
-            if (jQuery.isEmptyObject(data)) {
+            if (jQuery.isEmptyObject(data.results)) {
                 $(tbody_into).append("<tr><td colspan=\"4\">No results returned.</td>");
             }
         });
