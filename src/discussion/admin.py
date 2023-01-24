@@ -6,12 +6,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from discussion import models
-from core.templatetags.truncate import truncatesmart
 
 
 class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'subject', 'owner', 'started', 'object_title',
-                    'journal')
+                    '_journal')
     list_filter = ('article__journal', 'subject', 'started', 'last_updated')
     search_fields = ('pk', 'article__title', 'preprint__title',
                      'subject', 'owner__first_name', 'owner__last_name',
@@ -24,7 +23,7 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('post', 'thread', 'owner', 'posted', 'journal')
+    list_display = ('_post', 'thread', 'owner', 'posted', '_journal')
     list_filter = ('thread__article__journal', 'posted')
     search_fields = ('pk', 'body', 'thread__subject', 'owner__first_name',
                      'owner__last_name', 'owner__email',)
@@ -33,11 +32,11 @@ class PostAdmin(admin.ModelAdmin):
     save_as = True
     date_hierarchy = ('posted')
 
-    def journal(self, obj):
-        return obj.thread.article.journal if obj else ''
+    def _post(self, obj):
+        return admin_utils.truncate(obj.body) if obj else ''
 
-    def post(self, obj):
-        return truncatesmart(obj.body) if obj else ''
+    def _journal(self, obj):
+        return obj.thread.article.journal if obj else ''
 
 
 admin_list = [

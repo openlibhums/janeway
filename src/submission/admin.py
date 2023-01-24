@@ -8,7 +8,6 @@ from django import forms
 
 from utils import admin_utils
 from submission import models
-from core.templatetags.truncate import truncatesmart
 
 
 class LicenseChoiceField(forms.ModelChoiceField):
@@ -23,7 +22,7 @@ class FunderAdmin(admin.ModelAdmin):
 
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
-                    'frozen_email', 'frozen_orcid', 'institution', 'journal')
+                    'frozen_email', 'frozen_orcid', 'institution', '_journal')
     list_filter = ('article__journal',)
     search_fields = ('frozen_email', 'frozen_orcid',
                      'first_name', 'last_name',
@@ -97,7 +96,7 @@ class ArticleAdmin(admin.ModelAdmin):
 
 
 class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('_article', 'journal', 'stage_from',
+    list_display = ('_article', '_journal', 'stage_from',
                     'stage_to', 'date_time')
     list_filter = ('article__journal', 'stage_from', 'stage_to')
     search_fields = ('article__pk', 'article__title',
@@ -106,7 +105,7 @@ class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
     readonly_fields = ('date_time',)
 
     def _article(self, obj):
-        return truncatesmart(str(obj.article)) if obj else ''
+        return admin_utils.truncate(str(obj.article)) if obj else ''
 
 
 class LicenseAdmin(admin.ModelAdmin):
@@ -115,11 +114,11 @@ class LicenseAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name', 'url', 'text')
 
     def _text(self, obj):
-        return truncatesmart(obj.text, 50) if obj else ''
+        return admin_utils.truncate(obj.text, 50) if obj else ''
 
 
 class NoteAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('_text', '_article', 'journal', 'creator', 'date_time')
+    list_display = ('_text', '_article', '_journal', 'creator', 'date_time')
     list_filter = ('article__journal', 'date_time',)
     raw_id_fields = ('article', 'creator')
     date_hierarchy = ('date_time')
@@ -129,10 +128,10 @@ class NoteAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('creator',)
 
     def _text(self, obj):
-        return truncatesmart(obj.text) if obj else ''
+        return admin_utils.truncate(obj.text) if obj else ''
 
     def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
+        return admin_utils.truncate(str(obj.article), 30) if obj else ''
 
 
 class PublisherNoteAdmin(admin.ModelAdmin):
@@ -144,7 +143,7 @@ class PublisherNoteAdmin(admin.ModelAdmin):
     raw_id_fields = ('creator',)
 
     def _text(self, obj):
-        return truncatesmart(obj.text) if obj else ''
+        return admin_utils.truncate(obj.text) if obj else ''
 
 
 class KeywordAdmin(admin.ModelAdmin):
@@ -180,16 +179,13 @@ class FieldAdmin(admin.ModelAdmin):
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('field', '_answer', '_article', 'journal')
+    list_display = ('field', '_answer', '_article', '_journal')
     list_filter = ('article__journal',)
     search_fields = ('field__name', 'article__pk', 'article__title',
                      'answer')
 
     def _answer(self, obj):
-        return truncatesmart(obj.answer) if obj else ''
-
-    def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
+        return admin_utils.truncate(obj.answer) if obj else ''
 
 
 class SubmissionConfigAdmin(admin.ModelAdmin):
@@ -204,14 +200,11 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
 
 
 class ArticleAuthorOrderAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('order', '_article', 'author', 'journal')
+    list_display = ('order', '_article', 'author', '_journal')
     list_filter = ('article__journal', 'order')
     search_fields = ('article__pk', 'article__title', 'author__email',
                      'author__first_name', 'author__last_name')
     raw_id_fields = ('article', 'author')
-
-    def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
 
 
 admin_list = [

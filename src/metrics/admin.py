@@ -29,8 +29,8 @@ def _export_as_csv(self, request, queryset):
 
 class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
     """Displays objects in the Django admin interface."""
-    list_display = ('article', 'accessed', 'country',
-                    'type', 'galley_type', 'journal')
+    list_display = ('_article', 'accessed', 'country',
+                    'type', 'galley_type', '_journal')
     list_filter = ('article__journal', 'accessed', 'type', 'galley_type',)
     search_fields = ('article__title', 'article__pk', 'identifier',
                      'article__journal__code',
@@ -46,13 +46,13 @@ class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class HistoricArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('article', 'views', 'downloads', 'journal')
+    list_display = ('_article', 'views', 'downloads', '_journal')
     list_filter = ('article__journal',)
     raw_id_fields = ('article',)
 
 
 class AltMetricAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('article', 'source', 'pid', 'journal')
+    list_display = ('_article', 'source', 'pid', '_journal')
     list_filter = ('article__journal', 'source', 'timestamp')
     search_fields = ('article__title', 'article__pk', 'source',
                      'pid')
@@ -61,8 +61,8 @@ class AltMetricAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class ArticleLinkAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'object_type', 'doi', 'year', 'article',
-                    'journal')
+    list_display = ('pk', 'object_type', 'doi', 'year', '_article',
+                    '_journal')
     list_filter = ('article__journal', 'object_type', 'year',)
     search_fields = ('article__title', 'article__pk', 'doi', 'year',
                      'article_title', 'journal_title', 'journal_issn')
@@ -76,8 +76,8 @@ class ArticleLinkAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class BookLinkAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'object_type', 'doi', 'year', 'article',
-                    'journal')
+    list_display = ('pk', 'object_type', 'doi', 'year', '_article',
+                    '_journal')
     list_filter = ('article__journal', 'object_type', 'year',)
     search_fields = ('article__title', 'article__pk', 'doi', 'year',
                      'title', 'isbn_print', 'isbn_electronic')

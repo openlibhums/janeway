@@ -6,12 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from review import models
-from core.templatetags.truncate import truncatesmart
-from submission import models as submission_models
 
 
 class EditorialAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'article', 'journal', 'editor',
+    list_display = ('pk', '_article', '_journal', 'editor',
                     'editor_type', 'assigned', 'notified')
     list_filter = ('article__journal', 'editor_type', 'assigned', 'notified')
     search_fields = ('article__pk', 'article__title', 'article__journal__code',
@@ -22,8 +20,8 @@ class EditorialAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class ReviewRoundAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'article', 'round_number', 'date_started',
-                    'journal')
+    list_display = ('pk', '_article', 'round_number', 'date_started',
+                    '_journal')
     list_filter = ('article__journal', 'round_number', 'date_started')
     search_fields = ('article__pk', 'article__title', 'article__journal__code')
     raw_id_fields = ('article',)
@@ -32,8 +30,8 @@ class ReviewRoundAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', '_article', 'journal', 'reviewer', 'editor',
-                    'round', 'decision', 'date_requested', 'is_complete')
+    list_display = ('pk', '_article', '_journal', 'reviewer', 'editor',
+                    '_round', 'decision', 'date_requested', 'is_complete')
     list_filter = ('article__journal', 'review_round__round_number',
                    'decision', 'is_complete',
                    'date_requested', 'date_accepted',
@@ -48,11 +46,8 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article', 'reviewer', 'editor', 'review_round',
                      'form', 'review_file')
 
-    def round(self, obj):
+    def _round(self, obj):
         return obj.review_round.round_number if obj else ''
-
-    def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
 
     inlines = [
         admin_utils.ReviewAssignmentAnswerInline,
@@ -81,9 +76,9 @@ class FrozenReviewFormElementAdmin(admin.ModelAdmin):
 
 
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'element_answer', 'assignment', 'frozen_element',
-                    'author_can_see', 'journal')
-    list_display_links = ('element_answer',)
+    list_display = ('pk', '_element_answer', 'assignment', 'frozen_element',
+                    'author_can_see', '_journal')
+    list_display_links = ('_element_answer',)
     list_filter = ('assignment__article__journal', 'assignment__date_complete',
                    'assignment__date_due')
     search_fields = ('assignment__article__pk', 'assignment__article__title',
@@ -93,17 +88,17 @@ class AnswerAdmin(admin.ModelAdmin):
                      'answer', 'edited_answer')
     raw_id_fields = ('assignment',)
 
-    def element_answer(self, obj):
-        return truncatesmart(obj.answer, 25) if obj else ''
+    def _element_answer(self, obj):
+        return admin_utils.truncate(obj.answer, 25) if obj else ''
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.assignment.article.journal if obj else ''
 
 
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'reviewer', 'rating', 'rater', 'journal',
-                    'assignment')
-    list_filter = ('assignment__article__journal__code', 'rating')
+    list_display = ('pk', '_reviewer', 'rating', 'rater', '_journal',
+                    '_assignment')
+    list_filter = ('assignment__article__journal', 'rating')
     search_fields = ('assignment__article__pk', 'assignment__article__title',
                      'assignment__reviewer__email',
                      'assignment__reviewer__first_name',
@@ -113,27 +108,30 @@ class RatingAdmin(admin.ModelAdmin):
     raw_id_fields = ('assignment', 'rater')
     date_hierarchy = ('assignment__date_complete')
 
-    def reviewer(self, obj):
+    def _reviewer(self, obj):
         return obj.assignment.reviewer
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.assignment.article.journal.code if obj else ''
+
+    def _assignment(self, obj):
+        return admin_utils.truncate(obj.assignment.__str__()) if obj else ''
 
 
 class RevisionActionAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'logged', 'user', 'action_text')
+    list_display = ('pk', 'logged', 'user', '_action_text')
     raw_id_fields = ('user',)
     search_fields = ('user__email', 'user__first_name',
                      'user__last_name', 'text')
     date_hierarchy = ('logged')
 
-    def action_text(self, obj):
-        return truncatesmart(obj.text, 30) if obj else ''
+    def _action_text(self, obj):
+        return admin_utils.truncate(obj.text, 30) if obj else ''
 
 
 class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', '_article', 'journal', 'editor', '_editor_note',
-                    'author', '_author_note', 'date_requested')
+    list_display = ('pk', '_article', '_journal', 'editor', '_editor_note',
+                    '_author', '_author_note', 'date_requested')
     list_filter = ('article__journal', 'type', 'date_requested',
                    'date_completed', 'date_due')
     search_fields = ('article__pk', 'article__title', 'article__journal__code',
@@ -150,21 +148,15 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
         admin_utils.RevisionActionInline,
     ]
 
-    def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
-
     def _editor_note(self, obj):
-        return truncatesmart(str(obj.editor_note), 30) if obj else ''
-
-    def author(self, obj):
-        return obj.article.correspondence_author if obj else ''
+        return admin_utils.truncate(str(obj.editor_note), 30) if obj else ''
 
     def _author_note(self, obj):
-        return truncatesmart(str(obj.author_note), 30) if obj else ''
+        return admin_utils.truncate(str(obj.author_note), 30) if obj else ''
 
 
 class EditorOverrideAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'article', 'journal', 'editor', 'overwritten')
+    list_display = ('pk', '_article', '_journal', 'editor', 'overwritten')
     list_filter = ('article__journal', 'overwritten')
     search_fields = ('article__pk', 'article__title', 'article__journal__code',
                      'editor__email', 'editor__first_name',
@@ -176,7 +168,7 @@ class EditorOverrideAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class DraftAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', '_article', 'journal', 'section_editor', 'decision',
+    list_display = ('pk', '_article', '_journal', 'section_editor', 'decision',
                     'drafted', 'editor', 'editor_decision')
     list_filter = ('article__journal', 'decision', 'editor_decision',
                    'drafted', 'revision_request_due_date')
@@ -191,9 +183,6 @@ class DraftAdmin(admin_utils.ArticleFKModelAdmin):
                      'message_to_editor', 'email_message',
                      'editor_decline_rationale')
     raw_id_fields = ('article', 'editor', 'section_editor')
-
-    def _article(self, obj):
-        return truncatesmart(str(obj.article), 30) if obj else ''
 
 
 admin_list = [

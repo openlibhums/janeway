@@ -11,7 +11,7 @@ from utils import models
 
 class ImportCacheAdmin(admin.ModelAdmin):
     list_display = ('url', 'mime_type', 'date_time')
-    list_filter = ('url', 'mime_type')
+    list_filter = ('mime_type',)
     search_fields = ('url', 'on_disk')
     date_hierarchy = ('date_time')
 
@@ -26,7 +26,7 @@ class PluginAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'types', 'date', 'level', 'actor', 'to',
+    list_display = ('pk', 'types', 'date', 'level', 'actor', '_to',
                     'is_email', 'email_subject', 'target')
     list_filter = (admin_utils.GenericRelationArticleJournalFilter,
                    admin_utils.GenericRelationPreprintRepositoryFilter,
@@ -41,7 +41,7 @@ class LogAdmin(admin.ModelAdmin):
         admin_utils.ToAddressInline,
     ]
 
-    def to(self, obj):
+    def _to(self, obj):
         if obj:
             return ", ".join([to.email for to in obj.toaddress_set.all()])
 

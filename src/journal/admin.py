@@ -34,18 +34,18 @@ class IssueTypeAdmin(admin.ModelAdmin):
 
 
 class IssueGalleyAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'file', 'issue', 'journal')
+    list_display = ('pk', 'file', 'issue', '_journal')
     list_display_links = ('pk', 'file')
     list_filter = ('issue__journal',)
     search_fields = ('pk', 'file__original_filename', 'issue__journal__code',
                      'issue__issue_title', 'issue__volume', 'issue__issue')
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.issue.journal if obj else ''
 
 
 class IssueEditorAdmin(admin.ModelAdmin):
-    list_display = ('account', 'issue', 'journal', 'role')
+    list_display = ('account', '_issue', '_journal', 'role')
     list_filter = ('issue__journal', 'role',)
     search_fields = ('account__email', 'account__first_name',
                      'account__last_name', 'role', 'issue__issue_title',
@@ -53,8 +53,11 @@ class IssueEditorAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('account', 'issue')
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.issue.journal if obj else ''
+
+    def _issue(self, obj):
+        return admin_utils.truncate(obj.issue.__str__())
 
 
 class JournalAdmin(admin.ModelAdmin):
@@ -100,15 +103,21 @@ class NotificationsAdmin(admin.ModelAdmin):
 
 
 class ArticleOrderingAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('order', 'article', 'issue', 'section', 'journal')
+    list_display = ('order', '_article', '_issue', '_section', '_journal')
     list_filter = ('article__journal',)
     search_fields = ('article__title', 'section__name', 'issue__issue_title',
                      'issue__journal__code', 'issue__volume', 'issue__issue')
     raw_id_fields = ('article',)
 
+    def _issue(self, obj):
+        return admin_utils.truncate(obj.issue.__str__())
+
+    def _section(self, obj):
+        return admin_utils.truncate(obj.issue.__str__())
+
 
 class FixedPubCheckItemsAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('article', 'journal', 'metadata', 'verify_doi',
+    list_display = ('_article', '_journal', 'metadata', 'verify_doi',
                     'select_issue', 'set_pub_date', 'notify_the_author',
                     'select_render_galley', 'select_article_image',
                     'select_open_reviews')
@@ -127,7 +136,7 @@ class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
 
 
 class PrePublicationChecklistItemAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('article', 'journal', 'completed', 'completed_by',
+    list_display = ('_article', '_journal', 'completed', 'completed_by',
                     'completed_on')
     list_filter = ('article__journal', 'completed', 'completed_on')
     search_fields = ('article__title', 'article__journal__code',
@@ -141,13 +150,20 @@ class PrePublicationChecklistItemAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class SectionOrderingAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'section', 'issue', 'journal', 'order')
-    list_display_links = ('section',)
+    list_display = ('pk', '_section', '_issue', '_journal', 'order')
+    list_display_links = ('_section',)
+    list_filter = ('issue__journal',)
     search_fields = ('section__name', 'issue__issue_title',
                      'issue__journal__code', 'issue__volume', 'issue__issue')
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.issue.journal if obj else ''
+
+    def _section(self, obj):
+        return admin_utils.truncate(obj.section.__str__())
+
+    def _issue(self, obj):
+        return admin_utils.truncate(obj.issue.__str__())
 
 
 admin_list = [

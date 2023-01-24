@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
-from core.templatetags.truncate import truncatesmart
 
 from repository import models
 from utils import admin_utils
@@ -42,15 +41,15 @@ class RepositoryFieldAdmin(admin.ModelAdmin):
 
 
 class RepositoryFieldAnswerAdmin(admin.ModelAdmin):
-    list_display = ('_answer', 'field', 'preprint', 'repository')
+    list_display = ('_answer', 'field', 'preprint', '_repository')
     list_filter = ('field__repository__short_name', 'field')
     search_fields = ('answer', 'preprint__title', 'preprint__pk')
     raw_id_fields = ('field',)
 
     def _answer(self, obj):
-        return truncatesmart(obj.answer) if obj else ''
+        return admin_utils.truncate(obj.answer) if obj else ''
 
-    def repository(self, obj):
+    def _repository(self, obj):
         return obj.field.repository if obj else ''
 
 
@@ -86,40 +85,31 @@ class PreprintAdmin(admin.ModelAdmin):
     save_as = True
 
 
-class KeywordPreprintAdmin(admin.ModelAdmin):
-    list_display = ('keyword', 'preprint', 'order', 'repository')
+class KeywordPreprintAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('keyword', '_preprint', 'order', '_repository')
     list_filter = ('preprint__repository__short_name',)
     raw_id_fields = ('keyword', 'preprint')
     search_fields = ('keyword__word', 'preprint__pk', 'preprint__title',)
 
-    def repository(self, obj):
-        return obj.preprint.repository if obj else ''
 
-
-class PreprintFileAdmin(admin.ModelAdmin):
-    list_display = ('preprint', 'file', 'original_filename', 'uploaded',
-                    'repository')
+class PreprintFileAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('_preprint', 'file', 'original_filename', 'uploaded',
+                    '_repository')
     list_filter = ('preprint__repository__short_name', 'uploaded', 'mime_type')
     raw_id_fields = ('preprint',)
     search_fields = ('preprint__pk', 'preprint__title', 'original_filename')
     date_hierarchy = ('uploaded')
 
-    def repository(self, obj):
-        return obj.preprint.repository if obj else ''
 
-
-class PreprintSupplementaryFileAdmin(admin.ModelAdmin):
-    list_display = ('preprint', 'url', 'label', 'order', 'repository')
+class PreprintSupplementaryFileAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('_preprint', 'url', 'label', 'order', '_repository')
     list_filter = ('preprint__repository__short_name',)
     search_fields = ('preprint__pk', 'preprint__title', 'url', 'label')
 
-    def repository(self, obj):
-        return obj.preprint.repository if obj else ''
 
-
-class PreprintAccessAdmin(admin.ModelAdmin):
-    list_display = ('preprint', 'file', 'accessed', 'access_type', 'country',
-                    'repository')
+class PreprintAccessAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('_preprint', 'file', 'accessed', 'access_type', 'country',
+                    '_repository')
     list_filter = ('preprint__repository__short_name', 'accessed',
                    'country')
     search_fields = ('preprint__pk', 'preprint__title', 'identifier',
@@ -127,37 +117,28 @@ class PreprintAccessAdmin(admin.ModelAdmin):
     raw_id_fields = ('preprint',)
     save_as = True
 
-    def repository(self, obj):
-        return obj.preprint.repository if obj else ''
 
-
-class PreprintAuthorAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'preprint', 'account', 'order', 'repository')
+class PreprintAuthorAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('pk', '_preprint', 'account', 'order', '_repository')
     list_filter = ('preprint__repository__short_name', 'account', 'preprint')
     raw_id_fields = ('preprint', 'account')
     search_fields = ('preprint__pk', 'preprint__title',
                      'account__email', 'account__orcid',
                      'account__first_name', 'account__last_name')
 
-    def repository(self, obj):
-        return obj.preprint.repository if obj else ''
 
-
-class PreprintVersionAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'preprint', 'title', 'version', 'date_time',
-                    'repository')
+class PreprintVersionAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('pk', '_preprint', 'title', 'version', 'date_time',
+                    '_repository')
     list_filter = ('preprint__repository__short_name',)
     raw_id_fields = ('preprint', 'file')
     date_hierarchy = ('date_time')
     search_fields = ('preprint__title', 'title', 'abstract',
                      'file__original_filename', 'published_doi')
 
-    def repository(self, obj):
-        return obj.preprint.repository.short_name if obj else ''
 
-
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('_body', 'preprint', 'author', 'repository',
+class CommentAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('_body', '_preprint', 'author', '_repository',
                     'date_time', 'is_reviewed', 'is_public')
     list_filter = ('preprint__repository__short_name',
                    'date_time', 'is_reviewed', 'is_public')
@@ -171,10 +152,7 @@ class CommentAdmin(admin.ModelAdmin):
     ]
 
     def _body(self, obj):
-        return truncatesmart(obj.body, 50) if obj else ''
-
-    def repository(self, obj):
-        return obj.preprint.repository.short_name if obj else ''
+        return admin_utils.truncate(obj.body, 50) if obj else ''
 
 
 class SubjectAdmin(admin.ModelAdmin):
@@ -195,8 +173,8 @@ class VersionQueueAdmin(admin.ModelAdmin):
     date_hierarchy = ('date_submitted')
 
 
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'reviewer', 'preprint', 'manager', 'repository',
+class ReviewAdmin(admin_utils.PreprintFKModelAdmin):
+    list_display = ('pk', 'reviewer', '_preprint', 'manager', '_repository',
                     'date_assigned')
     list_display_links = ('pk', 'reviewer')
     list_filter = ('preprint__repository__short_name', 'status',
@@ -208,9 +186,6 @@ class ReviewAdmin(admin.ModelAdmin):
                      'reviewer__last_name', 'manager__email',
                      'manager__first_name', 'manager__last_name')
     date_hierarchy = ('date_assigned')
-
-    def repository(self, obj):
-        return obj.preprint.repository.short_name if obj else ''
 
 
 admin_list = [

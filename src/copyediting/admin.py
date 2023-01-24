@@ -10,8 +10,8 @@ from copyediting import models
 
 
 class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', 'article', 'copyeditor', 'editor', 'assigned',
-                    'decision', 'due', 'journal')
+    list_display = ('pk', '_article', 'copyeditor', 'editor', 'assigned',
+                    'decision', 'due', '_journal')
     list_filter = ('article__journal', 'assigned', 'due', 'date_decided',
                    'copyedit_reopened', 'decision')
     search_fields = ('article__title', 'copyeditor__first_name',
@@ -28,7 +28,7 @@ class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
 
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('pk', 'author', 'assigned',
-                    'assignment', 'journal')
+                    'assignment', '_journal')
     list_filter = ('assignment__article__journal', 'assigned',
                    'notified', 'date_decided', 'decision')
     search_fields = ('assignment__article__title', 'author__first_name',
@@ -38,7 +38,7 @@ class AuthorAdmin(admin.ModelAdmin):
     filter_horizontal = ('files_updated',)
     exclude = ('files_updated',)
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.assignment.article.journal.code if obj else ''
 
 

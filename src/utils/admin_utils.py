@@ -22,11 +22,35 @@ class ArticleFKModelAdmin(admin.ModelAdmin):
     """
     An abstract ModelAdmin base class for objects
     that relate to Article with a foreign key `article`.
-    Adds a journal function for use in list_display.
+    Adds a _journal function for use in list_display.
+    Adds an _article function that truncates long titles,
+    for use in list_display.
     """
 
-    def journal(self, obj):
+    def _journal(self, obj):
         return obj.article.journal if obj else ''
+
+    def _article(self, obj):
+        return truncate(str(obj.article), 30) if obj else ''
+
+    def _author(self, obj):
+        return obj.article.correspondence_author if obj else ''
+
+
+class PreprintFKModelAdmin(admin.ModelAdmin):
+    """
+    An abstract ModelAdmin base class for objects
+    that relate to Preprint with a foreign key `preprint`.
+    Adds a _repository function for use in list_display.
+    Adds an _preprint function that truncates long titles,
+    for use in list_display.
+    """
+
+    def _repository(self, obj):
+        return obj.preprint.repository if obj else ''
+
+    def _preprint(self, obj):
+        return truncate(str(obj.preprint), 30) if obj else ''
 
 
 class AccountInterestInline(admin.TabularInline):
@@ -173,11 +197,6 @@ class FileInline(admin.TabularInline):
     fields = ('journal', 'value')
 
 
-class TaskCompleteEventInline(admin.TabularInline):
-    model = core_models.Task.complete_events.through
-    extra = 0
-
-
 class EditorialGroupMemberInline(admin.TabularInline):
     model = core_models.EditorialGroupMember
     extra = 0
@@ -264,7 +283,7 @@ class JournalFilterBase(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (journal.id, journal.code)
+            (journal.id, journal)
             for journal in journal_models.Journal.objects.all()
         )
 
@@ -421,3 +440,30 @@ class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
             object_id__in=[preprint.pk for preprint in preprints],
             content_type=content_type,
         )
+
+
+def truncate(value, limit=80):
+
+    """
+    Truncates strings keeping whole words.
+
+    Safe to use with HTML strings, because it does not mark them as safe.
+
+    Some lines of templatetags.truncate.py are duplicated to avoid circular imports.
+    """
+
+    if not value:
+        return ''
+
+    try:
+        limit = int(limit)
+    except ValueError:
+        return value
+
+    if len(value) <= limit:
+        return value
+
+    value = value[:limit]
+    words = value.split(' ')[:-1]
+
+    return ' '.join(words) + ' [...]'

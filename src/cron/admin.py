@@ -20,14 +20,14 @@ class CronTaskAdmin(admin.ModelAdmin):
 
 
 class SentReminderAdmin(admin.ModelAdmin):
-    list_display = ('type', 'object', 'sent')
+    list_display = ('type', '_object', 'sent')
     list_filter = (admin_utils.SentReminderJournalFilter,
                    'type', 'sent')
     search_fields = ('type', 'object_id')
     date_hierarchy = ('sent')
-    readonly_fields = ('object',)
+    readonly_fields = ('_object',)
 
-    def object(self, obj):
+    def _object(self, obj):
         if not obj:
             return ''
 
