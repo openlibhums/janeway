@@ -67,7 +67,7 @@
 
                             {% buttons %}
                                 <button type="submit" class="button success" style="margin-right:5px">
-                                    {% bootstrap_icon "ok" %} {% if setting_value == None %} Create Override {% else %}
+                                    {% if setting_value == None %} Create Override {% else %}
                                     Submit {% endif %}
                                 </button>
                                 {% if setting_value != setting.default_setting_value and setting_value != None %}

@@ -29,6 +29,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.template.defaultfilters import linebreaksbr
 import swapper
 
 from core import files, validators
@@ -745,6 +747,8 @@ class SettingValue(models.Model):
             return json.loads(self.value)
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
+        elif self.setting.types == 'rich-text':
+            return linebreaksbr(self.value)
         else:
             return self.value
 
