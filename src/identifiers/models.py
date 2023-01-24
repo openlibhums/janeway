@@ -91,8 +91,11 @@ class CrossrefDeposit(models.Model):
         if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
-        else:
+        elif len(journals) == 1:
             return journals.pop()
+        else:
+            return None
+
 
     def poll(self):
         self.polling_attempts += 1
