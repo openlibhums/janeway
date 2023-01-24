@@ -1127,6 +1127,9 @@ class FixedPubCheckItems(models.Model):
     select_article_image = models.BooleanField(default=False)
     select_open_reviews = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = 'Fixed pub check items'
+
 
 class PresetPublicationCheckItem(models.Model):
     journal = models.ForeignKey(
