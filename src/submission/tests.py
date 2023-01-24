@@ -114,6 +114,63 @@ class SubmissionTests(TestCase):
 
         self.assertEqual(galley.file_content().strip(), expected)
 
+    def test_article_galley_unlink_files(self):
+        import pytz
+        london_timezone = pytz.timezone("Europe/London")
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            date_published=london_timezone.localize(dateparser.parse("2020-01-01")),
+            stage=models.STAGE_PUBLISHED,
+        )
+        # galley_file = File.objects.create(
+        #     article_id=article.pk,
+        #     label="image",
+        #     mime_type="image/jpeg",
+        #     is_galley=True,
+        # )
+        # galley = create_galley(article, galley_file)
+        #
+        # Using the above code, the galley_file does not have a real
+        # file on the filesystem, so the galley.unlink_files()
+        # procedure will fail because it will try to unlink a
+        # directory (the files/articles/article.id/). On the other
+        # hand, I cannot create a galley without a core.File because
+        # of DB constraints. Also, if I try to trick the system to
+        # skip the unlinking of the galley_file, making it look like
+        # it doesn't exists (which, in fact, it doesn't) with
+        # `galley.file = None` this does not work either, because it
+        # gives RelatedObjectDoesNotExist
+        #
+        # So I resort of just creating the file on the filesystem.
+        #
+        # TODO: Does this leave a dirty filesystem if the test has
+        # setup or other errors?
+
+        from django.core.files import File as DjangoFile
+        from io import BytesIO
+        galley_file_raw = BytesIO(b"I'm a galley")
+        galley_file_django = DjangoFile(galley_file_raw, name="galley.txt")
+        galley_image_file_raw = BytesIO(b"I'm an image of the galley")
+        galley_image_file_django = DjangoFile(galley_image_file_raw, name="image1.txt")
+
+        author_1, author_2 = self.create_authors()
+        from dataclasses import dataclass
+
+        @dataclass
+        class MockRequest():
+            user: Account
+        request = MockRequest(user=author_1)
+
+        from production import logic as production_logic
+        galley = production_logic.save_galley(article, request, uploaded_file=galley_file_django, is_galley=True)
+        production_logic.save_galley_image(galley, request, uploaded_file=galley_image_file_django)
+
+        # Interesting part: does galley.unlink_files() work?
+        galley_image_file_path = galley.images.first().self_article_path()
+        self.assertTrue(os.path.exists(galley_image_file_path))
+        galley.unlink_files()
+        self.assertFalse(os.path.exists(galley_image_file_path))
+
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(
                 journal=self.journal_one,

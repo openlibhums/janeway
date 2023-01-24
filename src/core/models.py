@@ -815,7 +815,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-    
+
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -1079,7 +1079,7 @@ class Galley(AbstractLastModifiedModel):
         if self.file and self.file.article_id:
             self.file.unlink_file()
         for image_file in self.images.all():
-            if  not image_file.images.exclude(galley=self).exists():
+            if not image_file.images.exclude(pk=self.pk).exists():
                 image_file.unlink_file()
 
     def __str__(self):
