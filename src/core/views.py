@@ -17,7 +17,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.urls import NoReverseMatch, reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
-from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
 from django.http import HttpResponse, QueryDict
 from django.contrib.sessions.models import Session
@@ -805,12 +804,9 @@ def edit_setting(request, setting_group, setting_name):
                 default=False
             )
 
-        if setting_value and setting_value.setting.types == 'rich-text':
-            setting_value.value = linebreaksbr(setting_value.value)
-
         edit_form = forms.EditKey(
-                key_type=setting.types,
-                value=setting_value.value if setting_value else None
+            key_type=setting.types,
+            value=setting_value.processed_value if setting_value else None
         )
 
         if request.POST and 'delete' in request.POST and setting_value:
