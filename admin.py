@@ -5,12 +5,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 
-from plugins.typesetting import admin_utils
+from plugins.typesetting import admin_utils as typesetting_admin_utils
 from plugins.typesetting import models
+from utils import admin_utils as utils_admin_utils
 
 
-class TypesettingClaimAdmin(admin.ModelAdmin):
-    list_display = ('article', 'editor', 'claimed', 'journal')
+class TypesettingClaimAdmin(utils_admin_utils.ArticleFKModelAdmin):
+    list_display = ('_article', 'editor', 'claimed', '_journal')
     list_filter = ('article__journal', 'claimed')
     date_hierarchy = ('claimed')
     search_fields = ('editor__email', 'editor__first_name',
@@ -18,30 +19,24 @@ class TypesettingClaimAdmin(admin.ModelAdmin):
                      'article__title')
     raw_id_fields = ('article', 'editor')
 
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
 
-
-class TypesettingRoundAdmin(admin.ModelAdmin):
-    list_display = ('article', 'journal', 'round_number', 'date_created')
+class TypesettingRoundAdmin(utils_admin_utils.ArticleFKModelAdmin):
+    list_display = ('_article', '_journal', 'round_number', 'date_created')
     list_filter = ('article__journal', 'round_number', 'date_created')
     search_fields = ('article__pk', 'article__title')
     raw_id_fields = ('article',)
     date_hierarchy = ('date_created')
 
-    def journal(self, obj):
-        return obj.article.journal.code if obj else ''
-
     inlines = [
-        admin_utils.TypesettingAssignmentInline,
-        admin_utils.GalleyProofingInline,
+        typesetting_admin_utils.TypesettingAssignmentInline,
+        typesetting_admin_utils.GalleyProofingInline,
     ]
 
 
 class TypesettingAssignmentAdmin(admin.ModelAdmin):
     list_display = (
-        'article',
-        'journal',
+        '_article',
+        '_journal',
         'round',
         'typesetter',
         'manager',
@@ -50,7 +45,7 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'round__article__journal',
-        'round',
+        'round__round_number',
     )
     raw_id_fields = (
         'typesetter',
@@ -74,20 +69,22 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
     date_hierarchy = ('assigned')
 
     inlines = [
-        admin_utils.TypesettingCorrectionInline,
+        typesetting_admin_utils.TypesettingCorrectionInline,
     ]
 
-    def article(self, obj):
-        return obj.round.article if obj else ''
+    def _article(self, obj):
+        return utils_admin_utils.truncate(
+            str(obj.round.article)
+        ) if obj else ''
 
-    def journal(self, obj):
-        return obj.round.article.journal.code if obj else ''
+    def _journal(self, obj):
+        return obj.round.article.journal if obj else ''
 
 
 class GalleyProofingAdmin(admin.ModelAdmin):
     list_display = (
-        'article',
-        'journal',
+        '_article',
+        '_journal',
         'round',
         'proofreader',
         'manager',
@@ -119,11 +116,13 @@ class GalleyProofingAdmin(admin.ModelAdmin):
     )
     date_hierarchy = ('assigned')
 
-    def article(self, obj):
-        return obj.round.article if obj else ''
+    def _article(self, obj):
+        return utils_admin_utils.truncate(
+            str(obj.round.article)
+        ) if obj else ''
 
-    def journal(self, obj):
-        return obj.round.article.journal.code if obj else ''
+    def _journal(self, obj):
+        return obj.round.article.journal if obj else ''
 
 
 class TypesettingCorrectionAdmin(admin.ModelAdmin):
@@ -135,7 +134,7 @@ class TypesettingCorrectionAdmin(admin.ModelAdmin):
         'date_requested',
         'date_completed',
         'date_declined',
-        'journal',
+        '_journal',
     )
     list_filter = (
         'task__round__article__journal',
@@ -158,11 +157,8 @@ class TypesettingCorrectionAdmin(admin.ModelAdmin):
         'task__typesetter__last_name',
     )
 
-    def article(self, obj):
-        return obj.task.round.article if obj else ''
-
-    def journal(self, obj):
-        return obj.task.round.article.journal.code if obj else ''
+    def _journal(self, obj):
+        return obj.task.round.article.journal if obj else ''
 
 
 admin_list = [
