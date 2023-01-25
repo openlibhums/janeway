@@ -297,7 +297,6 @@ LIST_RECORDS_DATA_JATS = """
                                             <surname>Author</surname>
                                             <given-names>Preprint</given-names>
                                         </name>
-                                        <email>preprintauthor@test.edu</email>
                                         <xref ref-type="aff" rid="aff-1"/>
                                     </contrib>
                                 </contrib-group>
@@ -369,7 +368,6 @@ LIST_RECORDS_DATA_JATS = """
                                             <surname>Author</surname>
                                             <given-names>Preprint</given-names>
                                         </name>
-                                        <email>preprintauthor@test.edu</email>
                                         <xref ref-type="aff" rid="aff-1"/>
                                     </contrib>
                                 </contrib-group>
@@ -534,7 +532,6 @@ GET_RECORD_DATA_JATS = """
                                         <surname>Author</surname>
                                         <given-names>Preprint</given-names>
                                     </name>
-                                    <email>preprintauthor@test.edu</email>
                                     <xref ref-type="aff" rid="aff-1"/>
                                 </contrib>
                             </contrib-group>
