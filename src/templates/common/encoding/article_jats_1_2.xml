@@ -43,7 +43,9 @@
                         <surname>{{ author.last_name }}</surname>
                         <given-names>{{ author.given_names }}</given-names>
                     </name>
+                    {% if author.is_correspondence_author %}
                     <email>{{ author.author.email }}</email>
+                    {% endif %}
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
                 </contrib>
             {% endfor %}
