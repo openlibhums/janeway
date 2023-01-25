@@ -49,8 +49,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <surname>{{ author.account.last_name }}</surname>
                         <given-names>{{ author.account.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
                     </name>
-                    <email>{{ author.account.email }}</email>
-                    {% if author.affiliation %}                 
+                    {% if author.affiliation %}
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
                     {% endif %}
                 </contrib>
