@@ -8,7 +8,6 @@ from importlib import import_module
 import json
 import pytz
 import time
-import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -36,7 +35,8 @@ from django.views import generic
 from core import models, forms, logic, workflow, models as core_models
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
-    any_editor_user_required,
+    any_editor_user_required, role_can_access,
+    user_can_edit_setting
 )
 from submission import models as submission_models
 from review import models as review_models
@@ -727,7 +727,7 @@ def manager_index(request):
         'support_contact_message_for_staff',
         'general',
         request,
-        nested_settings=[('support_email','general')],
+        nested_settings=[('support_email', 'general')],
     )
 
     context = {
@@ -762,9 +762,15 @@ def settings_index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    settings = models.Setting.objects.all().order_by('name')
+    if not request.user.is_staff:
+        settings = settings.filter(
+            editable_by__in=request.user.roles_for_journal(request.journal)
+        )
+
     template = 'core/manager/settings/index.html'
     context = {
-        'settings': models.Setting.objects.order_by('name')
+        'settings': settings,
     }
 
     return render(request, template, context)
@@ -785,6 +791,7 @@ def default_settings_index(request):
 
 @GET_language_override
 @editor_user_required
+@user_can_edit_setting
 def edit_setting(request, setting_group, setting_name):
     """
     Allows a user to edit a setting. Fields are auto generated based on the setting.kind field
@@ -1879,7 +1886,7 @@ def email_templates(request):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 def section_list(request):
     """
     Displays a list of the journals sections.
@@ -1914,7 +1921,7 @@ def section_list(request):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 @GET_language_override
 def manage_section(request, section_id=None):
     """
@@ -1961,7 +1968,7 @@ def manage_section(request, section_id=None):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 def section_articles(request, section_id):
     """
     Displays a list of articles in a given section.

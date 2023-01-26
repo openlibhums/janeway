@@ -379,6 +379,23 @@ class Account(AbstractBaseUser, PermissionsMixin):
         role = Role.objects.get(slug=role_slug)
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
+    @cached_property
+    def roles(self):
+        account_roles = AccountRole.objects.filter(
+            user=self,
+        )
+        journal_roles_map = {}
+        for account_role in account_roles:
+            journal_roles_map.setdefault(account_role.journal.code, set())
+            journal_roles_map[account_role.journal.code].add(account_role.role.slug)
+        return journal_roles_map
+
+    def roles_for_journal(self, journal):
+        return [
+            account_role.role for account_role in
+            AccountRole.objects.filter(user=self, journal=journal)
+        ]
+
     def check_role(self, journal, role, staff_override=True):
         if staff_override and self.is_staff:
             return True
@@ -388,6 +405,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 journal=journal,
                 role__slug=role
             ).exists()
+
+    def is_journal_manager(self, request):
+        return self.check_role(request.journal, 'journal-manager')
 
     def is_editor(self, request, journal=None):
         if not journal:
@@ -782,6 +802,10 @@ class SettingValue(models.Model):
 
     def validate(self):
         self.setting.validate(self.value)
+
+    @cached_property
+    def editable_by(self):
+        return {role.slug for role in self.setting.editable_by.all()}
 
     def save(self, *args, **kwargs):
         self.validate()
