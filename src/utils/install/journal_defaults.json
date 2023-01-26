@@ -4727,5 +4727,41 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "Determines which roles can access the licenses pages.",
+            "is_translatable": false,
+            "name": "licenses",
+            "pretty_name": "Role can manage licenses",
+            "type": "json"
+        },
+        "value": {
+            "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "Determines which roles can access the sections pages.",
+            "is_translatable": false,
+            "name": "sections",
+            "pretty_name": "Role can manage sections",
+            "type": "json"
+        },
+        "value": {
+            "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     }
 ]
