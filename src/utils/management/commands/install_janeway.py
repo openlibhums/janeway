@@ -42,7 +42,6 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--press_name',
-            action='store_true',
             dest='press_name',
             default=os.getenv("JANEWAY_PRESS_NAME", default='Press'),
             help='Specifies the Press Name to use when installing Janeway'
@@ -50,27 +49,23 @@ class Command(BaseCommand):
         parser.add_argument(
             '--press_domain',
             action='store_true',
-            dest='press_domain',
             default=os.getenv("JANEWAY_PRESS_DOMAIN", default='localhost'),
             help='Specifies the Press Domain to use when installing Janeway'
         )
         parser.add_argument(
             '--press_contact',
-            action='store_true',
             dest='press_contact',
             default=os.getenv("JANEWAY_PRESS_CONTACT", default='dev@noemail.com'),
             help='Specifies the Press Contact email address to use when installing Janeway'
         )
         parser.add_argument(
             '--journal_code',
-            action='store_true',
             dest='journal_code',
             default=os.getenv("JANEWAY_JOURNAL_CODE", default='Journal'),
             help='Specifies the Journal Code to use when installing Janeway'
         )
         parser.add_argument(
             '--journal_name',
-            action='store_true',
             dest='journal_name',
             default=os.getenv("JANEWAY_JOURNAL_NAME", default='Test Journal'),
             help='Specifies the Journal Name to use when installing Janeway'
