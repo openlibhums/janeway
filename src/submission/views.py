@@ -21,7 +21,8 @@ from security.decorators import (
     production_user_or_editor_required,
     editor_user_required,
     submission_authorised,
-    article_is_not_submitted
+    article_is_not_submitted,
+    role_can_access,
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
@@ -755,7 +756,7 @@ def fields(request, field_id=None):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('licenses')
 def licenses(request, license_pk=None):
     """
     Allows an editor to create, edit and delete license objects.
@@ -820,7 +821,7 @@ def licenses(request, license_pk=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@role_can_access('licenses')
 def delete_license(request, license_pk):
     """
     Presents an interface to delete a license object.
