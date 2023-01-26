@@ -89,8 +89,6 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = journal_models.Issue
-        fields = ('pk', 'volume', 'issue', 'issue_title', 'date', 'issue_type', 'issue_description',
-                  'cover_image', 'large_image', 'articles')
 
     issue_type = serializers.ReadOnlyField(
         read_only=True,
