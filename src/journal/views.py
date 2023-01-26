@@ -14,7 +14,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db import IntegrityError
 from django.db.models import Q, Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -1488,6 +1487,7 @@ def add_guest_editor(request, issue_id):
 
     current_editors = issue.editors.all()
     users = logic.potential_issue_editors(request.journal, current_editors)
+    editors = models.IssueEditor.objects.filter(issue=issue)
 
     if request.POST:
         if 'user' in request.POST:
@@ -1521,12 +1521,19 @@ def add_guest_editor(request, issue_id):
                     kwargs={'issue_id': issue.pk}
                 )
             )
-
+        elif 'guesteditors[]' in request.POST:
+            posted_guest_editor_pks = [int(pk) for pk in request.POST.getlist('guesteditors[]')]
+            shared.set_order(
+                objects=editors,
+                order_attr_name='sequence',
+                pk_list=posted_guest_editor_pks
+            )
+            return HttpResponse('Guest Editor Sequence Updated.')
     template = 'journal/manage/add_guest_editor.html'
     context = {
         'issue': issue,
         'users': users,
-        'editors': models.IssueEditor.objects.filter(issue=issue),
+        'editors': editors,
     }
 
     return render(request, template, context)
