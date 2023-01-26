@@ -1056,7 +1056,17 @@ class IssueEditor(models.Model):
         Issue,
         on_delete=models.CASCADE,
     )
-    role = models.CharField(max_length=255, default='Guest Editor')
+    role = models.CharField(
+        max_length=255,
+        default='Guest Editor',
+    )
+    sequence = models.PositiveIntegerField(
+        default=1,
+        help_text='Provides for ordering of the Issue Editors.'
+    )
+
+    class Meta:
+        ordering = ('sequence', 'account')
 
     def __str__(self):
         return "{user} {role}".format(
