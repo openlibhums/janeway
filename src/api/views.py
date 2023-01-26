@@ -146,7 +146,6 @@ class PreprintViewSet(viewsets.ModelViewSet):
     """
     API Endpoint for preprints.
     """
-    pass
     serializer_class = serializers.PreprintSerializer
     http_method_names = ['get']
 
