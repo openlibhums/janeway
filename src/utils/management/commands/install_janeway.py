@@ -48,7 +48,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--press_domain',
-            action='store_true',
+            dest='press_domain',
             default=os.getenv("JANEWAY_PRESS_DOMAIN", default='localhost'),
             help='Specifies the Press Domain to use when installing Janeway'
         )
