@@ -100,6 +100,7 @@ class JournalSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = journal_models.Journal
+        fields = ('pk', 'code', 'name', 'issn', 'description', 'current_issue', 'default_cover_image', 'default_large_image', 'issues')
 
     issues = serializers.HyperlinkedRelatedField(
         many=True,
