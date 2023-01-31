@@ -89,7 +89,6 @@ INSTALLED_APPS = [
     # 3rd Party
     'mozilla_django_oidc',
     'django_summernote',
-    'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
     'foundationform',
