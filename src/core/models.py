@@ -397,17 +397,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
         ]
 
     def check_role(self, journal, role, staff_override=True):
-        if staff_override and self.is_staff:
+        if staff_override and (self.is_staff or self.is_journal_manager(journal)):
             return True
         else:
             return AccountRole.objects.filter(
                 user=self,
                 journal=journal,
-                role__slug=role
+                role__slug=role,
             ).exists()
 
-    def is_journal_manager(self, request):
-        return self.check_role(request.journal, 'journal-manager')
+    def is_journal_manager(self, journal):
+        # this is an explicit check to avoid recursion in check_role.
+        return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug='journal-manager',
+            ).exists()
 
     def is_editor(self, request, journal=None):
         if not journal:
@@ -764,7 +769,10 @@ class SettingValue(models.Model):
             except BaseException:
                 return 0
         elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
+            try:
+                return json.loads(self.value)
+            except json.JSONDecodeError:
+                return ''
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
         elif self.setting.types == 'rich-text':
@@ -785,10 +793,10 @@ class SettingValue(models.Model):
         elif self.setting.types == 'file':
             if self.journal:
                 return self.journal.site_url(
-                        reverse("journal_file",self.value))
+                    reverse("journal_file", self.value))
             else:
                 return self.press.site_url(
-                        reverse("serve_press_file", self.value))
+                    reverse("serve_press_file", self.value))
         else:
             return self.value
 
