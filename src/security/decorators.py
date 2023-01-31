@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
-from core import models as core_models
+from core import models as core_models, logic
 from review import models as review_models
 from production import models as production_models
 from submission import models
@@ -177,7 +177,7 @@ def role_can_access(access_setting):
     def decorator(func):
         def wrapper(request, *args, **kwargs):
 
-            if request.user.is_staff or request.user.is_journal_manager(request):
+            if request.user.is_staff:
                 return func(request, *args, **kwargs)
 
             setting = setting_handler.get_setting(
@@ -188,7 +188,7 @@ def role_can_access(access_setting):
 
             journal_roles = request.user.roles.get(request.journal.code) or set()
             setting_roles = set(setting.processed_value or [])
-
+            
             # If no roles for the setting are configured we deny access
             # in the event that we want all roles to have access they
             # should be explicitly defined.
@@ -214,7 +214,7 @@ def user_can_edit_setting(func):
         if not setting_group_name or not setting_name:
             deny_access(request)
 
-        if request.user.is_staff or request.user.is_journal_manager(request):
+        if request.user.is_staff or request.user.is_journal_manager(request.journal):
             return func(request, *args, **kwargs)
 
         setting = setting_handler.get_setting(
@@ -223,13 +223,7 @@ def user_can_edit_setting(func):
             journal=request.journal,
         )
 
-        journal_roles = request.user.roles.get(request.journal.code) or set()
-        setting_editable_roles = setting.editable_by
-
-        # If no roles for the setting are configured we deny access
-        # in the event that we want all roles to have access they
-        # should be explicitly defined.
-        if setting_editable_roles and journal_roles.intersection(setting_editable_roles):
+        if logic.user_can_edit_setting(setting, request.user, request.journal):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -244,7 +238,7 @@ def editor_or_journal_manager_required(func):
     """
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.user.is_editor(request) or request.user.is_journal_manager(request):
+        if request.user.is_editor(request) or request.user.is_journal_manager(request.journal):
             return func(request, *args, **kwargs)
         deny_access(request)
 
@@ -266,7 +260,7 @@ def editor_user_required(func):
 
         article_id = kwargs.get('article_id', None)
 
-        if request.user.is_editor(request) or request.user.is_staff:
+        if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
             return func(request, *args, **kwargs)
 
         elif request.user.is_section_editor(request) and article_id:

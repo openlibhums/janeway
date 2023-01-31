@@ -812,7 +812,7 @@ def edit_setting(request, setting_group, setting_name):
 
         edit_form = forms.EditKey(
             key_type=setting.types,
-            value=setting_value.processed_value if setting_value else None
+            value=setting_value.value if setting_value else None
         )
 
         if request.POST and 'delete' in request.POST and setting_value:
@@ -830,9 +830,13 @@ def edit_setting(request, setting_group, setting_name):
 
                 try:
                     setting_value = setting_handler.save_setting(
-                        setting_group, setting_name, request.journal, value)
+                        setting_group,
+                        setting_name,
+                        request.journal,
+                        value,
+                    )
                 except ValidationError as error:
-                    messages.add_message( request, messages.ERROR, error)
+                    messages.add_message(request, messages.ERROR, error)
                 else:
                     cache.clear()
 
@@ -876,7 +880,11 @@ def edit_settings_group(request, display_group):
     :return: HttpResponse object
     """
     with translation.override(request.override_language):
-        settings, setting_group = logic.get_settings_to_edit(display_group, request.journal)
+        settings, setting_group = logic.get_settings_to_edit(
+            display_group,
+            request.journal,
+            request.user,
+        )
         edit_form = forms.GeneratedSettingForm(settings=settings)
         attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
