@@ -1271,6 +1271,9 @@ def enrol_users(request):
     first_name = request.GET.get('first_name', '')
     last_name = request.GET.get('last_name', '')
     email = request.GET.get('email', '')
+    roles = models.Role.objects.exclude(
+        slug__in=[ 'reader'],
+    ).order_by(('name'))
 
     if first_name or last_name or email:
         filters = {}
@@ -1286,7 +1289,7 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.order_by(('name')),
+        'roles': roles,
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
