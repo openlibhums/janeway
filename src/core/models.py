@@ -771,7 +771,13 @@ class SettingValue(models.Model):
         elif self.setting.types == 'json' and self.value:
             try:
                 return json.loads(self.value)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logger.error(
+                    "Error loading JSON setting {setting_name} on journal {journal_name}".format(
+                        setting_name=self.setting.name,
+                        journal_name=self.journal.name
+                    )
+                )
                 return ''
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
