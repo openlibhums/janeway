@@ -545,6 +545,7 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_bibtex(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -583,6 +584,7 @@ class SubmissionTests(TestCase):
         ]
         self.assertEqual(bibtex_lines, expected_lines)
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_ris(self):
         article = helpers.create_article(
             journal=self.journal_one,
