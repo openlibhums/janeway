@@ -35,7 +35,7 @@ Uninstalling Janeway is as simple as running ``make uninstall`` which will delet
 
 # Current development
 
-What are we working on right now? For a high-level view, check out our [public roadmap]([https://trello.com/b/Qnq2ySby/janeway-roadmap](https://github.com/orgs/BirkbeckCTP/projects/21)).
+What are we working on right now? For a high-level view, check out our [public roadmap](https://github.com/orgs/BirkbeckCTP/projects/21).
 
 You can get more detail by viewing our [project boards here on GitHub](https://github.com/orgs/BirkbeckCTP/projects). Open a project to see which issues it includes and what their status is. The status should be one of these:
 
