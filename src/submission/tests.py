@@ -566,7 +566,7 @@ class SubmissionTests(TestCase):
                 title = {Test article: a test article},
                 volume = {2},
                 year = {1990},
-                url = {http://localhost/TST/article/id/%s/},
+                url = {http://testserver/article/id/%s/},
                 issue = {1},
                 abstract = {test_abstract},
                 month = {1},
@@ -609,7 +609,7 @@ class SubmissionTests(TestCase):
             PY  - 1990
             TI  - Test article: A RIS export test case
             T2  - {journal_name}
-            UR  - http://localhost/TST/article/id/{article_id}/
+            UR  - http://testserver/article/id/{article_id}/
             ER  -
         """.format(article_id=article.pk, journal_name=article.journal.name)
         ris_lines = [
