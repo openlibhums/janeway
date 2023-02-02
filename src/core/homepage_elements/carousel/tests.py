@@ -2,7 +2,6 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.contenttypes.models import ContentType
@@ -15,8 +14,8 @@ from journal import models as journal_models
 from submission import models as sm_models
 from utils.testing.helpers import create_journals
 
-FROZEN_DATETIME_20180628 = timezone.make_aware(timezone.datetime(2018, 6, 28, 8, 15, 27))
-FROZEN_DATETIME_20180629 = timezone.make_aware(timezone.datetime(2018, 6, 29, 8, 15, 27))
+FROZEN_DATETIME_20180628 = timezone.make_aware(timezone.datetime(2018, 6, 28, 8, 15, 27, 243860))
+FROZEN_DATETIME_20180629 = timezone.make_aware(timezone.datetime(2018, 6, 29, 8, 15, 27, 243860))
 
 # Create your tests here.
 class TestCarousel(TestCase):
@@ -34,7 +33,7 @@ class TestCarousel(TestCase):
         cls.article = sm_models.Article.objects.create(
             journal=cls.journal_one,
             stage=sm_models.STAGE_PUBLISHED,
-            date_published=FROZEN_DATETIME_20180629,
+            date_published=FROZEN_DATETIME_20180628,
             title='Carousel Article One',
         )
         cls.article = sm_models.Article.objects.create(
