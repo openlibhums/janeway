@@ -175,6 +175,7 @@ def role_can_access(access_setting):
     roles that are allowed to access it.
     """
     def decorator(func):
+        @base_check_required
         def wrapper(request, *args, **kwargs):
 
             if request.user.is_staff:
