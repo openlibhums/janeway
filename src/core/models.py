@@ -773,9 +773,9 @@ class SettingValue(models.Model):
                 return json.loads(self.value)
             except json.JSONDecodeError as e:
                 logger.error(
-                    "Error loading JSON setting {setting_name} on journal {journal_name}".format(
+                    "Error loading JSON setting {setting_name} on {site_name} site.".format(
                         setting_name=self.setting.name,
-                        journal_name=self.journal.name
+                        site_name=self.journal.name if self.journal else 'press'
                     )
                 )
                 return ''
