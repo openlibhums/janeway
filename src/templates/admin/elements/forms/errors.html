@@ -3,16 +3,16 @@
         <div class="card-section">
             <small>
                 <p>Form errors:</p>
-                <ul>
+                <ul class="error-list">
                     {% if form.non_field_errors %}
                         <li>Non Field Errors</li>
-                        <ul>
+                        <ul class="non-field-errors">
                             {{ form.non_field_errors }}
                         </ul>
                     {% endif %}
                     {% for field in form %}
                         {% if field.errors %}
-                            <li>{{ field.label }}</li>
+                            {% if field.label %}<li>{{ field.label }}</li>{% endif %}
                             {{ field.errors }}
                         {% endif %}
                     {% endfor %}

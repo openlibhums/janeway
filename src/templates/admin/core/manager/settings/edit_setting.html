@@ -51,6 +51,8 @@
                         </h5>
                         {% if setting.description %}<p>{{ setting.description|safe }}</p>{% endif %}
 
+                        {% include "elements/forms/errors.html" with form=edit_form %}
+
                         <form action="" method="POST" enctype="multipart/form-data">
 
                             {% csrf_token %}

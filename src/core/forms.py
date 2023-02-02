@@ -36,19 +36,19 @@ logger = get_logger(__name__)
 
 class EditKey(forms.Form):
     def __init__(self, *args, **kwargs):
-        key_type = kwargs.pop('key_type', None)
+        self.key_type = kwargs.pop('key_type', None)
         value = kwargs.pop('value', None)
         super(EditKey, self).__init__(*args, **kwargs)
 
-        if key_type == 'rich-text':
+        if self.key_type == 'rich-text':
             self.fields['value'].widget = SummernoteWidget()
-        elif key_type == 'boolean':
+        elif self.key_type == 'boolean':
             self.fields['value'].widget = forms.CheckboxInput()
-        elif key_type == 'integer':
+        elif self.key_type == 'integer':
             self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
-        elif key_type == 'file' or key_type == 'journalthumb':
+        elif self.key_type == 'file' or self.key_type == 'journalthumb':
             self.fields['value'].widget = forms.FileInput()
-        elif key_type == 'text':
+        elif self.key_type in ['text', 'json']:
             self.fields['value'].widget = forms.Textarea()
         else:
             self.fields['value'].widget.attrs['size'] = '100%'
@@ -60,6 +60,16 @@ class EditKey(forms.Form):
 
     def clean(self):
         cleaned_data = self.cleaned_data
+
+        if self.key_type == 'json':
+            import json
+            try:
+                json.loads(cleaned_data.get('value'))
+            except json.JSONDecodeError as e:
+                self.add_error(
+                    'value',
+                    f'JSON not valid: {e}',
+                )
 
         return cleaned_data
 

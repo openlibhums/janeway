@@ -822,30 +822,34 @@ def edit_setting(request, setting_group, setting_name):
             return redirect(reverse('core_settings_index'))
 
         if request.POST:
-            if 'delete' in request.POST and setting_value:
-                setting_value.delete()
-            else:
-                value = request.POST.get('value')
+            edit_form = forms.EditKey(
+                request.POST,
+                key_type=setting.types,
+            )
+            if edit_form.is_valid():
                 if request.FILES:
                     value = logic.handle_file(request, setting_value, request.FILES['value'])
+
+                # for JSON setting we should validate the JSON by attempting to load the string.
 
                 try:
                     setting_value = setting_handler.save_setting(
                         setting_group,
                         setting_name,
                         request.journal,
-                        value,
+                        edit_form.cleaned_data.get('value'),
                     )
                 except ValidationError as error:
                     messages.add_message(request, messages.ERROR, error)
                 else:
                     cache.clear()
 
-            return language_override_redirect(
-                request,
-                'core_edit_setting',
-                {'setting_group': setting_group, 'setting_name': setting_name},
-            )
+                return language_override_redirect(
+                    request,
+                    'core_edit_setting',
+                    {'setting_group': setting_group, 'setting_name': setting_name},
+                )
+
 
         template = 'core/manager/settings/edit_setting.html'
         context = {
