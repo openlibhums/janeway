@@ -3,9 +3,18 @@
 from django.db import migrations
 from django.core.management import call_command
 
+from core import models
+from utils import install
+
 
 def forwards_func(apps, schema_editor):
-    call_command("load_permissions")
+    try:
+        install.load_permissions()
+    except models.Setting.DoesNotExist:
+        # This data migration can be ignored on a first load,
+        # permissions will be added during the load_default_settings
+        # command. See utils/install.py for more information.
+        pass
 
 
 class Migration(migrations.Migration):

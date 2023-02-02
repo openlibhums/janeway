@@ -61,7 +61,11 @@ def update_settings(journal_object=None, management_command=False,
             )
 
             if created or overwrite_with_defaults:
-                setting_value.value = item['value'].get('default')
+                value = item['value'].get('default')
+                if setting.types == 'json' and isinstance(value, (list, dict)):
+                    value = json.dumps(value)
+
+                setting_value.value = value
                 setting_value.save()
 
                 # clear the many-to-many relationship, mainly for overwrite procedures
