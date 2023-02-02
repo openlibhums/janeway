@@ -13,6 +13,10 @@ from journal import models as journal_models
 from utils.testing import helpers
 from submission import models as submission_models
 
+FROZEN_DATETIME_20210101 = timezone.make_aware(timezone.datetime(2021, 1, 1, 0, 0, 0))
+FROZEN_DATETIME_20210102 = timezone.make_aware(timezone.datetime(2021, 1, 2, 0, 0, 0))
+FROZEN_DATETIME_20210103 = timezone.make_aware(timezone.datetime(2021, 1, 3, 0, 0, 0))
+
 
 class TestAccount(TestCase):
     def test_creation(self):
@@ -290,12 +294,12 @@ class TestLastModifiedModel(TestCase):
 
     def test_last_modified_model(self):
         # prepare
-        with freeze_time("2021-01-02"):
+        with freeze_time(FROZEN_DATETIME_20210102):
             issue_date = self.issue.last_modified = (
                 timezone.now() - timedelta(days=1)
             )
             self.issue.save()
-        with freeze_time("2021-01-01"):
+        with freeze_time(FROZEN_DATETIME_20210101):
             self.article.last_modified = (
                 timezone.now() - timedelta(days=2)
             )
@@ -307,17 +311,17 @@ class TestLastModifiedModel(TestCase):
     def test_last_modified_model_recursive(self):
         # prepare
 
-        with freeze_time("2021-01-03"):
+        with freeze_time(FROZEN_DATETIME_20210103):
             file_obj = models.File.objects.create()
             file_date = file_obj.las_modified = timezone.now()
             file_obj.save()
 
-        with freeze_time("2021-01-02"):
+        with freeze_time(FROZEN_DATETIME_20210102):
             galley = helpers.create_galley(self.article, file_obj)
             galley.last_modified = timezone.now()
             galley.save()
 
-        with freeze_time("2021-01-01"):
+        with freeze_time(FROZEN_DATETIME_20210101):
             self.article.last_modified = timezone.now()
             self.article.save()
 
@@ -327,18 +331,18 @@ class TestLastModifiedModel(TestCase):
     def test_last_modified_model_recursive_circular(self):
         # prepare
 
-        with freeze_time("2021-01-03"):
+        with freeze_time(FROZEN_DATETIME_20210103):
             file_obj = models.File.objects.create()
             file_date = file_obj.las_modified = timezone.now()
             file_obj.save()
 
-        with freeze_time("2021-01-02"):
+        with freeze_time(FROZEN_DATETIME_20210102):
             galley = helpers.create_galley(self.article, file_obj)
             galley.article = self.article
             galley.last_modified = timezone.now()
             galley.save()
 
-        with freeze_time("2021-01-01"):
+        with freeze_time(FROZEN_DATETIME_20210101):
             self.article.last_modified = timezone.now()
             self.article.save()
 
@@ -346,18 +350,18 @@ class TestLastModifiedModel(TestCase):
         self.assertEqual(self.article.best_last_modified_date(), file_date)
 
     def test_last_modified_model_recursive_doubly_linked(self):
-        with freeze_time("2021-01-03"):
+        with freeze_time(FROZEN_DATETIME_20210103):
             file_obj = models.File.objects.create()
             file_date = file_obj.las_modified = timezone.now()
             file_obj.save()
 
-        with freeze_time("2021-01-02"):
+        with freeze_time(FROZEN_DATETIME_20210102):
             galley = helpers.create_galley(self.article, file_obj)
             galley.article = self.article
             galley.last_modified = timezone.now()
             galley.save()
 
-        with freeze_time("2021-01-01"):
+        with freeze_time(FROZEN_DATETIME_20210101):
             self.article.render_galley = galley
             self.article.last_modified = timezone.now()
             self.article.save()
