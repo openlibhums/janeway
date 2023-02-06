@@ -4,17 +4,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
-import copy
-import functools
-import itertools
+import json
 
 from django import forms
 from django.forms.fields import Field
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language
-from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
-from django.db.models import Q
 from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
@@ -62,7 +58,6 @@ class EditKey(forms.Form):
         cleaned_data = self.cleaned_data
 
         if self.key_type == 'json':
-            import json
             try:
                 json.loads(cleaned_data.get('value'))
             except json.JSONDecodeError as e:
