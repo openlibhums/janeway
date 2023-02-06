@@ -8,15 +8,15 @@ class Migration(migrations.Migration):
 
     def add_role(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role.objects.create(
+        role = Role(
             name='Journal Manager',
             slug='journal-manager',
         )
+        role.save()
 
     def remove_role(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role.objects.filter(
-            name='Journal Manager',
+        Role.objects.filter(
             slug='journal-manager',
         ).delete()
 
@@ -25,5 +25,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(add_role, remove_role),
+        migrations.RunPython(add_role, reverse_code=remove_role),
     ]
