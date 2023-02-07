@@ -27,6 +27,7 @@ from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
+from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 import swapper
 
@@ -1034,6 +1035,10 @@ class Article(AbstractLastModifiedModel):
             return True
 
         return False
+
+    @cached_property
+    def in_review_stages(self):
+        return self.stage in REVIEW_STAGES
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(

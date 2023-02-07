@@ -263,12 +263,14 @@
                         </li>
                         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                     {% if article.is_accepted %}
+                      {% if article.in_review_stages %}
                         <li>
                             <a href="{% url 'move_to_next_workflow_element' article.pk %}">
                                 <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
                                 {% trans 'Move to Next Stage' %}
                             </a>
                         </li>
+                      {% endif %}
                     {% else %}
                         <li>
                             <a href="{% url 'decision_helper' article.pk %}">
@@ -295,7 +297,7 @@
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
     {% include "elements/notes/note_script.html" %}
-    {% if article.is_accepted %}
+    {% if article.is_accepted and article.in_review_stages %}
         {% include "admin/elements/open_modal.html" with target='move_to_next_modal' %}
     {% endif %}
 {% endblock js %}
