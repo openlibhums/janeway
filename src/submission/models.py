@@ -27,6 +27,7 @@ from django.template.loader import render_to_string
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
+from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 import swapper
 
@@ -40,10 +41,10 @@ from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
-from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from utils import setting_handler
 
 logger = get_logger(__name__)
 
@@ -1035,6 +1036,10 @@ class Article(AbstractLastModifiedModel):
 
         return False
 
+    @cached_property
+    def in_review_stages(self):
+        return self.stage in REVIEW_STAGES
+
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
@@ -1135,27 +1140,44 @@ class Article(AbstractLastModifiedModel):
         return url
 
     def step_to_url(self):
+        funding_enabled = False
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
+            funding_enabled = self.journal.submissionconfiguration.funding
+
         if self.current_step == 1:
             return reverse('submit_info', kwargs={'article_id': self.id})
         elif self.current_step == 2:
             return reverse('submit_authors', kwargs={'article_id': self.id})
         elif self.current_step == 3:
             return reverse('submit_files', kwargs={'article_id': self.id})
+        elif self.current_step == 4 and funding_enabled:
+            return reverse('submit_funding', kwargs={'article_id': self.id})
         elif self.current_step == 4:
             return reverse('submit_review', kwargs={'article_id': self.id})
         else:
-            return None
+            return reverse('submit_review', kwargs={'article_id': self.id})
 
     def step_name(self):
+        funding_enabled = False
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
+            funding_enabled = self.journal.submissionconfiguration.funding
         if self.current_step == 1:
             return 'Article Information'
         elif self.current_step == 2:
             return 'Article Authors'
         elif self.current_step == 3:
             return 'Article Files'
+        elif self.current_step == 4 and funding_enabled:
+            return 'Article Funding'
         elif self.current_step == 4:
             return 'Review Article Submission'
-        elif self.current_step == 5:
+        elif self.current_step == 5 and funding_enabled:
+            return 'Review Article Submission'
+        else:
             return 'Submission Complete'
 
     def save(self, *args, **kwargs):

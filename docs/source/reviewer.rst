@@ -49,7 +49,7 @@ A list of the review files that the editor has selected for you to use to comple
 
 Review Form
 ^^^^^^^^^^^
-The review from is where the magic happens! It can be a single large text box or multiple boxes with checkboxes and drop downs. Each element in the form will have help text to assist you in completing it.
+The review form is where the magic happens! It can be a single large text box or multiple boxes with checkboxes and drop downs. Each element in the form will have help text to assist you in completing it.
 
 .. figure:: nstatic/review_form.png
 

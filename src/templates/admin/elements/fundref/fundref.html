@@ -3,6 +3,8 @@
 <script language="JavaScript">
         function search_fundref(query) {
                 query_url = '//api.crossref.org/funders?query=' + query;
+                console.log('Clearing old modals.')
+                $("div.fundref_modal").remove();
                 console.log('Fetching ' + query_url);
                 fetch(query_url)
                     .then(function(response) {
@@ -63,6 +65,7 @@
                                     const modal_div = document.createElement('div');
                                     modal_div.classList.add('small');
                                     modal_div.classList.add('reveal');
+                                    modal_div.classList.add('fundref_modal')
                                     modal_div.id = 'add_funder_' + funder;
                                     modal_div.setAttribute('data-reveal', '');
                                     funder_span.append(modal_div);

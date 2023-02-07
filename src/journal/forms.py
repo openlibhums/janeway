@@ -136,4 +136,5 @@ class IssueDisplayForm(forms.ModelForm):
             'display_issue_title',
             'display_article_number',
             'display_article_page_numbers',
+            'display_issue_doi',
         )

@@ -545,6 +545,7 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_bibtex(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -566,7 +567,7 @@ class SubmissionTests(TestCase):
                 title = {Test article: a test article},
                 volume = {2},
                 year = {1990},
-                url = {http://localhost/TST/article/id/%s/},
+                url = {http://testserver/article/id/%s/},
                 issue = {1},
                 abstract = {test_abstract},
                 month = {1},
@@ -583,6 +584,7 @@ class SubmissionTests(TestCase):
         ]
         self.assertEqual(bibtex_lines, expected_lines)
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_ris(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -609,7 +611,7 @@ class SubmissionTests(TestCase):
             PY  - 1990
             TI  - Test article: A RIS export test case
             T2  - {journal_name}
-            UR  - http://localhost/TST/article/id/{article_id}/
+            UR  - http://testserver/article/id/{article_id}/
             ER  -
         """.format(article_id=article.pk, journal_name=article.journal.name)
         ris_lines = [

@@ -1624,10 +1624,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Blind or Double Blind as the default for the visibility drop down when creating a review assignment.",
+            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonimity drop down when creating a review assignment.",
             "is_translatable": false,
             "name": "default_review_visibility",
-            "pretty_name": "Default Review Visibility",
+            "pretty_name": "Default Review Anonimity",
             "type": "select"
         },
         "value": {
@@ -1841,7 +1841,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "This journal operates a open/blind/double blind peer review policy."
+            "default": "This journal operates a open/single anonymous/double anonymous, peer review policy."
         }
     },
     {
@@ -2926,13 +2926,13 @@
     },
     {
         "value": {
-            "default": "<p>If you are undertaking a blind or double-blind review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"
+            "default": "<p>If you are undertaking a single anonymous or double anonymous review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"
         },
         "setting": {
             "type": "rich-text",
             "pretty_name": "Review File Help",
             "is_translatable": true,
-            "description": "Text displayed when a journal defaults to blind or double-blind review ensuring that files are anonymous.",
+            "description": "Text displayed when a journal defaults to single anonymous or double anonymous review ensuring that files remain anonymous.",
             "name": "review_file_help"
         },
         "group": {

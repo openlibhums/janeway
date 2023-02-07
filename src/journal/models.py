@@ -222,6 +222,7 @@ class Journal(AbstractSiteModel):
         )
     )
     display_article_page_numbers = models.BooleanField(default=True)
+    display_issue_doi = models.BooleanField(default=True)
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -550,7 +551,7 @@ class Issue(AbstractLastModifiedModel):
     cover_image = SVGImageField(
         upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
         help_text=ugettext(
-            "Image representing the the cover of a printed issue or volume",
+            "Image representing the cover of a printed issue or volume",
         )
     )
     large_image = SVGImageField(
@@ -601,6 +602,12 @@ class Issue(AbstractLastModifiedModel):
             " conference proceedings"
         ),
     )
+
+    @cached_property
+    def doi_url(self):
+        if self.doi:
+            return f"https://doi.org/{self.doi}"
+        return ''
 
     @property
     def hero_image_url(self):

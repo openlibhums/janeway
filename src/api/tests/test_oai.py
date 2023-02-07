@@ -150,6 +150,11 @@ class TestOAIViews(TestCase):
         ''' test_get_record_jats: The OAI_list_records verb should return
         expected results when given an identifier and a metadataPrefix of jats '''
         expected = GET_RECORD_DATA_JATS
+        # Add a non correspondence author
+        author_2 = helpers.create_author(self.journal, email="no@email.com")
+        self.article.authors.add(author_2)
+        self.article.snapshot_authors()
+
 
         path = reverse('OAI_list_records')
         query_params = dict(
@@ -164,6 +169,8 @@ class TestOAIViews(TestCase):
             SERVER_NAME="testserver"
         )
 
+
+        self.maxDiff = None
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
@@ -171,6 +178,7 @@ class TestOAIViews(TestCase):
     def test_list_identifiers_jats(self):
         ''' test_list_identifiers_jats: The ListIdentifiers verb should return
         expected results when metadataPrefix is jats '''
+
         expected = LIST_IDENTIFIERS_JATS
 
         path = reverse('OAI_list_records')
@@ -531,8 +539,16 @@ GET_RECORD_DATA_JATS = """
                         <email>authoruser@martineve.com</email>
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
+                    <contrib contrib-type="author">
+                        <name>
+                            <surname>User</surname>
+                            <given-names>Author A</given-names>
+                        </name>
+                        <xref ref-type="aff" rid="aff-2"/>
+                    </contrib>
                 </contrib-group>
                 <aff id="aff-1">Author Department, Author institution</aff>
+                <aff id="aff-2">Author Department, Author institution</aff>
                 <pub-date date-type="pub" iso-8601-date="1986-07-12" publication-format="electronic">
                     <day>12</day>
                     <month>07</month>

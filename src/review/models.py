@@ -48,8 +48,8 @@ def review_type():
 def review_visibilty():
     return (
         ('open', 'Open'),
-        ('blind', 'Single Blind'),
-        ('double-blind', 'Double Blind')
+        ('blind', 'Single Anonymous'),
+        ('double-blind', 'Double Anonymous')
     )
 
 
@@ -131,7 +131,11 @@ class ReviewAssignment(models.Model):
                                                      "EG. 'This study was paid for by corp xyz.'.")
     review_type = models.CharField(max_length=20, choices=review_type(), default='traditional',
                                    help_text='Currently only traditional, form based, review is available.')
-    visibility = models.CharField(max_length=20, choices=review_visibilty(), default='double-blind')
+    visibility = models.CharField(
+        max_length=20, choices=review_visibilty(),
+        default='double-blind',
+        verbose_name=_("Anonimity"),
+    )
     form = models.ForeignKey('ReviewForm', null=True, on_delete=models.SET_NULL)
     access_code = models.CharField(max_length=100, blank=True, null=True)
 
