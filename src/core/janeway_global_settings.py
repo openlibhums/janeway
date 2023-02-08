@@ -243,7 +243,8 @@ def ugettext(s):
 
 
 LANGUAGES = (
-    ('en', ugettext('English')),
+    ('en', ugettext('English (GB)')),
+    ('en-us', ugettext('English (US)')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
     ('nl', ugettext('Dutch')),
