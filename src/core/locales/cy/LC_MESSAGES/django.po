@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-08 08:35+0000\n"
+"POT-Creation-Date: 2023-02-08 15:36+0000\n"
 "Language: cy\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -105,22 +105,30 @@ msgid "Issues and Collections"
 msgstr "Gweld y Casgliad"
 
 #: src/core/janeway_global_settings.py:246
-msgid "English"
+#, fuzzy
+#| msgid "English"
+msgid "English (GB)"
 msgstr "Saesneg"
 
 #: src/core/janeway_global_settings.py:247
+#, fuzzy
+#| msgid "English"
+msgid "English (US)"
+msgstr "Saesneg"
+
+#: src/core/janeway_global_settings.py:248
 msgid "French"
 msgstr "Ffrangeg"
 
-#: src/core/janeway_global_settings.py:248
+#: src/core/janeway_global_settings.py:249
 msgid "German"
 msgstr "Almaeneg "
 
-#: src/core/janeway_global_settings.py:249
+#: src/core/janeway_global_settings.py:250
 msgid "Dutch"
 msgstr ""
 
-#: src/core/janeway_global_settings.py:250
+#: src/core/janeway_global_settings.py:251
 msgid "Welsh"
 msgstr "Cymraeg "
 
@@ -180,7 +188,7 @@ msgstr ""
 msgid "Biography"
 msgstr "Bywgraffiad "
 
-#: src/core/models.py:222 src/submission/models.py:1743
+#: src/core/models.py:222 src/submission/models.py:1748
 msgid "ORCiD"
 msgstr "ORCiD"
 
@@ -597,12 +605,12 @@ msgid ""
 msgstr ""
 
 #: src/repository/models.py:347 src/repository/models.py:887
-#: src/repository/models.py:1023 src/submission/models.py:547
+#: src/repository/models.py:1023 src/submission/models.py:548
 msgid "Your article title"
 msgstr "Teitl eich erthygl"
 
 #: src/repository/models.py:353 src/repository/models.py:893
-#: src/repository/models.py:1029 src/submission/models.py:558
+#: src/repository/models.py:1029 src/submission/models.py:559
 msgid ""
 "Please avoid pasting content from word processors as they can add unwanted "
 "styling to the abstract. You can retype the abstract here or copy and paste "
@@ -702,45 +710,45 @@ msgstr ""
 msgid "If left blank, the account ORCiD will be used (%s)"
 msgstr ""
 
-#: src/submission/models.py:553
+#: src/submission/models.py:554
 msgid "Do not use--deprecated in version 1.4.1 and later."
 msgstr ""
 
-#: src/submission/models.py:570
+#: src/submission/models.py:571
 msgid "The primary language of the article"
 msgstr "Prif iaith yr erthygl"
 
-#: src/submission/models.py:631
+#: src/submission/models.py:632
 msgid "Custom page range. e.g.: 'I-VII' or 1-3,4-8"
 msgstr ""
 
-#: src/submission/models.py:683 src/submission/models.py:690
+#: src/submission/models.py:684 src/submission/models.py:691
 msgid ""
 "Name of the publisher who published this article Only relevant to migrated "
 "articles from a different publisher"
 msgstr ""
 
-#: src/submission/models.py:696
+#: src/submission/models.py:697
 msgid ""
 "Original ISSN of this article's journal when published Only relevant for "
 "back content published under a different title"
 msgstr ""
 
-#: src/submission/models.py:1703
+#: src/submission/models.py:1708
 msgid "Optional name prefix (e.g: Prof or Dr)"
 msgstr ""
 
-#: src/submission/models.py:1708
+#: src/submission/models.py:1713
 msgid "Optional name suffix (e.g.: Jr or III)"
 msgstr ""
 
-#: src/submission/models.py:1719
+#: src/submission/models.py:1724
 #, fuzzy
 #| msgid "Biography"
 msgid "Frozen Biography"
 msgstr "Bywgraffiad "
 
-#: src/submission/models.py:1720
+#: src/submission/models.py:1725
 msgid ""
 "The author's biography at the time they published the linked article. For "
 "this article only, it overrides any main biography attached to the author's "
@@ -748,38 +756,38 @@ msgid ""
 "account will be populated instead."
 msgstr ""
 
-#: src/submission/models.py:1739
+#: src/submission/models.py:1744
 #, fuzzy
 #| msgid "Author Name"
 msgid "Author Email"
 msgstr "Enw Awdur "
 
-#: src/submission/models.py:1744
+#: src/submission/models.py:1749
 msgid ""
 "ORCiD to be displayed when no account is associated with this author. It "
 "should be introduced in code format (e.g: 0000-0000-0000-000X)"
 msgstr ""
 
-#: src/submission/models.py:1751
+#: src/submission/models.py:1756
 msgid ""
 "If checked, this authors email address link will be displayed on the article "
 "page."
 msgstr ""
 
-#: src/submission/models.py:2067
+#: src/submission/models.py:2072
 #: src/templates/admin/submission/submit_files.html:69
 msgid "Figures and Data Files"
 msgstr "Ffeiliau Ffigurau a Data "
 
-#: src/submission/models.py:2074
+#: src/submission/models.py:2079
 msgid "The default license applied when no option is presented"
 msgstr "Defnyddir y drwydded ddiofyn pan na chyflwynir opsiwn "
 
-#: src/submission/models.py:2081
+#: src/submission/models.py:2086
 msgid "The default language of articles when lang is hidden"
 msgstr "Iaith ddiofyn yr erthyglau pan fydd yr iaith ynghudd "
 
-#: src/submission/models.py:2087
+#: src/submission/models.py:2092
 msgid "The default section of articles when no option is presented"
 msgstr "Adran ddiofyn yr erthyglau pan na chyflwynir opsiwn "
 
@@ -1782,7 +1790,7 @@ msgid ""
 "                                "
 msgstr ""
 
-#: src/templates/admin/review/in_review.html:269
+#: src/templates/admin/review/in_review.html:270
 msgid "Move to Next Stage"
 msgstr ""
 
