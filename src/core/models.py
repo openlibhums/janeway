@@ -781,8 +781,6 @@ class SettingValue(models.Model):
                 return ''
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
-        elif self.setting.types == 'rich-text':
-            return linebreaksbr(self.value)
         else:
             return self.value
 
