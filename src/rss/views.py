@@ -110,7 +110,7 @@ class LatestPreprintsFeed(Feed):
 
     def get_object(self, request, *args, **kwargs):
         return request.repository or request.press
-    
+
     def title(self, obj):
         return "{} Preprint Feed".format(obj.name)
 
@@ -130,8 +130,8 @@ class LatestPreprintsFeed(Feed):
         return truncatesmart(item.abstract, 400)
 
     def item_author_name(self, item):
-        if hasattr(item, 'posted_by'):
-            return item.correspondence_author.full_name()
+        if hasattr(item, 'owner'):
+            return item.owner.full_name()
         else:
             return None
 
