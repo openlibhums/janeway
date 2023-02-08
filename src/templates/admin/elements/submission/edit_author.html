@@ -6,8 +6,8 @@
             <h4><i class="fa fa-user">&nbsp;</i>Edit {{ frozen_author.full_name }}</h4>
         </div>
         <div class="card-section">
-            <p><strong>NB.</strong> You are editing the frozen metadata record for this author, not their live user
-                profile.{% if frozen_author.author %} This frozen metadata record is linked to Account ID <a target="_blank" href="{% url 'core_user_edit' frozen_author.author.pk %}">{{ frozen_author.author.pk }} - {{ frozen_author.author.full_name }}</a>.{% endif %}</p>
+            <p>You are editing the frozen metadata record for this author, not their live user
+                profile.{% if frozen_author.author %} This frozen metadata record is linked to account ID <a target="_blank" href="{% url 'core_user_edit' frozen_author.author.pk %}">{{ frozen_author.author.pk }} - {{ frozen_author.author.full_name }}</a>. If you wish to change the ORCID or email address associated with this record we recommend doing so at the account level using the link.{% endif %}</p>
             {% include "elements/forms/errors.html" with form=author_form %}
             <form method="POST">
                 {% if frozen_author.author and not frozen_author.author == article.correspondence_author %}
