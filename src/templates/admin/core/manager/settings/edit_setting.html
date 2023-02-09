@@ -70,6 +70,7 @@
                             {% buttons %}
                                 <button type="submit" class="button success" style="margin-right:5px">
                                     {% if setting_value == None %} Create Override {% else %}
+                                    <span class="fa fa-check"> </span> {% if setting_value == None %} Create Override {% else %}
                                     Submit {% endif %}
                                 </button>
                                 {% if setting_value != setting.default_setting_value and setting_value != None %}

@@ -105,14 +105,12 @@ class ReviewRound(models.Model):
                 FROM "review_reviewround" U0 WHERE U0."article_id" = {id})
             )
             ORDER BY "review_reviewround"."round_number" DESC
-
         """
-        latest_round = cls.objects.filter(article=article, ).annotate(
-            # Annotate all rows with the same value to force a group by
-            constant=Value(1),
-        ).values("constant").annotate(
-            latest_round=Max('round_number'),
-        ).values("latest_round")
+        latest_round = cls.objects.filter(
+            article=article
+        ).aggregate(
+            latest_round_number=Max('round_number'),
+        ).get('latest_round_number', 0)
 
         return cls.objects.get(article=article, round_number=latest_round)
 
