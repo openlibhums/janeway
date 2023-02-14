@@ -15,6 +15,7 @@ from core import (
     models as core_models,
     files,
 )
+from core.models import File
 from journal import models as journal_models
 from press import models as press_models
 from submission import models as sm_models
@@ -215,11 +216,20 @@ def create_article(journal, **kwargs):
     return article
 
 
-def create_galley(article, file_obj=None):
+def create_galley(article, file_obj=None, **kwargs):
+    if not file_obj:
+        file_obj = File.objects.create(
+            article_id=article.pk,
+            label="file",
+            is_galley=True,
+            uuid_filename="test.txt"
+        )
     galley = core_models.Galley.objects.create(
         article_id=article.pk,
         file=file_obj,
+        **kwargs,
     )
+    article.galley_set.add(galley)
     return galley
 
 def create_section(journal):
