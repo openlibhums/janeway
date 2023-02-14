@@ -34,7 +34,7 @@ from core import (
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_galley_content
+from journal.logic import get_best_galley, get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -428,16 +428,23 @@ def article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
-        content = get_galley_content(article_object, galleys, recover=True)
+        galley = get_best_galley(article_object, galleys)
+        if galley:
+            content = galley.file_content(recover=True)
+        else:
+            content = ''
         tables_in_galley = logic.get_all_tables_from_html(content)
+        store_article_access(
+            request,
+            article_object,
+            "view",
+            galley.type if galley else None)
     else:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
         ) + (article_object.abstract or "")
 
-    if article_object.is_published:
-        store_article_access(request, article_object, 'view')
 
     if request.journal.disable_html_downloads:
         # exclude any HTML galleys.
@@ -483,10 +490,16 @@ def print_article(request, identifier_type, identifier):
 
     content = None
     galleys = article_object.galley_set.filter(public=True)
+    galley = None
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = get_galley_content(article_object, galleys, recover=True)
+        galley = get_best_galley(article, galleys)
+        if galley:
+            content = galley.file_content(recover=True)
+        else:
+            content = ''
+
 
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
@@ -498,7 +511,8 @@ def print_article(request, identifier_type, identifier):
         article_object.large_image_file.uuid_filename = "carousel1.png"
         article_object.large_image_file.is_remote = True
 
-    store_article_access(request, article_object, 'view')
+    store_article_access(
+        request, article_object, 'view', galley.type if galley else None)
 
     template = 'journal/print.html'
     context = {
