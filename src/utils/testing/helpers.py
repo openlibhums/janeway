@@ -197,13 +197,13 @@ def create_article(journal, **kwargs):
     )
 
     if kwargs.pop('with_author', False):
-        kwargs = {
+        author_kwargs ={
             'salutation': 'Dr.',
             'name_suffix': 'Jr.',
             'orcid': '1234-5678-9012-345X',
             'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
         }
-        author = create_author(journal, **kwargs)
+        author = create_author(journal, **author_kwargs)
         article.authors.add(author)
         article.owner = author
         article.save()
