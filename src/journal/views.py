@@ -607,13 +607,12 @@ def download_galley(request, article_id, galley_id):
 
     embed = request.GET.get('embed', False)
 
-    if not embed == 'True':
-        store_article_access(
-            request,
-            article,
-            'download',
-            galley_type=galley.type,
-        )
+    store_article_access(
+        request,
+        article,
+        'view' if embed else 'download',
+        galley_type=galley.type,
+    )
     return files.serve_file(request, galley.file, article, public=True)
 
 
