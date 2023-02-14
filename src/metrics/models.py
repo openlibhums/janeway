@@ -19,7 +19,7 @@ class ArticleAccess(models.Model):
     type = models.CharField(max_length=20, choices=access_choices())
     identifier = models.CharField(max_length=200)
     accessed = models.DateTimeField(default=timezone.now)
-    galley_type = models.CharField(max_length=200)
+    galley_type = models.CharField(max_length=200, null=True, blank=True)
     country = models.ForeignKey('core.Country', blank=True, null=True)
 
     def __str__(self):

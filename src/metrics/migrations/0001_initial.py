@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(choices=[('download', 'Download'), ('view', 'View')], max_length=20)),
                 ('identifier', models.CharField(max_length=200)),
                 ('accessed', models.DateTimeField(default=django.utils.timezone.now)),
-                ('galley_type', models.CharField(max_length=200)),
+                ('galley_type', models.CharField(max_length=200), null=True, blank=True),
                 ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
             ],
         ),

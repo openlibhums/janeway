@@ -214,7 +214,7 @@ class ArticleMetrics:
 
 
 @retry(exc=OperationalError)
-def store_article_access(request, article, access_type, galley_type='view'):
+def store_article_access(request, article, access_type, galley_type=None):
     current_time = timezone.now()
 
     try:
