@@ -34,6 +34,7 @@ class ArticleAccessTests(TestCase):
             kwargs={"identifier_type": "id", "identifier": self.article.pk}
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_view_abstract(self):
         response = self.client.get(
             self.article_url,
@@ -49,6 +50,7 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for abstract when no render galley"
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_view_render_galley(self):
         galley_type = "html"
         galley = helpers.create_galley(
@@ -71,6 +73,7 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for rendered galley"
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_NO_article_access_when_view_non_render_galley(self):
         galley_type = "pdf"
         galley = helpers.create_galley(
@@ -100,6 +103,7 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for abstract when no render galley"
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_download_galley(self):
         galley_type = "pdf"
         galley = helpers.create_galley(
