@@ -148,27 +148,27 @@ def serve_news_file(request, identifier_type, identifier, file_id):
     return new_item.serve_news_file()
 
 
-def news_list(request, tag=None):
+def news_list(request, tag=None, presswide=False):
     """
     Lists all a press or journal news items, and allows them to be filtered by tag
     :param request: HttpRequest object
     :param tag: a string matching a Tags.text attribute
     :return: HttpResponse object
     """
-    if not tag:
-        news_objects = models.NewsItem.objects.filter(
-            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-            (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-        ).order_by('-posted')
-    else:
-        tag = urllib.parse.unquote(tag)
-        news_objects = models.NewsItem.objects.filter(
-            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-            (Q(end_display__gte=timezone.now()) | Q(end_display=None)),
-            tags__text=tag
-        ).order_by('-posted')
+
+    query = Q()
+
+    if not presswide or request.model_content_type.model != 'press':
+        query &= (Q(content_type=request.model_content_type) &
+                  Q(object_id=request.site_type.id))
+
+    if tag:
+        query &= Q(tags__text=urllib.parse.unquote(tag))
+
+    query &= (Q(start_display__lte=timezone.now()) | Q(start_display=None))
+    query &= (Q(end_display__gte=timezone.now()) | Q(end_display=None))
+
+    news_objects = models.NewsItem.objects.filter(query).order_by('-posted')
 
     paginator = Paginator(news_objects, 15)
     page = request.GET.get('page', 1)
