@@ -11,6 +11,7 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
+import json
 
 from django.conf import settings
 from django.contrib.auth import logout
@@ -28,9 +29,13 @@ from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
+from journal import models as journal_models
 from comms import models as comms_models
 from utils import shared
 from utils.logger import get_logger
+from cms import models as cms_models
+from bs4 import BeautifulSoup
+
 
 logger = get_logger(__name__)
 
@@ -988,3 +993,50 @@ def filter_articles_to_editor_assigned(request, articles):
     )
     assignment_article_pks = [assignment.article.pk for assignment in assignments]
     return articles.filter(pk__in=assignment_article_pks)
+
+
+def get_site_search_data(request):
+    """
+    Generates data for site search index (lunr.js).
+
+    Disclaimer: This is a rudimentary, provisional,
+    proof-of-concept implementation that will need
+    re-engineering if we go with lunr for search.
+    """
+
+    if request.journal:
+        return {}
+        # Not implemented
+    if request.repository:
+        return {}
+        # Not implemented
+    elif request.press:
+        site_search_data = {}
+        for page in cms_models.Page.objects.all():
+            data = {}
+            url = reverse('cms_page', kwargs={'page_name': page.name})
+            data['url'] = url
+            data['name'] = page.display_name
+            data['text'] = BeautifulSoup(page.content, 'html.parser').get_text()
+            site_search_data[url] = data
+
+        for item in comms_models.NewsItem.objects.filter(
+            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
+            (Q(end_display__gte=timezone.now()) | Q(end_display=None))
+        ):
+            data = {}
+            url = reverse('core_news_item', kwargs={'news_pk': item.pk})
+            data['url'] = url
+            data['name'] = item.title
+            data['text'] = item.body
+            site_search_data[url] = data
+
+        for journal in journal_models.Journal.objects.filter(hide_from_press=False):
+            data = {}
+            data['url'] = journal.site_url()
+            data['name'] = journal.name
+            data['text'] = journal.description_for_press
+            site_search_data[journal.site_url()] = data
+        return json.dumps(site_search_data)
+    else:
+        return {}

@@ -23,6 +23,7 @@ from utils.middleware import BaseMiddleware
 from core import models as core_models
 from journal import models as journal_models
 from repository import models as repository_models
+from core import logic as core_logic
 
 logger = get_logger(__name__)
 
@@ -117,6 +118,7 @@ class SiteSettingsMiddleware(BaseMiddleware):
             request.site_type = request.site_object = press
             request.model_content_type = ContentType.objects.get_for_model(press)
             request.press_base_url = press.site_url()
+            request.site_search_data = core_logic.get_site_search_data(request)
         else:
             raise Http404()
 
