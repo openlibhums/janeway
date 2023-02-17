@@ -56,3 +56,4 @@ maxminddb==1.5.4
 freezegun==1.2.0
 swapper
 django-materializecss-form==1.1.17
+nodejs-bin==18.4.0a4
