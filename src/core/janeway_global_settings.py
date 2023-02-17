@@ -92,7 +92,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
+    'materialize',  # Deprecated. We will phase out
+    'materializecssform',
     'captcha',
     'simplemathcaptcha',
     'hijack',
