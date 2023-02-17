@@ -55,3 +55,4 @@ geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4
 freezegun==1.2.0
 swapper
+django-materializecss-form==1.1.17

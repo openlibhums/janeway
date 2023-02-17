@@ -93,8 +93,9 @@ INSTALLED_APPS = [
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
     'snowpenguin.django.recaptcha2',
+    'materialize',  # Deprecated. We will phase out
+    'materializecssform',
     'simplemathcaptcha',
     'hijack',
     'compat',
