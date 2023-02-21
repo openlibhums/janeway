@@ -10,10 +10,13 @@ from django.template.loader import render_to_string
 from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
 from utils import models, notify_helpers
+from utils.logger import get_logger
 from utils.function_cache import cache
 from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
+
+logger = get_logger(__name__)
 
 
 def parse_mailgun_webhook(post):
@@ -149,13 +152,19 @@ def get_current_request():
         return None
 
 
-@cache(seconds=None)
+@cache(seconds=600)
 def get_janeway_version():
     """ Returns the installed version of janeway
     :return: `string` version
     """
-    v = models.Version.objects.filter(rollback=None).order_by("-pk")[0]
-    return v.number
+    v = models.Version.objects.filter(rollback=None).order_by("-pk").first()
+    if v:
+        return v.number
+    else:
+        logger.error(
+            'No version record found.',
+        )
+        return "9.9.9"
 
 
 def get_log_entries(object):
