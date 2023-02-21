@@ -13,7 +13,7 @@ django-debug-toolbar==3.7.0
 django-hCaptcha==0.2.0
 django-hijack==3.2.1
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git@8f97af5a4133934f939826c00a30f1357478b139#egg=django_mailgun
-django-modeltranslation==0.17
+django-modeltranslation==0.18.9
 django-settings-export==1.2.1
 #-e git+https://github.com/BirkbeckCTP/django-simple-math-captcha@1.11_fix#egg=django-simple-math-captcha
 django-recaptcha==3.0.0
