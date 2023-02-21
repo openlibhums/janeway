@@ -7,7 +7,6 @@ from django.db import transaction
 from django.utils import translation
 from django.core.exceptions import ImproperlyConfigured
 
-from core import models as core_models
 from press import models as press_models
 from journal import models as journal_models
 from utils.install import (
@@ -15,6 +14,7 @@ from utils.install import (
         update_settings,
         update_xsl_files,
 )
+from utils import shared
 
 ROLES_RELATIVE_PATH = 'utils/install/roles.json'
 
@@ -123,9 +123,13 @@ class Command(BaseCommand):
                             press.domain, journal.code)
                 )
             )
+
             if options['dry_run'] is True:
                 print("This was a --dry-run, rolling back...")
                 raise SystemExit()
+
+        # finally, clear the cache
+        shared.clear_cache()
         print(JANEWAY_ASCII)
 
 
