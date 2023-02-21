@@ -81,7 +81,6 @@ class LatestArticlesFeed(Feed):
                 journal__hide_from_press=False,
             ).order_by('-date_published')[:10]
 
-
     def item_title(self, item):
         return striptags(item.title)
 
