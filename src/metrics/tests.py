@@ -29,17 +29,14 @@ class ArticleAccessTests(TestCase):
             stage="Published",
         )
         clear_cache()
-        self.article_url = reverse(
-            'article_view',
-            kwargs={"identifier_type": "id", "identifier": self.article.pk}
-        )
+        self.article_url = f"/article/id/{self.article.id}"
 
-    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_view_abstract(self):
-        response = self.client.get(
+        self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
             HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            follow=True,
         )
         self.assertTrue(
             ArticleAccess.objects.filter(
@@ -50,7 +47,6 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for abstract when no render galley"
         )
 
-    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_view_render_galley(self):
         galley_type = "html"
         galley = helpers.create_galley(
@@ -59,10 +55,11 @@ class ArticleAccessTests(TestCase):
         self.article.render_galley = galley
         self.article.save()
 
-        response = self.client.get(
+        self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
             HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            follow=True,
         )
         self.assertTrue(
             ArticleAccess.objects.filter(
@@ -73,7 +70,6 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for rendered galley"
         )
 
-    @override_settings(URL_CONFIG="domain")
     def test_NO_article_access_when_view_non_render_galley(self):
         galley_type = "pdf"
         galley = helpers.create_galley(
@@ -81,10 +77,11 @@ class ArticleAccessTests(TestCase):
         )
         self.article.save()
 
-        response = self.client.get(
+        self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
             HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            follow=True,
         )
         self.assertFalse(
             ArticleAccess.objects.filter(
@@ -103,21 +100,18 @@ class ArticleAccessTests(TestCase):
             "A 'view' has not been recorded for abstract when no render galley"
         )
 
-    @override_settings(URL_CONFIG="domain")
     def test_article_access_when_download_galley(self):
         galley_type = "pdf"
         galley = helpers.create_galley(
             self.article, type=galley_type, public=True
         )
 
-        galley_url = reverse(
-            'article_download_galley',
-            kwargs={"article_id": self.article.pk, "galley_id": galley.pk}
-        )
-        response = self.client.get(
+        galley_url = f'/article/{self.article.pk}/galley/{galley.pk}/download/'
+        self.client.get(
             galley_url,
             SERVER_NAME=self.journal_one.domain,
             HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            follow=True,
         )
         self.assertTrue(
             ArticleAccess.objects.filter(
