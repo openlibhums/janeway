@@ -747,7 +747,9 @@ class Article(AbstractLastModifiedModel):
         year_str = ""
         if self.date_published:
             year_str = "({:%Y})".format(self.date_published)
-        journal_str = "<i>%s</i>" % self.publication_title if self.publication_title else self.journal.name
+        journal_str = "<i>%s</i>" % (
+            self.publication_title or self.journal.name
+        )
         issue_str = ""
         issue = self.issue
         if issue:
