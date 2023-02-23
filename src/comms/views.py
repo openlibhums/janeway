@@ -184,7 +184,7 @@ def news_list(request, tag=None, presswide=False):
 
     all_tags = models.Tag.objects.all().annotate(
         Count('tags')
-    ).order_by('-tags__count')
+    ).order_by('-tags__count', 'text')
 
     if not request.journal:
         template = 'press/core/news/index.html'
