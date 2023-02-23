@@ -5,11 +5,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.conf import settings
-from django.apps import apps
 from django.utils import translation
 
 
-def update_translated_settings(setting_name, group_name, values_to_replace, replacement_value):
+def update_translated_settings(apps, setting_name, group_name, values_to_replace, replacement_value):
     """
     Gets a setting then iterates through available languages replacing a list of strings with a
     replacement string.
