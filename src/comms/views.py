@@ -171,7 +171,7 @@ def news_list(request, tag=None, presswide=False):
 
     news_objects = models.NewsItem.objects.filter(query)
 
-    paginator = Paginator(news_objects, 15)
+    paginator = Paginator(news_objects, 12)
     page = request.GET.get('page', 1)
 
     try:
