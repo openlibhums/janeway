@@ -62,7 +62,6 @@
                     {{ form.end_display|foundation }}
                     {{ form.sequence|foundation }}
                     {{ form.image_file|foundation }}
-                    {{ form.custom_byline|foundation }}
 
                     {% if not action == 'new' and news_item.large_image_file %}
                         <p>Existing image: {{ news_item.large_image_file }} -
@@ -71,6 +70,9 @@
                             </button>
                         </p>
                     {% endif %}
+
+                    {{ form.custom_byline|foundation }}
+                    {{ form.pinned|foundation }}
                     <div class="row">
                         <div class="large-12 columns">
                             <label for="id_tags">Tags</label>

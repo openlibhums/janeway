@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from comms import models, forms
 from core import files, logic as core_logic, models as core_models
@@ -164,11 +164,12 @@ def news_list(request, tag=None, presswide=False):
 
     if tag:
         query &= Q(tags__text=urllib.parse.unquote(tag))
+        tag = models.Tag.objects.get(text=tag)
 
     query &= (Q(start_display__lte=timezone.now()) | Q(start_display=None))
     query &= (Q(end_display__gte=timezone.now()) | Q(end_display=None))
 
-    news_objects = models.NewsItem.objects.filter(query).order_by('-posted')
+    news_objects = models.NewsItem.objects.filter(query)
 
     paginator = Paginator(news_objects, 15)
     page = request.GET.get('page', 1)
@@ -180,6 +181,11 @@ def news_list(request, tag=None, presswide=False):
     except EmptyPage:
         news_items = paginator.page(paginator.num_pages)
 
+
+    all_tags = models.Tag.objects.all().annotate(
+        Count('tags')
+    ).order_by('-tags__count')
+
     if not request.journal:
         template = 'press/core/news/index.html'
     else:
@@ -188,6 +194,7 @@ def news_list(request, tag=None, presswide=False):
     context = {
         'news_items': news_items,
         'tag': tag,
+        'all_tags': all_tags,
     }
 
     return render(request, template, context)
