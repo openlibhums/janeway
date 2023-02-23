@@ -274,7 +274,7 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting('Identifiers', 'title_doi', self, default=True).value or None
 
     @doi.setter
-    def doi(self, value):
+    def doi_setter(self, value):
         setting_handler.save_setting('Identifiers', 'title_doi', self, value)
 
     @property
