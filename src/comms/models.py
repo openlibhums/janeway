@@ -28,8 +28,16 @@ class NewsItem(models.Model):
     end_display = models.DateField(blank=True, null=True)
     sequence = models.PositiveIntegerField(default=0)
 
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='large_news_file',
-                                         on_delete=models.SET_NULL)
+    large_image_file = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='large_news_file',
+        on_delete=models.SET_NULL,
+        help_text='An image for the top of the news item page and the'
+                  'news list page. Note that it will be automatically'
+                  'cropped to 750px x 324px, so wide images work best.',
+    )
     tags = models.ManyToManyField('Tag', related_name='tags')
     custom_byline = models.CharField(
         max_length=255,
@@ -39,8 +47,13 @@ class NewsItem(models.Model):
                   "the news item with whatever text is added here.",
     )
 
+    pinned = models.BooleanField(
+        default=False,
+        help_text="Pinned news items will appear at the top of the news list"
+    )
+
     class Meta:
-        ordering = ('-posted', 'title')
+        ordering = ('-pinned', '-posted', 'title')
 
     @property
     def url(self):
