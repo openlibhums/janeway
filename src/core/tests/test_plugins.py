@@ -25,7 +25,7 @@ class TestPluginLoader(TestCase):
     def test_plugin_version_is_not_valid(self):
         mock_settings = MockSettings(
             PLUGIN_NAME="Mock Plugin",
-            JANEWAY_VERSION="9.7.2"
+            JANEWAY_VERSION="10.7.2"
         )
 
         with self.assertRaises(ImproperlyConfigured):
@@ -34,7 +34,7 @@ class TestPluginLoader(TestCase):
     def test_plugin_minor_version_is_not_valid(self):
         mock_settings = MockSettings(
             PLUGIN_NAME="Mock Plugin",
-            JANEWAY_VERSION="9.6.8"
+            JANEWAY_VERSION="10.6.8"
         )
 
         with self.assertRaises(ImproperlyConfigured):
