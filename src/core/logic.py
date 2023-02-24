@@ -992,7 +992,7 @@ def get_site_search_data(request):
             url = reverse('cms_page', kwargs={'page_name': page.name})
             data['url'] = url
             data['name'] = page.display_name
-            data['people'] = page.display_name
+            data['people'] = ''
             data['text'] = BeautifulSoup(page.content, 'html.parser').get_text()
             data['tags'] = ''
             site_search_data[url] = data
