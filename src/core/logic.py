@@ -1020,6 +1020,7 @@ def get_site_search_data(request):
             data['name'] = page.display_name
             data['people'] = page.display_name
             data['text'] = BeautifulSoup(page.content, 'html.parser').get_text()
+            data['tags'] = ''
             site_search_data[url] = data
 
         for item in comms_models.NewsItem.objects.filter(
@@ -1032,6 +1033,10 @@ def get_site_search_data(request):
             data['name'] = item.title
             data['people'] = item.byline()
             data['text'] = item.body
+            if item.tags.count():
+                data['tags'] = "Tags: " + ", ".join([tag.text for tag in item.tags.all()])
+            else:
+                data['tags'] = ''
             site_search_data[url] = data
 
         for journal in journal_models.Journal.objects.filter(hide_from_press=False):
@@ -1044,6 +1049,7 @@ def get_site_search_data(request):
             )
             data['people'] = '; '.join([f'{c.name}, {c.role}' for c in journal_contacts])
             data['text'] = journal.description_for_press
+            data['tags'] = 'Disciplines: ' + ', '.join([word.word for word in journal.keywords.all()])
             site_search_data[journal.site_url()] = data
 
         press_contacts = core_models.Contacts.objects.filter(
@@ -1056,6 +1062,7 @@ def get_site_search_data(request):
         data['name'] = 'Contact'
         data['people'] = ''
         data['text'] = '; '.join([f'{c.name}, {c.role}' for c in press_contacts])
+        data['tags'] = ''
         site_search_data[url] = data
 
         return json.dumps(site_search_data)
