@@ -164,7 +164,7 @@ def news_list(request, tag=None, presswide=False):
 
     if tag:
         query &= Q(tags__text=urllib.parse.unquote(tag))
-        tag = models.Tag.objects.get(text=tag)
+        tag = models.Tag.objects.get(text=urllib.parse.unquote(tag))
 
     query &= (Q(start_display__lte=timezone.now()) | Q(start_display=None))
     query &= (Q(end_display__gte=timezone.now()) | Q(end_display=None))
