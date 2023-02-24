@@ -985,12 +985,14 @@ def get_site_search_data(request):
         return {}
         # Not implemented
     elif request.press:
+        from core import models as core_models
         site_search_data = {}
         for page in cms_models.Page.objects.all():
             data = {}
             url = reverse('cms_page', kwargs={'page_name': page.name})
             data['url'] = url
             data['name'] = page.display_name
+            data['people'] = page.display_name
             data['text'] = BeautifulSoup(page.content, 'html.parser').get_text()
             site_search_data[url] = data
 
@@ -1002,6 +1004,7 @@ def get_site_search_data(request):
             url = reverse('core_news_item', kwargs={'news_pk': item.pk})
             data['url'] = url
             data['name'] = item.title
+            data['people'] = item.byline()
             data['text'] = item.body
             site_search_data[url] = data
 
@@ -1009,8 +1012,26 @@ def get_site_search_data(request):
             data = {}
             data['url'] = journal.site_url()
             data['name'] = journal.name
+            journal_contacts = core_models.Contacts.objects.filter(
+                content_type__model='journal',
+                object_id=journal.pk
+            )
+            data['people'] = '; '.join([f'{c.name}, {c.role}' for c in journal_contacts])
             data['text'] = journal.description_for_press
             site_search_data[journal.site_url()] = data
+
+        press_contacts = core_models.Contacts.objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk
+        )
+        data = {}
+        url = '/contact'
+        data['url'] = url
+        data['name'] = 'Contact'
+        data['people'] = ''
+        data['text'] = '; '.join([f'{c.name}, {c.role}' for c in press_contacts])
+        site_search_data[url] = data
+
         return json.dumps(site_search_data)
     else:
         return {}
