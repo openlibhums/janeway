@@ -42,7 +42,7 @@ This file is usually created during the setup process and can be based on the pr
 Error Logging with Sentry
 -------------------------
 
-As of version 1.5 we have removed core the Raven core requirement, this is because Sentry no longer uses Raven. We have made the decision not to include the Sentry SDK as a core requirement so the process for adding Sentry logging back is detailed blow.
+As of version 1.5 we have removed core the Raven core requirement, this is because Sentry no longer uses Raven. We have made the decision not to include the Sentry SDK as a core requirement so the process for adding Sentry logging back is detailed below.
 
 First you will need to install the Sentry SDK:
 
