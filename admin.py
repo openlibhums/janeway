@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords_html
 
 from plugins.typesetting import admin_utils as typesetting_admin_utils
 from plugins.typesetting import models
@@ -73,8 +74,8 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
     ]
 
     def _article(self, obj):
-        return utils_admin_utils.truncate(
-            str(obj.round.article)
+        return truncatewords_html(
+            str(obj.round.article), 10
         ) if obj else ''
 
     def _journal(self, obj):
@@ -117,8 +118,8 @@ class GalleyProofingAdmin(admin.ModelAdmin):
     date_hierarchy = ('assigned')
 
     def _article(self, obj):
-        return utils_admin_utils.truncate(
-            str(obj.round.article)
+        return truncatewords_html(
+            str(obj.round.article), 10
         ) if obj else ''
 
     def _journal(self, obj):
