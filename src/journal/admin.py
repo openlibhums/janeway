@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords
 
 from journal import models
 from utils import admin_utils
@@ -57,7 +58,7 @@ class IssueEditorAdmin(admin.ModelAdmin):
         return obj.issue.journal if obj else ''
 
     def _issue(self, obj):
-        return admin_utils.truncate(obj.issue.__str__())
+        return truncatewords(obj.issue.__str__(), 10)
 
 
 class JournalAdmin(admin.ModelAdmin):
@@ -110,10 +111,10 @@ class ArticleOrderingAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article',)
 
     def _issue(self, obj):
-        return admin_utils.truncate(obj.issue.__str__())
+        return truncatewords(obj.issue.__str__(), 10)
 
     def _section(self, obj):
-        return admin_utils.truncate(obj.issue.__str__())
+        return truncatewords(obj.issue.__str__(), 10)
 
 
 class FixedPubCheckItemsAdmin(admin_utils.ArticleFKModelAdmin):
@@ -160,10 +161,10 @@ class SectionOrderingAdmin(admin.ModelAdmin):
         return obj.issue.journal if obj else ''
 
     def _section(self, obj):
-        return admin_utils.truncate(obj.section.__str__())
+        return truncatewords(obj.section.__str__(), 10)
 
     def _issue(self, obj):
-        return admin_utils.truncate(obj.issue.__str__())
+        return truncatewords(obj.issue.__str__(), 10)
 
 
 admin_list = [

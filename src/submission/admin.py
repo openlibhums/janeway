@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 from django import forms
+from django.template.defaultfilters import truncatewords_html
 
 from utils import admin_utils
 from submission import models
@@ -105,7 +106,7 @@ class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
     readonly_fields = ('date_time',)
 
     def _article(self, obj):
-        return admin_utils.truncate(str(obj.article)) if obj else ''
+        return truncatewords_html(str(obj.article), 10) if obj else ''
 
 
 class LicenseAdmin(admin.ModelAdmin):
@@ -114,7 +115,7 @@ class LicenseAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name', 'url', 'text')
 
     def _text(self, obj):
-        return admin_utils.truncate(obj.text, 50) if obj else ''
+        return truncatewords_html(obj.text, 8) if obj else ''
 
 
 class NoteAdmin(admin_utils.ArticleFKModelAdmin):
@@ -128,10 +129,10 @@ class NoteAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('creator',)
 
     def _text(self, obj):
-        return admin_utils.truncate(obj.text) if obj else ''
+        return truncatewords_html(obj.text, 10) if obj else ''
 
     def _article(self, obj):
-        return admin_utils.truncate(str(obj.article), 30) if obj else ''
+        return truncatewords_html(str(obj.article), 10) if obj else ''
 
 
 class PublisherNoteAdmin(admin.ModelAdmin):
@@ -143,7 +144,7 @@ class PublisherNoteAdmin(admin.ModelAdmin):
     raw_id_fields = ('creator',)
 
     def _text(self, obj):
-        return admin_utils.truncate(obj.text) if obj else ''
+        return truncatewords_html(obj.text, 10) if obj else ''
 
 
 class KeywordAdmin(admin.ModelAdmin):
@@ -185,7 +186,7 @@ class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
                      'answer')
 
     def _answer(self, obj):
-        return admin_utils.truncate(obj.answer) if obj else ''
+        return truncatewords_html(obj.answer, 10) if obj else ''
 
 
 class SubmissionConfigAdmin(admin.ModelAdmin):

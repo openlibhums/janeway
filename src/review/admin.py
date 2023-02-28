@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords, truncatewords_html
 from utils import admin_utils
 from review import models
 
@@ -89,7 +90,7 @@ class AnswerAdmin(admin.ModelAdmin):
     raw_id_fields = ('assignment',)
 
     def _element_answer(self, obj):
-        return admin_utils.truncate(obj.answer, 25) if obj else ''
+        return truncatewords_html(obj.answer, 5) if obj else ''
 
     def _journal(self, obj):
         return obj.assignment.article.journal if obj else ''
@@ -115,7 +116,7 @@ class RatingAdmin(admin.ModelAdmin):
         return obj.assignment.article.journal.code if obj else ''
 
     def _assignment(self, obj):
-        return admin_utils.truncate(obj.assignment.__str__()) if obj else ''
+        return truncatewords(obj.assignment.__str__(), 10) if obj else ''
 
 
 class RevisionActionAdmin(admin.ModelAdmin):
@@ -126,7 +127,7 @@ class RevisionActionAdmin(admin.ModelAdmin):
     date_hierarchy = ('logged')
 
     def _action_text(self, obj):
-        return admin_utils.truncate(obj.text, 30) if obj else ''
+        return truncatewords(obj.text, 5) if obj else ''
 
 
 class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
@@ -149,10 +150,10 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
     ]
 
     def _editor_note(self, obj):
-        return admin_utils.truncate(str(obj.editor_note), 30) if obj else ''
+        return truncatewords_html(str(obj.editor_note), 5) if obj else ''
 
     def _author_note(self, obj):
-        return admin_utils.truncate(str(obj.author_note), 30) if obj else ''
+        return truncatewords_html(str(obj.author_note), 5) if obj else ''
 
 
 class EditorOverrideAdmin(admin_utils.ArticleFKModelAdmin):

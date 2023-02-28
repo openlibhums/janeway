@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords_html
 from utils import admin_utils
 from discussion import models
 
@@ -33,7 +34,7 @@ class PostAdmin(admin.ModelAdmin):
     date_hierarchy = ('posted')
 
     def _post(self, obj):
-        return admin_utils.truncate(obj.body) if obj else ''
+        return truncatewords_html(obj.body, 10) if obj else ''
 
     def _journal(self, obj):
         return obj.thread.article.journal if obj else ''

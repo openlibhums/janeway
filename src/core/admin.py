@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
+from django.template.defaultfilters import truncatewords
 
 from utils import admin_utils
 from core import models, forms
@@ -188,7 +189,7 @@ class XSLFileAdmin(admin.ModelAdmin):
     date_hierarchy = ('date_uploaded')
 
     def _comments(self, obj):
-        return admin_utils.truncate(obj.comments) if obj else ''
+        return truncatewords(obj.comments, 10) if obj else ''
 
 
 class SupplementaryFileAdmin(admin.ModelAdmin):

@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck, University of London"
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords_html
 from utils import models as utils_models
 from discussion import models as discussion_models
 from review import models as review_models
@@ -31,7 +32,7 @@ class ArticleFKModelAdmin(admin.ModelAdmin):
         return obj.article.journal if obj else ''
 
     def _article(self, obj):
-        return truncate(str(obj.article), 30) if obj else ''
+        return truncatewords_html(str(obj.article), 5) if obj else ''
 
     def _author(self, obj):
         return obj.article.correspondence_author if obj else ''
@@ -50,7 +51,7 @@ class PreprintFKModelAdmin(admin.ModelAdmin):
         return obj.preprint.repository if obj else ''
 
     def _preprint(self, obj):
-        return truncate(str(obj.preprint), 30) if obj else ''
+        return truncatewords_html(str(obj.preprint), 5) if obj else ''
 
 
 class AccountInterestInline(admin.TabularInline):
@@ -440,30 +441,3 @@ class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
             object_id__in=[preprint.pk for preprint in preprints],
             content_type=content_type,
         )
-
-
-def truncate(value, limit=80):
-
-    """
-    Truncates strings keeping whole words.
-
-    Safe to use with HTML strings, because it does not mark them as safe.
-
-    Some lines of templatetags.truncate.py are duplicated to avoid circular imports.
-    """
-
-    if not value:
-        return ''
-
-    try:
-        limit = int(limit)
-    except ValueError:
-        return value
-
-    if len(value) <= limit:
-        return value
-
-    value = value[:limit]
-    words = value.split(' ')[:-1]
-
-    return ' '.join(words) + ' [...]'

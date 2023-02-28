@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django.template.defaultfilters import truncatewords_html
 
 from repository import models
 from utils import admin_utils
@@ -47,7 +48,7 @@ class RepositoryFieldAnswerAdmin(admin.ModelAdmin):
     raw_id_fields = ('field',)
 
     def _answer(self, obj):
-        return admin_utils.truncate(obj.answer) if obj else ''
+        return truncatewords_html(obj.answer, 10) if obj else ''
 
     def _repository(self, obj):
         return obj.field.repository if obj else ''
@@ -152,7 +153,7 @@ class CommentAdmin(admin_utils.PreprintFKModelAdmin):
     ]
 
     def _body(self, obj):
-        return admin_utils.truncate(obj.body, 50) if obj else ''
+        return truncatewords_html(obj.body, 8) if obj else ''
 
 
 class SubjectAdmin(admin.ModelAdmin):
