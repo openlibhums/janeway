@@ -9,8 +9,15 @@ from comms import models
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('text',)
+    list_display = ('text', '_count')
     search_fields = ('text',)
+
+    def _count(self, obj):
+        return obj.tags.count()
+
+    inlines = [
+        admin_utils.NewsItemInline,
+    ]
 
 
 class NewsItemAdmin(admin.ModelAdmin):

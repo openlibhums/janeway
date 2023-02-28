@@ -17,6 +17,7 @@ from cron import models as cron_models
 from core import models as core_models
 from repository import models as repository_models
 from press import models as press_models
+from comms import models as comms_models
 
 
 class ArticleFKModelAdmin(admin.ModelAdmin):
@@ -274,6 +275,12 @@ class RepositoryReviewInline(admin.TabularInline):
               'date_accepted', 'date_completed', 'status')
 
 
+class NewsItemInline(admin.TabularInline):
+    model = comms_models.NewsItem.tags.through
+    extra = 0
+    raw_id_fields = ('newsitem',)
+
+
 class JournalFilterBase(admin.SimpleListFilter):
     """
     A base class for other journal filters
@@ -432,7 +439,7 @@ class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
         if not repo_pk:
             return queryset
         preprints = repository_models.Preprint.objects.filter(
-           repository__id=repo_pk
+            repository__id=repo_pk
         )
         if not preprints:
             return queryset.none()
