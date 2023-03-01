@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         ('core', '0078_auto_20230120_1546'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('press', '0027_auto_20220107_1219'),
-        ('journal', '0056_auto_20230120_1546'),
+        ('journal', '0057_verbose_names_20230301_1914'),
         ('submission', '0069_delete_blank_keywords'),
     ]
 
