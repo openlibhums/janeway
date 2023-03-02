@@ -1,6 +1,45 @@
 Changelog
 =========
 
+v1.4.4
+------
+Upgrade Notes
+^^^^^^^^^^^^^
+
+To run this upgrade, you can use Janeway's built-in script (.update.sh). There are no newly introduced configuration steps required.
+
+This minor release includes a few bugfixes and improvements on features newly introduced in v1.4.3
+
+
+What's Changed
+^^^^^^^^^^^^^^
+- Add pagination for Django REST Framework to Janeway global settings by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3301
+- #3302 hamburger menu now works on Repository mobile interface. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3303
+- 3304 reader notifications bugfixes by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3306
+- Handle error when nose is not present by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3308
+- Add swagger and redoc docs to api by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3300
+- Author address won't be shared as reply-to on submission acknowledgements by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3312
+- 3309 Add template fragment cache to metrics block on /repository/manager by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3310
+- Fixes preprint generator by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3314
+- #3311 the Active Submissions view will no longer show archived articles. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3313
+- XSLT now allows ref/label nodes to be rendered as HTML by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3320
+- Improved performance of repository manager page by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3315
+- Updated custom replyto and added a catch incase reply_to is not a tuple or list by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3321
+- typo :) by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3330
+- #3322 articles should no longer be stalled when funding is enabled. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3325
+- Update to reviewer.rst by @justingonder in https://github.com/BirkbeckCTP/janeway/pull/3336
+- The manage workflow stage link is now available to editors by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3349
+- Display the issue DOI URL on the issue page when it is available by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3354
+- Changes ableist terminology around peer review anonimity by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3353
+- Updates localisation files by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3388
+- Add RSS feed for preprints by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3391
+- Name of CC *-ND licenses changed to NoDerivatives by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3397
+- Adds the base structure and migrations to support en-us locale by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3389
+- Fixes a bug where metrics were being stored agaisnt the wrong type of galley by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3395
+- Refactor tests to eliminate naive datetime warnings by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3381
+- Fixed an issue where articles with a publication title override where not using in the "how to cite" block by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3406
+
+
 v1.4.3
 ------
 
