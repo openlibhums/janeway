@@ -9,15 +9,14 @@ class Migration(migrations.Migration):
 
     def forwards_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role(
+        Role.objects.get_or_create(
             name='Reader',
             slug='reader',
         )
-        new_role.save()
 
     def reverse_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role.objects.filter(
+        Role.objects.filter(
             slug='reader',
         ).delete()
 
