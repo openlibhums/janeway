@@ -486,7 +486,8 @@ def print_article(request, identifier_type, identifier):
     :param identifier: the identifier
     :return: a rendered template of the article
     """
-    article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    article_object = submission_models.Article.get_article(
+        request.journal, identifier_type, identifier)
 
     content = None
     galleys = article_object.galley_set.filter(public=True)
@@ -494,13 +495,11 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        galley = get_best_galley(article, galleys)
+        galley = get_best_galley(article_object, galleys)
         if galley:
             content = galley.file_content(recover=True)
         else:
             content = ''
-
-
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
