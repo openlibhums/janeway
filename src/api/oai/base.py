@@ -8,9 +8,11 @@ from urllib.parse import (
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
 from django.views.generic.base import View, TemplateResponseMixin
+from django.utils.timezone import make_aware
 
 from api.oai import exceptions
 from utils.http import allow_mutating_GET
+
 
 metadata_formats = [
     {
@@ -142,10 +144,10 @@ class OAIDateFilterMixin(OAIPaginationMixin):
     def filter_by_date_range(self, qs):
         try:
             if self.from_:
-                from_date = date_parser.parse(self.from_)
+                from_date = make_aware(date_parser.parse(self.from_))
                 qs = qs.filter(date_published__gte=from_date)
             if self.until:
-                until_date = date_parser.parse(self.until)
+                until_date = make_aware(date_parser.parse(self.until))
                 qs = qs.filter(date_published__lte=until_date)
             return qs
         except ValueError:
@@ -180,6 +182,10 @@ class OAIDateFilterMixin(OAIPaginationMixin):
             date_str = self._decoded_token.get("until")
         else:
             date_str = self.request.GET.get("until")
+
+        if date_str:
+            date_str = f"{date_str} 23:59:59"
+
         return date_str
 
 
