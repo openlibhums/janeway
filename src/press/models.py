@@ -67,9 +67,16 @@ class Press(AbstractSiteModel):
         verbose_name='Press Logo',
         on_delete=models.SET_NULL,
     )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Publisher description',
+        help_text='This will appear in web search results and on social media when the press URL is shared',
+    )
     footer_description = models.TextField(
         null=True,
         blank=True,
+        verbose_name='Footer text',
         help_text='Additional HTML for the press footer.',
     )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
