@@ -153,23 +153,25 @@ def news_list(request, tag=None, presswide=False):
     Lists all a press or journal news items, and allows them to be filtered by tag
     :param request: HttpRequest object
     :param tag: a string matching a Tags.text attribute
+    :param presswide: the string 'all' or False
     :return: HttpResponse object
     """
 
-    query = Q()
+    news_objects = models.NewsItem.active_objects
 
     if not presswide or request.model_content_type.model != 'press':
-        query &= (Q(content_type=request.model_content_type) &
-                  Q(object_id=request.site_type.id))
+        news_objects = news_objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.id,
+        )
 
     if tag:
-        query &= Q(tags__text=urllib.parse.unquote(tag))
-        tag = models.Tag.objects.get(text=urllib.parse.unquote(tag))
-
-    query &= (Q(start_display__lte=timezone.now()) | Q(start_display=None))
-    query &= (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-
-    news_objects = models.NewsItem.objects.filter(query)
+        news_objects = news_objects.filter(
+            tags__text=urllib.parse.unquote(tag),
+        )
+        tag = models.Tag.objects.get(
+            text=urllib.parse.unquote(tag)
+        )
 
     paginator = Paginator(news_objects, 12)
     page = request.GET.get('page', 1)
@@ -194,6 +196,47 @@ def news_list(request, tag=None, presswide=False):
     context = {
         'news_items': news_items,
         'tag': tag,
+        'all_tags': all_tags,
+    }
+
+    return render(request, template, context)
+
+
+def press_overview(request):
+    """
+    Gets a press news list, a list of news across journals and
+    repositories, and a list of pinned items.
+    This could have been implemented as a class-based view
+    and perhaps still should be.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+
+    press_items = models.NewsItem.active_objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.id,
+    )
+
+    non_press_items = models.NewsItem.active_objects.exclude(
+        content_type=request.model_content_type,
+    )
+
+    pinned_items = models.NewsItem.active_objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.id,
+        pinned=True,
+    )
+
+    all_tags = models.Tag.objects.all().annotate(
+        Count('tags')
+    ).order_by('-tags__count', 'text')
+
+    template = 'press/news/overview.html'
+
+    context = {
+        'press_items': press_items,
+        'non_press_items': non_press_items,
+        'pinned_items': pinned_items,
         'all_tags': all_tags,
     }
 
