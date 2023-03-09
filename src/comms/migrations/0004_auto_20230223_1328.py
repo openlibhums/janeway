@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='newsitem',
-            options={'ordering': ('pinned', '-posted', 'title')},
+            options={'ordering': ('-posted', 'title')},
         ),
         migrations.AddField(
             model_name='newsitem',

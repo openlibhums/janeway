@@ -14,6 +14,15 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+class ActiveNewsItemManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            models.Q(start_display__lte=timezone.now()) | models.Q(start_display=None)
+        ).filter(
+            models.Q(end_display__gte=timezone.now()) | models.Q(end_display=None)
+        )
+
+
 class NewsItem(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
@@ -52,8 +61,11 @@ class NewsItem(models.Model):
         help_text="Pinned news items will appear at the top of the news list"
     )
 
+    objects = models.Manager()
+    active_objects = ActiveNewsItemManager()
+
     class Meta:
-        ordering = ('-pinned', '-posted', 'title')
+        ordering = ('-posted', 'title')
 
     @property
     def url(self):
