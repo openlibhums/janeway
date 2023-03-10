@@ -157,7 +157,7 @@ def news_list(request, tag=None, presswide=False):
     :return: HttpResponse object
     """
 
-    news_objects = models.NewsItem.active_objects
+    news_objects = models.NewsItem.active_objects.all()
 
     if not presswide or request.model_content_type.model != 'press':
         news_objects = news_objects.filter(
