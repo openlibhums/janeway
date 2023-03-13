@@ -416,7 +416,7 @@ def get_settings_to_edit(display_group, journal):
         journal_settings = [
             'journal_name', 'journal_issn', 'print_issn', 'journal_theme',
             'journal_description', 'main_contact', 'publisher_name',
-            'publisher_url', 'privacy_policy_url', 'auto_signature',
+            'publisher_url', 'contact_info', 'privacy_policy_url', 'auto_signature',
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 

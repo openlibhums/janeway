@@ -3733,7 +3733,25 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Can include information such as the physical contact address for the journal.",
+            "is_translatable": true,
+            "name": "contact_info",
+            "pretty_name": "Contact Information",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
-
 ]
 
