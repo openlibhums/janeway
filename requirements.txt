@@ -57,3 +57,4 @@ freezegun==1.2.0
 swapper
 django-materializecss-form==1.1.17
 nodejs-bin==18.4.0a4
+lunr==0.6.2

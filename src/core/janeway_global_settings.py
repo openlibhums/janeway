@@ -565,6 +565,11 @@ if os.environ.get("DB_VENDOR") == "postgres":
 
 ENABLE_FULL_TEXT_SEARCH = False
 
+# Press website search using lunr (does not search articles, issues, preprints, or books).
+# Expects a tuple or None. Tuple examples: (23, 'daily')  (12, 'hourly')  (30, 'mins')
+SITE_SEARCH_INDEXING_FREQUENCY = (23, 'daily')
+
+
 # A core theme must include ALL templates.
 CORE_THEMES = [
     'OLH',
