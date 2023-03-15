@@ -80,6 +80,17 @@ class Command(BaseCommand):
                 }
             )
 
+        if settings.SITE_SEARCH_INDEXING_FREQUENCY:
+            task_time, task_type = settings.SITE_SEARCH_INDEXING_FREQUENCY
+            jobs.append(
+                {
+                    'name': '{}_site_search_index'.format(cwd),
+                    'time': task_time,
+                    'task': 'generate_site_search_index',
+                    'type': task_type,
+                }
+            )
+
         for job in jobs:
             current_job = find_job(tab, job['name'])
 

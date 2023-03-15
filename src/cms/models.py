@@ -256,3 +256,6 @@ class MediaFile(models.Model):
         return build_url_for_request(
             path=self.file.url,
         )
+
+    def __str__(self):
+        return self.file.path
