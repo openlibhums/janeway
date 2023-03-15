@@ -386,10 +386,10 @@ def get_user_list(url, auth_file):
 
 def map_review_recommendation(recommentdation):
     recommendations = {
-        '2': 'minor_revisions',
-        '3': 'major_revisions',
-        '5': 'reject',
-        '1': 'accept'
+        '2': ED.MINOR_REVISIONS,
+        '3': ED.MAJOR_REVISIONS,
+        '5': ED.REJECT,
+        '1': ED.ACCEPT
     }
 
     return recommendations.get(recommentdation, None)
