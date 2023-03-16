@@ -828,6 +828,9 @@ class PreprintAccess(models.Model):
             return 'download'
         return 'view'
 
+    class Meta:
+        verbose_name_plural = 'preprint access records'
+
 
 class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
@@ -966,6 +969,9 @@ class PreprintVersion(models.Model):
         else:
             return ''
 
+    def __str__(self):
+        return f'{self.preprint} (version {self.version})'
+
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -997,7 +1003,7 @@ class Comment(models.Model):
             author=self.author.full_name(),
             article=self.preprint.title,
         )
-    
+
     def toggle_public(self):
         if self.is_public:
             self.is_public = False

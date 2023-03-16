@@ -126,7 +126,7 @@ def user_login(request):
                     messages.add_message(
                         request, messages.ERROR,
                         'Wrong email/password combination or your'
-                        ' email addressed has not been confirmed yet.',
+                        ' email address has not been confirmed yet.',
                     )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(

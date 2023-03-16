@@ -10,6 +10,9 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
+from django.contrib import admin
+from django.contrib.admin.sites import site
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.engine import Engine
@@ -937,5 +940,52 @@ class PreprintsTransactionalEmailTests(PreprintsUtilsTests):
             self.assertIn(r, mail.outbox[1].to)
 
 
+class AdminTestMeta(type):
+    """ A Metaclass for generating test cases directly from the admin registry
 
+    A new test is generated for each admin class registered via the admin.py
+    modules in the application
+    ChildrenMustImplement: build_test_case
+    """
+    def __new__(cls, name, bases, attrs):
+        def test_bar(instance):
+            instance.assertTrue(False)
+        for test_name, test_case in cls.build_tests():
+            attrs[test_name] = test_case
+        return type(name, bases, attrs)
 
+    @classmethod
+    def build_tests(cls):
+        admin_registry = site._registry
+        for model, admin_class in admin_registry.items():
+            yield cls.build_test_case(model, admin_class)
+
+    @classmethod
+    def build_test_case(cls, model, admin_class):
+        raise NotImplementedError()
+
+class AdminSearchTestMeta(AdminTestMeta):
+    def build_test_case(model, admin_class):
+        app_label = model._meta.app_label
+        model_name = model._meta.model_name
+        url_name = f'admin:{app_label}_{model_name}_changelist'
+        url = reverse(url_name)
+        def test_case(instance):
+            response = instance.client.get(url, SERVER_NAME=instance.press.domain)
+            instance.assertEqual(response.status_code, 200)
+        test_name = f'test_admin_view_{app_label}_{model_name}'
+        return test_name, test_case
+
+class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
+    @classmethod
+    def setUpTestData(cls):
+        user_model = get_user_model()
+        cls.superuser = user_model.objects.create_superuser(
+            username='super',
+            password='secret',
+            email='super@example.com',
+        )
+        cls.press = helpers.create_press()
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
