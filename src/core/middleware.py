@@ -24,7 +24,7 @@ from utils.logger import get_logger
 from core import models as core_models
 from journal import models as journal_models
 from repository import models as repository_models
-from cms import models as cms_models
+from cms import logic as cms_logic
 
 logger = get_logger(__name__)
 
@@ -121,12 +121,11 @@ class SiteSettingsMiddleware(object):
             request.press_base_url = press.site_url()
 
             # Site search data urls
-            docs_filename = f'_press_{ press.pk }_site_search_documents.json'
-            docs_file = cms_models.MediaFile.objects.get(label=docs_filename)
-            request.site_search_docs_url = docs_file.file.url
-            index_filename = f'_press_{ press.pk }_site_search_index.json'
-            index_file = cms_models.MediaFile.objects.get(label=index_filename)
-            request.site_search_index_url = index_file.file.url
+            if settings.SITE_SEARCH_INDEXING_FREQUENCY:
+
+                docs_file, index_file = cms_logic.get_index_files(request.press)
+                request.site_search_docs_url = docs_file.file.url
+                request.site_search_index_url = index_file.file.url
 
         else:
             raise Http404()

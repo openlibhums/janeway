@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.core.management import call_command
 
 from core.middleware import (
         get_site_resources,
@@ -20,6 +21,7 @@ from utils.testing import helpers
 
 
 class TestSiteMiddleware(TestCase):
+
     def setUp(self):
         journal_kwargs = dict(
             code="test",
@@ -33,6 +35,10 @@ class TestSiteMiddleware(TestCase):
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)
         self.press.save()
+        call_command('generate_site_search_index', self.press.pk)
+
+    def tearDown(self):
+        call_command('delete_site_search_index', self.press.pk)
 
     @override_settings(URL_CONFIG="path")
     def test_journal_site_in_path_mode(self):
@@ -61,8 +67,6 @@ class TestSiteMiddleware(TestCase):
 
         # assert
         self.assertEqual(expected_journal, request.journal)
-
-    @override_settings(URL_CONFIG="path")
 
     @override_settings(URL_CONFIG="path")
     def test_press_site_in_path_mode(self):
@@ -152,6 +156,10 @@ class TestTimezoneMiddleware(TestCase):
         self.regular_user = helpers.create_user("regularuser@timezone.com")
         self.regular_user.is_active = True
         self.regular_user.save()
+        call_command('generate_site_search_index', self.press.pk)
+
+    def tearDown(self):
+        call_command('delete_site_search_index', self.press.pk)
 
     @override_settings(URL_CONFIG="path")
     def test_default_case(self):
