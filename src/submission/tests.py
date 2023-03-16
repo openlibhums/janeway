@@ -29,6 +29,7 @@ from submission import (
     models,
 )
 from utils.install import update_xsl_files, update_settings, update_issue_types
+from utils.shared import clear_cache
 from utils.testing import helpers
 from utils.testing.helpers import create_galley, request_context
 
@@ -563,6 +564,9 @@ class SubmissionTests(TestCase):
         logic.add_user_as_author(author_b, article)
 
         article.snapshot_authors()
+        # we have to clear cache here due to function cache relying on primary
+        # keys being used for cache keys, which in tests will always be 1
+        clear_cache()
         bibtex = encoding.encode_article_as_bibtex(article)
         expected = """
             @article{TST %s,
