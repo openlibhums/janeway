@@ -62,8 +62,8 @@ class TestJournalSite(TestCase):
         )
         self.issue, c = models.Issue.objects.get_or_create(
             journal=self.journal,
-            volume="1",
-            issue="1",
+            volume="4",
+            issue="4",
             defaults={
                 'date': timezone.now(),
                 'issue_type': issue_type,
@@ -93,7 +93,6 @@ class TestJournalSite(TestCase):
             sequence=1,
         )
         clear_script_prefix()
-
 
     def test_flat_front_end_pages(self):
         flat_pages_to_test = [
@@ -127,7 +126,7 @@ class TestJournalSite(TestCase):
         )
         self.assertContains(
             response,
-            'Volume 1'
+            'Volume 4'
         )
         self.assertContains(
             response,
