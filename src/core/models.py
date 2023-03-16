@@ -29,6 +29,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.template.defaultfilters import linebreaksbr
 import swapper
 
 from core import files, validators
@@ -377,14 +379,39 @@ class Account(AbstractBaseUser, PermissionsMixin):
         role = Role.objects.get(slug=role_slug)
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
+    @cached_property
+    def roles(self):
+        account_roles = AccountRole.objects.filter(
+            user=self,
+        )
+        journal_roles_map = {}
+        for account_role in account_roles:
+            journal_roles_map.setdefault(account_role.journal.code, set())
+            journal_roles_map[account_role.journal.code].add(account_role.role.slug)
+        return journal_roles_map
+
+    def roles_for_journal(self, journal):
+        return [
+            account_role.role for account_role in
+            AccountRole.objects.filter(user=self, journal=journal)
+        ]
+
     def check_role(self, journal, role, staff_override=True):
-        if staff_override and self.is_staff:
+        if staff_override and (self.is_staff or self.is_journal_manager(journal)):
             return True
         else:
             return AccountRole.objects.filter(
                 user=self,
                 journal=journal,
-                role__slug=role
+                role__slug=role,
+            ).exists()
+
+    def is_journal_manager(self, journal):
+        # this is an explicit check to avoid recursion in check_role.
+        return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug='journal-manager',
             ).exists()
 
     def is_editor(self, request, journal=None):
@@ -667,6 +694,12 @@ class Setting(models.Model):
 
     is_translatable = models.BooleanField(default=False)
 
+    editable_by = models.ManyToManyField(
+        Role,
+        blank=True,
+        help_text='Determines who can edit this setting based on their assigned roles.',
+    )
+
     class Meta:
         ordering = ('group', 'name')
 
@@ -739,7 +772,16 @@ class SettingValue(models.Model):
             except BaseException:
                 return 0
         elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
+            try:
+                return json.loads(self.value)
+            except json.JSONDecodeError as e:
+                logger.error(
+                    "Error loading JSON setting {setting_name} on {site_name} site.".format(
+                        setting_name=self.setting.name,
+                        site_name=self.journal.name if self.journal else 'press'
+                    )
+                )
+                return ''
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
         else:
@@ -758,10 +800,10 @@ class SettingValue(models.Model):
         elif self.setting.types == 'file':
             if self.journal:
                 return self.journal.site_url(
-                        reverse("journal_file",self.value))
+                    reverse("journal_file", self.value))
             else:
                 return self.press.site_url(
-                        reverse("serve_press_file", self.value))
+                    reverse("serve_press_file", self.value))
         else:
             return self.value
 
@@ -775,6 +817,10 @@ class SettingValue(models.Model):
 
     def validate(self):
         self.setting.validate(self.value)
+
+    @cached_property
+    def editable_by(self):
+        return {role.slug for role in self.setting.editable_by.all()}
 
     def save(self, *args, **kwargs):
         self.validate()

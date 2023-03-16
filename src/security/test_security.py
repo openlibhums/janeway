@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.core.management import call_command
 from mock import Mock
 
-from core import models as core_models, forms as core_forms
+from core import models as core_models, forms as core_forms, logic as core_logic
 from journal import models as journal_models
 from production import models as production_models
 from security import decorators
@@ -3485,7 +3485,7 @@ class TestSecurity(TestCase):
             value='',
         )
 
-        # user user without roles to test that its not blocked
+        # user without roles to test that its not blocked
         request = self.prepare_request_with_user(
             self.user_with_no_roles,
             journal=self.journal_one,
@@ -3718,6 +3718,184 @@ class TestSecurity(TestCase):
             "article_is_not_submitted incorrectly raises a 404 when article is unsubmitted.",
         )
 
+    def test_journal_manager_can_access_manager(self):
+        self.client.force_login(self.journal_manager)
+        response = self.client.get(
+            reverse('core_manager_index'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_journal_manager_can_access_licenses(self):
+        self.client.force_login(self.journal_manager)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_editor_can_edit_licenses(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME='journal1.localhost',
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+        data = {
+            'save': True,
+            'name': 'Test License',
+            'short_name': 'TEST',
+            'url': 'https://janeway.systems',
+            'text': 'This is a test license.',
+            'order': 1,
+            'available_for_submission': True,
+        }
+        self.client.post(
+            reverse('submission_licenses'),
+            data=data,
+            SERVER_NAME='journal1.localhost',
+        )
+        self.assertTrue(
+            submission_models.Licence.objects.filter(
+                short_name='TEST',
+            ).exists()
+        )
+
+    def test_blocking_editor_from_licenses(self):
+        # exclude the editor from accessing the licenses page.
+        setting_handler.save_setting(
+            setting_group_name='permission',
+            setting_name='licenses',
+            journal=self.journal_one,
+            value='["journal-manager"]',
+        )
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            403,
+        )
+
+        # reset the setting change, so it does not affect other tests
+        setting_handler.save_setting(
+            setting_group_name='permission',
+            setting_name='licenses',
+            journal=self.journal_one,
+            value='["editor", "journal-manager"]',
+        )
+
+    def test_editor_can_access_edit_setting(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_setting',
+                kwargs={
+                    'setting_group': 'general',
+                    'setting_name': 'journal_name',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_blocking_editor_from_editing_setting(self):
+        # set the journal_name setting to only be editable by journal managers.
+        journal_manager_role = core_models.Role.objects.get(
+            slug='journal-manager',
+        )
+        setting = core_models.Setting.objects.get(
+            group__name='general',
+            name='journal_name',
+        )
+        setting.editable_by.clear()
+        setting.editable_by.add(journal_manager_role)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_setting',
+                kwargs={
+                    'setting_group': 'general',
+                    'setting_name': 'journal_name',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            403,
+        )
+
+        # add editor back to reset this change.
+        editor_role = core_models.Role.objects.get(
+            slug='editor',
+        )
+        setting.editable_by.add(editor_role)
+
+    def test_setting_is_available_in_group(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_settings_group',
+                kwargs={
+                    'display_group': 'journal',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertContains(
+            response,
+            'Journal Name'
+        )
+
+    def test_setting_is_removed_from_group(self):
+        # set the journal_name setting to only be editable by journal managers.
+        journal_manager_role = core_models.Role.objects.get(
+            slug='journal-manager',
+        )
+        setting = core_models.Setting.objects.get(
+            group__name='general',
+            name='journal_name',
+        )
+        setting.editable_by.clear()
+        setting.editable_by.add(journal_manager_role)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_settings_group',
+                kwargs={
+                    'display_group': 'journal',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertNotContains(
+            response,
+            'Journal Name'
+        )
+
+        # add editor back to reset this change.
+        editor_role = core_models.Role.objects.get(
+            slug='editor',
+        )
+        setting.editable_by.add(editor_role)
+
     # General helper functions
 
     @staticmethod
@@ -3861,6 +4039,12 @@ class TestSecurity(TestCase):
         self.repo_manager = self.create_user("repomanager@janeway.systems")
         self.repo_manager.is_active = True
         self.repo_manager.save()
+
+        self.journal_manager = self.create_user(
+            "journalmanager@janeway.systems",
+            ['journal-manager'],
+            journal=self.journal_one,
+        )
 
         self.public_file = core_models.File(mime_type="A/FILE",
                                             original_filename="blah.txt",
@@ -4129,6 +4313,7 @@ class TestSecurity(TestCase):
         )
 
         call_command('load_default_settings')
+        call_command('load_permissions')
 
     @staticmethod
     def mock_messages_add(level, message, extra_tags):

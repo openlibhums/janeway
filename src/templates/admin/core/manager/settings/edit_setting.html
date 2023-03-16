@@ -51,6 +51,8 @@
                         </h5>
                         {% if setting.description %}<p>{{ setting.description|safe }}</p>{% endif %}
 
+                        {% include "elements/forms/errors.html" with form=edit_form %}
+
                         <form action="" method="POST" enctype="multipart/form-data">
 
                             {% csrf_token %}
@@ -65,7 +67,6 @@
                                 {% endif %}
                             {% endif %}
 
-                            {% buttons %}
                                 <button type="submit" class="button success" style="margin-right:5px">
                                     <span class="fa fa-check"> </span> {% if setting_value == None %} Create Override {% else %}
                                     Submit {% endif %}
@@ -77,7 +78,6 @@
                                         Reset to Default
                                     </button>
                                 {% endif %}
-                            {% endbuttons %}
 
                         </form>
                     </div>
