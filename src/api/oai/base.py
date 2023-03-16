@@ -184,7 +184,7 @@ class OAIDateFilterMixin(OAIPaginationMixin):
             date_str = self.request.GET.get("until")
 
         if date_str:
-            date_str = f"{date_str} 23:59:59"
+            date_str = f"{date_str}T23:59:59Z"
 
         return date_str
 
