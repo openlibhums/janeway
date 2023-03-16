@@ -3,8 +3,10 @@ __author__ = "Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import os
 
 from django.shortcuts import reverse
+from django.conf import settings
 
 from journal import models as journal_models
 from cms import models as models
@@ -13,9 +15,19 @@ from core import models as core_models
 from django.core.files.base import ContentFile
 from comms import models as comms_models
 from press import models as press_models
+from utils.logger import get_logger
 
 from lunr import lunr, get_default_builder
 import json
+
+logger = get_logger(__name__)
+
+
+SITE_SEARCH_PATH = os.path.join(
+    settings.MEDIA_ROOT,
+    'press',
+    settings.SITE_SEARCH_DIR,
+)
 
 
 def get_press_site_search_data():
@@ -41,12 +53,16 @@ def get_press_site_search_data():
         data['people'] = item.byline()
         data['text'] = item.body
         if item.tags.count():
-            data['tags'] = "Tags: " + ", ".join([tag.text for tag in item.tags.all()])
+            data['tags'] = "Tags: " + ", ".join(
+                [tag.text for tag in item.tags.all()]
+            )
         else:
             data['tags'] = ''
         site_search_data.append(data)
 
-    for journal in journal_models.Journal.objects.filter(hide_from_press=False):
+    for journal in journal_models.Journal.objects.filter(
+        hide_from_press=False
+    ):
         data = {}
         data['url'] = journal.site_url()
         data['name'] = journal.name
@@ -89,14 +105,24 @@ def build_index():
     )
 
 
-def update_index():
-    press = press_models.Press.objects.first()
-    docs_filename = f'_press_{ press.pk }_site_search_documents.json'
-    docs_file, created = models.MediaFile.objects.get_or_create(label=docs_filename)
+def update_index(press_id=1):
+    press = press_models.Press.objects.get(pk=press_id)
+    docs_filename = os.path.join(
+        settings.SITE_SEARCH_DIR,
+        f'_press_{ press.pk }_documents.json'
+    )
+    docs_file, created = models.MediaFile.objects.get_or_create(
+        label=docs_filename
+    )
     if not created:
         docs_file.unlink()
-    index_filename = f'_press_{ press.pk }_site_search_index.json'
-    index_file, created = models.MediaFile.objects.get_or_create(label=index_filename)
+    index_filename = os.path.join(
+        settings.SITE_SEARCH_DIR,
+        f'_press_{ press.pk }_index.json'
+    )
+    index_file, created = models.MediaFile.objects.get_or_create(
+        label=index_filename
+    )
     if not created:
         index_file.unlink()
 
@@ -109,4 +135,46 @@ def update_index():
 
     content_file = ContentFile(index_json.encode('utf-8'))
     index_file.file.save(index_filename, content_file, save=True)
+    return docs_file, index_file
+
+
+def delete_index(press_id=1):
+    press = press_models.Press.objects.get(pk=press_id)
+    files_deleted = []
+    paths = [
+        os.path.join(
+            SITE_SEARCH_PATH,
+            f'_press_{ press.pk }_documents.json',
+        ),
+        os.path.join(
+            SITE_SEARCH_PATH,
+            f'_press_{ press.pk }_index.json',
+        ),
+    ]
+    for path in paths:
+        if os.path.exists(path):
+            os.unlink(path)
+            files_deleted.append(path)
+    if settings.IN_TEST_RUNNER:
+        if os.listdir(SITE_SEARCH_PATH):
+            logger.warning(
+                f'Left-over test files: {os.listdir(SITE_SEARCH_PATH)}'
+            )
+        else:
+            os.rmdir(SITE_SEARCH_PATH)
+
+    return files_deleted
+
+
+def get_index_files(press):
+    docs_filename = os.path.join(
+        settings.SITE_SEARCH_DIR,
+        f'_press_{ press.pk }_documents.json'
+    )
+    docs_file = models.MediaFile.objects.get(label=docs_filename)
+    index_filename = os.path.join(
+        settings.SITE_SEARCH_DIR,
+        f'_press_{ press.pk }_index.json'
+    )
+    index_file = models.MediaFile.objects.get(label=index_filename)
     return docs_file, index_file
