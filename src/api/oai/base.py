@@ -150,8 +150,7 @@ class OAIDateFilterMixin(OAIPaginationMixin):
                 until_date = date_parser.parse(self.until)
                 qs = qs.filter(date_published__lte=until_date)
             return qs
-        except ValueError as e:
-            print(e)
+        except ValueError:
             raise exceptions.OAIBadArgument()
 
     def get_token_context(self, context):
