@@ -82,6 +82,15 @@ There is a command you can run once ``ENABLE_FULL_TEXT`` is set to True
 The above command will generate the relevant indexes for full-text search to work within Janeway.
 
 
+Press site search
+-----------------
+
+Janeway provides limited support for static site search of press website content. Currently it is only available when using the `path subtheme <https://github.com/BirkbeckCTP/path>`_.
+
+To enable site search, set ``SITE_SEARCH_INDEXING_FREQUENCY`` to ``(4, 'daily')`` (or another crontab frequency) in your settings file. To disable it, set this setting to ``None``.
+
+You can use the command ``python manage.py generate_site_search_index`` to generate the search index for the first time.
+
 Theming
 --------
 Janeway includes three core themes by default:

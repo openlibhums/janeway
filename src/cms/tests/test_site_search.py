@@ -48,19 +48,19 @@ class TestSiteSearch(TestCase):
 
     def tearDown(self):
         try:
-            call_command('delete_site_search_index', self.press.pk)
+            call_command('delete_site_search_index', '--press_id', self.press.pk)
         except FileNotFoundError:
             pass
 
     @patch('cms.logic.update_index')
     def test_generate_command(self, update_index):
         update_index.return_value = ('', '')
-        call_command('generate_site_search_index', self.press.pk)
+        call_command('generate_site_search_index', '--press_id', self.press.pk)
         update_index.assert_called()
 
     def test_delete_command(self):
-        call_command('generate_site_search_index', self.press.pk)
-        call_command('delete_site_search_index', self.press.pk)
+        call_command('generate_site_search_index', '--press_id', self.press.pk)
+        call_command('delete_site_search_index', '--press_id', self.press.pk)
         docs_path = os.path.join(
             cms_logic.SITE_SEARCH_PATH,
             self.docs_label,
@@ -83,7 +83,7 @@ class TestSiteSearch(TestCase):
                 documents=[{'test': 'test value', 'other': 'other value'}],
             )
         )
-        cms_logic.update_index()
+        cms_logic.update_index(self.press.pk)
         build_index.assert_called()
         docs_file = cms_models.MediaFile.objects.get(label=self.docs_label)
         self.assertTrue(os.path.exists(docs_file.file.path))
@@ -101,7 +101,7 @@ class TestSiteSearch(TestCase):
                 documents=old_docs,
             )
         )
-        cms_logic.update_index()
+        cms_logic.update_index(self.press.pk)
 
         new_docs = [{'new': ''}]
         build_index.return_value = (
@@ -112,8 +112,7 @@ class TestSiteSearch(TestCase):
                 documents=new_docs,
             )
         )
-        cms_logic.update_index()
-
+        cms_logic.update_index(self.press.pk)
         build_index.assert_called()
 
         for label in [self.docs_label, self.index_label]:
@@ -147,7 +146,7 @@ class TestSiteSearch(TestCase):
         self.assertTrue(self.press_contact.name in text)
 
     def test_run_search(self):
-        call_command('generate_site_search_index', self.press.pk)
+        call_command('generate_site_search_index', '--press_id', self.press.pk)
         media_file = cms_models.MediaFile.objects.get(label=self.index_label)
         with open(media_file.file.path) as fd:
             serialized_idx = json.loads(fd.read())
