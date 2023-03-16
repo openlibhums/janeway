@@ -225,7 +225,10 @@ class Journal(AbstractSiteModel):
     disable_front_end = models.BooleanField(default=False)
 
     def __str__(self):
-        return u'{0}: {1}'.format(self.code, self.domain)
+        if self.domain:
+            return u'{0}: {1}'.format(self.code, self.domain)
+        else:
+            return self.code
 
     @staticmethod
     def override_cover(request, absolute=True):
@@ -273,7 +276,7 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting('Identifiers', 'title_doi', self, default=True).value or None
 
     @doi.setter
-    def doi(self, value):
+    def doi_setter(self, value):
         setting_handler.save_setting('Identifiers', 'title_doi', self, value)
 
     @property
@@ -1049,7 +1052,17 @@ class IssueEditor(models.Model):
         Issue,
         on_delete=models.CASCADE,
     )
-    role = models.CharField(max_length=255, default='Guest Editor')
+    role = models.CharField(
+        max_length=255,
+        default='Guest Editor',
+    )
+    sequence = models.PositiveIntegerField(
+        default=1,
+        help_text='Provides for ordering of the Issue Editors.'
+    )
+
+    class Meta:
+        ordering = ('sequence', 'account')
 
     def __str__(self):
         return "{user} {role}".format(
@@ -1113,6 +1126,9 @@ class FixedPubCheckItems(models.Model):
     select_render_galley = models.BooleanField(default=False)
     select_article_image = models.BooleanField(default=False)
     select_open_reviews = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = 'Fixed pub check items'
 
 
 class PresetPublicationCheckItem(models.Model):
@@ -1178,6 +1194,9 @@ class Notifications(models.Model):
 
     def __str__(self):
         return '{0}, {1}: {2}'.format(self.journal, self.user, self.domain)
+
+    class Meta:
+        verbose_name_plural = 'notifications'
 
 
 # Signals

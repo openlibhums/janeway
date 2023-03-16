@@ -30,6 +30,9 @@ class ArticleAccess(models.Model):
         on_delete=models.SET_NULL,
     )
 
+    class Meta:
+        verbose_name_plural = 'article access events'
+
     def __str__(self):
         return '[{0}] - {1} at {2}'.format(self.identifier, self.article.title, self.accessed)
 
@@ -41,6 +44,9 @@ class HistoricArticleAccess(models.Model):
     )
     views = models.PositiveIntegerField(default=0)
     downloads = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'historic article access events'
 
     def __str__(self):
         return 'Article {0}, Views: {1}, Downloads: {2}'.format(self.article.title, self.views, self.downloads)

@@ -584,6 +584,9 @@ class PasswordResetToken(models.Model):
         else:
             return False
 
+    class Meta:
+        ordering = ['-expiry']
+
 
 class Role(models.Model):
     name = models.CharField(
@@ -892,7 +895,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-    
+
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -1106,8 +1109,12 @@ class FileHistory(models.Model):
 
     history_seq = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return "Iteration {0}: {1}".format(self.history_seq, self.original_filename)
+
     class Meta:
         ordering = ('history_seq',)
+        verbose_name_plural = 'file histories'
 
 
 def galley_type_choices():
@@ -1399,6 +1406,9 @@ class TaskCompleteEvents(models.Model):
     def __str__(self):
         return self.event_name
 
+    class Meta:
+        verbose_name_plural = 'task complete events'
+
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
@@ -1419,6 +1429,9 @@ class EditorialGroup(models.Model):
     def members(self):
         return [member for member in self.editorialgroupmember_set.all()]
 
+    def __str__(self):
+        return f'{self.name} ({self.journal.code})'
+
 
 class EditorialGroupMember(models.Model):
     group = models.ForeignKey(
@@ -1434,6 +1447,9 @@ class EditorialGroupMember(models.Model):
     class Meta:
         ordering = ('sequence',)
 
+    def __str__(self):
+        return f'{self.user} in {self.group}'
+
 
 class Contacts(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
@@ -1447,7 +1463,10 @@ class Contacts(models.Model):
     sequence = models.PositiveIntegerField(default=999)
 
     class Meta:
-        verbose_name_plural = 'Journal Contacts'
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the below model `Contact`
+        # in the admin area.
+        verbose_name_plural = 'contacts'
         ordering = ('sequence', 'name')
 
     def __str__(self):
@@ -1466,6 +1485,12 @@ class Contact(models.Model):
                                      null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
+        verbose_name_plural = 'contact messages'
 
 
 class DomainAlias(AbstractSiteModel):
@@ -1504,6 +1529,9 @@ class DomainAlias(AbstractSiteModel):
             raise ValidationError(
                     " One and only one of press or journal must be set")
         return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = 'domain aliases'
 
 
 BASE_ELEMENTS = [

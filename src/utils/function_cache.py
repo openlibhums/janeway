@@ -40,10 +40,10 @@ class mutable_cached_property(cached_property):
         if self.fsetter is None:
             raise AttributeError(f"property '{self.name}' has no setter")
         self.fsetter(obj, value)
-        obj.__dict__[self.name] = self.func(obj)
+        obj.__dict__[self.name] = self.real_func(obj)
 
     def setter(self, fsetter):
         prop = type(self)(self.func, self.name)
-        prop.setter = fsetter
+        prop.setter = self.fsetter = fsetter
         return prop
 

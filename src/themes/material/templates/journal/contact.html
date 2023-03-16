@@ -24,12 +24,11 @@
                         <h5>{{ contact.name }}</h5>
                         <p>{{ contact.role }}</p>
                     {% endfor %}
-                    {% if request.journal and request.journal.contact_info %}
+                    {% if journal_settings.general.contact_info %}
                         <span class="card-title">
                             {% trans 'Contact Information' %}
                          </span>
-                            {{ request.journal.contact_info|safe }}
-
+                        {{ journal_settings.general.contact_info|safe }}
                     {% endif %}
                 </div>
             </div>

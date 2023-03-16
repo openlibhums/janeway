@@ -8,13 +8,12 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 
 from core.middleware import (
-        get_site_resources,
-        SiteSettingsMiddleware,
-        TimezoneMiddleware,
+    SiteSettingsMiddleware,
+    TimezoneMiddleware,
+    BaseMiddleware
 )
-from core.models import Account, Setting
+from core.models import Account
 from journal.tests.utils import make_test_journal
-from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
 
@@ -28,7 +27,7 @@ class TestSiteMiddleware(TestCase):
         press_kwargs = dict(
             domain="press.org",
         )
-        self.middleware = SiteSettingsMiddleware()
+        self.middleware = SiteSettingsMiddleware(BaseMiddleware)
         self.request_factory = RequestFactory()
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)
@@ -143,7 +142,7 @@ class TestTimezoneMiddleware(TestCase):
         press_kwargs = dict(
             domain="press.org",
         )
-        self.middleware = TimezoneMiddleware()
+        self.middleware = TimezoneMiddleware(BaseMiddleware)
         self.request_factory = RequestFactory()
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)
