@@ -144,13 +144,14 @@ class OAIDateFilterMixin(OAIPaginationMixin):
     def filter_by_date_range(self, qs):
         try:
             if self.from_:
-                from_date = make_aware(date_parser.parse(self.from_))
+                from_date = date_parser.parse(self.from_)
                 qs = qs.filter(date_published__gte=from_date)
             if self.until:
-                until_date = make_aware(date_parser.parse(self.until))
+                until_date = date_parser.parse(self.until)
                 qs = qs.filter(date_published__lte=until_date)
             return qs
-        except ValueError:
+        except ValueError as e:
+            print(e)
             raise exceptions.OAIBadArgument()
 
     def get_token_context(self, context):
