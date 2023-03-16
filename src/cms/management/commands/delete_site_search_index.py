@@ -10,10 +10,14 @@ class Command(BaseCommand):
     help = 'Deletes documents and index files for lunr site search'
 
     def add_arguments(self, parser):
-        parser.add_argument('press_id', type=int)
+        parser.add_argument('--press_id', type=int)
 
     def handle(self, *args, **options):
-        files_deleted = cms_logic.delete_index(press_id=options['press_id'])
+        if options['press_id']:
+            files_deleted = cms_logic.delete_index(press_id=options['press_id'])
+        else:
+            files_deleted = cms_logic.delete_index()
+
         if files_deleted:
             logger.info(
                 self.style.SUCCESS(
