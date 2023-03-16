@@ -1,6 +1,7 @@
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from django.urls.base import clear_script_prefix
 
 from journal import models
 from journal.tests.utils import make_test_journal
@@ -91,6 +92,8 @@ class TestJournalSite(TestCase):
             user=self.author,
             sequence=1,
         )
+        clear_script_prefix()
+
 
     def test_flat_front_end_pages(self):
         flat_pages_to_test = [
