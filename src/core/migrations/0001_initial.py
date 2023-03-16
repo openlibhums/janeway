@@ -73,6 +73,9 @@ class Migration(migrations.Migration):
                 ('date_sent', models.DateField(auto_now_add=True)),
                 ('object_id', models.PositiveIntegerField(blank=True, null=True)),
             ],
+            options={
+                'verbose_name_plural': 'contact messages',
+            },
         ),
         migrations.CreateModel(
             name='Contacts',
@@ -85,7 +88,7 @@ class Migration(migrations.Migration):
                 ('sequence', models.PositiveIntegerField(default=999)),
             ],
             options={
-                'verbose_name_plural': 'Journal Contacts',
+                'verbose_name_plural': 'contacts',
                 'ordering': ('sequence', 'name'),
             },
         ),
@@ -109,6 +112,9 @@ class Migration(migrations.Migration):
                 ('redirect', models.BooleanField(default=True, help_text='If enabled, the site will throw a 301 redirect to the master domain.', verbose_name='301')),
                 ('site_id', models.PositiveIntegerField()),
             ],
+            options={
+                'verbose_name_plural': 'domain aliases',
+            },
         ),
         migrations.CreateModel(
             name='EditorialGroup',
@@ -170,6 +176,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('history_seq',),
+                'verbose_name_plural': 'file histories',
             },
         ),
         migrations.CreateModel(
@@ -241,6 +248,9 @@ class Migration(migrations.Migration):
                 ('expiry', models.DateTimeField(default=core.models.generate_expiry_date, verbose_name='Expires on')),
                 ('expired', models.BooleanField(default=False)),
             ],
+            options={
+                'ordering': ['-expiry'],
+            },
         ),
         migrations.CreateModel(
             name='Role',
@@ -318,6 +328,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('event_name', models.CharField(max_length=300)),
             ],
+            options={
+                'verbose_name_plural': 'task complete events',
+            },
         ),
         migrations.CreateModel(
             name='Workflow',

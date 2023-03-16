@@ -38,6 +38,7 @@ from core.model_utils import(
     M2MOrderedThroughField,
 )
 from core import workflow, model_utils, files
+from core.templatetags.truncate import truncatesmart
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -1076,7 +1077,7 @@ class Article(AbstractLastModifiedModel):
         )
 
     def __str__(self):
-        return u'%s - %s' % (self.pk, self.title)
+        return u'%s - %s' % (self.pk, truncatesmart(self.title))
 
     @staticmethod
     @cache(300)

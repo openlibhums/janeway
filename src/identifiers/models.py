@@ -91,8 +91,11 @@ class CrossrefDeposit(models.Model):
         if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
-        else:
+        elif len(journals) == 1:
             return journals.pop()
+        else:
+            return None
+
 
     def poll(self):
         self.polling_attempts += 1
@@ -231,6 +234,13 @@ class CrossrefStatus(models.Model):
     @property
     def latest_deposit(self):
         return self.deposits.first()
+
+    def __str__(self):
+        if self.latest_deposit:
+            return f'{self.identifier} {self.message} ' \
+                   f'{self.latest_deposit.date_time}'
+        else:
+            return self.message
 
     class Meta:
         verbose_name = 'Crossref status'

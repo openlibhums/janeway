@@ -226,7 +226,10 @@ class Journal(AbstractSiteModel):
     disable_front_end = models.BooleanField(default=False)
 
     def __str__(self):
-        return u'{0}: {1}'.format(self.code, self.domain)
+        if self.domain:
+            return u'{0}: {1}'.format(self.code, self.domain)
+        else:
+            return self.code
 
     @staticmethod
     def override_cover(request, absolute=True):
@@ -1131,6 +1134,9 @@ class FixedPubCheckItems(models.Model):
     select_article_image = models.BooleanField(default=False)
     select_open_reviews = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = 'Fixed pub check items'
+
 
 class PresetPublicationCheckItem(models.Model):
     journal = models.ForeignKey(
@@ -1195,6 +1201,9 @@ class Notifications(models.Model):
 
     def __str__(self):
         return '{0}, {1}: {2}'.format(self.journal, self.user, self.domain)
+
+    class Meta:
+        verbose_name_plural = 'notifications'
 
 
 # Signals
