@@ -4,6 +4,7 @@ from urllib.parse import (
     urlencode,
     parse_qsl,
 )
+from datetime import datetime
 
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
@@ -184,7 +185,11 @@ class OAIDateFilterMixin(OAIPaginationMixin):
             date_str = self.request.GET.get("until")
 
         if date_str:
-            date_str = f"{date_str}T23:59:59Z"
+            # grab the until string and check if it is timezone aware
+            # if it is not, add a default H:m:sZ.
+            parsed_date = date_parser.parse(date_str)
+            if not parsed_date.tzinfo:
+                date_str = f"{date_str}T23:59:59Z"
 
         return date_str
 
