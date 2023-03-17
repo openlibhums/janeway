@@ -1,8 +1,50 @@
 Changelog
 =========
 
-v1.4.4
-------
+v1.5.0 Torres
+-------------
+Upgrade Notes
+^^^^^^^^^^^^^
+
+To run this upgrade, you can use Janeway's built-in script (.update.sh).
+
+On this version of Janeway we have bumped the version of Django from 1.11 to the most recent LTS version 3.2. As a result of multiple
+backwards changes, there have been a lot of rewrites of old code involved. Any installed plugins do need to be updated for compatibility
+with this new release as well, so we recommend upgrading your plugins first, before running the .update.sh script
+
+What's Changed
+^^^^^^^^^^^^^^
+
+- Exposes the XML url as a meta tag for indexers (Google Scholar) by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3437
+- Django three two rebase by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3438
+- Bump django from 3.2.16 to 3.2.18 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3439
+- Updated for hijack 3.x and tweaked to retain current layout/style. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3329
+- Fixes the check for is_anonymous in utils.models.add_entry by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3347
+- #3326 fix query to get the latest round number by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3341
+- Switched to a production version of django-bootstrap4 by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3343
+- Guest Editors can now be sorted. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3368
+- #3342 the current Janeway version now displays in the bottom left hand of the manager nav, placement of the languange switcher is now common to all Site types. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3344
+- Fixes mutable_cache_property for django 3.2 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3410
+- Fixes some of the test failures on the 3.2 branch by bumping the version of model translations. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3399
+- Dropped Raven as a core requirement, added docs for sentry error capturing by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3405
+- Adds a new command that will clear a janeway install's cache. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3400
+- Bumps requirements based on depandabot alerts. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3398
+- After installation is complete, clear the cache so that the install is fresh by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3401
+- #3420 adds time 23:59:59 to the oai feed until date when present by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3421
+- #3428 revives the contact_info attrbiture as a Setting and uses it on the Contact page. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3431
+- Fixes URL resolver for django-hijack on django 3.2 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3433
+- Added a note to recommend that when editing frozen author data editors make email and ORCID changes at the account level. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3390
+- #3230 removes broken button on revision and copyedit replace file screens by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3417
+- Overhaul admin views to support searching and browsing by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3345
+- Journal manager role by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3374
+- Oai datetime support by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3435
+- Adds some basic tests for the frontend by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3429
+
+
+**Full Changelog**: https://github.com/BirkbeckCTP/janeway/compare/v1.4.4...v1.5.0-RC-1
+
+v1.4.4 Apollo
+-------------
 Upgrade Notes
 ^^^^^^^^^^^^^
 
@@ -33,7 +75,7 @@ What's Changed
 - Changes ableist terminology around peer review anonimity by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3353
 - Updates localisation files by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3388
 - Add RSS feed for preprints by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3391
-- Name of CC *-ND licenses changed to NoDerivatives by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3397
+- Name of CC-ND licenses changed to NoDerivatives by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3397
 - Adds the base structure and migrations to support en-us locale by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3389
 - Fixes a bug where metrics were being stored agaisnt the wrong type of galley by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3395
 - Refactor tests to eliminate naive datetime warnings by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3381
