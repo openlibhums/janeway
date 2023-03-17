@@ -18,7 +18,7 @@ class NewIssue(forms.ModelForm):
             journal=journal)
         if self.instance and self.instance.code:
             path = reverse(
-                "journal_collection_by_code",
+                "journal_collection_by_code_with_digits",
                 kwargs={"collection_code": self.instance.code},
             )
             extra_help_text = " URL: {}".format(self.instance.journal.site_url(path))
