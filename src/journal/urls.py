@@ -74,9 +74,15 @@ urlpatterns = [
         views.download_galley,
         name='article_download_galley'),
     re_path(r'^collections/$', views.collections, name='journal_collections_type'),
-    re_path(r'^collections/(?P<issue_type_code>[\da-zA-Z-_]+)/$', views.collections, name='journal_collections'),
     re_path(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
+
+    # The URLS below are roughly equivalent but we need both because of backwards compatibility reasons
+    re_path(r'^collections/(?P<issue_type_code>[a-zA-Z-_]+)/$', views.collections, name='journal_collections'),
+    re_path(r'^collections/type/(?P<issue_type_code>[\da-zA-Z-_]+)/$', views.collections, name='journal_collections_with_digits'),
+    # The URLS below are roughly equivalent but we need both because of backwards compatibility reasons
     re_path(r'^collection/(?P<collection_code>[a-zA-Z-_]+)/$', views.collection_by_code, name='journal_collection_by_code'),
+    re_path(r'^collection/code/(?P<collection_code>[\da-zA-Z-_]+)/$', views.collection_by_code, name='journal_collection_by_code_with_digits'),
+
     re_path(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
     re_path(r'^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$', views.volume, name='journal_volume'),
 
