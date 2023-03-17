@@ -56,4 +56,7 @@
     {% if article.pdfs.exists %}
     <meta name="citation_pdf_url" content="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
     {% endif %}
+    {% if article.xml_galleys.exists %}
+    <meta name="citation_xml_url" content="{% journal_url 'serve_article_xml' 'id' article.id %}"/>
+    {% endif %}
     {% include "elements/journal/social_meta.html" %}
