@@ -496,7 +496,7 @@ class BaseSearchManagerMixin(Manager):
                 q_object = q_object | (
                     Q(frozenauthor__first_name__iregex=search_regex) |
                     Q(frozenauthor__last_name__iregex=search_regex)
-                ),
+                )
             articles = articles.filter(q_object)
             if site:
                 # TODO: Support other site types
