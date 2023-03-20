@@ -15,13 +15,13 @@ django-hijack==3.2.1
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git@8f97af5a4133934f939826c00a30f1357478b139#egg=django_mailgun
 django-modeltranslation==0.18.9
 django-settings-export==1.2.1
-#-e git+https://github.com/BirkbeckCTP/django-simple-math-captcha@1.11_fix#egg=django-simple-math-captcha
 django-recaptcha==3.0.0
 django-simple-math-captcha==1.1.0
 django-summernote==0.8.20.0
 djangorestframework==3.11.2
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
+Faker==17.6.0
 freezegun==1.2.0
 geoip2==3.0.0 # Newer versions require python >= 3.6
 html2text==2017.10.4
