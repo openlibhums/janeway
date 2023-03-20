@@ -19,7 +19,7 @@ def upgrade(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0028_upgrade_1_4_4'),
+        ('utils', '0029_alter_toaddress_options'),
         ('core', '0080_merge_20230317_1530'),
     ]
 
