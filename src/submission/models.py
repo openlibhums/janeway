@@ -35,6 +35,8 @@ from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django_countries.fields import CountryField
+from django_bleach.models import BleachField
+
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -634,13 +636,10 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
-        help_text=_('Please avoid pasting content from word processors as they can add '
-                    'unwanted styling to the abstract. You can retype the abstract '
-                    'here or copy and paste it into notepad/a plain text editor before '
-                    'pasting here.')
+        help_text=_('Copying and pasting from word processors is supported.'),
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
