@@ -38,6 +38,13 @@ class NewsItem(models.Model):
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
                   "the news item with whatever text is added here.",
     )
+    support_copy_paste = models.BooleanField(
+        default=True,
+        help_text='Turn this on if copy-pasting content into rich-text fields '
+                  'from a word processor or using the toolbar to format text. '
+                  'Turn it off only if you are editing HTML and CSS using the '
+                  'code view.',
+    )
 
     class Meta:
         ordering = ('-posted', 'title')
