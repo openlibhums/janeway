@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     'simplemathcaptcha',
     'hijack',
     'hcaptcha',
+    'django_bleach',
 
     # Forms
     'django.forms',
@@ -277,12 +278,37 @@ STATIC_URL = '/static/'
 if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
+# Django bleach settings
+# Which HTML tags are allowed
+BLEACH_ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'article', 'main', 'aside',
+    'header', 'footer', 'main', 'section', 'ul', 'ol', 'li',
+    'figure', 'figcaption', 'img', 'pre', 'blockquote',
+    'p', 'b', 'i', 'u', 'em', 'strong', 'a',
+    'table', 'tr', 'th', 'td', 'thead', 'tbody', 'tfoot',
+]
+
+# Which HTML attributes are allowed
+BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target']
+
+# Which CSS properties are allowed in 'style' attributes (assuming
+# style is an allowed attribute)
+# BLEACH_ALLOWED_STYLES = []
+
+# Strip unknown tags if True, replace with HTML escaped characters if
+# False
+BLEACH_STRIP_TAGS = True
+
+# Strip comments, or leave them in.
+BLEACH_STRIP_COMMENTS = False
+
+# Which widget to use for bleached HTML fields
+BLEACH_DEFAULT_WIDGET = 'django_summernote.widgets.SummernoteWidget'
+
+# Summernote settings
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
     'iframe': True,  # or set False to use SummernoteInplaceWidget - no iframe mode
-
-    # Using Summernote Air-mode
-    'airMode': False,
 
     # Use native HTML tags (`<b>`, `<i>`, ...) instead of style attributes
     # (Firefox, Chrome only)
@@ -291,13 +317,58 @@ SUMMERNOTE_CONFIG = {
     # Set text direction : 'left to right' is default.
     'direction': 'ltr',
 
-    # Change editor size
-    'width': '100%',
-    'height': '350',
-
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
     'attachment_filesize_limit': 2056 * 2056,
+
+    'css': (
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/theme/monokai.min.css',
+    ),
+
+    # You can put custom Summernote settings
+    'summernote': {
+        # Using Summernote Air-mode
+        'airMode': False,
+
+        # Change editor size
+        'width': '100%',
+        # 'height': '480',
+
+        # Toolbar customization
+        # https://summernote.org/deep-dive/#custom-toolbar-popover
+        'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            # ['fontname', ['fontname']],
+            # ['color', ['color']],
+            ['para', ['ul', 'ol']],  # , 'paragraph'
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],   # , 'video'
+            ['misc', ['undo', 'redo', 'help']],
+            ['view', ['fullscreen', 'codeview']],
+        ],
+
+        'popover': {
+          'image': [
+            ['remove', ['removeMedia']]
+          ],
+          'link': [
+            ['link', ['linkDialogShow', 'unlink']]
+          ],
+          'table': [
+            ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
+            ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
+          ],
+        },
+
+        'codemirror': {
+            'mode': 'htmlmixed',
+            'lineNumbers': 'true',
+            'lineWrapping': 'true',
+            # You have to include theme file in 'css' or 'css_for_inplace' before using it.
+            'theme': 'monokai',
+        },
+    },
 }
 
 # 1.9 appears confused about where null and blank are required for many to
