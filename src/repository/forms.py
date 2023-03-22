@@ -6,11 +6,14 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.contrib import messages
 
+from django_bleach.forms import BleachField
+
 from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.logic import render_choices
 from core import models as core_models, workflow
+from core.forms import BleachableForm
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -471,7 +474,16 @@ class RepositoryInitial(RepositoryBase):
         return repository
 
 
-class RepositorySite(RepositoryBase):
+class RepositorySite(BleachableForm, RepositoryBase):
+
+    BLEACHABLE_FIELDS = [
+        'about',
+        'footer',
+        'login_text',
+        'submission_access_request_text',
+        'review_helper',
+    ]
+
     class Meta:
         model = models.Repository
         fields = (
@@ -486,6 +498,7 @@ class RepositorySite(RepositoryBase):
             'submission_access_contact',
             'custom_js_code',
             'review_helper',
+            'support_copy_paste',
         )
         widgets = {
             'about': SummernoteWidget,
