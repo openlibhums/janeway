@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 
-from django_summernote.widgets import SummernoteWidget
+from django_bleach.forms import BleachField
 
 from press import models
 from core.widgets import JanewayFileInput
@@ -59,9 +59,7 @@ class PressForm(forms.ModelForm):
 
 
 class PressJournalDescription(forms.Form):
-    description = forms.CharField(
-        widget=SummernoteWidget,
-    )
+    description = BleachField()
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')
