@@ -16,6 +16,7 @@ from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
 from django_countries.fields import CountryField
+from django_bleach.models import BleachField
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -219,6 +220,13 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Licence',
         blank=True,
     )
+    support_copy_paste = models.BooleanField(
+        default=True,
+        help_text='Turn this on if copy-pasting content into rich-text fields '
+                  'from a word processor or using the toolbar to format text. '
+                  'Turn it off only if you are editing HTML and CSS using the '
+                  'code view.',
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -376,14 +384,11 @@ class Preprint(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
         help_text=_(
-            'Please avoid pasting content from word processors as they can add '
-            'unwanted styling to the abstract. You can retype the abstract '
-            'here or copy and paste it into notepad/a plain text editor before '
-            'pasting here.',
+            'Copying and pasting from word processors is supported.',
         )
 
     )
