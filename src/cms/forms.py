@@ -6,17 +6,21 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 
 from django_summernote.widgets import SummernoteWidget
+from django_bleach.forms import BleachField
 
 from cms import models
 from core import models as core_models
+from core.forms import BleachableForm
 from utils.forms import JanewayTranslationModelForm
 
 
-class PageForm(JanewayTranslationModelForm):
+class PageForm(BleachableForm, JanewayTranslationModelForm):
+
+    BLEACHABLE_FIELDS = ['content']
 
     class Meta:
         model = models.Page
-        fields = ('display_name', 'name', 'content')
+        fields = ('display_name', 'name', 'content', 'support_copy_paste')
         exclude = ('journal', 'is_markdown', 'content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
@@ -75,13 +79,12 @@ class NavForm(JanewayTranslationModelForm):
 
 class SubmissionItemForm(JanewayTranslationModelForm):
 
+    text = BleachField
+
     class Meta:
         model = models.SubmissionItem
         fields = ('title', 'text', 'order', 'existing_setting')
         exclude = ('journal',)
-        widgets = {
-            'text': SummernoteWidget(),
-        }
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')
