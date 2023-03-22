@@ -14,6 +14,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
+from django_bleach.forms import BleachField
+from django_bleach.utils import get_bleach_default_options
+from bleach import clean as bleach_clean
 
 from core import models, validators
 from utils.logic import get_current_request
@@ -83,6 +86,9 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):
+
+    description = BleachField()
+
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
@@ -93,9 +99,6 @@ class EditorialGroupForm(JanewayTranslationModelForm):
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
-        widgets = {
-            'description': SummernoteWidget(),
-        }
 
 
 class PasswordResetForm(forms.Form):
@@ -745,3 +748,24 @@ class ConfirmableIfErrorsForm(ConfirmableForm):
             return super().is_confirmed()
         else:
             return True
+
+
+class BleachableForm(forms.Form):
+    """
+    Allows optional bleaching of values of rich-text fields
+    during form cleaning based on a Boolean.
+    """
+
+    BLEACHABLE_FIELDS = []
+    BLEACH_BOOLEAN_FIELD = 'support_copy_paste'
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self.BLEACH_BOOLEAN_FIELD:
+            bleach_kwargs = get_bleach_default_options()
+            for field in self.BLEACHABLE_FIELDS:
+                data = getattr(obj, field)
+                setattr(obj, field, bleach_clean(data, **bleach_kwargs))
+        if commit:
+            obj.save()
+        return obj
