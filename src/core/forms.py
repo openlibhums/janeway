@@ -718,7 +718,10 @@ class ConfirmableForm(forms.Form):
 
     def check_for_inactive_account(self, account):
         if not isinstance(account, models.Account):
-            account = models.Account.objects.get(id=account)
+            try:
+                account = models.Account.objects.get(id=account)
+            except models.Account.DoesNotExist:
+                return 'Could not check account status'
         if not account.is_active:
             return _('The account belonging to %(email)s has not yet been activated, ' \
                      'so the recipient of this assignment may not be able ' \
