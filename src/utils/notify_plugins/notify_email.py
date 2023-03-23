@@ -1,6 +1,6 @@
 import re
 
-from collections import Iterable
+from collections.abc import Iterable
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
