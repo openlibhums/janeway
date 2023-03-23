@@ -37,7 +37,7 @@ from core.model_utils import(
     BaseSearchManagerMixin,
     M2MOrderedThroughField,
 )
-from core import workflow, model_utils, files
+from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
@@ -45,7 +45,6 @@ from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
-from utils import setting_handler
 
 logger = get_logger(__name__)
 
@@ -948,8 +947,6 @@ class Article(AbstractLastModifiedModel):
                 'graphic': 'xlink:href'
             }
 
-            from core import models as core_models
-
             # iterate over all found elements
             for element, attribute in elements.items():
                 images = souped_xml.findAll(element)
@@ -1049,7 +1046,6 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('pubid')
 
     def is_accepted(self):
-        from core import models as core_models
         if self.date_published:
             return True
 
@@ -1574,12 +1570,10 @@ class Article(AbstractLastModifiedModel):
 
     @cache(600)
     def workflow_stages(self):
-        from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
 
     @property
     def current_workflow_element(self):
-        from core import models as core_models
         try:
             workflow_element_name = workflow.STAGES_ELEMENTS.get(
                 self.stage,

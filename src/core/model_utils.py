@@ -366,27 +366,11 @@ class AbstractLastModifiedModel(models.Model):
     def model_key(self):
         return (type(self), self.pk)
 
-    def best_last_modified_date(self, visited_nodes=None):
-        """ Determines the last modified date considering all related objects
-        Any relationship which is an instance of this class will have its
-        `last_modified` date considered for calculating the last_modified date
-        for the instance from which this method is called
-        :param visited_nodes: A set of visited objects to ignore. It avoids
-            infinite recursion when 2 models have are circularly related.
-            encoded as set of pairs of object model and PK
-        :return: The most recent last_modified date of all related models.
-        """
-        last_mod_date = self.last_modified
-        logger.debug("Calculating last_mod for %s: %s", self.__class__, self)
-        if visited_nodes is None:
-            visited_nodes = set()
-        visited_nodes.add(self.model_key)
-
+    def get_meta_fields(self):
+        objects = []
         obj_fields = self._meta.get_fields()
         for field in obj_fields:
-            if field in visited_nodes:
-                continue
-            objects = []
+            _object = None
             if field.many_to_many:
                 if isinstance(field, models.Field):
                     remote_field = field.remote_field.name
@@ -395,28 +379,44 @@ class AbstractLastModifiedModel(models.Model):
                     manager = getattr(self, field.get_accessor_name())
                 remote_field = manager.source_field_name
                 related_filter = {remote_field: self}
-                objects = manager.through.objects.filter(**related_filter)
+                _object = manager.through.objects.filter(**related_filter)
             elif field.one_to_many:
                 remote_field = field.remote_field.name
                 accessor_name = field.get_accessor_name()
                 accessor = getattr(self, accessor_name)
-                objects = accessor.all()
+                _object = accessor.all()
             elif field.many_to_one:
-                objects = [getattr(self, field.name)]
+                _object = [getattr(self, field.name)]
 
-            visited_nodes.add(field.remote_field)
+            if isinstance(object, AbstractLastModifiedModel):
+                objects.append(object)
 
-            for obj in objects:
-                if (
-                    isinstance(obj, AbstractLastModifiedModel)
-                    and obj.model_key not in visited_nodes
-                ):
-                    obj_modified = obj.best_last_modified_date(visited_nodes)
-                    if (
-                        not last_mod_date
-                        or obj_modified and obj_modified > last_mod_date
-                    ):
-                        last_mod_date = obj_modified
+        return objects
+
+    def best_last_modified_date(self, visited_nodes=None):
+        """ Determines the last modified date considering all related objects
+        Any relationship which is an instance of this class will have its
+        `last_modified` date considered for calculating the last_modified date
+        for the instance from which this method is called
+        :param visited_nodes: A set of visited objects to ignore. It avoids
+            infinite recursion when 2 models are circularly related.
+            encoded as set of pairs of object model and PK
+        :return: The most recent last_modified date of all related models.
+        """
+        last_mod_date = self.last_modified
+        if visited_nodes is None:
+            visited_nodes = set()
+        visited_nodes.add(self.model_key)
+
+        objects = self.get_meta_fields()
+
+        for obj in objects:
+            obj_modified = obj.best_last_modified_date(visited_nodes)
+            if (
+                    not last_mod_date
+                    or obj_modified and obj_modified > last_mod_date
+            ):
+                last_mod_date = obj_modified
 
         return last_mod_date
 

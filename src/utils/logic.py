@@ -2,6 +2,7 @@ import os
 import hashlib
 import hmac
 from urllib.parse import SplitResult, quote_plus, urlencode
+from tqdm import tqdm
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -304,26 +305,22 @@ def write_all_sitemaps(cli=False):
         file.close()
 
     # Generate Journal Sitemaps
-    for journal in journals:
-        if cli:
-            print("Generating sitemaps for {}".format(journal.name))
+    if cli:
+        print("Generating sitemaps for journals")
+    for journal in tqdm(journals):
         write_journal_sitemap(journal)
 
         # Generate Issue Sitemap
         for issue in journal.published_issues:
-            if cli:
-                print("Generating sitemap for issue {}".format(issue))
             write_issue_sitemap(issue)
 
     # Generate Repo Sitemap
-    for repo in repos:
-        if cli:
-            print("Generating sitemaps for {}".format(repo.name))
+    if cli:
+        print("Generating sitemaps for repositories")
+    for repo in tqdm(repos):
         write_repository_sitemap(repo)
 
         for subject in repo.subject_set.all():
-            if cli:
-                print("Generating sitemap for subject {}".format(subject.name))
             write_subject_sitemap(subject)
 
 
