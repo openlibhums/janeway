@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, Count
+from django.db.models import Count
 
 from comms import models, forms
 from core import files, logic as core_logic, models as core_models
@@ -204,22 +204,36 @@ def news_list(request, tag=None, presswide=False):
 
 def press_overview(request):
     """
-    Gets a press news list, a list of news across journals and
-    repositories, and a list of pinned items.
-    This could have been implemented as a class-based view
-    and perhaps still should be.
+    Gets NewsItem lists by tag or by the content type of the
+    object (e.g. press, journal), in the order they are passed in the URL.
+    Expects GET request query parameters such as in this example:
+    /news/press_overview/?tags__text=Announcement&tags__text=Blog&content_type__model=journal
     :param request: HttpRequest object
     :return: HttpResponse object
     """
 
-    press_items = models.NewsItem.active_objects.filter(
-        content_type=request.model_content_type,
-        object_id=request.site_type.id,
-    )
+    all_tags = models.Tag.objects.all().annotate(
+        Count('tags')
+    ).order_by('-tags__count', 'text')
 
-    non_press_items = models.NewsItem.active_objects.exclude(
-        content_type=request.model_content_type,
-    )
+    tag_texts = [tag.text for tag in all_tags]
+    tag_sets = {}
+    object_sets = {}
+    for key in request.GET:
+        if key == 'tags__text':
+            for value in request.GET.getlist(key):
+                if value in tag_texts:
+                    tag_sets[value] = models.NewsItem.active_objects.filter(
+                        content_type=request.model_content_type,
+                        object_id=request.site_type.id,
+                        tags__text=value,
+                    )
+        elif key == 'content_type__model':
+            for value in request.GET.getlist(key):
+                if value in ['press', 'journal']:
+                    object_sets[value] = models.NewsItem.active_objects.filter(
+                        content_type__model=value,
+                    )
 
     pinned_items = models.NewsItem.active_objects.filter(
         content_type=request.model_content_type,
@@ -227,15 +241,11 @@ def press_overview(request):
         pinned=True,
     )
 
-    all_tags = models.Tag.objects.all().annotate(
-        Count('tags')
-    ).order_by('-tags__count', 'text')
-
     template = 'press/news/overview.html'
 
     context = {
-        'press_items': press_items,
-        'non_press_items': non_press_items,
+        'tag_sets': tag_sets,
+        'object_sets': object_sets,
         'pinned_items': pinned_items,
         'all_tags': all_tags,
     }
