@@ -459,6 +459,13 @@ class ProjectedIssueForm(forms.ModelForm):
         fields = ('projected_issue',)
 
 
+class FunderForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Funder
+        fields = ('name', 'fundref_id', 'funding_id')
+
+
 def utility_clean_orcid(orcid):
     """
     Utility function that cleans an ORCID ID.
