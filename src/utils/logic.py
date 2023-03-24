@@ -280,48 +280,15 @@ def write_subject_sitemap(subject):
         file.close()
 
 
-def write_all_sitemaps(cli=False):
-    """
-    Utility function that generates and writes all sitemaps to disk in one go.
-    """
-    storage_path = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'sitemaps',
-    )
-    if not os.path.exists(storage_path):
-        os.makedirs(storage_path)
-
-    # Generate the press level sitemap
+def write_press_sitemap():
     press = press_models.Press.objects.all().first()
-    journals = journal_models.Journal.objects.all()
-    repos = repo_models.Repository.objects.all()
-    file_path = os.path.join(
-        storage_path,
-        'sitemap.xml'
+    press_sitemap_path = get_sitemap_path(
+        path_parts=[],
+        file_name='sitemap.xml',
     )
-    with open(file_path, 'w') as file:
+    with open(press_sitemap_path, 'w') as file:
         generate_sitemap(file, press=press)
         file.close()
-
-    # Generate Journal Sitemaps
-    if cli:
-        print("Generating sitemaps for journals")
-    for journal in tqdm(journals):
-        write_journal_sitemap(journal)
-
-        # Generate Issue Sitemap
-        for issue in journal.published_issues:
-            write_issue_sitemap(issue)
-
-    # Generate Repo Sitemap
-    if cli:
-        print("Generating sitemaps for repositories")
-    for repo in tqdm(repos):
-        write_repository_sitemap(repo)
-
-        for subject in repo.subject_set.all():
-            write_subject_sitemap(subject)
 
 
 def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
