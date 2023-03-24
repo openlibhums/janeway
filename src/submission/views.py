@@ -136,13 +136,12 @@ def submit_funding(request, article_id):
                 'name': request.POST.get('funder_name', None),
                 'fundref_id': request.POST.get('funder_doi', None),
                 'funding_id': request.POST.get('grant_number', None)
-            }
+            },
+            article=article,
         )
 
         if funder_form.is_valid():
-            funder = funder_form.save()
-            article.funders.add(funder)
-        article.save()
+            funder_form.save()
 
     template = 'admin/submission/submit_funding.html'
     context = {
@@ -622,12 +621,11 @@ def edit_metadata(request, article_id):
                         'name': request.POST.get('funder_name', None),
                         'fundref_id': request.POST.get('funder_doi', None),
                         'funding_id': request.POST.get('grant_number', None)
-                    }
+                    },
+                    article=article,
                 )
                 if funder_form.is_valid():
-                    funder = funder_form.save()
-                    article.funders.add(funder)
-                    article.save()
+                    funder_form.save()
                     return redirect(reverse_url)
 
             if 'metadata' in request.POST:
