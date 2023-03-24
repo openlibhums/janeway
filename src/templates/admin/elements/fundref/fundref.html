@@ -111,7 +111,7 @@
 
                                     const funder_name_label = document.createElement('p');
                                     funder_name_label.classList.add('help-text');
-                                    funder_name_label.innerText = '{% trans "Funder" %}';
+                                    funder_name_label.innerText = '{% trans funder_form.fields.name.help_text %}';
                                     funder_name_text.appendChild(funder_name_label);
 
 
@@ -134,7 +134,7 @@
 
                                     const funder_doi_label = document.createElement('p');
                                     funder_doi_label.classList.add('help-text');
-                                    funder_doi_label.innerText = '{% trans "Funder DOI (optional)" %}';
+                                    funder_doi_label.innerText = '{% trans funder_form.fields.fundref_id.help_text %}';
                                     funder_doi_text.appendChild(funder_doi_label);
 
                                     // Add the grant ID
@@ -155,7 +155,7 @@
 
                                     const funder_grant_label = document.createElement('p');
                                     funder_grant_label.classList.add('help-text');
-                                    funder_grant_label.innerText = '{% trans "Funder grant number (optional)" %}';
+                                    funder_grant_label.innerText = '{% trans funder_form.fields.funding_id.help_text %}';
                                     funder_grant_text.appendChild(funder_grant_label);
 
                                     const modal_submit = document.createElement('button');

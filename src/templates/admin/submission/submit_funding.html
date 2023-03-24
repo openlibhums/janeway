@@ -90,19 +90,19 @@
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" id="funder_name" name="funder_name"/>
-                                    <p class="help-text">{% trans 'Funder' %}</p>
+                                    <p class="help-text">{% trans funder_form.fields.name.help_text %}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" id="funder_doi" name="funder_doi"/>
-                                    <p class="help-text">{% trans 'Funder DOI' %} {% trans '(optional)' %}</p>
+                                    <p class="help-text">{% trans funder_form.fields.fundref_id.help_text %}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" name="grant_number" id="grant_number"/>
-                                    <p class="help-text">{% trans 'Funder grant number' %} {% trans '(optional)' %}</p>
+                                    <p class="help-text">{% trans funder_form.fields.funding_id.help_text %}</p>
                                 </div>
                             </div>
                             <button type="submit" name="add_funder" class="success button">{% trans 'Add funder' %}</button>
