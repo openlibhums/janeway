@@ -18,8 +18,12 @@ class LicenseChoiceField(forms.ModelChoiceField):
 
 class FunderAdmin(admin.ModelAdmin):
     list_display = ('name', 'fundref_id', 'funding_id')
+    list_filter = ('article__journal',)
     search_fields = ('name', 'fundref_id', 'funding_id')
 
+    inlines = [
+        admin_utils.FundersArticleInline,
+    ]
 
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
