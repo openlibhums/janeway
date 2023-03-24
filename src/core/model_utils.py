@@ -26,6 +26,7 @@ from django.db import(
 )
 from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
+from django.db.models.functions import Greatest
 from django.core.validators import (
     FileExtensionValidator,
     get_available_image_extensions,
@@ -353,6 +354,10 @@ class LastModifiedModelManager(models.Manager):
 
 
 class AbstractLastModifiedModel(models.Model):
+    # A mapping from these models last modified field relations and their models
+    _LAST_MODIFIED_FIELDS_MAP = {}
+    _LAST_MODIFIED_ACCESSORS = {}
+
     last_modified = models.DateTimeField(
         auto_now=True,
         editable=True
@@ -366,32 +371,54 @@ class AbstractLastModifiedModel(models.Model):
     def model_key(self):
         return (type(self), self.pk)
 
-    def get_meta_fields(self):
-        objects = []
-        obj_fields = self._meta.get_fields()
-        for field in obj_fields:
-            _object = None
-            if field.many_to_many:
-                if isinstance(field, models.Field):
-                    remote_field = field.remote_field.name
-                    manager = getattr(self, field.get_attname())
-                else:
-                    manager = getattr(self, field.get_accessor_name())
-                remote_field = manager.source_field_name
-                related_filter = {remote_field: self}
-                _object = manager.through.objects.filter(**related_filter)
-            elif field.one_to_many:
-                remote_field = field.remote_field.name
-                accessor_name = field.get_accessor_name()
-                accessor = getattr(self, accessor_name)
-                _object = accessor.all()
-            elif field.many_to_one:
-                _object = [getattr(self, field.name)]
+    @classmethod
+    def get_last_modified_field_map(cls, visited_fields=None):
 
-            if isinstance(object, AbstractLastModifiedModel):
-                objects.append(object)
+        # Early returned of cached calculation
+        if cls._LAST_MODIFIED_FIELDS_MAP:
+            return cls._LAST_MODIFIED_FIELDS_MAP
 
-        return objects
+        field_map = {}
+        if visited_fields is None:
+            visited_fields = set()
+
+        local_fields = cls._meta.get_fields()
+        for field in local_fields:
+            if (
+                (field.many_to_many
+                or field.one_to_many
+                or field.many_to_one)
+                and field not in visited_fields
+            ):
+                model = field.remote_field.model
+                if issubclass(model, AbstractLastModifiedModel):
+                    # Avoid infinite recursion when models are doubly linked
+                    visited_fields.add(field.remote_field)
+                    visited_fields.add(field)
+
+                    field_map[field.name] = model
+
+        # Workout relations of child nodes
+        for field, model in tuple(field_map.items()):
+            other_map = model.get_last_modified_field_map(visited_fields)
+            for other_field_name, other_model in other_map.items():
+                field_map[f"{field}__{other_field_name}"] = other_model
+
+        # The below caching method is not ideal, however
+        cls._LAST_MODIFIED_FIELDS_MAP = field_map
+        return field_map
+
+    @classmethod
+    def get_last_modified_accessors(cls):
+        if cls._LAST_MODIFIED_ACCESSORS:
+            return cls._LAST_MODIFIED_ACCESSORS
+
+        field_map = cls.get_last_modified_field_map()
+        accessors = set(f"{field}__last_modified" for field in field_map.keys())
+
+        cls._LAST_MODIFIED_ACCESSORS = accessors
+        return cls.get_last_modified_accessors()
+
 
     def best_last_modified_date(self, visited_nodes=None):
         """ Determines the last modified date considering all related objects
@@ -403,22 +430,11 @@ class AbstractLastModifiedModel(models.Model):
             encoded as set of pairs of object model and PK
         :return: The most recent last_modified date of all related models.
         """
-        last_mod_date = self.last_modified
-        if visited_nodes is None:
-            visited_nodes = set()
-        visited_nodes.add(self.model_key)
-
-        objects = self.get_meta_fields()
-
-        for obj in objects:
-            obj_modified = obj.best_last_modified_date(visited_nodes)
-            if (
-                    not last_mod_date
-                    or obj_modified and obj_modified > last_mod_date
-            ):
-                last_mod_date = obj_modified
-
-        return last_mod_date
+        last_modified_keys = list(self.get_last_modified_accessors())
+        annotated_query = self._meta.model.objects.filter(id=self.id).annotate(
+            best_last_mod_date=Greatest(self.last_modified, *last_modified_keys),
+        )
+        return annotated_query.first().best_last_mod_date
 
 
 class SearchLookup(PGSearchLookup):
