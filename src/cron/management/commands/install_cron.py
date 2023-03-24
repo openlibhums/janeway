@@ -67,7 +67,7 @@ class Command(BaseCommand):
             jobs.append(
                 {
                     'name': '{}_janeway_mailgun_job'.format(cwd),
-                    'time': 60,
+                    'time': 59,
                     'task': 'check_mailgun_stat',
                     'type': 'mins',
                 }
