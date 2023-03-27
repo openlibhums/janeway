@@ -2025,10 +2025,7 @@ class Section(AbstractLastModifiedModel):
         ordering = ('sequence',)
 
     def __str__(self):
-        return "{} - {}".format(
-            self.pk,
-            self.name,
-        )
+        return self.name
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
