@@ -419,6 +419,7 @@ class AbstractLastModifiedModel(models.Model):
         cls._LAST_MODIFIED_ACCESSORS = accessors
         return cls.get_last_modified_accessors()
 
+
     def best_last_modified_date(self, visited_nodes=None):
         """ Determines the last modified date considering all related objects
         Any relationship which is an instance of this class will have its
