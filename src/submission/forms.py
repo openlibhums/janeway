@@ -459,6 +459,23 @@ class ProjectedIssueForm(forms.ModelForm):
         fields = ('projected_issue',)
 
 
+class FunderForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Funder
+        fields = ('name', 'fundref_id', 'funding_id')
+
+    def __init__(self, *args, **kwargs):
+        self.article = kwargs.pop('article', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True, *args, **kwargs):
+        funder = super().save(commit=commit, *args, **kwargs)
+        if self.article:
+            self.article.funders.add(funder)
+            self.article.save()
+        return funder
+
 def utility_clean_orcid(orcid):
     """
     Utility function that cleans an ORCID ID.

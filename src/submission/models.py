@@ -293,9 +293,26 @@ class Funder(models.Model):
     class Meta:
         ordering = ('name',)
 
-    name = models.CharField(max_length=500, blank=False, null=False)
-    fundref_id = models.CharField(max_length=500, blank=True, null=True)
-    funding_id = models.CharField(max_length=500, blank=True, null=True)
+    name = models.CharField(
+        max_length=500,
+        blank=False,
+        null=False,
+        help_text='Funder name',
+    )
+    fundref_id = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text='Funder DOI (optional). Enter as a full Uniform '
+                  'Resource Identifier (URI), such as '
+                  'http://dx.doi.org/10.13039/501100021082',
+    )
+    funding_id = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="The grant ID (optional). Enter the ID by itself",
+    )
 
 
 class ArticleStageLog(models.Model):

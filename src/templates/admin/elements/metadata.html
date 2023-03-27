@@ -140,9 +140,9 @@
                 <tbody id="sortable">
                 {% for funder in article.funders.all %}
                     <tr id="funder-{{ funder.pk }}">
-                        <td>{{ funder.name }}</td>
-                        <td>{{ funder.fundref_id }}</td>
-                        <td>{{ funder.funding_id }}</td>
+                        <td>{{ funder.name|default_if_none:"" }}</td>
+                        <td>{{ funder.fundref_id|default_if_none:"" }}</td>
+                        <td>{{ funder.funding_id|default_if_none:"" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
