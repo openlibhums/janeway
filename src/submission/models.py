@@ -990,7 +990,6 @@ class Article(AbstractLastModifiedModel):
 
         return True
 
-
     def index_full_text(self):
         """ Indexes the render galley for full text search
         :return: A boolean indicating if a file has been processed
