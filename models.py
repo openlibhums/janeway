@@ -7,6 +7,7 @@ from plugins.typesetting import plugin_settings
 from utils import models as utils_models
 from utils import notify_helpers
 from events import logic as events_logic
+from submission import models as submission_models
 
 
 def review_choices():
@@ -78,6 +79,13 @@ class TypesettingRound(models.Model):
             proofing.cancel(user=user)
 
 
+class ActiveTypesettingAssignmentManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTypesettingAssignmentManager, self).get_queryset().exclude(
+            round__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class TypesettingAssignment(models.Model):
     round = models.OneToOneField(
         TypesettingRound,
@@ -134,6 +142,9 @@ class TypesettingAssignment(models.Model):
         blank=True,
         verbose_name='Note to Editor',
     )
+
+    objects = models.Manager()
+    active_objects = ActiveTypesettingAssignmentManager()
 
     @property
     def time_to_due(self):
@@ -274,6 +285,13 @@ class TypesettingAssignment(models.Model):
         return f'Typesetter {self.typesetter} assigned to article {self.round.article}'
 
 
+class ActiveGalleyProofingManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveGalleyProofingManager, self).get_queryset().exclude(
+            round__article__stage=submission_models.STAGE_ARCHIVED
+        )
+
+
 class GalleyProofing(models.Model):
     round = models.ForeignKey(
         TypesettingRound,
@@ -306,6 +324,9 @@ class GalleyProofing(models.Model):
     proofed_files = models.ManyToManyField('core.Galley', blank=True)
     notes = models.TextField(blank=True)
     annotated_files = models.ManyToManyField('core.File', blank=True)
+
+    objects = models.Manager()
+    active_objects = ActiveGalleyProofingManager()
 
     class Meta:
         ordering = ('assigned', 'accepted', 'pk')
