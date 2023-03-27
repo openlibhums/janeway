@@ -2,11 +2,12 @@ import os
 import hashlib
 import hmac
 from urllib.parse import SplitResult, quote_plus, urlencode
-from tqdm import tqdm
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
@@ -203,10 +204,12 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
             'repo': repository,
         }
     elif issue:
-        template = 'common/issue_sitemap.xml'
-        context = {
-            'issue': issue,
-        }
+        on_disk_last_mod = get_issue_sitemap_mod_date(issue)
+        if not on_disk_last_mod or (issue.best_last_modified_date() > on_disk_last_mod):
+            template = 'common/issue_sitemap.xml'
+            context = {
+                'issue': issue,
+            }
     elif subject:
         template = 'common/subject_sitemap.xml'
         context = {
@@ -221,6 +224,22 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
         file.write(content)
     else:
         return 'Must pass a press, journal, issue, repository or subject object.'
+
+
+def get_issue_sitemap_mod_date(issue):
+    """
+    Fetches the on-disk last modified date for an issue's sitemap file.
+    """
+    issue_file_path = get_sitemap_path(
+        path_parts=[issue.journal.code],
+        file_name='{}_sitemap.xml'.format(issue.pk),
+    )
+    if os.path.isfile(issue_file_path):
+        on_disk_last_mod = os.path.getmtime(
+            issue_file_path
+        )
+        return timezone.make_aware(datetime.fromtimestamp(on_disk_last_mod))
+    return None
 
 
 def get_sitemap_path(path_parts, file_name):

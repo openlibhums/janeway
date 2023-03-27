@@ -2,11 +2,11 @@ import os
 from tqdm import tqdm
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
-from utils import logic
+from utils import logic, models
 from journal import models as journal_models
 from repository import models as repository_models
-from press import models as press_models
 
 
 class Command(BaseCommand):
@@ -68,6 +68,12 @@ class Command(BaseCommand):
                 for issue in journal.published_issues:
                     logic.write_issue_sitemap(issue)
 
+            models.LogEntry.add_entry(
+                types='journal_sitemap_generation',
+                description=','.join(obj_ids if obj_ids else 'all'),
+                level='Info',
+            )
+
         # Generate Repo Sitemap
         if repositories:
             print("Generating sitemaps for repositories")
@@ -76,4 +82,11 @@ class Command(BaseCommand):
 
                 for subject in repo.subject_set.all():
                     logic.write_subject_sitemap(subject)
+
+                models.LogEntry.add_entry(
+                    types='repository_sitemap_generation',
+                    description=','.join(obj_ids if obj_ids else 'all'),
+                    level='Info',
+                )
+
 
