@@ -172,7 +172,35 @@ class TestTypesetting(TestCase):
             self.assertFalse(
                 func.called,
                 "Security Error: Non priviledged user can manage file."
-            ) 
+            )
+
+    def test_good_user_can_preview_typesetting_article(self):
+        func = Mock()
+        kwargs = {'assignment_id': self.typesetting_assignment.pk}
+        decorated_func = security.can_preview_typesetting_article(func)
+
+        self.typesetter.is_active = True
+
+        request = self.prepare_request_with_user(
+            self.typesetter,
+            self.journal_one,
+        )
+        decorated_func(request, **kwargs)
+        self.assertTrue(
+            func.called,
+        )
+
+    def test_bad_user_cant_preview_typesetting_article(self):
+        func = Mock()
+        kwargs = {'assignment_id': self.typesetting_assignment.pk}
+        decorated_func = security.can_preview_typesetting_article(func)
+
+        request = self.prepare_request_with_user(
+            self.article_owner,
+            self.journal_one,
+        )
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
 
     @classmethod
     def setUpTestData(self):
@@ -212,14 +240,14 @@ class TestTypesetting(TestCase):
             username='typesetter@janeway.systems',
             roles=['typesetter'],
             journal=self.journal_one,
+            **{'first_name': 'Kat', 'last_name': 'Janeway', 'is_active': True}
         )
-
         self.article_in_typesetting = submission_models.Article.objects.create(
-        	owner=self.article_owner, 
-        	title="A Test Article",
-			abstract="An abstract",
-			stage=plugin_settings.STAGE,
-			journal_id=self.journal_one.id
+            owner=self.article_owner,
+            title="A Test Article",
+            abstract="An abstract",
+            stage=plugin_settings.STAGE,
+            journal_id=self.journal_one.id
         )
 
         self.private_file = core_models.File.objects.create(

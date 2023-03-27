@@ -55,6 +55,7 @@ def can_preview_typesetting_article(func):
     """
 
     def wrapper(request, *args, **kwargs):
+        assignment_id = kwargs.get('assignment_id')
         if not base_check(request):
             return redirect(
                 '{0}?next={1}'.format(
@@ -67,8 +68,8 @@ def can_preview_typesetting_article(func):
             return func(request, *args, **kwargs)
 
         # User is Assigned as proofreader, regardless of role
-        elif models.GalleyProofing.objects.filter(
-                pk=kwargs['assignment_id'],
+        elif assignment_id and models.GalleyProofing.objects.filter(
+                pk=assignment_id,
                 proofreader=request.user,
                 cancelled=False,
                 completed__isnull=True,
@@ -77,8 +78,8 @@ def can_preview_typesetting_article(func):
             return func(request, *args, **kwargs)
 
         # User is Assigned as typesetter, regardless of role
-        elif models.TypesettingAssignment.objects.filter(
-                pk=kwargs['assignment_id'],
+        elif assignment_id and models.TypesettingAssignment.objects.filter(
+                pk=assignment_id,
                 typesetter=request.user,
                 cancelled__isnull=True,
                 round__article__journal=request.journal,
