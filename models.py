@@ -19,8 +19,14 @@ def review_choices():
 
 
 class TypesettingClaim(models.Model):
-    editor = models.ForeignKey('core.Account')
-    article = models.OneToOneField('submission.Article')
+    editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     claimed = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -28,7 +34,10 @@ class TypesettingClaim(models.Model):
 
 
 class TypesettingRound(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     round_number = models.PositiveIntegerField(default=1)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -78,7 +87,10 @@ class ActiveTypesettingAssignmentManager(models.Manager):
 
 
 class TypesettingAssignment(models.Model):
-    round = models.OneToOneField(TypesettingRound)
+    round = models.OneToOneField(
+        TypesettingRound,
+        on_delete=models.CASCADE,
+    )
     manager = models.ForeignKey(
         'core.Account',
         null=True,
@@ -269,6 +281,9 @@ class TypesettingAssignment(models.Model):
         else:
             return GalleyProofing.objects.none()
 
+    def __str__(self):
+        return f'Typesetter {self.typesetter} assigned to article {self.round.article}'
+
 
 class ActiveGalleyProofingManager(models.Manager):
     def get_queryset(self):
@@ -278,8 +293,16 @@ class ActiveGalleyProofingManager(models.Manager):
 
 
 class GalleyProofing(models.Model):
-    round = models.ForeignKey(TypesettingRound)
-    manager = models.ForeignKey('core.Account', related_name='galley_manager')
+    round = models.ForeignKey(
+        TypesettingRound,
+        on_delete=models.CASCADE,
+    )
+    manager = models.ForeignKey(
+        'core.Account',
+        null=True,
+        related_name='galley_manager',
+        on_delete=models.SET_NULL,
+    )
     proofreader = models.ForeignKey(
         'core.Account',
         null=True,
@@ -464,6 +487,7 @@ class TypesettingCorrection(models.Model):
         "typesetting.TypesettingAssignment",
         related_name="corrections",
         blank=True,
+        on_delete=models.CASCADE,
     )
     galley = models.ForeignKey(
         "core.Galley",
