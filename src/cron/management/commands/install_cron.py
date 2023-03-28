@@ -33,8 +33,12 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        if not os.path.isfile('/usr/bin/crontab'):
+            print("WARNING: /usr/bin/crontab not found, skipping crontab config.")
+            return
+
         if not crontab:
-            print("crontab not is not installed")
+            print("WARNING: crontab module is not installed, skipping crontab config.")
             return
 
         action = options.get('action')
