@@ -13,11 +13,7 @@ python3 src/manage.py update_repository_settings
 python3 src/manage.py install_plugins
 python3 src/manage.py update_translation_fields
 python3 src/manage.py clear_cache
-if [ -f "/usr/bin/crontab" ]; then
-  python3 src/manage.py install_cron
-else
-  echo "WARNING: /usr/bin/crontab not found, skipping crontab configuration, please investigate."
-fi
+python3 src/manage.py install_cron
 
 echo "REMINDER: don't forget to restart your webserver!"
 exit 0
