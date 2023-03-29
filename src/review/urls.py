@@ -111,7 +111,7 @@ urlpatterns = [
     re_path(r'^reviewer/(?P<assignment_id>\d+)/file_download/all/$', views.review_download_all_files,
         name='review_download_all_files'),
 
-    re_path(r'^article/(?P<article_id>\d+)/access_denied/$', views.review_warning, name='review_warning'),
+    re_path(r'^article/(?P<article_id>\d+)/decision/(?P<decision>accept|decline|undecline|review)/access_denied/$', views.review_warning, name='review_warning'),
 
     # Review forms
     re_path(r'^manager/forms/$',
