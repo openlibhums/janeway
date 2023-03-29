@@ -127,7 +127,7 @@ class AccountRoleSerializer(serializers.ModelSerializer):
 
         # if the current user is not staff add the journal-manager role to
         # the list of excluded roles.
-        if not request.user.is_staff:
+        if not request or not request.user.is_staff:
             excluded_roles.append('journal-manager')
 
         if role.slug in excluded_roles:
