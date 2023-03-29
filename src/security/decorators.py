@@ -77,6 +77,7 @@ def editor_is_not_author(func):
 
     def wrapper(request, *args, **kwargs):
         article_id = kwargs.get('article_id', None)
+        decision = kwargs.get('decision', 'review')
 
         if not article_id:
             raise Http404
@@ -84,7 +85,15 @@ def editor_is_not_author(func):
         article = get_object_or_404(models.Article, pk=article_id)
 
         if request.user in article.authors.all() and not article.editor_override(request.user):
-            return redirect(reverse('review_warning', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'review_warning',
+                    kwargs={
+                        'article_id': article.pk,
+                        'decision': decision,
+                    },
+                ),
+            )
 
         return func(request, *args, **kwargs)
 
