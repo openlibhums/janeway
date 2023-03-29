@@ -2064,7 +2064,7 @@ def view_revision(request, article_id, revision_id):
 
 
 @editor_user_required
-def review_warning(request, article_id):
+def review_warning(request, article_id, decision):
     """
     Checks if an editor user is the author of an article amd blocks their access temporarily.
     If overwritten, all Editors are notified.
@@ -2083,10 +2083,30 @@ def review_warning(request, article_id):
                 task_object=article,
                 **kwargs
         )
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+
+        if decision == 'review':
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk},
+                ),
+            )
+        else:
+            return redirect(
+                reverse(
+                    'review_decision',
+                    kwargs={
+                        'article_id': article.pk,
+                        'decision': decision,
+                    },
+                ),
+            )
     else:
         messages.add_message(
-                request, messages.WARNING, 'This action is not allowed.')
+            request,
+            messages.WARNING,
+            'This action is not allowed.',
+        )
 
     template = 'review/review_warning.html'
     context = {
