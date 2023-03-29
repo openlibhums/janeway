@@ -91,7 +91,8 @@
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);
-                    toastr.error(xhr.responseText)
+                    var response = JSON.parse(xhr.responseText)
+                    toastr.error(response.error)
                 },
             })
 
