@@ -131,7 +131,7 @@ def submit_funding(request, article_id):
             article.save()
             return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
 
-        funder_form = forms.Funder(
+        funder_form = forms.FunderForm(
             {
                 'name': request.POST.get('funder_name', None),
                 'fundref_id': request.POST.get('funder_doi', None),
@@ -148,6 +148,7 @@ def submit_funding(request, article_id):
         'article': article,
         'form': form,
         'additional_fields': additional_fields,
+        'funder_form': forms.FunderForm(),
     }
 
     return render(request, template, context)
