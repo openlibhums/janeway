@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row">
+    <div class="row proofing-test-include">
         <div class="col m12">
             <div class="card">
             {% if not journal_settings.article.disable_article_large_image %}
@@ -86,13 +86,16 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-                    {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
+                    {% if article.is_published or proofing %}
+                    {% if not journal_settings.article.suppress_how_to_cite %}
                         <h2>{% trans "How to Cite" %}</h2>
-                        {{ article.how_to_cite | safe }}
-
+                        <div class="proofing-test-exclude">
+                            {{ article.how_to_cite | safe }}
+                        </div>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
+                    {% endif %}
                     {% endif %}
                     {% if article.rights %}
                         <h2>{% trans "Rights" %}</h2>
@@ -115,7 +118,8 @@
                         </div>
                     {% endif %}
 
-                    {% if article.is_published and galleys %}
+                    {% if article.is_published or proofing %}
+                    {% if galleys %}
                         <div class="show-on-small hide-on-med-and-up">
                             <h2>{% trans "Download" %}</h2>
                             <p>
@@ -129,10 +133,17 @@
                                     {% endif %}
                                 {% endfor %}
                             </p>
+                            {% if proofing %}
+                                <p class="proofing-test-exclude">
+                                    <i class="material-icons left">info</i>
+                                    Note to proofreader: Download links on this page begin to work when the article is published.
+                                </p>
+                            {% endif %}
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
                         </div>
+                    {% endif %}
                     {% endif %}
 
                     {% if article.funders.all %}
@@ -159,7 +170,8 @@
                 </div>
             </div>
             <div class="row">
-                {% if article.metrics and article.is_published and not request.journal.disable_metrics_display %}
+                {% if article.is_published or proofing %}
+                {% if article.metrics and not request.journal.disable_metrics_display %}
                     <div class="col m12 l12 s12">
                         <div class="card">
                             <div class="card-content center">
@@ -212,6 +224,7 @@
                         </div>
                     </div>
                 {% endif %}
+                {% endif %}
             </div>
             {% if article_content %}
                 <article>
@@ -219,7 +232,9 @@
                         <div class="card">
                             <div class="card-content">
                                 {{ article_content|safe }}
+                                <div class="proofing-test-exclude">
                                 {% hook 'article_footer_block' %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -272,7 +287,8 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
-                    {% if article.is_published and galleys %}
+                    {% if article.is_published or proofing %}
+                    {% if galleys %}
                         <h4>
                             {% trans "Download" %}
                         </h4>
@@ -289,10 +305,16 @@
                                 </li>
                             {% endfor %}
                         </ul>
-
+                        {% if proofing %}
+                            <p class="proofing-test-exclude">
+                                <i class="material-icons left">info</i>
+                                Note to proofreader: Download links on this page begin to work when the article is published.
+                            </p>
+                        {% endif %}
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
+                    {% endif %}
                     {% endif %}
 
                     {% include "elements/journal/article_issue_list.html" %}
@@ -362,7 +384,7 @@
                         </div>
                     {% endif %}
 
-                    {% if article.date_accepted or article.date_published %}
+                    {% if article.date_accepted or article.date_published or proofing %}
                     <h4>
                         {% trans "Dates" %}
                     </h4>
@@ -373,10 +395,12 @@
                                 <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                             </tr>
                         {% endif %}
-                        {% if article.date_published %}
+                        {% if article.date_published or proofing %}
                         <tr>
                             <th>{% trans "Published" %}</th>
-                            <td>{{ article.date_published|date:"Y-m-d" }}</td>
+                            <td class="proofing-test-exclude">
+                                {{ article.date_published|date:"Y-m-d" }}
+                            </td>
                         </tr>
                         {% endif %}
                     </table>
@@ -449,7 +473,7 @@
                         </div>
                     {% endif %}
 
-                    {% if article.is_published %}
+                    {% if article.is_published or proofing %}
                         <h4>
                             {% trans "File Checksums" %} (MD5)
                         </h4>

@@ -13,7 +13,7 @@
 
 {% block body %}
 
-    <div class="row">
+    <div class="row proofing-test-include">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
             <div class="card">
@@ -32,7 +32,7 @@
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
-                        {% if article.is_published %}
+                        {% if article.is_published or proofing %}
                             <p></p><strong>{% if article.frozen_authors.count > 1 %}
                                 {% trans "Authors" %}:
                                 {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
@@ -66,7 +66,7 @@
         </div>
     {% endif %}
     </div>
-    <div class="row">
+    <div class="row proofing-test-include">
 
         <div class="col-md-7">
             <div id="article">
@@ -85,15 +85,18 @@
                     {{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}
                     {% endfor %}</p>
                 {% endif %}
-                {% if article.is_published %}
+                {% if article.is_published or proofing %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {{ article.how_to_cite|safe }} </p>
+                    <div class="proofing-test-exclude">
+                        {{ article.how_to_cite|safe }} </p>
+                    </div>
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
                         {{ article.rights | safe }} </p>
                 {% endif %}
-                {% if article.is_published and galleys %}
+                {% if article.is_published or proofing %}
+                {% if galleys %}
                     <div class="d-lg-none d-xl-none d-md-none">
                         <p>
                             <strong>Downloads:</strong><br/>
@@ -107,7 +110,14 @@
                                 {% endif %}
                             {% endfor %}
                         </p>
+                        {% if proofing %}
+                            <p class="proofing-test-exclude">
+                                <i class="fa fa-info"></i>
+                                Note to proofreader: Download links on this page begin to work when the article is published.
+                            </p>
+                        {% endif %}
                     </div>
+                {% endif %}
                 {% endif %}
                 {% if article.funders.all %}
                     <strong>{% trans "Funding" %}</strong>
@@ -142,7 +152,9 @@
                 {% if article_content %}
                     <div itemprop="articleBody" id="main_article">
                         {{ article_content|safe }}
+                        <div class="proofing-test-exclude">
                         {% hook 'article_footer_block' %}
+                        </div>
                     </div>
                 {% endif %}
             </div>
@@ -170,7 +182,7 @@
                      </ul>
                 {% endif %}
 
-                {% if article.is_published %}
+                {% if article.is_published or proofing %}
                     <h2>{% trans "Download" %}</h2>
                     <ul>
                         {% for galley in galleys %}
@@ -186,6 +198,12 @@
                             {% endif %}
                         {% endfor %}
                     </ul>
+                    {% if proofing %}
+                        <p class="proofing-test-exclude">
+                            <i class="fa fa-info"></i>
+                            Note to proofreader: Download links on this page begin to work when the article is published.
+                        </p>
+                    {% endif %}
                 {% endif %}
                 {% if article.supplementary_files.all %}
                     <h2>{% trans "Supplementary Files" %}</h2>
@@ -198,8 +216,10 @@
                 {% endif %}
                 <h2>{% trans "Information" %}</h2>
                 <ul>
-                    {% if article.is_published %}
-                    <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                    {% if article.is_published or proofing %}
+                        <li class="proofing-text-exclude">
+                            {% trans "Published on" %} {{ article.date_published|date:"d M Y" }}
+                        </li>
                     {% else %}
                     <li>{% trans "Accepted on" %} {{ article.date_accepted|date:"d M Y" }}</li>
                     {% endif %}
@@ -241,7 +261,7 @@
                 <h2>{% trans field.field.name %}</h2>
                 <p>{{ field.answer|safe }}</p>
                 {% endfor %}
-                {% if article.is_published %}
+                {% if article.is_published or proofing %}
 
                     {% if journal_settings.general.open_peer_review %}
                         {% if article.public_reviews.count > 0 %}
