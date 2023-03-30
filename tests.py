@@ -5,16 +5,25 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from mock import Mock
 
+import os
+
 from django.test import TestCase
 from django.utils import timezone
 from django.http import HttpRequest
 from django.core.exceptions import PermissionDenied
+from django.core.files.base import ContentFile
 from django.shortcuts import reverse
+from django.conf import settings
 
 from plugins.typesetting import plugin_settings, models, security
 from submission import models as submission_models
+from utils import setting_handler
+from utils.shared import clear_cache
 from utils.testing import helpers
 from core import models as core_models, urls
+from core import files as core_files
+
+from bs4 import BeautifulSoup
 
 
 class TestTypesetting(TestCase):
@@ -247,6 +256,107 @@ class TestTypesetting(TestCase):
             200,
         )
 
+    def build_proofing_comparison_dict(self, published, theme):
+        setting_handler.save_setting(
+            'general',
+            'journal_theme',
+            self.journal_one,
+            theme,
+        )
+        clear_cache()
+        self.client.force_login(self.typesetter)
+        if published:
+            url = reverse(
+                'article_view',
+                kwargs={
+                    'identifier_type': 'id',
+                    'identifier': self.article_in_typesetting.pk,
+                }
+            )
+        else:
+            url = reverse(
+                'typesetting_preview_galley',
+                kwargs={
+                    'article_id': self.article_in_typesetting.pk,
+                    'galley_id': self.galley.pk,
+                    'assignment_id': self.active_typesetting_task.pk,
+                }
+            )
+        response = self.client.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        data = []
+        for included_element in soup.find_all(
+            class_='proofing-test-include'
+        ):
+            for excluded_element in included_element.find_all(
+                class_='proofing-test-exclude'
+            ):
+                excluded_element.decompose()
+            data.append(included_element.prettify())
+        return data
+
+    def test_proof_matches_published_article_olh(self):
+        """
+        Tests whether the metadata and article text offered
+        in proofing matches that of the published article.
+        governed by classes proofing-test-include and
+        proofing-test-exclude applied in the theme template
+        src/themes/OLH/templates/journal/article.html
+        """
+
+        self.maxDiff = None
+        proofing = self.build_proofing_comparison_dict(False, 'OLH')
+        stage_published = submission_models.STAGE_PUBLISHED
+        self.article_in_typesetting.stage = stage_published
+        self.article_in_typesetting.date_published = timezone.now()
+        self.article_in_typesetting.save()
+        published = self.build_proofing_comparison_dict(True, 'OLH')
+        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.date_published = None
+        self.article_in_typesetting.save()
+        self.assertEqual(proofing, published)
+
+    def test_proof_matches_published_article_material(self):
+        """
+        Tests whether the metadata and article text offered
+        in proofing matches that of the published article.
+        governed by classes proofing-test-include and
+        proofing-test-exclude applied in the theme template
+        src/themes/material/templates/journal/article.html
+        """
+
+        self.maxDiff = None
+        proofing = self.build_proofing_comparison_dict(False, 'material')
+        stage_published = submission_models.STAGE_PUBLISHED
+        self.article_in_typesetting.stage = stage_published
+        self.article_in_typesetting.date_published = timezone.now()
+        self.article_in_typesetting.save()
+        published = self.build_proofing_comparison_dict(True, 'material')
+        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.date_published = None
+        self.article_in_typesetting.save()
+        self.assertEqual(proofing, published)
+
+    def test_proof_matches_published_article_clean(self):
+        """
+        Tests whether the metadata and article text offered
+        in proofing matches that of the published article.
+        governed by classes proofing-test-include and
+        proofing-test-exclude applied in the theme template
+        src/themes/clean/templates/journal/article.html
+        """
+
+        self.maxDiff = None
+        proofing = self.build_proofing_comparison_dict(False, 'clean')
+        stage_published = submission_models.STAGE_PUBLISHED
+        self.article_in_typesetting.stage = stage_published
+        self.article_in_typesetting.date_published = timezone.now()
+        self.article_in_typesetting.save()
+        published = self.build_proofing_comparison_dict(True, 'clean')
+        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.date_published = None
+        self.article_in_typesetting.save()
+        self.assertEqual(proofing, published)
 
     @classmethod
     def setUpTestData(self):
@@ -338,6 +448,30 @@ class TestTypesetting(TestCase):
             due=timezone.now(),
         )
 
+        self.test_file_name = 'test_galley.xml'
+        self.test_file_path = os.path.join(
+            settings.BASE_DIR,
+            'plugins',
+            'typesetting',
+            self.test_file_name,
+        )
+
+        with open(self.test_file_path, 'rb') as test_file:
+            content_file = ContentFile(test_file.read())
+            content_file.name = self.test_file_name
+            self.galley_file = core_files.save_file_to_article(
+                content_file,
+                self.article_in_typesetting,
+                self.typesetter
+            )
+
+        self.galley, created = core_models.Galley.objects.get_or_create(
+            article=self.article_in_typesetting,
+            label='XML',
+            type='xml',
+            defaults={'file': self.galley_file},
+        )
+
         self.galley_proofing = models.GalleyProofing.objects.create(
             round=self.typesetting_round,
             manager=self.editor,
@@ -393,3 +527,7 @@ class TestTypesetting(TestCase):
             typesetter=self.typesetter,
             task='Archived Task',
         )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.galley.unlink_files()

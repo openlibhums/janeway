@@ -1328,10 +1328,13 @@ def typesetting_preview_galley(
         template = 'typesetting/preview_embedded.html'
 
     article_content = galley.file_content()
+    galleys = article.galley_set.filter(public=True)
 
     context = {
+        'proofing': True,
         'proofing_task': proofing_task,
         'galley': galley,
+        'galleys': galleys,
         'article': article if article else proofing_task.round.article,
         'identifier_type': 'id',
         'identifier': article.pk if article else proofing_task.round.article.pk,
