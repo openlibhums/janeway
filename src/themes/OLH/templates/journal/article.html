@@ -89,7 +89,7 @@
         </section>
         {% for author in article.frozen_authors.all %}
             {% if author.biography %}
-                <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
+                <div class="dropdown-pane author-info proofing-test-include" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
                      data-hover-pane="true">
                     {{ author.biography }}
                 </div>
@@ -142,7 +142,7 @@
             </div>
         </div>
 
-        <section id="content" class="no-padding">
+        <section id="content" class="no-padding proofing-test-include">
             <div class="row">
                 <div class="large-8 columns border-right">
                     <div class="row">
@@ -173,9 +173,11 @@
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-                            {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
-                            <p><strong>{% trans "How to Cite" %}:</strong>
+                            {% if article.is_published or proofing %}
+                            {% if not journal_settings.article.suppress_how_to_cite %}
+                            <p class="proofing-test-exclude"><strong>{% trans "How to Cite" %}:</strong>
                             {{ article.how_to_cite|safe }} </p>
+                            {% endif %}
                             {% endif %}
                             {% if article.rights %}
                             <p><strong>{% trans "Rights" %}:</strong>
@@ -192,7 +194,8 @@
                                 </div>
                             {% endif %}
 
-                            {% if article.is_published and galleys %}
+                            {% if article.is_published or proofing %}
+                            {% if galleys %}
                                 <div class="show-for-small-only">
                                     <p>
                                         <strong>Downloads:</strong><br/>
@@ -206,7 +209,14 @@
                                             {% endif %}
                                         {% endfor %}
                                     </p>
+                                    {% if proofing %}
+                                        <p class="proofing-test-exclude">
+                                            <i class="fa fa-info"></i>
+                                            Note to proofreader: Download links on this page begin to work when the article is published.
+                                        </p>
+                                    {% endif %}
                                 </div>
+                            {% endif %}
                             {% endif %}
 
                             {% if article.funders.all %}
@@ -232,7 +242,7 @@
                             {% endif %}
 
                             <div class="summary">
-                                {% if article.is_published %}
+                                {% if article.is_published or proofing %}
                                     {% if not request.journal.disable_metrics_display %}
                                         <div class="top">
                                             <div class="row">
@@ -261,23 +271,33 @@
                                 {% endif %}
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
-                                        {% if article.date_published or article.date_accepted %}
-                                        <div class="large-4 columns" data-equalizer-watch>
-                                            {% if article.is_published %}
-                                                <h5>{% trans "Published on" %} <br>
-                                                    {{ article.date_published|date:"d M Y" }}</h5>
+                                        {% if article.date_published or article.date_accepted or proofing %}
+                                        <div class="large-4 columns proofing-test-exclude" data-equalizer-watch>
+                                            {% if article.is_published or proofing %}
+                                                <h5 class="proofing-test-exclude">
+                                                    {% trans "Published on" %} <br>
+                                                    {{ article.date_published|date:"d M Y" }}
+                                                </h5>
                                             {% else %}
                                                 <h5>{% trans "Accepted on" %} <br>
                                                     {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
                                         {% endif %}
-                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
+                                        {% if article.date_published or article.date_accepted or proofing %}
+                                        <div class="large-4 columns" data-equalizer-watch>
+                                        {% else %}
+                                        <div class="large-6 columns" data-equalizer-watch>
+                                        {% endif %}
                                             {% if article.peer_reviewed %}
                                                 <h5>{% trans "Peer Reviewed" %}</h5>
                                             {% endif %}
                                         </div>
-                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
+                                        {% if article.date_published or article.date_accepted or proofing %}
+                                        <div class="large-4 columns" data-equalizer-watch>
+                                        {% else %}
+                                        <div class="large-6 columns" data-equalizer-watch>
+                                        {% endif %}
                                             <h5>{% trans "License" %}</h5>
                                             <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
                                         </div>
@@ -288,7 +308,9 @@
                                 <article id="main_article">
                                     <div itemprop="articleBody">
                                         {{ article_content|safe }}
-                                        {% hook 'article_footer_block' %}
+                                        <div class="proofing-test-exclude">
+                                            {% hook 'article_footer_block' %}
+                                        </div>
                                     </div>
                                 </article>
                             {% endif %}
@@ -322,25 +344,31 @@
                                 </div>
                             {% endif %}
                             <div class="section">
-                                <h3>{% trans "Download" %}</h3>
-                            <ul>
-                                {% if article.is_published %}
-                                {% for galley in galleys %}
-                                    <li>
-                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            </li>
+                                {% if article.is_published or proofing %}
+                                    <h3>{% trans "Download" %}</h3>
+                                    <ul>
+                                        {% for galley in galleys %}
                                             <li>
-                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">View PDF</a>
+                                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                    </li>
+                                                    <li>
+                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">View PDF</a>
+                                                    </li>
+                                                {% endif %}
                                             </li>
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                    {% if proofing %}
+                                        <p class="proofing-test-exclude">
+                                            <i class="fa fa-info"></i>
+                                            Note to proofreader: Download links on this page begin to work when the article is published.
+                                        </p>
+                                    {% endif %}
                                 {% else %}
-                                <li> Downloads are not available until this article is published </li>
+                                    <p> Downloads are not available until this article is published </p>
                                 {% endif %}
-                            </ul>
-                        </div>
+                            </div>
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
