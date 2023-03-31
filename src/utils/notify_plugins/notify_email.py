@@ -41,9 +41,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     if request and request.user and not request.user.is_anonymous and request.user.email not in to:
         reply_to = [request.user.email]
         full_from_string = "{0} <{1}>".format(request.user.full_name(), from_email)
-        # handle django 3.2 raising an exception during sanitization
-        # This call is ported from django 1.11
-        full_from_string = parseaddr(force_str(full_from_string))
 
 
     else:
@@ -55,6 +52,10 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             )
         else:
             full_from_string = from_email
+
+    # handle django 3.2 raising an exception during sanitization
+    # This call is ported from django 1.11
+    full_from_string = parseaddr(force_str(full_from_string))
 
     # if a replyto is passed to this function, use that.
     if replyto:
