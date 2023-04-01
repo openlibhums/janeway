@@ -137,6 +137,13 @@ def page_manage(request, page_id=None):
             page_form = forms.PageForm()
             edit = False
 
+        if page and page.name:
+            nav_items = models.NavigationItem.objects.filter(
+                link__endswith=page.name,
+            )
+        else:
+            nav_items = []
+
         if request.POST:
 
             if page_id:
@@ -159,6 +166,7 @@ def page_manage(request, page_id=None):
 
     template = 'cms/page_manage.html'
     context = {
+        'nav_items': nav_items,
         'page': page,
         'form': page_form,
         'edit': edit,

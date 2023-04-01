@@ -15,7 +15,7 @@
 {% get_language_info for LANGUAGE_CODE as language_info %}
 
 {% block body %}
-    <div class="large-12 columns">
+<div class="large-{% if nav_items %}9{% else %}12{% endif %} columns">
         <div class="box">
             <div class="title-area">
                 <h2>Edit Page</h2>
@@ -41,4 +41,25 @@
             </div>
         </div>
     </div>
+    {% if nav_items %}
+        <div class="large-3 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>View Live</h2>
+                </div>
+                <div class="content">
+                    {% for item in nav_items %}
+                    <a target="_blank" href="{{ item.link }}">
+                        <p>
+                        {{ item }}
+                        <i class="fa fa-external-link"></i>
+                        <br>
+                        ({{ item.link }})
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock body %}
