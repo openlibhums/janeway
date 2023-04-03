@@ -401,7 +401,7 @@ ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''
 ORCID_CLIENT_ID = ''
 
-
+SESSION_ENGINE = 'utils.sessions.janeway_db'
 SESSION_COOKIE_NAME = 'JANEWAYSESSID'
 
 S3_ACCESS_KEY = ''
