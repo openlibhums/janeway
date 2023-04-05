@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='journal',
             name='code',
-            field=models.CharField(help_text='Short acronym for the journal. Used as part of the journal URLin path mode and to uniquely identify the journal', max_length=24, unique=True),
+            field=models.CharField(help_text='Short acronym for the journal. Used as part of the journal URLin path mode and to uniquely identify the journal', max_length=40, unique=True),
         ),
     ]
