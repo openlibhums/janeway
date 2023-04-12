@@ -113,6 +113,15 @@ def notify_hook(**kwargs):
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
         subject = "[{0}] {1}".format(request.journal.code, subject_setting if subject_setting else subject)
 
+    # Press-level emails
+    elif request:
+        subject = setting_handler.get_email_subject_setting(
+            'email_subject',
+            subject,
+            None,
+            default=True,
+        )
+
     # call the method
     if not task:
         response = send_email(
