@@ -10,6 +10,7 @@ import logging
 import os
 import threading
 
+import django
 from django.conf import settings
 from django.test.utils import get_runner
 
@@ -17,7 +18,7 @@ from core import janeway_global_settings
 
 LOCK = threading.Lock()
 
-MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE_CLASSES"}
+MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE"}
 
 def load_janeway_settings():
 
@@ -51,6 +52,7 @@ def load_janeway_settings():
                     janeway_settings[k] = v
 
         settings.configure(**janeway_settings)
+        django.setup()
 
 @singledispatch
 def merge_settings(base, override):

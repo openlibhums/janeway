@@ -8,7 +8,6 @@ from importlib import import_module
 import json
 import pytz
 import time
-import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -17,7 +16,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.urls import NoReverseMatch, reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
-from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
 from django.http import HttpResponse, QueryDict
 from django.contrib.sessions.models import Session
@@ -28,7 +26,7 @@ from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils import translation
 from django.db.models import Q
 from django.utils.decorators import method_decorator
@@ -37,7 +35,8 @@ from django.views import generic
 from core import models, forms, logic, workflow, models as core_models
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
-    any_editor_user_required,
+    any_editor_user_required, role_can_access,
+    user_can_edit_setting
 )
 from submission import models as submission_models
 from review import models as review_models
@@ -48,7 +47,6 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
-from utils.logic import get_janeway_version
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
 from utils.logic import get_janeway_version
@@ -65,7 +63,7 @@ def user_login(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
@@ -128,7 +126,7 @@ def user_login(request):
                     messages.add_message(
                         request, messages.ERROR,
                         'Wrong email/password combination or your'
-                        ' email addressed has not been confirmed yet.',
+                        ' email address has not been confirmed yet.',
                     )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
@@ -728,7 +726,7 @@ def manager_index(request):
         'support_contact_message_for_staff',
         'general',
         request,
-        nested_settings=[('support_email','general')],
+        nested_settings=[('support_email', 'general')],
     )
 
     context = {
@@ -738,7 +736,6 @@ def manager_index(request):
             journal=request.journal
         ).select_related('section')[:25],
         'support_message': support_message,
-        'version': get_janeway_version(),
     }
     return render(request, template, context)
 
@@ -763,9 +760,15 @@ def settings_index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    settings = models.Setting.objects.all().order_by('name')
+    if not request.user.is_staff:
+        settings = settings.filter(
+            editable_by__in=request.user.roles_for_journal(request.journal)
+        )
+
     template = 'core/manager/settings/index.html'
     context = {
-        'settings': models.Setting.objects.order_by('name')
+        'settings': settings,
     }
 
     return render(request, template, context)
@@ -786,6 +789,7 @@ def default_settings_index(request):
 
 @GET_language_override
 @editor_user_required
+@user_can_edit_setting
 def edit_setting(request, setting_group, setting_name):
     """
     Allows a user to edit a setting. Fields are auto generated based on the setting.kind field
@@ -804,12 +808,9 @@ def edit_setting(request, setting_group, setting_name):
                 default=False
             )
 
-        if setting_value and setting_value.setting.types == 'rich-text':
-            setting_value.value = linebreaksbr(setting_value.value)
-
         edit_form = forms.EditKey(
-                key_type=setting.types,
-                value=setting_value.value if setting_value else None
+            key_type=setting.types,
+            value=setting_value.value if setting_value else None
         )
 
         if request.POST and 'delete' in request.POST and setting_value:
@@ -818,26 +819,34 @@ def edit_setting(request, setting_group, setting_name):
             return redirect(reverse('core_settings_index'))
 
         if request.POST:
-            if 'delete' in request.POST and setting_value:
-                setting_value.delete()
-            else:
-                value = request.POST.get('value')
+            edit_form = forms.EditKey(
+                request.POST,
+                key_type=setting.types,
+            )
+            if edit_form.is_valid():
                 if request.FILES:
                     value = logic.handle_file(request, setting_value, request.FILES['value'])
 
+                # for JSON setting we should validate the JSON by attempting to load the string.
+
                 try:
                     setting_value = setting_handler.save_setting(
-                        setting_group, setting_name, request.journal, value)
+                        setting_group,
+                        setting_name,
+                        request.journal,
+                        edit_form.cleaned_data.get('value'),
+                    )
                 except ValidationError as error:
-                    messages.add_message( request, messages.ERROR, error)
+                    messages.add_message(request, messages.ERROR, error)
                 else:
                     cache.clear()
 
-            return language_override_redirect(
-                request,
-                'core_edit_setting',
-                {'setting_group': setting_group, 'setting_name': setting_name},
-            )
+                return language_override_redirect(
+                    request,
+                    'core_edit_setting',
+                    {'setting_group': setting_group, 'setting_name': setting_name},
+                )
+
 
         template = 'core/manager/settings/edit_setting.html'
         context = {
@@ -873,7 +882,11 @@ def edit_settings_group(request, display_group):
     :return: HttpResponse object
     """
     with translation.override(request.override_language):
-        settings, setting_group = logic.get_settings_to_edit(display_group, request.journal)
+        settings, setting_group = logic.get_settings_to_edit(
+            display_group,
+            request.journal,
+            request.user,
+        )
         edit_form = forms.GeneratedSettingForm(settings=settings)
         attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
@@ -1259,6 +1272,9 @@ def enrol_users(request):
     first_name = request.GET.get('first_name', '')
     last_name = request.GET.get('last_name', '')
     email = request.GET.get('email', '')
+    roles = models.Role.objects.exclude(
+        slug__in=[ 'reader'],
+    ).order_by(('name'))
 
     if first_name or last_name or email:
         filters = {}
@@ -1274,7 +1290,7 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': models.Role.objects.order_by(('name')),
+        'roles': roles,
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
@@ -1883,7 +1899,7 @@ def email_templates(request):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 def section_list(request):
     """
     Displays a list of the journals sections.
@@ -1918,7 +1934,7 @@ def section_list(request):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 @GET_language_override
 def manage_section(request, section_id=None):
     """
@@ -1965,7 +1981,7 @@ def manage_section(request, section_id=None):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('sections')
 def section_articles(request, section_id):
     """
     Displays a list of articles in a given section.
@@ -2305,7 +2321,6 @@ class FilteredArticlesListView(generic.ListView):
         params_querydict.pop('action_status', '')
         params_querydict.pop('action_error', '')
         context['params_string'] = params_querydict.urlencode()
-        context['version'] = get_janeway_version()
         context['action_maximum_size'] = setting_handler.get_setting(
             'Identifiers',
             'doi_manager_action_maximum_size',

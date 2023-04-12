@@ -22,8 +22,8 @@
             <td>
                 <form method="POST">
                     {% csrf_token %}
-                    <button type="submit" class="tiny button"
-                            formaction="{% url 'hijack:login_with_id' user.id %}?next={% url 'core_dashboard' %}">
+                    <button name="user_pk" value="{{ user.pk }}" type="submit" class="tiny button"
+                            formaction="{% url 'hijack:acquire' %}?next={% url 'core_dashboard' %}">
                         Control User
                     </button>
                 </form>

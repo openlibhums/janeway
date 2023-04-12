@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block title %}Press Manager{% endblock %}
 {% block title-section %}Press Manager{% endblock %}
@@ -147,9 +147,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="large-12 columns">
-            <p align="right">Janeway Version: {{ version }}</p>
         </div>
     </div>
     </section>

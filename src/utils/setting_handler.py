@@ -163,7 +163,7 @@ def save_setting(setting_group_name, setting_name, journal, value):
             setattr(setting, 'value_{0}'.format(settings.LANGUAGE_CODE), '')
             setting_value.save()
 
-        if setting.types == 'json':
+        if setting.types == 'json' and isinstance(value, (list, dict)):
             value = json.dumps(value)
 
         if setting.types == 'boolean':

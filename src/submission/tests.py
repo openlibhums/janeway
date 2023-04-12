@@ -10,11 +10,12 @@ import os
 from django.core.management import call_command
 from django.http import Http404
 from django.test import TestCase, TransactionTestCase
-from django.utils import translation
+from django.utils import translation, timezone
 from django.urls.base import clear_script_prefix
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test.utils import override_settings
+
 import swapper
 
 from core.models import Account, File, Galley
@@ -28,9 +29,12 @@ from submission import (
     models,
 )
 from utils.install import update_xsl_files, update_settings, update_issue_types
+from utils.shared import clear_cache
 from utils.testing import helpers
 from utils.testing.helpers import create_galley, request_context
 
+FROZEN_DATETIME_2020 = timezone.make_aware(timezone.datetime(2020, 1, 1, 0, 0, 0))
+FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 0))
 
 # Create your tests here.
 class SubmissionTests(TestCase):
@@ -98,7 +102,7 @@ class SubmissionTests(TestCase):
     def test_article_image_galley(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             stage=models.STAGE_PUBLISHED,
         )
         galley_file = File.objects.create(
@@ -124,7 +128,7 @@ class SubmissionTests(TestCase):
             journal = self.journal_one,
             title="Test article: a test article",
             primary_issue=issue,
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             page_numbers = "2-4"
         )
         author = models.FrozenAuthor.objects.create(
@@ -151,7 +155,7 @@ class SubmissionTests(TestCase):
             journal = self.journal_one,
             title="Test article: a test article",
             primary_issue=issue,
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             page_numbers = "2-4",
             custom_how_to_cite = "Banana",
         )
@@ -545,13 +549,14 @@ class SubmissionTests(TestCase):
             '0000-0003-2126-266X',
         )
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_bibtex(self):
         article = helpers.create_article(
             journal=self.journal_one,
             title="Test article: a test article",
             stage="Published",
             abstract="test_abstract",
-            date_published=datetime(1990, 1, 1, 12, 00),
+            date_published=FROZEN_DATETIME_1990,
         )
         helpers.create_issue(self.journal_one, 2, 1, articles=[article])
         author_a, author_b = self.create_authors()
@@ -559,6 +564,9 @@ class SubmissionTests(TestCase):
         logic.add_user_as_author(author_b, article)
 
         article.snapshot_authors()
+        # we have to clear cache here due to function cache relying on primary
+        # keys being used for cache keys, which in tests will always be 1
+        clear_cache()
         bibtex = encoding.encode_article_as_bibtex(article)
         expected = """
             @article{TST %s,
@@ -566,7 +574,7 @@ class SubmissionTests(TestCase):
                 title = {Test article: a test article},
                 volume = {2},
                 year = {1990},
-                url = {http://localhost/TST/article/id/%s/},
+                url = {http://testserver/article/id/%s/},
                 issue = {1},
                 abstract = {test_abstract},
                 month = {1},
@@ -583,13 +591,14 @@ class SubmissionTests(TestCase):
         ]
         self.assertEqual(bibtex_lines, expected_lines)
 
+    @override_settings(URL_CONFIG='domain')
     def test_article_encoding_ris(self):
         article = helpers.create_article(
             journal=self.journal_one,
             title="Test article: A RIS export test case",
             stage="Published",
             abstract="test_abstract",
-            date_published=datetime(1990, 1, 1, 12, 00),
+            date_published=FROZEN_DATETIME_1990,
         )
         helpers.create_issue(self.journal_one, 2, 2, articles=[article])
         author_a, author_b = self.create_authors()
@@ -609,7 +618,7 @@ class SubmissionTests(TestCase):
             PY  - 1990
             TI  - Test article: A RIS export test case
             T2  - {journal_name}
-            UR  - http://localhost/TST/article/id/{article_id}/
+            UR  - http://testserver/article/id/{article_id}/
             ER  -
         """.format(article_id=article.pk, journal_name=article.journal.name)
         ris_lines = [
@@ -723,13 +732,13 @@ class ArticleSearchTests(TransactionTestCase):
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Testing the search of articles",
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             stage=models.STAGE_PUBLISHED,
         )
         _other_article = models.Article.objects.create(
             journal=self.journal_one,
             title="This article should not appear",
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
         )
         file_obj = File.objects.create(article_id=article.pk)
         create_galley(article, file_obj)
@@ -763,14 +772,14 @@ class ArticleSearchTests(TransactionTestCase):
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test searching abstract",
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             stage=models.STAGE_PUBLISHED,
             abstract=text_to_search,
         )
         other_article = models.Article.objects.create(
             journal=self.journal_one,
             title="This article should not appear",
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             abstract="Random abstract crawl text",
         )
 
@@ -791,13 +800,13 @@ class ArticleSearchTests(TransactionTestCase):
         article = models.Article.objects.create(
             journal=self.journal_one,
             title=text_to_search,
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
             stage=models.STAGE_PUBLISHED,
         )
         other_article = models.Article.objects.create(
             journal=self.journal_one,
             title="This article should not appear",
-            date_published=dateparser.parse("2020-01-01"),
+            date_published=FROZEN_DATETIME_2020,
         )
 
         # Mysql can't search at all without FULLTEXT indexes installed

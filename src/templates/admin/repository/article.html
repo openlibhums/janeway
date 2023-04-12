@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load i18n %}c
-{% load static from staticfiles %}
+{% load static %}
 
 {% block title %}{{ preprint.title|striptags }} - Manager{% endblock %}
 {% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}

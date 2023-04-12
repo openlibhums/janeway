@@ -3,7 +3,10 @@ import os
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from crontab import CronTab
+try:
+    import crontab
+except (ImportError, ModuleNotFoundError):
+    crontab = None
 
 
 def find_job(tab, comment):
@@ -30,8 +33,12 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        if not crontab:
+            print("crontab not is not installed")
+            return
+
         action = options.get('action')
-        tab = CronTab(user=True)
+        tab = crontab.CronTab(user=True)
         virtualenv = os.environ.get('VIRTUAL_ENV', None)
 
         cwd = settings.PROJECT_DIR.replace('/', '_')
@@ -67,7 +74,7 @@ class Command(BaseCommand):
             jobs.append(
                 {
                     'name': '{}_janeway_mailgun_job'.format(cwd),
-                    'time': 60,
+                    'time': 59,
                     'task': 'check_mailgun_stat',
                     'type': 'mins',
                 }

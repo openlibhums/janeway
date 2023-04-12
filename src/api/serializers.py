@@ -190,3 +190,11 @@ class PreprintSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+    def validate(self, data):
+        role = data.get("role")
+        excluded_roles = ['journal-manager', 'reader']
+
+        if role.slug in excluded_roles:
+            raise serializers.ValidationError({"role": "You cannot add a user to that role via the API."})
+
+        return data

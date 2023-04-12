@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}}
 {% load foundation %}
-{% load static from staticfiles %}
+{% load static %}
 {% load bool_fa %}
 
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
@@ -225,9 +225,9 @@
                     <tbody id="sortable">
                     {% for funder in article.funders.all %}
                         <tr id="funder-{{ funder.pk }}">
-                            <td>{{ funder.name }}</td>
-                            <td>{{ funder.fundref_id }}</td>
-                            <td>{{ funder.funding_id }}</td>
+                            <td>{{ funder.name|default_if_none:"" }}</td>
+                            <td>{{ funder.fundref_id|default_if_none:"" }}</td>
+                            <td>{{ funder.funding_id|default_if_none:"" }}</td>
                             <td><a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}"><i
                                     class="fa fa-trash">
                                 &nbsp;</i></a></td>
@@ -252,19 +252,19 @@
                         <div class="row">
                             <div class="large-12 columns">
                                 <input type="text" id="funder_name" name="funder_name"/>
-                                <p class="help-text">Funder</p>
+                                <p class="help-text">{% trans funder_form.fields.name.help_text %}</p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="large-12 columns">
                                 <input type="text" id="funder_doi" name="funder_doi"/>
-                                <p class="help-text">Funder DOI (optional)</p>
+                                <p class="help-text">{% trans funder_form.fields.fundref_id.help_text %}</p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="large-12 columns">
                                 <input type="text" name="grant_number" id="grant_number"/>
-                                <p class="help-text">Funder grant number (optional)</p>
+                                <p class="help-text">{% trans funder_form.fields.funding_id.help_text %}</p>
                             </div>
                         </div>
                         <button type="submit" name="add_funder" class="success button">Add funder</button>
@@ -317,6 +317,6 @@
             }
         }
     </script>
-    {% include "elements/jqte.html" %}
-    {% include 'elements/fundref/fundref.html' %}
+    {% include "admin/elements/jqte.html" %}
+    {% include 'admin/elements/fundref/fundref.html' with funder_form=funder_form %}
 {% endblock js %}

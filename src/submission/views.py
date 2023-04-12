@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from core import files, models as core_models
@@ -21,7 +21,8 @@ from security.decorators import (
     production_user_or_editor_required,
     editor_user_required,
     submission_authorised,
-    article_is_not_submitted
+    article_is_not_submitted,
+    role_can_access,
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
@@ -130,17 +131,19 @@ def submit_funding(request, article_id):
             article.save()
             return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
 
-        funder = models.Funder(
-            name=request.POST.get('funder_name', default=''),
-            fundref_id=request.POST.get('funder_doi', default=''),
-            funding_id=request.POST.get('grant_number', default=''),
+        funder_form = forms.Funder(
+            {
+                'name': request.POST.get('funder_name', None),
+                'fundref_id': request.POST.get('funder_doi', None),
+                'funding_id': request.POST.get('grant_number', None)
+            },
+            article=article,
         )
 
-        funder.save()
-        article.funders.add(funder)
-        article.save()
+        if funder_form.is_valid():
+            funder_form.save()
 
-    template = 'admin/submission//submit_funding.html'
+    template = 'admin/submission/submit_funding.html'
     context = {
         'article': article,
         'form': form,
@@ -589,6 +592,7 @@ def edit_metadata(request, article_id):
             'submission_summary',
             request.journal,
         ).processed_value
+        funder_form = forms.FunderForm()
         info_form = forms.ArticleInfo(
             instance=article,
             additional_fields=additional_fields,
@@ -612,15 +616,17 @@ def edit_metadata(request, article_id):
 
         if request.POST:
             if 'add_funder' in request.POST:
-                funder = models.Funder(
-                    name=request.POST.get('funder_name', default=''),
-                    fundref_id=request.POST.get('funder_doi', default=''),
-                    funding_id=request.POST.get('grant_number', default='')
+                funder_form = forms.FunderForm(
+                    {
+                        'name': request.POST.get('funder_name', None),
+                        'fundref_id': request.POST.get('funder_doi', None),
+                        'funding_id': request.POST.get('grant_number', None)
+                    },
+                    article=article,
                 )
-
-                funder.save()
-                article.funders.add(funder)
-                article.save()
+                if funder_form.is_valid():
+                    funder_form.save()
+                    return redirect(reverse_url)
 
             if 'metadata' in request.POST:
                 info_form = forms.ArticleInfo(
@@ -689,6 +695,7 @@ def edit_metadata(request, article_id):
     template = 'submission/edit/metadata.html'
     context = {
         'article': article,
+        'funder_form': funder_form,
         'info_form': info_form,
         'author_form': author_form,
         'modal': modal,
@@ -755,7 +762,7 @@ def fields(request, field_id=None):
     return render(request, template, context)
 
 
-@editor_user_required
+@role_can_access('licenses')
 def licenses(request, license_pk=None):
     """
     Allows an editor to create, edit and delete license objects.
@@ -820,7 +827,7 @@ def licenses(request, license_pk=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@role_can_access('licenses')
 def delete_license(request, license_pk):
     """
     Presents an interface to delete a license object.

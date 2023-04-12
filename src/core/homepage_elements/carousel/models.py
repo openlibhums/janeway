@@ -3,7 +3,7 @@ from operator import attrgetter
 
 from django.apps import apps
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 CAROUSEL_MODES = [
     ('off', _('Off')),
@@ -128,7 +128,7 @@ class Carousel(models.Model):
 
 
 class CarouselObject(models.Model):
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True)
+    large_image_file = models.ForeignKey('core.File', null=True, blank=True, on_delete=models.SET_NULL)
     url = models.CharField(max_length=5000, blank=True, null=True)
     title = models.CharField(max_length=300)
     index = models.IntegerField(default=1)

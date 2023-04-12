@@ -15,21 +15,38 @@ def access_choices():
 
 
 class ArticleAccess(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     type = models.CharField(max_length=20, choices=access_choices())
     identifier = models.CharField(max_length=200)
     accessed = models.DateTimeField(default=timezone.now)
-    galley_type = models.CharField(max_length=200)
-    country = models.ForeignKey('core.Country', blank=True, null=True)
+    galley_type = models.CharField(max_length=200, null=True, blank=True)
+    country = models.ForeignKey(
+        'core.Country',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
+    class Meta:
+        verbose_name_plural = 'article access events'
 
     def __str__(self):
         return '[{0}] - {1} at {2}'.format(self.identifier, self.article.title, self.accessed)
 
 
 class HistoricArticleAccess(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     views = models.PositiveIntegerField(default=0)
     downloads = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'historic article access events'
 
     def __str__(self):
         return 'Article {0}, Views: {1}, Downloads: {2}'.format(self.article.title, self.views, self.downloads)
@@ -63,7 +80,12 @@ def object_types():
 
 
 class AbstractForwardLink(models.Model):
-    article = models.ForeignKey('submission.Article', blank=True, null=True)
+    article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     doi = models.CharField(max_length=255)
     object_type = models.CharField(max_length=10, choices=object_types())
     year = models.PositiveIntegerField()
@@ -115,7 +137,10 @@ def alt_metric_choices():
 
 
 class AltMetric(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     source = models.CharField(max_length=30, choices=alt_metric_choices())
     pid = models.CharField(max_length=200)
     timestamp = models.DateTimeField()

@@ -1,13 +1,8 @@
 {% extends "core/base.html" %}
 {% load foundation %}
 {% load i18n %}
-{% load recaptcha2 %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
     <section id="content" class="no-padding">
@@ -22,9 +17,9 @@
                     <h5>{{ contact.name }}</h5>
                     <p>{{ contact.role }}</p>
                 {% endfor %}
-                {% if request.journal and request.journal.contact_info %}
+                {% if journal_settings.general.contact_info %}
                     <h4>{% trans 'Contact Information' %}</h4>
-                    {{ request.journal.contact_info|safe }}
+                    {{ journal_settings.general.contact_info|safe }}
                 {% endif %}
             </div>
             <div class="large-8 columns">

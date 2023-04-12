@@ -7,11 +7,12 @@ from django.utils import translation
 from django.conf import settings
 
 from utils.logger import get_logger
+from utils.middleware import BaseMiddleware
 
 logger = get_logger(__name__)
 
 
-class LanguageMiddleware(object):
+class LanguageMiddleware(BaseMiddleware):
     @staticmethod
     def process_request(request):
         """

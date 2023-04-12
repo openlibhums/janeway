@@ -39,6 +39,37 @@ This file is usually created during the setup process and can be based on the pr
     - Provides the configuration for Python's logger. We recommend following the steps described in the `Django documentation <https://docs.djangoproject.com/en/1.11/topics/logging/>`_ for configuration.
     - By default, Janeway will log both to the console as well as to the file located at `logs/janeway.log` and rotates the file every 50MB. For production systems, you may want to change the location and/or rotation strategy as per the Django documentation
 
+Error Logging with Sentry
+-------------------------
+
+As of version 1.5 we have removed core the Raven core requirement, this is because Sentry no longer uses Raven. We have made the decision not to include the Sentry SDK as a core requirement so the process for adding Sentry logging back is detailed below.
+
+First you will need to install the Sentry SDK:
+
+::
+
+    pip install sentry-sdk
+
+Next you will need to configure the SDK by adding the following to you settings.py file:
+
+::
+
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn="https://examplePublicKey@o0.ingest.sentry.io/0",
+        integrations=[DjangoIntegration()],
+
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production,
+        traces_sample_rate=0.0,
+    )
+
+
+Add your own dsn in place of the example. You should now start receiving sentry error reports. Information, including which version of the SDK to install, on Sentry's Django integration can be found over on their docs site: https://docs.sentry.io/platforms/python/guides/django/.
+
 
 Full-text search
 ----------------

@@ -4,13 +4,16 @@ from urllib.parse import (
     urlencode,
     parse_qsl,
 )
+from datetime import datetime
 
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
 from django.views.generic.base import View, TemplateResponseMixin
+from django.utils.timezone import make_aware, utc
 
 from api.oai import exceptions
 from utils.http import allow_mutating_GET
+
 
 metadata_formats = [
     {
@@ -146,6 +149,13 @@ class OAIDateFilterMixin(OAIPaginationMixin):
                 qs = qs.filter(date_published__gte=from_date)
             if self.until:
                 until_date = date_parser.parse(self.until)
+                # grab the until string and check if it is timezone aware
+                # if it is not, add a default H:m:sZ.
+                if not until_date.tzinfo:
+                    untile_date = until_date.replace(
+                            hour=23, minute=59, second=59, tzinfo=utc,
+                    )
+
                 qs = qs.filter(date_published__lte=until_date)
             return qs
         except ValueError:
@@ -180,6 +190,7 @@ class OAIDateFilterMixin(OAIPaginationMixin):
             date_str = self._decoded_token.get("until")
         else:
             date_str = self.request.GET.get("until")
+
         return date_str
 
 

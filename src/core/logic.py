@@ -21,7 +21,7 @@ from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -213,7 +213,7 @@ def process_setting_list(settings_to_get, type, journal):
     return settings
 
 
-def get_settings_to_edit(display_group, journal):
+def get_settings_to_edit(display_group, journal, user):
     review_form_choices = list()
     for form in review_models.ReviewForm.objects.filter(
         journal=journal,
@@ -416,7 +416,7 @@ def get_settings_to_edit(display_group, journal):
         journal_settings = [
             'journal_name', 'journal_issn', 'print_issn', 'journal_theme',
             'journal_description', 'main_contact', 'publisher_name',
-            'publisher_url', 'privacy_policy_url', 'auto_signature',
+            'publisher_url', 'contact_info', 'privacy_policy_url', 'auto_signature',
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
@@ -435,7 +435,7 @@ def get_settings_to_edit(display_group, journal):
                     'object': setting_handler.get_setting('general', 'journal_base_theme', journal),
                     'choices': [
                         [theme, theme]
-                    for theme in settings.CORE_THEMES]
+                        for theme in settings.CORE_THEMES]
                 },
             )
 
@@ -492,7 +492,33 @@ def get_settings_to_edit(display_group, journal):
         group_of_settings = []
         setting_group = None
 
+    # For each setting check if the current user has permission to
+    # edit that setting, otherwise remove it from the group.
+    for group_setting_item in group_of_settings[:]:
+        if not user_can_edit_setting(
+            setting=group_setting_item['object'],
+            user=user,
+            journal=journal,
+        ):
+            group_of_settings.remove(group_setting_item)
+
     return group_of_settings, setting_group
+
+
+def user_can_edit_setting(setting, user, journal):
+    journal_roles = user.roles.get(journal.code) or set()
+    setting_editable_roles = setting.editable_by
+
+    # Short circuit for staff users.
+    if user.is_staff:
+        return True
+
+    # If no roles for the setting are configured we deny access
+    # in the event that we want all roles to have access they
+    # should be explicitly defined.
+    if setting_editable_roles and journal_roles.intersection(setting_editable_roles):
+        return True
+    return False
 
 
 def get_theme_list():

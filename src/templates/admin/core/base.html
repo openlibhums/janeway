@@ -1,4 +1,4 @@
-{% load static from staticfiles %}
+{% load static %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
 
@@ -38,8 +38,6 @@
 </head>
 <body>
 
-{% janeway_hijack_notification %}
-
 {% block nav %}
     {% if request.journal %}
         {% include "admin/core/nav.html" %}
@@ -52,6 +50,7 @@
 
     <div class="row expanded">
         <div class="large-12 columns">
+            {% include "hijack/notification.html" %}
             <nav aria-label="You are here:" role="navigation">
                 <ul class="breadcrumbs">
                     {% block breadcrumbs %}

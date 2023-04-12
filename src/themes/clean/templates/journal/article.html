@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 {% load hooks %}
 {% load i18n %}
 
@@ -108,6 +108,25 @@
                         </p>
                     </div>
                 {% endif %}
+                {% if article.funders.all %}
+                    <strong>{% trans "Funding" %}</strong>
+                    <ul>
+                        {% for funder in article.funders.all %}
+                            <li>
+                                {% if funder.fundref_id %}
+                                    <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
+                                {% else %}
+                                    {{ funder.name }}
+                                {% endif %}
+                                {% if funder.funding_id %}
+                                    {% blocktranslate with id=funder.funding_id %}
+                                        (grant {{ id }})
+                                    {% endblocktranslate %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
                         <h2>{% trans "Publisher Notes" %}</h2>
@@ -118,6 +137,7 @@
                         </ul>
                     </div>
                 {% endif %}
+
                 {% if article_content %}
                     <div itemprop="articleBody" id="main_article">
                         {{ article_content|safe }}

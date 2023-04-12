@@ -1,62 +1,65 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 
 
-{% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Revisions for {{ revision_request.article.title }}{% endblock %}
+{% block title %}Replacing Article File for {{ copyedit.article.title }}{% endblock title %}
+{% block title-section %}Replacing Article File for {{ copyedit.article.title }}{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/copyeditor_base.html" %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyeditor_base.html" %}
 {% endblock breadcrumbs %}
 
 {% block body %}
     {% csrf_token %}
     <div class="large-12 columns">
-        {% if error %}
-            <div class="alert alert-warning" role="alert">{{ error }}</div>
-        {% endif %}
-        <p><strong>Submission guidelines</strong>: To upload a file, select it using one of the "Choose file" buttons,
-            then upload it with the "Upload file" button. You can add a label to help the editor identify the file.</p>
-        <h5>Replacement File</h5>
-        <p>Please upload your replacement file.</p>
-        <div class="row">
-            <div class="large-6 columns">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h4></h4>
-                    <input name="label" type="text" placeholder="Add a file label">
-                    <input name="replacement-file" type="file" class="filestyle" data-placeholder="No file"
-                           data-buttonName="btn-primary">
-                    <br/>
-                    <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">&nbsp;</i>Upload
-                    </button>
-                </form>
-            </div>
-            <div class="large-6 columns">
-                <table class="scroll small">
-                    <tr>
-                        <th>Label</th>
-                        <th>File Name</th>
-                    </tr>
-                    <tr>
-                        <td>{{ file.label }}</td>
-                        <td><a href="?file_id={{ file.id }}"><i
-                                class="fa fa-download">&nbsp;{{ file }}</i></a></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="large-4 columns"></div>
-        </div>
+        <div class="box">
+            <div class="content">
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <div class="title-area">
+                            <h2>Upload Guidelines</h2>
+                        </div>
+                        {% if error %}
+                            <div class="alert alert-warning" role="alert">{{ error }}</div>
+                        {% endif %}
+                        <p>You are reviewing copyediting of article #{{ copyedit.article.pk }}, {{ copyedit.article.title|safe }}.</p>
+                        <p>Add a label, select a file and use the Upload and Continue button to upload the file.</p>
+                    </div>
 
-
-        <div class="large-12 columns">
-            <form method="POST">
-                {% csrf_token %}
-                <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
-                    &nbsp;</i>Save &amp; Continue
-                </button>
-            </form>
+                    <div class="large-6 columns">
+                        <div class="title-area">
+                            <h2>Upload Replacement File</h2>
+                        </div>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input name="label" type="text" placeholder="Add a file label">
+                            <input name="replacement-file" type="file" class="filestyle" data-placeholder="No file"
+                                   data-buttonName="btn-primary">
+                            <br/>
+                            <button type="submit" class="button success" name="replacement"><i
+                                    class="fa fa-upload">&nbsp;</i>Upload and Continue
+                            </button>
+                        </form>
+                    </div>
+                    <div class="large-6 columns">
+                        <div class="title-area">
+                            <h2>Current File</h2>
+                        </div>
+                        <table class="scroll small">
+                            <tr>
+                                <th>Label</th>
+                                <th>File Name</th>
+                            </tr>
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td><a href="?file_id={{ file.id }}"><i
+                                        class="fa fa-download">&nbsp;{{ file }}</i></a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

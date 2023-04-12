@@ -25,10 +25,12 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.template.defaultfilters import linebreaksbr
 import swapper
 
 from core import files, validators
@@ -233,7 +235,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     confirmation_code = models.CharField(max_length=200, blank=True, null=True)
     signature = models.TextField(null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(Country, null=True, blank=True, verbose_name=_('Country'))
+    country = models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        verbose_name=_('Country'),
+        on_delete=models.SET_NULL,
+    )
     preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
 
     is_active = models.BooleanField(default=False)
@@ -371,14 +379,39 @@ class Account(AbstractBaseUser, PermissionsMixin):
         role = Role.objects.get(slug=role_slug)
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
+    @cached_property
+    def roles(self):
+        account_roles = AccountRole.objects.filter(
+            user=self,
+        )
+        journal_roles_map = {}
+        for account_role in account_roles:
+            journal_roles_map.setdefault(account_role.journal.code, set())
+            journal_roles_map[account_role.journal.code].add(account_role.role.slug)
+        return journal_roles_map
+
+    def roles_for_journal(self, journal):
+        return [
+            account_role.role for account_role in
+            AccountRole.objects.filter(user=self, journal=journal)
+        ]
+
     def check_role(self, journal, role, staff_override=True):
-        if staff_override and self.is_staff:
+        if staff_override and (self.is_staff or self.is_journal_manager(journal)):
             return True
         else:
             return AccountRole.objects.filter(
                 user=self,
                 journal=journal,
-                role__slug=role
+                role__slug=role,
+            ).exists()
+
+    def is_journal_manager(self, journal):
+        # this is an explicit check to avoid recursion in check_role.
+        return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug='journal-manager',
             ).exists()
 
     def is_editor(self, request, journal=None):
@@ -528,15 +561,20 @@ class OrcidToken(models.Model):
 
 
 class PasswordResetToken(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     token = models.CharField(max_length=300, default=uuid.uuid4)
     expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
     expired = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Account: {0}, Expiry: {1}, [{2}]".format(self.account.full_name(),
-                                                         self.expiry,
-                                                         'Expired' if self.expired else 'Active')
+        return "Account: {0}, Expiry: {1}, [{2}]".format(
+            self.account.full_name(),
+            self.expiry,
+            'Expired' if self.expired else 'Active',
+        )
 
     def has_expired(self):
         if self.expired:
@@ -545,6 +583,9 @@ class PasswordResetToken(models.Model):
             return True
         else:
             return False
+
+    class Meta:
+        ordering = ['-expiry']
 
 
 class Role(models.Model):
@@ -570,9 +611,18 @@ class Role(models.Model):
 
 
 class AccountRole(models.Model):
-    user = models.ForeignKey(Account)
-    journal = models.ForeignKey('journal.Journal')
-    role = models.ForeignKey(Role)
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = ('journal', 'user', 'role')
@@ -634,12 +684,21 @@ class SettingGroup(models.Model):
 class Setting(models.Model):
     VALIDATORS = {}
     name = models.CharField(max_length=100)
-    group = models.ForeignKey(SettingGroup)
+    group = models.ForeignKey(
+        SettingGroup,
+        on_delete=models.CASCADE,
+    )
     types = models.CharField(max_length=20, choices=setting_types)
     pretty_name = models.CharField(max_length=100, default='')
     description = models.TextField(null=True, blank=True)
 
     is_translatable = models.BooleanField(default=False)
+
+    editable_by = models.ManyToManyField(
+        Role,
+        blank=True,
+        help_text='Determines who can edit this setting based on their assigned roles.',
+    )
 
     class Meta:
         ordering = ('group', 'name')
@@ -666,8 +725,16 @@ class Setting(models.Model):
 
 
 class SettingValue(models.Model):
-    journal = models.ForeignKey('journal.Journal', null=True, blank=True)
-    setting = models.ForeignKey(Setting)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    setting = models.ForeignKey(
+        Setting,
+        models.CASCADE,
+    )
     value = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -705,7 +772,16 @@ class SettingValue(models.Model):
             except BaseException:
                 return 0
         elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
+            try:
+                return json.loads(self.value)
+            except json.JSONDecodeError as e:
+                logger.error(
+                    "Error loading JSON setting {setting_name} on {site_name} site.".format(
+                        setting_name=self.setting.name,
+                        site_name=self.journal.name if self.journal else 'press'
+                    )
+                )
+                return ''
         elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
             return ''
         else:
@@ -724,10 +800,10 @@ class SettingValue(models.Model):
         elif self.setting.types == 'file':
             if self.journal:
                 return self.journal.site_url(
-                        reverse("journal_file",self.value))
+                    reverse("journal_file", self.value))
             else:
                 return self.press.site_url(
-                        reverse("serve_press_file", self.value))
+                    reverse("serve_press_file", self.value))
         else:
             return self.value
 
@@ -741,6 +817,10 @@ class SettingValue(models.Model):
 
     def validate(self):
         self.setting.validate(self.value)
+
+    @cached_property
+    def editable_by(self):
+        return {role.slug for role in self.setting.editable_by.all()}
 
     def save(self, *args, **kwargs):
         self.validate()
@@ -815,7 +895,7 @@ class File(AbstractLastModifiedModel):
 
     def journal_path(self, journal):
         return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
-    
+
     def self_article_path(self):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
@@ -1029,8 +1109,12 @@ class FileHistory(models.Model):
 
     history_seq = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return "Iteration {0}: {1}".format(self.history_seq, self.original_filename)
+
     class Meta:
         ordering = ('history_seq',)
+        verbose_name_plural = 'file histories'
 
 
 def galley_type_choices():
@@ -1051,8 +1135,16 @@ def galley_type_choices():
 
 class Galley(AbstractLastModifiedModel):
     # Local Galley
-    article = models.ForeignKey('submission.Article', null=True)
-    file = models.ForeignKey(File)
+    article = models.ForeignKey(
+        'submission.Article',
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(
+        File,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
@@ -1190,7 +1282,8 @@ def upload_to_journal(instance, filename):
 class XSLFile(models.Model):
     file = models.FileField(
         upload_to=upload_to_journal,
-        storage=JanewayFileSystemStorage('files/xsl'))
+        storage=JanewayFileSystemStorage('files/xsl'),
+    )
     journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
                                 blank=True, null=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
@@ -1215,7 +1308,10 @@ def default_xsl():
 
 
 class SupplementaryFile(models.Model):
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(
+        File,
+        on_delete=models.CASCADE,
+    )
     doi = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -1253,7 +1349,13 @@ class Task(models.Model):
     complete_events = models.ManyToManyField('core.TaskCompleteEvents')
     link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
     assignees = models.ManyToManyField(Account)
-    completed_by = models.ForeignKey(Account, blank=True, null=True, related_name='completed_by')
+    completed_by = models.ForeignKey(
+        Account,
+        blank=True,
+        null=True,
+        related_name='completed_by',
+        on_delete=models.SET_NULL,
+    )
 
     created = models.DateTimeField(default=timezone.now)
     due = models.DateTimeField(blank=True, null=True)
@@ -1304,11 +1406,17 @@ class TaskCompleteEvents(models.Model):
     def __str__(self):
         return self.event_name
 
+    class Meta:
+        verbose_name_plural = 'task complete events'
+
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True, null=True)
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField()
 
     class Meta:
@@ -1321,14 +1429,26 @@ class EditorialGroup(models.Model):
     def members(self):
         return [member for member in self.editorialgroupmember_set.all()]
 
+    def __str__(self):
+        return f'{self.name} ({self.journal.code})'
+
 
 class EditorialGroupMember(models.Model):
-    group = models.ForeignKey(EditorialGroup)
-    user = models.ForeignKey(Account)
+    group = models.ForeignKey(
+        EditorialGroup,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField()
 
     class Meta:
         ordering = ('sequence',)
+
+    def __str__(self):
+        return f'{self.user} in {self.group}'
 
 
 class Contacts(models.Model):
@@ -1343,7 +1463,10 @@ class Contacts(models.Model):
     sequence = models.PositiveIntegerField(default=999)
 
     class Meta:
-        verbose_name_plural = 'Journal Contacts'
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the below model `Contact`
+        # in the admin area.
+        verbose_name_plural = 'contacts'
         ordering = ('sequence', 'name')
 
     def __str__(self):
@@ -1363,6 +1486,12 @@ class Contact(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
+        verbose_name_plural = 'contact messages'
+
 
 class DomainAlias(AbstractSiteModel):
     redirect = models.BooleanField(
@@ -1371,8 +1500,18 @@ class DomainAlias(AbstractSiteModel):
             help_text="If enabled, the site will throw a 301 redirect to the "
                 "master domain."
     )
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     @property
     def site_object(self):
@@ -1390,6 +1529,9 @@ class DomainAlias(AbstractSiteModel):
             raise ValidationError(
                     " One and only one of press or journal must be set")
         return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = 'domain aliases'
 
 
 BASE_ELEMENTS = [
@@ -1426,12 +1568,18 @@ BASE_ELEMENT_NAMES = [
 
 
 class Workflow(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     elements = models.ManyToManyField('WorkflowElement')
 
 
 class WorkflowElement(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     jump_url = models.CharField(max_length=255)
@@ -1470,8 +1618,14 @@ class WorkflowElement(models.Model):
 
 
 class WorkflowLog(models.Model):
-    article = models.ForeignKey('submission.Article')
-    element = models.ForeignKey(WorkflowElement)
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    element = models.ForeignKey(
+        WorkflowElement,
+        on_delete=models.CASCADE,
+    )
     timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -1595,10 +1749,8 @@ class SettingValueTranslation(models.Model):
         db_table = 'core_settingvalue_translation'
 
 
-def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
+def log_hijack_started(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    hijacker = Account.objects.get(pk=hijacker_id)
-    hijacked = Account.objects.get(pk=hijacked_id)
     action = '{} ({}) has hijacked {} ({})'.format(
         hijacker.full_name(),
         hijacker.pk,
@@ -1616,10 +1768,8 @@ def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
     )
 
 
-def log_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
+def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    hijacker = Account.objects.get(pk=hijacker_id)
-    hijacked = Account.objects.get(pk=hijacked_id)
     action = '{} ({}) has released {} ({})'.format(
         hijacker.full_name(),
         hijacker.pk,

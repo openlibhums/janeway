@@ -12,7 +12,11 @@
         },
         "value": {
             "default": "<p>You should update this section to show any fees that your journal charges.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -27,7 +31,11 @@
         },
         "value": {
             "default": "https://a_publisher_url.com"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -42,7 +50,11 @@
         },
         "value": {
             "default": null
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -57,7 +69,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -72,7 +88,10 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -87,7 +106,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -102,7 +125,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -117,7 +144,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -132,7 +163,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -147,7 +182,10 @@
         },
         "value": {
             "default": "janeway@voyager.com"
-        }
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -162,7 +200,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -177,7 +219,11 @@
         },
         "value": {
             "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the journal site: {{ review_in_review_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -192,7 +238,11 @@
         },
         "value": {
             "default": "Dear {{ article.correspondence_author.full_name }}, <br><br>Thank you for submitting \"{{ article }}\" to {{ article.journal }}.<br><br> Your work will now be reviewed by an editor and we will be in touch as the peer-review process progresses.<br><br>Regards,<br>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -207,7 +257,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.editor.full_name }},<br/><br/>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \" #{{ article.pk }}: {{ article.title }}\" in {{ article.journal.name }} and have {{ reviewer_decision }} to perform the review. You can view more information on the journal site: {{ review_in_review_url }} "
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -222,7 +276,11 @@
         },
         "value": {
             "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} <br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -237,7 +295,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.reviewer.full_name }}, <br/><br/>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_url }}  <br/><br/>Regards, <br/>{{ review_assignment.editor.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -252,7 +314,11 @@
         },
         "value": {
             "default": "<p>Dear {{ review_assignment.reviewer.full_name }}, </p><p>Thank you for completing your review of \"{{ article.title }}\" in {{ article.journal.name }}. </p><p>We are extremely grateful for the work of reviewers, which greatly enhances the quality of the journal. </p><p>Thank you again and regards,</p><p>{{ review_assignment.editor.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -267,7 +333,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{% journal_url 'review_in_review' review_assignment.article.pk  %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -282,7 +352,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.editor.full_name }}, <br/><br/>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the journal site: {{ review_in_review_url }}  <br/><br/>Regards,"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -297,7 +371,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.reviewer.full_name }}, \n\nThank you for letting us know that you are unable to review \"{{ article.title }}\" in {{ article.journal.name }}.\n\n We are most grateful for your time.\n\nRegards,\n{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -312,7 +390,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -327,7 +409,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>We would appreciate it if you could let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -342,7 +428,11 @@
         },
         "value": {
             "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>Check our site to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -357,7 +447,11 @@
         },
         "value": {
             "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -372,7 +466,11 @@
         },
         "value": {
             "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -387,7 +485,11 @@
         },
         "value": {
             "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We wish to inform you that the earlier decision to decline \"{{ article.title }}\" in {{ article.journal.name }} has been reversed. The article is now being reconsidered.<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -402,7 +504,11 @@
         },
         "value": {
             "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>We are writing to let you know that you have been unassigned from the article \"{{ article.title }}\" in {{ article.journal.name }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -417,7 +523,11 @@
         },
         "value": {
             "default": "Unassigned as Editor"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -432,7 +542,11 @@
         },
         "value": {
             "default": "<p>Dear {{ review_assignment.reviewer.full_name }},</p><p>We are writing to let you know that the review request for \"{{ article.title }}\" in {{ article.journal.name }} has been cancelled.</p><p>We thank you for your time but your review is no longer required.</p><p>Regards,</p>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -447,7 +561,11 @@
         },
         "value": {
             "default": "{{ request.journal_settings.general.main_contact }}\n{{ request.journal.name }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -462,7 +580,11 @@
         },
         "value": {
             "default": "{{ request.journal_settings.general.main_contact }}\n{{ request.journal.name }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -477,7 +599,11 @@
         },
         "value": {
             "default": "100"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -492,7 +618,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -507,7 +637,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -522,7 +656,11 @@
         },
         "value": {
             "default": "on"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -537,7 +675,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -552,7 +694,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -567,7 +713,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -582,7 +732,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -597,7 +751,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -612,7 +770,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -627,7 +789,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -642,7 +808,11 @@
         },
         "value": {
             "default": "https://doi.org/"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -657,7 +827,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -672,7 +846,11 @@
         },
         "value": {
             "default": "Janeway JS"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -687,7 +865,11 @@
         },
         "value": {
             "default": "0000-0000"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -702,7 +884,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -717,7 +903,11 @@
         },
         "value": {
             "default": "OLH"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -732,7 +922,11 @@
         },
         "value": {
             "default": "OLH"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -747,7 +941,11 @@
         },
         "value": {
             "default": "Here are some guidelines."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -762,7 +960,11 @@
         },
         "value": {
             "default": "Here are some guidelines."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -777,7 +979,11 @@
         },
         "value": {
             "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -792,7 +998,11 @@
         },
         "value": {
             "default": "Dear {{ assignment.editor.full_name }},<br/><br/>The copyedit task is now complete. You can view more information in the journal site: {{ article_copyediting_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -807,7 +1017,11 @@
         },
         "value": {
             "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br/><br/>The copyeditor has completed their task, you can review the copyedits: {{ author_copyedit_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -822,7 +1036,11 @@
         },
         "value": {
             "default": "Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} <br/><br/>[ADD FEEDBACK HERE].<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -837,7 +1055,11 @@
         },
         "value": {
             "default": "<p>Dear {{ assignment.copyeditor.full_name }},</p><p>Thank you for your efforts in copyediting this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -852,7 +1074,11 @@
         },
         "value": {
             "default": "Dear {{ copyedit.editor.full_name }},<br/><br/>The author {{ author_review.author.full_name }} has completed their review.<br/><br/>Their comments can be accessed here: {{ editor_review_url }} <br/>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -867,7 +1093,11 @@
         },
         "value": {
             "default": "Here are some guidelines."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -882,7 +1112,11 @@
         },
         "value": {
             "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.title }}. You can view further information on this here: {{ production_article_url }} </p><p>Regards,</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -897,7 +1131,11 @@
         },
         "value": {
             "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this here: {{ typesetter_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -912,7 +1150,11 @@
         },
         "value": {
             "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -927,7 +1169,11 @@
         },
         "value": {
             "default": "<p>Dear {{ production_assignment.editor.full_name }},</p><p>Production for article {{ article.title }} has been completed.</p><p>Regards</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -942,7 +1188,11 @@
         },
         "value": {
             "default": "<p>This is a notification to inform you that Production is complete for article \"{{ article.title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -957,7 +1207,11 @@
         },
         "value": {
             "default": "<p>Dear {{ typeset_task.typesetter.full_name }}</p><p>Thanks for your efforts typesetting the article, {{ typeset_task.article }}. This task has now been re-opened for further work: {{ proofing_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -972,7 +1226,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been assigned as the Proofing Manager: {{ proofing_article_url }} for {{ article.title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -987,7 +1245,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br/><br/>I have completed proofreading: {{ proofing_article_url }} for \"{{ proofing_task.round.assignment.article.title }}\".<br/></p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1002,7 +1264,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a proofreading task: {{ proofing_requests_url }} for \"{{ article.title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1017,7 +1283,11 @@
         },
         "value": {
             "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the requests page: {{ proofing_requests_url }} /p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1032,7 +1302,11 @@
         },
         "value": {
             "default": "<p>Dear {{ user.full_name }}</p><p>Thank you for your efforts during the production of \"{{ article.title }}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1047,7 +1321,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.title }}\" is now complete.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1062,7 +1340,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_task.proofreader.full_name }},<br><br>The proofreading task for \"{{ proofing_task.round.assignment.article.title }}\" that was due on {{ proofing_task.due }} has been cancelled.</p><p><br>{% if user_content_message %}{{ user_content_message|safe }}{% endif %}</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1077,7 +1359,11 @@
         },
         "value": {
             "default": "<p>Dear {{ article.proofingassignment.proofing_manager.full_name }}</p><p>I have completed the proofing corrections: {{ proofing_article_url }} requested on \"{{ article }}\".</p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1092,7 +1378,11 @@
         },
         "value": {
             "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1107,7 +1397,11 @@
         },
         "value": {
             "default": "Here are some guidelines."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1122,7 +1416,11 @@
         },
         "value": {
             "default": "<ol><li>Add files to your review round.</li><li>Select reviewers for your review round.</li><li>Once reviews are complete decide if revisions are required, if they are: add a revision task.</li><li>After revisions are complete, you may want to add a new round of peer review, go to: 1.</li></ol>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1137,7 +1435,11 @@
         },
         "value": {
             "default": "<ol><li>Start a copyedit assignment: <ul><li>Choose a copyeditor</li><li>Choose the files available for the copyeditor</li><li>Add instructions and due date</li></ul></li><li>Request the author to review the copyedit task</li><li>After the review, you can: <ul><li>Accept the copyedit</li><li>Reopen the copyedit task and move back to step 1.</li></ul></li></ol>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1152,7 +1454,11 @@
         },
         "value": {
             "default": "Recommended steps for completing the Production stage:<ol><li>Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% for task in production_assignment.typeset_tasks %}<li>Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% endfor %}<li>Have at least one Galley file uploaded (required) {% if article.has_galley %} <i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i>{% endif %}</li></ol>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1167,7 +1473,11 @@
         },
         "value": {
             "default": "<ol><li>Select proofreaders for this proofing round.</li><li>Once proofing is completed decide:<ul><li>Request changes (sends the article back to the typesetter)</li><li>Acknowledge the task</li></ul></li><li>(optional) If changes have been completed, you may want to start a new round of Proofing and move to 1.</li><li>Finally, click \"Complete proofing\"</li></ol>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1182,7 +1492,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1197,7 +1511,11 @@
         },
         "value": {
             "default": "This server has been set to Maintenance Mode. It will be back shortly."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1212,7 +1530,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1227,7 +1549,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1242,7 +1568,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1257,7 +1587,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1272,7 +1606,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1287,7 +1625,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1302,7 +1644,11 @@
         },
         "value": {
             "default": "<p>Dear {{ reset_token.account.full_name }},<br/><br/>A password reset for your account has been requested. You can reset your password at the following link:</p><p>{{ core_reset_password_url }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1317,7 +1663,11 @@
         },
         "value": {
             "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br/>{{ core_confirm_account_url }} <br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1332,7 +1682,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1347,7 +1701,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1362,7 +1720,11 @@
         },
         "value": {
             "default": "A section editor has made a draft decision: {{ review_in_review_url }} regarding an article in your section: {{ article.title }}.<br/><br/>The draft decision is [[DECISION TEXT ]].<br/><br/>Regards,<br/><br/>{{ request.user.signature|safe }} "
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1377,7 +1739,11 @@
         },
         "value": {
             "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }} <br/></p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1392,7 +1758,11 @@
         },
         "value": {
             "default": "A new article, {{ article.title }}, has been submitted.<br/><br/>You can assign an editor Here: {{ review_unassigned_article_url }} <br/><br/>Regards, <br/>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1407,7 +1777,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1422,7 +1796,11 @@
         },
         "value": {
             "default": "<p>Dear {{ editor.full_name }},</p><p>An article that you served as section editor for, {{ article.title }}, has been set for publication.<br><br>The article will be published on {{ article.date_published }}<br><br>Regards,"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1437,7 +1815,11 @@
         },
         "value": {
             "default": "<p>Dear {{reviewer.full_name}}</p><p>An article that you served as peer reviewer for, \"{{ article.title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1452,7 +1834,11 @@
         },
         "value": {
             "default": "on"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1467,7 +1853,11 @@
         },
         "value": {
             "default": "on"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1482,7 +1872,11 @@
         },
         "value": {
             "default": "<p>Unassigned Articles:</p><ul>{% for article in unassigned_articles %}<li>{{ article.title }}</li>{% endfor %}</ul><p>Overdue Reviews</p><ul>{% for review in overdue_reviews %}<li>{{ review.reviewer.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Revisions</p><ul>{% for revision in overdue_revisions %}<li>{{ revision.article.correspondence_author.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Proofing</p><ul>{% for proofing in overdue_proofing %}<li>{{ proofing.proofreader.full_name }} for article {{ proofing.round.assignment.article.title }}</li>{% endfor %}</ul><p>Awaiting Publication</p><ul>{% for article in awaiting_publication %}<li>{{ article.title }}</li>{% endfor %}</ul>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1497,7 +1891,11 @@
         },
         "value": {
             "default": "<p>Review Requests</p><ul>{% for review in pending_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for review in overdue_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1512,7 +1910,11 @@
         },
         "value": {
             "default": "<p>Revision Requests</p><ul>{% for revision in pending_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for revision in overdue_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1527,7 +1929,11 @@
         },
         "value": {
             "default": "{{ article.journal.code }}.{{ article.pk }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1542,7 +1948,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1557,7 +1967,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1572,7 +1986,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1587,7 +2005,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1602,7 +2024,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1617,7 +2043,11 @@
         },
         "value": {
             "default": "<p><strong>Review feedback</strong></p><p>1) Recommendation:</p><p>Please indicate which of the following options you recommend for this article: Accept; Minor Revisions; Major Revisions; Reject.</p><p>2) Content and argument:</p><p>Please comment on the originality, relevance and scholarly rigour of the article.</p><p>Please comment on whether existing literature in this area has been considered: is any relevant work missing? Are references to existing work accurate?</p><p>Do the introduction and conclusion reflect the argument in the main text?</p><p>Please comment on whether the abstract adequately summarises the article.</p><p>3) Writing style:</p><p>Is the manuscript logically structured and does the argument flow coherently?</p><p>Does the introduction detail the argument in a logical way and does the conclusion adequately summarise it?</p><p>Please comment on the quality of the writing style, commenting as appropriate on spelling, punctuation and grammar.</p><p><br /> </p><p>4) Figures:</p><p>Please comment on the article&rsquo;s use of tables, charts, figures, images or maps.</p><p>Please note if any of the above are missing captions or keys, or require any further editing.</p>\n<p>5) Formatting:</p><p>Does the manuscript adhere to the journal's guidelines?</p><p>Are citations and references formatted to house style?</p><p>6) General comments</p><p> If desired, please provide further comments and suggestions for improvement.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1632,7 +2062,11 @@
         },
         "value": {
             "default": "double-blind"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1647,7 +2081,11 @@
         },
         "value": {
             "default": "56"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1662,7 +2100,11 @@
         },
         "value": {
             "default": "<p>Dear {{ user.full_name }}<br/><br/>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.title }}. You can view further information on this on the journal site: {{ url }} </p><p>Regards,</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1677,7 +2119,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1692,7 +2138,11 @@
         },
         "value": {
             "default": "<p>Dear {{ notification.user.full_name }},<br/><br/>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.title }}\" to  {{ article.journal.name }}.</p><p>You can review the metadata in the journal site: {{ review_unassigned_url }} </p><p>Regards,</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1707,7 +2157,11 @@
         },
         "value": {
             "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that article \"{{ article.title }}\" with corresponding author&nbsp;{{ article.correspondence_author.full_name }} in {{ article.journal.name }} has been accepted for publication.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1722,7 +2176,11 @@
         },
         "value": {
             "default": "A journal."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1737,7 +2195,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1752,7 +2214,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1767,7 +2233,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1782,7 +2252,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1797,7 +2271,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1812,7 +2290,11 @@
         },
         "value": {
             "default": "This should be updated to reflect your journals focus."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1827,7 +2309,11 @@
         },
         "value": {
             "default": "This journal published continuously all year round/publishes in issues every x months."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1842,7 +2328,11 @@
         },
         "value": {
             "default": "This journal operates a open/single anonymous/double anonymous, peer review policy."
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1857,7 +2347,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1872,7 +2366,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1887,7 +2385,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1902,7 +2404,11 @@
         },
         "value": {
             "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: confirm account: {{ core_confirm_account_url }} </p><p>Regards,</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1917,7 +2423,11 @@
         },
         "value": {
             "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been updated. The due date is set to: {{ copyedit_assignment.due }}.</p><p>Regards, {{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1932,7 +2442,11 @@
         },
         "value": {
             "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1947,7 +2461,11 @@
         },
         "value": {
             "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>Your typesetting assignment for article \"{{ typeset_task.assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -1962,7 +2480,11 @@
         },
         "value": {
             "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>Your proofing assignment for article \"{{ proofing_task.assignment.article.title }}\" has been updated. Its due it is now {{ proofing_task.due }}. If you cannot completed the task in this time, please get in touch by replying to this email.</p><p>Regards, {{ request.user.signature|safe }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -1977,7 +2499,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -1992,7 +2518,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2007,7 +2537,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2022,7 +2556,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2037,7 +2575,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2052,7 +2594,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2067,7 +2613,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2082,7 +2632,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2097,7 +2651,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2112,7 +2670,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2127,7 +2689,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2142,7 +2708,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2157,7 +2727,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2172,7 +2746,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2187,7 +2765,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2202,7 +2784,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2217,7 +2803,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2232,7 +2822,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2247,7 +2841,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2262,7 +2860,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2277,7 +2879,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2292,7 +2898,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2307,7 +2917,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2322,7 +2936,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2337,7 +2955,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2352,7 +2974,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2367,7 +2993,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2382,7 +3012,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2397,7 +3031,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2412,7 +3050,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2427,7 +3069,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2442,7 +3088,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2457,7 +3107,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2472,7 +3126,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2487,7 +3145,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2502,7 +3164,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2517,7 +3183,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2532,7 +3202,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2547,7 +3221,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2562,7 +3240,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2577,7 +3259,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2592,7 +3278,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2607,7 +3297,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2622,7 +3316,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2637,7 +3335,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2652,7 +3354,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2667,7 +3373,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2682,7 +3392,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2697,7 +3411,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2712,7 +3430,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2727,7 +3449,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2742,7 +3468,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2757,7 +3487,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2772,7 +3506,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2787,7 +3525,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2802,7 +3544,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2817,7 +3563,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2832,7 +3582,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2847,7 +3601,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2862,7 +3620,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2877,7 +3639,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2892,7 +3658,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2907,7 +3677,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2922,7 +3696,11 @@
         },
         "value": {
             "default": "<p>Dear {{ correction.typesetter.full_name }},</p><p>The correction task you were assigned for {{ article.title }} has been cancelled.</p><p>Regards,</p> {{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -2937,7 +3715,11 @@
         },
         "group": {
             "name": "general"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2952,7 +3734,11 @@
         },
         "value": {
             "default": "Author(s) agree to the copyright notice, which will apply to this submission if accepted"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2967,7 +3753,11 @@
         },
         "value": {
             "default": "0"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2982,7 +3772,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -2997,7 +3791,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -3012,7 +3810,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "value": {
@@ -3027,7 +3829,11 @@
         },
         "group": {
             "name": "email_subject"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3042,7 +3848,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3057,7 +3867,11 @@
         },
         "value": {
             "default": "<p>You may upload a file in lieu of completing the review form. Please ensure you've covered all of the required fields below.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3072,7 +3886,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3087,7 +3905,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3102,7 +3924,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3117,7 +3943,11 @@
         },
         "value": {
             "default": "1"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3132,7 +3962,11 @@
         },
         "value": {
             "default": "<p>Dear {{ draft_decision.section_editor.full_name }},</p><p>Thank you for logging your draft decision. The editor has declined this draft and has added the following message for you: </p>{{ draft_decision.editor_decline_rationale|safe }}<p>Regards</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3147,7 +3981,11 @@
         },
         "value": {
             "default": "Draft Decision Declined"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3162,7 +4000,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3177,7 +4019,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3192,7 +4038,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3207,7 +4057,11 @@
         },
         "value": {
             "default": ""
-          }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3222,7 +4076,11 @@
         },
         "value": {
             "default": "on"
-          }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3237,7 +4095,11 @@
         },
         "value": {
             "default": "News"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3252,7 +4114,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3267,7 +4133,11 @@
         },
         "value": {
             "default": false
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3282,7 +4152,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3297,7 +4171,11 @@
         },
         "value": {
             "default": false
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3312,7 +4190,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3327,7 +4209,11 @@
         },
         "value": {
             "default": "656"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3342,7 +4228,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3357,7 +4247,11 @@
         },
         "value": {
             "default": "{{ issue.journal.code }}.{{ issue.issue_type.code }}.{{ issue.id }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3372,7 +4266,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3387,7 +4285,11 @@
         },
         "value": {
             "default": "[]"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3402,7 +4304,11 @@
         },
         "value": {
             "default": "en"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3417,10 +4323,14 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
-  {
-    "group": {
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3432,7 +4342,11 @@
         },
         "value": {
             "default": "--No support email set--"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3447,9 +4361,13 @@
         },
         "value": {
             "default": "Please supply information below to support your request to make a submission to this journal."
-        }
-      },
-      {
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
         "group": {
             "name": "email"
         },
@@ -3462,7 +4380,11 @@
         },
         "value": {
             "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3477,10 +4399,14 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
-  {
-    "group": {
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3492,7 +4418,11 @@
         },
         "value": {
             "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3507,7 +4437,11 @@
         },
         "value": {
             "default": "<p>A new submission access request has been added.</p><p>{{ description }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3522,7 +4456,11 @@
         },
         "value": {
             "default": "New Submission Access Request"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3537,7 +4475,11 @@
         },
         "value": {
             "default": "<p>Dear {{ access_request.user.full_name }},</p>Your request to be granted the {{ access_request.role.name }} role on {% if access_request.journal %}{{ access_request.journal.name }}{% else %}{{ access_request.repository.name }}{% endif %} has been evaluated.</p><p>The decision made was: {{ decision }}.</p><p>The following note was provided by the staff member evaluating your request: {{ access_request.evaluation_note }}</p><p>Kind Regards,</p><p>{{ request.user.full_name }}</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3552,7 +4494,11 @@
         },
         "value": {
             "default": "Your Submission Access Request"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3567,7 +4513,11 @@
         },
         "value": {
             "default": "<p>Please upload the latest manuscript file. Separately upload any figures or data files needed during peer review.</p>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3582,7 +4532,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3597,10 +4551,14 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
-          "group": {
+        "group": {
             "name": "email_subject"
         },
         "setting": {
@@ -3612,7 +4570,11 @@
         },
         "value": {
             "default": "Article Revisions Complete"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3627,7 +4589,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3642,7 +4608,11 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3657,7 +4627,11 @@
         },
         "value": {
             "default": "200"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3672,7 +4646,11 @@
         },
         "value": {
             "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3687,7 +4665,11 @@
         },
         "value": {
             "default": "Copyedit Review Request Deleted"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3702,7 +4684,11 @@
         },
         "value": {
             "default": "<p>You are receiving this email because you are registered for publication notifications for {{ journal.name }}.</p><p>The following articles have been published today: </p><ul>{% for article in articles %}<li><a href=\"{{ article.url }}\">{{ article.title }}</a></li>{% endfor %}</ul>"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3717,7 +4703,11 @@
         },
         "value": {
             "default": "New Articles Published"
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -3732,8 +4722,65 @@
         },
         "value": {
             "default": ""
-        }
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Can include information such as the physical contact address for the journal.",
+            "is_translatable": true,
+            "name": "contact_info",
+            "pretty_name": "Contact Information",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "Determines which roles can access the licenses pages.",
+            "is_translatable": false,
+            "name": "licenses",
+            "pretty_name": "Role can manage licenses",
+            "type": "json"
+        },
+        "value": {
+            "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "Determines which roles can access the sections pages.",
+            "is_translatable": false,
+            "name": "sections",
+            "pretty_name": "Role can manage sections",
+            "type": "json"
+        },
+        "value": {
+            "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     }
-
 ]
-

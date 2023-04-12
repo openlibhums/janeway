@@ -102,9 +102,10 @@ class LogEntry(models.Model):
             bcc=None
     ):
 
-        if actor is not None and callable(getattr(actor, "is_anonymous", None)):
-            if actor.is_anonymous():
-                actor = None
+        # When a user is not logged in request.user is a SimpleLazyObject
+        # so we check if the actor is_anonymous.
+        if actor is not None and actor.is_anonymous:
+            actor = None
 
         kwargs = {
             'types': types,
@@ -150,11 +151,17 @@ class LogEntry(models.Model):
 
 
 class ToAddress(models.Model):
-    log_entry = models.ForeignKey(LogEntry)
+    log_entry = models.ForeignKey(
+        LogEntry,
+        on_delete=models.CASCADE,
+    )
     email = models.EmailField(max_length=300)
 
     def __str__(self):
         return self.email
+
+    class Meta:
+        verbose_name_plural = 'to addresses'
 
 
 class Version(models.Model):

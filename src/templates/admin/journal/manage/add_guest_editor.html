@@ -1,7 +1,7 @@
 {% extends "admin/core/base.html" %}}
 {% load securitytags %}
 {% load files %}
-{% load static from staticfiles %}
+{% load static %}
 {% load foundation %}
 
 {% block title %}Manage Guest Editors{% endblock title %}
@@ -53,6 +53,7 @@
                     <table class="small scroll">
                         <thead>
                         <tr>
+                            <td></td>
                             <th>ID</th>
                             <th>First Name</th>
                             <th>Last Name</th>
@@ -63,7 +64,8 @@
                         </thead>
                         <tbody id="sortable">
                         {% for editor in editors %}
-                            <tr>
+                            <tr id="guesteditors-{{ editor.pk }}">
+                                <td><span class="fa fa-sort"></span></td>
                                 <td>{{ editor.account.id }}</td>
                                 <td>{{ editor.account.first_name }}</td>
                                 <td>{{ editor.account.last_name }}</td>
@@ -93,7 +95,7 @@
                 <h2>Journal Users</h2>
             </div>
             <div class="content">
-                <table class="small scroll" id="users">
+                <table class="small scroll" id="guest-editor-users">
                     <thead>
                     <tr>
                         <th>ID</th>
@@ -132,5 +134,23 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target=".table" %}
-{% endblock %}
+    {% include "elements/datatables.html" with target="#guest-editor-users" page_length=10 %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'manage_add_guest_editor' issue.pk %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    </script>
+{% endblock js %}
+

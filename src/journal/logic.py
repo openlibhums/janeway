@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
 from django.utils.timezone import make_aware

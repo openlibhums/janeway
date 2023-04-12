@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -64,9 +64,12 @@
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
                                 {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
                                     <td>
-                                        <button type="submit" class="tiny button" formaction="{% url 'hijack:login_with_id' user.id %}?next={% url 'core_dashboard' %}">
-                                            Control User
-                                        </button>
+                                        <form action="{% url 'hijack:acquire' %}" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="user_pk" value="{{ user.pk }}">
+                                          <button type="submit" class="tiny button"> Control User </button>
+                                          <input type="hidden" name="next" value="{% url 'core_dashboard' %}">
+                                        </form>
                                     </td>{% endif %}
                             </tr>
                         {% endfor %}

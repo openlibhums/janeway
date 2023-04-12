@@ -1,4 +1,4 @@
-{% load markdown_deux_tags %}
+{% load markdown %}
 
 <div class="large-1 columns">
 	{% if note.creator.profile_image %}
@@ -11,7 +11,7 @@
 </div>
 <div class="large-11 columns end">
 	<div class="panel  callout radius" style="margin-bottom: 0px;">
-	{{ note.text|markdown }}
+	{{ note.text|markdown_to_html }}
 	</div>
 	<p class="small pull-right" style="margin-top: 0px;">Added {{ note.date_time }} - <a href="{% url 'kanban_delete_note' note.article.pk note.pk %}"><i class="fa fa-trash">&nbsp;</i></a></p>
 </div>

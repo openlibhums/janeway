@@ -9,15 +9,14 @@ class Migration(migrations.Migration):
 
     def forwards_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role.objects.create(
+        Role.objects.get_or_create(
             name='Reader',
             slug='reader',
         )
 
     def reverse_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
-        new_role = Role.objects.filter(
-            name='Reader',
+        Role.objects.filter(
             slug='reader',
         ).delete()
 
@@ -26,5 +25,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_func, reverse_func),
+        migrations.RunPython(forwards_func, reverse_code=reverse_func),
     ]

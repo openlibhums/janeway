@@ -1,13 +1,8 @@
 {% extends "core/base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
-{% load recaptcha2 %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -17,9 +12,9 @@
                 <h3 class="card-title editor-name">{{ contact.name }}</h3>
                 <p>{{ contact.role }}</p>
             {% endfor %}
-            {% if request.journal and request.journal.contact_info %}
-                <h4>{% trans 'Contact Information' %}</h4>
-                {{ request.journal.contact_info|safe }}
+            {% if journal_settings.general.contact_info %}
+                <h2>{% trans 'Contact Information' %}</h2>
+                {{ journal_settings.general.contact_info|safe }}
             {% endif %}
         </div>
         <div class="col-md-8">

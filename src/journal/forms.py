@@ -6,14 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 from django.conf import settings
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from simplemathcaptcha.fields import MathCaptchaField
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django_summernote.widgets import SummernoteWidget
-from hcaptcha.fields import hCaptchaField
 
 from core import models as core_models
 from journal import models as journal_models, logic

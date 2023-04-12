@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
-from core import models as core_models
+from core import models as core_models, logic
 from review import models as review_models
 from production import models as production_models
 from submission import models
@@ -37,7 +37,7 @@ def base_check(request, login_redirect=False):
     if (
         request is None
         or request.user is None
-        or request.user.is_anonymous()
+        or request.user.is_anonymous
         or not request.user.is_active
     ):
         if login_redirect is True:
@@ -169,6 +169,81 @@ def proofing_manager_roles(func):
     return wrapper
 
 
+def role_can_access(access_setting):
+    """
+    This decorator determines if a user can access a given view based on the
+    roles that are allowed to access it.
+    """
+    def decorator(func):
+        @base_check_required
+        def wrapper(request, *args, **kwargs):
+
+            if request.user.is_staff:
+                return func(request, *args, **kwargs)
+
+            setting = setting_handler.get_setting(
+                setting_group_name='permission',
+                setting_name=access_setting,
+                journal=request.journal,
+            )
+
+            journal_roles = request.user.roles.get(request.journal.code) or set()
+            setting_roles = set(setting.processed_value or [])
+            
+            # If no roles for the setting are configured we deny access
+            # in the event that we want all roles to have access they
+            # should be explicitly defined.
+            if setting_roles and journal_roles.intersection(setting_roles):
+                return func(request, *args, **kwargs)
+
+            deny_access(request)
+        return wrapper
+    return decorator
+
+
+def user_can_edit_setting(func):
+    """
+    Checks if a user can edit a given setting.
+    Decorated function must have setting_group_name and setting_group kwargs
+    """
+
+    def wrapper(request, *args, **kwargs):
+
+        setting_group_name = kwargs.get('setting_group', None)
+        setting_name = kwargs.get('setting_name', None)
+
+        if not setting_group_name or not setting_name:
+            deny_access(request)
+
+        if request.user.is_staff or request.user.is_journal_manager(request.journal):
+            return func(request, *args, **kwargs)
+
+        setting = setting_handler.get_setting(
+            setting_group_name=setting_group_name,
+            setting_name=setting_name,
+            journal=request.journal,
+        )
+
+        if logic.user_can_edit_setting(setting, request.user, request.journal):
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return wrapper
+
+
+def editor_or_journal_manager_required(func):
+    """
+    This decorator checks that a user is either an editor a
+    journal-manager.
+    """
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_editor(request) or request.user.is_journal_manager(request.journal):
+            return func(request, *args, **kwargs)
+        deny_access(request)
+
+
 def editor_user_required(func):
     """ This decorator checks that a user is an editor, or
     that the user is a section editor assigned to the article in the url.
@@ -186,7 +261,7 @@ def editor_user_required(func):
 
         article_id = kwargs.get('article_id', None)
 
-        if request.user.is_editor(request) or request.user.is_staff:
+        if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
             return func(request, *args, **kwargs)
 
         elif request.user.is_section_editor(request) and article_id:
@@ -218,6 +293,7 @@ def any_editor_user_required(func):
             deny_access(request)
 
     return wrapper
+
 
 def section_editor_draft_decisions(func):
     """This decorator will check if: the user is a section editor and deny them access if draft decisions
@@ -445,7 +521,7 @@ def reviewer_user_for_assignment_required(func):
             except review_models.ReviewAssignment.DoesNotExist:
                 deny_access(request)
 
-        if request.user.is_anonymous() or not request.user.is_active:
+        if request.user.is_anonymous or not request.user.is_active:
             deny_access(request)
 
         if not request.user.is_reviewer(request):
@@ -579,7 +655,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
         if article_object is not None and article_object.is_accepted():
             return func(request, *args, **kwargs)
-        elif request.user.is_anonymous():
+        elif request.user.is_anonymous:
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)

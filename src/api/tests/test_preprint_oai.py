@@ -2,20 +2,21 @@
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils import timezone
 
 from freezegun import freeze_time
 
 from utils.testing import helpers
 from repository import models as repo_models
-import datetime
-import pytz
 
 REPO_DOMAIN = 'repo.domain.com'
+FROZEN_DATETIME_202209 = timezone.make_aware(timezone.datetime(2022, 9, 1, 0, 0, 0))
+FROZEN_DATETIME_202208 = timezone.make_aware(timezone.datetime(2022, 8, 31, 0, 0, 0))
 
 class TestPreprintOAIViews(TestCase):
 
     @classmethod
-    @freeze_time("2022-08-31")
+    @freeze_time(FROZEN_DATETIME_202208)
     def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.repo, cls.subject = helpers.create_repository(cls.press, [], [])
@@ -27,7 +28,7 @@ class TestPreprintOAIViews(TestCase):
 
         cls.preprint = helpers.create_preprint(cls.repo, cls.author, cls.subject)
         cls.preprint.stage = repo_models.STAGE_PREPRINT_PUBLISHED
-        cls.preprint.date_published = datetime.datetime(2022, 8, 31, tzinfo=pytz.UTC) 
+        cls.preprint.date_published = timezone.make_aware(timezone.datetime(2022, 8, 31, 0, 0, 0)) 
         cls.preprint.make_new_version(cls.preprint.submission_file)
         cls.preprint.save()
 
@@ -35,19 +36,19 @@ class TestPreprintOAIViews(TestCase):
 
         cls.older_preprint = helpers.create_preprint(cls.repo, cls.author, cls.subject, title="Older Test Preprint")
         cls.older_preprint.stage = repo_models.STAGE_PREPRINT_PUBLISHED
-        cls.older_preprint.date_published = datetime.datetime(2022, 8, 29, tzinfo=pytz.UTC)
+        cls.older_preprint.date_published = timezone.make_aware(timezone.datetime(2022, 8, 29, 0, 0, 0))
         cls.older_preprint.make_new_version(cls.older_preprint.submission_file)
         cls.older_preprint.save()
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_list_records_dc(self):
         expected = LIST_RECORDS_DATA_DC
         response = self.client.get(reverse('OAI_list_records'), SERVER_NAME=REPO_DOMAIN)
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_list_records_jats(self):
         expected = LIST_RECORDS_DATA_JATS
         path = reverse('OAI_list_records')
@@ -63,7 +64,7 @@ class TestPreprintOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_list_sets(self):
         expected = LIST_SETS_DATA_DC
 
@@ -83,7 +84,7 @@ class TestPreprintOAIViews(TestCase):
 
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_get_record_dc(self):
         expected = GET_RECORD_DATA_DC
 
@@ -103,7 +104,7 @@ class TestPreprintOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_get_record_jats(self):
         expected = GET_RECORD_DATA_JATS
 
@@ -123,7 +124,7 @@ class TestPreprintOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_list_identifiers_jats(self):
         expected = LIST_IDENTIFIERS_JATS
 
@@ -142,7 +143,7 @@ class TestPreprintOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_identify_dc(self):
         expected = IDENTIFY_DATA_DC
 
@@ -160,7 +161,7 @@ class TestPreprintOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2022-09-01")
+    @freeze_time(FROZEN_DATETIME_202209)
     def test_get_records_until(self):
         expected = GET_RECORD_DATA_UNTIL
 
@@ -168,7 +169,8 @@ class TestPreprintOAIViews(TestCase):
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="oai_dc",
-            until=str(datetime.datetime(2022, 8, 30, tzinfo=pytz.UTC)),
+            # until=str(datetime.datetime(2022, 8, 30, tzinfo=pytz.UTC)),
+            until=timezone.make_aware(timezone.datetime(2022, 8, 30, 0, 0, 0))
         )
         query_string = urlencode(query_params)
 
@@ -297,7 +299,6 @@ LIST_RECORDS_DATA_JATS = """
                                             <surname>Author</surname>
                                             <given-names>Preprint</given-names>
                                         </name>
-                                        <email>preprintauthor@test.edu</email>
                                         <xref ref-type="aff" rid="aff-1"/>
                                     </contrib>
                                 </contrib-group>
@@ -369,7 +370,6 @@ LIST_RECORDS_DATA_JATS = """
                                             <surname>Author</surname>
                                             <given-names>Preprint</given-names>
                                         </name>
-                                        <email>preprintauthor@test.edu</email>
                                         <xref ref-type="aff" rid="aff-1"/>
                                     </contrib>
                                 </contrib-group>
@@ -534,7 +534,6 @@ GET_RECORD_DATA_JATS = """
                                         <surname>Author</surname>
                                         <given-names>Preprint</given-names>
                                     </name>
-                                    <email>preprintauthor@test.edu</email>
                                     <xref ref-type="aff" rid="aff-1"/>
                                 </contrib>
                             </contrib-group>

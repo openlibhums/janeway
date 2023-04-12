@@ -15,6 +15,7 @@ def replace_author_review_setting(apps, schema_editor):
     ]
 
     migration_utils.update_translated_settings(
+        apps,
         setting_name='copyeditor_notify_author',
         group_name='email',
         values_to_replace=values_to_replace,

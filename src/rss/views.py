@@ -12,9 +12,11 @@ from django.contrib.contenttypes.models import ContentType
 from comms import models as comms_models
 from core.templatetags.truncate import truncatesmart
 from submission import models as submission_models
+from repository import models as repo_models
 
 
 class LatestNewsFeed(Feed):
+    """RSS feed for Journal news articles"""
     link = "/news/"
 
     def get_object(self, request, *args, **kwargs):
@@ -54,6 +56,7 @@ class LatestNewsFeed(Feed):
 
 
 class LatestArticlesFeed(Feed):
+    """RSS feed for journal articles"""
     link = "/articles/"
 
     def get_object(self, request, *args, **kwargs):
@@ -78,7 +81,6 @@ class LatestArticlesFeed(Feed):
                 journal__hide_from_press=False,
             ).order_by('-date_published')[:10]
 
-
     def item_title(self, item):
         return striptags(item.title)
 
@@ -88,6 +90,47 @@ class LatestArticlesFeed(Feed):
     def item_author_name(self, item):
         if hasattr(item, 'posted_by'):
             return item.correspondence_author.full_name()
+        else:
+            return None
+
+    def item_pubdate(self, item):
+        return item.date_published
+
+    def feed_url(self, obj):
+        return ""
+
+    # item_link is only needed if NewsItem has no get_absolute_url method.
+    def item_link(self, item):
+        return item.url
+
+class LatestPreprintsFeed(Feed):
+    """RSS feed for preprints"""
+    link = "/preprints/"
+
+    def get_object(self, request, *args, **kwargs):
+        return request.repository or request.press
+
+    def title(self, obj):
+        return "{} Preprint Feed".format(obj.name)
+
+    def description(self, obj):
+        return "A feed of the 10 latest preprints from {}".format(obj.name)
+
+    def items(self, obj):
+        return repo_models.Preprint.objects.filter(
+            date_published__lte=timezone.now(),
+            repository=obj
+        ).order_by('-date_published')[:10]
+
+    def item_title(self, item):
+        return striptags(item.title)
+
+    def item_description(self, item):
+        return truncatesmart(item.abstract, 400)
+
+    def item_author_name(self, item):
+        if hasattr(item, 'owner'):
+            return item.owner.full_name()
         else:
             return None
 

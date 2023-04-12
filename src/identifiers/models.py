@@ -91,8 +91,11 @@ class CrossrefDeposit(models.Model):
         if len(journals) > 1:
             error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
             logger.debug(error)
-        else:
+        elif len(journals) == 1:
             return journals.pop()
+        else:
+            return None
+
 
     def poll(self):
         self.polling_attempts += 1
@@ -232,6 +235,13 @@ class CrossrefStatus(models.Model):
     def latest_deposit(self):
         return self.deposits.first()
 
+    def __str__(self):
+        if self.latest_deposit:
+            return f'{self.identifier} {self.message} ' \
+                   f'{self.latest_deposit.date_time}'
+        else:
+            return self.message
+
     class Meta:
         verbose_name = 'Crossref status'
         verbose_name_plural = 'Crossref statuses'
@@ -268,8 +278,14 @@ class Identifier(models.Model):
 
 
 class BrokenDOI(models.Model):
-    article = models.ForeignKey('submission.Article')
-    identifier = models.ForeignKey(Identifier)
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    identifier = models.ForeignKey(
+        Identifier,
+        on_delete=models.CASCADE,
+    )
     checked = models.DateTimeField()
     resolves_to = models.URLField()
     expected_to_resolve_to = models.URLField()

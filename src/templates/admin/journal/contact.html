@@ -1,12 +1,8 @@
 {% extends 'admin/core/base.html' %}
-{% load i18n foundation recaptcha2 %}
+{% load i18n foundation %}
 
 {% block title %}{{ request.journal.name }} Contact{% endblock %}
 {% block title-section %}{{ request.journal.name }} Contact{% endblock %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

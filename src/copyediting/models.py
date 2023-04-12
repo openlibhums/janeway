@@ -33,7 +33,10 @@ class ActiveCopyeditAssignmentManager(models.Manager):
 
 
 class CopyeditAssignment(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     copyeditor = models.ForeignKey('core.Account', related_name='copyeditor', null=True, on_delete=models.SET_NULL)
     editor = models.ForeignKey('core.Account', related_name='cp_editor', null=True, on_delete=models.SET_NULL)
 
@@ -64,7 +67,7 @@ class CopyeditAssignment(models.Model):
         ordering = ('assigned',)
 
     def __str__(self):
-        return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article.title)
+        return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article)
 
     def author_reviews(self):
         return AuthorReview.objects.filter(assignment=self).order_by('assigned')
@@ -123,8 +126,14 @@ class ActiveAuthorReviewManager(models.Manager):
 
 
 class AuthorReview(models.Model):
-    author = models.ForeignKey('core.Account')
-    assignment = models.ForeignKey(CopyeditAssignment)
+    author = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    assignment = models.ForeignKey(
+        CopyeditAssignment,
+        on_delete=models.CASCADE,
+    )
 
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)

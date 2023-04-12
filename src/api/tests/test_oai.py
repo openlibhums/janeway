@@ -7,6 +7,7 @@ from urllib.parse import unquote_plus
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils import timezone
 
 from freezegun import freeze_time
 from lxml import etree
@@ -15,6 +16,9 @@ from api.oai.base import OAIPaginationMixin
 from submission import models as sm_models
 from utils.testing import helpers
 
+FROZEN_DATETIME_2012 = timezone.make_aware(timezone.datetime(2012, 1, 14, 0, 0, 0))
+FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 0, 0, 0))
+FROZEN_DATETIME_1976 = timezone.make_aware(timezone.datetime(1976, 1, 2, 0, 0, 0))
 
 class TestOAIViews(TestCase):
 
@@ -49,16 +53,15 @@ class TestOAIViews(TestCase):
         xml_dom = etree.XML(xml)
         return xml_schema.validate(xml_dom)
 
-
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_dc(self):
         expected = LIST_RECORDS_DATA_DC
         response = self.client.get(reverse('OAI_list_records'), SERVER_NAME="testserver")
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_jats(self):
         expected = LIST_RECORDS_DATA_JATS
         path = reverse('OAI_list_records')
@@ -75,7 +78,7 @@ class TestOAIViews(TestCase):
         self.assertEqual(result.split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_get_record_dc(self):
         expected = GET_RECORD_DATA_DC
 
@@ -95,7 +98,7 @@ class TestOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("1976-01-02")
+    @freeze_time(FROZEN_DATETIME_1976)
     def test_get_records_until(self):
         expected = GET_RECORD_DATA_UNTIL
 
@@ -103,7 +106,7 @@ class TestOAIViews(TestCase):
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="oai_dc",
-            until="1976-01-02",
+            until=timezone.make_aware(timezone.datetime(1976, 1, 2, 0, 0, 0)),
         )
         query_string = urlencode(query_params)
 
@@ -130,9 +133,14 @@ class TestOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_get_record_jats(self):
         expected = GET_RECORD_DATA_JATS
+        # Add a non correspondence author
+        author_2 = helpers.create_author(self.journal, email="no@email.com")
+        self.article.authors.add(author_2)
+        self.article.snapshot_authors()
+
 
         path = reverse('OAI_list_records')
         query_params = dict(
@@ -147,11 +155,13 @@ class TestOAIViews(TestCase):
             SERVER_NAME="testserver"
         )
 
+
+        self.maxDiff = None
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
-    def test_get_record_jats(self):
+    @freeze_time(FROZEN_DATETIME_2012)
+    def test_list_identifiers_jats(self):
         expected = LIST_IDENTIFIERS_JATS
 
         path = reverse('OAI_list_records')
@@ -169,7 +179,7 @@ class TestOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_identify_dc(self):
         expected = IDENTIFY_DATA_DC
 
@@ -187,7 +197,7 @@ class TestOAIViews(TestCase):
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("2012-01-14")
+    @freeze_time(FROZEN_DATETIME_2012)
     def test_list_sets(self):
         expected = LIST_SETS_DATA_DC
 
@@ -225,7 +235,7 @@ class TestOAIViews(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
-    @freeze_time("1990-01-01")
+    @freeze_time(FROZEN_DATETIME_1990)
     def test_oai_resumption_token_encode(self):
         custom_param = {"custom-param": "custom-value"}
         expected = {
@@ -479,7 +489,7 @@ GET_RECORD_DATA_JATS = """
                 <journal-id journal-id-type="issn">0000-0000</journal-id>
                 <journal-title-group>
                     <journal-title>Journal One</journal-title>
-                </journal-title-group1986-07-12T15:00:00Z>
+                </journal-title-group>
                 <issn pub-type="epub">0000-0000</issn>
                 <publisher>
                     <publisher-name></publisher-name>
@@ -504,8 +514,16 @@ GET_RECORD_DATA_JATS = """
                         <email>authoruser@martineve.com</email>
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
+                    <contrib contrib-type="author">
+                        <name>
+                            <surname>User</surname>
+                            <given-names>Author A</given-names>
+                        </name>
+                        <xref ref-type="aff" rid="aff-2"/>
+                    </contrib>
                 </contrib-group>
                 <aff id="aff-1">Author Department, Author institution</aff>
+                <aff id="aff-2">Author Department, Author institution</aff>
                 <pub-date date-type="pub" iso-8601-date="1986-07-12" publication-format="electronic">
                     <day>12</day>
                     <month>07</month>
