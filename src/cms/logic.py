@@ -7,6 +7,7 @@ import os
 
 from django.shortcuts import reverse
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 from journal import models as journal_models
 from cms import models as models
@@ -171,10 +172,17 @@ def get_index_files(press):
         settings.SITE_SEARCH_DIR,
         f'_press_{ press.pk }_documents.json'
     )
-    docs_file = models.MediaFile.objects.get(label=docs_filename)
     index_filename = os.path.join(
         settings.SITE_SEARCH_DIR,
         f'_press_{ press.pk }_index.json'
     )
-    index_file = models.MediaFile.objects.get(label=index_filename)
+    try:
+        docs_file = models.MediaFile.objects.get(label=docs_filename)
+        index_file = models.MediaFile.objects.get(label=index_filename)
+    except models.MediaFile.DoesNotExist:
+        raise ImproperlyConfigured(
+            'Site search indexing is turned on, but there are no index files. '
+            'Set settings.SITE_SEARCH_INDEXING_FREQUENCY to None or run '
+            'manage.py generate_site_search_index.'
+        )
     return docs_file, index_file

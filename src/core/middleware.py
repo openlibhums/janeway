@@ -120,7 +120,10 @@ class SiteSettingsMiddleware(BaseMiddleware):
             request.press_base_url = press.site_url()
 
             # Site search data urls
-            if settings.SITE_SEARCH_INDEXING_FREQUENCY:
+            if (
+                settings.SITE_SEARCH_INDEXING_FREQUENCY
+                and not settings.IN_TEST_RUNNER
+            ):
 
                 docs_file, index_file = cms_logic.get_index_files(request.press)
                 request.site_search_docs_url = docs_file.file.url
