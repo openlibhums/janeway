@@ -129,7 +129,7 @@
                                 </div>
 
                                 {% chain round.active_reviews round.inactive_reviews as reviews %}
-                                {% if round.reviewassignment_set.count > 4 or request.session.table_format_reviews %}
+                                {% if request.session.table_format_reviews %}
                                     {% include "admin/elements/review/reviews_small.html" %}
                                 {% else %}
                                     {% for review in reviews %}
