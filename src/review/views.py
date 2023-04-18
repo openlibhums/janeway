@@ -797,7 +797,6 @@ def do_review(request, assignment_id):
     :param assignment_id: ReviewAssignment PK
     :return: a context for a Django template
     """
-
     access_code = logic.get_access_code(request)
 
     if access_code:
@@ -818,6 +817,11 @@ def do_review(request, assignment_id):
     allow_save_review = setting_handler.get_setting(
         'general', 'enable_save_review_progress', request.journal,
     ).processed_value
+    open_review_initial = setting_handler.get_setting(
+        'general',
+        'open_review_default_opt_in',
+        request.journal,
+    ).processed_value
 
     fields_required = False
     decision_required = False if allow_save_review else True
@@ -830,6 +834,7 @@ def do_review(request, assignment_id):
     decision_form = forms.ReviewerDecisionForm(
         instance=assignment,
         decision_required=decision_required,
+        open_review_initial=open_review_initial,
     )
 
     if 'review_file' in request.GET:
@@ -2611,3 +2616,54 @@ def decision_helper(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@any_editor_user_required
+def upload_reviewers_from_csv(request, article_id):
+    """
+    Allows an editor to load reviewers in form a CSV.
+    """
+    errors = []
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    form = forms.BulkReviewAssignmentForm(
+        journal=request.journal,
+    )
+    if request.POST and request.FILES:
+        reviewer_csv = request.FILES.get('reviewer_csv')
+        form = forms.BulkReviewAssignmentForm(
+            request.POST,
+            request.FILES,
+            journal=request.journal,
+        )
+        filename, path = files.save_file_to_temp(reviewer_csv)
+        if form.is_valid():
+            reviewers = logic.process_reviewer_csv(path, request, article, form)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                '{} Review assignments saved.'.format(len(reviewers)),
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={
+                        'article_id': article.pk,
+                    }
+                )
+            )
+
+    template = 'admin/review/upload_reviewers_from_csv.html'
+    context = {
+        'article': article,
+        'form': form,
+        'errors': errors,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )

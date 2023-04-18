@@ -3,13 +3,12 @@
         <h4>#{{ review.pk }} - {{ review.reviewer.full_name }}
             <span data-tooltip title="Email peer reviewer."><a
                     onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span
-                    class="fa fa-envelope">&nbsp;</span></a></span>
+                    class="fa fa-envelope"></span></a></span>
             {% if request.user.is_admin %}
                 <span data-tooltip title="Edit account in admin.">
-                                                    <a href="{% url 'admin:core_account_change' review.reviewer.pk %}"
-                                                       target="_blank">
-                                                    <span class="fa fa-cogs"></span></a>
-                                                    </span>
+                    <a href="{% url 'admin:core_account_change' review.reviewer.pk %}" target="_blank">
+                        <span class="fa fa-cogs"></span></a>
+                </span>
             {% endif %}
         </h4>
     </div>
@@ -20,10 +19,9 @@
                 <th>Requested</th>
                 <th>Request Decision</th>
                 <th>Due</th>
-                <th>Decision</th>
-                <th>Completed</th>
+                <th>Recommendation</th>
                 {% if journal_settings.general.open_peer_review %}
-                    <th>Open<br/>Permission</th>
+                    <th>Publish Review<br/>Permission</th>
                 {% endif %}
                 <th width="150px"></th>
             </tr>
@@ -39,10 +37,15 @@
                 </td>
                 <td>{{ review.date_due|date:"Y-m-d" }}</td>
                 <td>{% if review.decision %}
-                    {{ review.get_decision_display|capfirst }}{% else %}
-                    --{% endif %}</td>
-                <td>{% if review.date_complete %}
-                    {{ review.date_complete }}{% else %}--{% endif %}</td>
+                {{ review.get_decision_display|capfirst }}
+                <br />
+                {% if review.date_complete %}
+                    {{ review.date_complete|date:"Y-m-d H:i" }}
+                {% endif %}
+                {% else %}
+                --
+                {% endif %}
+            </td>
                 {% if journal_settings.general.open_peer_review %}
                     <td>{% if review.permission_to_make_public %}
                         <span style="color: green;"><i aria-hidden="true" title="Review can be made public"
@@ -51,58 +54,7 @@
                                                      class="fa fa-times-circle"></i></span>{% endif %}</td>
                 {% endif %}
                 <td>
-                    <div class="button-group">
-                        <a href="{% url 'review_view_review' article.pk review.pk %}"
-                           class="button">View</a>
-                        <a class="dropdown button arrow-only"
-                           data-toggle="review-dropdown-{{ review.pk }}"><span
-                                class="show-for-sr">Show menu</span></a>
-                    </div>
-                    <div class="dropdown-pane {{ dropdown }}"
-                         id="review-dropdown-{{ review.pk }}"
-                         data-dropdown data-close-on-click="true"
-                         data-alignment="bottom"
-                         >
-                        <ul class="menu vertical actions">
-                            {% if review.decision == 'withdrawn' or review.date_declined %}
-                                <li>
-                                    <a href="{% url 'review_reset_review' article.pk review.pk %}"><i
-                                            class="fa fa-retweet action-icon">&nbsp;</i>Reset</a>
-                                </li>
-                            {% endif %}
-                            <li>
-                                <a href="{% url 'review_edit_review' article.pk review.pk %}"><i
-                                        class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
-                            </li>
-                            {% if not review.is_complete %}
-                                <li>
-                                    <a href="
-                                            {% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}">
-                                        <i class="fa fa-clock-o action-icon"></i> Send Reminder
-                                    </a>
-                                </li>
-                            {% endif %}
-                            <li>
-                                <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i
-                                        class="fa fa-star action-icon">&nbsp;</i>Rate</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i
-                                        class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'review_delete_review' article.pk review.pk %}"><i
-                                        class="fa fa-trash action-icon">&nbsp;</i>Delete</a>
-                            </li>
-                            {% if request.user.is_admin %}
-                                <li>
-                                    <a target="_blank"
-                                       href="{% url 'admin:review_reviewassignment_change' review.pk %}"><span
-                                            class="fa fa-cogs"> </span> Edit in Admin</a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
+                    {% include "admin/elements/review/dropdown.html" %}
                 </td>
             </tr>
             </tbody>
