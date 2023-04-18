@@ -112,11 +112,24 @@
                                     <h2>Reviewers</h2>
                                     {% if round.round_number == article.current_review_round %}
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
-                                            Reviewer</a>{% endif %}
+                                            Reviewer</a>
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            {% if request.session.table_format_reviews %}
+                                                <button name="expanded_format_reviews"
+                                                        class="button">View in Expanded Format
+                                                </button>
+                                            {% else %}
+                                                <button name="table_format_reviews"
+                                                        class="button">View in Table Format
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    {% endif %}
                                 </div>
 
                                 {% chain round.active_reviews round.inactive_reviews as reviews %}
-                                {% if round.reviewassignment_set.count > 4 %}
+                                {% if round.reviewassignment_set.count > 4 or request.session.table_format_reviews %}
                                     {% include "admin/elements/review/reviews_small.html" %}
                                 {% else %}
                                     {% for review in reviews %}
