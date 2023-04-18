@@ -3,9 +3,12 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import csv
+import uuid
 from datetime import timedelta
 from uuid import uuid4
 import os
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -131,23 +134,27 @@ def get_review_url(request, review_assignment):
     return review_url
 
 
+def get_article_details_for_review(article):
+    return """
+        <b>Article Details:</b>
+            <b>Title</b>: {article.title}
+            <b>Section</b>: {section}
+            <b>Keywords</b>: {keywords}
+            <b>Abstract</b>:
+                {article.abstract}
+        """.format(
+        article=article,
+        section=article.section.name if article.section else None,
+        keywords=", ".join(kw.word for kw in article.keywords.all()),
+    )
+
+
 def get_reviewer_notification(
     request, article, editor, review_assignment,
     reminder=False,
 ):
     review_url = get_review_url(request, review_assignment)
-    article_details = """
-    <b>Article Details:</b>
-        <b>Title</b>: {article.title}
-        <b>Section</b>: {section}
-        <b>Keywords</b>: {keywords}
-        <b>Abstract</b>:
-            {article.abstract}
-    """.format(
-        article=article,
-        section=article.section.name if article.section else None,
-        keywords= ", ".join(kw.word for kw in article.keywords.all()),
-    )
+    article_details = get_article_details_for_review(article)
 
     email_context = {
         'article': article,
@@ -626,3 +633,88 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
                     **kwargs,
                 )
         return assignment, created
+
+
+def process_reviewer_csv(path, request, article, form):
+    """
+    Iterates through a CSV c
+    """
+    csv_file = open(path, 'r', encoding="utf-8-sig")
+    reader = csv.DictReader(csv_file)
+    reviewers = []
+    for row in reader:
+        try:
+            country = core_models.Country.objects.get(code=row.get('country'))
+        except core_models.Country.DoesNotExist:
+            country = None
+
+        reviewer, created = core_models.Account.objects.update_or_create(
+            email=row.get('email_address'),
+            defaults={
+                'salutation': row.get('salutation'),
+                'first_name': row.get('firstname'),
+                'middle_name': row.get('middlename'),
+                'last_name': row.get('lastname'),
+                'department': row.get('department'),
+                'institution': row.get('institution'),
+                'country': country,
+                'is_active': True,
+            }
+        )
+
+        try:
+            review_interests = row.get('interests')
+            re.split('[,;]+', review_interests)
+        except (IndexError, AttributeError):
+            review_interests = []
+
+        for term in review_interests:
+            interest, _ = core_models.Interest.objects.get_or_create(name=term)
+            reviewer.interest.add(interest)
+
+        # Add the reviewer role
+        reviewer.add_account_role('reviewer', request.journal)
+
+        review_assignment, c = models.ReviewAssignment.objects.get_or_create(
+            article=article,
+            reviewer=reviewer,
+            editor=request.user,
+            review_round=article.current_review_round_object(),
+            defaults={
+                'date_due': form.cleaned_data.get('date_due'),
+                'form': form.cleaned_data.get('form'),
+                'visibility': form.cleaned_data.get('visibility'),
+                'access_code': uuid4(),
+            }
+        )
+        review_url = get_review_url(request, review_assignment)
+        html = render_template.get_message_content(
+            request=request,
+            context={
+                'article': article,
+                'editor': request.user,
+                'review_assignment': review_assignment,
+                'review_url': review_url,
+                'article_details': get_article_details_for_review(article),
+                'reason': row.get('reason')
+            },
+            template=form.cleaned_data.get('template'),
+            template_is_setting=True,
+        )
+
+        # finally, call event
+        kwargs = {'user_message_content': html,
+                  'review_assignment': review_assignment,
+                  'request': request,
+                  'skip': False,
+                  'acknowledgement': True}
+
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,
+            **kwargs,
+        )
+
+        reviewers.append(
+            {'account': reviewer, 'reason': row.get('reason')}
+        )
+    return reviewers

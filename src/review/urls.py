@@ -133,5 +133,10 @@ urlpatterns = [
     re_path(r'^article/(?P<article_id>\d+)/decision_helper/$',
         views.decision_helper,
         name='decision_helper',
-        )
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/csv-import/$',
+        views.upload_reviewers_from_csv,
+        name='upload_reviewers_from_csv',
+    ),
 ]

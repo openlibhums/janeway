@@ -10,7 +10,16 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
     {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_suggested_reviewers %}
+
+</div>
+
+<div class="title-area">
+    <h2>Open Peer Review</h2>
+</div>
+<div class="content">
+    <p>Control Janeway's open peer review options.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.open_peer_review %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.open_review_default_opt_in %}
 </div>
 
 <div class="title-area">
@@ -20,6 +29,7 @@
     <p>{% trans "Settings here determine the review form experience." %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_guidelines %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_save_review_progress %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.disable_reviewer_recommendation %}
     {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_form_download %}
     {% include "admin/elements/forms/field.html" with field=edit_form.peer_review_upload_text %}
 </div>

@@ -391,6 +391,14 @@ def get_settings_to_edit(display_group, journal, user):
                 'name': 'open_peer_review',
                 'object': setting_handler.get_setting('general', 'open_peer_review', journal),
             },
+            {
+                'name': 'open_review_default_opt_in',
+                'object': setting_handler.get_setting('general', 'open_review_default_opt_in', journal),
+            },
+            {
+                'name': 'disable_reviewer_recommendation',
+                'object': setting_handler.get_setting('general', 'disable_reviewer_recommendation', journal),
+            },
         ]
         setting_group = 'general'
 

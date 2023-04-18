@@ -483,7 +483,7 @@ def create_editor_assignment(article, editor, **kwargs):
 
 def create_revision_request(article, editor, **kwargs):
     note = kwargs.get('note', 'Test note')
-    decision = kwargs.get('decision', review_models.review_decision()[0][0])
+    decision = kwargs.get('decision', review_models.ALL_REVIEW_DECISION_CHOICES[0][0])
     if isinstance(decision, tuple):
         decision = decision[0]
     date_due = kwargs.get('date_due', timezone.now() + datetime.timedelta(days=3))
