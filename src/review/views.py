@@ -391,6 +391,14 @@ def in_review(request, article_id):
             article.stage = submission_models.STAGE_UNDER_REVIEW
             article.save()
 
+        if 'table_format_reviews' in request.POST:
+            request.session['table_format_reviews'] = True
+            request.session.modified = True
+
+        if 'expanded_format_reviews' in request.POST:
+            request.session.pop('table_format_reviews')
+            request.session.modified = True
+
         if 'new_review_round' in request.POST:
 
             # Complete all existing review assignments.
