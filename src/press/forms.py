@@ -25,7 +25,8 @@ class PressForm(forms.ModelForm):
     class Meta:
         model = models.Press
         fields = (
-            'name', 'main_contact', 'theme', 'description', 'footer_description',
+            'name', 'main_contact', 'theme', 'description',
+            'footer_description', 'secondary_image',
             'default_carousel_image', 'favicon', 'enable_preprints',
             'is_secure', 'password_number', 'password_upper',
             'password_length', 'password_reset_text', 'registration_text',
