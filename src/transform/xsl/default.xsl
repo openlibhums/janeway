@@ -3560,6 +3560,11 @@
                     <xsl:value-of select="@style"/>
                 </xsl:attribute>
             </xsl:if>
+            <xsl:if test="@class">
+                <xsl:attribute name="class">
+                    <xsl:text>styled-content </xsl:text><xsl:value-of select="@class"/>
+                </xsl:attribute>
+            </xsl:if>
             <xsl:apply-templates/>
         </span>
     </xsl:template>
