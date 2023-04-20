@@ -51,6 +51,7 @@ IMAGE_MIMETYPES = (
     'image/png',
     'image/gif',
     'image/tiff',
+    'image/avif',
 )
 
 XML_MIMETYPES = (
