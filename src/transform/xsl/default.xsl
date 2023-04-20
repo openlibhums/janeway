@@ -3655,20 +3655,11 @@
     </xsl:template>
 
     <xsl:template match="code">
-        <xsl:choose>
-            <xsl:when test="@xml:space = 'preserve'">
-                <pre>
-                    <code>
-                        <xsl:apply-templates/>
-                    </code>
-                </pre>
-            </xsl:when>
-            <xsl:otherwise>
-                <code>
-                    <xsl:apply-templates/>
-                </code>
-            </xsl:otherwise>
-        </xsl:choose>
+       <pre>
+         <code>
+           <xsl:apply-templates/>
+         </code>
+       </pre>
     </xsl:template>
 
     <!-- END - general format -->
