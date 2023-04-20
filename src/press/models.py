@@ -14,7 +14,7 @@ from django.db import models
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, SVGImageField
 from utils import logic
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -79,6 +79,14 @@ class Press(AbstractSiteModel):
         verbose_name='Footer text',
         help_text='Additional HTML for the press footer.',
     )
+    secondary_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text='Optional secondary logo for footer. '
+                  'Not implemented in all themes.',
+    )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
@@ -102,7 +110,6 @@ class Press(AbstractSiteModel):
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
-
     password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
     registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
 
