@@ -716,7 +716,11 @@ def process_reviewer_csv(path, request, article, form):
             )
 
             reviewers.append(
-                {'account': reviewer, 'reason': row.get('reason')}
+                {
+                    'account': reviewer,
+                    'reason': row.get('reason'),
+                    'review_assignment': review_assignment,
+                }
             )
         return reviewers, None
     except (IntegrityError, IndexError) as e:
