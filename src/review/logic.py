@@ -679,9 +679,9 @@ def process_reviewer_csv(path, request, article, form):
             review_assignment, c = models.ReviewAssignment.objects.get_or_create(
                 article=article,
                 reviewer=reviewer,
-                editor=request.user,
                 review_round=article.current_review_round_object(),
                 defaults={
+                    'editor': request.user,
                     'date_due': form.cleaned_data.get('date_due'),
                     'form': form.cleaned_data.get('form'),
                     'visibility': form.cleaned_data.get('visibility'),
