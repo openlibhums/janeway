@@ -2649,12 +2649,20 @@ def upload_reviewers_from_csv(request, article_id):
         )
         filename, path = files.save_file_to_temp(reviewer_csv)
         if form.is_valid():
-            reviewers = logic.process_reviewer_csv(path, request, article, form)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                '{} Review assignments saved.'.format(len(reviewers)),
-            )
+            reviewers, import_error = logic.process_reviewer_csv(path, request, article, form)
+
+            if import_error:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    import_error,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{} Review assignments saved.'.format(len(reviewers)),
+                )
             return redirect(
                 reverse(
                     'review_in_review',
