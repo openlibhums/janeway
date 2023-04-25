@@ -26,7 +26,7 @@ class PressForm(forms.ModelForm):
         model = models.Press
         fields = (
             'name', 'main_contact', 'theme', 'description',
-            'footer_description', 'secondary_image',
+            'footer_description', 'secondary_image', 'secondary_image_url',
             'default_carousel_image', 'favicon', 'enable_preprints',
             'is_secure', 'password_number', 'password_upper',
             'password_length', 'password_reset_text', 'registration_text',
@@ -35,7 +35,10 @@ class PressForm(forms.ModelForm):
         widgets = {
             'theme': forms.Select(
                 choices=logic.get_theme_list()
-            )
+            ),
+            'footer_description': SummernoteWidget(),
+            'password_reset_text': SummernoteWidget(),
+            'registration_text': SummernoteWidget(),
         }
 
     def save(self, commit=True):

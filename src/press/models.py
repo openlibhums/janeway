@@ -87,6 +87,11 @@ class Press(AbstractSiteModel):
         help_text='Optional secondary logo for footer. '
                   'Not implemented in all themes.',
     )
+    secondary_image_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text='Turns secondary image into a link.',
+    )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
