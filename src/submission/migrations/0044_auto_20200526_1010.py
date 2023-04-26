@@ -16,9 +16,22 @@ class Migration(migrations.Migration):
             name='Funder',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=500)),
-                ('fundref_id', models.CharField(blank=True, max_length=500, null=True)),
-                ('funding_id', models.CharField(blank=True, max_length=500, null=True)),
+                ('name', models.CharField(
+                    max_length=500,
+                    help_text='Funder name',
+                )),
+                ('fundref_id', models.CharField(
+                    blank=True,
+                    help_text='Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as http://dx.doi.org/10.13039/501100021082',
+                    max_length=500,
+                    null=True,
+                )),
+                ('funding_id', models.CharField(
+                    blank=True,
+                    help_text='The grant ID (optional). Enter the ID by itself',
+                    max_length=500,
+                    null=True,
+                )),
             ],
             options={
                 'ordering': ('name',),
