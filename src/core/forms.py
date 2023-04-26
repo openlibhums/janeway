@@ -100,8 +100,8 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 
 class PasswordResetForm(forms.Form):
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password 1'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password 2'))
+    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
+    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password (again)'))
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -187,6 +187,10 @@ class EditAccountForm(forms.ModelForm):
                    'date_confirmed', 'confirmation_code', 'is_active',
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
+        widgets = {
+            'biography': forms.Textarea(),
+            'signature': forms.Textarea(),
+        }
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)

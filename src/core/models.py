@@ -218,7 +218,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=300,
         null=True,
         blank=True,
-        help_text=_('Name suffix eg. jr'),
+        verbose_name=_('Name suffix'),
     )
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
