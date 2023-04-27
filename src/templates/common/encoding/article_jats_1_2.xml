@@ -39,6 +39,11 @@
             <contrib-group>
             {% for author in article.frozen_authors.all %}
                 <contrib contrib-type="author">
+                    {% if author.orcid %}
+                    <contrib-id contrib-id-type="orcid" authenticated="true">{
+                        { author.orcid }}
+                    </contrib-id>
+                    {% endif %}
                     <name>
                         <surname>{{ author.last_name }}</surname>
                         <given-names>{{ author.given_names }}</given-names>
@@ -53,16 +58,54 @@
             {% for author in article.frozen_authors.all %}
             <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
             {% endfor %}
+
+            {% if article.competing_interests or article.correspondence_author %}
+            <author-notes>
+            {% if article.competing_interests %}
+                <fn fn-type="com">
+                    <p>{{ article.competing_interests }}</p>
+                </fn>
+            {% endif %}
+            {% if article.correspondence_author %}
+                <corresp id="cor1">Corresponding Author:
+                    <email xlink:href="mailto:{{ article.correspondence_author.email }}">
+                        {{ article.correspondence_author.email }}
+                    </email>
+                </corresp>
+            {% endif %}
+            </author-notes>
+            {% endif %}
+
+            {% if article.date_published %}
             <pub-date date-type="pub" iso-8601-date="{{ article.date_published|date:"Y-m-d" }}" publication-format="electronic">
                 <day>{{ article.date_published|date:"d" }}</day>
                 <month>{{ article.date_published|date:"m" }}</month>
                 <year>{{ article.date_published|date:"Y" }}</year>
             </pub-date>
+            {% endif %}
+            {% if article.date_submitted or article.date_accepted %}
+            <history>
+                {% if article.date_submitted %}
+                <date date-type="received" iso-8601-date="{{ article.date_submitted|date:"Y-m-d" }}">
+                <day>{{ article.date_submitted|date:"d" }}</day>
+                <month>{{ article.date_submitted|date:"m" }}</month>
+                <year>{{ article.date_submitted|date:"Y" }}</year>
+                </date>
+                {% endif %}
+                {% if article.date_accepted %}
+                <date date-type="accepted" iso-8601-date="{{ article.date_accepted|date:"Y-m-d" }}">
+                <day>{{ article.date_accepted|date:"d" }}</day>
+                <month>{{ article.date_accepted|date:"m" }}</month>
+                <year>{{ article.date_accepted|date:"Y" }}</year>
+                </date>
+                {% endif %}
+            </history>
+            {% endif %}
             <volume seq="{{ article.issue.order }}">{{ article.issue.volume }}</volume>
             <issue>{{ article.issue.issue }}</issue>
             <issue-id>{{ article.issue.pk }}</issue-id>
             {% if article.issue.title %}
-            <issue-title xml:lang="en">{{ article.issue.title }}</issue-id>
+            <issue-title xml:lang="en">{{ article.issue.title }}</issue-title>
             {% endif %}
             <permissions>
                 <copyright-statement>Copyright: © {{ article.date_published|date:"Y" }} The Author(s)</copyright-statement>
@@ -80,6 +123,18 @@
                 <kwd>{{ keyword.word }}</kwd>
                 {% endfor %}
             </kwd-group>
+            {% endif %}
+
+            {% if article.funders.all %}
+                {% for funder in article.funders.all %}
+                    <funding-group>
+                        <award-group>
+                            <funding-source id="{{ funder.fundref_id }}">{{ funder.name }}
+                            </funding-source>
+                            <award-id>{{ funder.funding_id }}</award-id>
+                        </award-group>
+                    </funding-group>
+                {% endfor %}
             {% endif %}
         </article-meta>
     </front>
