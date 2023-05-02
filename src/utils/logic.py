@@ -35,7 +35,7 @@ def parse_mailgun_webhook(post):
     if event and (mailgun_event == 'dropped' or mailgun_event == 'bounced'):
         event.message_status = 'failed'
         event.save()
-        attempt_actor_email(event)
+        send_bounce_notification_to_event_actor(event)
         return 'Message dropped, actor notified.'
     elif event and mailgun_event == 'delivered':
         event.message_status = 'delivered'
@@ -56,7 +56,7 @@ def verify_webhook(token, timestamp, signature):
     return hmac.compare_digest(signature, hmac_digest.encode('utf-8'))
 
 
-def attempt_actor_email(event):
+def send_bounce_notification_to_event_actor(event):
     """
     Attempts to send a notification email to an actor when a message bounces.
     Messages are only send to staff, editors and repository managers.

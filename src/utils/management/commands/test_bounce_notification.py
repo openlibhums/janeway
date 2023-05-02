@@ -19,4 +19,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         log_id = options.get('log_id')
         log_entry = models.LogEntry.objects.get(pk=log_id)
-        logic.attempt_actor_email(log_entry)
+        logic.send_bounce_notification_to_event_actor(log_entry)

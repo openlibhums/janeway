@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     if check_for_perm_failure(event_dict, log):
                         log.message_status = 'failed'
                         log.status_checks_complete = True
-                        logic.attempt_actor_email(log)
+                        logic.send_bounce_notification_to_event_actor(log)
                     else:
                         log.message_status = 'accepted'
 
