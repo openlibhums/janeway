@@ -15,6 +15,7 @@ from utils.function_cache import cache
 from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
+from submission import models as submission_models
 
 logger = get_logger(__name__)
 
@@ -56,41 +57,61 @@ def verify_webhook(token, timestamp, signature):
 
 
 def attempt_actor_email(event):
-
+    """
+    Attempts to send a notification email to an actor when a message bounces.
+    Messages are only send to staff, editors and repository managers.
+    """
     actor = event.actor
-    article = event.target
+    target = event.target
 
-    # Set To to the main contact, and then attempt to find a better match.
-    from press import models as pm
-    press = pm.Press.objects.all()[0]
+    # set to the main contact, and then attempt to find a better match
+    press = press_models.Press.objects.all()[0]
     to = press.main_contact
 
-    if actor and article:
-        if actor.is_staff or actor.is_superuser:
-            # Send an email to this actor
-            to = actor.email
-            pass
-        elif actor and article.journal and actor in article.journal.editors():
-            # Send email to this actor
-            to = actor.email
-        elif actor and not article.journal and actor in press.preprint_editors():
-            to = actor.email
-
-    # Fake a request object
+    # fake a request object
     request = Request()
     request.press = press
-    request.site_type = press
+    request.META = {}
+    request.model_content_type = None
+    request.user = None
 
-    body = """
-        <p>A message sent to {0} from article {1} (ID: {2}) has been marked as failed.<p>
-        <p>Regards,</p>
-        <p>Janeway</p>
-    """.format(event.to, article.title, article.pk)
-    notify_helpers.send_email_with_body_from_user(request,
-                                                  'Email Bounced',
-                                                  to,
-                                                  body,
-                                                  log_dict=None)
+    if actor and target:
+        if actor.is_staff or actor.is_superuser:
+            to = actor.email
+
+        # target could be an article or a preprint, lets find out
+        if isinstance(target, submission_models.Article):
+            # check if the actor is an editor for the article's journal
+            if actor in target.journal.editors():
+                to = actor.email
+            request.site_type = target.journal
+            request.journal = target.journal
+        elif isinstance(target, repo_models.Preprint):
+            # check if the actor is a manager for the preprint's repo
+            if actor in target.repository.managers.all():
+                to = actor.email
+            request.site_type = target.repository
+            request.repository = target.repository
+
+    # Setup log dict
+    log_dict = {
+        'level': 'Info',
+        'action_text': 'Email Delivery Failed ',
+        'types': 'Email Delivery',
+        'target': target,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request=request,
+        template='bounced_email_notification',
+        subject='subject_bounced_email_notification',
+        to=to,
+        context={
+            'target': target,
+            'event': event,
+        },
+        log_dict=log_dict,
+    )
 
 
 def build_url_for_request(request=None, path="", query=None, fragment=""):
