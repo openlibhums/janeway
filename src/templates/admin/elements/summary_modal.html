@@ -16,7 +16,7 @@
             {% if user_is_editor %}
                 {% if article.ithenticate_id %}
                 <div class="title-area">
-                    <h2>Similarty Check</h2>
+                    <h2>Similarity Check</h2>
                 </div>
                 <div class="content">
                     <p><a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i class="fa fa-book">&nbsp;</i>View Report {% if article.ithenticate_score %} (Score: {{ article.ithenticate_score }}%){% endif %}</a></p>
