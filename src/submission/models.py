@@ -750,8 +750,10 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text='You can only assign an Issue that this Article is part of.'
-                  'You can add this article to and Issue from the Issue Manager.'
+        help_text='You can only assign an issue '
+                  'that this article is part of. '
+                  'You can add this article to an '
+                  'issue from the Issue Manager.',
     )
     projected_issue = models.ForeignKey(
         'journal.Issue',
@@ -759,6 +761,10 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
         related_name='projected_issue',
+        help_text='This field is for internal purposes only '
+                  'before publication. You can use it to '
+                  'track likely issue assignment before formally '
+                  'assigning an issue.',
     )
 
     # Meta
