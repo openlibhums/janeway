@@ -40,9 +40,7 @@
             {% for author in article.frozen_authors.all %}
                 <contrib contrib-type="author">
                     {% if author.orcid %}
-                    <contrib-id contrib-id-type="orcid" authenticated="true">
-                        {{ author.orcid }}
-                    </contrib-id>
+                    <contrib-id contrib-id-type="orcid" authenticated="true">{{ author.orcid }}</contrib-id>
                     {% endif %}
                     <name>
                         <surname>{{ author.last_name }}</surname>
