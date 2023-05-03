@@ -1,6 +1,6 @@
 ![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Janeway")
 
-Janeway is a journal platform designed for publishing scholarly research material. It is developed and maintained by a team of Open Library of Hunanties developers at Birkbeck, University of London.
+Janeway is a web-based platform for publishing journals, preprints, conference proceedings, and books. It is developed and maintained by a team of developers at the Open Library of Humanities, part of Birkbeck, University of London.
 
 # Technology
 Janeway is written in Python (3.6+) and utilises the Django framework (1.11 LTS). 
