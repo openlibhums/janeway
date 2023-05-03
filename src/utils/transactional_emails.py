@@ -419,6 +419,7 @@ def send_article_decision(**kwargs):
     article = kwargs['article']
     request = kwargs['request']
     decision = kwargs['decision']
+    subject = ""
     user_message_content = kwargs['user_message_content']
 
     if 'skip' not in kwargs:
@@ -436,11 +437,11 @@ def send_article_decision(**kwargs):
                 'types': 'Article Decision',
                 'target': article}
 
-    if decision == ED.ACCEPT:
+    if decision == ED.ACCEPT.value:
         subject = 'subject_review_decision_accept'
-    elif decision == ED.DECLINE:
+    elif decision == ED.DECLINE.value:
         subject = 'subject_review_decision_decline'
-    elif decision == ED.UNDECLINE:
+    elif decision == ED.UNDECLINE.value:
         subject = 'subject_review_decision_undecline'
 
 
