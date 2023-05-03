@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 import datetime
+from unittest.mock import patch
 
 from django.test import TestCase, Client, override_settings
 from django.utils import timezone
@@ -58,7 +59,7 @@ class ReviewTests(TestCase):
     def test_total_review_count(self):
         self.assertEqual(
             self.article_review_completed.reviewassignment_set.all().count(),
-            2,
+            3,
         )
 
     def test_completed_reviews_with_decision_count(self):
@@ -350,6 +351,17 @@ class ReviewTests(TestCase):
             decision='withdrawn',
         )
 
+        self.review_assignment_declined, created = review_models.ReviewAssignment.objects.get_or_create(
+            article=self.article_review_completed,
+            review_round=self.round_two,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            date_declined=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=False,
+        )
+
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
                                                                 editor=self.editor,
@@ -478,4 +490,28 @@ class ReviewTests(TestCase):
         update_settings(
             self.journal_one,
             management_command=False,
+        )
+
+    def test_request_revisions_context(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'review_request_revisions',
+                kwargs={'article_id': self.article_review_completed.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        response.context.get('incomplete')
+        self.assertEqual(
+            self.article_review_completed,
+            response.context.get('article'),
+        )
+        # This test does not cover the revision request form
+        self.assertEqual(
+            0,
+            response.context.get('pending_approval').count(),
+        )
+        self.assertEqual(
+            0,
+            response.context.get('incomplete').count(),
         )
