@@ -26,7 +26,7 @@ def decline_to_reject(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('review', '0017_reviewassignment_display_public'),
+        ('review', '0018_auto_20230120_1546'),
     ]
 
     operations = [
