@@ -5,7 +5,9 @@
     id="confirm_switch_email_template"
     data-reveal
     data-animation-in="slide-in-up"
-    data-animation-out="slide-out-down">
+    data-animation-out="slide-out-down"
+    data-close-on-esc=false
+    data-close-on-click=false>
     <div class="card">
         <div class="card-divider">
             <h4>{% trans "Confirmation" %}</h4>
@@ -34,7 +36,12 @@
             </div>
         </div>
     </div>
-    <button class="close-button" data-close aria-label="Close reveal" type="button">
+    <button
+        class="close-button"
+        onclick="restore_previous_decision()"
+        data-close
+        aria-label="Close reveal"
+        type="button">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
