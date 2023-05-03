@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-import datetime
 from unittest.mock import patch
 
 from django.test import TestCase, Client, override_settings
@@ -331,7 +330,7 @@ class ReviewTests(TestCase):
             review_round=self.round_one,
             reviewer=self.regular_user,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             date_complete=timezone.now(),
@@ -345,7 +344,7 @@ class ReviewTests(TestCase):
             review_round=self.round_two,
             reviewer=self.second_reviewer,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             decision='withdrawn',
@@ -356,8 +355,8 @@ class ReviewTests(TestCase):
             review_round=self.round_two,
             reviewer=self.second_reviewer,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
-            date_declined=datetime.datetime.now(),
+            date_due=timezone.now(),
+            date_declined=timezone.now(),
             form=self.review_form,
             is_complete=False,
         )
@@ -365,7 +364,7 @@ class ReviewTests(TestCase):
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
                                                                 editor=self.editor,
-                                                                date_due=datetime.datetime.now(),
+                                                                date_due=timezone.now(),
                                                                 form=self.review_form)
 
         self.review_assignment.save()
@@ -373,7 +372,7 @@ class ReviewTests(TestCase):
         self.review_assignment_not_in_scope = review_models.ReviewAssignment(article=self.article_in_production,
                                                                              reviewer=self.regular_user,
                                                                              editor=self.editor,
-                                                                             date_due=datetime.datetime.now(),
+                                                                             date_due=timezone.now(),
                                                                              form=self.review_form)
         self.review_assignment_not_in_scope.save()
 
