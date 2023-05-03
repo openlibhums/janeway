@@ -38,6 +38,8 @@ class DraftDecisionForm(forms.ModelForm):
         self.fields['revision_request_due_date'].widget.attrs['onchange'] = 'decision_change()'
         self.fields['decision'].widget.attrs[
             'onchange'] = 'decision_change()'
+        self.fields['decision'].widget.attrs[
+            'onfocus'] = 'store_previous_decision()'
         self.fields['editor'].queryset = editors
         if not newly_created:
             self.fields['message_to_editor'].widget = forms.HiddenInput()

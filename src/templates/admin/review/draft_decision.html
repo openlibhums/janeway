@@ -11,7 +11,7 @@
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
     <li><a href="{% url 'decision_helper' article.pk %}">Decision Helper</a></li>
-    <li class="active">Draft a Decisions</li>
+    <li class="active">Draft a Decision</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -40,9 +40,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>First select a decision (and also set a due date for any revisions). Once you have done this the Email to Author  will
-                        update to the correct template.</p><p><strong>Note: Changing the decision or due date <em>after</em> making changes to the email will
-                            reset the template and cause you to lose your changes.</strong></p>
+                    <p>First select a decision (and also set a due date for any revisions). Once you have done this, the Draft Email to Author field will update to the correct template. You can then edit the email to your liking.</p>
                 {% endif %}
                 <form method="POST">
                     {% csrf_token %}
