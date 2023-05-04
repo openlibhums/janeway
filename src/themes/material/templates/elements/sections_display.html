@@ -1,36 +1,53 @@
-<div class="row">
-    <div class="col m6 columns">
-
-    </div>
-    <div class="col m2 columns">
-        <p>{% trans "Public Submissions" %}</p>
-    </div>
-    <div class="col m2 columns">
-        <p>{% trans "Peer Reviewed" %}</p>
-    </div>
-    <div class="col m2 columns">
-        <p>{% trans "Indexed" %}</p>
-    </div>
-</div>
-<div class="divider spacer"></div>
-{% for section in sections %}
-    <div class="row">
-        <div class="col m6 columns">
-            <p>{{ section.name }}</p>
-        </div>
-        <div class="col m2 columns">
-            <strong>{% if section.public_submissions %}<i class="fa fa-check"></i>{% else %}
-                <i class="fa fa-times"></i>{% endif %}</strong>
-        </div>
-        <div class="col m2 columns">
-            <strong>{% if section.number_of_reviewers > 0 %}<i class="fa fa-check"></i>{% else %}
-                <i class="fa fa-times"></i>{% endif %}</strong>
-        </div>
-        <div class="col m2 columns">
-            <strong>{% if section.indexing %}<i class="fa fa-check"></i>{% else %}
-                <i class="fa fa-times"></i>{% endif %}</strong>
-        </div>
-        <div class="divider spacer"></div>
-    </div>
-{% endfor %}
-<div class="divider spacer"></div>
+<table class="striped responsive-table">
+    <thead>
+        <tr>
+            <th>
+                <p>{% trans "Section or article type" %}</p>
+            </th>
+            <th>
+                <p>{% trans "Public Submissions" %}</p>
+            </th>
+            <th>
+                <p>{% trans "Peer Reviewed" %}</p>
+            </th>
+            <th>
+                <p>{% trans "Indexed" %}</p>
+            </th>
+    </thead>
+    <tbody>
+        {% for section in sections %}
+        <tr>
+            <td>
+                <p>{{ section.name }}</p>
+            </td>
+            <td>
+                <strong>
+                    {% if section.public_submissions %}
+                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                    {% else %}
+                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                    {% endif %}
+                </strong>
+            </td>
+            <td>
+                <strong>
+                    {% if section.number_of_reviewers > 0 %}
+                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                    {% else %}
+                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                    {% endif %}
+                </strong>
+            </td>
+            <td>
+                <strong>
+                    {% if section.indexing %}
+                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                    {% else %}
+                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
