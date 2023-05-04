@@ -2224,7 +2224,7 @@ def draft_decision_text(request, article_id):
     if not decision:
         raise Http404
 
-    if decision in {ED.ACCEPT, ED.DECLINE}:
+    if decision in {ED.ACCEPT.value, ED.DECLINE.value}:
         decision_text = logic.get_decision_content(
             request=request,
             article=article,
@@ -2232,7 +2232,7 @@ def draft_decision_text(request, article_id):
             author_review_url=author_review_url,
         )
 
-    elif decision in {ED.MINOR_REVISIONS, ED.MAJOR_REVISIONS}:
+    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value}:
         revision = models.RevisionRequest(
             article=article,
             editor=request.user,
