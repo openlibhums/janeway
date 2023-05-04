@@ -123,6 +123,11 @@ class NavigationItem(models.Model):
         help_text='Whether this item should appear in the footer.'
                   'Not implemented for all themes.',
     )
+    extend_to_journals = models.BooleanField(
+        default=False,
+        help_text='Whether this item should appear in the footer.'
+                  'Not implemented for all themes.',
+    )
 
     class Meta:
         ordering = ('sequence',)

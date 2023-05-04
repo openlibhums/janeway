@@ -18,6 +18,7 @@ from core.model_utils import AbstractSiteModel, SVGImageField
 from utils import logic
 from utils.function_cache import cache
 from utils.logger import get_logger
+from press import utils
 
 
 logger = get_logger(__name__)
@@ -334,6 +335,10 @@ class Press(AbstractSiteModel):
             return False
 
         return True
+
+    @cache(600)
+    def navigation_items(self):
+        return utils.get_navigation_items(self)
 
     @property
     def code(self):

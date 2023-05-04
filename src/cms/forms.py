@@ -37,6 +37,7 @@ class NavForm(JanewayTranslationModelForm):
             'has_sub_nav',
             'top_level_nav',
             'for_footer',
+            'extend_to_journals',
         )
         exclude = ('page', 'content_type', 'object_id')
 
@@ -53,6 +54,13 @@ class NavForm(JanewayTranslationModelForm):
             top_level_nav_items = top_level_nav_items.exclude(pk=self.instance.pk)
 
         self.fields['top_level_nav'].queryset = top_level_nav_items
+
+        if request.journal:
+            # Hide this until it can be implemented at the journal level
+            self.fields['for_footer'].widget = forms.HiddenInput()
+            # Hide this for all journals
+            self.fields['extend_to_journals'].widget = forms.HiddenInput()
+
 
     def clean_top_level_nav(self):
         top_level_nav = self.cleaned_data.get('top_level_nav')
