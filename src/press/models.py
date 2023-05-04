@@ -79,6 +79,14 @@ class Press(AbstractSiteModel):
         verbose_name='Footer text',
         help_text='Additional HTML for the press footer.',
     )
+    journal_footer_text = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Journal footer text',
+        help_text='Text that will appear in the footer '
+                  'of every journal, to display publisher '
+                  'address or other essential info. ',
+    )
     secondary_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
