@@ -8,6 +8,19 @@
 </div>
 <div class="large-5 columns large-text-right" data-equalizer-watch>
     <ul class="inline-list">
+        {% for item in journal.press.navigation_items %}
+            {% if item.for_footer and item.extend_to_journals %}
+                <li>
+                    <a
+                        href="{{ item.link }}"
+                        {% if item.is_external %}
+                            target="_blank"
+                        {% endif %}>
+                        {{ item.link_name }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
       {% if journal_settings.general.privacy_policy_url %}
         <li><a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
       {% else %}
@@ -36,3 +49,8 @@
         {% endif %}
     </ul>
 </div>
+{% if request.journal.press.journal_footer_text %}
+    <div id="presswide_footer_text" class="large-8 large-offset-2 columns end">
+        {{ request.journal.press.journal_footer_text|safe }}
+    </div>
+{% endif %}
