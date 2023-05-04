@@ -7,11 +7,29 @@
             {% if journal_settings.general.publisher_url %}
                 <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
         {% if journal_settings.general.publisher_url %}</a>{% endif %}
-            | {% endif %}<a
-                {% if journal_settings.general.privacy_policy_url %}href="{{ journal_settings.general.privacy_policy_url }}"
-                {% else %}href="{% url 'cms_page' "privacy" %}"{% endif %}>{% trans "Privacy Policy" %}</a> |</p>
+            | {% endif %}
+            {% for item in request.journal.press.navigation_items %}
+                {% if item.for_footer and item.extend_to_journals %}
+                    <a
+                        href="{{ item.link }}"
+                        {% if item.is_external %}
+                            target="_blank"
+                        {% endif %}>
+                        {{ item.link_name }}
+                    </a> |
+                {% endif %}
+            {% endfor %}
+            <a
+                {% if journal_settings.general.privacy_policy_url %}
+                    href="{{ journal_settings.general.privacy_policy_url }}"
+                {% else %}
+                    href="{% url 'cms_page' "privacy" %}"
+                {% endif %}>
+                {% trans "Privacy Policy" %}
+            </a> |
+        </p>
     </div>
-    <div class="col m2 end">
+    <div class="col m2">
         <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
             <input name="next" type="hidden" value="{{ request.PATH }}"/>
             <select name="language" onchange="this.form.submit()" class="browser-default language-select" autocomplete="off">
@@ -28,5 +46,10 @@
             </select>
         </form>
     </div>
+    {% if press.journal_footer_text %}
+        <div class="col m10 l9 xl8">
+            {{ press.journal_footer_text|safe }}
+        </div>
+    {% endif %}
 </div>
 
