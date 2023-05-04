@@ -30,7 +30,7 @@
                             {% endfor %}
                         </div>
                     </li>
-                {% else %}
+                {% elif not item.for_footer %}
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}{% if request.press.publishes_journals and not request.press.disable_journals %}
