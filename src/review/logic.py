@@ -320,7 +320,7 @@ def handle_decision_action(article, draft, request):
         'skip': False,
     }
 
-    if draft.decision == ED.ACCEPT:
+    if draft.decision == ED.ACCEPT.value:
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_ACCEPTED,
@@ -339,7 +339,7 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **workflow_kwargs,
         )
-    elif draft.decision == ED.DECLINE:
+    elif draft.decision == ED.DECLINE.value:
         article.decline_article()
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_DECLINED,

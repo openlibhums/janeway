@@ -38,12 +38,12 @@ class EditorAssignment(models.Model):
 
 def review_decision():
     return (
-        (ED.ACCEPT, 'Accept Without Revisions'),
-        (ED.MINOR_REVISIONS, 'Minor Revisions Required'),
-        (ED.MAJOR_REVISIONS, 'Major Revisions Required'),
+        (ED.ACCEPT.value, 'Accept Without Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
         # Preserved the inconsistent verbose name below to avoid confusion to
         # existing section editors
-        (ED.DECLINE, 'Reject'),
+        (ED.DECLINE.value, 'Reject'),
     )
 
 
@@ -483,8 +483,8 @@ class RevisionAction(models.Model):
 
 def revision_type():
     return (
-        (ED.MINOR_REVISIONS, 'Minor Revisions'),
-        (ED.MAJOR_REVISIONS, 'Major Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
     )
 
 
@@ -571,7 +571,7 @@ class DecisionDraft(models.Model):
 
     editor_decision = models.CharField(
         max_length=20,
-        choices=((ED.ACCEPT, 'Accept'), (ED.DECLINE, 'Decline')),
+        choices=((ED.ACCEPT.value, 'Accept'), (ED.DECLINE.value, 'Decline')),
         null=True,
         blank=True,
     )
