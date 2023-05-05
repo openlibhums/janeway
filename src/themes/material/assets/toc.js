@@ -12,6 +12,7 @@ $( document ).ready(function() {
     $("#main_article h2").each(function () {
 
         link = $(this);
+        link.find('a').contents().unwrap();
         title = link.html();
 
         if (!link.attr("id")) {
