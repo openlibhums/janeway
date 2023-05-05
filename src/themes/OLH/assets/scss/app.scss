@@ -60,20 +60,20 @@
 @import 'tagit';
 
 :root {
-  --primary-dark-color: $primary-dark-color;
-  --very-dark-primary-color: $very-dark-primary-color;
-  --primary-light-color: $primary-light-color;
+  --primary-dark-color: #{$primary-dark-color};
+  --very-dark-primary-color: #{$very-dark-primary-color};
+  --primary-light-color: #{$primary-light-color};
 
-  --topbar-background-color: $topbar-background-color;
-  --menu-background-color: $menu-background-color;
-  --menu-alternative-background-color: $menu-alternative-background-color;
-  --menu-foreground-color: $menu-foreground-color;
+  --topbar-background-color: #{$topbar-background-color};
+  --menu-background-color: #{$menu-background-color};
+  --menu-alternative-background-color: #{$menu-alternative-background-color};
+  --menu-foreground-color: #{$menu-foreground-color};
 
-  --link-color: $link-color;
-  --toc-link-color: $toc-link-color;
+  --link-color: #{$link-color};
+  --toc-link-color: #{$toc-link-color};
 
-  --figure-caption-background-color: $figure-caption-background-color;
-  --figure-caption-color: $figure-caption-color;
+  --figure-caption-background-color: #{$figure-caption-background-color};
+  --figure-caption-color: #{$figure-caption-color};
 
 }
 
