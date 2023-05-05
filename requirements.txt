@@ -27,9 +27,9 @@ geoip2==3.0.0 # Newer versions require python >= 3.6
 html2text==2017.10.4
 idna==2.7
 ipaddress==1.0.16
-jsmin==2.2.1
+jsmin==3.0.1
 kitchen==1.2.4
-libsass==0.11.1
+libsass==0.22.0
 lxml==4.9.2
 markdown
 maxminddb==1.5.4
@@ -45,7 +45,7 @@ PyJWT==2.4.0
 Pillow==9.4.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
-python-docx==0.8.6
+python-docx==0.8.11
 python-magic==0.4.13
 requests==2.25.1
 six==1.14.0
