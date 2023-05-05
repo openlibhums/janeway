@@ -151,8 +151,7 @@ class FileAdmin(admin.ModelAdmin):
     search_fields = ('original_filename', 'article_id', 'label',
                      'description', 'owner__email', 'owner__first_name',
                      'owner__last_name')
-    raw_id_fields = ('owner',)
-    filter_horizontal = ('history',)
+    raw_id_fields = ('owner', 'history')
     readonly_fields = ['article_id']
 
     def article_pk(self, obj):
