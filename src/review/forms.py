@@ -320,7 +320,7 @@ class GeneratedForm(forms.Form):
 class NewForm(forms.ModelForm):
     class Meta:
         model = models.ReviewForm
-        exclude = ('journal', 'elements', 'deleted')
+        exclude = ('journal', 'elements', 'deleted', 'slug')
 
 
 class ElementForm(forms.ModelForm):
