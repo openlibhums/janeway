@@ -1422,7 +1422,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}">
+                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
       <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid">
         <xsl:attribute name="alt">
           <xsl:choose>
