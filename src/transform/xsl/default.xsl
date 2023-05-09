@@ -982,8 +982,8 @@
                     <xsl:variable name="caption" select="parent::table-wrap/label/text()"/>
                     <xsl:variable name="graphics" select="following-sibling::graphic/@xlink:href"/>
                     <div class="fig-inline-img-set">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
+                        <a href="{$graphics}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img img-fluid" />
                         </a>
                     </div>
                 </xsl:if>
@@ -1390,7 +1390,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
+                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
                             <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}"/>
                         </a>
                     </div>

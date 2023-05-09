@@ -9,6 +9,7 @@
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
+    <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
@@ -486,4 +487,5 @@
         child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
     });
     </script>
+    <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
 {% endblock js %}

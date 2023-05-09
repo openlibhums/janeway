@@ -7,6 +7,7 @@
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
+    <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
@@ -328,4 +329,5 @@
         child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">View Larger Table</button>')
     });
     </script>
+    <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
 {% endblock js %}
