@@ -36,7 +36,7 @@
                         {% for reminder in reminders %}
                             <tr>
                                 <td>{{ reminder.pk }}</td>
-                                <td>{{ reminder.display_text }}</td>
+                                <td>Sent {{ reminder.days }} days {{ reminder.run_type }} {{ reminder.get_type_display }} is due.</td>
                                 <td>{{ reminder.template_name }} <a href="{% url 'cron_create_template' reminder.pk reminder.template_name %}"><i class="fa fa-edit">&nbsp;</i></a></td>
                                 <td>{{ reminder.subject }}</td>
                                 <td>
