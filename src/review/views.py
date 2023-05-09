@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
+from review.const import EditorialDecisions as ED
 from security.decorators import (
     editor_user_required, reviewer_user_required,
     reviewer_user_for_assignment_required,
@@ -2223,7 +2224,7 @@ def draft_decision_text(request, article_id):
     if not decision:
         raise Http404
 
-    if decision in ['accept', 'reject']:
+    if decision in {ED.ACCEPT.value, ED.DECLINE.value}:
         decision_text = logic.get_decision_content(
             request=request,
             article=article,
@@ -2231,7 +2232,7 @@ def draft_decision_text(request, article_id):
             author_review_url=author_review_url,
         )
 
-    elif decision in ['minor_revisions', 'major_revisions']:
+    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value}:
         revision = models.RevisionRequest(
             article=article,
             editor=request.user,

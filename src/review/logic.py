@@ -24,6 +24,7 @@ from docx import Document
 from utils import render_template, setting_handler, notify_helpers
 from core import models as core_models, files
 from review import models
+from review.const import EditorialDecisions as ED
 from events import logic as event_logic
 from submission import models as submission_models
 
@@ -205,10 +206,7 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    if decision == 'reject':
-        template_name = "review_decision_decline"
-    else:
-        template_name = "review_decision_{0}".format(decision)
+    template_name = "review_decision_{0}".format(decision)
 
     return render_template.get_message_content(request, email_context, template_name)
 
@@ -322,7 +320,7 @@ def handle_decision_action(article, draft, request):
         'skip': False,
     }
 
-    if draft.decision == 'accept':
+    if draft.decision == ED.ACCEPT.value:
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_ACCEPTED,
@@ -341,7 +339,7 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **workflow_kwargs,
         )
-    elif draft.decision == 'reject':
+    elif draft.decision == ED.DECLINE.value:
         article.decline_article()
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_DECLINED,

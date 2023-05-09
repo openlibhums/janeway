@@ -1,9 +1,11 @@
 import re
 
 from collections.abc import Iterable
+from email.utils import parseaddr
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
 from utils import setting_handler
@@ -39,6 +41,8 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     if request and request.user and not request.user.is_anonymous and request.user.email not in to:
         reply_to = [request.user.email]
         full_from_string = "{0} <{1}>".format(request.user.full_name(), from_email)
+
+
     else:
         reply_to = []
         if request:
@@ -48,6 +52,10 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             )
         else:
             full_from_string = from_email
+
+    # handle django 3.2 raising an exception during sanitization
+    # This call is ported from django 1.11
+    full_from_string = parseaddr(force_str(full_from_string))
 
     # if a replyto is passed to this function, use that.
     if replyto:

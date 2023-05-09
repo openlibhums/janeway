@@ -10,6 +10,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from review.const import EditorialDecisions as ED
 from utils import shared
 
 assignment_choices = (
@@ -37,10 +38,12 @@ class EditorAssignment(models.Model):
 
 def review_decision():
     return (
-        ('accept', 'Accept Without Revisions'),
-        ('minor_revisions', 'Minor Revisions Required'),
-        ('major_revisions', 'Major Revisions Required'),
-        ('reject', 'Reject'),
+        (ED.ACCEPT.value, 'Accept Without Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
+        # Preserved the inconsistent verbose name below to avoid confusion to
+        # existing section editors
+        (ED.DECLINE.value, 'Reject'),
     )
 
 
@@ -480,8 +483,8 @@ class RevisionAction(models.Model):
 
 def revision_type():
     return (
-        ('minor_revisions', 'Minor Revisions'),
-        ('major_revisions', 'Major Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
     )
 
 
@@ -568,7 +571,7 @@ class DecisionDraft(models.Model):
 
     editor_decision = models.CharField(
         max_length=20,
-        choices=(('accept', 'Accept'), ('decline', 'Decline')),
+        choices=((ED.ACCEPT.value, 'Accept'), (ED.DECLINE.value, 'Decline')),
         null=True,
         blank=True,
     )

@@ -22,6 +22,7 @@ from utils import models as utils_models, setting_handler
 from core import models as core_models, files as core_files
 from review import models as review_models
 from utils.logger import get_logger
+from review.const import EditorialDecisions as ED
 from cms import models as cms_models
 
 logger = get_logger(__name__)
@@ -386,10 +387,10 @@ def get_user_list(url, auth_file):
 
 def map_review_recommendation(recommentdation):
     recommendations = {
-        '2': 'minor_revisions',
-        '3': 'major_revisions',
-        '5': 'reject',
-        '1': 'accept'
+        '2': ED.MINOR_REVISIONS.value,
+        '3': ED.MAJOR_REVISIONS.value,
+        '5': ED.REJECT.value,
+        '1': ED.ACCEPT.value,
     }
 
     return recommendations.get(recommentdation, None)

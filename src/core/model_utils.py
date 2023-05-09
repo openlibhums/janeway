@@ -513,14 +513,23 @@ class BaseSearchManagerMixin(Manager):
     def get_search_lookups(self):
         return self.search_lookups
 
-
 class SearchVector(DjangoSearchVector):
     """ An Extension of SearchVector that works with SearchVectorField
 
     Django's implementation assumes that the `to_tsvector` function needs
     to be called with the provided column, except that when the field is already
-    a SearchVectorField, there is no need.
+    a SearchVectorField, there is no need. Django's implementation in 2.2
+    (405c8363362063542e9e79beac53c8437d389520) also attempts to cast the
+    column data into a TextField, prior to casting to the tsvector, which we
+    override under `set_source_expressions`
+
     """
+    def set_source_expressions(self, _):
+        """ Ignore Django's implementation
+        We don't require the expressions to be re-casted during the as_sql call
+        """
+        pass
+
     # Override template to ignore function
     function = None
     template = '%(expressions)s'
