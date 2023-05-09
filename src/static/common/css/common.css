@@ -286,3 +286,15 @@ article .list-romanupper {
 .jats-addr-line-other {
     display: block;
 }
+
+.fig-caption {
+    background: #f0f0f0;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.table-caption {
+    background: #f0f0f0;
+    padding: 15px;
+    margin-top: 15px;
+}
