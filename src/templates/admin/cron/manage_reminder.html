@@ -21,14 +21,7 @@
                 <h2>Manage Reminders</h2>
             </div>
             <div class="content">
-                <p>There are three types of reminder email supported by Janeway:</p>
-                <ul>
-                    <li>Review (Invited) - sent when a reviewer has been invited but not responded.</li>
-                    <li>Review (Accepted) - sent when a reviewer has accepted a review request.</li>
-                    <li>Revision - Sent for revision requests.</li>
-                </ul>
-                <p>In addition you can also set reminders to be before or after the due date. It is recommended that you
-                    not create too many reminders for peer reviewers.</p>
+                {% include "elements/cron/reminders_help.html" %}
 
                 <p>Janeway has built in review reminder templates you can use.</p>
                 <ul>
