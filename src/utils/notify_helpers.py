@@ -18,12 +18,17 @@ def send_slack(request, slack_message, slack_channels):
 
 def send_email_with_body_from_setting_template(
         request, template, subject, to, context, log_dict=None,
-        custom_reply_to=None,
+        custom_reply_to=None, plugin=None,
     ):
     notify_contents = {
         'subject': subject,
         'to': to,
-        'html': render_template.get_message_content(request, context, template),
+        'html': render_template.get_message_content(
+            request,
+            context,
+            template,
+            plugin=plugin,
+        ),
         'action': ['email'],
         'request': request,
         'log_dict': log_dict,
