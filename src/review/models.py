@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from review.const import EditorialDecisions as ED, ReviewerDecisions as RD
 from utils import shared
 
+
 assignment_choices = (
     ('editor', 'Editor'),
     ('section-editor', 'Section Editor'),
