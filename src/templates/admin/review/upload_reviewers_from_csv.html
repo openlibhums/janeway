@@ -1,0 +1,41 @@
+{% extends "admin/core/base.html" %}}
+{% load static %}
+{% load foundation %}
+{% load i18n %}
+
+{% block title %}Bulk Assign Reviewers{% endblock title %}
+{% block title-section %}Bulk Assign Reviewers{% endblock %}
+{% block title-sub %}Assign reviewers by uploading a CSV file.{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Bulk Assign Reviewers</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-12 columns"></div>
+            <div class="title-area">
+                <h2>
+                    Bulk Assign Reviewers Form
+                </h2>
+            </div>
+            <div class="content">
+                <p>Complete the form and upload a CSV with reviewer details to bulk create review assignments.</p>
+                <p>You can download our <a href="{% static 'common/csv_templates/reviewer_import_template.csv' %}">Bulk Review Assignment</a> template.</p>
+                <form method="POST" enctype="multipart/form-data">
+                    {% include "admin/elements/forms/errors.html" with form=form %}
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <div class="large-12 columns">
+                        <button class="success button">
+                            <span class="fa fa-cloud-upload"></span> Save & Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

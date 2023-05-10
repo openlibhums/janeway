@@ -52,8 +52,7 @@
                         <th>{% trans 'Request Decision' %}</th>
                         <th>{% trans 'Due' %}</th>
                         <th>{% trans 'Access Code' %}</th>
-                        <th>{% trans 'Decision' %}</th>
-                        <th>{% trans 'Completed' %}</th>
+                        <th>{% trans 'Recommendation' %}</th>
                     </tr>
                     <tr>
                         <td>{{ review.reviewer.full_name }} <span data-tooltip title="{% trans 'Email peer reviewer' %}."><a
@@ -69,9 +68,8 @@
                         <td>
                             <a href="{% url 'do_review' review.pk %}?access_code={{ review.access_code }}">{{ review.access_code }}</a>
                         </td>
-                        <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}
+                        <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}<br />{{ review.date_complete }}{% else %}
                             --{% endif %}</td>
-                        <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
                     </tr>
                 </table>
             </div>

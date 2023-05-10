@@ -392,6 +392,14 @@ def in_review(request, article_id):
             article.stage = submission_models.STAGE_UNDER_REVIEW
             article.save()
 
+        if 'table_format_reviews' in request.POST:
+            request.session['table_format_reviews'] = True
+            request.session.modified = True
+
+        if 'expanded_format_reviews' in request.POST:
+            request.session.pop('table_format_reviews')
+            request.session.modified = True
+
         if 'new_review_round' in request.POST:
 
             # Complete all existing review assignments.
@@ -798,7 +806,6 @@ def do_review(request, assignment_id):
     :param assignment_id: ReviewAssignment PK
     :return: a context for a Django template
     """
-
     access_code = logic.get_access_code(request)
 
     if access_code:
@@ -819,6 +826,11 @@ def do_review(request, assignment_id):
     allow_save_review = setting_handler.get_setting(
         'general', 'enable_save_review_progress', request.journal,
     ).processed_value
+    open_review_initial = setting_handler.get_setting(
+        'general',
+        'open_review_default_opt_in',
+        request.journal,
+    ).processed_value
 
     fields_required = False
     decision_required = False if allow_save_review else True
@@ -831,6 +843,7 @@ def do_review(request, assignment_id):
     decision_form = forms.ReviewerDecisionForm(
         instance=assignment,
         decision_required=decision_required,
+        open_review_initial=open_review_initial,
     )
 
     if 'review_file' in request.GET:
@@ -1399,8 +1412,17 @@ def withdraw_review(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
-        messages.add_message(request, messages.WARNING, 'You cannot withdraw a review that is already complete.')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot withdraw a review that is already complete.',
+        )
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     email_content = logic.get_withdrawl_notification(request, review)
 
@@ -1414,15 +1436,23 @@ def withdraw_review(request, article_id, review_id):
         if 'skip' in request.POST:
             kwargs['skip'] = True
 
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEW_WITHDRAWL, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVIEW_WITHDRAWL,
+            **kwargs,
+        )
 
         review.date_complete = timezone.now()
-        review.decision = 'withdrawn'
+        review.decision = models.RD.DECISION_WITHDRAWN
         review.is_complete = True
         review.save()
 
         messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     template = 'review/withdraw_review.html'
     context = {
@@ -2612,3 +2642,62 @@ def decision_helper(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@any_editor_user_required
+def upload_reviewers_from_csv(request, article_id):
+    """
+    Allows an editor to load reviewers in form a CSV.
+    """
+    errors = []
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    form = forms.BulkReviewAssignmentForm(
+        journal=request.journal,
+    )
+    if request.POST and request.FILES:
+        reviewer_csv = request.FILES.get('reviewer_csv')
+        form = forms.BulkReviewAssignmentForm(
+            request.POST,
+            request.FILES,
+            journal=request.journal,
+        )
+        filename, path = files.save_file_to_temp(reviewer_csv)
+        if form.is_valid():
+            reviewers, import_error = logic.process_reviewer_csv(path, request, article, form)
+
+            if import_error:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    import_error,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{} Review assignments saved.'.format(len(reviewers)),
+                )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={
+                        'article_id': article.pk,
+                    }
+                )
+            )
+
+    template = 'admin/review/upload_reviewers_from_csv.html'
+    context = {
+        'article': article,
+        'form': form,
+        'errors': errors,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )

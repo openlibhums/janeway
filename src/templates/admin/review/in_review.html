@@ -112,18 +112,35 @@
                                     <h2>Reviewers</h2>
                                     {% if round.round_number == article.current_review_round %}
                                         <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
-                                            Reviewer</a>{% endif %}
+                                            Reviewer</a>
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            {% if request.session.table_format_reviews %}
+                                                <button name="expanded_format_reviews"
+                                                        class="button">View in Expanded Format
+                                                </button>
+                                            {% else %}
+                                                <button name="table_format_reviews"
+                                                        class="button">View in Table Format
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    {% endif %}
                                 </div>
 
                                 {% chain round.active_reviews round.inactive_reviews as reviews %}
-                                {% for review in reviews %}
-                                    {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
-                                  {% if forloop.last and forloop.counter > 2 %}
-                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='top' %}
-                                  {% else %}
-                                    {% include "admin/elements/review/review_block.html" with review=review dropdown='right' %}
-                                  {% endif %}
-                                {% endfor %}
+                                {% if request.session.table_format_reviews %}
+                                    {% include "admin/elements/review/reviews_small.html" %}
+                                {% else %}
+                                    {% for review in reviews %}
+                                        {# TODO: Upgrade to foundation 6.4+ where overflowing dropdown menus are fixed #}
+                                      {% if forloop.last and forloop.counter > 2 %}
+                                        {% include "admin/elements/review/review_block.html" with review=review dropdown='top' %}
+                                      {% else %}
+                                        {% include "admin/elements/review/review_block.html" with review=review dropdown='right' %}
+                                      {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
@@ -281,6 +298,9 @@
                             <a href="#" data-open="newround" class="expanded">
                                 <i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
                             </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'upload_reviewers_from_csv' article.id %}" class="expanded"><span class="fa fa-file-text"></span> Create Review Assignments from CSV</a>
                         </li>
                     {% endif %}
                     </ul>

@@ -10,8 +10,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from review.const import EditorialDecisions as ED
+from review.const import EditorialDecisions as ED, ReviewerDecisions as RD
 from utils import shared
+
 
 assignment_choices = (
     ('editor', 'Editor'),
@@ -19,21 +20,29 @@ assignment_choices = (
 )
 
 
-class EditorAssignment(models.Model):
-    article = models.ForeignKey(
-        'submission.Article',
-        on_delete=models.CASCADE,
+def all_review_decisions():
+    """
+    Review decision options presented in admin.
+    """
+    return (
+        (RD.DECISION_ACCEPT.value, 'Accept Without Revisions'),
+        (RD.DECISION_MINOR.value, 'Minor Revisions Required'),
+        (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
+        (RD.DECISION_REJECT.value, 'Reject'),
+        (RD.DECISION_NO_RECOMMENDATION.value, 'No Recommendation'),
     )
-    editor = models.ForeignKey(
-        'core.Account',
-        on_delete=models.CASCADE,
-    )
-    editor_type = models.CharField(max_length=20, choices=assignment_choices)
-    assigned = models.DateTimeField(default=timezone.now)
-    notified = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ('article', 'editor')
+
+def reviewer_decision_choices():
+    """
+    Review decision options presented to a Reviewer.
+    """
+    return (
+        (RD.DECISION_ACCEPT.value, 'Accept Without Revisions'),
+        (RD.DECISION_MINOR.value, 'Minor Revisions Required'),
+        (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
+        (RD.DECISION_REJECT.value, 'Reject'),
+    )
 
 
 def review_decision():
@@ -60,6 +69,23 @@ def review_visibilty():
         ('blind', 'Single Anonymous'),
         ('double-blind', 'Double Anonymous')
     )
+
+
+class EditorAssignment(models.Model):
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    editor_type = models.CharField(max_length=20, choices=assignment_choices)
+    assigned = models.DateTimeField(default=timezone.now)
+    notified = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('article', 'editor')
 
 
 class ReviewRound(models.Model):
@@ -150,7 +176,7 @@ class ReviewAssignment(models.Model):
         max_length=20,
         blank=True,
         null=True,
-        choices=review_decision(),
+        choices=all_review_decisions(),
         verbose_name='Recommendation',
     )
     competing_interests = models.TextField(blank=True, null=True,
@@ -246,7 +272,7 @@ class ReviewAssignment(models.Model):
 
     @property
     def status(self):
-        if self.decision == 'withdrawn':
+        if self.decision == RD.DECISION_WITHDRAWN.value:
             return {
                 'code': 'withdrawn',
                 'display': 'Withdrawn',
@@ -286,6 +312,15 @@ class ReviewAssignment(models.Model):
                 'date': '',
                 'reminder': 'request',
             }
+
+    def request_decision_status(self):
+        if self.decision == RD.DECISION_WITHDRAWN.value:
+            return f'Withdrawn {self.date_complete.date()}'
+        elif self.date_accepted:
+            return f'Accepted {self.date_accepted.date()}'
+        elif self.date_declined:
+            return f'Declined {self.date_declined.date()}'
+        return 'Awaiting acknowledgement'
 
     def visibility_statement(self):
         if self.for_author_consumption:
@@ -551,7 +586,7 @@ class DecisionDraft(models.Model):
     )
     decision = models.CharField(
         max_length=100,
-        choices=review_decision(),
+        choices=all_review_decisions(),
         verbose_name='Draft Decision',
     )
     message_to_editor = models.TextField(
