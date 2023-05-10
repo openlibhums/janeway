@@ -2681,6 +2681,10 @@ def upload_reviewers_from_csv(request, article_id):
                     messages.SUCCESS,
                     '{} Review assignments saved.'.format(len(reviewers)),
                 )
+
+            article.stage = submission_models.STAGE_UNDER_REVIEW
+            article.save()
+
             return redirect(
                 reverse(
                     'review_in_review',

@@ -22,6 +22,7 @@ from django.db.models import (
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
 from django.db import IntegrityError
+from django.utils.safestring import mark_safe
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
@@ -135,18 +136,19 @@ def get_review_url(request, review_assignment):
 
 
 def get_article_details_for_review(article):
-    return """
-        <b>Article Details:</b>
-            <b>Title</b>: {article.title}
-            <b>Section</b>: {section}
-            <b>Keywords</b>: {keywords}
-            <b>Abstract</b>:
-                {article.abstract}
+    detail_string = """
+        <b>Article Details:</b><br />
+        <b>Title</b>: {article.title}<br />
+        <b>Section</b>: {section}<br />
+        <b>Keywords</b>: {keywords}<br />
+        <b>Abstract</b>:<br />
+            {article.abstract}<br />
         """.format(
         article=article,
         section=article.section.name if article.section else None,
         keywords=", ".join(kw.word for kw in article.keywords.all()),
     )
+    return mark_safe(detail_string)
 
 
 def get_reviewer_notification(
