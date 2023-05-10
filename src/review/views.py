@@ -1412,8 +1412,17 @@ def withdraw_review(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
-        messages.add_message(request, messages.WARNING, 'You cannot withdraw a review that is already complete.')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot withdraw a review that is already complete.',
+        )
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     email_content = logic.get_withdrawl_notification(request, review)
 
@@ -1427,15 +1436,23 @@ def withdraw_review(request, article_id, review_id):
         if 'skip' in request.POST:
             kwargs['skip'] = True
 
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEW_WITHDRAWL, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVIEW_WITHDRAWL,
+            **kwargs,
+        )
 
         review.date_complete = timezone.now()
-        review.decision = 'withdrawn'
+        review.decision = models.RD.DECISION_WITHDRAWN
         review.is_complete = True
         review.save()
 
         messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     template = 'review/withdraw_review.html'
     context = {

@@ -272,7 +272,7 @@ class ReviewAssignment(models.Model):
 
     @property
     def status(self):
-        if self.decision == 'withdrawn':
+        if self.decision == RD.DECISION_WITHDRAWN:
             return {
                 'code': 'withdrawn',
                 'display': 'Withdrawn',
@@ -314,7 +314,7 @@ class ReviewAssignment(models.Model):
             }
 
     def request_decision_status(self):
-        if self.decision == 'withdrawn':
+        if self.decision == RD.DECISION_WITHDRAWN:
             return f'Withdrawn {self.date_complete.date()}'
         elif self.date_accepted:
             return f'Accepted {self.date_accepted.date()}'

@@ -18,3 +18,4 @@ class ReviewerDecisions(EnumContains):
     DECISION_MAJOR = 'major_revisions'
     DECISION_REJECT = 'reject'
     DECISION_NO_RECOMMENDATION = 'none'
+    DECISION_WITHDRAWN = 'withdrawn'
