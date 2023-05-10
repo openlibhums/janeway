@@ -192,9 +192,9 @@ class ReviewerDecisionForm(forms.ModelForm):
     def save(self, commit=True):
         review_assignment = super().save(commit=False)
 
-        # sets the default decision, accept, if decisions are disabled.
+        # sets the decision to none, if decisions are disabled.
         if self.disable_reviewer_decision:
-            review_assignment.decision = models.RD.DECISION_NO_RECOMMENDATION
+            review_assignment.decision = models.RD.DECISION_NO_RECOMMENDATION.value
 
         if commit:
             review_assignment.save()
