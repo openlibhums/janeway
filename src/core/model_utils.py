@@ -416,7 +416,10 @@ class AbstractLastModifiedModel(models.Model):
         field_map = cls.get_last_modified_field_map()
         accessors = set(
             # sqlite's MAX returns NULL if any value is NULL
-            Coalesce(f"{field}__last_modified", 0)
+            Coalesce(
+                f"{field}__last_modified",
+                timezone.make_aware(timezone.datetime.fromtimestamp(0))
+            )
             for field in field_map.keys()
         )
 
