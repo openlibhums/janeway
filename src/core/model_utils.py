@@ -26,7 +26,7 @@ from django.db import(
 )
 from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
-from django.db.models.functions import Greatest
+from django.db.models.functions import Coalesce, Greatest
 from django.core.validators import (
     FileExtensionValidator,
     get_available_image_extensions,
@@ -414,7 +414,11 @@ class AbstractLastModifiedModel(models.Model):
             return cls._LAST_MODIFIED_ACCESSORS
 
         field_map = cls.get_last_modified_field_map()
-        accessors = set(f"{field}__last_modified" for field in field_map.keys())
+        accessors = set(
+            # sqlite's MAX returns NULL if any value is NULL
+            Coalesce(f"{field}__last_modified", 0)
+            for field in field_map.keys()
+        )
 
         cls._LAST_MODIFIED_ACCESSORS = accessors
         return cls.get_last_modified_accessors()
@@ -432,7 +436,11 @@ class AbstractLastModifiedModel(models.Model):
         """
         last_modified_keys = list(self.get_last_modified_accessors())
         annotated_query = self._meta.model.objects.filter(id=self.id).annotate(
-            best_last_mod_date=Greatest(self.last_modified, *last_modified_keys),
+            best_last_mod_date=Greatest(
+                self.last_modified,
+                *last_modified_keys,
+                output_field=models.DateTimeField(),
+            ),
         )
         result = annotated_query.values("best_last_mod_date").first()
         return result["best_last_mod_date"]
