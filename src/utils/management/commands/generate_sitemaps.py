@@ -4,12 +4,13 @@ from tqdm import tqdm
 from django.core.management.base import BaseCommand
 
 from utils import logic
+from utils.management.base import ProfiledCommand
 from journal import models as journal_models
 from repository import models as repository_models
 from press import models as press_models
 
 
-class Command(BaseCommand):
+class Command(ProfiledCommand):
     """CLI interface for generating sitemap files."""
 
     help = "CLI interface for generating sitemap files."
@@ -20,6 +21,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
+        super().add_arguments(parser)
         parser.add_argument(
             '--site_type',
             choices=['journals', 'repositories'],
