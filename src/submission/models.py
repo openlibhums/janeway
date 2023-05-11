@@ -1723,6 +1723,26 @@ class Article(AbstractLastModifiedModel):
     def ms_and_figure_files(self):
         return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
+    def fast_last_modified_date(self):
+        """ A faster way of calculating an approximate last modified date
+        While not as accurate as `best_last_modified_date` this calculation
+        covers most of the relevant relations when determining when an article
+        has been last modified. Depending on the numner of related nodes, this
+        function can be about 6 times faster than `best_last_modified_date`
+        """
+        last_mod_date = self.last_modified
+        latest = self.galley_set.latest("last_modified").last_modified
+        if latest > last_mod_date:
+                last_mod_date = latest
+        latest = self.frozenauthor_set.latest("last_modified").last_modified
+        if latest > last_mod_date:
+                last_mod_date = latest
+        latest = core_models.File.objects.filter(
+            article_id=self.pk).latest("last_modified").last_modified
+        if latest > last_mod_date:
+                last_mod_date = latest
+        return last_mod_date
+
 
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(

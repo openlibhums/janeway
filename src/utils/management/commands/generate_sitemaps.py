@@ -4,12 +4,13 @@ from tqdm import tqdm
 from django.core.management.base import BaseCommand
 
 from utils import logic
+from utils.management.base import ProfiledCommand
 from journal import models as journal_models
 from repository import models as repository_models
 from press import models as press_models
 
 
-class Command(BaseCommand):
+class Command(ProfiledCommand):
     """CLI interface for generating sitemap files."""
 
     help = "CLI interface for generating sitemap files."
@@ -20,6 +21,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
+        super().add_arguments(parser)
         parser.add_argument(
             '--site_type',
             choices=['journals', 'repositories'],
@@ -30,6 +32,11 @@ class Command(BaseCommand):
             '--ids',
             nargs='+',
             help='The IDs of the sites or "all"',
+        )
+        parser.add_argument(
+            '--codes',
+            nargs='+',
+            help='The codes of the sites (empty for all sites)',
         )
 
     def handle(self, *args, **options):
@@ -50,9 +57,12 @@ class Command(BaseCommand):
             if not all_sites:
                 repositories = repositories.filter(id__in=obj_ids)
         else:
-            # no obj_type assumes that all a full run has been requested.
+            # no obj_type assumes that all site types run have been requested.
             repositories = repository_models.Repository.objects.all()
             journals = journal_models.Journal.objects.all()
+            if options["codes"]:
+                repositories = repositories.filter(short_name__in=options["codes"])
+                journals = journals.filter(code__in=options["codes"])
 
         # Generate the press level sitemap
         print("Generating sitemap for press")

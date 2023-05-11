@@ -5,6 +5,7 @@ endif
 # Exposed ports
 JANEWAY_PORT ?= 8000
 PGADMIN_PORT ?= 8001
+SNAKEVIZ_PORT ?= 8002
 
 unexport NO_DEPS
 DB_NAME ?= janeway
@@ -57,6 +58,7 @@ SUFFIX ?= $(shell date +%s)
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
 
+.PHONY: janeway
 all: help
 run: janeway
 help:		## Show this help.
@@ -103,4 +105,6 @@ makemigrations:		## Runs Django's makemigrations command
 build_assets:		## Runs Janeway's build_assets command
 	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
-	bash -c "docker build --no-cache -t janeway:`git rev-parse --abbrev-ref HEAD` ."
+	bash -c "docker build --no-cache -t janeway-base:latest -f dockerfiles/Dockerfile.base ."
+snakeviz:
+	docker-compose run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
