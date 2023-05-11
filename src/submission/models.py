@@ -1741,6 +1741,9 @@ class Article(AbstractLastModifiedModel):
             article_id=self.pk).latest("last_modified").last_modified
         if latest > last_mod_date:
                 last_mod_date = latest
+        latest = self.issues.latest("last_modified").last_modified
+        if latest > last_mod_date:
+                last_mod_date = latest
         return last_mod_date
 
 
