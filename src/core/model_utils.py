@@ -374,7 +374,7 @@ class AbstractLastModifiedModel(models.Model):
     @classmethod
     def get_last_modified_field_map(cls, visited_fields=None):
 
-        # Early returned of cached calculation
+        # Early return of cached calculation
         if cls._LAST_MODIFIED_FIELDS_MAP:
             return cls._LAST_MODIFIED_FIELDS_MAP
 
@@ -434,7 +434,8 @@ class AbstractLastModifiedModel(models.Model):
         annotated_query = self._meta.model.objects.filter(id=self.id).annotate(
             best_last_mod_date=Greatest(self.last_modified, *last_modified_keys),
         )
-        return annotated_query.first().best_last_mod_date
+        result = annotated_query.values("best_last_mod_date").first()
+        return result["best_last_mod_date"]
 
 
 class SearchLookup(PGSearchLookup):
