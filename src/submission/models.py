@@ -1731,19 +1731,31 @@ class Article(AbstractLastModifiedModel):
         function can be about 6 times faster than `best_last_modified_date`
         """
         last_mod_date = self.last_modified
-        latest = self.galley_set.latest("last_modified").last_modified
-        if latest > last_mod_date:
-                last_mod_date = latest
-        latest = self.frozenauthor_set.latest("last_modified").last_modified
-        if latest > last_mod_date:
-                last_mod_date = latest
-        latest = core_models.File.objects.filter(
-            article_id=self.pk).latest("last_modified").last_modified
-        if latest > last_mod_date:
-                last_mod_date = latest
-        latest = self.issues.latest("last_modified").last_modified
-        if latest > last_mod_date:
-                last_mod_date = latest
+
+        galley_set = self.galley_set.all()
+        frozenauthor_set = self.frozenauthor_set.all()
+        files = core_models.File.objects.filter(
+            article_id=self.pk,
+        )
+        issues = self.issues
+
+        if galley_set:
+            latest = galley_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        if frozenauthor_set:
+            latest = frozenauthor_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        if files:
+            latest = files.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        if issues:
+            latest = self.issues.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+
         return last_mod_date
 
 
