@@ -33,6 +33,11 @@ class Command(ProfiledCommand):
             nargs='+',
             help='The IDs of the sites or "all"',
         )
+        parser.add_argument(
+            '--codes',
+            nargs='+',
+            help='The codes of the sites (empty for all sites)',
+        )
 
     def handle(self, *args, **options):
         obj_type = options['site_type']
@@ -52,9 +57,12 @@ class Command(ProfiledCommand):
             if not all_sites:
                 repositories = repositories.filter(id__in=obj_ids)
         else:
-            # no obj_type assumes that all a full run has been requested.
+            # no obj_type assumes that all site types run have been requested.
             repositories = repository_models.Repository.objects.all()
             journals = journal_models.Journal.objects.all()
+            if options["codes"]:
+                repositories = repositories.filter(short_name__in=options["codes"])
+                journals = journals.filter(code__in=options["codes"])
 
         # Generate the press level sitemap
         print("Generating sitemap for press")
