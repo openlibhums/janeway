@@ -45,6 +45,7 @@ from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from journal import models as journal_models
 
 logger = get_logger(__name__)
 
@@ -1732,29 +1733,34 @@ class Article(AbstractLastModifiedModel):
         """
         last_mod_date = self.last_modified
 
-        galley_set = self.galley_set.all()
-        frozenauthor_set = self.frozenauthor_set.all()
-        files = core_models.File.objects.filter(
-            article_id=self.pk,
-        )
-        issues = self.issues
+        try:
+            latest = self.galley_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except core_models.Galley.DoesNotExist:
+            pass
 
-        if galley_set:
-            latest = galley_set.latest("last_modified").last_modified
+        try:
+            latest = self.frozenauthor_set.latest("last_modified").last_modified
             if latest > last_mod_date:
                     last_mod_date = latest
-        if frozenauthor_set:
-            latest = frozenauthor_set.latest("last_modified").last_modified
+        except FrozenAuthor.DoesNotExist:
+            pass
+
+        try:
+            latest = core_models.File.objects.filter(
+                article_id=self.pk).latest("last_modified").last_modified
             if latest > last_mod_date:
                     last_mod_date = latest
-        if files:
-            latest = files.latest("last_modified").last_modified
-            if latest > last_mod_date:
-                    last_mod_date = latest
-        if issues:
+        except core_models.File.DoesNotExist:
+            pass
+
+        try:
             latest = self.issues.latest("last_modified").last_modified
             if latest > last_mod_date:
                     last_mod_date = latest
+        except journal_models.Journal.DoesNotExist:
+            pass
 
         return last_mod_date
 
