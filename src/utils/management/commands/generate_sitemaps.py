@@ -29,40 +29,26 @@ class Command(ProfiledCommand):
 
         )
         parser.add_argument(
-            '--ids',
-            nargs='+',
-            help='The IDs of the sites or "all"',
-        )
-        parser.add_argument(
             '--codes',
             nargs='+',
             help='The codes of the sites (empty for all sites)',
         )
 
     def handle(self, *args, **options):
-        obj_type = options['site_type']
-        obj_ids = options['ids']
+        site_type = options.get('site_type')
+        codes = options.get('codes')
 
-        journals, repositories, all_sites = None, None, False
+        journals = journal_models.Journal.objects.none()
+        repositories = repository_models.Repository.objects.none()
 
-        if obj_ids and obj_ids[0] == 'all':
-            all_sites = True
-
-        if obj_type == 'journals':
+        if site_type == 'journals' or not site_type:
             journals = journal_models.Journal.objects.all()
-            if not all_sites:
-                journals = journals.filter(id__in=obj_ids)
-        elif obj_type == 'repositories':
+        if site_type == 'repositories' or not site_type:
             repositories = repository_models.Repository.objects.all()
-            if not all_sites:
-                repositories = repositories.filter(id__in=obj_ids)
-        else:
-            # no obj_type assumes that all site types run have been requested.
-            repositories = repository_models.Repository.objects.all()
-            journals = journal_models.Journal.objects.all()
-            if options["codes"]:
-                repositories = repositories.filter(short_name__in=options["codes"])
-                journals = journals.filter(code__in=options["codes"])
+
+        if codes:
+            repositories = repositories.filter(short_name__in=codes)
+            journals = journals.filter(code__in=codes)
 
         # Generate the press level sitemap
         print("Generating sitemap for press")
@@ -71,19 +57,23 @@ class Command(ProfiledCommand):
         # Generate Journal Sitemaps
         if journals:
             print("Generating sitemaps for journals")
-            for journal in tqdm(journals):
-                logic.write_journal_sitemap(journal)
+            for journal in journals:
+                if journal.published_issues:
+                    print(f"Generating sitemaps for {journal.name}'s issues:")
+                    logic.write_journal_sitemap(journal)
 
-                # Generate Issue Sitemap
-                for issue in journal.published_issues:
-                    logic.write_issue_sitemap(issue)
+                    # Generate Issue Sitemap
+                    for issue in tqdm(journal.published_issues):
+                        logic.write_issue_sitemap(issue)
 
         # Generate Repo Sitemap
         if repositories:
             print("Generating sitemaps for repositories")
-            for repo in tqdm(repositories):
-                logic.write_repository_sitemap(repo)
+            for repo in repositories:
+                if repo.subject_set.all():
+                    print(f"Generating sitemaps for {repo.name}'s subjects:")
+                    logic.write_repository_sitemap(repo)
 
-                for subject in repo.subject_set.all():
-                    logic.write_subject_sitemap(subject)
+                    for subject in tqdm(repo.subject_set.all()):
+                        logic.write_subject_sitemap(subject)
 
