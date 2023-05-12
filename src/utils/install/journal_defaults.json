@@ -218,7 +218,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the journal site: {{ review_in_review_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.safe_title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the journal site: {{ review_in_review_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -256,7 +256,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }},<br/><br/>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \" #{{ article.pk }}: {{ article.title }}\" in {{ article.journal.name }} and have {{ reviewer_decision }} to perform the review. You can view more information on the journal site: {{ review_in_review_url }} "
+            "default": "Dear {{ review_assignment.editor.full_name }},<br/><br/>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \" #{{ article.pk }}: {{ article.safe_title }}\" in {{ article.journal.name }} and have {{ reviewer_decision }} to perform the review. You can view more information on the journal site: {{ review_in_review_url }} "
         },
         "editable_by": [
             "editor",
@@ -294,7 +294,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br/><br/>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_url }}  <br/><br/>Regards, <br/>{{ review_assignment.editor.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br/><br/>Thank you for agreeing to review \"{{ article.safe_title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_url }}  <br/><br/>Regards, <br/>{{ review_assignment.editor.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -313,7 +313,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ review_assignment.reviewer.full_name }}, </p><p>Thank you for completing your review of \"{{ article.title }}\" in {{ article.journal.name }}. </p><p>We are extremely grateful for the work of reviewers, which greatly enhances the quality of the journal. </p><p>Thank you again and regards,</p><p>{{ review_assignment.editor.signature|safe }}</p>"
+            "default": "<p>Dear {{ review_assignment.reviewer.full_name }}, </p><p>Thank you for completing your review of \"{{ article.safe_title }}\" in {{ article.journal.name }}. </p><p>We are extremely grateful for the work of reviewers, which greatly enhances the quality of the journal. </p><p>Thank you again and regards,</p><p>{{ review_assignment.editor.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -332,7 +332,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{% journal_url 'review_in_review' review_assignment.article.pk  %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.safe_title }}\" in {{ article.journal.name }} has been <a href=\"{% journal_url 'review_in_review' review_assignment.article.pk  %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -351,7 +351,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br/><br/>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the journal site: {{ review_in_review_url }}  <br/><br/>Regards,"
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br/><br/>This is a notification that the reviewer status on \"{{ article.safe_title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the journal site: {{ review_in_review_url }}  <br/><br/>Regards,"
         },
         "editable_by": [
             "editor",
@@ -370,7 +370,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }}, \n\nThank you for letting us know that you are unable to review \"{{ article.title }}\" in {{ article.journal.name }}.\n\n We are most grateful for your time.\n\nRegards,\n{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, \n\nThank you for letting us know that you are unable to review \"{{ article.safe_title }}\" in {{ article.journal.name }}.\n\n We are most grateful for your time.\n\nRegards,\n{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -389,7 +389,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of \"{{ article.safe_title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -408,7 +408,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>We would appreciate it if you could let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We recently sent you an email requesting that you undertake a review of \"{{ article.safe_title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>We would appreciate it if you could let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -427,7 +427,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>Check our site to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>You recently agreed undertake a review of \"{{ article.safe_title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>Check our site to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -446,7 +446,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.safe_title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -465,7 +465,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.safe_title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -484,7 +484,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We wish to inform you that the earlier decision to decline \"{{ article.title }}\" in {{ article.journal.name }} has been reversed. The article is now being reconsidered.<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We wish to inform you that the earlier decision to decline \"{{ article.safe_title }}\" in {{ article.journal.name }} has been reversed. The article is now being reconsidered.<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -503,7 +503,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>We are writing to let you know that you have been unassigned from the article \"{{ article.title }}\" in {{ article.journal.name }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>We are writing to let you know that you have been unassigned from the article \"{{ article.safe_title }}\" in {{ article.journal.name }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -541,7 +541,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ review_assignment.reviewer.full_name }},</p><p>We are writing to let you know that the review request for \"{{ article.title }}\" in {{ article.journal.name }} has been cancelled.</p><p>We thank you for your time but your review is no longer required.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ review_assignment.reviewer.full_name }},</p><p>We are writing to let you know that the review request for \"{{ article.safe_title }}\" in {{ article.journal.name }} has been cancelled.</p><p>We thank you for your time but your review is no longer required.</p><p>Regards,</p>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -978,7 +978,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.safe_title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1035,7 +1035,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} <br/><br/>[ADD FEEDBACK HERE].<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting further copyedits article \"{{ assignment.article.safe_title }}\". You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} <br/><br/>[ADD FEEDBACK HERE].<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -1111,7 +1111,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.title }}. You can view further information on this here: {{ production_article_url }} </p><p>Regards,</p>"
+            "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.safe_title }}. You can view further information on this here: {{ production_article_url }} </p><p>Regards,</p>"
         },
         "editable_by": [
             "editor",
@@ -1130,7 +1130,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this here: {{ typesetter_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.safe_title }}. </p><p>You can view further information on this here: {{ typesetter_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1149,7 +1149,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
+            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.safe_title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1168,7 +1168,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.editor.full_name }},</p><p>Production for article {{ article.title }} has been completed.</p><p>Regards</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ production_assignment.editor.full_name }},</p><p>Production for article {{ article.safe_title }} has been completed.</p><p>Regards</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1187,7 +1187,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>This is a notification to inform you that Production is complete for article \"{{ article.title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>This is a notification to inform you that Production is complete for article \"{{ article.safe_title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1225,7 +1225,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been assigned as the Proofing Manager: {{ proofing_article_url }} for {{ article.title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been assigned as the Proofing Manager: {{ proofing_article_url }} for {{ article.safe_title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1244,7 +1244,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br/><br/>I have completed proofreading: {{ proofing_article_url }} for \"{{ proofing_task.round.assignment.article.title }}\".<br/></p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br/><br/>I have completed proofreading: {{ proofing_article_url }} for \"{{ proofing_task.round.assignment.article.safe_title }}\".<br/></p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1263,7 +1263,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a proofreading task: {{ proofing_requests_url }} for \"{{ article.title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a proofreading task: {{ proofing_requests_url }} for \"{{ article.safe_title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1282,7 +1282,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the requests page: {{ proofing_requests_url }} /p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.safe_title }}\".</p><p>You can access this request from the requests page: {{ proofing_requests_url }} /p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1301,7 +1301,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}</p><p>Thank you for your efforts during the production of \"{{ article.title }}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ user.full_name }}</p><p>Thank you for your efforts during the production of \"{{ article.safe_title }}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         },
         "editable_by": [
             "editor",
@@ -1320,7 +1320,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.title }}\" is now complete.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.safe_title }}\" is now complete.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1339,7 +1339,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},<br><br>The proofreading task for \"{{ proofing_task.round.assignment.article.title }}\" that was due on {{ proofing_task.due }} has been cancelled.</p><p><br>{% if user_content_message %}{{ user_content_message|safe }}{% endif %}</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},<br><br>The proofreading task for \"{{ proofing_task.round.assignment.article.safe_title }}\" that was due on {{ proofing_task.due }} has been cancelled.</p><p><br>{% if user_content_message %}{{ user_content_message|safe }}{% endif %}</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1377,7 +1377,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.safe_title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1719,7 +1719,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "A section editor has made a draft decision: {{ review_in_review_url }} regarding an article in your section: {{ article.title }}.<br/><br/>The draft decision is [[DECISION TEXT ]].<br/><br/>Regards,<br/><br/>{{ request.user.signature|safe }} "
+            "default": "A section editor has made a draft decision: {{ review_in_review_url }} regarding an article in your section: {{ article.safe_title }}.<br/><br/>The draft decision is [[DECISION TEXT ]].<br/><br/>Regards,<br/><br/>{{ request.user.signature|safe }} "
         },
         "editable_by": [
             "editor",
@@ -1738,7 +1738,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }} <br/></p>"
+            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.safe_title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }} <br/></p>"
         },
         "editable_by": [
             "editor",
@@ -1757,7 +1757,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "A new article, {{ article.title }}, has been submitted.<br/><br/>You can assign an editor Here: {{ review_unassigned_article_url }} <br/><br/>Regards, <br/>"
+            "default": "A new article, {{ article.safe_title }}, has been submitted.<br/><br/>You can assign an editor Here: {{ review_unassigned_article_url }} <br/><br/>Regards, <br/>"
         },
         "editable_by": [
             "editor",
@@ -1795,7 +1795,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ editor.full_name }},</p><p>An article that you served as section editor for, {{ article.title }}, has been set for publication.<br><br>The article will be published on {{ article.date_published }}<br><br>Regards,"
+            "default": "<p>Dear {{ editor.full_name }},</p><p>An article that you served as section editor for, {{ article.safe_title }}, has been set for publication.<br><br>The article will be published on {{ article.date_published }}<br><br>Regards,"
         },
         "editable_by": [
             "editor",
@@ -1814,7 +1814,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{reviewer.full_name}}</p><p>An article that you served as peer reviewer for, \"{{ article.title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
+            "default": "<p>Dear {{reviewer.full_name}}</p><p>An article that you served as peer reviewer for, \"{{ article.safe_title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
         },
         "editable_by": [
             "editor",
@@ -1871,7 +1871,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Unassigned Articles:</p><ul>{% for article in unassigned_articles %}<li>{{ article.title }}</li>{% endfor %}</ul><p>Overdue Reviews</p><ul>{% for review in overdue_reviews %}<li>{{ review.reviewer.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Revisions</p><ul>{% for revision in overdue_revisions %}<li>{{ revision.article.correspondence_author.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Proofing</p><ul>{% for proofing in overdue_proofing %}<li>{{ proofing.proofreader.full_name }} for article {{ proofing.round.assignment.article.title }}</li>{% endfor %}</ul><p>Awaiting Publication</p><ul>{% for article in awaiting_publication %}<li>{{ article.title }}</li>{% endfor %}</ul>"
+            "default": "<p>Unassigned Articles:</p><ul>{% for article in unassigned_articles %}<li>{{ article.safe_title }}</li>{% endfor %}</ul><p>Overdue Reviews</p><ul>{% for review in overdue_reviews %}<li>{{ review.reviewer.full_name }} for article {{ review.article.safe_title }}.</li>{% endfor %}</ul><p>Overdue Revisions</p><ul>{% for revision in overdue_revisions %}<li>{{ revision.article.correspondence_author.full_name }} for article {{ review.article.safe_title }}.</li>{% endfor %}</ul><p>Overdue Proofing</p><ul>{% for proofing in overdue_proofing %}<li>{{ proofing.proofreader.full_name }} for article {{ proofing.round.assignment.article.safe_title }}</li>{% endfor %}</ul><p>Awaiting Publication</p><ul>{% for article in awaiting_publication %}<li>{{ article.safe_title }}</li>{% endfor %}</ul>"
         },
         "editable_by": [
             "editor",
@@ -1890,7 +1890,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Review Requests</p><ul>{% for review in pending_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for review in overdue_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul>"
+            "default": "<p>Review Requests</p><ul>{% for review in pending_requests %}<li>{{ review.article.safe_title }} due on {{ review.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for review in overdue_requests %}<li>{{ review.article.safe_title }} due on {{ review.date_due }}</li>{% endfor %}</ul>"
         },
         "editable_by": [
             "editor",
@@ -1909,7 +1909,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Revision Requests</p><ul>{% for revision in pending_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for revision in overdue_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul>"
+            "default": "<p>Revision Requests</p><ul>{% for revision in pending_requests %}<li>{{ revision.article.safe_title }} due on {{ revision.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for revision in overdue_requests %}<li>{{ revision.article.safe_title }} due on {{ revision.date_due }}</li>{% endfor %}</ul>"
         },
         "editable_by": [
             "editor",
@@ -2099,7 +2099,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.title }}. You can view further information on this on the journal site: {{ url }} </p><p>Regards,</p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.safe_title }}. You can view further information on this on the journal site: {{ url }} </p><p>Regards,</p>"
         },
         "editable_by": [
             "editor",
@@ -2137,7 +2137,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ notification.user.full_name }},<br/><br/>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.title }}\" to  {{ article.journal.name }}.</p><p>You can review the metadata in the journal site: {{ review_unassigned_url }} </p><p>Regards,</p>"
+            "default": "<p>Dear {{ notification.user.full_name }},<br/><br/>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.safe_title }}\" to  {{ article.journal.name }}.</p><p>You can review the metadata in the journal site: {{ review_unassigned_url }} </p><p>Regards,</p>"
         },
         "editable_by": [
             "editor",
@@ -2156,7 +2156,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that article \"{{ article.title }}\" with corresponding author&nbsp;{{ article.correspondence_author.full_name }} in {{ article.journal.name }} has been accepted for publication.</p>"
+            "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that article \"{{ article.safe_title }}\" with corresponding author&nbsp;{{ article.correspondence_author.full_name }} in {{ article.journal.name }} has been accepted for publication.</p>"
         },
         "editable_by": [
             "editor",
@@ -2403,7 +2403,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been updated. The due date is set to: {{ copyedit_assignment.due }}.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.safe_title }}\" has been updated. The due date is set to: {{ copyedit_assignment.due }}.</p><p>Regards, {{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -2422,7 +2422,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.safe_title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -2441,7 +2441,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>Your typesetting assignment for article \"{{ typeset_task.assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>Your typesetting assignment for article \"{{ typeset_task.assignment.article.safe_title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -2460,7 +2460,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>Your proofing assignment for article \"{{ proofing_task.assignment.article.title }}\" has been updated. Its due it is now {{ proofing_task.due }}. If you cannot completed the task in this time, please get in touch by replying to this email.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>Your proofing assignment for article \"{{ proofing_task.assignment.article.safe_title }}\" has been updated. Its due it is now {{ proofing_task.due }}. If you cannot completed the task in this time, please get in touch by replying to this email.</p><p>Regards, {{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -3676,7 +3676,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ correction.typesetter.full_name }},</p><p>The correction task you were assigned for {{ article.title }} has been cancelled.</p><p>Regards,</p> {{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ correction.typesetter.full_name }},</p><p>The correction task you were assigned for {{ article.safe_title }} has been cancelled.</p><p>Regards,</p> {{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -4379,7 +4379,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
+            "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.safe_title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
         },
         "editable_by": [
             "editor",
@@ -4645,7 +4645,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.safe_title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -4683,7 +4683,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>You are receiving this email because you are registered for publication notifications for {{ journal.name }}.</p><p>The following articles have been published today: </p><ul>{% for article in articles %}<li><a href=\"{{ article.url }}\">{{ article.title }}</a></li>{% endfor %}</ul>"
+            "default": "<p>You are receiving this email because you are registered for publication notifications for {{ journal.name }}.</p><p>The following articles have been published today: </p><ul>{% for article in articles %}<li><a href=\"{{ article.url }}\">{{ article.safe_title }}</a></li>{% endfor %}</ul>"
         },
         "editable_by": [
             "editor",
