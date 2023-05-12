@@ -4,12 +4,12 @@
 {% load i18n %}
 
 {% block title %}Revision for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Revision for {{ revision_request.article.title }}{% endblock %}
+{% block title-section %}Revision for {{ revision_request.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
-    <li>Revisions for {{ revision_request.article.title }}</li>
+    <li>Revisions for {{ revision_request.article.safe_title }}</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

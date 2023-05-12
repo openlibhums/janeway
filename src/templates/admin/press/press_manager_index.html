@@ -114,7 +114,7 @@
                             <tbody>
                             {% for article in published_articles %}
                                 <tr>
-                                    <td>{{ article.title|safe }}</td>
+                                    <td>{{ article.safe_title }}</td>
                                     <td>{{ article.journal.name }}</td>
                                     <td>{{ article.metrics.views }}</td>
                                     <td>{{ article.metrics.downloads }}</td>

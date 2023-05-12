@@ -3,7 +3,7 @@
 
 {% block title %}Unassign Editor Request{% endblock title %}
 {% block title-section %}Unassign Editor Request{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -16,7 +16,7 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="content">
-                <p>You are unassigning {{ assignment.editor.full_name }} from {{ article.title }}.</p>
+                <p>You are unassigning {{ assignment.editor.full_name }} from {{ article.safe_title }}.</p>
                 <p>If you select Skip, the editor will not be notified.</p>
 
                 <div class="card">

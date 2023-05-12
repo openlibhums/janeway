@@ -65,7 +65,7 @@
                         {% for article in articles %}
                         <tr id="articles-{{ dict.article.pk }}">
                             <td>{{ article.id }}</td>
-                            <td>{{ article.title|safe }}</td>
+                            <td>{{ article.safe_title }}</td>
                             <td>{{ article.date_submitted }}</td>
                             <td>{{ article.author_list }}</td>
                             <td>{{ article.section.name }}</td>

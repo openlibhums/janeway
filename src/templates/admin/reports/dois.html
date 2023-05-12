@@ -31,7 +31,7 @@
                     <tbody>
                         {% for bd in broken_dois %}
                             <tr>
-                                <td><a href="{% url 'manage_archive_article' bd.article.pk %}">{{ bd.article.title|safe }} <i class="fa fa-edit"></i></a></td>
+                                <td><a href="{% url 'manage_archive_article' bd.article.pk %}">{{ bd.article.safe_title }} <i class="fa fa-edit"></i></a></td>
                                 <td>{{ bd.checked }}</td>
                                 <td><a href="{{ bd.resolves_to }}">{{ bd.resolves_to }} <i class="fa fa-external-link"></i></a></td>
                                 <td>{{ bd.expected_to_resolve_to }}</td>

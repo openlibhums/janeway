@@ -5,7 +5,7 @@
     <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block title %}Complete Proofing{% endblock title %}
 {% block title-section %}Complete Proofing{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

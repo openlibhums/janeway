@@ -31,7 +31,7 @@
                 {% for article in articles_in_copyediting %}
                     <tr>
                         <td>{{ article.pk }}</td>
-                        <td>{{ article.title }}</td>
+                        <td>{{ article.safe_title }}</td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{{ article.section.name }}</td>

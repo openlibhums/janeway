@@ -35,7 +35,7 @@
                                     {% for author in article.authors.all %}{{ author.last_name }},
                                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},
                                         {% endif %} {% endfor %}
-                                    ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                                    ({{ article.date_published.year }}) '{{ article.safe_title }}',
                                     <i>{{ journal.name }}</i>. 0(0).
                                     doi: {{ article.identifier.identifier }}</p>
 
@@ -57,7 +57,7 @@
         <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
         <p>{% for author in article.authors.all %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
-            ({{ article.date_published.year }}) '{{ article.title|safe }}',
+            ({{ article.date_published.year }}) '{{ article.safe_title }}',
             <i>{{ journal.name }}</i>. 0(0):{{ article.page_range }}.
             doi: {{ article.identifier.identifier }}</p>
         <p>Show: <a data-open="VancouverModal">Vancouver Citation Style</a> | <a data-open="APAModal">APA Citation
@@ -72,7 +72,7 @@
         <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
         <p>{% for author in article.authors.all %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
-            {{ article.title|safe }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};0(0):{{ article.page_range }}.
+            {{ article.safe_title }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};0(0):{{ article.page_range }}.
             doi: {{ article.identifier.identifier }}</p>
         <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="APAModal">APA Citation Style</a>
         </p>
@@ -87,7 +87,7 @@
         <p>{% for author in article.authors.all %}{% if forloop.last and not forloop.first %}
             &amp; {% endif %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
-            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.safe_title }}.
             <i>{{ journal.name }}</i> 0(0):{{ article.page_range }}.
             doi: {{ article.identifier.identifier }}</p>
         <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="VancouverModal">Vancouver

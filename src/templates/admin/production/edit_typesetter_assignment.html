@@ -5,7 +5,7 @@
     {{ typeset.typesetter.full_name }}{% endblock %}
 {% block title-section %}#{{ typeset.pk }} -
     {{ typeset.typesetter.full_name }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

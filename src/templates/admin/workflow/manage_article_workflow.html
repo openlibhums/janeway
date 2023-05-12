@@ -5,12 +5,12 @@
 
 {% block title %}Article Workflow Manager{% endblock %}
 {% block title-section %}Article Workflow Manager{% endblock %}
-{% block title-sub %}{{ article.title|safe   }}{% endblock %}
+{% block title-sub %}{{ article.safe_title   }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="">#{{ article.pk }} {{ article.title|safe|truncatesmart }}</a></li>
+    <li><a href="">#{{ article.pk }} {{ article.safe_title|truncatesmart }}</a></li>
     <li>Article Workflow Manager</li>
 {% endblock %}
 

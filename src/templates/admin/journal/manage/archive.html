@@ -34,7 +34,7 @@
                     {% for article in published_articles %}
                         <tr>
                             <td>{{ article.pk }}</td>
-                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
                             <td>{{ article.date_published }}</td>
                             <td>{{ article.identifier }}</td>
                         </tr>
@@ -65,7 +65,7 @@
                     {% for article in rejected_articles %}
                         <tr>
                             <td>{{ article.pk }}</td>
-                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
                             <td>{{ article.date_declined|default_if_none:"Archived" }}</td>
                             <td>{{ article.identifier }}</td>
                         </tr>

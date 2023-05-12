@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-divider">
-        <h4>{{ task.assignment.article.title|safe }}</h4>
+        <h4>{{ task.assignment.article.safe_title }}</h4>
     </div>
     <div class="card-section">
         <p>Requested due date: {{ task.due|date:"Y-m-d" }}</p>

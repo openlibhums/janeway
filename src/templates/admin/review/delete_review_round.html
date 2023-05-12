@@ -17,7 +17,7 @@
             </div>
             <div class="content">
                 <p>Are you sure you wish to delete review round {{ round.round_number }} for
-                    article {{ article.title|safe }}? Deleting this review round will also delete the following review
+                    article {{ article.safe_title }}? Deleting this review round will also delete the following review
                     assignments:</p>
                 <ul>
                     {% for assignment in round.reviewassignment_set.all %}

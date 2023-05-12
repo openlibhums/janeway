@@ -3,7 +3,7 @@
 
 
 {% block title %}Replacing Article File for {{ copyedit.article.title }}{% endblock title %}
-{% block title-section %}Replacing Article File for {{ copyedit.article.title }}{% endblock %}
+{% block title-section %}Replacing Article File for {{ copyedit.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -23,7 +23,7 @@
                         {% if error %}
                             <div class="alert alert-warning" role="alert">{{ error }}</div>
                         {% endif %}
-                        <p>You are reviewing copyediting of article #{{ copyedit.article.pk }}, {{ copyedit.article.title|safe }}.</p>
+                        <p>You are reviewing copyediting of article #{{ copyedit.article.pk }}, {{ copyedit.article.safe_title }}.</p>
                         <p>Add a label, select a file and use the Upload and Continue button to upload the file.</p>
                     </div>
 
