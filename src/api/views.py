@@ -54,13 +54,11 @@ class AccountViewSet(viewsets.ModelViewSet):
             search_regex = "^({})$".format(
                 "|".join({name for name in split_term})
             )
-
-            if search is not None:
-                queryset = queryset.filter(
-                    Q(email__icontains=search) |
-                    Q(first_name__iregex=search_regex) |
-                    Q(last_name__iregex=search_regex)
-                )
+            queryset = queryset.filter(
+                Q(email__icontains=search) |
+                Q(first_name__iregex=search_regex) |
+                Q(last_name__iregex=search_regex)
+            )
         return queryset
 
 
