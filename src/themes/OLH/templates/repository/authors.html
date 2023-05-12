@@ -13,7 +13,7 @@
             <div class="row column">
                 {% csrf_token %}
                 <h2 class="title-area">{% trans "Preprint Authors" %}</h2>
-                <p>{% trans "Add authors to" %} {{ article.title }}.</p>
+                <p>{% trans "Add authors to" %} {{ article.safe_title }}.</p>
             </div>
             <div class="row">
                 {% include "elements/forms/errors.html" with form=form %}

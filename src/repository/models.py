@@ -11,6 +11,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
@@ -507,6 +508,13 @@ class Preprint(models.Model):
         return [pa.account for pa in preprint_authors]
 
     @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "<Untitled>"
+
+    @property
     def supplementaryfiles(self):
         return PreprintSupplementaryFile.objects.filter(
             preprint=self,
@@ -969,6 +977,13 @@ class PreprintVersion(models.Model):
         else:
             return ''
 
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "<Untitled>"
+
     def __str__(self):
         return f'{self.preprint} (version {self.version})'
 
@@ -1162,6 +1177,13 @@ class VersionQueue(models.Model):
             return _('Under Review')
         else:
             return _('Declined')
+
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "<Untitled>"
 
 
 def review_status_choices():
