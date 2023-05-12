@@ -5,7 +5,7 @@
 
 {% block title %}Proofing Requests{% endblock title %}
 {% block title-section %}Proofing{% endblock %}
-{% block title-sub %}{{ article.title }}{% endblock %}
+{% block title-sub %}{{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

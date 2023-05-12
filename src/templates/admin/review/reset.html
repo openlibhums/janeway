@@ -3,7 +3,7 @@
 
 {% block title %}Reset Review{% endblock title %}
 {% block title-section %}Reset Review{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
@@ -16,7 +16,7 @@
 <div class="large-12 columns">
     <div class="box">
         <div class="content">
-            <p>You are resetting a review by {{ review.reviewer.full_name }} for {{ article.title }}. It was due on {{ review.date_due }}.</p>
+            <p>You are resetting a review by {{ review.reviewer.full_name }} for {{ article.safe_title }}. It was due on {{ review.date_due }}.</p>
             <form method="POST">
                 {% csrf_token %}
                 <button type="submit" class="button success" name="send"><i class="fa fa-repeat">&nbsp;</i>Reset Review</button>&nbsp <a href="{% url 'review_in_review' article.pk %}" class="button warning" type="submit">Cancel</a>

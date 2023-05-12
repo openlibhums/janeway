@@ -54,7 +54,7 @@
          data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
-                <h4><i class="fa fa-pencil-square">&nbsp;</i>{{ article.title|safe }}</h4>
+                <h4><i class="fa fa-pencil-square">&nbsp;</i>{{ article.safe_title }}</h4>
             </div>
             <div class="card-section">
                 <div class="large-10 columns">
@@ -93,7 +93,7 @@
 
 
         <div class="reveal" id="modal{{ article.pk }}" data-reveal style="width:100%">
-            <h4 class="modal-title">{{ article.title|safe }}<br/>
+            <h4 class="modal-title">{{ article.safe_title }}<br/>
                 <small>{{ article.section.name }}, submitted {{ article.date_submitted }}</small>
             </h4>
 

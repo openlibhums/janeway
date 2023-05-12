@@ -1,2 +1,2 @@
 <li><a href="{% url 'proofing_requests' %}">Proofing Requests</a></li>
-{% if article %}<li><a href="{% url 'proofing_article' article.pk %}">{{ article.title|safe }}</a></li>{% endif %}
+{% if article %}<li><a href="{% url 'proofing_article' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}

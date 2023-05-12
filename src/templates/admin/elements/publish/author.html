@@ -13,7 +13,7 @@
                     <p>
                         <i>To: </i> {{ article.correspondence_author.full_name }} ({{ article.correspondence_author.email }})<br />
                         <i>From: </i> {{ request.user.full_name }}({{ request.user.email }})<br />
-                        <i>Subject: </i>{{ article.title }} Publication
+                        <i>Subject: </i>{{ article.safe_title }} Publication
                     </p>
                     <textarea name="notify_author_email">{{ notify_author_text|linebreaksbr }}</textarea>
 

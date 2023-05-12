@@ -3,7 +3,7 @@
 
 {% block title %}{{ decision|capfirst }} Article{% endblock title %}
 {% block title-section %}{{ decision|capfirst }} Article{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -18,7 +18,7 @@
                 <h2>Article Decision</h2>
             </div>
             <div class="content">
-                <p>Are you sure you want to {{ decision }} {{ article.title }}?</p>
+                <p>Are you sure you want to {{ decision }} {{ article.safe_title }}?</p>
                 {% if decision == 'accept' %}
                     {% if article.journal.use_crossref %}
                         <div class="bs-callout">

@@ -3,7 +3,7 @@
 
 {% block title %}Article {{ article.pk }} Log{% endblock %}
 {% block title-section %}Article {{ article.pk }} Log{% endblock %}
-{% block title-sub %}{{ article.title|safe }}{% endblock %}
+{% block title-sub %}{{ article.safe_title }}{% endblock %}
 
 {% block body %}
     <div class="box">

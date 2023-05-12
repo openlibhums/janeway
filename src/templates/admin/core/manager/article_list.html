@@ -38,9 +38,9 @@
                             <td>{{ article.pk }}</td>
                             <td>
                                 {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
-                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.safe_title }}</a>
                                 {% else %}
-                                    <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    <a href="{% external_journal_url article.journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.safe_title }}</a>
                                 {% endif %}
                             </td>
                             <td>{{ article.author_list }}</td>

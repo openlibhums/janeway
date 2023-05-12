@@ -186,7 +186,7 @@
                                 <tr>
                                     <td>{{ assignment.article.pk }}</td>
                                     <td>
-                                        <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.title }}</a>
+                                        <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.safe_title }}</a>
                                     </td>
                                     <td>{{ assignment.article.author_list }}</td>
                                     <td>{{ assignment.article.date_submitted }}</td>

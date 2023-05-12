@@ -3,12 +3,12 @@
 
 
 {% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Revisions for {{ revision_request.article.title }}{% endblock %}
+{% block title-section %}Revisions for {{ revision_request.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 {% include "elements/breadcrumbs/review_base.html" %}
-<li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions for {{ revision_request.article.title }}</a></li>
+<li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions for {{ revision_request.article.safe_title }}</a></li>
 <li>Replace File</li>
 {% endblock breadcrumbs %}
 

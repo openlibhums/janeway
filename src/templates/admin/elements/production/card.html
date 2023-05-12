@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-divider">
-        <h4>{{ article.pk }} - {{ article.title|safe }}</h4>
+        <h4>{{ article.pk }} - {{ article.safe_title }}</h4>
     </div>
     <div class="card-section">
         {% if type == "assignment" %}

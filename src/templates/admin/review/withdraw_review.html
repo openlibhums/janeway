@@ -3,7 +3,7 @@
 
 {% block title %}Withdraw Review Request{% endblock title %}
 {% block title-section %}Withdraw Review Request{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -16,7 +16,7 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="content">
-                <p>You are withdrawing a review by {{ review.reviewer.full_name }} from {{ article.title }}. It was due
+                <p>You are withdrawing a review by {{ review.reviewer.full_name }} from {{ article.safe_title }}. It was due
                     on {{ review.date_due }}.</p>
                 <p>If you select Skip, the reviewer will not be notified.</p>
 
