@@ -835,6 +835,13 @@ class Article(AbstractLastModifiedModel):
         ordering = ('-date_published', 'title')
 
     @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "<Untitled>"
+
+    @property
     def how_to_cite(self):
         if self.custom_how_to_cite:
             return self.custom_how_to_cite
@@ -875,7 +882,7 @@ class Article(AbstractLastModifiedModel):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": mark_safe(self.title),
+            "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
@@ -957,7 +964,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def carousel_title(self):
-        return self.title
+        return self.safe_title
 
     @property
     def carousel_image_resolver(self):
