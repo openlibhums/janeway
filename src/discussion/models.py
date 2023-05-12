@@ -41,9 +41,9 @@ class Thread(models.Model):
 
     def object_title(self):
         if self.article:
-            return self.article.title
+            return self.article.safe_title
         elif self.preprint:
-            return self.preprint.title
+            return self.preprint.safe_title
 
     def object_string(self):
         if self.article:
