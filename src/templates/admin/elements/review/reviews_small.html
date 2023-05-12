@@ -1,0 +1,55 @@
+{# Provides a smaller view for review data when there are large number of reviews #}
+<div class="table-scroll">
+    <table class="table small scroll">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Reviewer</th>
+                <th>Request Decision</th>
+                <th>Due</th>
+                <th>Recommendation</th>
+                {% if journal_settings.general.open_peer_review %}
+                    <th>Publish Review<br/>Permission</th>
+                {% endif %}
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.pk }}</td>
+                <td>
+                    {{ review.reviewer.full_name }}
+                     <span data-tooltip title="Email peer reviewer."><a
+                        onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span
+                        class="fa fa-envelope">&nbsp;</span></a></span>
+                </td>
+                <td>{{ review.request_decision_status }}</td>
+                <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                <td>{% if review.decision %}
+                    {{ review.get_decision_display|capfirst }}
+                    <br />
+                    {% if review.date_complete %}
+                        {{ review.date_complete|date:"Y-m-d H:i" }}
+                    {% endif %}
+                    {% else %}
+                    --
+                    {% endif %}
+                </td>
+                {% if journal_settings.general.open_peer_review %}
+                    <td>
+                        {% if review.permission_to_make_public %}
+                            <span style="color: green;"><i aria-hidden="true" title="Review can be made public" class="fa fa-check"></i></span>
+                        {% else %}
+                            <span style="color: red;"><i aria-hidden="true" title="Review is private" class="fa fa-times-circle"></i></span>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                <td>
+                    {% include "admin/elements/review/dropdown.html" with small="small" %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
