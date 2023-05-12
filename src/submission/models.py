@@ -37,7 +37,7 @@ from core.model_utils import(
     BaseSearchManagerMixin,
     M2MOrderedThroughField,
 )
-from core import workflow, model_utils, files
+from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
@@ -45,7 +45,7 @@ from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
-from utils import setting_handler
+from journal import models as journal_models
 
 logger = get_logger(__name__)
 
@@ -965,8 +965,6 @@ class Article(AbstractLastModifiedModel):
                 'graphic': 'xlink:href'
             }
 
-            from core import models as core_models
-
             # iterate over all found elements
             for element, attribute in elements.items():
                 images = souped_xml.findAll(element)
@@ -1066,7 +1064,6 @@ class Article(AbstractLastModifiedModel):
         return self.get_identifier('pubid')
 
     def is_accepted(self):
-        from core import models as core_models
         if self.date_published:
             return True
 
@@ -1591,12 +1588,10 @@ class Article(AbstractLastModifiedModel):
 
     @cache(600)
     def workflow_stages(self):
-        from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
 
     @property
     def current_workflow_element(self):
-        from core import models as core_models
         try:
             workflow_element_name = workflow.STAGES_ELEMENTS.get(
                 self.stage,
@@ -1745,6 +1740,46 @@ class Article(AbstractLastModifiedModel):
 
     def ms_and_figure_files(self):
         return chain(self.manuscript_files.all(), self.data_figure_files.all())
+
+    def fast_last_modified_date(self):
+        """ A faster way of calculating an approximate last modified date
+        While not as accurate as `best_last_modified_date` this calculation
+        covers most of the relevant relations when determining when an article
+        has been last modified. Depending on the numner of related nodes, this
+        function can be about 6 times faster than `best_last_modified_date`
+        """
+        last_mod_date = self.last_modified
+
+        try:
+            latest = self.galley_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except core_models.Galley.DoesNotExist:
+            pass
+
+        try:
+            latest = self.frozenauthor_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except FrozenAuthor.DoesNotExist:
+            pass
+
+        try:
+            latest = core_models.File.objects.filter(
+                article_id=self.pk).latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except core_models.File.DoesNotExist:
+            pass
+
+        try:
+            latest = self.issues.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except journal_models.Journal.DoesNotExist:
+            pass
+
+        return last_mod_date
 
 
 class FrozenAuthor(AbstractLastModifiedModel):

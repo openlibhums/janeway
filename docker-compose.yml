@@ -84,6 +84,8 @@ services:
       - NOSE_INCLUDE_EXE=1
     depends_on:
       - "start_dependencies"
+    cap_add:
+      - SYS_PTRACE
 
   janeway-sqlite:
     build:
