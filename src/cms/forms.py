@@ -56,10 +56,10 @@ class NavForm(JanewayTranslationModelForm):
         self.fields['top_level_nav'].queryset = top_level_nav_items
 
         if request.journal:
-            # Hide this until it can be implemented at the journal level
-            self.fields['for_footer'].widget = forms.HiddenInput()
-            # Hide this for all journals
-            self.fields['extend_to_journals'].widget = forms.HiddenInput()
+            # Remove this until it can be implemented at the journal level
+            self.fields.pop('for_footer')
+            # Remove this at the journal level
+            self.fields.pop('extend_to_journals')
 
 
     def clean_top_level_nav(self):
