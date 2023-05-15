@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='for_footer',
             field=models.BooleanField(
                 default=False,
-                help_text='Whether this item should appear in the footer.'
+                help_text='Whether this item should appear in the footer. '
                           'Not implemented for all themes.',
             ),
         ),

@@ -120,13 +120,14 @@ class NavigationItem(models.Model):
     )
     for_footer = models.BooleanField(
         default=False,
-        help_text='Whether this item should appear in the footer.'
+        help_text='Whether this item should appear in the footer. '
                   'Not implemented for all themes.',
     )
     extend_to_journals = models.BooleanField(
         default=False,
-        help_text='Whether this item should appear in the footer.'
-                  'Not implemented for all themes.',
+        help_text='Whether this item should be '
+                  'extended to journal websites. '
+                  'Only implemented for footer links.',
     )
 
     class Meta:
