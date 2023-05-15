@@ -13,6 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='navigationitem',
             name='extend_to_journals',
-            field=models.BooleanField(default=False, help_text='Whether this item should appear in the footer.Not implemented for all themes.'),
+            field=models.BooleanField(
+                default=False,
+                help_text='Whether this item should be '
+                          'extended to journal websites. '
+                          'Only implemented for footer links.',
+            ),
         ),
     ]
