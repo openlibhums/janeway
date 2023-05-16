@@ -86,7 +86,7 @@
                             {{ info_form.primary_issue|foundation }}
                         </div>
                     </div>
-                    {% if journal_settings.general.submission_competing_interests %}
+                    {% if request.journal.submissionconfiguration.competing_interests %}
                         <div class="large-10 columns">
                             {{ info_form.competing_interests|foundation }}
                         </div>
