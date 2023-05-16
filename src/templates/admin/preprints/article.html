@@ -53,7 +53,7 @@
                         <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor|linebreaksbr }}{% else %}No
                             comments{% endif %}</td>
                     </tr>
-                    {% if journal_settings.general.submission_competing_interests %}
+                    {% if request.journal.submissionconfiguration.competing_interests %}
                         <tr>
                             <th colspan="4">Competing Interests</th>
                         </tr>

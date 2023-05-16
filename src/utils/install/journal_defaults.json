@@ -2206,25 +2206,6 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enables the CI submission field.",
-            "is_translatable": false,
-            "name": "submission_competing_interests",
-            "pretty_name": "Competing Interests",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
             "description": "Enables the Non Specialist Summary submission field.",
             "is_translatable": false,
             "name": "submission_summary",
