@@ -80,7 +80,15 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     if reply_to and not isinstance(reply_to, (tuple, list)):
         reply_to = [reply_to]
 
-    msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
+    kwargs = dict(
+        bcc=bcc,
+        cc=cc,
+    )
+    if reply_to:
+        # Avoid empty mailboxes for servers not compliant with RFC 5322
+        kwargs[reply_to] = reply_to
+
+    msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, **kwargs)
     msg.attach_alternative(html, "text/html")
 
     if request and request.FILES and request.FILES.getlist('attachment'):
