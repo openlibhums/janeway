@@ -86,7 +86,7 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     )
     if reply_to:
         # Avoid empty mailboxes for servers not compliant with RFC 5322
-        kwargs[reply_to] = reply_to
+        kwargs["reply_to"] = reply_to
 
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, **kwargs)
     msg.attach_alternative(html, "text/html")
