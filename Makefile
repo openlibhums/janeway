@@ -45,6 +45,19 @@ ifdef VERBOSE
 	_VERBOSE=--verbose
 endif
 
+# Email
+JANEWAY_EMAIL_BACKEND=''
+JANEWAY_EMAIL_HOST=''
+JANEWAY_EMAIL_PORT=''
+JANEWAY_EMAIL_USE_TLS=0
+
+ifdef DEBUG_SMTP
+	JANEWAY_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+	JANEWAY_EMAIL_HOST=janeway-debug-smtp
+	JANEWAY_EMAIL_PORT=1025
+	JANEWAY_EMAIL_USE_TLS=
+endif
+
 export DB_VENDOR
 export DB_HOST
 export DB_PORT
@@ -53,6 +66,12 @@ export DB_USER
 export DB_PASSWORD
 export JANEWAY_PORT
 export PGADMIN_PORT
+
+export JANEWAY_EMAIL_BACKEND
+export JANEWAY_EMAIL_HOST
+export JANEWAY_EMAIL_PORT
+export JANEWAY_EMAIL_USE_TLS
+
 SUFFIX ?= $(shell date +%s)
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
