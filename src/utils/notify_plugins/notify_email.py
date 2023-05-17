@@ -5,6 +5,7 @@ from email.utils import parseaddr
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.core.mail.message import sanitize_address
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
@@ -53,9 +54,14 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         else:
             full_from_string = from_email
 
-    # handle django 3.2 raising an exception during sanitization
-    # This call is ported from django 1.11
+    # handle django 3.2 raising an exception when invalid characters are found
+    # during sanitization (call ported from Django 1.11)
     full_from_string = parseaddr(force_str(full_from_string))
+    # As per #3545, not all backends sanitize from string before .send()
+    full_from_string = sanitize_address(
+        full_from_string, settings.DEFAULT_CHARSET,
+    )
+
 
     # if a replyto is passed to this function, use that.
     if replyto:
@@ -74,7 +80,15 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     if reply_to and not isinstance(reply_to, (tuple, list)):
         reply_to = [reply_to]
 
-    msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
+    kwargs = dict(
+        bcc=bcc,
+        cc=cc,
+    )
+    if reply_to:
+        # Avoid empty mailboxes for servers not compliant with RFC 5322
+        kwargs["reply_to"] = reply_to
+
+    msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, **kwargs)
     msg.attach_alternative(html, "text/html")
 
     if request and request.FILES and request.FILES.getlist('attachment'):
@@ -82,7 +96,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             file.open()
             msg.attach(file.name, file.read(), file.content_type)
             file.close()
-
     return msg.send()
 
 

@@ -59,6 +59,7 @@ services:
     image: dadarek/wait-for-dependencies
     depends_on:
      - "janeway-${DB_VENDOR}"
+     - janeway-debug-smtp
     command: "janeway-${DB_VENDOR}:${DB_PORT}"
 
   janeway-web:
@@ -82,6 +83,11 @@ services:
       - PYTHONDONTWRITEBYTECODE=yes
       - JANEWAY_SETTINGS_MODULE=core.dev_settings
       - NOSE_INCLUDE_EXE=1
+      - JANEWAY_EMAIL_BACKEND
+      - JANEWAY_EMAIL_HOST
+      - JANEWAY_EMAIL_PORT
+      - JANEWAY_EMAIL_USE_TLS
+
     depends_on:
       - "start_dependencies"
     cap_add:
@@ -94,3 +100,7 @@ services:
     command: /bin/bash
     volumes:
       - ./db/janeway.sqlite:/var/lib/janeway.sqlite
+  janeway-debug-smtp:
+    # Use same python as janeway-web to reduce the number of images
+    image: python:3.8
+    entrypoint: python -u -m smtpd -c DebuggingServer -n 0.0.0.0:1025
