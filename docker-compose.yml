@@ -83,6 +83,11 @@ services:
       - PYTHONDONTWRITEBYTECODE=yes
       - JANEWAY_SETTINGS_MODULE=core.dev_settings
       - NOSE_INCLUDE_EXE=1
+      - JANEWAY_EMAIL_BACKEND
+      - JANEWAY_EMAIL_HOST
+      - JANEWAY_EMAIL_PORT
+      - JANEWAY_EMAIL_USE_TLS
+
     depends_on:
       - "start_dependencies"
 
