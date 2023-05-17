@@ -59,6 +59,7 @@ services:
     image: dadarek/wait-for-dependencies
     depends_on:
      - "janeway-${DB_VENDOR}"
+     - janeway-debug-smtp
     command: "janeway-${DB_VENDOR}:${DB_PORT}"
 
   janeway-web:
@@ -92,3 +93,7 @@ services:
     command: /bin/bash
     volumes:
       - ./db/janeway.sqlite:/var/lib/janeway.sqlite
+  janeway-debug-smtp:
+    # Use same python as janeway-web to reduce the number of images
+    image: python:3.8
+    entrypoint: python -u -m smtpd -c DebuggingServer -n 0.0.0.0:1025
