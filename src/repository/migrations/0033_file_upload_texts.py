@@ -8,9 +8,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0078_auto_20230222_1317'),
-        ('press', '0027_auto_20220107_1219'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('repository', '0032_repository_submission_notification_recipients'),
     ]
 
