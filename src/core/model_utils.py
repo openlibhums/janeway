@@ -98,9 +98,14 @@ class AbstractSiteModel(models.Model):
     def site_url(self, path=None):
         return logic.build_url(
             netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
+            scheme=self._get_scheme(),
             path=path or "",
         )
+    def _get_scheme(self):
+        scheme = self.SCHEMES[self.is_secure]
+        if settings.DEBUG is True:
+            scheme = self.SCHEMES[False]
+        return scheme
 
 
 class PGCaseInsensitivedMixin():

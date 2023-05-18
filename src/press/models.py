@@ -190,7 +190,7 @@ class Press(AbstractSiteModel):
 
         return logic.build_url(
             netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
+            scheme=self._get_scheme(),
             port=port,
             path=_path,
         )

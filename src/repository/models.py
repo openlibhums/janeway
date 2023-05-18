@@ -242,7 +242,7 @@ class Repository(model_utils.AbstractSiteModel):
         if self.domain and not settings.URL_CONFIG == 'path':
             return logic.build_url(
                     netloc=self.domain,
-                    scheme=self.SCHEMES[self.is_secure],
+                    scheme=self._get_scheme(),
                     port=None,
                     path=path,
             )
