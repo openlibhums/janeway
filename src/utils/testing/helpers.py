@@ -397,7 +397,6 @@ class request_context(ContextDecorator):
 def create_review_form(journal):
     return review_models.ReviewForm.objects.create(
         name="A Form",
-        slug="A Slug",
         intro="i",
         thanks="t",
         journal=journal
