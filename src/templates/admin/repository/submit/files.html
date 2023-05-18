@@ -31,8 +31,6 @@
                     </p>
                     {% if request.repository.limit_upload_to_pdf %}
                         <p>{{ request.repository.name }} {{ request.repository.require_pdf_help }}</p>
-                    {% else %}
-                        <p>{% trans 'You can upload a file in any format though PDF is recommended.' %}</p>
                     {% endif %}
 
                     {% if request.repository.file_upload_help %}
