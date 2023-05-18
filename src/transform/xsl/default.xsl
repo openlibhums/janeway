@@ -1417,15 +1417,9 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="graphics" select="graphic/@xlink:href"/>
-        <div id="{$id}" class="fig-inline-img-set">
-	  <xsl:for-each select="graphic">
-            <div class="acta-fig-image-caption-wrapper">
-                <div class="fig-expansion">
-                    <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
-      <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid">
-        <xsl:attribute name="alt">
-          <xsl:choose>
+
+        <xsl:variable name="alt">
+            <xsl:choose>
             <xsl:when test="../alt-text">
               <xsl:value-of select="../alt-text/text()" />
             </xsl:when>
@@ -1433,8 +1427,15 @@
               <xsl:value-of select="../label/text()" />
             </xsl:otherwise>
           </xsl:choose>
-        </xsl:attribute>
-      </img>
+        </xsl:variable>
+
+        <div id="{$id}" class="fig-inline-img-set">
+	  <xsl:for-each select="graphic">
+            <div class="acta-fig-image-caption-wrapper">
+                <div class="fig-expansion">
+                    <div class="fig-inline-img">
+                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                            <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
                 </div>
