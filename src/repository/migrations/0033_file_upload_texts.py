@@ -8,6 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
+
         ('repository', '0032_repository_submission_notification_recipients'),
     ]
 
