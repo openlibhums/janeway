@@ -26,7 +26,8 @@ class Command(BaseCommand):
         parser.add_argument('owner', nargs='?', default=None)
         parser.add_argument(
             '--metrics',
-            type=int, default=None,
+            type=int,
+            default=None,
             help="number of PreprintAccess to create by article",
         )
 
@@ -94,34 +95,43 @@ class Command(BaseCommand):
                 random.choice(subjects),
             )
 
-            file = models.PreprintFile.objects.create(
+            preprint_file = models.PreprintFile.objects.create(
                 preprint=preprint,
                 original_filename='fake_file.pdf',
                 mime_type='application/pdf',
                 size=100,
             )
 
-            preprint.submission_file = file
+            preprint.submission_file = preprint_file
 
-            for y in range (0,1):
-                author = models.Author.objects.create(
+            for y in range(0, 1):
+                fake_email = '{uuid}@example.com'.format(uuid=uuid4())
+                account = core_models.Account.objects.create(
                     first_name=fake.first_name(),
                     last_name=fake.last_name(),
-                    email_address='{uuid}@example.com'.format(uuid=uuid4()),
-                    affiliation=fake.sentence(),
+                    email=fake_email,
+                    username=fake_email,
+                    institution=fake.sentence(),
 
                 )
-
                 models.PreprintAuthor.objects.create(
                     preprint=preprint,
-                    author=author,
                     order=y,
-                    account=owner,
+                    account=account,
                 )
 
             if preprint.stage == models.STAGE_PREPRINT_PUBLISHED:
                 preprint.date_accepted = timezone.now()
                 preprint.date_published = timezone.now()
+
+                models.PreprintVersion.objects.create(
+                    preprint=preprint,
+                    file=preprint_file,
+                    version=1,
+                    date_time=timezone.now(),
+                    title=preprint.title,
+                    abstract=preprint.abstract,
+                )
             print("Created Preprint %d" % preprint.id)
 
             if metrics:
@@ -129,8 +139,9 @@ class Command(BaseCommand):
                 models.PreprintAccess.objects.bulk_create([
                     models.PreprintAccess(
                         preprint=preprint,
-                        file=file,
+                        file=preprint_file,
                     ) for i in range(0, metrics)])
 
 
             preprint.save()
+            print(f"Created {preprint.title} with ID {preprint.pk}")

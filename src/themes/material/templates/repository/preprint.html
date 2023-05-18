@@ -51,8 +51,18 @@
                             webkitallowfullscreen></iframe>
                 {% else %}
                     <div class="preprint-content">
-                        <p>This {{ request.repository.object_name }} has no visible version.</p>
-                        <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}" class="waves-effect waves-light btn"><span class="fa fa-download"></span> Download {{ request.repository.object_name }}</a>
+                        {% if preprint.current_version.file %}
+                            <p>This {{ request.repository.object_name }} has no
+                                visible version.</p>
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                               class="waves-effect waves-light btn"><span
+                                    class="fa fa-download"></span>
+                                Download {{ request.repository.object_name }}
+                            </a>
+                        {% else %}
+                            <p>This {{ request.repository.object_name }} does
+                                not have any files associated with it.</p>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -61,9 +71,14 @@
         <div class="col m5">
             <div class="card">
                 <div class="card-content preprint-content">
-                    <h5>{% trans "Downloads" %}</h5>
-                    <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span class="fa fa-download"></span> Download {{ request.repository.object_name }}
-                    </a></p>
+                    {% if preprint.current_version.file %}
+                        <h5>{% trans "Downloads" %}</h5>
+                        <p>
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
+                                    class="fa fa-download"></span>
+                                Download {{ request.repository.object_name }}
+                            </a></p>
+                    {% endif %}
                     {% if preprint.supplementaryfiles %}
                         <h5>{% trans "Supplementary Files" %}</h5>
                         <ul>
