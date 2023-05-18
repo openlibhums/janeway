@@ -1256,14 +1256,12 @@ def setup_default_form(sender, instance, created, **kwargs):
         from review import models as review_models
 
         if not review_models.ReviewForm.objects.filter(
-                slug='default-form',
                 journal=instance,
         ).exists():
 
             default_review_form = review_models.ReviewForm.objects.create(
                 journal=instance,
                 name='Default Form',
-                slug='default-form',
                 intro='Please complete the form below.',
                 thanks='Thank you for completing the review.'
             )
