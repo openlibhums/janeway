@@ -102,8 +102,8 @@
             <volume seq="{{ article.issue.order }}">{{ article.issue.volume }}</volume>
             <issue>{{ article.issue.issue }}</issue>
             <issue-id>{{ article.issue.pk }}</issue-id>
-            {% if article.issue.title %}
-            <issue-title xml:lang="en">{{ article.issue.title }}</issue-title>
+            {% if article.issue.issue_title %}
+            <issue-title xml:lang="en">{{ article.issue.issue_title }}</issue-title>
             {% endif %}
             <permissions>
                 <copyright-statement>Copyright: © {{ article.date_published|date:"Y" }} The Author(s)</copyright-statement>
@@ -127,7 +127,7 @@
                 {% for funder in article.funders.all %}
                     <funding-group>
                         <award-group>
-                            <funding-source id="{{ funder.fundref_id }}">{{ funder.name }}
+                            <funding-source {% if funder.fundref_id %}id="{{ funder.fundref_id }}"{% endif %}>{{ funder.name }}
                             </funding-source>
                             <award-id>{{ funder.funding_id }}</award-id>
                         </award-group>
