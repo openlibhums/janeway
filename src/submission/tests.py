@@ -36,7 +36,7 @@ from utils.testing.helpers import create_galley, request_context
 FROZEN_DATETIME_2020 = timezone.make_aware(timezone.datetime(2020, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 0))
 
-# Create your tests here.
+
 class SubmissionTests(TestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,
@@ -451,7 +451,7 @@ class SubmissionTests(TestCase):
         with translation.override("en"):
             section = models.Section.objects.create(
                 journal=self.journal_one,
-                name="section",
+                name="Test Section",
                 public_submissions=False,
             )
         self.client.force_login(

@@ -1991,7 +1991,9 @@ class Section(AbstractLastModifiedModel):
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return f"Unnamed Section {self.pk}"
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
