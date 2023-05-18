@@ -501,14 +501,17 @@ class RepositorySubmission(RepositoryBase):
         model = models.Repository
         fields = (
             'start',
+            'file_upload_help',
             'submission_agreement',
             'limit_upload_to_pdf',
+            'require_pdf_help',
             'managers',
         )
 
         widgets = {
             'start': SummernoteWidget,
             'submission_agreement': SummernoteWidget,
+            'file_upload_help': SummernoteWidget,
             'managers': FilteredSelectMultiple(
                 "Accounts",
                 False,

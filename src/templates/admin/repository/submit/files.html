@@ -27,11 +27,14 @@
                 <div class="content">
                     <p>
                         {% trans 'You can use the form below to select and upload your manuscript file.' %}
+                        <a href="#" data-open="submission_information" aria-controls="submission_information" aria-haspopup="true" tabindex="0">Review submission requirements.</a>
                     </p>
                     {% if request.repository.limit_upload_to_pdf %}
-                        <p>{{ request.repository.name }} {% trans 'requires that all author uploads be PDF files.' %}</p>
-                    {% else %}
-                        <p>{% trans 'You can upload a file in any format though PDF is recommended.' %}</p>
+                        <p>{{ request.repository.name }} {{ request.repository.require_pdf_help }}</p>
+                    {% endif %}
+
+                    {% if request.repository.file_upload_help %}
+                    {{ request.repository.file_upload_help|safe }}
                     {% endif %}
                 </div>
                 {% include "elements/forms/errors.html" with form=form %}
@@ -110,6 +113,20 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+    <div class="reveal small-4" id="submission_information" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% trans "Submission Information" %}</h4>
+        </div>
+        <div class="card-section">
+            {{ request.repository.start|safe }}
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 {% endblock %}
 
 {% block js %}
