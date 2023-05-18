@@ -9,7 +9,6 @@ from django.db.models import Max, Q, Value
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
-from django.utils.text import slugify
 
 from utils import shared
 
@@ -307,10 +306,6 @@ class ReviewForm(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    slug = models.SlugField(
-        max_length=200,
-        blank=True,
-    )
 
     intro = models.TextField(
         help_text="Message displayed at the start of the review form.",
@@ -321,10 +316,6 @@ class ReviewForm(models.Model):
 
     elements = models.ManyToManyField('ReviewFormElement')
     deleted = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super(ReviewForm, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

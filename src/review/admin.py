@@ -56,10 +56,10 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class ReviewFormAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'journal', 'deleted')
+    list_display = ('name', 'journal', 'deleted')
     list_filter = ('journal', 'deleted')
     filter_horizontal = ('elements',)
-    search_fields = ('name', 'slug', 'journal__code',
+    search_fields = ('name', 'journal__code',
                      'intro', 'thanks')
 
 
