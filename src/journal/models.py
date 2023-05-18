@@ -335,7 +335,7 @@ class Journal(AbstractSiteModel):
                 path = path[len(site_path):]
             return logic.build_url(
                     netloc=self.domain,
-                    scheme=self.SCHEMES[self.is_secure],
+                    scheme=self._get_scheme(),
                     port=None,
                     path=path,
             )
