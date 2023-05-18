@@ -1418,19 +1418,18 @@
         </xsl:variable>
         <xsl:variable name="graphics" select="graphic/@xlink:href"/>
 
-        <xsl:variable name="alt">
-            <xsl:choose>
-            <xsl:when test="../alt-text">
-              <xsl:value-of select="../alt-text/text()" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="../label/text()" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-
         <div id="{$id}" class="fig-inline-img-set">
 	  <xsl:for-each select="graphic">
+          <xsl:variable name="alt">
+              <xsl:choose>
+                  <xsl:when test="../alt-text">
+                      <xsl:value-of select="../alt-text/text()"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:value-of select="../label/text()"/>
+                  </xsl:otherwise>
+              </xsl:choose>
+          </xsl:variable>
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
