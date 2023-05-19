@@ -587,9 +587,7 @@ def edit_metadata(request, article_id):
     """
     with translation.override(request.override_language):
         article = get_object_or_404(models.Article, pk=article_id)
-        additional_fields = models.Field.objects.filter(
-            journal=request.journal,
-        )
+        additional_fields = models.Field.objects.filter(journal=request.journal)
         submission_summary = setting_handler.get_setting(
             'general',
             'submission_summary',
