@@ -2,17 +2,15 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-
-
-
 from unittest.mock import patch
 
 import datetime
 import os
 
-from django.test import TestCase, override_settings
-from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.utils import timezone
 
 from core import models as core_models, files
 from journal import models as journal_models
