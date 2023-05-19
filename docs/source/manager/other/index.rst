@@ -28,6 +28,14 @@ Janeway lets you define your own email reminders for overdue Reviews and Revisio
     - The name of the template that should be used when sending the reminder. If this template does no exist you will be asked to create it.
 - Subject
     - The email subject to send with the reminder.
+
+There are three types of reminder email supported by Janeway:
+
+- Review (Invited) - sent when a reviewer has been invited but not accepted a review request.
+- Review (Accepted) - sent when a reviewer has accepted a review request but not yet completed it.
+- Revision - Sent to authors with active revision requests.
+
+Review reminders, both invited and accepted, are sent based on the review assignment due date set by the editor. Revision reminders are sent based on the revision request due date set by the editor. You can set reminders to be sent either before or after the set due date.
     
 A reminder email has access to three objects in the template:
 
