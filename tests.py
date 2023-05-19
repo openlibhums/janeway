@@ -285,12 +285,28 @@ class TestTypesetting(TestCase):
         response = self.client.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         data = []
-        for included_element in soup.find_all(
-            class_='proofing-test-include'
-        ):
-            for excluded_element in included_element.find_all(
-                class_='proofing-test-exclude'
-            ):
+        include_ids = [
+            'article_opener',
+            'article_metadata',
+            'content',  # This quite generic id in the OLH theme
+                        # predates this proofing test
+            'author_biographies',
+        ]
+        exclude_ids = [
+            'article_how_to_cite',
+            'article_date_published',
+            'note_to_proofreader_1',
+            'note_to_proofreader_2',
+            'article_footer_block',
+        ]
+        for include_id in include_ids:
+            included_element = soup.find(id=include_id)
+            if not included_element:
+                continue
+            for exclude_id in exclude_ids:
+                excluded_element = included_element.find(id=exclude_id)
+                if not excluded_element:
+                    continue
                 excluded_element.decompose()
             data.append(included_element.prettify())
         return data
@@ -299,9 +315,6 @@ class TestTypesetting(TestCase):
         """
         Tests whether the metadata and article text offered
         in proofing matches that of the published article.
-        governed by classes proofing-test-include and
-        proofing-test-exclude applied in the theme template
-        src/themes/OLH/templates/journal/article.html
         """
 
         self.maxDiff = None
@@ -320,9 +333,6 @@ class TestTypesetting(TestCase):
         """
         Tests whether the metadata and article text offered
         in proofing matches that of the published article.
-        governed by classes proofing-test-include and
-        proofing-test-exclude applied in the theme template
-        src/themes/material/templates/journal/article.html
         """
 
         self.maxDiff = None
@@ -341,9 +351,6 @@ class TestTypesetting(TestCase):
         """
         Tests whether the metadata and article text offered
         in proofing matches that of the published article.
-        governed by classes proofing-test-include and
-        proofing-test-exclude applied in the theme template
-        src/themes/clean/templates/journal/article.html
         """
 
         self.maxDiff = None
