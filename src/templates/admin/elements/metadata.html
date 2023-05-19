@@ -248,7 +248,9 @@
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
-            <th></th>
+            {% if user_is_editor %}
+                <th></th>
+            {% endif %}
         </tr>
         {% if article.primary_issue %}
         <tr>
@@ -257,12 +259,21 @@
             <td>{{ article.primary_issue.volume }}</td>
             <td>{{ article.primary_issue.issue }}</td>
             <td>{{ article.primary_issue.date }}</td>
-            <td><a href="{% url 'manage_issues_id' article.primary_issue.pk %}">Issue Manager</a></td>
+            {% if user_is_editor %}
+                <td>
+                    <a href="{% url 'manage_issues_id' article.primary_issue.pk %}">
+                        Issue Manager
+                    </a>
+                </td>
+            {% endif %}
         </tr>
         {% else %}
         <tr>
             <td colspan="6">
-                <p>This article does not have a primary issue yet.{% if user_is_editor or request.user.is_staff %} You can assign one now using the <a target='_blank' href="{% url 'manage_issues' %}">issue manager</a>, or wait and assign one during the pre-publication checklist.{% endif %}</p>
+                <p>This article does not have a primary issue yet.</p>
+                {% if user_is_editor %}
+                    <p>You can assign one now using the <a target='_blank' href="{% url 'manage_issues' %}">issue manager</a>, or wait and assign one during the pre-publication checklist.</p>
+                {% endif %}
             </td>
         </tr>
         {% endif %}
