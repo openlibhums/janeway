@@ -100,7 +100,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
         self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
-        editor_view = kwargs.pop('editor_view', False)
 
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -195,11 +194,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             self.fields[element.name].initial = check_for_answer.answer
                         except models.FieldAnswer.DoesNotExist:
                             pass
-
-                # if the editor is viewing the page, don't set additional
-                # fields to be required.
-                if editor_view:
-                    self.fields[element.name].required = False
 
 
     def save(self, commit=True, request=None):

@@ -602,7 +602,6 @@ def edit_metadata(request, article_id):
             additional_fields=additional_fields,
             submission_summary=submission_summary,
             pop_disabled_fields=False,
-            editor_view=True,
         )
         frozen_author, modal = None, None
         return_param = request.GET.get('return')
@@ -637,10 +636,8 @@ def edit_metadata(request, article_id):
                 info_form = forms.ArticleInfo(
                     request.POST,
                     instance=article,
-                    additional_fields=additional_fields,
                     submission_summary=submission_summary,
                     pop_disabled_fields=False,
-                    editor_view=True,
                 )
 
                 if info_form.is_valid():
