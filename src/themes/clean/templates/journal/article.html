@@ -12,7 +12,7 @@
 
 {% block body %}
 
-    <div class="row proofing-test-include">
+    <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
             <div class="card">
@@ -65,7 +65,7 @@
         </div>
     {% endif %}
     </div>
-    <div class="row proofing-test-include">
+    <div id="article_metadata" class="row">
 
         <div class="col-md-7">
             <div id="article">
@@ -86,7 +86,7 @@
                 {% endif %}
                 {% if article.is_published or proofing %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    <div class="proofing-test-exclude">
+                    <div id="article_how_to_cite">
                         {{ article.how_to_cite|safe }} </p>
                     </div>
                 {% endif %}
@@ -110,7 +110,7 @@
                             {% endfor %}
                         </p>
                         {% if proofing %}
-                            <p class="proofing-test-exclude">
+                            <p id="note_to_proofreader_1">
                                 <i class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -151,7 +151,7 @@
                 {% if article_content %}
                     <div itemprop="articleBody" id="main_article">
                         {{ article_content|safe }}
-                        <div class="proofing-test-exclude">
+                        <div id="article_footer_block">
                         {% hook 'article_footer_block' %}
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                         {% endfor %}
                     </ul>
                     {% if proofing %}
-                        <p class="proofing-test-exclude">
+                        <p id="note_to_proofreader_2">
                             <i class="fa fa-info"></i>
                             Note to proofreader: Download links on this page begin to work when the article is published.
                         </p>
@@ -216,7 +216,7 @@
                 <h2>{% trans "Information" %}</h2>
                 <ul>
                     {% if article.is_published or proofing %}
-                        <li class="proofing-text-exclude">
+                        <li id="article_date_published">
                             {% trans "Published on" %} {{ article.date_published|date:"d M Y" }}
                         </li>
                     {% else %}

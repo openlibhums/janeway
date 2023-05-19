@@ -87,14 +87,16 @@
                 </ul>
             </div>
         </section>
+        <div id="author_biographies">
         {% for author in article.frozen_authors.all %}
             {% if author.biography %}
-                <div class="dropdown-pane author-info proofing-test-include" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
+                <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
                      data-hover-pane="true">
                     {{ author.biography }}
                 </div>
             {% endif %}
         {% endfor %}
+        </div>
     {% endif %}
 
         <div data-sticky-container class="row">
@@ -142,7 +144,7 @@
             </div>
         </div>
 
-        <section id="content" class="no-padding proofing-test-include">
+        <section id="content" class="no-padding">
             <div class="row">
                 <div class="large-8 columns border-right">
                     <div class="row">
@@ -175,8 +177,12 @@
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published or proofing %}
                             {% if not journal_settings.article.suppress_how_to_cite %}
-                            <p class="proofing-test-exclude"><strong>{% trans "How to Cite" %}:</strong>
-                            {{ article.how_to_cite|safe }} </p>
+                            <p id="article_how_to_cite">
+                                <strong>
+                                    {% trans "How to Cite" %}:
+                                </strong>
+                                {{ article.how_to_cite|safe }}
+                            </p>
                             {% endif %}
                             {% endif %}
                             {% if article.rights %}
@@ -210,7 +216,7 @@
                                         {% endfor %}
                                     </p>
                                     {% if proofing %}
-                                        <p class="proofing-test-exclude">
+                                        <p id="note_to_proofreader_1">
                                             <i class="fa fa-info"></i>
                                             Note to proofreader: Download links on this page begin to work when the article is published.
                                         </p>
@@ -272,9 +278,9 @@
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
                                         {% if article.date_published or article.date_accepted or proofing %}
-                                        <div class="large-4 columns proofing-test-exclude" data-equalizer-watch>
+                                        <div class="large-4 columns" data-equalizer-watch>
                                             {% if article.is_published or proofing %}
-                                                <h5 class="proofing-test-exclude">
+                                                <h5 id="article_date_published">
                                                     {% trans "Published on" %} <br>
                                                     {{ article.date_published|date:"d M Y" }}
                                                 </h5>
@@ -308,7 +314,7 @@
                                 <article id="main_article">
                                     <div itemprop="articleBody">
                                         {{ article_content|safe }}
-                                        <div class="proofing-test-exclude">
+                                        <div id="article_footer_block">
                                             {% hook 'article_footer_block' %}
                                         </div>
                                     </div>
@@ -360,7 +366,7 @@
                                         {% endfor %}
                                     </ul>
                                     {% if proofing %}
-                                        <p class="proofing-test-exclude">
+                                        <p id="note_to_proofreader_2">
                                             <i class="fa fa-info"></i>
                                             Note to proofreader: Download links on this page begin to work when the article is published.
                                         </p>

@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row proofing-test-include">
+    <div id="article_opener" class="row">
         <div class="col m12">
             <div class="card">
             {% if not journal_settings.article.disable_article_large_image %}
@@ -88,7 +88,7 @@
                     {% if article.is_published or proofing %}
                     {% if not journal_settings.article.suppress_how_to_cite %}
                         <h2>{% trans "How to Cite" %}</h2>
-                        <div class="proofing-test-exclude">
+                        <div id="article_how_to_cite">
                             {{ article.how_to_cite | safe }}
                         </div>
                         <div class="spacer">
@@ -133,7 +133,7 @@
                                 {% endfor %}
                             </p>
                             {% if proofing %}
-                                <p class="proofing-test-exclude">
+                                <p id="note_to_proofreader_1">
                                     <i class="material-icons left">info</i>
                                     Note to proofreader: Download links on this page begin to work when the article is published.
                                 </p>
@@ -231,7 +231,7 @@
                         <div class="card">
                             <div class="card-content">
                                 {{ article_content|safe }}
-                                <div class="proofing-test-exclude">
+                                <div id="article_footer_block">
                                 {% hook 'article_footer_block' %}
                                 </div>
                             </div>
@@ -305,7 +305,7 @@
                             {% endfor %}
                         </ul>
                         {% if proofing %}
-                            <p class="proofing-test-exclude">
+                            <p id="note_to_proofreader_2">
                                 <i class="material-icons left">info</i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -397,7 +397,7 @@
                         {% if article.date_published or proofing %}
                         <tr>
                             <th>{% trans "Published" %}</th>
-                            <td class="proofing-test-exclude">
+                            <td id="article_date_published">
                                 {{ article.date_published|date:"Y-m-d" }}
                             </td>
                         </tr>
