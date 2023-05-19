@@ -155,7 +155,6 @@ class TestOAIViews(TestCase):
             SERVER_NAME="testserver"
         )
 
-
         self.maxDiff = None
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -368,6 +367,7 @@ LIST_RECORDS_DATA_JATS = """
                 <volume seq="0">1</volume>
                 <issue>1</issue>
                 <issue-id>1</issue-id>
+                <issue-title xml:lang="en">Test Issue from Utils Testing Helpers</issue-title>
                 <permissions>
                     <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
                     <copyright-year>1986</copyright-year>
@@ -532,6 +532,7 @@ GET_RECORD_DATA_JATS = """
                 <volume seq="0">1</volume>
                 <issue>1</issue>
                 <issue-id>1</issue-id>
+                <issue-title xml:lang="en">Test Issue from Utils Testing Helpers</issue-title>
                 <permissions>
                     <copyright-statement>Copyright: © 1986 The Author(s)</copyright-statement>
                     <copyright-year>1986</copyright-year>
