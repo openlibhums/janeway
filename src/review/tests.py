@@ -2,14 +2,15 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-
+from unittest.mock import patch
 
 import datetime
 import os
 
-from django.test import TestCase, override_settings
-from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.utils import timezone
 
 from core import models as core_models, files
 from journal import models as journal_models
@@ -57,7 +58,7 @@ class ReviewTests(TestCase):
     def test_total_review_count(self):
         self.assertEqual(
             self.article_review_completed.reviewassignment_set.all().count(),
-            2,
+            3,
         )
 
     def test_completed_reviews_with_decision_count(self):
@@ -474,7 +475,7 @@ class ReviewTests(TestCase):
             review_round=self.round_one,
             reviewer=self.regular_user,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             date_complete=timezone.now(),
@@ -488,16 +489,27 @@ class ReviewTests(TestCase):
             review_round=self.round_two,
             reviewer=self.second_reviewer,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             decision='withdrawn',
         )
 
+        self.review_assignment_declined, created = review_models.ReviewAssignment.objects.get_or_create(
+            article=self.article_review_completed,
+            review_round=self.round_two,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=timezone.now(),
+            date_declined=timezone.now(),
+            form=self.review_form,
+            is_complete=False,
+        )
+
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
                                                                 editor=self.editor,
-                                                                date_due=datetime.datetime.now(),
+                                                                date_due=timezone.now(),
                                                                 form=self.review_form)
 
         self.review_assignment.save()
@@ -505,7 +517,7 @@ class ReviewTests(TestCase):
         self.review_assignment_not_in_scope = review_models.ReviewAssignment(article=self.article_in_production,
                                                                              reviewer=self.regular_user,
                                                                              editor=self.editor,
-                                                                             date_due=datetime.datetime.now(),
+                                                                             date_due=timezone.now(),
                                                                              form=self.review_form)
         self.review_assignment_not_in_scope.save()
 
@@ -627,3 +639,28 @@ class ReviewTests(TestCase):
         self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
+
+
+    def test_request_revisions_context(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'review_request_revisions',
+                kwargs={'article_id': self.article_review_completed.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        response.context.get('incomplete')
+        self.assertEqual(
+            self.article_review_completed,
+            response.context.get('article'),
+        )
+        # This test does not cover the revision request form
+        self.assertEqual(
+            0,
+            response.context.get('pending_approval').count(),
+        )
+        self.assertEqual(
+            0,
+            response.context.get('incomplete').count(),
+        )

@@ -1692,12 +1692,11 @@ def request_revisions(request, article_id):
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
-    pending_approval = review_round.reviewassignment_set.filter(
+    pending_approval = review_round.active_reviews().filter(
         is_complete=True,
         for_author_consumption=False,
-        date_declined__isnull=True,
     )
-    incomplete = review_round.reviewassignment_set.filter(
+    incomplete = review_round.active_reviews().filter(
         is_complete=False,
     )
 
