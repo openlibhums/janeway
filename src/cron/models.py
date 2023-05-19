@@ -81,9 +81,9 @@ REMINDER_CHOICES = (
 
 RUN_TYPE_CHOICES = (
     # Before the event
-    ('before', 'Before'),
+    ('before', 'before the due date'),
     # After the event
-    ('after', 'After'),
+    ('after', 'after the due date'),
 )
 
 
@@ -102,12 +102,15 @@ class Reminder(models.Model):
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(
         help_text="The number of days before or "
-                  "after this reminder should fire",
+                  "after the due date this "
+                  "reminder should fire",
     )
     template_name = models.CharField(
         max_length=100,
-        help_text="The name of the email template, if it doesn't exist "
-                  "you will be asked to create it. Should have no spaces.",
+        help_text="The name of the email template. "
+                  "If it does not exist, you will be "
+                  "asked to create it. "
+                  "Should have no spaces.",
     )
     subject = models.CharField(max_length=200)
 
@@ -123,11 +126,11 @@ class Reminder(models.Model):
         """
         Works out the target date of a reminder by adding or subtracting a
         timedelta from today's date.
-        Examples: Reminder set to send 5 days before the due date we take
-        today's date and add 5 days to search for ReviewAssignments that are
-        due 5 days from now. The reverse is true for after, we remove 5 days
-        from today's date to work out which ReviewAssignments were due 5 days
-        ago.
+        Examples: For a reminder set to send 5 days before the due date,
+        we take today's date and add 5 days to search for
+        ReviewAssignments that are due 5 days from now. The reverse
+        is true for after: we remove 5 days from today's date to work
+        out which ReviewAssignments were due 5 days ago.
         """
         date_time = None
 
