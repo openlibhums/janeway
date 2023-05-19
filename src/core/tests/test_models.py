@@ -324,6 +324,7 @@ class TestLastModifiedModel(TestCase):
         with freeze_time(FROZEN_DATETIME_20210101):
             self.article.last_modified = timezone.now()
             self.article.save()
+            self.article.refresh_from_db()
 
         # Test
         self.assertEqual(self.article.best_last_modified_date(), file_date)
@@ -345,6 +346,7 @@ class TestLastModifiedModel(TestCase):
         with freeze_time(FROZEN_DATETIME_20210101):
             self.article.last_modified = timezone.now()
             self.article.save()
+            self.article.refresh_from_db()
 
         # Test
         self.assertEqual(self.article.best_last_modified_date(), file_date)
@@ -365,6 +367,7 @@ class TestLastModifiedModel(TestCase):
             self.article.render_galley = galley
             self.article.last_modified = timezone.now()
             self.article.save()
+            self.article.refresh_from_db()
 
         # Test
         self.assertEqual(self.article.best_last_modified_date(), file_date)

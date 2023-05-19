@@ -20,14 +20,7 @@
                 <a class=" button" href="{% url 'cron_create_reminder' %}"><i class="fa fa-plus">&nbsp;</i>Add Reminders</a>
             </div>
             <div class="content">
-                <p>Currently active Review and Revision reminders are listed below. You can edit, delete or create new reminders from this interface. There are three types of reminder email supported by Janeway:</p>
-                <ul>
-                    <li>Review (Invited) - sent when a reviewer has been invited but not responded.</li>
-                    <li>Review (Accepted) - sent when a reviewer has accepted a review request.</li>
-                    <li>Revision - Sent for revision requests.</li>
-                </ul>
-                <p>In addition you can also set reminders to be before or after the due date. It is recommended that you not create too many reminders for peer reviewers.</p>
-
+                {% include "elements/cron/reminders_help.html" %}
 
                 <form method="POST" action="{% url 'cron_reminders' %}">
                     {% csrf_token %}
@@ -43,8 +36,7 @@
                         {% for reminder in reminders %}
                             <tr>
                                 <td>{{ reminder.pk }}</td>
-                                <td>Sent {{ reminder.days }} days {{ reminder.run_type }} {{ reminder.get_type_display }} is
-                                    due.</td>
+                                <td>Sent {{ reminder.days }} days {{ reminder.run_type }} for {{ reminder.get_type_display }}.</td>
                                 <td>{{ reminder.template_name }} <a href="{% url 'cron_create_template' reminder.pk reminder.template_name %}"><i class="fa fa-edit">&nbsp;</i></a></td>
                                 <td>{{ reminder.subject }}</td>
                                 <td>

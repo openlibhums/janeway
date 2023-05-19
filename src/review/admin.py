@@ -25,8 +25,7 @@ class ReviewRoundAdmin(admin_utils.ArticleFKModelAdmin):
                     '_journal')
     list_filter = ('article__journal', 'round_number', 'date_started')
     search_fields = ('article__pk', 'article__title', 'article__journal__code')
-    raw_id_fields = ('article',)
-    filter_horizontal = ('review_files',)
+    raw_id_fields = ('article', 'review_files',)
     date_hierarchy = ('date_started')
 
 
@@ -56,10 +55,10 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class ReviewFormAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'journal', 'deleted')
+    list_display = ('name', 'journal', 'deleted')
     list_filter = ('journal', 'deleted')
     filter_horizontal = ('elements',)
-    search_fields = ('name', 'slug', 'journal__code',
+    search_fields = ('name', 'journal__code',
                      'intro', 'thanks')
 
 

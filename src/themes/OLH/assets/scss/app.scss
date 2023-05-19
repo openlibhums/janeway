@@ -60,20 +60,20 @@
 @import 'tagit';
 
 :root {
-  --primary-dark-color: $primary-dark-color;
-  --very-dark-primary-color: $very-dark-primary-color;
-  --primary-light-color: $primary-light-color;
+  --primary-dark-color: #{$primary-dark-color};
+  --very-dark-primary-color: #{$very-dark-primary-color};
+  --primary-light-color: #{$primary-light-color};
 
-  --topbar-background-color: $topbar-background-color;
-  --menu-background-color: $menu-background-color;
-  --menu-alternative-background-color: $menu-alternative-background-color;
-  --menu-foreground-color: $menu-foreground-color;
+  --topbar-background-color: #{$topbar-background-color};
+  --menu-background-color: #{$menu-background-color};
+  --menu-alternative-background-color: #{$menu-alternative-background-color};
+  --menu-foreground-color: #{$menu-foreground-color};
 
-  --link-color: $link-color;
-  --toc-link-color: $toc-link-color;
+  --link-color: #{$link-color};
+  --toc-link-color: #{$toc-link-color};
 
-  --figure-caption-background-color: $figure-caption-background-color;
-  --figure-caption-color: $figure-caption-color;
+  --figure-caption-background-color: #{$figure-caption-background-color};
+  --figure-caption-color: #{$figure-caption-color};
 
 }
 
@@ -696,9 +696,10 @@ div.caption span.label {
 }
 
 footer {
-  .columns {
+  .logo-wrapper {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
+    height: $footer-height;
   }
   p {
     font-family: $header-font-family;
@@ -706,10 +707,19 @@ footer {
     color: #333;
     margin: 0;
   }
+  .columns:not(.logo-wrapper) {
+    margin-top: rem-calc(12px);
+    margin-bottom: rem-calc(12px);
+  }
+  #presswide_footer_text {
+    margin-top: 0;
+  }
+  svg,
+  img {
+    max-height: 60px;
+    max-width: 180px;
+  }
   svg {
-    height: 30px;
-    width: 100px;
-
     path {
       fill: $white;
     }

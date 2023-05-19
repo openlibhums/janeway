@@ -3879,7 +3879,7 @@
         },
         "setting": {
             "description": "Enable open peer review mode on this journal. With this feature enabled, each peer review can be approved for public display alongside its published article. The peer reviewer and the editor must separately approve each review before it is made public.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "open_peer_review",
             "pretty_name": "Enable open peer review",
             "type": "boolean"
@@ -4778,6 +4778,42 @@
         },
         "value": {
             "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Reviewers opt in to open review by default, the field will be checked forcing them to opt out if they want to.",
+            "is_translatable": false,
+            "name": "open_review_default_opt_in",
+            "pretty_name": "Open Review Defaults to Opt In",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Reviewers will not be asked to make any recommendation e.g. Accept or Reject. Review recommendation will be set to No Recommendation",
+            "is_translatable": false,
+            "name": "disable_reviewer_recommendation",
+            "pretty_name": "Disable Reviewer Recommendation",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         },
         "editable_by": [
             "journal-manager"

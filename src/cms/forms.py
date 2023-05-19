@@ -29,7 +29,16 @@ class NavForm(JanewayTranslationModelForm):
 
     class Meta:
         model = models.NavigationItem
-        fields = ('link_name', 'link', 'is_external', 'sequence', 'has_sub_nav', 'top_level_nav')
+        fields = (
+            'link_name',
+            'link',
+            'is_external',
+            'sequence',
+            'has_sub_nav',
+            'top_level_nav',
+            'for_footer',
+            'extend_to_journals',
+        )
         exclude = ('page', 'content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
@@ -45,6 +54,13 @@ class NavForm(JanewayTranslationModelForm):
             top_level_nav_items = top_level_nav_items.exclude(pk=self.instance.pk)
 
         self.fields['top_level_nav'].queryset = top_level_nav_items
+
+        if request.journal:
+            # Remove this until it can be implemented at the journal level
+            self.fields.pop('for_footer')
+            # Remove this at the journal level
+            self.fields.pop('extend_to_journals')
+
 
     def clean_top_level_nav(self):
         top_level_nav = self.cleaned_data.get('top_level_nav')

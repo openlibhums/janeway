@@ -9,6 +9,7 @@ from importlib import import_module
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
+from semver import Version
 
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
 from submission.models import PLUGIN_WORKFLOW_STAGES
@@ -87,24 +88,13 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 def validate_plugin_version(plugin_settings):
     valid = None
     try:
-        wants_version = plugin_settings.JANEWAY_VERSION.split(".")
+        wants_version = Version.parse(plugin_settings.JANEWAY_VERSION)
     except AttributeError:
         # No MIN version pinned by plugin
         return
 
-    current_version = get_janeway_version().split(".")
-
-    for current, wants in zip(current_version, wants_version):
-        current, wants = int(current), int(wants)
-        if current > wants:
-            valid = True
-            break
-        elif current < wants:
-            valid = False
-            break
-
-    if valid is None:  # Handle exact match
-        valid = True
+    current_version = get_janeway_version()
+    valid = current_version >= wants_version
 
     if not valid:
         raise ImproperlyConfigured(

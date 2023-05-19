@@ -151,9 +151,16 @@ urlpatterns = [
         core_views.manage_notifications, name='core_manager_edit_notifications'),
 
     # Plugin home
-    re_path(r'^manager/plugins/$',
+    re_path(
+        r'^manager/plugins/$',
         core_views.plugin_list,
-        name='core_plugin_list'),
+        name='core_plugin_list'
+    ),
+    re_path(
+        r'^plugins/$',
+        core_views.plugin_list,
+        name='core_plugin_list'
+    ),
 
     # Journal Sections
     re_path(r'^manager/sections/$',

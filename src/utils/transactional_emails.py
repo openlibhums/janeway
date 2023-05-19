@@ -15,6 +15,7 @@ from utils import (
 )
 from core import models as core_models
 from review import logic as review_logic
+from review.const import EditorialDecisions as ED
 
 
 def send_reviewer_withdrawl_notice(**kwargs):
@@ -418,6 +419,7 @@ def send_article_decision(**kwargs):
     article = kwargs['article']
     request = kwargs['request']
     decision = kwargs['decision']
+    subject = ""
     user_message_content = kwargs['user_message_content']
 
     if 'skip' not in kwargs:
@@ -435,11 +437,11 @@ def send_article_decision(**kwargs):
                 'types': 'Article Decision',
                 'target': article}
 
-    if decision == 'accept':
+    if decision == ED.ACCEPT.value:
         subject = 'subject_review_decision_accept'
-    elif decision == 'decline':
+    elif decision == ED.DECLINE.value:
         subject = 'subject_review_decision_decline'
-    elif decision == 'undecline':
+    elif decision == ED.UNDECLINE.value:
         subject = 'subject_review_decision_undecline'
 
 

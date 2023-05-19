@@ -26,6 +26,7 @@ from django.db import(
 )
 from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
+from django.db.models.functions import Coalesce, Greatest
 from django.core.validators import (
     FileExtensionValidator,
     get_available_image_extensions,
@@ -97,9 +98,14 @@ class AbstractSiteModel(models.Model):
     def site_url(self, path=None):
         return logic.build_url(
             netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
+            scheme=self._get_scheme(),
             path=path or "",
         )
+    def _get_scheme(self):
+        scheme = self.SCHEMES[self.is_secure]
+        if settings.DEBUG is True:
+            scheme = self.SCHEMES[False]
+        return scheme
 
 
 class PGCaseInsensitivedMixin():
@@ -353,6 +359,10 @@ class LastModifiedModelManager(models.Manager):
 
 
 class AbstractLastModifiedModel(models.Model):
+    # A mapping from these models last modified field relations and their models
+    _LAST_MODIFIED_FIELDS_MAP = {}
+    _LAST_MODIFIED_ACCESSORS = {}
+
     last_modified = models.DateTimeField(
         auto_now=True,
         editable=True
@@ -366,59 +376,82 @@ class AbstractLastModifiedModel(models.Model):
     def model_key(self):
         return (type(self), self.pk)
 
+    @classmethod
+    def get_last_modified_field_map(cls, visited_fields=None):
+
+        # Early return of cached calculation
+        if cls._LAST_MODIFIED_FIELDS_MAP:
+            return cls._LAST_MODIFIED_FIELDS_MAP
+
+        field_map = {}
+        if visited_fields is None:
+            visited_fields = set()
+
+        local_fields = cls._meta.get_fields()
+        for field in local_fields:
+            if (
+                (field.many_to_many
+                or field.one_to_many
+                or field.many_to_one)
+                and field not in visited_fields
+            ):
+                model = field.remote_field.model
+                if issubclass(model, AbstractLastModifiedModel):
+                    # Avoid infinite recursion when models are doubly linked
+                    visited_fields.add(field.remote_field)
+                    visited_fields.add(field)
+
+                    field_map[field.name] = model
+
+        # Workout relations of child nodes
+        for field, model in tuple(field_map.items()):
+            other_map = model.get_last_modified_field_map(visited_fields)
+            for other_field_name, other_model in other_map.items():
+                field_map[f"{field}__{other_field_name}"] = other_model
+
+        # The below caching method is not ideal, however
+        cls._LAST_MODIFIED_FIELDS_MAP = field_map
+        return field_map
+
+    @classmethod
+    def get_last_modified_accessors(cls):
+        if cls._LAST_MODIFIED_ACCESSORS:
+            return cls._LAST_MODIFIED_ACCESSORS
+
+        field_map = cls.get_last_modified_field_map()
+        accessors = set(
+            # sqlite's MAX returns NULL if any value is NULL
+            Coalesce(
+                f"{field}__last_modified",
+                timezone.make_aware(timezone.datetime.fromtimestamp(0))
+            )
+            for field in field_map.keys()
+        )
+
+        cls._LAST_MODIFIED_ACCESSORS = accessors
+        return cls.get_last_modified_accessors()
+
+
     def best_last_modified_date(self, visited_nodes=None):
         """ Determines the last modified date considering all related objects
         Any relationship which is an instance of this class will have its
         `last_modified` date considered for calculating the last_modified date
         for the instance from which this method is called
         :param visited_nodes: A set of visited objects to ignore. It avoids
-            infinite recursion when 2 models have are circularly related.
+            infinite recursion when 2 models are circularly related.
             encoded as set of pairs of object model and PK
         :return: The most recent last_modified date of all related models.
         """
-        last_mod_date = self.last_modified
-        logger.debug("Calculating last_mod for %s: %s", self.__class__, self)
-        if visited_nodes is None:
-            visited_nodes = set()
-        visited_nodes.add(self.model_key)
-
-        obj_fields = self._meta.get_fields()
-        for field in obj_fields:
-            if field in visited_nodes:
-                continue
-            objects = []
-            if field.many_to_many:
-                if isinstance(field, models.Field):
-                    remote_field = field.remote_field.name
-                    manager = getattr(self, field.get_attname())
-                else:
-                    manager = getattr(self, field.get_accessor_name())
-                remote_field = manager.source_field_name
-                related_filter = {remote_field: self}
-                objects = manager.through.objects.filter(**related_filter)
-            elif field.one_to_many:
-                remote_field = field.remote_field.name
-                accessor_name = field.get_accessor_name()
-                accessor = getattr(self, accessor_name)
-                objects = accessor.all()
-            elif field.many_to_one:
-                objects = [getattr(self, field.name)]
-
-            visited_nodes.add(field.remote_field)
-
-            for obj in objects:
-                if (
-                    isinstance(obj, AbstractLastModifiedModel)
-                    and obj.model_key not in visited_nodes
-                ):
-                    obj_modified = obj.best_last_modified_date(visited_nodes)
-                    if (
-                        not last_mod_date
-                        or obj_modified and obj_modified > last_mod_date
-                    ):
-                        last_mod_date = obj_modified
-
-        return last_mod_date
+        last_modified_keys = list(self.get_last_modified_accessors())
+        annotated_query = self._meta.model.objects.filter(id=self.id).annotate(
+            best_last_mod_date=Greatest(
+                self.last_modified,
+                *last_modified_keys,
+                output_field=models.DateTimeField(),
+            ),
+        )
+        result = annotated_query.values("best_last_mod_date").first()
+        return result["best_last_mod_date"]
 
 
 class SearchLookup(PGSearchLookup):
@@ -513,14 +546,23 @@ class BaseSearchManagerMixin(Manager):
     def get_search_lookups(self):
         return self.search_lookups
 
-
 class SearchVector(DjangoSearchVector):
     """ An Extension of SearchVector that works with SearchVectorField
 
     Django's implementation assumes that the `to_tsvector` function needs
     to be called with the provided column, except that when the field is already
-    a SearchVectorField, there is no need.
+    a SearchVectorField, there is no need. Django's implementation in 2.2
+    (405c8363362063542e9e79beac53c8437d389520) also attempts to cast the
+    column data into a TextField, prior to casting to the tsvector, which we
+    override under `set_source_expressions`
+
     """
+    def set_source_expressions(self, _):
+        """ Ignore Django's implementation
+        We don't require the expressions to be re-casted during the as_sql call
+        """
+        pass
+
     # Override template to ignore function
     function = None
     template = '%(expressions)s'

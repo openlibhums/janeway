@@ -15,7 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='reminder',
             name='template_name',
-            field=models.CharField(help_text="The name of the email template, if it doesn't exist you will be asked to create it. Should have no spaces.", max_length=100),
+            field=models.CharField(
+                help_text="The name of the email template. "
+                          "If it does not exist, you will be "
+                          "asked to create it. "
+                          "Should have no spaces.",
+                max_length=100,
+            ),
         ),
         migrations.AlterField(
             model_name='reminder',

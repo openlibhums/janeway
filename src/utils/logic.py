@@ -2,6 +2,7 @@ import os
 import hashlib
 import hmac
 from urllib.parse import SplitResult, quote_plus, urlencode
+from tqdm import tqdm
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -12,6 +13,7 @@ from cron.models import Request
 from utils import models, notify_helpers
 from utils.logger import get_logger
 from utils.function_cache import cache
+from janeway import __version__ as janeway_version
 from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
@@ -152,19 +154,11 @@ def get_current_request():
         return None
 
 
-@cache(seconds=600)
 def get_janeway_version():
     """ Returns the installed version of janeway
     :return: `string` version
     """
-    v = models.Version.objects.filter(rollback=None).order_by("-pk").first()
-    if v:
-        return v.number
-    else:
-        logger.error(
-            'No version record found.',
-        )
-        return "9.9.9"
+    return str(janeway_version)
 
 
 def get_log_entries(object):
@@ -279,52 +273,15 @@ def write_subject_sitemap(subject):
         file.close()
 
 
-def write_all_sitemaps(cli=False):
-    """
-    Utility function that generates and writes all sitemaps to disk in one go.
-    """
-    storage_path = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'sitemaps',
-    )
-    if not os.path.exists(storage_path):
-        os.makedirs(storage_path)
-
-    # Generate the press level sitemap
+def write_press_sitemap():
     press = press_models.Press.objects.all().first()
-    journals = journal_models.Journal.objects.all()
-    repos = repo_models.Repository.objects.all()
-    file_path = os.path.join(
-        storage_path,
-        'sitemap.xml'
+    press_sitemap_path = get_sitemap_path(
+        path_parts=[],
+        file_name='sitemap.xml',
     )
-    with open(file_path, 'w') as file:
+    with open(press_sitemap_path, 'w') as file:
         generate_sitemap(file, press=press)
         file.close()
-
-    # Generate Journal Sitemaps
-    for journal in journals:
-        if cli:
-            print("Generating sitemaps for {}".format(journal.name))
-        write_journal_sitemap(journal)
-
-        # Generate Issue Sitemap
-        for issue in journal.published_issues:
-            if cli:
-                print("Generating sitemap for issue {}".format(issue))
-            write_issue_sitemap(issue)
-
-    # Generate Repo Sitemap
-    for repo in repos:
-        if cli:
-            print("Generating sitemaps for {}".format(repo.name))
-        write_repository_sitemap(repo)
-
-        for subject in repo.subject_set.all():
-            if cli:
-                print("Generating sitemap for subject {}".format(subject.name))
-            write_subject_sitemap(subject)
 
 
 def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):

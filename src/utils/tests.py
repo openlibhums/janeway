@@ -79,7 +79,7 @@ class UtilsTests(TestCase):
         cls.submitted_article.authors.add(cls.author)
         cls.submitted_article.correspondence_author = cls.author
 
-        cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
+        cls.review_form = review_models.ReviewForm.objects.create(name="A Form", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
 
 

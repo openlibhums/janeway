@@ -4139,7 +4139,7 @@ class TestSecurity(TestCase):
         self.article_author_is_owner.authors.add(self.editor)
         self.article_author_is_owner.authors.add(self.author)
 
-        self.review_form = review_models.ReviewForm(name="A Form", slug="A Slug", intro="i", thanks="t",
+        self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)
         self.review_form.save()
 

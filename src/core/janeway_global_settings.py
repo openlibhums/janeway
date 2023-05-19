@@ -370,12 +370,14 @@ MESSAGE_TAGS = {
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = ''
-EMAIL_PORT = ''
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = os.environ.get(
+    'JANEWAY_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
+EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
+EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')
+EMAIL_HOST_PASSWORD = os.environ.get("JANEWAY_EMAIL_HOST_PASSWORD", '')
+EMAIL_USE_TLS = os.environ.get("JANEWAY_EMAIL_USE_TLS", True)
 DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 # Settings for use with Mailgun
@@ -401,7 +403,7 @@ ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''
 ORCID_CLIENT_ID = ''
 
-
+SESSION_ENGINE = 'utils.sessions.janeway_db'
 SESSION_COOKIE_NAME = 'JANEWAYSESSID'
 
 S3_ACCESS_KEY = ''

@@ -239,7 +239,7 @@
 
 <div class="title-area">
     <h2>Identifiers</h2>
-    <a class="button" href="{% url 'edit_identifiers' article.pk %}" target="_blank"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+    {% if user_is_editor %}<a class="button" href="{% url 'edit_identifiers' article.pk %}" target="_blank"><i class="fa fa-cogs">&nbsp;</i>Manage Identifiers</a>{% endif %}
 </div>
 {% setting_var request.journal 'use_crossref' as use_crossref %}
 <div class="content">
@@ -264,21 +264,24 @@
                         {% for identifier in article.identifiers %}
                             {% if identifier.identifier == doi %}
                                 {% if identifier.deposit %}
-                                    <a href="{% url 'poll_doi_output' article.pk identifier.pk %}">
+                                    {% if user_is_editor %}<a href="{% url 'poll_doi_output' article.pk identifier.pk %}">{% endif %}
                                     {% if identifier.deposit.success %}
                                         <i class="fa fa-check">&nbsp;</i>
                                     {% else %}
                                         <i class="fa fa-exclamation-circle">&nbsp;</i>
                                     {% endif %}
-                                    </a>
+                                    {% if user_is_editor %}</a>{% endif %}
+                                {% else %}
+                                    <i class="fa fa-exclamation-circle">&nbsp;</i> This DOI has not been deposited.
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
                     </td>
                 {% else %}
+
                     <td>DOI</td>
                     <td><span class="fa fa-exclamation-triangle"> Article has no DOI</span></td>
-                    <td><a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a></td>
+                    <td>{% if user_is_editor %}<a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a>{% else %}---{% endif %}</td>
                 {% endif %}
                 {% endwith %}
             </tr>

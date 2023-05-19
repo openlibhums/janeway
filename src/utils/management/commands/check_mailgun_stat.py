@@ -10,8 +10,14 @@ from submission import models as submission_models
 
 
 def get_logs(message_id):
+    # try to grab the api url from settings otherwise use the default
+    try:
+        api_url = settings.MAILGUN_API_URL
+    except AttributeError:
+        api_url = 'https://api.mailgun.net/v3/'
+
     return requests.get(
-        "https://api.mailgun.net/v3/{0}/events".format(settings.MAILGUN_SERVER_NAME),
+        f"{api_url}{settings.MAILGUN_SERVER_NAME}/events",
         auth=("api", settings.MAILGUN_ACCESS_KEY),
         params={"message-id": message_id})
 

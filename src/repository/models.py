@@ -147,6 +147,22 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         verbose_name='Submission Start Text',
     )
+    file_upload_help = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Add any information that the author may need to know as "
+                  "part of the file upload process.",
+        verbose_name="File Upload Help",
+    )
+    require_pdf_help = models.TextField(
+        default='requires that all author uploads be PDF files.',
+        help_text='When a repository requires that all manuscripts be PDF this text is combined with the repository '
+                  'name and displayed with the default text it would diplay: RepositoryName requires that all author '
+                  'uploads be PDF files.',
+        verbose_name="Limit Upload to PDF Help",
+        null=True,
+        blank=True,
+    )
     submission = models.TextField(blank=True, null=True)
     publication = models.TextField(blank=True, null=True)
     decline = models.TextField(blank=True, null=True)
@@ -242,7 +258,7 @@ class Repository(model_utils.AbstractSiteModel):
         if self.domain and not settings.URL_CONFIG == 'path':
             return logic.build_url(
                     netloc=self.domain,
-                    scheme=self.SCHEMES[self.is_secure],
+                    scheme=self._get_scheme(),
                     port=None,
                     path=path,
             )

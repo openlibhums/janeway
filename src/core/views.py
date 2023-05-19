@@ -1273,8 +1273,12 @@ def enrol_users(request):
     last_name = request.GET.get('last_name', '')
     email = request.GET.get('email', '')
     roles = models.Role.objects.exclude(
-        slug__in=[ 'reader'],
+        slug__in=['reader'],
     ).order_by(('name'))
+
+    # if the current user is not staff, exclude the journal-manager role.
+    if not request.user.is_staff:
+        roles.exclude(slug__in='journal-manager')
 
     if first_name or last_name or email:
         filters = {}

@@ -118,6 +118,17 @@ class NavigationItem(models.Model):
                   'item should it go under?',
         on_delete=models.CASCADE,
     )
+    for_footer = models.BooleanField(
+        default=False,
+        help_text='Whether this item should appear in the footer. '
+                  'Not implemented for all themes.',
+    )
+    extend_to_journals = models.BooleanField(
+        default=False,
+        help_text='Whether this item should be '
+                  'extended to journal websites. '
+                  'Only implemented for footer links.',
+    )
 
     class Meta:
         ordering = ('sequence',)

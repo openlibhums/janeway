@@ -1,4 +1,5 @@
 from utils import models
+import importlib
 
 
 class Plugin:
@@ -69,3 +70,15 @@ class Plugin:
             return None
 
         return plugin
+
+
+def check_plugin_exists(plugin_name):
+    """
+    Checks if a plugin can be imported.
+    """
+    try:
+        module = f"plugins.{plugin_name}"
+        importlib.import_module(module)
+        return True
+    except ImportError:
+        return False
