@@ -1842,11 +1842,11 @@ msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:31
 msgid ""
-"The projected issue field is for journals that add articles "
-"to issues on a rolling basis and publish them individually, "
-"rather than publishing them all at once. It helps you track "
-"internally which issue an article is intended to be published with, "
-"without displaying an unpublished article under a published issue."
+"The projected issue field can be used internally to keep "
+"track of plans and communicate with typesetters, without "
+"affecting issue assignment or displaying anything publicly. "
+"It is helpful for journals that add articles to issues on a "
+"rolling basis and publish them individually."
 msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:32
