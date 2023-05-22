@@ -213,8 +213,8 @@
 <div class="content">
     <table class="scroll">
         <tr>
-            <th>Issue ID</th>
-            <th>Issue Title</th>
+            <th>ID</th>
+            <th>Title</th>
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
@@ -238,45 +238,51 @@
 </div>
 
 <div class="title-area">
-    <h2>Primary Issue</h2>
+    <h2>Issues and Collections</h2>
 </div>
 <div class="content">
     <table class="scroll">
         <tr>
-            <th>Issue ID</th>
-            <th>Issue Title</th>
+            <th>ID</th>
+            <th>Title</th>
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
+            <th>Primary</th>
             {% if user_is_editor %}
                 <th></th>
             {% endif %}
         </tr>
-        {% if article.primary_issue %}
+        {% for issue in article.issues_list %}
         <tr>
-            <td>{{ article.primary_issue.id }}</td>
-            <td>{{ article.primary_issue.issue_title }}</td>
-            <td>{{ article.primary_issue.volume }}</td>
-            <td>{{ article.primary_issue.issue }}</td>
-            <td>{{ article.primary_issue.date }}</td>
+            <td>{{ article.issue.id }}</td>
+            <td>{{ article.issue.issue_title }}</td>
+            <td>{{ article.issue.volume }}</td>
+            <td>{{ article.issue.issue }}</td>
+            <td>{{ article.issue.date }}</td>
+            <td>
+                {% if issue == article.primary_issue %}
+                    <i class="fa fa-check"></i>
+                {% endif %}
+            </td>
             {% if user_is_editor %}
                 <td>
-                    <a href="{% url 'manage_issues_id' article.primary_issue.pk %}">
+                    <a href="{% url 'manage_issues_id' article.issue.pk %}">
                         Issue Manager
                     </a>
                 </td>
             {% endif %}
         </tr>
-        {% else %}
+        {% empty %}
         <tr>
             <td colspan="6">
-                <p>This article does not have a primary issue yet.</p>
+                <p>This article is not yet assigned to any issues or collections.</p>
                 {% if user_is_editor %}
                     <p>You can assign one now using the <a target='_blank' href="{% url 'manage_issues' %}">issue manager</a>, or wait and assign one during the pre-publication checklist.</p>
                 {% endif %}
             </td>
         </tr>
-        {% endif %}
+        {% endfor %}
     </table>
 </div>
 
