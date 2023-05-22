@@ -359,10 +359,10 @@ def repository_search(request, search_term=None):
 
         from_author = models.PreprintAuthor.objects.filter(
             (
-                    Q(author__first_name__in=split_search_term) |
-                    Q(author__middle_name__in=split_search_term) |
-                    Q(author__last_name__in=split_search_term) |
-                    Q(author__affiliation__icontains=search_term)
+                Q(account__first_name__in=split_search_term) |
+                Q(account__middle_name__in=split_search_term) |
+                Q(account__last_name__in=split_search_term) |
+                Q(account__institution__icontains=search_term)
             )
         )
 
