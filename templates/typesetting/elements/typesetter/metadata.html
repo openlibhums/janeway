@@ -144,7 +144,7 @@
     <h2>Issue</h2>
 </div>
 <div class="content">
-    {% if article.primary_issue or article.projected_issue %}
+    {% if article.issue or article.projected_issue %}
     <table class="scroll small">
         <tr>
             <th>Issue ID</th>
@@ -155,12 +155,12 @@
         </tr>
 
         <tr>
-            {% if article.primary_issue %}
-                <td>{{ article.primary_issue.id }}</td>
-                <td>{{ article.primary_issue.issue_title }}</td>
-                <td>{{ article.primary_issue.volume }}</td>
-                <td>{{ article.primary_issue.issue }}</td>
-                <td>{{ article.primary_issue.date }}</td>
+            {% if article.issue %}
+                <td>{{ article.issue.id }}</td>
+                <td>{{ article.issue.issue_title }}</td>
+                <td>{{ article.issue.volume }}</td>
+                <td>{{ article.issue.issue }}</td>
+                <td>{{ article.issue.date }}</td>
             {% elif article.projected_issue %}
                 <td>{{ article.projected_issue.id }}</td>
                 <td>{{ article.projected_issue.issue_title }}</td>

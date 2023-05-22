@@ -17,7 +17,7 @@
             <h2>Assign Typesetter to {{ article.title|safe }}</h2>
         </div>
         <div class="content">
-            {% if not article.primary_issue and not article.projected_issue %}
+            {% if not article.issue and not article.projected_issue %}
             <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
                 <h5>Article missing primary or projected issue</h5>
                 <p>
