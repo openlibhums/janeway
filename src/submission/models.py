@@ -11,8 +11,13 @@ from dateutil import parser as dateparser
 from itertools import chain
 
 from django.urls import reverse
-from django.db import connection, models
+from django.db import (
+    connection,
+    DEFAULT_DB_ALIAS,
+    models,
+)
 from django.db.models.query import RawQuerySet
+from django.db.models.sql.query import get_order_dir
 from django.conf import settings
 from django.contrib.postgres.search import (
     SearchQuery,
@@ -489,18 +494,41 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         queryset = queryset.order_by("id").distinct("id")
 
         # Now we can order the result set based by another column
+        # We can't use the ORM for sorting because it is not possible to select
+        # a column from a subquery filter and postgres sorting requires
+        # distinct fields to match order_by fields
+        inner_sql = self.stringify_queryset(queryset)
+
         if "relevance" in sort:
-            # We can't use the ORM because it is not possible to select
-            # a column from a subquery filter
-            inner_sql = self.stringify_queryset(queryset)
+            # Relevance is not a field but an annotation
             return Article.objects.raw(
                 f"SELECT * from ({inner_sql}) AS search "
                 "ORDER BY relevance DESC"
             )
         else:
-            return self.get_queryset().filter(
-                id__in=queryset
-            ).order_by(sort)
+            order_by_sql = self.build_order_by_sql(sort)
+
+            return Article.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search "
+                f"{order_by_sql}"
+            )
+            return queryset.order_by(sort)
+
+    def build_order_by_sql(self, sort_key):
+        """ Compiles and returns the ORDER BY statement in sql for the sort_key
+        It sorts an empty queryset of this model first, delegating the
+        translation of the sort_key into the correct column name. Then it
+        invokes Django's compiler to generate equivalent ORDER BY statement
+        """
+        sorted_qs = self.none().order_by(sort_key)
+        sql = sorted_qs._query
+        sql_compiler = sorted_qs._query.get_compiler(DEFAULT_DB_ALIAS)
+        query = sql_compiler.query
+        order_by = sql_compiler.query.order_by
+        order_strings = []
+        for field in order_by:
+            order_strings.append("%s %s" % get_order_dir(field, "ASC"))
+        return 'ORDER BY %s' % ', '.join(order_strings)
 
 
     def build_postgres_lookups(self, search_term, search_filters):
