@@ -47,7 +47,7 @@ python-crontab==2.2.3
 python-dateutil==2.8.1
 python-docx==0.8.11
 python-magic==0.4.13
-requests==2.25.1
+requests==2.31.0
 semver==3.0.0
 six==1.14.0
 sqlparse==0.4.4
