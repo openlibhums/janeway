@@ -3068,7 +3068,7 @@ class TestSecurity(TestCase):
 
         request = self.prepare_request_with_user(self.editor, self.journal_one)
         response = decorated_func(request, **kwargs)
-        expected_path = '/review/article/{0}/access_denied/'.format(
+        expected_path = '/review/article/{0}/decision/review/access_denied/'.format(
                 self.article_author_is_owner.pk)
         self.assertTrue(response.url.endswith(expected_path))
 
