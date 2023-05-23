@@ -33,11 +33,14 @@ def index(request):
     return HttpResponse(json_content, content_type="application/json")
 
 
-@permission_classes((api_permissions.IsEditor,))
 class AccountViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows editors and staff to see user accounts.
     """
+    permission_classes = [
+        api_permissions.IsEditor
+        |api_permissions.IsSectionEditor
+    ]
     serializer_class = serializers.AccountSerializer
 
     def get_queryset(self):
