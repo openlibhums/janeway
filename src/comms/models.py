@@ -7,6 +7,7 @@ from django.http import Http404
 from django.utils.translation import gettext as _
 
 from core import files
+from core.model_utils import AbstractBleachModelMixin
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -14,7 +15,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-class NewsItem(models.Model):
+class NewsItem(AbstractBleachModelMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
@@ -37,13 +38,6 @@ class NewsItem(models.Model):
         null=True,
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
                   "the news item with whatever text is added here.",
-    )
-    support_copy_paste = models.BooleanField(
-        default=True,
-        help_text='Turn this on if copy-pasting content into rich-text fields '
-                  'from a word processor or using the toolbar to format text. '
-                  'Turn it off only if you are editing HTML and CSS using the '
-                  'code view.',
     )
 
     class Meta:

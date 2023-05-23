@@ -85,7 +85,10 @@ def repo_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
-class Repository(model_utils.AbstractSiteModel):
+class Repository(
+    model_utils.AbstractBleachModelMixin,
+    model_utils.AbstractSiteModel,
+):
     press = models.ForeignKey(
         'press.Press',
         null=True,
@@ -219,13 +222,6 @@ class Repository(model_utils.AbstractSiteModel):
     active_licenses = models.ManyToManyField(
         'submission.Licence',
         blank=True,
-    )
-    support_copy_paste = models.BooleanField(
-        default=True,
-        help_text='Turn this on if copy-pasting content into rich-text fields '
-                  'from a word processor or using the toolbar to format text. '
-                  'Turn it off only if you are editing HTML and CSS using the '
-                  'code view.',
     )
 
     class Meta:
