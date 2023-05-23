@@ -25,6 +25,9 @@ from django.contrib import messages
 
 from core import plugin_installed_apps
 
+# X_FRAME_OPTIONS must be set to SAMEORIGIN or the embedded PDF viewer will not work
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
