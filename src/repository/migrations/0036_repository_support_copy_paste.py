@@ -7,7 +7,7 @@ import django_bleach
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0035_alter_preprintaccess_options'),
+        ('repository', '0036_merge_20230518_1127'),
     ]
 
     # Why two operations with support_copy_paste?
