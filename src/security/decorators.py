@@ -13,6 +13,7 @@ from django.urls import reverse
 
 from core import models as core_models, logic
 from review import models as review_models
+from review.const import EditorialDecisions as ED
 from production import models as production_models
 from submission import models
 from copyediting import models as copyediting_models
@@ -77,7 +78,7 @@ def editor_is_not_author(func):
 
     def wrapper(request, *args, **kwargs):
         article_id = kwargs.get('article_id', None)
-        decision = kwargs.get('decision', 'review')
+        decision = kwargs.get('decision', ED.REVIEW.value)
 
         if not article_id:
             raise Http404
