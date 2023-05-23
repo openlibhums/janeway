@@ -588,7 +588,10 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-    title = models.CharField(max_length=999, help_text=_('Your article title'))
+    title = BleachField(
+        max_length=999,
+        help_text=_('Your article title'),
+    )
     subtitle = models.CharField(
         # Note: subtitle is deprecated as of version 1.4.2
         max_length=999,
