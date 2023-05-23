@@ -46,7 +46,6 @@ from modeltranslation.utils import auto_populate
 from PIL import Image
 import xml.etree.cElementTree as et
 
-from utils import logic
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -96,6 +95,8 @@ class AbstractSiteModel(models.Model):
         return obj
 
     def site_url(self, path=None):
+        # This is here to avoid circular imports
+        from utils import logic
         return logic.build_url(
             netloc=self.domain,
             scheme=self._get_scheme(),
