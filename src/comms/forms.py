@@ -3,10 +3,10 @@ from django import forms
 from django_summernote.widgets import SummernoteWidget
 
 from comms import models
-from core.forms import BleachableForm
+from core.forms import BleachableModelForm
 
 
-class NewsItemForm(BleachableForm, forms.ModelForm):
+class NewsItemForm(BleachableModelForm, forms.ModelForm):
 
     BLEACHABLE_FIELDS = ['body']
 

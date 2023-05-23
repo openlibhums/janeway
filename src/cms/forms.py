@@ -10,17 +10,16 @@ from django_bleach.forms import BleachField
 
 from cms import models
 from core import models as core_models
-from core.forms import BleachableForm
+from core.forms import BleachableModelForm
 from utils.forms import JanewayTranslationModelForm
 
 
-class PageForm(BleachableForm, JanewayTranslationModelForm):
+class PageForm(BleachableModelForm, JanewayTranslationModelForm):
 
     BLEACHABLE_FIELDS = ['content']
 
     class Meta:
         model = models.Page
-        fields = ('display_name', 'name', 'content', 'support_copy_paste')
         exclude = ('journal', 'is_markdown', 'content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):

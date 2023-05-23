@@ -765,7 +765,7 @@ class ConfirmableIfErrorsForm(ConfirmableForm):
             return True
 
 
-class BleachableForm(forms.Form):
+class BleachFormMixin(forms.BaseForm):
     """
     Allows optional bleaching of values of rich-text fields
     during form cleaning based on a Boolean.
@@ -784,3 +784,7 @@ class BleachableForm(forms.Form):
         if commit:
             obj.save()
         return obj
+
+
+class BleachableModelForm(BleachFormMixin, forms.ModelForm):
+    pass
