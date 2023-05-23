@@ -2065,7 +2065,8 @@ def view_revision(request, article_id, revision_id):
 @editor_user_required
 def review_warning(request, article_id, decision):
     """
-    Checks if an editor user is the author of an article amd blocks their access temporarily.
+    Checks if an editor user is the author of an article and blocks their
+    access temporarily.
     If overwritten, all Editors are notified.
     :param request: HttpRequest object
     :param article_id: Article PK
@@ -2083,7 +2084,7 @@ def review_warning(request, article_id, decision):
                 **kwargs
         )
 
-        if decision == 'review':
+        if decision == ED.REVIEW.value:
             return redirect(
                 reverse(
                     'review_in_review',
