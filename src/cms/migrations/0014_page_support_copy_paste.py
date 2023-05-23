@@ -6,10 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comms', '0003_newsitem_custom_byline'),
+        ('cms', '0013_navigationitem_extend_to_journals'),
     ]
 
-    # Why two operations?
+    # Why two operations with support_copy_paste?
     # The new support_copy_paste field has a default value of True,
     # because we want bleach to work on all new content by default.
     # However, we don't want it to wipe out custom styling in existing
@@ -18,14 +18,14 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='newsitem',
+            model_name='page',
             name='support_copy_paste',
             field=models.BooleanField(
                 default=False,
             ),
         ),
         migrations.AlterField(
-            model_name='newsitem',
+            model_name='page',
             name='support_copy_paste',
             field=models.BooleanField(
                 default=True,
