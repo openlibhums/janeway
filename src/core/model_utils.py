@@ -567,3 +567,28 @@ class SearchVector(DjangoSearchVector):
     # Override template to ignore function
     function = None
     template = '%(expressions)s'
+
+
+class AbstractBleachModelMixin(models.Model):
+
+    """
+    A mixin for models with a field that needs to be bleached
+    most of the time to support copy-paste, but not in all cases,
+    so you cannot use django_bleach.BleachField.
+    Combine this mixin with core.forms.BleachableModelForm.
+    """
+
+    support_copy_paste = models.BooleanField(
+        default=True,
+        help_text='Turn this on if copy-pasting content '
+                  'from a word processor, '
+                  'or using the toolbar to format text. '
+                  'It tells Janeway to clear out formatting '
+                  'that does not play nice. '
+                  'Turn it off and leave it off if anyone has '
+                  'added custom HTML or CSS using the code view, '
+                  'since it might remove custom code.',
+    )
+
+    class Meta:
+        abstract = True

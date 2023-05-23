@@ -12,11 +12,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
+from core.model_utils import AbstractBleachModelMixin
 from core.file_system import JanewayFileSystemStorage
 from utils.logic import build_url_for_request
 
 
-class Page(models.Model):
+class Page(AbstractBleachModelMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
@@ -49,13 +50,6 @@ class Page(models.Model):
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
-    support_copy_paste = models.BooleanField(
-        default=True,
-        help_text='Turn this on if copy-pasting content into rich-text fields '
-                  'from a word processor or using the toolbar to format text. '
-                  'Turn it off only if you are editing HTML and CSS using the '
-                  'code view.',
-    )
 
     def __str__(self):
         return u'{0} - {1}'.format(self.content_type, self.display_name)
