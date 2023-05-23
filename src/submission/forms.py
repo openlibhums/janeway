@@ -196,10 +196,10 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         except models.FieldAnswer.DoesNotExist:
                             pass
 
-                # if the editor is viewing the page, don't set additional
-                # fields to be required.
-                if editor_view:
-                    self.fields[element.name].required = False
+                    # if the editor is viewing the page, don't set additional
+                    # fields to be required.
+                    if editor_view:
+                        self.fields[element.name].required = False
 
 
     def save(self, commit=True, request=None):
