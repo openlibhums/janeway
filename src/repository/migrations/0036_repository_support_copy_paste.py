@@ -4,36 +4,50 @@ from django.db import migrations, models
 import django_bleach
 
 
-def preserve_old_formatting(apps, schema_editor):
-    """
-    The new support_copy_paste field has a default value of True,
-    because we want bleach to work on all new CMS content by default.
-    However, we don't want it to wipe out custom styling in existing
-    CMS fields, so the default for existing objects should be False.
-    """
-    Repository = apps.get_model('repository', 'Repository')
-    objs = Repository.objects.all()
-    for obj in objs:
-        obj.support_copy_paste = False
-        obj.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
         ('repository', '0035_alter_preprintaccess_options'),
     ]
 
+    # Why two operations with support_copy_paste?
+    # The new support_copy_paste field has a default value of True,
+    # because we want bleach to work on all new content by default.
+    # However, we don't want it to wipe out custom styling in existing
+    # fields, so we first create the field on existing objects
+    # with default=False.
+
     operations = [
         migrations.AddField(
             model_name='repository',
             name='support_copy_paste',
-            field=models.BooleanField(default=True, help_text='Turn this on if copy-pasting content into rich-text fields from a word processor or using the toolbar to format text. Turn it off only if you are editing HTML and CSS using the code view.'),
+            field=models.BooleanField(
+                default=False,
+            ),
         ),
-        migrations.RunPython(preserve_old_formatting, reverse_code=migrations.RunPython.noop),
+        migrations.AlterField(
+            model_name='repository',
+            name='support_copy_paste',
+            field=models.BooleanField(
+                default=True,
+                help_text='Turn this on if copy-pasting content '
+                          'from a word processor, '
+                          'or using the toolbar to format text. '
+                          'It tells Janeway to clear out formatting '
+                          'that does not play nice. '
+                          'Turn it off and leave it off if anyone has '
+                          'added custom HTML or CSS using the code view, '
+                          'since it might remove custom code.',
+            ),
+        ),
         migrations.AlterField(
             model_name='preprint',
             name='abstract',
-            field=django_bleach.models.BleachField(blank=True, help_text='Copying and pasting from word processors is supported.', null=True),
+            field=django_bleach.models.BleachField(
+                blank=True,
+                help_text='Copying and pasting from word processors '
+                          'is supported.',
+                null=True,
+            ),
         ),
     ]
