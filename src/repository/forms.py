@@ -13,7 +13,7 @@ from repository import models
 from press import models as press_models
 from review.logic import render_choices
 from core import models as core_models, workflow
-from core.forms import BleachableForm
+from core.forms import BleachableModelForm
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -474,7 +474,7 @@ class RepositoryInitial(RepositoryBase):
         return repository
 
 
-class RepositorySite(BleachableForm, RepositoryBase):
+class RepositorySite(BleachableModelForm, RepositoryBase):
 
     BLEACHABLE_FIELDS = [
         'about',
