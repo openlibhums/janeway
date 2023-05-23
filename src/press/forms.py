@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 
+from django_summernote.widgets import SummernoteWidget
 from django_bleach.forms import BleachField
 
 from press import models
