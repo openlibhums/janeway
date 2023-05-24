@@ -88,6 +88,7 @@ INSTALLED_APPS = [
 
     # 3rd Party
     'mozilla_django_oidc',
+    'django_countries',
     'django_summernote',
     'bootstrap4',
     'rest_framework',
