@@ -24,6 +24,7 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.utils.safestring import mark_safe
 from docx import Document
+from django_countries import countries
 
 from utils import render_template, setting_handler, notify_helpers
 from core import models as core_models, files
@@ -646,10 +647,13 @@ def process_reviewer_csv(path, request, article, form):
         reader = csv.DictReader(csv_file)
         reviewers = []
         for row in reader:
-            try:
-                country = core_models.Country.objects.get(code=row.get('country'))
-            except core_models.Country.DoesNotExist:
-                country = None
+
+            # Validate country code against ISO-3166-1
+            country = None
+            if row.get('country'):
+                valid_alpha2 = countries.alpha2(row.get('country'))
+                if valid_alpha2:
+                    country = valid_alpha2
 
             reviewer, created = core_models.Account.objects.get_or_create(
                 email=row.get('email_address'),
