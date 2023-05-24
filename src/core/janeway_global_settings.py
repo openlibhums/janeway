@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'materializecssform',
     'captcha',
     'simplemathcaptcha',
+    'simple_history',
     'hijack',
     'hcaptcha',
     'django_bleach',
@@ -129,6 +130,7 @@ MIDDLEWARE = (
     'django.middleware.gzip.GZipMiddleware',
     'journal.middleware.LanguageMiddleware',
     'hijack.middleware.HijackUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
