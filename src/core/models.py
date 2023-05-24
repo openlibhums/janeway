@@ -46,6 +46,7 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
+from production import logic as production_logic
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -859,6 +860,16 @@ class File(AbstractLastModifiedModel):
 
     class Meta:
         ordering = ('sequence', 'pk')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # for each galley that this file is used for, update the galley.type
+        # field to ensure it doesn't become desynced from the file type.
+        for galley in self.galley_set.all():
+            label, type_ = production_logic.get_galley_label_and_type(self)
+            galley.type = type_
+            galley.save()
 
     @property
     def article(self):
