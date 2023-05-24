@@ -69,17 +69,6 @@
                         {{ form.competing_interests|foundation }}
                     </div>
                 {% endif %}
-
-                {% if request.journal.submissionconfiguration.comments_to_the_editor %}
-                    <div class="title-area">
-                        <h2>{% trans "Comments to the Editor" %}</h2>
-                    </div>
-                    <div class="content submission-content">
-                        {{ form.comments_editor|foundation }}
-                    </div>
-                {% endif %}
-
-
                 <button class="success button pull-right" type="submit" name="start_submission"><i class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
                 </button>
                 <br/>

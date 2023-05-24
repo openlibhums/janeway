@@ -534,43 +534,53 @@ def submit_review(request, article_id):
                 kwargs={'article_id': article_id},
             )
         )
+    form = forms.SubmissionCommentsForm(
+        instance=article,
+    )
 
     if request.POST and 'next_step' in request.POST:
-        article.date_submitted = timezone.now()
-        article.stage = models.STAGE_UNASSIGNED
-        article.current_step = 5
-        article.snapshot_authors(article)
-        article.save()
-
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-            **{'handshake_url': 'submit_review',
-               'request': request,
-               'article': article,
-               'switch_stage': False}
+        form = forms.SubmissionCommentsForm(
+            request.POST,
+            instance=article,
         )
+        if form.is_valid():
+            form.save()
+            article.date_submitted = timezone.now()
+            article.stage = models.STAGE_UNASSIGNED
+            article.current_step = 5
+            article.snapshot_authors(article)
+            article.save()
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _('Article {title} submitted').format(
-                title=article.title,
-            ),
-        )
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                **{'handshake_url': 'submit_review',
+                   'request': request,
+                   'article': article,
+                   'switch_stage': False}
+            )
 
-        kwargs = {'article': article,
-                  'request': request}
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_ARTICLE_SUBMITTED,
-            task_object=article,
-            **kwargs
-        )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Article {title} submitted').format(
+                    title=article.title,
+                ),
+            )
 
-        return redirect(reverse('core_dashboard'))
+            kwargs = {'article': article,
+                      'request': request}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_SUBMITTED,
+                task_object=article,
+                **kwargs
+            )
+
+            return redirect(reverse('core_dashboard'))
 
     template = "admin/submission//submit_review.html"
     context = {
         'article': article,
+        'form': form,
     }
 
     return render(request, template, context)
