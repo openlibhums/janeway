@@ -51,6 +51,9 @@ class Page(AbstractBleachModelMixin, models.Model):
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
 
+    # history = HistoricalRecords() is defined in cms.translation
+    # for compatibility with django-modeltranslation
+
     def __str__(self):
         return u'{0} - {1}'.format(self.content_type, self.display_name)
 
