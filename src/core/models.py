@@ -1140,11 +1140,7 @@ class Galley(AbstractLastModifiedModel):
         null=True,
         on_delete=models.CASCADE,
     )
-    file = models.ForeignKey(
-        File,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
