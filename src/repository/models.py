@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
+from django_countries.fields import CountryField
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -831,11 +832,9 @@ class PreprintAccess(models.Model):
     )
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey(
-        'core.Country',
-        blank=True,
+    country = CountryField(
         null=True,
-        on_delete=models.SET_NULL,
+        blank=True,
     )
 
     @property
