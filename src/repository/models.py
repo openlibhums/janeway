@@ -16,6 +16,7 @@ from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
 from django_bleach.models import BleachField
+from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -222,6 +223,7 @@ class Repository(
         'submission.Licence',
         blank=True,
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name_plural = 'repositories'
