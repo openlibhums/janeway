@@ -27,7 +27,7 @@ class ArticleStart(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('publication_fees', 'submission_requirements', 'copyright_notice', 'comments_editor',
+        fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
                   'competing_interests')
 
     def __init__(self, *args, **kwargs):
@@ -35,7 +35,6 @@ class ArticleStart(forms.ModelForm):
         super(ArticleStart, self).__init__(*args, **kwargs)
 
         self.fields['competing_interests'].label = ''
-        self.fields['comments_editor'].label = ''
 
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
@@ -60,9 +59,6 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
-
-        if not journal.submissionconfiguration.comments_to_the_editor:
-            self.fields.pop('comments_editor')
 
 
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
@@ -293,6 +289,15 @@ class AuthorForm(forms.ModelForm):
         return orcid_string
 
 
+class SubmissionCommentsForm(forms.ModelForm):
+    class Meta:
+        model = models.Article
+        fields = ('comments_editor',)
+        labels = {
+            'comments_editor': '',
+        }
+
+
 class FileDetails(forms.ModelForm):
 
     class Meta:
@@ -482,6 +487,7 @@ class FunderForm(forms.ModelForm):
             self.article.funders.add(funder)
             self.article.save()
         return funder
+
 
 def utility_clean_orcid(orcid):
     """

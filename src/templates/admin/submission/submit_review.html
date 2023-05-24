@@ -1,8 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
-{% load i18n %}
-{% load hooks %}
-{% load text %}
+{% load static i18n hooks text foundation %}
 
 {% block css %}
     <link href="{% static "admin/css/timeline.css" %}" rel="stylesheet"/>{% endblock %}
@@ -21,7 +18,7 @@
             <div class="row expanded">
                 <div class="large-12 columns">
 
-                    <p>{% blocktrans %}Please review your submission use the details below. If you need to make changes use the links above to move back along the submission steps. You must click the Complete Submission button at the foot of this page to complete the submission process, you will then receive a receipt email. {% endblocktrans %}</p>
+                    <p>{% blocktrans %}Please review your submission use the details below. If you need to make changes use the links above to move back along the submission steps. You must click the <strong>Complete Submission</strong> button at the foot of this page to complete the submission process, you will then receive a receipt email. {% endblocktrans %}</p>
 
                     {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
                         <div class="title-area">
@@ -43,12 +40,6 @@
 
                     {% endif %}
 
-                    {% if article.comments_editor %}
-                        <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
-                        <div class="content">
-                            <p>{{ article.comments_editor|linebreaksbr }}</p>
-                        </div>
-                    {% endif %}
                     <div class="title-area"><h2>{% trans "Article Info" %}</h2></div>
                     <table class="scroll small">
                         <tr>
@@ -149,6 +140,16 @@
                     </table>
 
                     {% hook 'submission_review' %}
+
+                    {% if request.journal.submissionconfiguration.comments_to_the_editor %}
+                        <div class="title-area">
+                            <h2>{% trans "Comments to the Editor" %}</h2>
+                        </div>
+                        <div class="content submission-content">
+                            <p>Before submitting you have the option to add additional comments for the editor using the field below. Only the editor will see anything you add here.</p>
+                            {{ form.comments_editor|foundation }}
+                        </div>
+                    {% endif %}
 
                     <div class="large-12 columns">
                         <button class="success button pull-right" type="submit" name="next_step"><i class="fa fa-check">&nbsp;</i>{% trans "Complete" %} {% trans "Submission" %}
