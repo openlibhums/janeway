@@ -57,7 +57,8 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.title|foundation }}
-                    {{ form.body }}
+                    {{ form.body|foundation }}
+                    {{ form.support_copy_paste|foundation }}
                     {{ form.start_display|foundation }}
                     {{ form.end_display|foundation }}
                     {{ form.sequence|foundation }}
@@ -72,7 +73,6 @@
                     {% endif %}
 
                     {{ form.custom_byline|foundation }}
-                    {{ form.support_copy_paste|foundation }}
 
                     <div class="row">
                         <div class="large-12 columns">
@@ -84,6 +84,12 @@
                             <button class="success button" type="submit">{% if action == 'new' %}Add Item{% else %}
                                 Update
                                 Item{% endif %}</button>
+                            {% if news_item.history %}
+                                <a class="button" data-open="history_modal">
+                                    <i class="fa fa-history" aria-hidden="True"></i>
+                                    View History
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </form>
@@ -91,6 +97,7 @@
         </div>
 
     </div>
+    {% include 'admin/elements/history_modal.html' with history=news_item.history.all view_url="admin:comms_newsitem_history" %}
 {% endblock body %}
 
 {% block js %}
