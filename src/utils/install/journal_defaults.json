@@ -4030,6 +4030,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "When this setting is enabled the review assignment page will show a table of reviewers who have completed a review in past review rounds.",
+            "is_translatable": false,
+            "name": "display_past_reviewers",
+            "pretty_name": "Display List of Reviewers from Past Review Rounds",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on review pages.",
             "is_translatable": false,
             "name": "enable_peer_review_data_on_review_page",

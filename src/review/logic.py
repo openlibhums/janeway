@@ -34,22 +34,13 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_reviewer_candidates(article, user=None):
-    """ Builds a queryset of candidates for peer review for the given article
-    :param article: an instance of submission.models.Article
-    :param user: The user requesting candidates who would be filtered out
-    """
-    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
-    reviewers = [review.reviewer.pk for review in review_assignments]
-    if user:
-        reviewers.append(user.pk)
+def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
         'reviewer',
         queryset=models.ReviewAssignment.objects.filter(
             article__journal=article.journal
         ).order_by("-date_complete")
     )
-    # TODO swap the below subqueries with filtered annotations on Django 2.0+
     active_reviews_count = models.ReviewAssignment.objects.filter(
         is_complete=False,
         reviewer=OuterRef("id"),
@@ -69,8 +60,9 @@ def get_reviewer_candidates(article, user=None):
         rating_average=Avg("rating"),
     ).values("rating_average")
 
-    reviewers = article.journal.users_with_role('reviewer').exclude(
-        pk__in=reviewers,
+    # TODO swap the below subqueries with filtered annotations on Django 2.0+
+    reviewers = candidate_queryset.exclude(
+        pk__in=exclude_pks,
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
@@ -82,8 +74,24 @@ def get_reviewer_candidates(article, user=None):
     ).annotate(
         rating_average=Subquery(rating_average, output_field=IntegerField()),
     )
-
     return reviewers
+
+
+def get_reviewer_candidates(article, user=None):
+    """ Builds a queryset of candidates for peer review for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    """
+    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [review.reviewer.pk for review in review_assignments]
+    if user:
+        reviewer_pks_to_exclude.append(user.pk)
+
+    return get_reviewers(
+        article,
+        article.journal.users_with_role('reviewer'),
+        reviewer_pks_to_exclude
+    )
 
 
 def get_suggested_reviewers(article, reviewers):
@@ -97,6 +105,30 @@ def get_suggested_reviewers(article, reviewers):
                 break
 
     return suggested_reviewers
+
+
+def get_previous_round_reviewers(article):
+    """
+    Builds a queryset of candidates who have previously completed a review
+    for this article.
+    :param article: an instance of submission.models.Article
+    """
+    review_assignments = article.reviewassignment_set.filter(
+        review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [
+        review.reviewer.pk for review in review_assignments
+    ]
+
+    completed_review_reviewer_pks = [
+        review.reviewer.pk for review in article.completed_reviews_with_decision
+    ]
+    return get_reviewers(
+        article,
+        core_models.Account.objects.filter(
+            pk__in=completed_review_reviewer_pks,
+        ),
+        reviewer_pks_to_exclude,
+    )
 
 
 def get_assignment_content(request, article, editor, assignment):
