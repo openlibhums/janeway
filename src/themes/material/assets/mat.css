@@ -687,3 +687,13 @@ strong {
 #homepage-element-search-bar .input-field #search_term {
   font-size: 1.5rem;
 }
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
