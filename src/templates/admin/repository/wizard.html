@@ -48,6 +48,12 @@
                                     <button type="submit" name="save_press" class="success button">{% if step == 1 %}
                                         Create{% else %}Save{% endif %} Repository
                                     </button>
+                                    {% if repository.history %}
+                                        <a class="button" data-open="history_modal">
+                                            <i class="fa fa-history" aria-hidden="True"></i>
+                                            View History
+                                        </a>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -78,6 +84,8 @@
             </div>
         </div>
     </section>
+
+    {% include 'admin/elements/history_modal.html' with history=repository.history.all view_url="admin:repository_repository_history" %}
 {% endblock %}
 
 {% block js %}

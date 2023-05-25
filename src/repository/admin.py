@@ -5,12 +5,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
+from simple_history.admin import SimpleHistoryAdmin
 
 from repository import models
 from utils import admin_utils
 
 
-class RepositoryAdmin(admin.ModelAdmin):
+class RepositoryAdmin(SimpleHistoryAdmin):
     list_display = ('pk', 'short_name', 'name', 'live')
     list_display_links = ('short_name', 'name')
     list_filter = ('live',)
