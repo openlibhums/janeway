@@ -1050,6 +1050,15 @@ def add_review_assignment(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     reviewers = logic.get_reviewer_candidates(article, request.user)
+
+    # if setting enabled, fetch reviewers who have completed a review
+    # in a past review round.
+    past_reviewers = []
+    if request.journal.get_setting('general', 'display_past_reviewers'):
+        past_reviewers = logic.get_previous_round_reviewers(
+            article,
+        )
+
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1132,6 +1141,7 @@ def add_review_assignment(request, article_id):
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
+        'past_reviewers': past_reviewers,
     }
 
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):
