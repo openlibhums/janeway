@@ -1425,7 +1425,6 @@ def withdraw_review(request, article_id, review_id):
         )
 
     email_content = logic.get_withdrawl_notification(request, review)
-
     if request.POST:
         email_content = request.POST.get('content_email')
         kwargs = {'user_message_content': email_content,
@@ -1440,12 +1439,7 @@ def withdraw_review(request, article_id, review_id):
             event_logic.Events.ON_REVIEW_WITHDRAWL,
             **kwargs,
         )
-
-        review.date_complete = timezone.now()
-        review.decision = models.RD.DECISION_WITHDRAWN
-        review.is_complete = True
-        review.save()
-
+        review.withdraw()
         messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
         return redirect(
             reverse(

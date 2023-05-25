@@ -30,6 +30,7 @@ def all_review_decisions():
         (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
         (RD.DECISION_REJECT.value, 'Reject'),
         (RD.DECISION_NO_RECOMMENDATION.value, 'No Recommendation'),
+        (RD.DECISION_WITHDRAWN.value, 'Withdrawn'),
     )
 
 
@@ -326,6 +327,12 @@ class ReviewAssignment(models.Model):
         if self.for_author_consumption:
             return _("available for the author to access")
         return _("not available for the author to access")
+
+    def withdraw(self):
+        self.date_complete = timezone.now()
+        self.decision = RD.DECISION_WITHDRAWN.value
+        self.is_complete = True
+        self.save()
 
     def __str__(self):
         if self.reviewer:
