@@ -66,7 +66,7 @@ def metrics_summary(published_preprints):
     downloads_this_month = total_accesses_this_month.filter(
         file__isnull=False,
     ).count()
-    downloads_last_monnth = total_accesses_last_month.filter(
+    downloads_last_month = total_accesses_last_month.filter(
         file__isnull=False,
     ).count()
 
@@ -75,7 +75,7 @@ def metrics_summary(published_preprints):
         'views_this_month': views_this_month,
         'views_last_month': views_last_month,
         'downloads_this_month': downloads_this_month,
-        'downloads_last_monnth': downloads_last_monnth,
+        'downloads_last_month': downloads_last_month,
     }
 
 
