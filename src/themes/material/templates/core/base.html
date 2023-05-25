@@ -44,6 +44,7 @@
 </head>
 <body>
 
+<header>
 {% block navbar %}
     {% if request.journal %}
         {% include "core/nav.html" %}
@@ -53,12 +54,14 @@
         {% include "press/nav.html" %}
     {% endif %}
 {% endblock navbar %}
-
-<div class="container">
-    <div class="section">
-        {% block body %}{% endblock %}
+</header>
+<main>
+    <div class="container">
+        <div class="section">
+            {% block body %}{% endblock %}
+        </div>
     </div>
-</div>
+</main>
 <footer class="page-footer">
     <div class="footer-copyright">
         <div class="container">
