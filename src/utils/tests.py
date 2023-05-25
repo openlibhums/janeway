@@ -16,6 +16,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.engine import Engine
+from django.shortcuts import reverse
 
 import mock
 from utils import (
@@ -964,21 +965,29 @@ class AdminTestMeta(type):
     def build_test_case(cls, model, admin_class):
         raise NotImplementedError()
 
+
 class AdminSearchTestMeta(AdminTestMeta):
     def build_test_case(model, admin_class):
         app_label = model._meta.app_label
         model_name = model._meta.model_name
         url_name = f'admin:{app_label}_{model_name}_changelist'
-        url = reverse(url_name)
+        url = reverse(url_name) + '?q=test'
+
         def test_case(instance):
-            response = instance.client.get(url, SERVER_NAME=instance.press.domain)
+            response = instance.client.get(
+                url,
+                SERVER_NAME=instance.press.domain,
+            )
             instance.assertEqual(response.status_code, 200)
         test_name = f'test_admin_view_{app_label}_{model_name}'
         return test_name, test_case
 
+
 class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
+
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         user_model = get_user_model()
         cls.superuser = user_model.objects.create_superuser(
             username='super',
@@ -986,6 +995,12 @@ class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
             email='super@example.com',
         )
         cls.press = helpers.create_press()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.press.delete()
+        cls.superuser.delete()
 
     def setUp(self):
         self.client.force_login(self.superuser)
