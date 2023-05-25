@@ -1679,11 +1679,6 @@ def withdraw_review(request, article_id, review_id):
             request=request,
         )
         if form.is_valid() or skip:
-            review.date_complete = timezone.now()
-            review.decision = models.RD.DECISION_WITHDRAWN.value
-            review.is_complete = True
-            review.save()
-
             kwargs = {
                 "review_assignment": review,
                 "request": request,
@@ -1694,7 +1689,7 @@ def withdraw_review(request, article_id, review_id):
                 event_logic.Events.ON_REVIEW_WITHDRAWL,
                 **kwargs,
             )
-
+            review.withdraw()
             messages.add_message(request, messages.SUCCESS, "Review withdrawn")
             return redirect(
                 reverse(
