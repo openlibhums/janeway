@@ -29,7 +29,10 @@ from core import (
 )
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from review.const import EditorialDecisions as ED
+from review.const import(
+    EditorialDecisions as ED,
+    ReviewerDecisions as RD,
+)
 from security.decorators import (
     editor_user_required,
     reviewer_user_required,
@@ -2019,6 +2022,9 @@ def request_revisions(request, article_id):
     pending_approval = review_round.active_reviews().filter(
         is_complete=True,
         for_author_consumption=False,
+        date_declined__isnull=True,
+    ).exclude(
+        decision=RD.DECISION_WITHDRAWN.value,
     )
     incomplete = review_round.active_reviews().filter(
         is_complete=False,
