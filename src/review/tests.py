@@ -655,7 +655,6 @@ class ReviewTests(TestCase):
             ),
             SERVER_NAME=self.journal_one.domain,
         )
-        response.context.get('incomplete')
         self.assertEqual(
             self.article_review_completed,
             response.context.get('article'),
