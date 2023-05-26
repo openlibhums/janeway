@@ -1534,7 +1534,6 @@ def review_decision(request, article_id, decision):
 
         if decision == 'accept':
             article.accept_article()
-            article.snapshot_authors(article, force_update=False)
             try:
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_ARTICLE_ACCEPTED,
