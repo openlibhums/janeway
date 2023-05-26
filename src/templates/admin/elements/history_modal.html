@@ -22,20 +22,17 @@
                                     {% if request.user.is_staff %}
                                         <a
                                             href="{% url view_url version.id %}{{ version.history_id }}">
-                                            Edited {{ version.history_date|naturaltime }} by
-                                            {% if request.user == version.history_user %}
-                                                me
-                                            {% else %}
-                                                {{ version.history_user }}
-                                            {% endif %}
-                                        </a>
+                                    {% endif %}
+                                    Saved {{ version.history_date|naturaltime }}
+                                    {% if request.user == version.history_user %}
+                                        by me
+                                    {% elif version.history_user %}
+                                        by {{ version.history_user }}
                                     {% else %}
-                                        Edited {{ version.history_date|naturaltime }} by
-                                        {% if request.user == version.history_user %}
-                                            me
-                                        {% else %}
-                                            {{ version.history_user }}
-                                        {% endif %}
+                                        by administrator
+                                    {% endif %}
+                                    {% if request.user.is_staff %}
+                                        </a>
                                     {% endif %}
                                 </td>
                                 <td>{{ version.history_date }}</td>
