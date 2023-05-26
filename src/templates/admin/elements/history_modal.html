@@ -45,7 +45,16 @@
                         {% with rest=history.count|add:"-10" %}
                             {% if rest > 0 %}
                                 <tr>
-                                    <td>{{ rest }} more version{{ rest|pluralize }}</td>
+                                    <td>
+                                        {% if request.user.is_staff %}
+                                            <a
+                                                href="{% url view_url version.id %}">
+                                                {{ rest }} more version{{ rest|pluralize }}
+                                            </a>
+                                        {% else %}
+                                            {{ rest }} more version{{ rest|pluralize }}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                         {% endwith %}
