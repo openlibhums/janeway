@@ -4,6 +4,11 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import simple_history.models
+from django.core.management import call_command
+
+
+def populate_history(apps, schema_editor):
+    call_command('populate_history', 'cms.Page')
 
 
 class Migration(migrations.Migration):
@@ -53,4 +58,8 @@ class Migration(migrations.Migration):
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
+        migrations.RunPython(
+            populate_history,
+            reverse_code=migrations.RunPython.noop,
+        )
     ]
