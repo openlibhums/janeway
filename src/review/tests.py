@@ -8,6 +8,7 @@ import datetime
 import os
 
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -237,9 +238,16 @@ class ReviewTests(TestCase):
         )
 
     def test_withdrawing_review_assignment(self):
-        self.review_to_withdraw.withdraw()
+        review_to_withdraw, created = review_models.ReviewAssignment.objects.get_or_create(
+            article=self.article_under_review,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=timezone.now(),
+            form=self.review_form,
+        )
+        review_to_withdraw.withdraw()
         self.assertTrue(
-            self.review_to_withdraw.decision,
+            review_to_withdraw.decision,
             RD.DECISION_WITHDRAWN.value,
         )
 
@@ -500,26 +508,9 @@ class ReviewTests(TestCase):
             form=self.review_form,
             is_complete=True,
             decision='withdrawn',
+            date_complete = timezone.now()
         )
 
-        self.review_assignment_declined, created = review_models.ReviewAssignment.objects.get_or_create(
-            article=self.article_review_completed,
-            review_round=self.round_two,
-            reviewer=self.second_reviewer,
-            editor=self.editor,
-            date_due=timezone.now(),
-            date_declined=timezone.now(),
-            form=self.review_form,
-            is_complete=False,
-        )
-
-        self.review_to_withdraw, created = review_models.ReviewAssignment.objects.get_or_create(
-            article=self.article_under_review,
-            reviewer=self.second_reviewer,
-            editor=self.editor,
-            date_due=timezone.now(),
-            form=self.review_form,
-        )
 
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
