@@ -1,0 +1,37 @@
+{% load pages %}
+
+{% if order_by_choices %}
+    <div class="row">
+        <div class="columns small-12 medium-6 large-7">
+            <p>
+                {% blocktrans count result_count=page_obj.paginator.count %}
+                    1 result
+                {% plural %}
+                    {{ result_count }} results
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="columns medium-3 large-2 text-right">
+            <label labelfor="order_by">
+                {% trans 'Sort results by' %}
+            </label>
+        </div>
+        <div class="columns medium-3 large-3">
+            <select
+                class="input-group-field"
+                onchange="this.form.submit()"
+                name="order_by"
+                form={{ form_id }}>
+            {% for value, label in order_by_choices %}
+                <option
+                    value="{{ value }}"
+                    {% if value == order_by %}
+                        selected
+                    {% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endif %}
