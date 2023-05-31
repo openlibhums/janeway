@@ -1814,6 +1814,14 @@ class Article(AbstractLastModifiedModel):
 
         return last_mod_date
 
+    @cache(600)
+    def pinned(self):
+        if journal_models.PinnedArticle.objects.filter(
+            journal=self.journal,
+            article=self,
+        ):
+            return True
+
 
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(
