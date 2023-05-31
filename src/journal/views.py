@@ -2634,3 +2634,8 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
             return queryset.order_by('pinnedarticle__sequence', order_by)
         else:
             return queryset.order_by('pinnedarticle__sequence')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = forms.SearchForm()
+        return context
