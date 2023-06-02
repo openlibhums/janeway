@@ -20,7 +20,7 @@
                     {% if page == '...' %}
                         <li class="page-item">...</li>
                     {% else %}
-                        <li class="page-item {% if page_obj.number == page.number %}current{% endif %}">
+                        <li class="page-item {% if page_obj.number == page.number %}active{% endif %}">
                             <button
                                 name="page"
                                 class="page-link"
