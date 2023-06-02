@@ -95,7 +95,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
+    'materializecssform',
     'captcha',
     'simplemathcaptcha',
     'hijack',
