@@ -16,7 +16,6 @@ function table_downloads() {
 
 
 $( document ).ready(function(){
-    $('.modal').modal();
     figure_downloads();
     table_downloads();
 })
