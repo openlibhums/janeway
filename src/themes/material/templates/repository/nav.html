@@ -38,7 +38,7 @@
             {% endif %}
         </ul>
 
-        <ul class="side-nav" id="nav-mobile">
+        <ul class="sidenav" id="nav-mobile">
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a></li>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
@@ -63,7 +63,7 @@
         <a
             href="#!"
             data-target="nav-mobile"
-            class="button-collapse">
+            class="sidenav-trigger">
             <i class="material-icons">menu</i>
         </a>
     </div>
