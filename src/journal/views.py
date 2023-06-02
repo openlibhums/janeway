@@ -2594,12 +2594,12 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
     def get_facets(self):
 
         facets = {
-            'date_published__gte': {
-                'type': 'date_time',
+            'date_published__date__gte': {
+                'type': 'date',
                 'field_label': _('Published after'),
             },
-            'date_published__lte': {
-                'type': 'date_time',
+            'date_published__date__lte': {
+                'type': 'date',
                 'field_label': _('Published before'),
             },
             'section__pk': {
@@ -2622,8 +2622,8 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
         return [
             ('title', _('Titles A-Z')),
             ('-title', _('Titles Z-A')),
-            ('-date_published', _('Latest')),
-            ('date_published', _('Newest')),
+            ('-date_published', _('Newest')),
+            ('date_published', _('Oldest')),
             ('correspondence_author__last_name', _('Author Name')),
             ('primary_issue__volume', _('Volume')),
         ]
