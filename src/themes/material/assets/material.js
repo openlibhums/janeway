@@ -7,9 +7,9 @@ function figure_downloads() {
 
 function table_downloads() {
 	var tables = $("div[id^=T]");
-	console.log(tables);
+	// console.log(tables);
 	$( tables ).each( function( index, element ){
-		console.log(this);
+		// console.log(this);
 	    $(this).find('.table-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i><a target="_blank" href="table/' + $( this ).attr('id') +'">Download</a></p>' );
 	});
 }
@@ -24,7 +24,7 @@ var $root = $('html, body');
 
 $('a[href^="#"]:not(a[href$="!"])').click(function() {
   // The jquery selector needs to exclude href="#!"
-  // or the event listener will interefere with the sidenav trigger
+  // or the event listener will interfere with the sidenav trigger
     var href = $.attr(this, 'href');
     if (href) {
 
