@@ -89,7 +89,7 @@
     src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.2.2/dist/js/materialize.min.js">
 </script>
 <script>
-    M.AutoInit()
+    window.M.AutoInit()
 </script>
 <script src="{% static 'material/material.js' %}"></script>
 <script src="{% static "admin/js/csrf.js" %}"></script>
@@ -98,7 +98,12 @@
 <script>
     {% if messages %}
         {% for message in messages %}
-            Materialize.toast('{{ message|linebreaksbr }}', 4000);
+            window.M.toast(
+              {
+                html: '{{ message|linebreaksbr }}',
+                displayLength: 4000,
+              }
+            )
         {% endfor %}
     {% endif %}
 </script>
