@@ -17,7 +17,6 @@ function table_downloads() {
 
 $( document ).ready(function(){
     $(".button-collapse").sideNav();
-    $('select').material_select();
     $('.modal').modal();
     figure_downloads();
     table_downloads();
