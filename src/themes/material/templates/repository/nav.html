@@ -23,8 +23,15 @@
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">Account<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="account">
+                        Account
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
                 <li><a href="{% url 'core_register' %}">Register</a></li>
@@ -39,14 +46,26 @@
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="dropdown1">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#!" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        <a
+            href="#!"
+            data-target="nav-mobile"
+            class="button-collapse">
+            <i class="material-icons">menu</i>
+        </a>
     </div>
 </nav>
 

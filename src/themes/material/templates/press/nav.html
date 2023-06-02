@@ -18,9 +18,15 @@
             <li><a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}">
+                            {{ item.link_name }}
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
+                    </li>
                 {% elif not item.for_footer %}
                     <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
@@ -31,16 +37,30 @@
             {% endif %}
 
             {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints">{% trans "Repositories" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="preprints">
+                        {% trans "Repositories" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% endif %}
 
             <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="account">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
@@ -51,9 +71,15 @@
             <li><a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}-mobile">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}-mobile">
+                            {{ item.link_name }}
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
+                    </li>
                 {% elif not item.for_footer %}
                     <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
@@ -62,19 +88,38 @@
                 <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
             {% endif %}
             {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">{% trans "Repositories" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="preprints-mobile">
+                        {% trans "Repositories" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% endif %}
             <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="dropdown1">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#!" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
+        <a
+            href="#!"
+            data-target="nav-mobile"
+            class="button-collapse">
+            <i class="material-icons">menu</i>
+        </a>
     </div>
 </nav>
 
