@@ -40,7 +40,7 @@
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}
 
-                        {{ form|materializecss }}
+                        {{ contact_form|materializecss }}
 
                         <button type="submit" class="btn">{% trans "Send Message" %}</button>
                     </form>
