@@ -34,6 +34,7 @@
                         <form method="GET" id={{ facet_form.id }}>
                             {% for field in facet_form %}
                                 <div class="columns small-12 medium-6">
+
                                     <fieldset style="padding-bottom: 24px">
                                         <legend>{{ field.label|safe }}</legend>
                                         <div class="facet">
@@ -45,7 +46,7 @@
                                                             {{ checkbox.choice_label|safe }}
                                                         </label>
                                                     {% endfor %}
-                                                {% elif widgetclass == 'HTMLDateInput' %}
+                                                {% elif widgetclass == 'DateInput' %}
                                                     {{ field }}
                                                 {% endif %}
                                             {% endwith %}
