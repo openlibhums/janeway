@@ -18,7 +18,9 @@
 
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
-                        <li class="page-item">...</li>
+                        <li class="page-item">
+                            <button disabled class="page-link" name="ellipsis">...</button>
+                        </li>
                     {% else %}
                         <li class="page-item {% if page_obj.number == page.number %}active{% endif %}">
                             <button

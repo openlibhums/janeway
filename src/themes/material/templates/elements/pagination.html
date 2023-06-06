@@ -22,7 +22,9 @@
 
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
-                        <li class="waves-effect">...</li>
+                        <li>
+                            <a aria-label="ellipsis">...</a>
+                        </li>
                     {% else %}
                         <li class="waves-effect {% if page_obj.number == page.number %}active{% endif %}">
                             <a

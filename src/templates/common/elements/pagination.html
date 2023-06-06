@@ -10,7 +10,9 @@
 
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
-                        <li>...</li>
+                        <li>
+                            <button disabled name="ellipsis">...</button>
+                        </li>
                     {% else %}
                         <li class="{% if page_obj.number == page.number %}current{% endif %}">
                             <button name="page" value="{{ page.number }}" form={{ form_id }}>{{ page.number }}</button>
