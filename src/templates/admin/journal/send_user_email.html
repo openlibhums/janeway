@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load static %}
 
 {% block title %}Send User Email{% endblock %}
 {% block title-section %}Send User Email{% endblock %}
@@ -7,6 +8,10 @@
 
 {% block breadcrumb %}
     {{ block.super }}
+{% endblock %}
+{% block head %}
+    {{ block.super }}
+    {{ form.media.css }}
 {% endblock %}
 
 {% block body %}
@@ -25,8 +30,6 @@
             {{ form|foundation }}
             <div class="row expanded">
                 <div class="large-12 columns">
-                    <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
-                    <input type="file" name="attachment" multiple>
                     <button name="send" class="success button">Send Email</button>
                     <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
                 </div>
@@ -40,3 +43,12 @@
         {% endif %}
     </div>
 {% endblock %}
+
+{% block js %}
+    {{ block.super }}
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
+{% endblock %}
+

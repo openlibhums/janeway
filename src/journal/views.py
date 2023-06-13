@@ -26,6 +26,7 @@ from django.core.management import call_command
 from cms import models as cms_models
 from core import (
     files,
+    forms as core_forms,
     models as core_models,
     plugin_loader,
     logic as core_logic,
