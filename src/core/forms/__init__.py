@@ -4,6 +4,7 @@ from core.forms.forms import (
     ArticleMetaImageForm,
     CBVFacetForm,
     ConfirmableForm,
+    ConfirmableIfErrorsForm,
     EditAccountForm,
     EditKey,
     EditorialGroupForm,
@@ -24,6 +25,7 @@ from core.forms.forms import (
     QuickUserForm,
     RegistrationForm,
     SectionForm,
+    SettingEmailForm,
     UserCreationFormExtended,
     XSLFileForm,
 )

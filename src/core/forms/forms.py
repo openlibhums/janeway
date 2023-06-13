@@ -763,7 +763,7 @@ class EmailForm(forms.Form):
     )
     body = forms.CharField(widget=SummernoteWidget)
     attachments = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        widget=forms.ClearableFileInput(attrs={'allow_multiple_selected': True}),
         required=False,
     )
 
@@ -784,7 +784,7 @@ class SettingEmailForm(EmailForm):
         subject_setting_name = "subject_" + setting_name
         journal = kwargs.pop("journal", None)
         request = kwargs.pop("request")
-        initial_subject = setting_handler.get_email_subject(
+        initial_subject = setting_handler.get_email_subject_setting(
             setting_name=subject_setting_name,
             journal=journal,
         )
