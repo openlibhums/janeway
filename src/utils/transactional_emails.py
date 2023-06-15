@@ -455,7 +455,6 @@ def send_article_decision(**kwargs):
     request = kwargs['request']
     decision = kwargs['decision']
     subject = ""
-    user_message_content = kwargs['user_message_content']
 
     if 'skip' not in kwargs:
         kwargs['skip'] = True
@@ -481,13 +480,14 @@ def send_article_decision(**kwargs):
 
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            article.correspondence_author,
+            kwargs["email_data"],
             request,
-            subject,
-            article.correspondence_author.email,
-            user_message_content,
-            log_dict=log_dict
+            article=article,
+            log_dict=log_dict,
         )
+
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 

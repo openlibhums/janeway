@@ -209,7 +209,7 @@ def get_unassignment_context(request, assignment):
 
 
 
-def get_decision_content(request, article, decision, author_review_url):
+def get_decision_context(request, article, decision, author_review_url):
 
     email_context = {
         'article': article,
@@ -217,9 +217,7 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    template_name = "review_decision_{0}".format(decision)
-
-    return render_template.get_message_content(request, email_context, template_name)
+    return email_context
 
 
 def get_revision_request_content(request, article, revision, draft=False):

@@ -1541,74 +1541,103 @@ def review_decision(request, article_id, decision):
     author_review_url = request.journal.site_url(
             reverse('review_author_view', kwargs={'article_id': article.id})
     )
-    email_content = logic.get_decision_content(request, article, decision, author_review_url)
+    email_context = logic.get_decision_context(
+        request, article, decision, author_review_url)
+    setting_name = "review_decision_{0}".format(decision)
+
+    form = core_forms.SettingEmailForm(
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+    )
 
     if (article.date_accepted or article.date_declined) and decision != 'undecline':
         messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
-        email_content = request.POST.get('decision_rationale')
-        kwargs = {
-            'article': article,
-            'request': request,
-            'decision': decision,
-            'user_message_content': email_content,
-            'skip': False,
-        }
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid() or "skip" in request.POST:
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
+            kwargs = {
+                'article': article,
+                'request': request,
+                'decision': decision,
+                'email_data': form.as_dataclass(),
+                'skip': False,
+            }
 
-        if decision == 'accept':
-            article.accept_article()
-            article.snapshot_authors(article, force_update=False)
-            try:
+            if 'skip' in request.POST:
+                kwargs['skip'] = True
+
+            if decision == 'accept':
+                article.accept_article()
+                article.snapshot_authors(article, force_update=False)
+                try:
+                    event_logic.Events.raise_event(
+                        event_logic.Events.ON_ARTICLE_ACCEPTED,
+                        task_object=article,
+                        **kwargs
+                    )
+
+                    workflow_kwargs = {
+                        'handshake_url': 'review_home',
+                        'request': request,
+                        'article': article,
+                        'switch_stage': True
+                    }
+
+                    return event_logic.Events.raise_event(
+                        event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                        task_object=article,
+                        **workflow_kwargs
+                    )
+
+                except:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f'An error occurred when processing {article.title}'
+                    )
+                    return redirect(reverse(
+                        'review_in_review',
+                        kwargs={'article_id': article.pk}
+                    ))
+
+            elif decision == 'decline':
+                article.decline_article()
                 event_logic.Events.raise_event(
-                    event_logic.Events.ON_ARTICLE_ACCEPTED,
-                    task_object=article,
-                    **kwargs
+                    event_logic.Events.ON_ARTICLE_DECLINED,
+                    task_object=article, **kwargs,
                 )
+                return redirect(reverse('core_dashboard'))
 
-                workflow_kwargs = {
-                    'handshake_url': 'review_home',
-                    'request': request,
-                    'article': article,
-                    'switch_stage': True
-                }
-
-                return event_logic.Events.raise_event(
-                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                    task_object=article,
-                    **workflow_kwargs
+            elif decision == 'undecline':
+                article.undo_review_decision()
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_UNDECLINED,
+                    task_object=article, **kwargs,
                 )
+                if article.stage == submission_models.STAGE_UNASSIGNED:
+                    return redirect(reverse(
+                        'review_unassigned_article',
+                        kwargs={'article_id': article.pk},
+                    ))
+                elif article.stage == submission_models.STAGE_ASSIGNED:
+                    return redirect(reverse(
+                        'review_in_review', kwargs={'article_id': article.pk}))
 
-            except:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f'An error occurred when processing {article.title}'
-                )
-                return redirect(reverse(
-                    'review_in_review',
-                    kwargs={'article_id': article.pk}
-                ))
-
-        elif decision == 'decline':
-            article.decline_article()
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
-            return redirect(reverse('core_dashboard'))
-
-        elif decision == 'undecline':
-            article.undo_review_decision()
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_UNDECLINED, task_object=article, **kwargs)
-            if article.stage == submission_models.STAGE_UNASSIGNED:
-                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
-            elif article.stage == submission_models.STAGE_ASSIGNED:
-                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
-
-        messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+            messages.add_message(
+                request, messages.INFO,
+                'Article {0} has been {1}ed'.format(article.title, decision),
+            )
+            return redirect(reverse(
+                'article_copyediting', kwargs={'article_id': article.pk}))
 
     accept_article_warning = core_logic.render_nested_setting(
         'accept_article_warning',
@@ -1621,7 +1650,7 @@ def review_decision(request, article_id, decision):
     context = {
         'article': article,
         'decision': decision,
-        'email_content': email_content,
+        'form': form,
         'accept_article_warning': accept_article_warning,
     }
 

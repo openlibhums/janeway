@@ -27,7 +27,7 @@
                                 <h4>To {{ editor.full_name }}</h4>
                                 <h5>From {{ request.user.full_name }}</h5>
                             </div>
-                            {% include "admin/elements/email_form.html" with form=form %}
+                            {% include "admin/elements/email_form.html" with form=form skip=1 %}
                         </div>
                     </div>
                 </div>

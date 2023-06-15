@@ -7,7 +7,13 @@
     <div class="card-divider">
         <div class="button-group">
             <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
+            {% if skip %}
+            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip & continue</button>
+            {% endif %}
+            {% if cancel_url %}
+            <a type="submit" class="button info float-right"> <i class="fa fa-times-circle">&nbsp;</i>Cancel & go back</a>
+            {% endif %}
         </div>
     </div>
 </form>
+
