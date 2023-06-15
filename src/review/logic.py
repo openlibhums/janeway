@@ -98,7 +98,7 @@ def get_suggested_reviewers(article, reviewers):
     return suggested_reviewers
 
 
-def get_assignment_content(request, article, editor, assignment):
+def get_assignment_context(request, article, editor, assignment):
     review_in_review_url = request.journal.site_url(
         reverse(
             'review_in_review',
@@ -112,7 +112,8 @@ def get_assignment_content(request, article, editor, assignment):
         'review_in_review_url': review_in_review_url,
     }
 
-    return render_template.get_message_content(request, email_context, 'editor_assignment')
+    return email_context
+
 
 
 def get_review_url(request, review_assignment):
@@ -197,14 +198,15 @@ def get_withdrawl_notification(request, review_assignment):
     return render_template.get_message_content(request, email_context, 'review_withdrawl')
 
 
-def get_unassignment_notification(request, assignment):
+def get_unassignment_context(request, assignment):
     email_context = {
         'article': assignment.article,
         'assignment': assignment,
         'editor': request.user,
     }
 
-    return render_template.get_message_content(request, email_context, 'unassign_editor')
+    return email_context
+
 
 
 def get_decision_content(request, article, decision, author_review_url):
@@ -611,7 +613,7 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
             editor_type=assignment_type,
         )
         if request and created:
-            message_content = get_assignment_content(
+            message_content = get_assignment_context(
                 request,
                 article,
                 editor,

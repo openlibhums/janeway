@@ -22,7 +22,12 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 
-from core import models as core_models, files, forms as core_forms, logic as core_logic
+from core import (
+        files,
+        forms as core_forms,
+        logic as core_logic,
+        models as core_models,
+)
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
 from review.const import EditorialDecisions as ED
@@ -263,39 +268,53 @@ def unassign_editor(request, article_id, editor_id):
     assignment = get_object_or_404(
         models.EditorAssignment, article=article, editor=editor
     )
-    email_content = logic.get_unassignment_notification(request, assignment)
+    skip = request.POST.get("skip")
+    email_context = logic.get_unassignment_context(request, assignment)
+    form = core_forms.SettingEmailForm(
+            setting_name="unassign_editor",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.method == "POST":
-        email_content = request.POST.get('content_email')
-        kwargs = {'message': email_content,
-                  'assignment': assignment,
-                  'request': request,
-                  'skip': request.POST.get('skip', False)
-        }
-
-        event_logic.Events.raise_event(
-                event_logic.Events.ON_ARTICLE_UNASSIGNED, **kwargs)
-
-        assignment.delete()
-
-        util_models.LogEntry.add_entry(
-            types='EditorialAction',
-            description='Editor {0} unassigned from article {1}'
-                ''.format(editor.full_name(), article.id),
-            level='Info',
-            request=request,
-            target=article,
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="unassign_editor",
+                email_context=email_context,
+                request=request,
         )
 
-        return redirect(reverse(
-            'review_unassigned_article', kwargs={'article_id': article_id}
-        ))
+        if form.is_valid() or skip:
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'assignment': assignment,
+                'request': request,
+                'skip': skip,
+            }
+
+            event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_UNASSIGNED, **kwargs)
+
+            assignment.delete()
+
+            util_models.LogEntry.add_entry(
+                types='EditorialAction',
+                description='Editor {0} unassigned from article {1}'
+                    ''.format(editor.full_name(), article.id),
+                level='Info',
+                request=request,
+                target=article,
+            )
+
+            return redirect(reverse(
+                'review_unassigned_article', kwargs={'article_id': article_id}
+            ))
 
     template = 'review/unassign_editor.html'
     context = {
         'article': article,
         'assignment': assignment,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -314,33 +333,42 @@ def assignment_notification(request, article_id, editor_id):
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor, notified=False)
 
-    email_content = logic.get_assignment_content(request, article, editor, assignment)
+    email_context = logic.get_assignment_context(request, article, editor, assignment)
+    form = core_forms.SettingEmailForm(
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
+        form = core_forms.SettingEmailForm(
+                request.POST, request.Files,
+                setting_name="editor_assignment",
+                email_context=email_context,
+                request=request,
+        )
+        if form.is_valid():
+            kwargs = {
+                'editor_assignment': assignment,
+                'request': request,
+                'skip': request.POST.get("skip"),
+                'email_data': form.as_dataclass(),
+            }
 
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'editor_assignment': assignment,
-                  'request': request,
-                  'skip': False,
-                  'acknowledgement': True}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDITOR_MANUALLY_ASSIGNED, **kwargs)
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
-
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE, **kwargs)
-
-        if request.GET.get('return', None):
-            return redirect(request.GET.get('return'))
-        else:
-            return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
+            if request.GET.get('return', None):
+                return redirect(request.GET.get('return'))
+            else:
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
 
     template = 'review/assignment_notification.html'
     context = {
         'article': article_id,
         'editor': editor,
         'assignment': assignment,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)

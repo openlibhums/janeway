@@ -13,7 +13,10 @@ from utils import (
     setting_handler,
     render_template,
 )
-from core import models as core_models
+from core import (
+    email as core_email,
+    models as core_models,
+)
 from review import logic as review_logic
 from review.const import EditorialDecisions as ED
 
@@ -44,27 +47,29 @@ def send_reviewer_withdrawl_notice(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
-def send_editor_unassigned_notice(request, message, assignment, skip=False):
+def send_editor_unassigned_notice(request, email_data, assignment, skip=False):
     description = "{a.editor} unassigned from {a.article} by {r.user}".format(
             a=assignment,
             r=request,
     )
+    article = assignment.article
 
     if not skip:
 
         log_dict = {
                 'level': 'Info', 'action_text': description,
                 'types': 'Editor Unassigned',
-                'target': assignment.article
+                'target': article,
         }
 
-        notify_helpers.send_email_with_body_from_user(
-                request,
-                'subject_unassign_editor',
-                assignment.editor.email,
-                message,
-                log_dict=log_dict,
+        core_email.send_email(
+            request.user,
+            email_data,
+            request,
+            article=article,
+            log_dict=log_dict,
         )
+
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -120,7 +125,6 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
                                                                   request.user.email, context,
                                                                   log_dict=log_dict)
 
-
 def send_editor_assigned_acknowledgements(**kwargs):
     """
     This function is called via the event handling framework and it notifies that an editor has been assigned.
@@ -131,6 +135,37 @@ def send_editor_assigned_acknowledgements(**kwargs):
     kwargs['acknowledgement'] = True
 
     send_editor_assigned_acknowledgements_mandatory(**kwargs)
+
+
+def send_editor_manually_assigned(**kwargs):
+    """
+    Event handler that sends notifications on manual editor assignemnt
+    :param kwargs: a list of kwargs that includes editor_assignment,
+        email_data, skip (boolean) and request
+    :return: None
+    """
+    email_data = kwargs["email_data"]
+    editor_assignment = kwargs['editor_assignment']
+    article = editor_assignment.article
+    request = kwargs['request']
+    skip = kwargs.get("skip", True)
+
+
+    # send to assigned editor
+    if not skip:
+        core_email.send_email(
+            request.user,
+            email_data,
+            request,
+            article=article,
+        )
+
+    description = '{0} was assigned as the editor for "{1}"'.format(
+            editor_assignment.editor.full_name(),
+            article.title,
+    )
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
 def send_reviewer_requested_acknowledgements(**kwargs):
