@@ -15,8 +15,8 @@ from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
 
-from core import models, validators
-from core.forms.fields import TagitField
+from core import email, models, validators
+from core.forms.fields import MultipleFileField, TagitField
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import render_template, setting_handler
@@ -762,10 +762,30 @@ class EmailForm(forms.Form):
         max_length=10000,
     )
     body = forms.CharField(widget=SummernoteWidget)
-    attachments = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'allow_multiple_selected': True}),
-        required=False,
-    )
+    attachments = MultipleFileField(required=False)
+
+    def clean_cc(self):
+        cc = self.cleaned_data['cc']
+        return self.email_sequence_cleaner("cc", cc)
+
+    def clean_bcc(self):
+        cc = self.cleaned_data['bcc']
+        return self.email_sequence_cleaner("bcc", cc)
+
+    def email_sequence_cleaner(self, field, email_seq):
+        if not email_seq or email_seq  == '':
+            return tuple()
+
+        for address in email_seq:
+            try:
+                validate_email(address)
+            except ValidationError:
+                self.add_error(field, 'Invalid email address ({}).'.format(address))
+
+        return email_seq
+
+    def as_dataclass(self):
+        return email.EmailData(**self.cleaned_data)
 
 
 class SettingEmailForm(EmailForm):
@@ -780,14 +800,15 @@ class SettingEmailForm(EmailForm):
     """
     def __init__(self, *args, **kwargs):
         setting_name = kwargs.pop("setting_name")
-        email_context = kwargs.pop("email_context")
+        email_context = kwargs.pop("email_context", {})
         subject_setting_name = "subject_" + setting_name
-        journal = kwargs.pop("journal", None)
         request = kwargs.pop("request")
+        journal = kwargs.pop("journal", None) or request.journal
         initial_subject = setting_handler.get_email_subject_setting(
             setting_name=subject_setting_name,
             journal=journal,
         )
+
         super().__init__(*args, **kwargs)
         self.fields["subject"].initial = initial_subject
         self.fields["body"].initial = render_template.get_message_content(

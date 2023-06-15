@@ -93,7 +93,13 @@ def send_email(
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, **kwargs)
     msg.attach_alternative(html, "text/html")
 
-    if request and request.FILES and request.FILES.getlist('attachment'):
+    if attachment:
+        for file_ in attachment:
+            file_.open()
+            msg.attach(file_.name, file_.read(), file_.content_type)
+            file_.close()
+
+    elif request and request.FILES and request.FILES.getlist('attachment'):
         for file in request.FILES.getlist('attachment'):
             file.open()
             msg.attach(file.name, file.read(), file.content_type)
