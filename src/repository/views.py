@@ -19,7 +19,12 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
-from core import models as core_models, files, logic as core_logic, forms as core_forms
+from core import (
+    email as core_email,
+    files,
+    forms as core_forms,
+    models as core_models,
+)
 from journal import models as journal_models
 from submission import models as submission_models
 
@@ -2365,9 +2370,9 @@ def send_user_email(request, user_id, preprint_id):
         form = core_forms.EmailForm(request.POST)
 
         if form.is_valid():
-            core_logic.send_email(
+            core_email.send_email(
                 user,
-                form,
+                form.as_dataclass(),
                 request,
                 article,
                 preprint,

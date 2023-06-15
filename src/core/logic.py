@@ -961,32 +961,6 @@ def render_nested_setting(
     return rendered_string
 
 
-def send_email(
-        user, form, request, article=None, preprint=None,
-        log_dict=None,
-    ):
-    subject = form.cleaned_data['subject']
-    message = form.cleaned_data['body']
-
-    if not log_dict:
-        target = article or preprint or None
-        log_dict = {
-            'level': 'Info',
-            'action_type': 'Contact User',
-            'types': 'Email',
-            'target': target
-        }
-
-    notify_helpers.send_email_with_body_from_user(
-        request,
-        subject,
-        user.email,
-        message,
-        log_dict=log_dict,
-        cc=form.cleaned_data['cc'],
-    )
-
-
 def filter_articles_to_editor_assigned(request, articles):
     assignments = review_models.EditorAssignment.objects.filter(
         article__journal=request.journal,
