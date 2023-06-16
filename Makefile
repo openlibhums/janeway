@@ -112,6 +112,7 @@ db-load-backup: #Loads a previosuly captured backup in the db directory (e.g.: m
 	@sudo mv /tmp/$(DB_VOLUME) db/
 uninstall:	## Removes all janeway related docker containers, docker images and database volumes
 	@bash -c "rm -rf db/*"
+	@bash -c "git checkout db"
 	@bash -c "docker rm -f `docker ps --filter 'name=janeway*' -aq` >/dev/null 2>&1 | true"
 	@bash -c "docker rmi `docker images -q janeway*` >/dev/null 2>&1 | true"
 	@echo " Janeway has been uninstalled"
