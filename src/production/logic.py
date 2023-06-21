@@ -92,7 +92,7 @@ def get_galley_label_and_type(file):
     return label, type_
 
 
-def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True, public=True):
+def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True, public=True, html_prettify=True):
     if isinstance(uploaded_file, str):
         mime = files.file_path_mime(uploaded_file)
     else:
@@ -121,7 +121,7 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         with open(new_file.self_article_path(), 'r+', encoding="utf-8") as f:
             html_contents = f.read()
             f.seek(0)
-            cleaned_html = remove_css_from_html(html_contents)
+            cleaned_html = remove_css_from_html(html_contents, prettify=html_prettify)
             f.write(cleaned_html)
             f.truncate()
 
@@ -139,7 +139,7 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
     return new_galley
 
 
-def remove_css_from_html(source_html):
+def remove_css_from_html(source_html, prettify=True):
     """ Removes any embedded css from the given html
     :param html: a str of containing html to be cleaned
     :return: A str with the cleaned html
@@ -157,9 +157,12 @@ def remove_css_from_html(source_html):
 
     # Remove internal stylesheets
     for tag in soup():
-          del tag["style"]
+        del tag["style"]
 
-    return soup.prettify()
+    if prettify:
+        return soup.prettify()
+    else:
+        return str(soup)
 
 
 def replace_galley_file(article, request, galley, uploaded_file):
