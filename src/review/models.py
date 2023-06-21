@@ -10,7 +10,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from review.const import EditorialDecisions as ED, ReviewerDecisions as RD
+from review.const import (
+    EditorialDecisions as ED,
+    ReviewerDecisions as RD,
+    VisibilityOptions as VO
+)
 from utils import shared
 
 
@@ -65,9 +69,9 @@ def review_type():
 
 def review_visibilty():
     return (
-        ('open', 'Open'),
-        ('blind', 'Single Anonymous'),
-        ('double-blind', 'Double Anonymous')
+        (VO.OPEN.value, 'Open'),
+        (VO.SINGLE_ANON.value, 'Single Anonymous'),
+        (VO.DOUBLE_ANON.value, 'Double Anonymous')
     )
 
 
@@ -540,12 +544,22 @@ class RevisionRequest(models.Model):
     author_note = models.TextField(
         blank=True,
         null=True,
-        verbose_name="Covering Letter",
-        help_text="You can add an optional covering letter to the editor with details of the "
-                  "changes that you have made to your revised manuscript."
+        verbose_name="Covering Letter to Editor",
+        help_text="If you would like to include a cover letter for the editor "
+                  "providing changes you made to your revised manuscript, "
+                  "please add this above'"
     )  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
+
+    response_letter = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Response Letter to Reviewers",
+        help_text='You have the option to include a response letter for the '
+                  'reviewers, providing details about the changes you made '
+                  'to your manuscript or counter arguments.',
+    )
 
     date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()

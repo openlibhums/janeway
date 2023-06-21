@@ -15,6 +15,7 @@ from django.template.defaultfilters import linebreaksbr
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
+from core.widgets import JanewayFileInput
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
@@ -283,9 +284,11 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
         model = models.RevisionRequest
         fields = (
             'author_note',
+            'response_letter',
         )
         widgets = {
             'author_note': SummernoteWidget(),
+            'response_letter': SummernoteWidget(),
         }
 
     def check_for_potential_errors(self):
@@ -294,6 +297,10 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
 
         if not self.cleaned_data.get('author_note', None):
             message = 'The Covering Letter field is empty.'
+            potential_errors.append(_(message))
+
+        if not self.cleaned_data.get('response_letter', None):
+            message = 'The Response Letter field is empty.'
             potential_errors.append(_(message))
 
         ms_files = self.instance.article.manuscript_files.all()
@@ -435,3 +442,16 @@ class AnswerVisibilityForm(forms.Form):
                 answer.save()
 
         return self.review_assignment.review_form_answers()
+
+
+class ShareReviewsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        reviews = kwargs.pop('reviews', None)
+        super(ShareReviewsForm, self).__init__(*args, **kwargs)
+
+        for review in reviews:
+            self.fields[f'{ review.pk }'] = forms.CharField(
+                widget=SummernoteWidget,
+                label=f'Email for {review.reviewer.full_name()}',
+                initial=review.email_content,
+            )

@@ -47,6 +47,33 @@ Janeway has various controls for how review data is displayed to authors. These 
 
 The settings "Enable Peer Review Data on Author Page" and "Enable Peer Review Data on Review Pages" do similar things but on different pages. "Enable Peer Review on Author Page" is used on the author's article page, which they have access to from the point of submission. "Enable Peer Review Data on Review Pages" is used on the review page, which authors only get access to after an editor grants the author access. Both are off by default.
 
+.. _sharingpeerreviewsanchor:
+
+Sharing Peer Reviews
+--------------------
+
+
+.. note:: Added in v1.5.1 editors have two options to share reviews with other peer reviewers.
+
+In the review settings page, under the "Sharing Peer Reviews" header there are three options that control how editors can share peer reviews.
+
+Enable Share Reviews Decision
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This adds a new option to the decision list and allows the editor to email all of the reviewers who have completed a review for the given article and share with them a link to view each of the other reviews that have been completed for that article.
+
+.. note:: Reviews that are not complete or do not have a decision are excluded from being shared.
+
+Display Completed Reviews in Review Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When enabled and in an additional review round (eg round 2 or 3) reviewers will see completed reviews from previous rounds in the review interface.
+
+.. note:: Reviews that are not complete, do not have a decision or are part of the same round of review are excluded from being shared.
+
+Display Completed Reviews in Review Interface Text
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Default text displayed to explain why reviews are being shared with other peer reviews. Can be customised at the per-journal level.
+
+
 Review Forms
 ------------
 Janeway allows you to generate as many review forms as you like. When a new journal is created a default review form is generated automatically (called Default Form) it has one element: a text area called "Review".

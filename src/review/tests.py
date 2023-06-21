@@ -2,9 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-from unittest.mock import patch
 
-import datetime
 import os
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -22,6 +20,7 @@ from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
 from utils.testing import helpers
+from utils.shared import clear_cache
 
 
 # Create your tests here.
@@ -234,6 +233,83 @@ class ReviewTests(TestCase):
         self.assertTrue(
             reviewers[0].get('review_assignment'),
             self.review_assignment_complete,
+        )
+
+    def test_completed_reviews_shared_when_setting(self):
+        # setup data
+        article_with_completed_reviews = helpers.create_article(
+            self.journal_one,
+            **{'owner': self.regular_user,
+                'title': 'Test Article',
+                'stage': submission_models.STAGE_UNDER_REVIEW}
+        )
+        round_one, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=1,
+        )
+        round_two, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=2,
+        )
+        round_one_completed_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=True,
+            review_round=round_one,
+        )
+        round_two_active_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=False,
+            review_round=round_two,
+            reviewer=self.regular_user,
+        )
+
+        # turn setting on
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='On',
+        )
+        clear_cache()
+
+        # test on
+        self.client.force_login(self.second_user)
+        reversed_url = reverse(
+                'do_review',
+                kwargs={
+                    'assignment_id': round_two_active_review.pk,
+                }
+            )
+        url_with_access_code = f"{reversed_url}?access_code={round_two_active_review.access_code}"
+        response = self.client.get(
+            url_with_access_code,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(
+            response,
+            f"View Review #{round_one_completed_review.pk}"
+        )
+
+        # turn setting off
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='',
+        )
+        clear_cache()
+
+        # test off
+        self.client.force_login(self.regular_user)
+        response = self.client.get(
+            url_with_access_code,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertNotContains(
+            response,
+            "Please click 'View Review' below to view the peer review report"
         )
 
     def setup_request_object(self):
@@ -639,7 +715,6 @@ class ReviewTests(TestCase):
         self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
-
 
     def test_request_revisions_context(self):
         self.client.force_login(self.editor)

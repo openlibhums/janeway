@@ -53,6 +53,16 @@
 </div>
 
 <div class="title-area">
+    <h2>Sharing Peer Reviews</h2>
+</div>
+<div class="content">
+    <p>The settings provided in this section control the sharing of completed peer reviews among reviewers of an article.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_share_reviews_decision %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_completed_reviews_in_additional_rounds %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_completed_reviews_in_additional_rounds_text %}
+</div>
+
+<div class="title-area">
     <h2>Article Acceptance</h2>
 </div>
 <div class="content">

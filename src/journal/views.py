@@ -180,8 +180,10 @@ def articles(request):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.filter(journal=request.journal,
-                                                                                   is_filterable=True)
+    sections = submission_models.Section.objects.filter(
+        journal=request.journal,
+        is_filterable=True,
+    )
     page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
     if redirect:

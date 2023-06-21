@@ -62,6 +62,16 @@ Once the reviewer is assigned they will be able to access the system and let you
 
 .. figure:: ../nstatic/review_add_reviewer.gif
 
+Managing a Review
+-----------------
+
+Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
+
+1. View the review, though it doesn't tell us much
+2. Withdraw the review
+3. Delete the review
+4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
+
 
 Making Reviews Available to Authors
 -----------------------------------
@@ -113,6 +123,8 @@ One of the options under Actions is "Make a Decision" this will take you to the 
     - Allows you to request the author revise their paper.
 - If enabled, Draft a Decision
     - Allows Section Editors to draft one of the above decisions for approval by an Editor.
+- Share Peer Reviews
+    - Allows an editor to email all of the reviewers who participated in the review of an article and share a link allowing them to read all of the review reports. Note: This must first be enabled before the option will be displayed. See the  :ref:`Sharing Peer Reviews<sharingpeerreviewsanchor>` section.
 
 
 .. figure:: ../nstatic/review_decision_helper.gif
@@ -173,15 +185,9 @@ To approve a DD:
 3. Review the email to the Author and the Peer Review reports. Helpful Tip: You can open the ‘Reviews’ tab for the article in a separate window to compare the Peer Review Reports with the DD
 4. Click ‘Approve’ to action the DD
 
-Managing a Review
------------------
-
-Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
-
-1. View the review, though it doesn't tell us much
-2. Withdraw the review
-3. Delete the review
-4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
+Sharing Peer Reviews
+--------------------
+Janeway allows editors to share completed peer reviewers amongst the reviewers who particpated in an article review process.
 
 
 An Example Review Round

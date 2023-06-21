@@ -25,6 +25,7 @@ from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
 from uuid import uuid4
+from review.const import ReviewerDecisions as RD
 
 
 def create_user(username, roles=None, journal=None, **attrs):
@@ -52,7 +53,11 @@ def create_user(username, roles=None, journal=None, **attrs):
         except core_models.Role.DoesNotExist:
             create_roles(roles)
             resolved_role = core_models.Role.objects.get(slug=role)
-        core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
+        core_models.AccountRole.objects.get_or_create(
+            user=user,
+            role=resolved_role,
+            journal=journal
+        )
 
     for attr, value in attrs.items():
         setattr(user, attr, value)
@@ -232,6 +237,7 @@ def create_galley(article, file_obj=None, **kwargs):
     article.galley_set.add(galley)
     return galley
 
+
 def create_section(journal):
 
     section, created = sm_models.Section.objects.get_or_create(
@@ -241,6 +247,7 @@ def create_section(journal):
         plural='Articles'
     )
     return section
+
 
 def create_submission(
     owner=None,
@@ -402,6 +409,14 @@ def create_review_form(journal):
         journal=journal
     )
 
+
+def create_round(article, round_number=1):
+    return review_models.ReviewRound.objects.create(
+        article=article,
+        round_number=round_number,
+    )
+
+
 def create_review_assignment(
         journal=None,
         article=None,
@@ -409,6 +424,9 @@ def create_review_assignment(
         editor=None,
         due_date=None,
         review_form=None,
+        decision=None,
+        is_complete=False,
+        review_round=None,
     ):
     if not journal:
         journal, _journal_two = create_journals()
@@ -426,13 +444,22 @@ def create_review_assignment(
         due_date = timezone.now() + datetime.timedelta(days=3)
     if not review_form:
         review_form = create_review_form(journal)
+    if not decision:
+        decision = RD.DECISION_ACCEPT.value
+    if not review_round:
+        review_round = create_round(article)
 
     return review_models.ReviewAssignment.objects.create(
         article=article,
         reviewer=reviewer,
         editor=editor,
         date_due=due_date,
-        form=review_form
+        form=review_form,
+        decision=decision,
+        is_complete=is_complete,
+        date_complete=timezone.now() if is_complete else None,
+        review_round=review_round,
+        access_code=uuid4(),
     )
 
 

@@ -51,6 +51,10 @@ from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from journal import models as journal_models
+from review.const import (
+    ReviewerDecisions as RD,
+    VisibilityOptions as VO,
+)
 
 logger = get_logger(__name__)
 
@@ -808,6 +812,12 @@ class Article(AbstractLastModifiedModel):
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
 
+    reviews_shared = models.BooleanField(
+        default=False,
+        help_text="Marked true when an editor manually shares reviews with "
+                  "other reviewers using the decision helper page.",
+    )
+
     objects = ArticleSearchManager()
     active_objects = ActiveArticleManager()
 
@@ -1431,10 +1441,20 @@ class Article(AbstractLastModifiedModel):
             decision__isnull=False,
         ).exclude(decision='withdrawn')
 
+    @property
+    def completed_reviews_with_decision_previous_rounds(self):
+        completed_reviews = self.completed_reviews_with_decision
+        return completed_reviews.filter(
+            review_round__round_number__lt=self.current_review_round(),
+        )
+
     def active_review_request_for_user(self, user):
         try:
-            return self.reviewassignment_set.filter(is_complete=False, date_declined__isnull=True,
-                                                    reviewer=user).first()
+            return self.reviewassignment_set.filter(
+                is_complete=False,
+                date_declined__isnull=True,
+                reviewer=user
+            ).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
@@ -1443,6 +1463,18 @@ class Article(AbstractLastModifiedModel):
 
     def number_of_withdrawn_reviews(self):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
+
+    def check_if_any_reviews_are_double_anon(self):
+        """
+        Checks if any active or completed reviews for this article are
+        double anonymous.
+        """
+        return self.reviewassignment_set.filter(
+            date_declined__isnull=True,
+            visibility=VO.DOUBLE_ANON,
+        ).exclude(
+            decision=RD.DECISION_WITHDRAWN.value,
+        )
 
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
@@ -1484,6 +1516,10 @@ class Article(AbstractLastModifiedModel):
         self.date_declined = None
         self.stage = STAGE_PREPRINT_PUBLISHED
         self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
+        self.save()
+
+    def mark_reviews_shared(self):
+        self.reviews_shared = True
         self.save()
 
     def user_is_author(self, user):
