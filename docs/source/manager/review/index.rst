@@ -52,16 +52,20 @@ The settings "Enable Peer Review Data on Author Page" and "Enable Peer Review Da
 Sharing Peer Reviews
 --------------------
 
-
 .. note:: Added in v1.5.1 editors have two options to share reviews with other peer reviewers.
 
 In the review settings page, under the "Sharing Peer Reviews" header there are three options that control how editors can share peer reviews.
+
+.. figure:: ../../nstatic/share_peer_reviews.png
+
+    Settings for controlling sharing of peer review.
 
 Enable Share Reviews Decision
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This adds a new option to the decision list and allows the editor to email all of the reviewers who have completed a review for the given article and share with them a link to view each of the other reviews that have been completed for that article.
 
 .. note:: Reviews that are not complete or do not have a decision are excluded from being shared.
+
 
 Display Completed Reviews in Review Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +82,7 @@ Review Forms
 ------------
 Janeway allows you to generate as many review forms as you like. When a new journal is created a default review form is generated automatically (called Default Form) it has one element: a text area called "Review".
 
-.. figure:: ../../nstatic/review-forms.png
+.. figure:: /nstatic/review-forms.png
 
     Review Form interface
     

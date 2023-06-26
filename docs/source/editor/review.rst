@@ -187,7 +187,46 @@ To approve a DD:
 
 Sharing Peer Reviews
 --------------------
-Janeway allows editors to share completed peer reviewers amongst the reviewers who particpated in an article review process.
+
+.. note:: This is a new feature added in v1.5.1.
+
+In Janeway, editors have the ability to share completed peer reviews among the reviewers who took part in an article review process. There are two ways to accomplish this, and both can be managed through the Review Settings interface.
+
+1. The first method involves a new decision available on the decision helper screen. With this option, editors can mark the reviews of an article as shareable. Additionally, an email will be sent to all the reviewers who participated in the peer review, providing them with a link to access and view the review content.
+2. The second option simplifies the process by automatically sharing completed reviews from previous rounds with reviewers in rounds 2 and beyond. When reviewers access the review interface, they will be given the choice to view anonymous reviews completed by their peers.
+
+Please refer to the documentation on :ref:`Sharing Peer Reviews<sharingpeerreviewsanchor>` for detailed information on how to activate these functionalities.
+
+Share Reviews Decision
+~~~~~~~~~~~~~~~~~~~~~~
+Once the setting is enabled a new decision option will show on the decision helper page.
+
+.. figure:: /nstatic/share_review_decision_list.png
+
+    New decision in the decision list.
+
+Editors then can send an email to each of the reviewers providing them with a link to access and view the review content.
+
+.. figure:: /nstatic/share_review_decision_page.png
+
+    Interface for notifying peer reviewers.
+
+Reviewers can use the link in the email to access the shared reviews interface.
+
+.. figure:: /nstatic/share_reviews_reviewer.png
+
+    Reviewer viewing completed reviews.
+
+
+Display Completed Reviews in Review Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Once this setting is activated, editors don't need to take any additional action. Reviewers in round 2 and all subsequent rounds will automatically have access to view the reviews completed in previous rounds. For instance, in round 3, reviewers will be able to see the completed reviews from rounds 1 and 2, but not the reviews completed specifically for round 3.
+
+.. figure:: /nstatic/share_reviews_during_review.png
+
+    Round 2 reviewer viewing completed round 1 reviews.
+
+Editors have the ability to modify the message that clarifies the reason why reviewers can see the reviews in the manager interface.
 
 
 An Example Review Round
