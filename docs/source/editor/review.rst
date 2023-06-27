@@ -229,6 +229,15 @@ Once this setting is activated, editors don't need to take any additional action
 Editors have the ability to modify the message that clarifies the reason why reviewers can see the reviews in the manager interface.
 
 
+Sharing Author Response Letters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the revision process, authors are encouraged to provide a written response to review comments. If editors want to share the authors' response letters along with peer reviews, they can enable the "Automatically Share Author Response Letters" option in the review settings section.
+
+.. figure:: /nstatic/share_reviews_response_letters.png
+
+    Response letter being shared with peer reviewers.
+
+
 An Example Review Round
 -----------------------
 Here is an example of a review round.

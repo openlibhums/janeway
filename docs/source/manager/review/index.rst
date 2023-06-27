@@ -54,7 +54,7 @@ Sharing Peer Reviews
 
 .. note:: Added in v1.5.1 editors have two options to share reviews with other peer reviewers.
 
-In the review settings page, under the "Sharing Peer Reviews" header there are three options that control how editors can share peer reviews.
+In the review settings page, under the "Sharing Peer Reviews" header there are four settings that control how editors can share peer reviews.
 
 .. figure:: ../../nstatic/share_peer_reviews.png
 
@@ -77,6 +77,12 @@ Display Completed Reviews in Review Interface Text
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Default text displayed to explain why reviews are being shared with other peer reviews. Can be customised at the per-journal level.
 
+Automatically Share Author Response Letters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note:: This setting works in conjunction with either "Enable Share Reviews Decision" and "Display Completed Reviews in Review Interface"
+
+Additionally shares any completed author response letters along side the peer reviews for both peer review sharing options.
 
 Review Forms
 ------------
