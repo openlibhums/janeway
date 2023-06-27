@@ -93,7 +93,7 @@ urlpatterns = [
     re_path(r'^requests/(?P<assignment_id>\d+)/decline/$', views.decline_review_request, name='decline_review'),
     re_path(r'^requests/(?P<assignment_id>\d+)/decline/suggest/$', views.suggest_reviewers, name='suggest_reviewers'),
     re_path(r'^requests/(?P<assignment_id>\d+)/thanks/$', views.thanks_review, name='thanks_review'),
-    re_path(r'^requests/(?P<assignment_id>\d+)/annotation/$',views.hypothesis_review, name='hypothesis_review'),
+    re_path(r'^requests/(?P<assignment_id>\d+)/annotation/$', views.hypothesis_review, name='hypothesis_review'),
     re_path(r'^requests/(?P<assignment_id>\d+)/$',
         views.do_review,
         name='do_review'),
