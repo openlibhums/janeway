@@ -408,6 +408,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds', journal),
             },
             {
+                'name': 'share_author_response_letters',
+                'object': setting_handler.get_setting('general', 'share_author_response_letters', journal),
+            },
+            {
                 'name': 'display_completed_reviews_in_additional_rounds_text',
                 'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds_text', journal),
             },

@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
 
 from core import models as core_models, files
 from journal import models as journal_models
@@ -25,6 +26,8 @@ from utils.shared import clear_cache
 
 # Create your tests here.
 class ReviewTests(TestCase):
+    def setUp(self):
+        self.files = list()
 
     @override_settings(URL_CONFIG='domain')
     def test_index_view_with_no_questions(self):
@@ -235,7 +238,7 @@ class ReviewTests(TestCase):
             self.review_assignment_complete,
         )
 
-    def test_completed_reviews_shared_when_setting(self):
+    def test_completed_reviews_shared_setting(self):
         # setup data
         article_with_completed_reviews = helpers.create_article(
             self.journal_one,
@@ -311,6 +314,129 @@ class ReviewTests(TestCase):
             response,
             "Please click 'View Review' below to view the peer review report"
         )
+
+    def test_shared_review_download_view(self):
+        """
+        Tests route 1 of the reviewer_shared_review_download view allows and
+        denies access as required.
+        """
+        article_with_completed_reviews = helpers.create_article(
+            self.journal_one,
+            **{'owner': self.regular_user,
+               'title': 'Test Article',
+               'stage': submission_models.STAGE_UNDER_REVIEW}
+        )
+        round_one, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=1,
+        )
+        round_two, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=2,
+        )
+        request = self.setup_request_object()
+        test_file = SimpleUploadedFile(
+            "file.txt",
+            b"content",
+        )
+        file = files.save_file(
+            request,
+            test_file,
+            label='Test',
+            public=True,
+            path_parts=('articles', article_with_completed_reviews.pk),
+        )
+        round_one_completed_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=True,
+            review_round=round_one,
+            reviewer=self.second_reviewer,
+            review_file=file,
+        )
+        round_two_active_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=False,
+            review_round=round_two,
+            reviewer=self.second_user,
+        )
+
+        # turn setting on
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='On',
+        )
+        clear_cache()
+        download_url = reverse(
+            'reviewer_shared_review_download',
+            kwargs={
+                'article_id': article_with_completed_reviews.pk,
+                'review_id': round_one_completed_review.pk,
+            }
+        )
+
+        # in this instance, second_user should have access to download the
+        self.client.force_login(
+            self.second_user,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        # in this instance second_reviewer should not have any access.
+        self.client.force_login(
+            self.second_reviewer,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            404,
+        )
+
+        # if we now mark this article as shared second_reviewer should
+        # be able to access the download
+        article_with_completed_reviews.reviews_shared = True
+        article_with_completed_reviews.save()
+
+        self.client.force_login(
+            self.second_reviewer,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            200,
+        )
+
+        # test that a regular user cant access the download link
+        self.client.force_login(
+            self.regular_user,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            403,
+        )
+
+        # finally, delete the file from disk
+        files.delete_file(article_with_completed_reviews, file)
+
 
     def setup_request_object(self):
         request = helpers.Request()

@@ -427,6 +427,7 @@ def create_review_assignment(
         decision=None,
         is_complete=False,
         review_round=None,
+        review_file=None,
     ):
     if not journal:
         journal, _journal_two = create_journals()
@@ -460,6 +461,7 @@ def create_review_assignment(
         date_complete=timezone.now() if is_complete else None,
         review_round=review_round,
         access_code=uuid4(),
+        review_file=review_file if review_file else None,
     )
 
 

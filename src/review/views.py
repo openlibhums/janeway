@@ -2803,9 +2803,77 @@ def reviewer_share_reviews(request, article_id):
     context = {
         'article': article,
         'reviews': reviews,
+        'shared_reviews': True,
     }
     return render(
         request,
         template,
         context,
     )
+
+
+@reviewer_user_required
+def reviewer_shared_review_download(request, article_id, review_id):
+    """
+    Returns a file if the user is a legitimate reviewer and the review has
+    a file.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    review_assignment = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article=article,
+    )
+
+    # There are two possible routes that could mark the user as legitimate.
+    # 1. Auto sharing of reviews is enabled and the current user is a
+    # reviewer in the current review round.
+    # 2. The share reviews decision is enabled, this article has been shared
+    # and the current user has completed a review for the article.
+
+    # Route 1
+    if request.journal.get_setting(
+        'general',
+        'display_completed_reviews_in_additional_rounds',
+    ):
+        # Fetch all the users who have an active review assignment in the
+        # article's current round.
+        current_round_reviewers = [
+            review.reviewer for review in
+            models.ReviewAssignment.objects.filter(
+                article=article,
+                review_round=article.current_review_round_object(),
+                date_complete__isnull=True,
+                is_complete=False,
+            )]
+
+        # If the current user is in the list, serve the file.
+        if request.user in current_round_reviewers:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    # Route 2
+    if article.reviews_shared:
+        # Fetch all reviewers who have completed a review.
+        reviewers_with_complete_review = [
+            review.reviewer for review in
+            article.completed_reviews_with_decision
+        ]
+        if request.user in reviewers_with_complete_review:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    raise Http404(
+        'You do not have permission to download this file.'
+    )
+

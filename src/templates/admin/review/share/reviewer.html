@@ -25,8 +25,16 @@
                     <h2>Reviews</h2>
                 </div>
                 <div class="content">
-                    {% include "admin/elements/review/view_reviews.html" with reviews=reviews %}
+                    {% include "admin/elements/review/view_reviews.html" with reviews=reviews shared_reviews=shared_reviews %}
                 </div>
+                {% if journal_settings.general.share_author_response_letters and article.completed_revision_requests %}
+                    <div class="title-area">
+                        <h2>Revision Response Letters</h2>
+                    </div>
+                    <div class="content">
+                        {% include "admin/elements/review/revision_responses.html" with article=article %}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </section>

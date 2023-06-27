@@ -4914,5 +4914,24 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When this setting is enabled and you make either a share reviews decision or are sharing reviews via the review interface then Janeway will include any reviewer response letters.",
+            "is_translatable": false,
+            "name": "share_author_response_letters",
+            "pretty_name": "Automatically Share Author Response Letters",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
     }
 ]

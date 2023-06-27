@@ -1582,6 +1582,9 @@ class Article(AbstractLastModifiedModel):
     def active_revision_requests(self):
         return self.revisionrequest_set.filter(date_completed__isnull=True)
 
+    def completed_revision_requests(self):
+        return self.revisionrequest_set.filter(date_completed__isnull=False)
+
     def active_author_copyedits(self):
         author_copyedits = []
 
