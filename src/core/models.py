@@ -208,9 +208,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
-    first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
-    middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
-    last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
+    first_name = models.CharField(max_length=300, null=False, default="", blank=False, verbose_name=_('First name'))
+    middle_name = models.CharField(max_length=300, null=False, default="", blank=True, verbose_name=_('Middle name'))
+    last_name = models.CharField(max_length=300, null=False, default="", blank=False, verbose_name=_('Last name'))
 
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
