@@ -1464,18 +1464,6 @@ class Article(AbstractLastModifiedModel):
     def number_of_withdrawn_reviews(self):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
 
-    def check_if_any_reviews_are_double_anon(self):
-        """
-        Checks if any active or completed reviews for this article are
-        double anonymous.
-        """
-        return self.reviewassignment_set.filter(
-            date_declined__isnull=True,
-            visibility=VO.DOUBLE_ANON,
-        ).exclude(
-            decision=RD.DECISION_WITHDRAWN.value,
-        )
-
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
         self.date_declined = None
