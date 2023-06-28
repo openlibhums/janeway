@@ -210,7 +210,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField(max_length=300, null=False, default="", blank=False, verbose_name=_('First name'))
     middle_name = models.CharField(max_length=300, null=False, default="", blank=True, verbose_name=_('Middle name'))
-    last_name = models.CharField(max_length=300, null=False, default="", blank=False, verbose_name=_('Last name'))
+    last_name = models.CharField(max_length=300, null=False, default="", blank=True, verbose_name=_('Last name'))
 
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
