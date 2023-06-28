@@ -130,6 +130,10 @@
                                                 class="fa fa-linkedin"></i></a></h5>
                                     </td>
                                 </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">There are no published articles to display.</td>
+                                </tr>
                             {% endfor %}
                             </tbody>
                         </table>
