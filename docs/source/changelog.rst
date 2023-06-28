@@ -72,7 +72,7 @@ What's Changed
 - Update to reviewer.rst by @justingonder in https://github.com/BirkbeckCTP/janeway/pull/3336
 - The manage workflow stage link is now available to editors by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3349
 - Display the issue DOI URL on the issue page when it is available by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3354
-- Changes ableist terminology around peer review anonimity by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3353
+- Changes ableist terminology around peer review anonymity by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3353
 - Updates localisation files by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3388
 - Add RSS feed for preprints by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3391
 - Name of CC-ND licenses changed to NoDerivatives by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3397
