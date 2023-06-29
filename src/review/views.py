@@ -342,7 +342,7 @@ def assignment_notification(request, article_id, editor_id):
 
     if request.POST:
         form = core_forms.SettingEmailForm(
-                request.POST, request.Files,
+                request.POST, request.FILES,
                 setting_name="editor_assignment",
                 email_context=email_context,
                 request=request,
@@ -1185,25 +1185,38 @@ def notify_reviewer(request, article_id, review_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
-    email_content = logic.get_reviewer_notification(request, article, request.user, review)
+    email_context = logic.get_reviewer_notification_context(
+        request, article, request.user, review)
+
+    form = core_forms.SettingEmailForm(
+            setting_name="review_assignment",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'review_assignment': review,
-                  'request': request,
-                  'skip': False,
-                  'acknowledgement': True}
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="review_assignment",
+                email_context=email_context,
+                request=request,
+        )
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
-            event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE, **kwargs)
-            return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+        if form.is_valid() or skip:
+            import pdb;pdb.set_trace()
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'review_assignment': review,
+                'request': request,
+                'skip': skip,
+            }
 
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEWER_REQUESTED_NOTIFICATION, **kwargs)
 
-        review.date_requested = timezone.now()
-        review.save()
+            review.date_requested = timezone.now()
+            review.save()
 
         return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
 
@@ -1211,7 +1224,7 @@ def notify_reviewer(request, article_id, review_id):
     context = {
         'article': article,
         'review': review,
-        'email_content': email_content,
+        'form': form,
         'assignment': review,
     }
 

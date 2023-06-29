@@ -152,9 +152,9 @@ def get_article_details_for_review(article):
     return mark_safe(detail_string)
 
 
-def get_reviewer_notification(
-    request, article, editor, review_assignment,
-    reminder=False,
+def get_reviewer_notification_context(
+    request, article, editor,
+    review_assignment,
 ):
     review_url = get_review_url(request, review_assignment)
     article_details = get_article_details_for_review(article)
@@ -167,6 +167,17 @@ def get_reviewer_notification(
         'article_details': article_details,
     }
 
+    return email_context
+
+
+def get_reviewer_notification(
+    request, article, editor, review_assignment,
+    reminder=False,
+):
+
+    email_context = get_reviewer_notification_context(
+        request, article, editor, review_assignment,
+    )
     if reminder and reminder == 'request':
         return render_template.get_message_content(
             request,

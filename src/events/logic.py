@@ -37,6 +37,9 @@ class Events:
     # kwargs: review_assignment, request, user_message_content (will be blank), acknowledgement (false)
     # raised when a review is requested
     ON_REVIEWER_REQUESTED = 'on_reviewer_requested'
+    # kwargs: review_assignment, request, email_data, acknowledgement (true), skip (boolean)
+    # raised when an editor decides to notify the reviewer with a custom message or skipped the email
+    ON_REVIEWER_REQUESTED_NOTIFICATION = 'on_reviewer_requested_notification'
     # kwargs: review_assignment, request, user_message_content, acknowledgement (true), skip (boolean)
     # raised when an editor decides to notify the reviewer of the request (or skip the acknowledgement)
     ON_REVIEWER_REQUESTED_ACKNOWLEDGE = 'on_reviewer_requested_acknowledge'
