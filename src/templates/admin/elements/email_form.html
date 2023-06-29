@@ -11,7 +11,7 @@
             <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip & continue</button>
             {% endif %}
             {% if cancel_url %}
-            <a type="submit" class="button info float-right"> <i class="fa fa-times-circle">&nbsp;</i>Cancel & go back</a>
+            <a href="{{ cancel_url }}"type="submit" class="button info float-right"> <i class="fa fa-times-circle">&nbsp;</i>Cancel & go back</a>
             {% endif %}
         </div>
     </div>

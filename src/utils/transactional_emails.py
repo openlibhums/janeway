@@ -24,27 +24,30 @@ from review.const import EditorialDecisions as ED
 def send_reviewer_withdrawl_notice(**kwargs):
     review_assignment = kwargs['review_assignment']
     request = kwargs['request']
-    user_message_content = kwargs['user_message_content']
+    email_data = kwargs['email_data']
+    article = review_assignment.article
+    skip = kwargs.get('skip', True)
 
-    if 'skip' not in kwargs:
-        kwargs['skip'] = True
+    description = '{0}\'s review of "{1}" has been withdrawn by {2}'.format(
+        review_assignment.reviewer.full_name(),
+        review_assignment.article.title,
+        request.user.full_name(),
+    )
+    log_dict = {
+            'level': 'Info', 'action_text': description,
+            'types': 'Review Withdrawl', 'target': review_assignment.article,
+    }
 
-    skip = kwargs['skip']
-
-    description = '{0}\'s review of "{1}" has been withdrawn by {2}'.format(review_assignment.reviewer.full_name(),
-                                                                            review_assignment.article.title,
-                                                                            request.user.full_name())
     if not skip:
-        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Review Withdrawl',
-                    'target': review_assignment.article}
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            review_assignment.reviewer,
+            email_data,
             request,
-            'subject_review_withdrawl',
-            review_assignment.reviewer.email,
-            user_message_content,
-            log_dict=log_dict
+            article=article,
+            log_dict=log_dict,
         )
-        notify_helpers.send_slack(request, description, ['slack_editors'])
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
 def send_editor_unassigned_notice(request, email_data, assignment, skip=False):
@@ -154,7 +157,7 @@ def send_editor_manually_assigned(**kwargs):
     # send to assigned editor
     if not skip:
         core_email.send_email(
-            request.user,
+            editor_assignment.editor,
             email_data,
             request,
             article=article,
@@ -192,7 +195,7 @@ def send_reviewer_requested(**kwargs):
 
     if not skip:
         core_email.send_email(
-            article.correspondence_author,
+            review_assignment.reviewer,
             kwargs["email_data"],
             request,
             article=article,

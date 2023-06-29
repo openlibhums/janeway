@@ -1465,41 +1465,57 @@ def withdraw_review(request, article_id, review_id):
             )
         )
 
-    email_content = logic.get_withdrawl_notification(request, review)
+    email_context = logic.get_withdrawal_notification_context(request, review)
+    setting_name = "review_withdrawl"
+    form = core_forms.SettingEmailForm(
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'review_assignment': review,
-                  'request': request,
-                  'skip': False}
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
 
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_REVIEW_WITHDRAWL,
-            **kwargs,
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
         )
 
-        review.date_complete = timezone.now()
-        review.decision = models.RD.DECISION_WITHDRAWN
-        review.is_complete = True
-        review.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
-        return redirect(
-            reverse(
-                'review_in_review',
-                kwargs={'article_id': article.pk},
+        if form.is_valid() or skip:
+            review.date_complete = timezone.now()
+            review.decision = models.RD.DECISION_WITHDRAWN.value
+            review.is_complete = True
+            review.save()
+
+            kwargs = {
+                'review_assignment': review,
+                'request': request,
+                'email_data': form.as_dataclass(),
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEW_WITHDRAWL,
+                **kwargs,
             )
-        )
+
+
+            messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
     template = 'review/withdraw_review.html'
     context = {
         'article': article,
         'review': review,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)
