@@ -18,6 +18,11 @@
             <div class="content">
                 <table class="hover scroll">
                     <tr>
+                      {% if user_is_editor or user_is_production or user_is_section_editor %}
+                      <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
+                      {% endif %}
+                    </tr>
+                    <tr>
                         <th>Section</th>
                         <th>Owner</th>
                         <th>Licence</th>
