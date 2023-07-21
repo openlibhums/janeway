@@ -25,6 +25,7 @@ This guide has been written to avoid using language like "easy", "just" or "simp
    configuration
    repository
    plugins
+   api
    changelog
 
 Janeway is developed and maintained and supported by a team at Birkbeck, University of London and the Open Library of Humanities.
