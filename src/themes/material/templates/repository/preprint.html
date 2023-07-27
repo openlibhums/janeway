@@ -65,6 +65,63 @@
                         {% endif %}
                     </div>
                 {% endif %}
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">{% trans 'Add a Comment' %}</span>
+                        {% if request.user.is_authenticated %}
+                            <div>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {% bootstrap_form form %}
+                                    <button type="submit" class="btn btn-success">Add Comment</button>
+                                </form>
+                            </div>
+                            <br/>
+                        {% else %}
+                            <p>You must <a href="{% url 'core_login' %}">log in</a> to post a comment.</p>
+
+                        {% endif %}
+                        <div class="divider"></div>
+                        <br />
+                        <div class="comment-scroll">
+                            <span class="card-title">{% trans 'Comments' %}</span>
+                            {% for comment in comments %}
+                                <div class="row" id="comment-{{ comment.pk }}">
+                                    <div class="col m2">
+                                        {% if comment.author.profile_image and not comment.review.anonymous %}
+                                            <img src="{{ comment.author.profile_image.url }}"
+                                                 class="responsive-img circle">
+                                        {% else %}
+                                            <img src="{% static "common/img/icons/users.png" %}"
+                                                 class="responsive-img circle">
+                                        {% endif %}
+                                    </div>
+                                    <div class="col m10">
+                                        {% if comment.review %}
+                                            <p>
+                                            <small><strong>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
+                                                @ {{ comment.date_time }}</strong></small>
+                                        </p>
+                                            {{ comment.body|safe }}
+                                        {% else %}
+                                        <p>
+                                            <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                                @ {{ comment.date_time }}</small>
+                                        </p>
+                                        <p>
+                                            {{ comment.body|linebreaksbr }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="callout">
+                                    <p>There are no comments or no comments have been made public for this article.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -140,63 +197,6 @@
                     {% endfor %}
                     {% endif %}
 
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">{% trans 'Add a Comment' %}</span>
-                    {% if request.user.is_authenticated %}
-                        <div>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {% bootstrap_form form %}
-                                <button type="submit" class="btn btn-success">Add Comment</button>
-                            </form>
-                        </div>
-                        <br/>
-                    {% else %}
-                        <p>You must <a href="{% url 'core_login' %}">log in</a> to post a comment.</p>
-
-                    {% endif %}
-                    <div class="divider"></div>
-                    <br />
-                    <div class="comment-scroll">
-                        <span class="card-title">{% trans 'Comments' %}</span>
-                        {% for comment in comments %}
-                            <div class="row" id="comment-{{ comment.pk }}">
-                                <div class="col m2">
-                                    {% if comment.author.profile_image and not comment.review.anonymous %}
-                                        <img src="{{ comment.author.profile_image.url }}"
-                                             class="responsive-img circle">
-                                    {% else %}
-                                        <img src="{% static "common/img/icons/users.png" %}"
-                                             class="responsive-img circle">
-                                    {% endif %}
-                                </div>
-                                <div class="col m10">
-                                    {% if comment.review %}
-                                        <p>
-                                        <small><strong>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
-                                            @ {{ comment.date_time }}</strong></small>
-                                    </p>
-                                        {{ comment.body|safe }}
-                                    {% else %}
-                                    <p>
-                                        <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
-                                            @ {{ comment.date_time }}</small>
-                                    </p>
-                                    <p>
-                                        {{ comment.body|linebreaksbr }}
-                                    </p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="callout">
-                                <p>There are no comments or no comments have been made public for this article.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
                 </div>
             </div>
         </div>
