@@ -289,8 +289,12 @@ class AuthorForm(forms.ModelForm):
         except ValueError:
             self.add_error(
                 'orcid',
-                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000',
+                 'An ORCID must be entered in the pattern '
+                'https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000. You can find out '
+                'about valid ORCID patterns on the ORCID support site: '
+                'https://support.orcid.org/hc/en-us/articles/'
+                '360006897674-Structure-of-the-ORCID-Identifier',
             )
         return orcid_string
 
