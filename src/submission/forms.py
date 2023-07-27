@@ -284,7 +284,6 @@ class AuthorForm(forms.ModelForm):
 
     def clean_orcid(self):
         orcid_string = self.cleaned_data.get('orcid')
-        print(orcid_string)
         try:
             return utility_clean_orcid(orcid_string)
         except ValueError:
@@ -382,8 +381,12 @@ class EditFrozenAuthor(forms.ModelForm):
         except ValueError:
             self.add_error(
                 'frozen_orcid',
-                'An ORCID must be in the pattern https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000',
+                'An ORCID must be entered in the pattern '
+                'https://orcid.org/0000-0000-0000-0000 or'
+                ' 0000-0000-0000-0000. You can find out '
+                'about valid ORCID patterns on the ORCID support site: '
+                'https://support.orcid.org/hc/en-us/articles/'
+                '360006897674-Structure-of-the-ORCID-Identifier',
             )
         return orcid_string
 
@@ -501,7 +504,7 @@ def utility_clean_orcid(orcid):
     Utility function that cleans an ORCID ID.
     """
     if orcid:
-        orcid_regex = re.compile('([0]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
+        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
         result = orcid_regex.search(orcid)
 
         if result:
