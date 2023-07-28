@@ -825,9 +825,14 @@ def edit_setting(request, setting_group, setting_name):
             )
             if edit_form.is_valid():
                 if request.FILES:
-                    value = logic.handle_file(request, setting_value, request.FILES['value'])
+                    value = logic.handle_file(
+                        request,
+                        setting_value,
+                        request.FILES['value']
+                    )
 
-                # for JSON setting we should validate the JSON by attempting to load the string.
+                # for JSON setting we should validate the JSON by attempting
+                # to load the string.
 
                 try:
                     setting_value = setting_handler.save_setting(
@@ -844,9 +849,11 @@ def edit_setting(request, setting_group, setting_name):
                 return language_override_redirect(
                     request,
                     'core_edit_setting',
-                    {'setting_group': setting_group, 'setting_name': setting_name},
+                    {
+                        'setting_group': setting_group,
+                        'setting_name': setting_name
+                    },
                 )
-
 
         template = 'core/manager/settings/edit_setting.html'
         context = {

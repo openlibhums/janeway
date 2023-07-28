@@ -38,7 +38,7 @@ class EditKey(forms.Form):
         if self.key_type == 'rich-text':
             self.fields['value'].widget = SummernoteWidget()
         elif self.key_type == 'boolean':
-            self.fields['value'].widget = forms.CheckboxInput()
+            self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
         elif self.key_type == 'integer':
             self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
         elif self.key_type == 'file' or self.key_type == 'journalthumb':
