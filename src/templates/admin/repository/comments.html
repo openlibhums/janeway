@@ -24,7 +24,7 @@
                             <a href="#" class="accordion-title">Comment #{{ comment.pk }} by {{ comment.author.full_name }}</a>
                             <div class="accordion-content" data-tab-content>
                                 <p>Comment made at {{ comment.date_time }}</p>
-                                <p>{{ comment.body }}</p>
+                                <p>{{ comment.body|linebreaksbr }}</p>
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="small success button" name="comment_public" value="{{ comment.pk }}">Mark Public</button>
@@ -49,7 +49,7 @@
                             <a href="#" class="accordion-title">Comment #{{ comment.pk }} by {{ comment.author.full_name }}</a>
                             <div class="accordion-content" data-tab-content>
                                 <p>Comment made at {{ comment.date_time }}</p>
-                                <p>{{ comment.body }}</p>
+                                <p>{{ comment.body|linebreaksbr }}</p>
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="small success button" name="comment_public" value="{{ comment.pk }}">{% if comment.is_public %}Mark as Private{% else %}Mark Public{% endif %}</button>
