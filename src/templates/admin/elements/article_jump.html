@@ -24,7 +24,7 @@
         <li><a href="{% url 'manage_archive_article' article.pk %}">Archive Page</a></li>
         <li><a href="{% url 'manage_article_workflow' article.pk %}" target="_blank">Manage Workflow Stage</a></li>
         {% if article.is_published %}
-            <li><a href="{{ article.url }}">Live Article</a></li>
+            <li><a href="{% if article.is_remote and article.remote_url %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}" target="_blank">Live Article</a></li>
         {% endif %}
         {% if request.user.is_superuser %}
             <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
