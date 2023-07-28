@@ -831,6 +831,11 @@ def do_review(request, assignment_id):
         'open_review_default_opt_in',
         request.journal,
     ).processed_value
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
+        request.journal,
+    ).processed_value
 
     fields_required = False
     decision_required = False if allow_save_review else True
@@ -844,6 +849,7 @@ def do_review(request, assignment_id):
         instance=assignment,
         decision_required=decision_required,
         open_review_initial=open_review_initial,
+        recommendation_disabled=recommendation_disabled,
     )
 
     if 'review_file' in request.GET:
@@ -889,6 +895,7 @@ def do_review(request, assignment_id):
             request.POST,
             instance=assignment,
             decision_required=decision_required,
+            recommendation_disabled=recommendation_disabled,
         )
 
         if form.is_valid() and decision_form.is_valid():
@@ -2499,7 +2506,14 @@ def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
-    decision_form = forms.FakeReviewerDecisionForm()
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
+        request.journal,
+    ).processed_value
+    decision_form = forms.FakeReviewerDecisionForm(
+        recommendation_disabled=recommendation_disabled,
+    )
 
     template = 'review/manager/preview_form.html'
     context = {
