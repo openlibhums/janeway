@@ -177,25 +177,21 @@ class ReviewerDecisionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         decision_required = kwargs.pop("decision_required", False)
         open_review_initial = kwargs.pop("open_review_initial", False)
+        self.recommendation_disabled = kwargs.pop("recommendation_disabled", False)
         super().__init__(*args, **kwargs)
         self.fields['decision'].required = decision_required
         self.fields['decision'].choices = models.reviewer_decision_choices()
         self.fields['permission_to_make_public'].widget.attrs['checked'] = open_review_initial
 
         if self.instance:
-            self.disable_reviewer_decision = setting_handler.get_setting(
-                'general',
-                'disable_reviewer_recommendation',
-                self.instance.article.journal,
-            ).processed_value
-            if self.disable_reviewer_decision:
+            if self.recommendation_disabled:
                 del self.fields['decision']
 
     def save(self, commit=True):
         review_assignment = super().save(commit=False)
 
         # sets the decision to none, if decisions are disabled.
-        if self.disable_reviewer_decision:
+        if self.recommendation_disabled:
             review_assignment.decision = models.RD.DECISION_NO_RECOMMENDATION.value
 
         if commit:
