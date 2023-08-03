@@ -838,7 +838,10 @@
 
     <!-- No need to proceed sec-type="additional-information", sec-type="supplementary-material" and sec-type="datasets"-->
     <xsl:template match="sec[not(@sec-type='additional-information')][not(@sec-type='datasets')][not(@sec-type='supplementary-material')]">
-        <div class="article-section">
+        <xsl:variable name="id">
+            <xsl:value-of select="@id"/>
+        </xsl:variable>
+        <div class="article-section" id="{$id}">
             <xsl:if test="@sec-type">
                 <xsl:attribute name="class">
                     <xsl:value-of select="concat('section ', ./@sec-type)"/>
