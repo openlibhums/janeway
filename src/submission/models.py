@@ -2063,6 +2063,19 @@ class Section(AbstractLastModifiedModel):
             return self.name
         return f"Unnamed Section {self.pk}"
 
+    def editor_display_name(self):
+        """
+        Returns a display name that informs the user if the section is
+        close for submission.
+        """
+        name = f"Unnamed Section {self.pk}"
+        if self.name:
+            name = self.name
+        if not self.public_submissions:
+            name = f"{name} (Public Submission Closed)"
+
+        return name
+
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
 
