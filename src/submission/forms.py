@@ -8,7 +8,7 @@ import re
 from django import forms
 from django.utils.translation import gettext, gettext_lazy as _
 
-from submission import models
+from submission import models, fields
 from core import models as core_models
 from identifiers import models as ident_models
 from review.logic import render_choices
@@ -231,6 +231,11 @@ class ArticleInfoSubmit(ArticleInfo):
 class EditorArticleInfoSubmit(ArticleInfo):
     # Used when an editor is making a submission.
     FILTER_PUBLIC_FIELDS = False
+    section = fields.EditorSectionChoiceField(
+        queryset=models.Section.objects.none(),
+        help_text='As an editor you will see all sections even if they are '
+                  'closed for public submission.',
+    )
 
 
 class AuthorForm(forms.ModelForm):
