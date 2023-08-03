@@ -4799,5 +4799,43 @@
         "editable_by": [
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent editors when an author completes a revision request.",
+            "is_translatable": true,
+            "name": "revisions_complete_editor_notification",
+            "pretty_name": "Revisions Complete Editor Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>{{ revision.article.correspondence_author.full_name }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Editor Notification.",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_editor_notification",
+            "pretty_name": "Subject for Revisions Complete Editor Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
