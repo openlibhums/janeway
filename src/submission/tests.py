@@ -458,6 +458,7 @@ class SubmissionTests(TestCase):
     @override_settings(URL_CONFIG='domain')
     def test_submit_info_view_form_selection_author(self):
         author_1, author_2 = self.create_authors()
+        clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test article: a test of author sections",
@@ -674,10 +675,12 @@ class SubmissionTests(TestCase):
         self.assertEqual(article.page_range, 'custom')
 
     def test_editor_sees_non_public_sections(self):
+        clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
             title='Test article: Testing non public sections',
             current_step=2,
+            owner=self.editor,
         )
         self.client.force_login(
             self.editor,
