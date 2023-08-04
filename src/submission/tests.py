@@ -682,11 +682,13 @@ class SubmissionTests(TestCase):
         self.client.force_login(
             self.editor,
         )
+        clear_script_prefix()
         response = self.client.get(
             reverse(
                 'submit_info',
                 kwargs={'article_id': article.pk},
-            )
+            ),
+            SERVER_NAME="testserver",
         )
         self.assertEqual(
             response.status_code, 200
@@ -707,11 +709,13 @@ class SubmissionTests(TestCase):
         self.client.force_login(
             author,
         )
+        clear_script_prefix()
         response = self.client.get(
             reverse(
                 'submit_info',
                 kwargs={'article_id': article.pk},
-            )
+            ),
+            SERVER_NAME="testserver",
         )
         self.assertEqual(
             response.status_code, 200
