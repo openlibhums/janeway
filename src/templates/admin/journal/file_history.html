@@ -10,8 +10,11 @@
 {% block body %}
     {% csrf_token %}
     <div class="row expanded box">
-        <div class="large-12 columns">
+        <div class="large-6 columns">
         <div class="title-area">
+            <h2>File details</h2>
+        </div>
+        <div class="content">
             <table class="table small">
                 <tr>
                     <th  width="20%">UUID Filename</th>
@@ -35,6 +38,58 @@
                 </tr>
             </table>
         </div>
+        </div>
+        <div class="large-6 columns">
+        <div class="title-area">
+            <h2>
+                File 
+                <span data-tooltip class="top" tabindex="1" title="Metadata contained in the file itself and available to users when downloading the file to their device">
+                    Metadata <span class="fa fa-info-circle"></span>
+                </span>
+            </h2>
+        </div>
+        <div class="content">
+            <table class="scroll">
+            {% for header, value in file_metadata.items %}
+            <tr>
+                <th>{{ header }}</th>
+                <td>{{ value }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td>No file metadata available or could not be extracted</td>
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+        </div>
+        {% if file.scrubbed %}
+        <div class="row expanded box">
+            <div class="callout primary">
+              <h5>Scrubbed file found</h5>
+              <p>A version of this file with its metadata scrubbed is available and will be shared during anonymous peer reviews</p>
+              <a target="_blank" href="{% url 'file_history' article.pk file.scrubbed.pk %}">View Scrubbed file</a>
+            </div>
+        </div>
+        {% elif file_metadata and article %}
+        <div class="row expanded box">
+            <div class="callout primary">
+                <form method="POST">
+                {% csrf_token%}
+                  <h5>Create scrubbed file</h5>
+                  <p>A Scrubbed file is a version of this file where the file metadata (such as metadata revealing author details) has been removed</p>
+                  <p>During anonymous peer review, scrubbed files are generated automatically when one has not previouslly been manually generated</p>
+                  <input type="hidden" value="{{ file.pk }}" name="scrub">
+                  <button class="button success " type="submit"> <i class="fa fa-check">&nbsp;</i>Create</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        <div class="large-12 columns">
+        <div class="title-area">
+            <h2>File History</h2>
+        </div>
+        <div class="content">
             <table class="scroll">
                 <tr>
                     <th>ID</th>
@@ -88,6 +143,8 @@
                 </tr>
             </table>
         </div>
+        </div>
+    </div>
 
     </div>
 

@@ -31,6 +31,8 @@ from pdfminer.pdfparser import PDFParser
 
 from utils import models as util_models
 from utils.logger import get_logger
+from utils.files.metadata import get_file_metadata, scrub_file_metadata
+
 
 logger = get_logger(__name__)
 
@@ -197,6 +199,45 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
 
     return new_file
 
+def get_article_file_metadata(article_file):
+    """ Get the metadata of an article_file.
+    There is no generic accessor, because Janeway cannot determine
+    the location of a file from its database reprensentation. The file provided
+    must be an article file (File.article_id is set) to determine a path.
+    :param article_file: An instance of core.models.File with article_id set
+    :return: An instance of core.models.File with metadata scrubbed
+    """
+    if not article_file.article_id:
+        raise ValueError("File %s has no article_id", article_file)
+    article = article_file.article
+    file_path = article_file.get_file_path(article_file.article)
+    return get_file_metadata(file_path)
+
+def scrub_article_file(article_file):
+    """ Scrub the metadata of an article_file and link it to the original file
+    There is no generic File scrubber, because Janeway cannot determine
+    the location of a file from its database reprensentation. The file provided
+    must be an article file (File.article_id) is set.
+    :param article_file: An instance of core.models.File with article_id set
+    :return: An instance of core.models.File with metadata scrubbed
+    """
+    if not article_file.article_id:
+        raise ValueError("File %s has no article_id", article_file)
+    article = article_file.article
+    file_path = article_file.get_file_path(article_file.article)
+    scrubbed = scrub_file_metadata(file_path)
+    file_name = f"scrubbed_{article_file.original_filename}"
+    label = F"Scrubbed {article_file.label}"
+    copied_file = copy_local_file_to_article(
+            file_path, file_name, article,article_file.owner,
+            label=label,
+    )
+    if article_file.scrubbed:
+        article_file.scrubbed.delete()
+    article_file.scrubbed = copied_file
+    article_file.save()
+
+    return copied_file
 
 def guess_mime(filename):
     """ Attempt to ascertain the MIME type of a file
@@ -286,6 +327,20 @@ def save_file_to_disk(file_to_handle, filename, folder_structure, chunk=True):
             fd.write(file_to_handle)
 
 
+def get_article_file_path(janeway_file, article):
+    """ Returns the path to a local article file
+
+    :param janeway_file: an instance of core.models.File
+    :param article: the associated article
+    :return: A string representing the local file path
+    """
+    path = os.path.join(
+        settings.BASE_DIR, 'files', 'articles',
+        str(article.id), str(janeway_file.uuid_filename),
+    )
+    return path
+
+
 def get_file(file_to_get, article):
     """Returns the content of a file using standard python open procedures (no encoding).
 
@@ -293,7 +348,7 @@ def get_file(file_to_get, article):
     :param article: the associated article
     :return: the contents of the file
     """
-    path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_get.uuid_filename))
+    path = get_article_file_path(file_to_get, article)
 
     if not os.path.isfile(path):
         return ""
