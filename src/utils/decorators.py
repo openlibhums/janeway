@@ -57,6 +57,3 @@ def GET_language_override(func):
         return func(request, *args, **kwargs)
 
     return language_override_wrapper
-
-
-

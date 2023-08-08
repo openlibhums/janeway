@@ -837,10 +837,19 @@ def file_history(request, article_id, file_id):
     if request.POST:
         if "scrub" in request.POST:
             scrubbed = files.scrub_article_file(file_object)
-            messages.add_message(
-                request, messages.SUCCESS,
-                _('File metadata scrubbed successfully')
-            )
+            if not scrubbed:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _(
+                        'This feature has not been configured, speak to your '
+                        'site administrator to enable it'
+                    )
+                )
+            else:
+                messages.add_message(
+                    request, messages.SUCCESS,
+                    _('File metadata scrubbed successfully')
+                )
         else:
             return redirect(request.GET['return'])
 

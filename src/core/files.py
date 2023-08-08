@@ -31,7 +31,11 @@ from pdfminer.pdfparser import PDFParser
 
 from utils import models as util_models
 from utils.logger import get_logger
-from utils.files.metadata import get_file_metadata, scrub_file_metadata
+try:
+    from utils.files import metadata as file_metadata
+except (ModuleNotFoundError, ImportError):
+    file_metadata = None
+
 
 
 logger = get_logger(__name__)
@@ -207,11 +211,14 @@ def get_article_file_metadata(article_file):
     :param article_file: An instance of core.models.File with article_id set
     :return: An instance of core.models.File with metadata scrubbed
     """
+    if not file_metadata:
+        # File metadata not configured
+        return {}
     if not article_file.article_id:
         raise ValueError("File %s has no article_id", article_file)
     article = article_file.article
     file_path = article_file.get_file_path(article_file.article)
-    return get_file_metadata(file_path)
+    return file_metadata.get_file_metadata(file_path)
 
 def scrub_article_file(article_file):
     """ Scrub the metadata of an article_file and link it to the original file
@@ -221,11 +228,14 @@ def scrub_article_file(article_file):
     :param article_file: An instance of core.models.File with article_id set
     :return: An instance of core.models.File with metadata scrubbed
     """
+    if not file_metadata:
+        # File metadata not configured
+        return None
     if not article_file.article_id:
         raise ValueError("File %s has no article_id", article_file)
     article = article_file.article
     file_path = article_file.get_file_path(article_file.article)
-    scrubbed = scrub_file_metadata(file_path)
+    scrubbed = file_metadata.scrub_file_metadata(file_path)
     file_name = f"scrubbed_{article_file.original_filename}"
     label = F"Scrubbed {article_file.label}"
     copied_file = copy_local_file_to_article(
