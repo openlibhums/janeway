@@ -858,6 +858,12 @@ class File(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
+    scrubbed = models.OneToOneField(
+            "core.File", null=True, blank=True,
+            on_delete=models.CASCADE,
+            related_name="scrubs",
+    )
+
     class Meta:
         ordering = ('sequence', 'pk')
 
@@ -929,12 +935,17 @@ class File(AbstractLastModifiedModel):
     def get_file(self, article):
         return files.get_file(self, article)
 
+    def get_article_file_handle(self, article):
+        return files.get_file_object(self, article)
+
     def get_file_path(self, article):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
+        return files.get_article_file_path(self, article)
 
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
+    def scrub_article_file(self):
+        return files.scrub_article_file(self)
 
     def next_history_seq(self):
         try:
