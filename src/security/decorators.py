@@ -550,8 +550,7 @@ def reviewer_user_for_assignment_required(func):
 
             if assignment:
 
-                if assignment.article.stage != models.STAGE_ASSIGNED \
-                        and assignment.article.stage != models.STAGE_UNDER_REVIEW:
+                if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
                     deny_access(request)
                 else:
                     return func(request, *args, **kwargs)
