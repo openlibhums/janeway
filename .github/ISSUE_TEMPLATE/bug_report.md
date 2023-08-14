@@ -4,8 +4,7 @@ about: Create a report to help us improve
 title: ''
 labels: bug
 assignees: ''
-projects: ["BirkbeckCTP/41"]
-
+projects: ["birkbeckctp/41"]
 ---
 
 **Describe the bug**
