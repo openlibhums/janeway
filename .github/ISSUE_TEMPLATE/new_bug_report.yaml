@@ -2,7 +2,7 @@ name: New Bug Report
 description: Create a report to help us improve
 title: "[BUG] <title>"
 labels: ["bug"]
-projects: ["BirkbeckCTP/projects/41"]
+projects: ["birkbeckctp/41"]
 body:
 - type: checkboxes
   attributes:
