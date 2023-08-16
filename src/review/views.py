@@ -1938,7 +1938,13 @@ def do_revisions(request, article_id, revision_id):
                 request.user,
                 revision_request,
             )
-            return files.serve_file(request, file, revision_request.article)
+            scrubbed_file = file.scrubbed_or_scrub()
+
+            return files.serve_file(
+                request,
+                scrubbed_file or file,
+                revision_request.article,
+            )
 
     template = 'admin/review/revision/do_revision.html'
     context = {
@@ -2174,7 +2180,11 @@ def review_download_all_files(request, assignment_id):
     files = review_assignment.review_files.all()
 
     if review_assignment.visibility == RV.DOUBLE_ANON.value:
-        files = (file_object.scrubbed_or_scrub() for file_object in files)
+        files = (
+            file_object.get_scrubbed()
+            for file_object in files
+            if file_object.scrubbed_or_scrub()
+        )
 
     zip_file, file_name = files.zip_article_files(files)
 
