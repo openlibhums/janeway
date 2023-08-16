@@ -242,10 +242,10 @@ def scrub_article_file(article_file):
             file_path, file_name, article,article_file.owner,
             label=label,
     )
-    if article_file.scrubbed:
+    if article_file.get_scrubbed():
         article_file.scrubbed.delete()
-    article_file.scrubbed = copied_file
-    article_file.save()
+    copied_file.scrubs = article_file
+    copied_file.save()
 
     return copied_file
 

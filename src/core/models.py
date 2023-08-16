@@ -15,7 +15,7 @@ import warnings
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import (
     connection,
     models,
@@ -858,14 +858,24 @@ class File(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
-    scrubbed = models.OneToOneField(
+    scrubs = models.OneToOneField(
+            # OnetoOneField only allows setting the on_delete policy for the
+            # explicit side of the relationship. We want the stored scrubbed to
+            # ON DELETE (of parent) CASCADE, but not the other way around.
             "core.File", null=True, blank=True,
             on_delete=models.CASCADE,
-            related_name="scrubs",
+            related_name="scrubbed",
     )
 
     class Meta:
         ordering = ('sequence', 'pk')
+
+    def get_scrubbed(self):
+        """Another annoying method to avoid RelatedObjectDoesNotExist"""
+        try:
+            return self.scrubbed
+        except ObjectDoesNotExist:
+            return None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
