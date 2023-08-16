@@ -696,7 +696,6 @@ class Issue(AbstractLastModifiedModel):
         if journal.display_issue_volume and self.volume:
             volume = "{%% trans 'Volume' %%} %s" % self.volume
         if journal.display_issue_number and self.issue and self.issue != "0":
-            issue = gettext("Issue") + " {}".format(self.issue)
             issue = "{%% trans 'Issue' %%} %s" % self.issue
         if journal.display_issue_year and self.date:
             year = "{}".format(self.date.year)
@@ -973,8 +972,16 @@ class Issue(AbstractLastModifiedModel):
                 article_ordering.save()
 
     def save(self, *args, **kwargs):
-        # set save as False to avoid infinite recursion
-        self.update_display_title(save=False)
+        # get the currently enabled languages for this journal or the default
+        journal_languages = self.journal.get_setting(
+            'general',
+            'journal_languages',
+        ) or [settings.LANGUAGE_CODE]
+
+        for lang in journal_languages:
+            translation.activate(lang)
+            # set save as False to avoid infinite recursion
+            self.update_display_title(save=False)
         super().save(*args, **kwargs)
 
     def __str__(self):
