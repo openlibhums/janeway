@@ -957,6 +957,11 @@ class File(AbstractLastModifiedModel):
     def scrub_article_file(self):
         return files.scrub_article_file(self)
 
+    def scrubbed_or_scrub(self):
+        if not self.get_scrubbed():
+            files.scrub_article_file(self)
+        return self.get_scrubbed()
+
     def next_history_seq(self):
         try:
             last_history_item = self.history.all().reverse()[0]

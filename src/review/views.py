@@ -25,7 +25,10 @@ from django.utils.translation import gettext_lazy as _
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from review.const import EditorialDecisions as ED
+from review.const import (
+        EditorialDecisions as ED,
+        ReviewVisibility as RV,
+)
 from security.decorators import (
     editor_user_required, reviewer_user_required,
     reviewer_user_for_assignment_required,
@@ -2145,6 +2148,15 @@ def reviewer_article_file(request, assignment_id, file_id):
 
     file_object = review_assignment.review_round.review_files.get(pk=file_id)
 
+
+    if review_assignment.visibility == RV.DOUBLE_ANON.value:
+        scrubbed = file_object.scrubbed_or_scrub()
+        if not scrubbed:
+            logger.error("Unable to scrub file %s ", file_object)
+        else:
+            file_object = scrubbed
+
+
     if not file_object:
         raise Http404()
 
@@ -2159,10 +2171,12 @@ def reviewer_article_file(request, assignment_id, file_id):
 @reviewer_user_for_assignment_required
 def review_download_all_files(request, assignment_id):
     review_assignment = models.ReviewAssignment.objects.get(pk=assignment_id)
+    files = review_assignment.review_files.all()
 
-    zip_file, file_name = files.zip_article_files(
-        review_assignment.review_round.review_files.all(),
-    )
+    if review_assignment.visibility == RV.DOUBLE_ANON.value:
+        files = (file_object.scrubbed_or_scrub() for file_object in files)
+
+    zip_file, file_name = files.zip_article_files(files)
 
     return files.serve_temp_file(zip_file, file_name)
 

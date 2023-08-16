@@ -234,6 +234,7 @@ def scrub_article_file(article_file):
     if not article_file.article_id:
         raise ValueError("File %s has no article_id", article_file)
     article = article_file.article
+    logger.info("Scrubbing metadata from file %s", article_file)
     file_path = article_file.get_file_path(article_file.article)
     scrubbed = file_metadata.scrub_file_metadata(file_path)
     file_name = f"scrubbed_{article_file.original_filename}"
@@ -843,7 +844,7 @@ def file_children(file):
 def zip_article_files(files, article_folders=False):
     """
     Zips up files that are related to an article.
-    :param files: A list or queryset of File objects that have article_ids
+    :param files: An iterable of File objects that have article_ids
     :param article_folders: Boolean, if true splits files into folders with
     article name.
     :return: strings path of the zip file, zip file name

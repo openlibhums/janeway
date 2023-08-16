@@ -10,7 +10,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from review.const import EditorialDecisions as ED, ReviewerDecisions as RD
+from review.const import (
+        EditorialDecisions as ED,
+        ReviewerDecisions as RD,
+        ReviewVisibility as RV,
+)
 from utils import shared
 
 
@@ -65,9 +69,9 @@ def review_type():
 
 def review_visibilty():
     return (
-        ('open', 'Open'),
-        ('blind', 'Single Anonymous'),
-        ('double-blind', 'Double Anonymous')
+        (RV.OPEN.value, 'Open'),
+        (RV.ANON.value, 'Single Anonymous'),
+        (RV.DOUBLE_ANON.value, 'Double Anonymous')
     )
 
 
