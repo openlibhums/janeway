@@ -589,7 +589,7 @@ class DecisionDraft(models.Model):
     )
     decision = models.CharField(
         max_length=100,
-        choices=all_review_decisions(),
+        choices=review_decision(),
         verbose_name='Draft Decision',
     )
     message_to_editor = models.TextField(
