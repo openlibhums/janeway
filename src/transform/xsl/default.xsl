@@ -1577,7 +1577,9 @@
     <!-- Acknowledgement -->
 
     <xsl:template match="ack">
-        <h2>Acknowledgements</h2>
+        <xsl:if test="name(*[1]) != 'title'">
+          <h2>Acknowledgements</h2>
+        </xsl:if>
         <div id="ack-1">
             <xsl:apply-templates/>
         </div>
