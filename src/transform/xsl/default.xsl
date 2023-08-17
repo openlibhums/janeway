@@ -3422,8 +3422,9 @@
                             </xsl:attribute>
 
                             <xsl:if test="@continued-from">
+                                <xsl:variable name="continued-from-id" select="@continued-from"/>
                                 <xsl:variable name="count-list-items">
-                                  <xsl:number count="list-item"  from="list[@id=@continued-from]" level="any"/>
+                                  <xsl:number count="list-item[ancestor::list[@id=$continued-from-id]]"  level="any"/>
                                 </xsl:variable>
                                 <xsl:attribute name="start">
                                   <xsl:value-of select="$count-list-items + 1"/>
