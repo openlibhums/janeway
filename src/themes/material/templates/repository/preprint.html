@@ -15,7 +15,7 @@
     <div class="row preprint-content">
         <div class="col m12">
             <div class="card">
-                <div class="card-image preprint-card waves-effect waves-block waves-light">
+                <div class="card-image preprint-card">
                     <img class="orbit-image" alt="{{ preprint.title|striptags }}"
                          src="{% if request.repository.hero_background %}{{ request.repository.hero_background.url }}{% else %}{% static "common/img/repository_background.jpg" %}{% endif %}">
                     <span class="card-title">
