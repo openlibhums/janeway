@@ -839,10 +839,67 @@
     </xsl:template>
 
     <xsl:template match="app//sec/title">
-        <xsl:element name="h{count(ancestor::sec) + 3}">
-            <xsl:apply-templates select="@* | node()"/>
+      <!-- h1 is top level and not used, h2 are article headers,
+        h2 + n are app section headers so below we add 2 to the number of <sec> levels
+      -->
+        <xsl:element name="h{count(ancestor::sec) + 2}">
+          <xsl:if test="preceding-sibling::label">
+            <xsl:value-of select="preceding-sibling::label"/>&#160;
+          </xsl:if>
+          <xsl:apply-templates select="@* | node()"/>
         </xsl:element>
     </xsl:template>
+  
+  <xsl:template match="app/title">
+    <xsl:choose>
+      <xsl:when test="name(parent::*) = 'caption'" >
+        <strong><xsl:value-of select="node()"/></strong>
+      </xsl:when>
+      <xsl:otherwise>
+        <h2 id="{@id}">
+          <xsl:if test="preceding-sibling::label">
+            <xsl:value-of select="preceding-sibling::label"/>&#160;
+          </xsl:if>
+          <xsl:value-of select="node()"/>
+        </h2>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="app/label">
+    <xsl:choose>
+      <xsl:when test="following-sibling::title">
+        <!-- Do nothing, this  case is handled by app//title template -->
+      </xsl:when>
+      <xsl:otherwise>
+        <!--
+          Some publications want these labels to be rendered on TOC, so we use h2.
+          h2 with class="app-section-header" could be ignored if this behaviour is undesireable
+        -->
+        <h2 id="{@id}" class="app-section-header"> <xsl:value-of select="node()"/>
+          <xsl:value-of select="node()"/>
+        </h2>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="app/label">
+    <xsl:choose>
+      <xsl:when test="following-sibling::title">
+        <!-- Do nothing, this  case is handled by app//title template -->
+      </xsl:when>
+      <xsl:otherwise>
+        <!--
+          Some publications want these labels to be rendered on TOC, so we use h2.
+          h2 with class="app-section-header" could be ignored if this behaviour is undesireable
+        -->
+        <h2 id="{@id}" class="app-section-header"> <xsl:value-of select="node()"/>
+          <xsl:value-of select="node()"/>
+        </h2>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
     <!-- END transforming sections to heading levels -->
 
     <xsl:template match="p">
@@ -3367,56 +3424,6 @@
             <xsl:apply-templates />
         </div>
     </xsl:template>
-
-
-    <xsl:template match="app//title">
-      <xsl:choose>
-        <xsl:when test="name(parent::*) = 'caption'" >
-          <strong><xsl:value-of select="node()"/></strong>
-        </xsl:when>
-        <xsl:otherwise>
-          <h2 id="{@id}">
-            <xsl:if test="preceding-sibling::label">
-              <xsl:value-of select="preceding-sibling::label"/>&#160;
-            </xsl:if>
-            <xsl:value-of select="node()"/>
-          </h2>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:template>
-
-    <xsl:template match="app/label">
-      <xsl:choose>
-        <xsl:when test="following-sibling::title">
-          <!-- Do nothing, this  case is handled by app//title template -->
-        </xsl:when>
-        <xsl:otherwise>
-          <h2 id="{@id}"> <xsl:value-of select="node()"/></h2>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:value-of select="node()"/>
-    </xsl:template>
-
-    <xsl:template match="app//sec//title">
-        <h3>
-            <xsl:if test="preceding-sibling::label">
-              <xsl:value-of select="preceding-sibling::label"/>&#160;
-            </xsl:if>
-            <xsl:value-of select="node()"/>
-        </h3>
-    </xsl:template>
-  
-  <xsl:template match="app//sec//label">
-    <xsl:choose>
-      <xsl:when test="following-sibling::title">
-        <!-- Do nothing, this  case is handled by app//sec//title template -->
-      </xsl:when>
-      <xsl:otherwise>
-        <h3> <xsl:value-of select="node()"/></h3>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:value-of select="node()"/>
-  </xsl:template>
   
 
 
@@ -3721,9 +3728,7 @@
 
     <!-- nodes to remove -->
     <xsl:template match="aff/label"/>
-    <xsl:template match="app/label"/>
     <xsl:template match="fn/label"/>
-    <xsl:template match="sec/label"/>
     <xsl:template match="disp-formula/label"/>
     <xsl:template match="fn-group[@content-type='competing-interest']/title"/>
     <xsl:template match="permissions/copyright-year | permissions/copyright-holder"/>
