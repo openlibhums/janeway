@@ -3377,19 +3377,47 @@
         <xsl:otherwise>
           <h2 id="{@id}">
             <xsl:if test="preceding-sibling::label">
-              <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-              <xsl:value-of select="node()"/>
+              <xsl:value-of select="preceding-sibling::label"/>&#160;
+            </xsl:if>
+            <xsl:value-of select="node()"/>
           </h2>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:template>
 
+    <xsl:template match="app/label">
+      <xsl:choose>
+        <xsl:when test="following-sibling::title">
+          <!-- Do nothing, this  case is handled by app//title template -->
+        </xsl:when>
+        <xsl:otherwise>
+          <h2 id="{@id}"> <xsl:value-of select="node()"/></h2>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:value-of select="node()"/>
+    </xsl:template>
+
     <xsl:template match="app//sec//title">
         <h3>
-            <xsl:if test="preceding-sibling::label"><xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-
+            <xsl:if test="preceding-sibling::label">
+              <xsl:value-of select="preceding-sibling::label"/>&#160;
+            </xsl:if>
+            <xsl:value-of select="node()"/>
         </h3>
     </xsl:template>
+  
+  <xsl:template match="app//sec//label">
+    <xsl:choose>
+      <xsl:when test="following-sibling::title">
+        <!-- Do nothing, this  case is handled by app//sec//title template -->
+      </xsl:when>
+      <xsl:otherwise>
+        <h3> <xsl:value-of select="node()"/></h3>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:value-of select="node()"/>
+  </xsl:template>
+  
 
 
     <!-- START - general format -->
