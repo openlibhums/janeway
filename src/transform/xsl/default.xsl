@@ -838,25 +838,19 @@
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="app//sec/title">
-      <!-- h1 is top level and not used, h2 are article headers,
-        h2 + n are app section headers so below we add 2 to the number of <sec> levels
-      -->
-        <xsl:element name="h{count(ancestor::sec) + 2}">
-          <xsl:if test="preceding-sibling::label">
-            <xsl:value-of select="preceding-sibling::label"/>&#160;
-          </xsl:if>
-          <xsl:apply-templates select="@* | node()"/>
-        </xsl:element>
-    </xsl:template>
-  
   <xsl:template match="app/title">
     <xsl:choose>
       <xsl:when test="name(parent::*) = 'caption'" >
         <strong><xsl:value-of select="node()"/></strong>
       </xsl:when>
       <xsl:otherwise>
-        <h2 id="{@id}">
+        <h2>
+          <xsl:if test="@id">
+            <xsl:attribute name="id">
+              <xsl:value-of select="@id"/>
+            </xsl:attribute>
+          </xsl:if>
+          <!-- If there is a label preceding this node, add it as part of the same header-->
           <xsl:if test="preceding-sibling::label">
             <xsl:value-of select="preceding-sibling::label"/>&#160;
           </xsl:if>
@@ -865,41 +859,70 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template match="app/label">
     <xsl:choose>
-      <xsl:when test="following-sibling::title">
-        <!-- Do nothing, this  case is handled by app//title template -->
+      <xsl:when test="name(parent::*) = 'caption'" >
+        <strong><xsl:value-of select="node()"/> </strong>
       </xsl:when>
       <xsl:otherwise>
-        <!--
-          Some publications want these labels to be rendered on TOC, so we use h2.
-          h2 with class="app-section-header" could be ignored if this behaviour is undesireable
-        -->
-        <h2 id="{@id}" class="app-section-header"> <xsl:value-of select="node()"/>
-          <xsl:value-of select="node()"/>
-        </h2>
+        <xsl:choose>
+          <xsl:when test="following-sibling::title">
+            <!-- If there is a title following the label, stop processing, since the title will handle the label...-->
+          </xsl:when>
+          <xsl:otherwise>
+            <h2>
+              <xsl:if test="@id">
+                <xsl:attribute name="id">
+                  <xsl:value-of select="@id"/>
+                </xsl:attribute>
+              </xsl:if>
+              <xsl:value-of select="node()"/>
+            </h2>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
-  <xsl:template match="app/label">
-    <xsl:choose>
-      <xsl:when test="following-sibling::title">
-        <!-- Do nothing, this  case is handled by app//title template -->
-      </xsl:when>
-      <xsl:otherwise>
-        <!--
-          Some publications want these labels to be rendered on TOC, so we use h2.
-          h2 with class="app-section-header" could be ignored if this behaviour is undesireable
-        -->
-        <h2 id="{@id}" class="app-section-header"> <xsl:value-of select="node()"/>
-          <xsl:value-of select="node()"/>
-        </h2>
-      </xsl:otherwise>
-    </xsl:choose>
+
+  <xsl:template match="app//sec/title">
+    <!-- h1 is top level and not used, h2 are article headers,
+        h2 + n are app section headers so below we add 2 to the number of <sec> levels
+      -->
+    <xsl:element name="h{count(ancestor::sec) + 2}">
+      <xsl:if test="@id">
+        <xsl:attribute name="id">
+          <xsl:value-of select="@id"/>
+        </xsl:attribute>
+      </xsl:if>
+      <xsl:if test="preceding-sibling::label">
+        <xsl:value-of select="preceding-sibling::label"/>&#160;
+      </xsl:if>
+      <xsl:value-of select="node()"/>
+    </xsl:element>
   </xsl:template>
-  
+
+  <xsl:template match="app//sec/label">
+    <!-- h1 is top level and not used, h2 are article headers,
+        h2 + n are app section headers so below we add 2 to the number of <sec> levels
+      -->
+      <xsl:choose>
+        <xsl:when test="following-sibling::title">
+          <!-- If there is a title following the label, stop processing, since the title will handle the label...-->
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:element name="h{count(ancestor::sec) + 2}">
+            <xsl:if test="@id">
+              <xsl:attribute name="id">
+                <xsl:value-of select="@id"/>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:value-of select="node()"/>
+          </xsl:element>
+        </xsl:otherwise>
+      </xsl:choose>
+  </xsl:template>
+
     <!-- END transforming sections to heading levels -->
 
     <xsl:template match="p">
