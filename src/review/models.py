@@ -536,7 +536,15 @@ class RevisionRequest(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    editor_note = models.TextField()  # Note from Editor to Author
+    editor_note = models.TextField(
+        blank=True,
+        null=True,
+        help_text="You can use this optional field to provide the author with "
+                  "any information that may help them when evaluating the "
+                  "article reviews and integrating changes into their "
+                  "manuscript. This text will be displayed to the author on  "
+                  "the revision page, above the reviews.",
+    )
     author_note = models.TextField(
         blank=True,
         null=True,
@@ -545,7 +553,11 @@ class RevisionRequest(models.Model):
                   "changes that you have made to your revised manuscript."
     )  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
-    type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
+    type = models.CharField(
+        max_length=20,
+        choices=revision_type(),
+        default='minor_revisions',
+    )
 
     date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()
