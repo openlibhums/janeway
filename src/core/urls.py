@@ -35,6 +35,14 @@ try:
             re_path(r'^500/$', error_views.handler500),
             path('__debug__/', include('debug_toolbar.urls')),
         ]
+
+        try:
+            urlpatterns += [
+                path('__reload__/', include('django_browser_reload.urls')),
+            ]
+        except ModuleNotFoundError:
+            logger.debug('django_browser_reload is not set up')
+
 except AttributeError:
     pass
 

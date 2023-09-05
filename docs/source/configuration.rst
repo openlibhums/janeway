@@ -158,3 +158,21 @@ An example structure for a sub theme where we want to customise only the login p
     - __init__.py
     - build_assets.py
     - README.MD
+
+Automatic browser reloading
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using ``django-browser-reload`` you can watch templates and static files and trigger a browser refresh when there are changes, saving lots of keystrokes during front-end development.
+
+Add the following to your ``src/core/settings.py``::
+
+    INSTALLED_APPS = [
+        ...,
+        'django_browser_reload',
+        ...,
+    ]
+    MIDDLEWARE = (
+        ...,
+        'django_browser_reload.middleware.BrowserReloadMiddleware',
+        ...,
+    )
