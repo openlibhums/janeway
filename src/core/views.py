@@ -541,9 +541,13 @@ def dashboard(request):
     template = 'core/dashboard.html'
     new_proofing, active_proofing, completed_proofing = proofing_logic.get_tasks(request)
     new_proofing_typesetting, active_proofing_typesetting, completed_proofing_typesetting = proofing_logic.get_typesetting_tasks(request)
-    section_editor_articles = review_models.EditorAssignment.objects.filter(editor=request.user,
-                                                                            editor_type='section-editor',
-                                                                            article__journal=request.journal)
+    section_editor_articles = review_models.EditorAssignment.objects.filter(
+        editor=request.user,
+        editor_type='section-editor',
+        article__journal=request.journal
+    ).order_by(
+        '-article__date_submitted',
+    )
 
     # TODO: Move most of this to model logic.
     context = {
