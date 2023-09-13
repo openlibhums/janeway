@@ -11,10 +11,12 @@ import uuid
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel, SVGImageField
+from submission import models as submission_models
 from utils import logic
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -343,6 +345,22 @@ class Press(AbstractSiteModel):
     @property
     def code(self):
         return 'press'
+
+    @property
+    def active_journals(self):
+        from journal import models as journal_models
+        # imported here to avoid circular imports
+        return journal_models.Journal.objects.filter(
+            hide_from_press=False,
+        )
+
+    @property
+    def published_articles(self):
+        return submission_models.Article.objects.filter(
+            journal__press=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
     class Meta:
         verbose_name_plural = 'presses'
