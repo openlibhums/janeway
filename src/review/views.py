@@ -812,14 +812,14 @@ def do_review(request, assignment_id):
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.SUBMIT_REVIEW_STAGES) &
             Q(access_code=access_code)
         )
     else:
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.SUBMIT_REVIEW_STAGES) &
             Q(reviewer=request.user)
         )
 
