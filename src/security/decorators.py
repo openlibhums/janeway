@@ -42,8 +42,8 @@ def base_check(request, login_redirect=False):
         or not request.user.is_active
     ):
         if login_redirect is True:
-            path = request.path + '?' + request.GET.urlencode()
-            params = urlencode({"next": path})
+            request_params = request.GET.urlencode()
+            params = urlencode({"next": f"{request.path}?{request_params}"})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         elif isinstance(login_redirect, str):
             params = urlencode({"next": redirect})
