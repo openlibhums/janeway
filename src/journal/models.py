@@ -1283,6 +1283,13 @@ def update_issue_display_title(sender, instance, created, **kwargs):
     for issue in Issue.objects.filter(journal=instance):
         issue.save()
 
+
+@receiver(post_save, sender=Journal)
+def setup_journal_file_directory(sender, instance, created, **kwargs):
+    if created:
+        instance.setup_directory()
+
+
 def issue_articles_change(sender, **kwargs):
     """
     When an article is removed from an issue this signal will delete any
