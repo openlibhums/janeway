@@ -354,7 +354,6 @@ class Press(AbstractSiteModel):
     @property
     def published_articles(self):
         return submission_models.Article.objects.filter(
-            journal__press=self,
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
         )
