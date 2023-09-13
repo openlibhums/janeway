@@ -139,7 +139,12 @@ class Journal(AbstractSiteModel):
     # DEPRECATED "description" in favour of "journal_description" setting
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
-    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
+    keywords = models.ManyToManyField(
+        "submission.Keyword",
+        blank=True,
+        null=True,
+        verbose_name="Discipline",
+    )
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(
