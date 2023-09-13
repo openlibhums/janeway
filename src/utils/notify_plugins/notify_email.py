@@ -116,7 +116,7 @@ def notify_hook(**kwargs):
             request.journal
         )
         if request.journal:
-            subject = "[{request.journal.code}] {subject_setting_value}"
+            subject = f"[{request.journal.code}] {subject_setting_value}"
         else:
             subject = subject_setting_value
 
