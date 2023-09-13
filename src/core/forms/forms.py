@@ -107,7 +107,7 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 class PasswordResetForm(forms.Form):
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password (again)'))
+    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Confirm Password'))
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
