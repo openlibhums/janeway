@@ -49,6 +49,5 @@ class Command(BaseCommand):
             if not delete:
                 journal = journal_models.Journal.objects.get(code=journal_code)
                 install.update_issue_types(journal, management_command=False)
-                journal.setup_directory()
 
             call_command('show_configured_journals')
