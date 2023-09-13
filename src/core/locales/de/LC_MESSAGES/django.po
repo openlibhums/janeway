@@ -172,7 +172,7 @@ msgid "Salutation"
 msgstr "Anrede"
 
 #: src/core/models.py:222
-msgid "Name suffix eg. jr"
+msgid "Name suffix"
 msgstr ""
 
 #: src/core/models.py:224

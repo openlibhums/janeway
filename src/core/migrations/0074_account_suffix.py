@@ -15,6 +15,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='account',
             name='suffix',
-            field=models.CharField(blank=True, help_text='Name suffix eg. jr', max_length=300, null=True),
+            field=models.CharField(
+                blank=True,
+                verbose_name='Name suffix',
+                max_length=300,
+                null=True,
+            ),
         ),
     ]
