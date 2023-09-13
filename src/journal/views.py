@@ -1882,8 +1882,10 @@ def contact(request):
 
     if request.journal and request.journal.disable_front_end:
         template = 'admin/journal/contact.html'
-    else:
+    elif request.journal:
         template = 'journal/contact.html'
+    else:
+        template = 'press/journal/contact.html'
     context = {
         'contact_form': contact_form,
         'contacts': contacts,
