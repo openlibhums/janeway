@@ -374,8 +374,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = os.environ.get(
-    'JANEWAY_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend',
-)
+    'JANEWAY_EMAIL_BACKEND',
+) or 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
 EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
 EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')

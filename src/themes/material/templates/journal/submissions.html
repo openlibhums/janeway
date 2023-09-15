@@ -38,6 +38,7 @@
                     <div class="divider spacer"></div>
 
                     {% for item in submission_items %}
+                        <div class="default-li">
                         {% if item.title == 'licences' %}
                             <span class="card-title">
                                 {{ item.title|capfirst }}
@@ -58,7 +59,7 @@
                                 <div class="divider spacer"></div>
                             {% endif %}
                         {% endif %}
-
+                        </div>
                     {% empty %}
                         <p>There are no submission page items to display for this journal.</p>
                     {% endfor %}

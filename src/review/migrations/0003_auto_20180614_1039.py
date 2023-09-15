@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='reviewassignment',
             name='visibility',
-            field=models.CharField(choices=[('open', 'Open'), ('blind', 'Single Anonymous'), ('double-blind', 'Double Anonymous')], default='double-blind', max_length=20, verbose_name="Anonimity"),
+            field=models.CharField(choices=[('open', 'Open'), ('blind', 'Single Anonymous'), ('double-blind', 'Double Anonymous')], default='double-blind', max_length=20, verbose_name="Anonymity"),
         ),
         migrations.AlterField(
             model_name='reviewformelement',
