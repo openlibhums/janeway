@@ -78,7 +78,7 @@ class NavForm(JanewayTranslationModelForm):
 
 class SubmissionItemForm(JanewayTranslationModelForm):
 
-    text = BleachField
+    text = BleachField()
 
     class Meta:
         model = models.SubmissionItem
