@@ -1057,7 +1057,6 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviewers = logic.get_reviewer_candidates(article, request.user)
 
     # if setting enabled, fetch reviewers who have completed a review
     # in a past review round.
@@ -1066,6 +1065,11 @@ def add_review_assignment(request, article_id):
         past_reviewers = logic.get_previous_round_reviewers(
             article,
         )
+    reviewers = logic.get_reviewer_candidates(
+        article,
+        user=request.user,
+        reviewers_to_exclude=past_reviewers,
+    )
 
     form = forms.ReviewAssignmentForm(
         journal=request.journal,

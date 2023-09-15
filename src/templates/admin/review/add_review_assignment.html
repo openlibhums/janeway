@@ -32,29 +32,8 @@
 
                     {% if past_reviewers %}
                         <div class="callout primary">
-                            <p><span class="fa fa-info-circle"></span> The first table below lists reviewers who have previously completed a review for this article and do not have an assignment in the current review round. All other reviewers are listed in the second table.</p>
+                            <p><span class="fa fa-info-circle"></span> Reviewers who have compeleted a review for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Reviewed Article</strong> column.</p>
                         </div>
-                        <table class="small scroll" id="previous-round-reviewers">
-                            <thead>
-                                <tr>
-                                <th>Select</th>
-                                <th>Name</th>
-                                <th>Email Address</th>
-                                <th>Active Reviews</th>
-                                <th width="30%">Interests</th>
-                                <th>Average Score</th>
-                                <th>Last Review Completed</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for reviewer in past_reviewers %}
-                                <tr>
-                                    {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-
                     {% endif %}
 
                     <table class="small scroll" id="reviewers">
@@ -67,19 +46,25 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
+                            {% if past_reviewers %}<th>Has Reviewed Article</th>{% endif %}
                         </tr>
                         </thead>
 
                         <tbody>
+                        {% for reviewer in past_reviewers %}
+                            <tr>
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
+                            </tr>
+                        {% endfor %}
                         {% for reviewer in suggested_reviewers %}
                             <tr class="green">
-                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
                             </tr>
                         {% endfor %}
                         {% for reviewer in reviewers %}
-                            {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers and reviewer not in past_reviewers %}
+                            {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
                             <tr>
-                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
                             </tr>
                             {% endif %}
                         {% empty %}

@@ -77,15 +77,22 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     return reviewers
 
 
-def get_reviewer_candidates(article, user=None):
+def get_reviewer_candidates(article, user=None, reviewers_to_exclude=None):
     """ Builds a queryset of candidates for peer review for the given article
     :param article: an instance of submission.models.Article
     :param user: The user requesting candidates who would be filtered out
+    :param reviewers_to_exclude: queryset of Account objects
     """
     review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
     reviewer_pks_to_exclude = [review.reviewer.pk for review in review_assignments]
     if user:
         reviewer_pks_to_exclude.append(user.pk)
+
+    if reviewers_to_exclude:
+        for reviewer in reviewers_to_exclude:
+            reviewer_pks_to_exclude.append(
+                reviewer.pk,
+            )
 
     return get_reviewers(
         article,
