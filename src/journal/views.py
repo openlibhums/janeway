@@ -19,6 +19,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.management import call_command
@@ -30,6 +31,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
     forms as core_forms,
+    views as core_views,
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
@@ -172,7 +174,9 @@ def funder_articles(request, funder_id):
 @has_journal
 @decorators.frontend_enabled
 def articles(request):
-    """ Renders the list of articles in the journal.
+    """
+    Deprecated in version 1.5.1. Use PublishedArticlesListView.
+    Renders the list of articles in the journal.
 
     :param request: the request associated with this call
     :return: a rendered template of all articles
@@ -2567,3 +2571,71 @@ def manage_languages(request):
         context,
     )
 
+
+@method_decorator(has_journal, name='dispatch')
+@method_decorator(decorators.frontend_enabled, name='dispatch')
+class PublishedArticlesListView(core_views.FilteredArticlesListView):
+
+    """
+    A list of published articles that can be searched,
+    sorted, and filtered
+    """
+
+    template_name = 'journal/article_list.html'
+
+    def get_queryset(self, params_querydict=None):
+
+        self.queryset = super().get_queryset(params_querydict)
+        return self.queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=submission_models.STAGE_PUBLISHED,
+        )
+
+    def get_facets(self):
+
+        facets = {
+            'date_published__date__gte': {
+                'type': 'date',
+                'field_label': _('Published after'),
+            },
+            'date_published__date__lte': {
+                'type': 'date',
+                'field_label': _('Published before'),
+            },
+            'section__pk': {
+                'type': 'foreign_key',
+                'model': submission_models.Section,
+                'field_label': _('Section'),
+                'choice_label_field': 'name',
+            },
+        }
+        return self.filter_facets_if_journal(facets)
+
+    def get_facet_queryset(self):
+        queryset = super().get_facet_queryset()
+        return queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=submission_models.STAGE_PUBLISHED,
+        )
+
+    def get_order_by_choices(self):
+        return [
+            ('title', _('Titles A-Z')),
+            ('-title', _('Titles Z-A')),
+            ('-date_published', _('Newest')),
+            ('date_published', _('Oldest')),
+            ('correspondence_author__last_name', _('Author Name')),
+            ('primary_issue__volume', _('Volume')),
+        ]
+
+    def order_queryset(self, queryset):
+        order_by = self.get_order_by()
+        if order_by:
+            return queryset.order_by('pinnedarticle__sequence', order_by)
+        else:
+            return queryset.order_by('pinnedarticle__sequence')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = forms.SearchForm()
+        return context

@@ -2310,7 +2310,7 @@ class FilteredArticlesListView(generic.ListView):
         initial = dict(params_querydict.lists())
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] == 'date_time':
+                if facets[keyword]['type'] in ['date_time', 'date']:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2330,6 +2330,8 @@ class FilteredArticlesListView(generic.ListView):
             'doi_manager_action_maximum_size',
             self.request.journal if self.request.journal else None,
         ).processed_value
+        context['order_by'] = params_querydict.get('order_by', self.get_order_by())
+        context['order_by_choices'] = self.get_order_by_choices()
         return context
 
     def get_queryset(self, params_querydict=None):
@@ -2339,6 +2341,9 @@ class FilteredArticlesListView(generic.ListView):
         # Clear any previous action status and error
         params_querydict.pop('action_status', '')
         params_querydict.pop('action_error', False)
+
+        # Clear order_by, since it is handled separately
+        params_querydict.pop('order_by', '')
 
         self.queryset = super().get_queryset()
         q_stack = []
@@ -2351,8 +2356,8 @@ class FilteredArticlesListView(generic.ListView):
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
-                elif facets[keyword]['type'] != 'date_time':
-                    if value_list[0] == '' and facets[keyword]['type'] != 'date_time':
+                elif facets[keyword]['type'] not in ['date_time', 'date']:
+                    if value_list[0] == '':
                         predicates = [(keyword, '')]
                     else:
                         predicates = [(keyword+'__isnull', True)]
@@ -2371,9 +2376,26 @@ class FilteredArticlesListView(generic.ListView):
         )
 
     def order_queryset(self, queryset):
-        return queryset.order_by('title')
+        order_by = self.get_order_by()
+        if order_by:
+            return queryset.order_by(order_by)
+        else:
+            return queryset
+
+    def get_order_by(self):
+        order_by = self.request.GET.get('order_by', '')
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ''
+
+    def get_order_by_choices(self):
+        """ Subclass must implement to allow ordering result set
+        :return: A list of 2-item tuples compatible with Django choices
+            eg: [("choice_a", "Choice A"), ("choice_b", "Choice B")]
+        """
+        return []
 
     def get_facets(self):
+        """ Subclass must implement to declare available facets"""
         facets = {}
         return self.filter_facets_if_journal(facets)
 
@@ -2442,7 +2464,6 @@ class FilteredArticlesListView(generic.ListView):
             return querysets
         else:
             return [queryset]
-
 
     def filter_queryset_if_journal(self, queryset):
         if self.request.journal:
