@@ -259,6 +259,13 @@ REVIEW_STAGES = {
     STAGE_ACCEPTED,
 }
 
+# Stages used to determine if a review assignment is open
+REVIEW_ACCESSIBLE_STAGES = {
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
+    STAGE_UNDER_REVISION
+}
+
 COPYEDITING_STAGES = {
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
@@ -1465,6 +1472,11 @@ class Article(AbstractLastModifiedModel):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
+
+        # Frozen author records should be updated at acceptance,
+        # so we fire the default force_update=True on snapshot_authors
+        self.snapshot_authors()
+
         self.date_accepted = timezone.now()
         self.date_declined = None
 

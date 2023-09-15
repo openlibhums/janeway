@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load hooks %}
 {% load i18n %}
+{% load foundation %}
 
 {% hook 'filter_search' %}
 
@@ -33,7 +34,32 @@
                         <div class="form-group">
                             {% if not keyword %}
                                 {% include 'elements/forms/errors.html'  with form=form%}
-                                {{ form.as_p }}
+                                {{ form.article_search|foundation }}
+                                <div>
+                                    {{ form.title }}
+                                    {{ form.title.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.abstract }}
+                                    {{ form.abstract.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.authors }}
+                                    {{ form.authors.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.keywords }}
+                                    {{ form.keywords.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.full_text }}
+                                    {{ form.full_text.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.orcid }}
+                                    {{ form.orcid.label_tag }}
+                                </div>
+                                {{ form.sort|foundation }}
                             {% else %}
                                 You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
                             {% endif %}

@@ -813,14 +813,14 @@ def do_review(request, assignment_id):
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.REVIEW_ACCESSIBLE_STAGES) &
             Q(access_code=access_code)
         )
     else:
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.REVIEW_ACCESSIBLE_STAGES) &
             Q(reviewer=request.user)
         )
 
@@ -830,6 +830,11 @@ def do_review(request, assignment_id):
     open_review_initial = setting_handler.get_setting(
         'general',
         'open_review_default_opt_in',
+        request.journal,
+    ).processed_value
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
         request.journal,
     ).processed_value
 
@@ -845,6 +850,7 @@ def do_review(request, assignment_id):
         instance=assignment,
         decision_required=decision_required,
         open_review_initial=open_review_initial,
+        recommendation_disabled=recommendation_disabled,
     )
 
     if 'review_file' in request.GET:
@@ -890,6 +896,7 @@ def do_review(request, assignment_id):
             request.POST,
             instance=assignment,
             decision_required=decision_required,
+            recommendation_disabled=recommendation_disabled,
         )
 
         if form.is_valid() and decision_form.is_valid():
@@ -1535,7 +1542,6 @@ def review_decision(request, article_id, decision):
 
         if decision == 'accept':
             article.accept_article()
-            article.snapshot_authors(article, force_update=False)
             try:
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_ARTICLE_ACCEPTED,
@@ -2489,7 +2495,14 @@ def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
-    decision_form = forms.FakeReviewerDecisionForm()
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
+        request.journal,
+    ).processed_value
+    decision_form = forms.FakeReviewerDecisionForm(
+        recommendation_disabled=recommendation_disabled,
+    )
 
     template = 'review/manager/preview_form.html'
     context = {
@@ -2715,7 +2728,6 @@ def upload_reviewers_from_csv(request, article_id):
         context,
     )
 
-
 @editor_user_required
 @setting_is_enabled(
     setting_name='enable_share_reviews_decision',
@@ -2876,4 +2888,3 @@ def reviewer_shared_review_download(request, article_id, review_id):
     raise Http404(
         'You do not have permission to download this file.'
     )
-

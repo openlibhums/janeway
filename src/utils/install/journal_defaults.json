@@ -2054,10 +2054,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonimity drop down when creating a review assignment.",
+            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
             "is_translatable": false,
             "name": "default_review_visibility",
-            "pretty_name": "Default Review Anonimity",
+            "pretty_name": "Default Review Anonymity",
             "type": "select"
         },
         "value": {
@@ -2192,25 +2192,6 @@
             "name": "press_journal_description",
             "pretty_name": "Journal Description for Press Site",
             "type": "rich-text"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
-            "description": "Enables the CI submission field.",
-            "is_translatable": false,
-            "name": "submission_competing_interests",
-            "pretty_name": "Competing Interests",
-            "type": "boolean"
         },
         "value": {
             "default": ""
@@ -4932,6 +4913,42 @@
         "editable_by": [
             "journal-manager",
             "editor"
+      },
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent editors when an author completes a revision request.",
+            "is_translatable": true,
+            "name": "revisions_complete_editor_notification",
+            "pretty_name": "Revisions Complete Editor Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>{{ revision.article.correspondence_author.full_name }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Editor Notification.",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_editor_notification",
+            "pretty_name": "Subject for Revisions Complete Editor Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
         ]
     }
 ]

@@ -47,11 +47,6 @@ ifdef VERBOSE
 endif
 
 # Email
-JANEWAY_EMAIL_BACKEND=''
-JANEWAY_EMAIL_HOST=''
-JANEWAY_EMAIL_PORT=''
-JANEWAY_EMAIL_USE_TLS=0
-
 ifdef DEBUG_SMTP
 	JANEWAY_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 	JANEWAY_EMAIL_HOST=janeway-debug-smtp

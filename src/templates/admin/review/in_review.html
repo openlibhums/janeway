@@ -63,7 +63,7 @@
                                             <a href="{% url 'review_add_files' article.id round.id %}" class="button">Add
                                                 Files</a>{% endif %}
                                     </div>
-                                    <div class="row" data-equalizer data-equalize-on="medium">
+                                    <div class="row expanded" data-equalizer data-equalize-on="medium">
                                         <p>
                                             {% blocktrans %}
                                             These files are the versions sent out to reviewers in Round {{ round.round_number }} of review.
@@ -96,7 +96,7 @@
                                                 </div>
                                             </div>
                                         {% empty %}
-                                            <div class="large-3 columns{% if forloop.last %} end{% endif %}">
+                                            <div class="large-3 columns end">
                                                 <div class="callout breakdown file" data-equalizer-watch>
                                                     <div class="callout-title">
                                                         <h4>No Review Files</h4>

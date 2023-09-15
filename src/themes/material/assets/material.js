@@ -16,18 +16,17 @@ function table_downloads() {
 
 
 $( document ).ready(function(){
-    $(".button-collapse").sideNav();
-    $('select').material_select();
-    $('.modal').modal();
     figure_downloads();
     table_downloads();
 })
 
 var $root = $('html, body');
 
-$('a[href^="#"]').click(function() {
+$('a[href^="#"]:not(a[href$="!"])').click(function() {
+  // The jquery selector needs to exclude href="#!"
+  // or the event listener will interefere with the sidenav trigger
     var href = $.attr(this, 'href');
-    if (href && href != "#!") {
+    if (href) {
 
         $root.animate({
             scrollTop: $(href).offset().top

@@ -20,7 +20,7 @@ def news(request):
     :return: HttpResponse object
     """
     new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
+                                               object_id=request.site_type.pk).order_by("sequence", "-start_display")
     form = forms.NewsItemForm()
     new_file = None
 
