@@ -698,7 +698,7 @@ class SubmissionTests(TestCase):
         )
         self.assertContains(
             response,
-            self.section_2.editor_display_name(),
+            self.section_2.display_name_public_submission(),
         )
 
     def test_author_doesnt_see_non_public_section(self):
@@ -725,7 +725,7 @@ class SubmissionTests(TestCase):
         )
         self.assertNotContains(
             response,
-            self.section_2.editor_display_name(),
+            self.section_2.display_name_public_submission(),
         )
 
 
