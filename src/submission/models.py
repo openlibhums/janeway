@@ -34,6 +34,7 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django_countries.fields import CountryField
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -1902,11 +1903,9 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     " for the account will be populated instead."
                    ),
     )
-    country = models.ForeignKey(
-        'core.Country',
+    country = CountryField(
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
     )
 
     order = models.PositiveIntegerField(default=1)
