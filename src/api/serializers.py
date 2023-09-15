@@ -3,6 +3,7 @@ from rest_framework import serializers
 from core import models as core_models
 from journal import models as journal_models
 from submission import models as submission_models
+from repository import models as repository_models
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -67,7 +68,23 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         many=True
     )
 
+class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
 
+    class Meta:
+        model = repository_models.Subject
+        fields = ('name',)
+
+class PreprintFileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = repository_models.PreprintFile
+        fields = ('original_filename', 'mime_type', 'download_url',)
+
+class PreprintSupplementaryFileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = repository_models.PreprintSupplementaryFile
+        fields = ('url', 'label',)
 class IssueSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -112,6 +129,14 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
             'salutation', 'orcid', 'is_active',
         )
 
+class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = core_models.Account
+        fields = (
+            'pk', 'first_name', 'middle_name', 'last_name',
+            'salutation', 'orcid',
+        )
 
 class AccountRoleSerializer(serializers.ModelSerializer):
 
@@ -119,6 +144,52 @@ class AccountRoleSerializer(serializers.ModelSerializer):
         model = core_models.AccountRole
         fields = ('pk', 'journal', 'user', 'role')
 
+    def create(self, validated_data):
+        role = validated_data.get("role")
+
+        if role.slug == 'reader':
+            raise serializers.ValidationError({"role": "You cannot add a user as a reader via the API."})
+        else:
+            account_role = core_models.AccountRole.objects.create(**validated_data)
+            return account_role
+
+class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.RepositoryFieldAnswer
+        fields = ['pk', 'answer']
+
+class PreprintSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = repository_models.Preprint
+        fields = ('pk', 'title', 'abstract', 'license', 'keywords', 
+                  'date_submitted', 'date_accepted', 'date_published',
+                  'doi', 'preprint_doi', 'authors', 'subject', 'files', 'supplementary_files')
+        depth = 2
+
+    authors = PreprintAccountSerializer(
+        many=True,
+        read_only=True,
+    )
+    license = LicenceSerializer()
+    keywords = KeywordsSerializer(
+        many=True,
+        read_only=True,
+    )
+    subject = PreprintSubjectSerializer(
+        many=True,
+        read_only=True,
+    )
+    files = PreprintFileSerializer(
+        source="preprintfile_set",
+        many=True,
+        read_only=True,
+    )
+    supplementary_files = PreprintSupplementaryFileSerializer(
+        source="preprintsupplementaryfile_set",
+        many=True,
+        read_only=True,
+    )
     def validate(self, data):
         request = self.context.get('request', None)
         role = data.get("role")
