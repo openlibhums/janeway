@@ -2388,15 +2388,14 @@ class FilteredArticlesListView(generic.ListView):
         return order_by if order_by in dict(order_by_choices) else ''
 
     def get_order_by_choices(self):
-        """
-        Implemented by suclass
+        """ Subclass must implement to allow ordering result set
+        :return: A list of 2-item tuples compatible with Django choices
+            eg: [("choice_a", "Choice A"), ("choice_b", "Choice B")]
         """
         return []
 
     def get_facets(self):
-        """
-        Implemented by subclass
-        """
+        """ Subclass must implement to declare available facets"""
         facets = {}
         return self.filter_facets_if_journal(facets)
 
