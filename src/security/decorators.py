@@ -511,8 +511,6 @@ def reviewer_user_for_assignment_required(func):
         access_code = reviewer_logic.get_access_code(request)
         assignment_id = kwargs['assignment_id']
 
-        print(access_code, assignment_id)
-
         if not access_code:
             check = base_check(request, login_redirect=True)
             if check is False:
