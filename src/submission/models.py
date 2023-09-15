@@ -2109,7 +2109,7 @@ class Section(AbstractLastModifiedModel):
             return self.name
         return f"Unnamed Section {self.pk}"
 
-    def editor_display_name(self):
+    def display_name_public_submission(self):
         """
         Returns a display name that informs the user if the section is
         close for submission.
