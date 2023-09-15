@@ -1714,7 +1714,7 @@ class Article(AbstractLastModifiedModel):
             journal_elements = list(self.journal.workflow().elements.all())
             i = journal_elements.index(current_workflow_element)
             return journal_elements[i+1]
-        except IndexError:
+        except (IndexError, ValueError):
             return 'No next workflow stage found'
 
     @cache(600)
