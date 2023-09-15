@@ -14,6 +14,7 @@
                                  alt="{{ request.press.name }}">
             {% endif %}
         </a>
+        {{ request.press.live_repositories }}
         <ul class="right hide-on-med-and-down">
             <li><a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}

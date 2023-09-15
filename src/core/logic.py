@@ -396,6 +396,22 @@ def get_settings_to_edit(display_group, journal, user):
                 'name': 'disable_reviewer_recommendation',
                 'object': setting_handler.get_setting('general', 'disable_reviewer_recommendation', journal),
             },
+            {
+                'name': 'enable_share_reviews_decision',
+                'object': setting_handler.get_setting('general', 'enable_share_reviews_decision', journal),
+            },
+            {
+                'name': 'display_completed_reviews_in_additional_rounds',
+                'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds', journal),
+            },
+            {
+                'name': 'share_author_response_letters',
+                'object': setting_handler.get_setting('general', 'share_author_response_letters', journal),
+            },
+            {
+                'name': 'display_completed_reviews_in_additional_rounds_text',
+                'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds_text', journal),
+            },
         ]
         setting_group = 'general'
 

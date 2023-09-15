@@ -32,7 +32,8 @@ from security.decorators import (
     file_user_required, article_decision_not_made, article_author_required,
     editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required,
-    any_editor_user_required
+    any_editor_user_required, setting_is_enabled,
+    user_has_completed_review_for_article
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
@@ -1858,7 +1859,13 @@ def do_revisions(request, article_id, revision_id):
     revision_files = logic.group_files(revision_request.article, reviews)
 
     if request.POST:
-
+        post_redirect = reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article_id,
+                'revision_id': revision_id
+            }
+        )
         if 'delete' in request.POST:
             file_id = request.POST.get('delete')
             file = get_object_or_404(core_models.File, pk=file_id)
@@ -1871,35 +1878,21 @@ def do_revisions(request, article_id, revision_id):
                 request.user,
                 revision_request,
             )
-            return redirect(
-                reverse(
-                    'do_revisions',
-                    kwargs={
-                        'article_id': article_id,
-                        'revision_id': revision_id
-                    }
-                )
-            )
+            return redirect(post_redirect)
 
         elif 'save' in request.POST:
-            covering_letter = request.POST.get('author_note')
-            revision_request.author_note = covering_letter
-            revision_request.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Thanks. Your covering letter has been saved.',
+            form = forms.DoRevisions(
+                request.POST,
+                instance=revision_request
             )
-            return redirect(
-                reverse(
-                    'do_revisions',
-                    kwargs={
-                        'article_id': article_id,
-                        'revision_id': revision_id
-                    }
+            if form.is_valid():
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Thanks. Your covering letter has been saved.',
                 )
-            )
-
+                return redirect(post_redirect)
         else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
@@ -1909,23 +1902,20 @@ def do_revisions(request, article_id, revision_id):
                 )
             if form.is_valid() and form.is_confirmed():
                 form.save()
-
                 kwargs = {
                     'revision': revision_request,
                     'request': request,
                 }
-
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_REVISIONS_COMPLETE,
                     **kwargs
                 )
-
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Thank you for submitting your revisions. The Editor has been notified.',
+                    'Thank you for submitting your revisions. '
+                    'The Editor has been notified.',
                 )
-
                 revision_request.date_completed = timezone.now()
                 revision_request.save()
                 return redirect(reverse('core_dashboard'))
@@ -2736,4 +2726,165 @@ def upload_reviewers_from_csv(request, article_id):
         request,
         template,
         context,
+    )
+
+@editor_user_required
+@setting_is_enabled(
+    setting_name='enable_share_reviews_decision',
+    setting_group_name='general',
+)
+def editor_share_reviews(request, article_id):
+    """
+    Allows an editor to share current reviews amongst the assigned reviewers.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    reviews = article.completed_reviews_with_decision
+    distinct_reviewers = reviews.distinct('reviewer')
+
+    for review in distinct_reviewers:
+        review.email_content = logic.get_share_review_content(
+            request,
+            article,
+            review,
+        )
+    form = forms.ShareReviewsForm(
+        reviews=distinct_reviewers,
+    )
+
+    if request.POST:
+        form = forms.ShareReviewsForm(
+            request.POST,
+            reviews=distinct_reviewers,
+        )
+        if form.is_valid():
+            article.mark_reviews_shared()
+            logic.send_review_share_message(
+                request,
+                article,
+                request.journal.get_setting(
+                    'email_subject',
+                    'subject_share_reviews_notification',
+                ),
+                form.cleaned_data,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Reviews shared with reviewers.'
+            )
+            return redirect(
+                reverse(
+                    'decision_helper',
+                    kwargs={
+                        'article_id': article.pk,
+                    }
+                )
+            )
+
+    template = 'review/share/editor.html'
+    context = {
+        'article': article,
+        'reviews': reviews,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@user_has_completed_review_for_article
+@setting_is_enabled(
+    setting_name='enable_share_reviews_decision',
+    setting_group_name='general',
+)
+def reviewer_share_reviews(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        reviews_shared=True,
+    )
+    reviews = article.completed_reviews_with_decision
+    template = 'review/share/reviewer.html'
+    context = {
+        'article': article,
+        'reviews': reviews,
+        'shared_reviews': True,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@reviewer_user_required
+def reviewer_shared_review_download(request, article_id, review_id):
+    """
+    Returns a file if the user is a legitimate reviewer and the review has
+    a file.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    review_assignment = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article=article,
+    )
+
+    # There are two possible routes that could mark the user as legitimate.
+    # 1. Auto sharing of reviews is enabled and the current user is a
+    # reviewer in the current review round.
+    # 2. The share reviews decision is enabled, this article has been shared
+    # and the current user has completed a review for the article.
+
+    # Route 1
+    if request.journal.get_setting(
+        'general',
+        'display_completed_reviews_in_additional_rounds',
+    ):
+        # Fetch all the users who have an active review assignment in the
+        # article's current round.
+        current_round_reviewers = [
+            review.reviewer for review in
+            models.ReviewAssignment.objects.filter(
+                article=article,
+                review_round=article.current_review_round_object(),
+                date_complete__isnull=True,
+                is_complete=False,
+            )]
+
+        # If the current user is in the list, serve the file.
+        if request.user in current_round_reviewers:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    # Route 2
+    if article.reviews_shared:
+        # Fetch all reviewers who have completed a review.
+        reviewers_with_complete_review = [
+            review.reviewer for review in
+            article.completed_reviews_with_decision
+        ]
+        if request.user in reviewers_with_complete_review:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    raise Http404(
+        'You do not have permission to download this file.'
     )

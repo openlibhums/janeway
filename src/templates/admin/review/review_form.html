@@ -36,33 +36,50 @@
                     {% include "admin/elements/review/review_meta_block.html" with review_request=assignment %}
                 </div>
                 <div class="title-area">
-                    <h2>Decline this Review</h2>
+                    <h2>Accept or Decline this Review</h2>
                 </div>
                 <div class="content">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <p>
-                        {% if assignment.date_accepted %}
-                            <small>You have agreed to undertake this review. If you are no longer able, please click the
-                                decline button below to notify the Editor.
-                            </small>
-                        {% else %}
-                            <small>Please let us know if you intend to complete this review.</small>
-                        {% endif %}
+                            {% if assignment.date_accepted %}
+                                <small>
+                                    You have agreed to undertake this review. If you are no longer able, please click
+                                    the decline button below to notify the Editor.
+                                </small>
+                            {% else %}
+                                <small>Please let us know if you intend to complete this review.</small>
+                            {% endif %}
                         </p>
                         <br/>
                         <small>
+                            {% if not assignment.date_accepted %}
+                                <button class="button success" type="submit" id="accept" name="accept">
+                                    Agree to perform review
+                                </button>
+                            {% endif %}
                             <button class="button alert" type="submit" id="decline" name="decline">Decline to perform
                                 review
                             </button>
-                            {% if not assignment.date_accepted %}
-                                <button class="button success" type="submit" id="accept" name="accept">Agree to perform
-                                    review
-                                </button>
-                            {% endif %}
                         </small>
                     </form>
                 </div>
+                {% if journal_settings.general.display_completed_reviews_in_additional_rounds and assignment.article.completed_reviews_with_decision_previous_rounds %}
+                    <div class="title-area"><h2>Completed Reviews</h2></div>
+                    <div class="content">
+                        {{ journal_settings.general.display_completed_reviews_in_additional_rounds_text|safe }}
+                        {% include "admin/elements/review/view_reviews.html" with reviews=assignment.article.completed_reviews_with_decision_previous_rounds %}
+                    </div>
+                    {% if journal_settings.general.share_author_response_letters and assignment.article.completed_revision_requests %}
+                        <div class="title-area">
+                            <h2>Revision Response Letters</h2>
+                        </div>
+                        <div class="content">
+                            {% include "admin/elements/review/revision_responses.html" with article=assignment.article %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
             </div>
             <div class="box">
                 <div class="title-area">
