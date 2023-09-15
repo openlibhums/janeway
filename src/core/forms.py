@@ -19,13 +19,9 @@ from core import models, validators
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm, HTMLDateInput
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm
 from utils.logger import get_logger
 from submission import models as submission_models
-
-# This will set is_checkbox attribute to True for checkboxes.
-# Usage:  {% if field.field.is_checkbox %}
-setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
 
 logger = get_logger(__name__)
 
@@ -410,6 +406,13 @@ class NotificationForm(forms.ModelForm):
     class Meta:
         model = journal_models.Notifications
         exclude = ('journal',)
+        widgets = {
+            'active': forms.CheckboxInput(
+                attrs={
+                    'is_checkbox': True,
+                }
+            ),
+        }
 
 
 class ArticleMetaImageForm(forms.ModelForm):
@@ -617,11 +620,20 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
-            # To do:
             elif facet['type'] == 'date_time':
                 self.fields[facet_key] = forms.DateTimeField(
-                    widget=HTMLDateInput(),
                     required=False,
+                    widget=forms.DateTimeInput(
+                        attrs={'type': 'datetime-local'}
+                    ),
+                )
+
+            elif facet['type'] == 'date':
+                self.fields[facet_key] = forms.DateField(
+                    required=False,
+                    widget=forms.DateInput(
+                        attrs={'type': 'date'}
+                    ),
                 )
 
             elif facet['type'] == 'boolean':

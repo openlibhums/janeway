@@ -25,6 +25,9 @@ from django.contrib import messages
 
 from core import plugin_installed_apps
 
+# X_FRAME_OPTIONS must be set to SAMEORIGIN or the embedded PDF viewer will not work
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
@@ -93,7 +96,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
+    'materializecssform',
     'captcha',
     'simplemathcaptcha',
     'hijack',
@@ -372,8 +375,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = os.environ.get(
-    'JANEWAY_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend',
-)
+    'JANEWAY_EMAIL_BACKEND',
+) or 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
 EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
 EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')
@@ -511,7 +514,6 @@ if ENABLE_OIDC:
         'django.contrib.auth.backends.ModelBackend',
     )
 
-    
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
     CORE_FILETEXT_MODEL = "core.PGFileText"
@@ -524,6 +526,7 @@ CORE_THEMES = [
     'material',
     'clean',
 ]
+
 INSTALLATION_BASE_THEME = 'OLH'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -531,5 +534,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Use pagination for all of our APIs based on Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }

@@ -15,6 +15,7 @@ from django.template.defaultfilters import linebreaksbr
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
+from core.widgets import JanewayFileInput
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
@@ -177,25 +178,21 @@ class ReviewerDecisionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         decision_required = kwargs.pop("decision_required", False)
         open_review_initial = kwargs.pop("open_review_initial", False)
+        self.recommendation_disabled = kwargs.pop("recommendation_disabled", False)
         super().__init__(*args, **kwargs)
         self.fields['decision'].required = decision_required
         self.fields['decision'].choices = models.reviewer_decision_choices()
         self.fields['permission_to_make_public'].widget.attrs['checked'] = open_review_initial
 
         if self.instance:
-            self.disable_reviewer_decision = setting_handler.get_setting(
-                'general',
-                'disable_reviewer_recommendation',
-                self.instance.article.journal,
-            ).processed_value
-            if self.disable_reviewer_decision:
+            if self.recommendation_disabled:
                 del self.fields['decision']
 
     def save(self, commit=True):
         review_assignment = super().save(commit=False)
 
         # sets the decision to none, if decisions are disabled.
-        if self.disable_reviewer_decision:
+        if self.recommendation_disabled:
             review_assignment.decision = models.RD.DECISION_NO_RECOMMENDATION.value
 
         if commit:
@@ -283,9 +280,11 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
         model = models.RevisionRequest
         fields = (
             'author_note',
+            'response_letter',
         )
         widgets = {
             'author_note': SummernoteWidget(),
+            'response_letter': SummernoteWidget(),
         }
 
     def check_for_potential_errors(self):
@@ -294,6 +293,10 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
 
         if not self.cleaned_data.get('author_note', None):
             message = 'The Covering Letter field is empty.'
+            potential_errors.append(_(message))
+
+        if not self.cleaned_data.get('response_letter', None):
+            message = 'The Response Letter field is empty.'
             potential_errors.append(_(message))
 
         ms_files = self.instance.article.manuscript_files.all()
@@ -435,3 +438,16 @@ class AnswerVisibilityForm(forms.Form):
                 answer.save()
 
         return self.review_assignment.review_form_answers()
+
+
+class ShareReviewsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        reviews = kwargs.pop('reviews', None)
+        super(ShareReviewsForm, self).__init__(*args, **kwargs)
+
+        for review in reviews:
+            self.fields[f'{ review.pk }'] = forms.CharField(
+                widget=SummernoteWidget,
+                label=f'Email for {review.reviewer.full_name()}',
+                initial=review.email_content,
+            )

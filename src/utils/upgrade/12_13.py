@@ -13,7 +13,6 @@ SETTINGS_TO_CHANGE = [
     {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
     {'group': 'email', 'name': 'production_manager_notification', 'action': 'update'},
     {'group': 'email', 'name': 'review_complete_reviewer_acknowledgement', 'action': 'update'},
-    # {'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
 ]
 
 

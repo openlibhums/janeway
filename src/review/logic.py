@@ -242,6 +242,47 @@ def get_revision_request_content(request, article, revision, draft=False):
     return render_template.get_message_content(request, email_context, 'request_revisions')
 
 
+def get_share_review_content(request, article, review):
+    url = request.journal.site_url(
+        reverse(
+            'reviewer_share_reviews',
+            kwargs={'article_id': article.pk}
+        )
+    )
+    email_context = {
+        'article': article,
+        'review': review,
+        'url': url,
+    }
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        'share_reviews_notification',
+    )
+
+
+def send_review_share_message(request, article, subject, form_data):
+    for review_pk, email_content in form_data.items():
+        review = models.ReviewAssignment.objects.get(
+            pk=review_pk,
+            article__journal=article.journal,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            subject,
+            review.reviewer.email,
+            email_content,
+            log_dict={
+                'level': 'Info',
+                'action_text': f'Reviews link shared with {review.reviewer.full_name()}',
+                'types': 'Review Sharing',
+                'actor': request.user,
+                'target': article,
+            }
+        )
+
+
 def get_reviewer_from_post(request):
     reviewer_id = request.POST.get('reviewer')
 
@@ -733,3 +774,22 @@ def process_reviewer_csv(path, request, article, form):
         return [], e
 
 
+def handle_response_letter_upload(request, revision_request):
+    response_letter = request.FILES.get('response_letter')
+    if response_letter:
+        file = files.save_file_to_article(
+            response_letter,
+            revision_request.article,
+            owner=request.user,
+            label='Response Letter',
+        )
+        revision_request.response_letter = file
+        revision_request.save()
+        return file
+
+    messages.add_message(
+        request,
+        messages.WARNING,
+        'No response letter selected.',
+    )
+    return

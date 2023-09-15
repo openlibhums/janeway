@@ -435,3 +435,11 @@ header svg {
     margin-top: 30px;
 }
 
+.page-link,
+.page-link:hover {
+  color: #4F637D;
+}
+
+.page-item.active .page-link {
+  background-color: #4F637D;
+}

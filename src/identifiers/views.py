@@ -338,12 +338,12 @@ class IdentifierManager(core_views.FilteredArticlesListView):
         )
 
         facets = {
-            'date_published__gte': {
-                'type': 'date_time',
+            'date_published__date__gte': {
+                'type': 'date',
                 'field_label': 'Pub date from',
             },
-            'date_published__lte': {
-                'type': 'date_time',
+            'date_published__date__lte': {
+                'type': 'date',
                 'field_label': 'Pub date to',
             },
             'status': {

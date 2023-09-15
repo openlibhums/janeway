@@ -69,6 +69,29 @@ def save_source_file(article, request, uploaded_file):
     article.source_files.add(new_file)
 
 
+def get_galley_label_and_type(file):
+    """
+    Returns tuple with label and type calculated based on mime for a given
+    file eg ('HTML', 'html') or ('XML', 'xml') where a file mime doesn't match
+    a supported Janeway file type it returns ('Other', 'other').
+    """
+    label = 'Other'
+    type_ = 'other'
+    if file.mime_type in files.HTML_MIMETYPES:
+        type_ = 'html'
+        label = 'HTML'
+    elif file.mime_type in files.XML_MIMETYPES:
+        type_ = 'xml'
+        label = 'XML'
+    elif file.mime_type in files.PDF_MIMETYPES:
+        type_ = 'pdf'
+        label = 'PDF'
+    elif file.mime_type in files.IMAGE_MIMETYPES:
+        type_ = 'image'
+        label = 'Image'
+    return label, type_
+
+
 def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True, public=True):
     if isinstance(uploaded_file, str):
         mime = files.file_path_mime(uploaded_file)
@@ -90,13 +113,11 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
     new_file.save()
     article.save()
 
-    type_ = None
+    galley_label, galley_type = get_galley_label_and_type(new_file)
+    if label:
+        galley_label = label
 
     if new_file.mime_type in files.HTML_MIMETYPES:
-        type_ = 'html'
-        if not label:
-            label = 'HTML'
-
         with open(new_file.self_article_path(), 'r+', encoding="utf-8") as f:
             html_contents = f.read()
             f.seek(0)
@@ -104,30 +125,11 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
             f.write(cleaned_html)
             f.truncate()
 
-    elif new_file.mime_type in files.XML_MIMETYPES:
-        type_ = 'xml'
-        if not label:
-            label = 'XML'
-    elif new_file.mime_type in files.PDF_MIMETYPES:
-        type_ = 'pdf'
-        if not label:
-            label = 'PDF'
-
-    elif new_file.mime_type in files.IMAGE_MIMETYPES:
-        type_ = 'image'
-        if not label:
-            label = 'Image'
-
-    if not label:
-        label = 'Other'
-    if not type_:
-        type_ = 'other'
-
     new_galley = core_models.Galley.objects.create(
         article=article,
         file=new_file,
-        label=label,
-        type=type_,
+        label=galley_label,
+        type=galley_type,
         sequence=article.get_next_galley_sequence(),
         public=public,
     )
@@ -162,7 +164,6 @@ def remove_css_from_html(source_html):
 
 def replace_galley_file(article, request, galley, uploaded_file):
     if uploaded_file:
-
         files.overwrite_file(
             uploaded_file,
             galley.file,

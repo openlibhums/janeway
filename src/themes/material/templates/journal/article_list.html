@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load materializecss %}
+
+{% block title %}{% trans "Articles" %}{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row">
+            <div class="col s12">
+                <h1>{% trans "Articles" %}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 l8">
+                {% if article_list %}
+                    {% include "elements/sorting.html" with form_id=facet_form.id %}
+                {% endif %}
+                {% for article in article_list %}
+                    {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                    <div class="row">
+                        <div class="col s12">
+                            <strong>{% trans 'No articles to display.' %}</strong>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if article_list %}
+                    {% include "elements/pagination.html" with form_id=facet_form.id %}
+                {% endif %}
+            </div>
+            <aside class="col s12 l4">
+                <div class="card-panel">
+                    <div class="row">
+                        <form method="POST" action="{% url 'search' %}">
+                            {% csrf_token %}
+                            {% if not keyword %}
+                                {{ search_form.article_search|materializecss }}
+                            {% else %}
+                                <div class="col s12">
+                                    <p>
+                                        You are currently browsing by keyword.
+                                        <a href="{% url 'search' %}">
+                                            Search for an article.
+                                        </a>
+                                    </p>
+                                </div>
+                            {% endif %}
+                            <div
+                                hidden
+                                class="input-field">
+                                {{ search_form.sort|materializecss }}
+                            </div>
+                            <div class="col s12">
+                                <button name="submit" class="btn">
+                                    {% trans "Search" %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% include "elements/journal/article_list_filters.html" %}
+            </aside>
+        </div>
+    </section>
+{% endblock body %}
+
+{% block js %}
+  <script>
+    const pickers = document.querySelectorAll('.datepicker');
+    const options = {
+      format: 'yyyy-mm-dd',
+      showClearBtn: true,
+    }
+    window.M.Datepicker.init(pickers, options)
+
+  </script>
+{% endblock js %}
