@@ -15,7 +15,7 @@ import warnings
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import (
     connection,
     models,
@@ -858,8 +858,24 @@ class File(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
+    scrubs = models.OneToOneField(
+            # OnetoOneField only allows setting the on_delete policy for the
+            # explicit side of the relationship. We want the stored scrubbed to
+            # ON DELETE (of parent) CASCADE, but not the other way around.
+            "core.File", null=True, blank=True,
+            on_delete=models.CASCADE,
+            related_name="scrubbed",
+    )
+
     class Meta:
         ordering = ('sequence', 'pk')
+
+    def get_scrubbed(self):
+        """Another annoying method to avoid RelatedObjectDoesNotExist"""
+        try:
+            return self.scrubbed
+        except ObjectDoesNotExist:
+            return None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -929,12 +945,22 @@ class File(AbstractLastModifiedModel):
     def get_file(self, article):
         return files.get_file(self, article)
 
+    def get_article_file_handle(self, article):
+        return files.get_file_object(self, article)
+
     def get_file_path(self, article):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
+        return files.get_article_file_path(self, article)
 
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
+    def scrub_article_file(self):
+        return files.scrub_article_file(self)
+
+    def scrubbed_or_scrub(self):
+        if not self.get_scrubbed():
+            files.scrub_article_file(self)
+        return self.get_scrubbed()
 
     def next_history_seq(self):
         try:

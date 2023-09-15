@@ -829,16 +829,35 @@ def file_history(request, article_id, file_id):
     :return: a rendered template showing the file history
     """
 
-    if request.POST:
-        return redirect(request.GET['return'])
 
     article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
+    file_metadata = files.get_article_file_metadata(file_object)
+
+    if request.POST:
+        if "scrub" in request.POST:
+            scrubbed = files.scrub_article_file(file_object)
+            if not scrubbed:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _(
+                        'This feature has not been configured, speak to your '
+                        'site administrator to enable it'
+                    )
+                )
+            else:
+                messages.add_message(
+                    request, messages.SUCCESS,
+                    _('File metadata scrubbed successfully')
+                )
+        else:
+            return redirect(request.GET['return'])
 
     template = "journal/file_history.html"
     context = {
         'article': article_object,
         'file': file_object,
+        'file_metadata': file_metadata,
     }
 
     return render(request, template, context)
