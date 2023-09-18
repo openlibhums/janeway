@@ -2286,8 +2286,14 @@ def manage_access_requests(request):
     )
 
 
-@method_decorator(staff_member_required, name='dispatch')
 class FilteredArticlesListView(generic.ListView):
+    """
+    This is a base class for article list views.
+    It does not have access controls applied because some public views use it.
+    For staff views, be sure to filter to published articles in get_queryset.
+    Do not use this view directly.
+    """
+
     model = submission_models.Article
     template_name = 'core/manager/article_list.html'
     paginate_by = '25'
