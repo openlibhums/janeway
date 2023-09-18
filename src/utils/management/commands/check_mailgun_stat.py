@@ -1,11 +1,10 @@
 import requests
-from pprint import pprint
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from utils import models
+from utils import models, logic
 from submission import models as submission_models
 
 
@@ -79,10 +78,11 @@ class Command(BaseCommand):
                 if 'delivered' in events:
                     log.message_status = 'delivered'
                     log.status_checks_complete = True
-                elif 'failed' in events:
+                elif 'failed' in events or 'bounced' in events:
                     if check_for_perm_failure(event_dict, log):
                         log.message_status = 'failed'
                         log.status_checks_complete = True
+                        logic.send_bounce_notification_to_event_actor(log)
                     else:
                         log.message_status = 'accepted'
 

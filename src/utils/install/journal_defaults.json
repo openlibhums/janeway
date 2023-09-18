@@ -4782,7 +4782,7 @@
         "editable_by": [
             "journal-manager"
         ]
-    },
+    },  
     {
         "group": {
             "name": "general"
@@ -4970,6 +4970,44 @@
         "editable_by": [
             "editor",
             "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when an outgoing email bounces.",
+            "is_translatable": true,
+            "name": "bounced_email_notification",
+            "pretty_name": "Bounced Email Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>An email sent to {% for email in event.to %}{{ email }}{% if not forloop.last %}, {% endif %}{% endfor %} has not been delivered.{% if target %} This message was in regards to {{ event.content_type.model }} #{{ target.pk }} \"{{ target.title|safe }}\".{% endif %}</p><p>Kind Regards,</p>"
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Subject for Bounced Email Notification.",
+            "is_translatable": true,
+            "name": "subject_bounced_email_notification",
+            "pretty_name": "Subject Bounced Email Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Email Bounced"
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
         ]
     }
 ]
