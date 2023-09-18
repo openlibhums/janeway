@@ -4930,9 +4930,11 @@
             "default": ""
         },
         "editable_by": [
-            "journal-manager",
-            "editor"
-      },
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
         "group": {
             "name": "email"
         },
