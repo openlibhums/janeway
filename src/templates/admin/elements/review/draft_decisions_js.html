@@ -1,3 +1,51 @@
+{% load foundation %}
+
+<div
+    class="reveal small-4"
+    id="confirm_switch_email_template"
+    data-reveal
+    data-animation-in="slide-in-up"
+    data-animation-out="slide-out-down"
+    data-close-on-esc=false
+    data-close-on-click=false>
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% trans "Confirmation" %}</h4>
+        </div>
+        <div class="card-section">
+            <div class="callout bs-callout-warning">
+                <p><span class="fa fa-warning">&nbsp;</span>The 'Draft Email to Author' field needs to be reloaded to match the chosen decision. This will overwrite any edits made to that field. OK?</p>
+            </div>
+        </div>
+        <div class="card-section">
+            <div class="button-group expanded">
+                <button
+                    class="success button"
+                    onclick="update_decision()"
+                    data-close
+                    type="button">
+                    {% trans "Yes" %}
+                </button>
+                <button
+                    class="alert button"
+                    onclick="restore_previous_decision()"
+                    data-close
+                    type="button">
+                    {% trans "No, go back" %}
+                </button>
+            </div>
+        </div>
+    </div>
+    <button
+        class="close-button"
+        onclick="restore_previous_decision()"
+        data-close
+        aria-label="Close reveal"
+        type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
 <script>
     {% if not draft %}
     function get_decision_text(selector, date) {
@@ -13,25 +61,42 @@
                 "data": data,
                 "success": function (data) {
                     $("#id_email_message").jqteVal(data.decision_text)
-                    toastr.success('Text updated.')
+                    toastr.success('Draft Email to Author reloaded.')
                 },
                 "error": function (xhr, status, error) {
-                    console.log(error)
                     toastr.error("Error.")
                 },
             }
         )
     }
-    function decision_change() {
+    let previous_decision;
+    function store_previous_decision() {
+        previous_decision = $('#id_decision').val();
+    }
+    function restore_previous_decision() {
+        $('#id_decision').val(previous_decision);
+    }
+    function update_decision() {
         decision_selector = $('#id_decision');
         date = $('#id_revision_request_due_date').val();
 
-        if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
+        if (decision_selector.val() === '') {
+            $("#id_email_message").jqteVal('')
+        } else if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
             $('#div_due_date').show();
             get_decision_text(decision_selector, date)
         } else {
             $('#div_due_date').hide();
             get_decision_text(decision_selector, null)
+        }
+    }
+    function decision_change() {
+
+        if ($('#id_email_message').val()) {
+            $('#confirm_switch_email_template').foundation();
+            $('#confirm_switch_email_template').foundation('open');
+        } else {
+            update_decision();
         }
 
     }

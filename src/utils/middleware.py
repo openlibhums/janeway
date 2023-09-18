@@ -27,7 +27,9 @@ class BaseMiddleware():
         """
 
         if hasattr(self, 'process_request'):
-            self.process_request(request)
+            response = self.process_request(request)
+            if response is not None:
+                return response
 
         response = self.get_response(request)
 

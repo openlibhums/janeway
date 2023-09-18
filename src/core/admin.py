@@ -124,11 +124,6 @@ class SettingValueAdmin(admin.ModelAdmin):
         return obj.setting.name if obj else ''
 
 
-class CountryAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name')
-    search_fields = ('code', 'name')
-
-
 class HomepageElementAdmin(admin.ModelAdmin):
     """Displays Setting objects in the Django admin interface."""
     list_display = ('name', 'active', 'object', 'sequence', 'configure_url',
@@ -151,8 +146,7 @@ class FileAdmin(admin.ModelAdmin):
     search_fields = ('original_filename', 'article_id', 'label',
                      'description', 'owner__email', 'owner__first_name',
                      'owner__last_name')
-    raw_id_fields = ('owner',)
-    filter_horizontal = ('history',)
+    raw_id_fields = ('owner', 'history')
     readonly_fields = ['article_id']
 
     def article_pk(self, obj):
@@ -408,7 +402,6 @@ admin_list = [
     (models.PasswordResetToken, PasswordResetAdmin),
     (models.OrcidToken, OrcidTokenAdmin),
     (models.DomainAlias, DomainAliasAdmin),
-    (models.Country, CountryAdmin),
     (models.WorkflowElement, WorkflowElementAdmin),
     (models.HomepageElement, HomepageElementAdmin),
     (models.Workflow, WorkflowAdmin),

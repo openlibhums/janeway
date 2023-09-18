@@ -3,9 +3,11 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import csv
 from datetime import timedelta
 from uuid import uuid4
 import os
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -19,31 +21,26 @@ from django.db.models import (
 )
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
+from django.db import IntegrityError
+from django.utils.safestring import mark_safe
 from docx import Document
+from django_countries import countries
 
 from utils import render_template, setting_handler, notify_helpers
 from core import models as core_models, files
 from review import models
+from review.const import EditorialDecisions as ED
 from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_reviewer_candidates(article, user=None):
-    """ Builds a queryset of candidates for peer review for the given article
-    :param article: an instance of submission.models.Article
-    :param user: The user requesting candidates who would be filtered out
-    """
-    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
-    reviewers = [review.reviewer.pk for review in review_assignments]
-    if user:
-        reviewers.append(user.pk)
+def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
         'reviewer',
         queryset=models.ReviewAssignment.objects.filter(
             article__journal=article.journal
         ).order_by("-date_complete")
     )
-    # TODO swap the below subqueries with filtered annotations on Django 2.0+
     active_reviews_count = models.ReviewAssignment.objects.filter(
         is_complete=False,
         reviewer=OuterRef("id"),
@@ -63,8 +60,9 @@ def get_reviewer_candidates(article, user=None):
         rating_average=Avg("rating"),
     ).values("rating_average")
 
-    reviewers = article.journal.users_with_role('reviewer').exclude(
-        pk__in=reviewers,
+    # TODO swap the below subqueries with filtered annotations on Django 2.0+
+    reviewers = candidate_queryset.exclude(
+        pk__in=exclude_pks,
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
@@ -76,8 +74,31 @@ def get_reviewer_candidates(article, user=None):
     ).annotate(
         rating_average=Subquery(rating_average, output_field=IntegerField()),
     )
-
     return reviewers
+
+
+def get_reviewer_candidates(article, user=None, reviewers_to_exclude=None):
+    """ Builds a queryset of candidates for peer review for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    :param reviewers_to_exclude: queryset of Account objects
+    """
+    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [review.reviewer.pk for review in review_assignments]
+    if user:
+        reviewer_pks_to_exclude.append(user.pk)
+
+    if reviewers_to_exclude:
+        for reviewer in reviewers_to_exclude:
+            reviewer_pks_to_exclude.append(
+                reviewer.pk,
+            )
+
+    return get_reviewers(
+        article,
+        article.journal.users_with_role('reviewer'),
+        reviewer_pks_to_exclude
+    )
 
 
 def get_suggested_reviewers(article, reviewers):
@@ -91,6 +112,30 @@ def get_suggested_reviewers(article, reviewers):
                 break
 
     return suggested_reviewers
+
+
+def get_previous_round_reviewers(article):
+    """
+    Builds a queryset of candidates who have previously completed a review
+    for this article.
+    :param article: an instance of submission.models.Article
+    """
+    review_assignments = article.reviewassignment_set.filter(
+        review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [
+        review.reviewer.pk for review in review_assignments
+    ]
+
+    completed_review_reviewer_pks = [
+        review.reviewer.pk for review in article.completed_reviews_with_decision
+    ]
+    return get_reviewers(
+        article,
+        core_models.Account.objects.filter(
+            pk__in=completed_review_reviewer_pks,
+        ),
+        reviewer_pks_to_exclude,
+    )
 
 
 def get_assignment_content(request, article, editor, assignment):
@@ -130,23 +175,28 @@ def get_review_url(request, review_assignment):
     return review_url
 
 
+def get_article_details_for_review(article):
+    detail_string = """
+        <b>Article Details:</b><br />
+        <b>Title</b>: {article.title}<br />
+        <b>Section</b>: {section}<br />
+        <b>Keywords</b>: {keywords}<br />
+        <b>Abstract</b>:<br />
+            {article.abstract}<br />
+        """.format(
+        article=article,
+        section=article.section.name if article.section else None,
+        keywords=", ".join(kw.word for kw in article.keywords.all()),
+    )
+    return mark_safe(detail_string)
+
+
 def get_reviewer_notification(
     request, article, editor, review_assignment,
     reminder=False,
 ):
     review_url = get_review_url(request, review_assignment)
-    article_details = """
-    <b>Article Details:</b>
-        <b>Title</b>: {article.title}
-        <b>Section</b>: {section}
-        <b>Keywords</b>: {keywords}
-        <b>Abstract</b>:
-            {article.abstract}
-    """.format(
-        article=article,
-        section=article.section.name if article.section else None,
-        keywords= ", ".join(kw.word for kw in article.keywords.all()),
-    )
+    article_details = get_article_details_for_review(article)
 
     email_context = {
         'article': article,
@@ -205,10 +255,7 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    if decision == 'reject':
-        template_name = "review_decision_decline"
-    else:
-        template_name = "review_decision_{0}".format(decision)
+    template_name = "review_decision_{0}".format(decision)
 
     return render_template.get_message_content(request, email_context, template_name)
 
@@ -232,6 +279,47 @@ def get_revision_request_content(request, article, revision, draft=False):
         email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
     return render_template.get_message_content(request, email_context, 'request_revisions')
+
+
+def get_share_review_content(request, article, review):
+    url = request.journal.site_url(
+        reverse(
+            'reviewer_share_reviews',
+            kwargs={'article_id': article.pk}
+        )
+    )
+    email_context = {
+        'article': article,
+        'review': review,
+        'url': url,
+    }
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        'share_reviews_notification',
+    )
+
+
+def send_review_share_message(request, article, subject, form_data):
+    for review_pk, email_content in form_data.items():
+        review = models.ReviewAssignment.objects.get(
+            pk=review_pk,
+            article__journal=article.journal,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            subject,
+            review.reviewer.email,
+            email_content,
+            log_dict={
+                'level': 'Info',
+                'action_text': f'Reviews link shared with {review.reviewer.full_name()}',
+                'types': 'Review Sharing',
+                'actor': request.user,
+                'target': article,
+            }
+        )
 
 
 def get_reviewer_from_post(request):
@@ -322,7 +410,7 @@ def handle_decision_action(article, draft, request):
         'skip': False,
     }
 
-    if draft.decision == 'accept':
+    if draft.decision == ED.ACCEPT.value:
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_ACCEPTED,
@@ -341,7 +429,7 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **workflow_kwargs,
         )
-    elif draft.decision == 'reject':
+    elif draft.decision == ED.DECLINE.value:
         article.decline_article()
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_DECLINED,
@@ -628,3 +716,119 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
                     **kwargs,
                 )
         return assignment, created
+
+
+def process_reviewer_csv(path, request, article, form):
+    """
+    Iterates through a CSV c
+    """
+    try:
+        csv_file = open(path, 'r', encoding="utf-8-sig")
+        reader = csv.DictReader(csv_file)
+        reviewers = []
+        for row in reader:
+
+            # Validate country code against ISO-3166-1
+            country = None
+            if row.get('country'):
+                valid_alpha2 = countries.alpha2(row.get('country'))
+                if valid_alpha2:
+                    country = valid_alpha2
+
+            reviewer, created = core_models.Account.objects.get_or_create(
+                email=row.get('email_address'),
+                defaults={
+                    'salutation': row.get('salutation'),
+                    'first_name': row.get('firstname'),
+                    'middle_name': row.get('middlename'),
+                    'last_name': row.get('lastname'),
+                    'department': row.get('department'),
+                    'institution': row.get('institution'),
+                    'country': country,
+                    'is_active': True,
+                }
+            )
+
+            try:
+                review_interests = row.get('interests')
+                re.split('[,;]+', review_interests)
+            except (IndexError, AttributeError):
+                review_interests = []
+
+            for term in review_interests:
+                interest, _ = core_models.Interest.objects.get_or_create(name=term)
+                reviewer.interest.add(interest)
+
+            # Add the reviewer role
+            reviewer.add_account_role('reviewer', request.journal)
+
+            review_assignment, c = models.ReviewAssignment.objects.get_or_create(
+                article=article,
+                reviewer=reviewer,
+                review_round=article.current_review_round_object(),
+                defaults={
+                    'editor': request.user,
+                    'date_due': form.cleaned_data.get('date_due'),
+                    'form': form.cleaned_data.get('form'),
+                    'visibility': form.cleaned_data.get('visibility'),
+                    'access_code': uuid4(),
+                }
+            )
+            review_url = get_review_url(request, review_assignment)
+            html = render_template.get_message_content(
+                request=request,
+                context={
+                    'article': article,
+                    'editor': request.user,
+                    'review_assignment': review_assignment,
+                    'review_url': review_url,
+                    'article_details': get_article_details_for_review(article),
+                    'reason': row.get('reason')
+                },
+                template=form.cleaned_data.get('template'),
+                template_is_setting=True,
+            )
+
+            # finally, call event
+            kwargs = {'user_message_content': html,
+                      'review_assignment': review_assignment,
+                      'request': request,
+                      'skip': False,
+                      'acknowledgement': True}
+
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,
+                **kwargs,
+            )
+
+            reviewers.append(
+                {
+                    'account': reviewer,
+                    'reason': row.get('reason'),
+                    'review_assignment': review_assignment,
+                }
+            )
+        return reviewers, None
+    except (IntegrityError, IndexError) as e:
+        return [], e
+
+
+def handle_response_letter_upload(request, revision_request):
+    response_letter = request.FILES.get('response_letter')
+    if response_letter:
+        file = files.save_file_to_article(
+            response_letter,
+            revision_request.article,
+            owner=request.user,
+            label='Response Letter',
+        )
+        revision_request.response_letter = file
+        revision_request.save()
+        return file
+
+    messages.add_message(
+        request,
+        messages.WARNING,
+        'No response letter selected.',
+    )
+    return

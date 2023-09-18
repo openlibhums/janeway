@@ -18,6 +18,9 @@
         </div>
         {% endif %}
     <div class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
+        {% if article.pinned %}
+            <i class="float-right fa fa-thumb-tack"></i>
+        {% endif %}
             <h2>{{ article.title|safe }}{% if article.is_remote %}&nbsp;<i class="fa fa-external-link small-icon-text"></i>{% endif %}</h2>
            {% include "elements/journal/authors_block.html" %}
             <p><span class="date"><i

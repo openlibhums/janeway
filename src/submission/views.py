@@ -131,7 +131,7 @@ def submit_funding(request, article_id):
             article.save()
             return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
 
-        funder_form = forms.Funder(
+        funder_form = forms.FunderForm(
             {
                 'name': request.POST.get('funder_name', None),
                 'fundref_id': request.POST.get('funder_doi', None),
@@ -148,6 +148,7 @@ def submit_funding(request, article_id):
         'article': article,
         'form': form,
         'additional_fields': additional_fields,
+        'funder_form': forms.FunderForm(),
     }
 
     return render(request, template, context)
@@ -532,43 +533,53 @@ def submit_review(request, article_id):
                 kwargs={'article_id': article_id},
             )
         )
+    form = forms.SubmissionCommentsForm(
+        instance=article,
+    )
 
     if request.POST and 'next_step' in request.POST:
-        article.date_submitted = timezone.now()
-        article.stage = models.STAGE_UNASSIGNED
-        article.current_step = 5
-        article.snapshot_authors(article)
-        article.save()
-
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-            **{'handshake_url': 'submit_review',
-               'request': request,
-               'article': article,
-               'switch_stage': False}
+        form = forms.SubmissionCommentsForm(
+            request.POST,
+            instance=article,
         )
+        if form.is_valid():
+            form.save()
+            article.date_submitted = timezone.now()
+            article.stage = models.STAGE_UNASSIGNED
+            article.current_step = 5
+            article.snapshot_authors(article)
+            article.save()
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _('Article {title} submitted').format(
-                title=article.title,
-            ),
-        )
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                **{'handshake_url': 'submit_review',
+                   'request': request,
+                   'article': article,
+                   'switch_stage': False}
+            )
 
-        kwargs = {'article': article,
-                  'request': request}
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_ARTICLE_SUBMITTED,
-            task_object=article,
-            **kwargs
-        )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Article {title} submitted').format(
+                    title=article.title,
+                ),
+            )
 
-        return redirect(reverse('core_dashboard'))
+            kwargs = {'article': article,
+                      'request': request}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_SUBMITTED,
+                task_object=article,
+                **kwargs
+            )
+
+            return redirect(reverse('core_dashboard'))
 
     template = "admin/submission//submit_review.html"
     context = {
         'article': article,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -585,18 +596,22 @@ def edit_metadata(request, article_id):
     """
     with translation.override(request.override_language):
         article = get_object_or_404(models.Article, pk=article_id)
-        additional_fields = models.Field.objects.filter(journal=request.journal)
+        additional_fields = models.Field.objects.filter(
+            journal=request.journal,
+        )
         submission_summary = setting_handler.get_setting(
             'general',
             'submission_summary',
             request.journal,
         ).processed_value
         funder_form = forms.FunderForm()
+
         info_form = forms.ArticleInfo(
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
             pop_disabled_fields=False,
+            editor_view=True,
         )
         frozen_author, modal = None, None
         return_param = request.GET.get('return')
@@ -631,8 +646,10 @@ def edit_metadata(request, article_id):
                 info_form = forms.ArticleInfo(
                     request.POST,
                     instance=article,
+                    additional_fields=additional_fields,
                     submission_summary=submission_summary,
                     pop_disabled_fields=False,
+                    editor_view=True,
                 )
 
                 if info_form.is_valid():

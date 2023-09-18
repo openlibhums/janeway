@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 
 from django_summernote.widgets import SummernoteWidget
+from django_bleach.forms import BleachField
 
 from press import models
 from core.widgets import JanewayFileInput
@@ -25,16 +26,35 @@ class PressForm(forms.ModelForm):
     class Meta:
         model = models.Press
         fields = (
-            'name', 'main_contact', 'theme', 'footer_description',
-            'default_carousel_image', 'favicon', 'enable_preprints',
-            'is_secure', 'password_number', 'password_upper',
-            'password_length', 'password_reset_text', 'registration_text',
-            'tracking_code', 'disable_journals', 'privacy_policy_url',
+            'name',
+            'main_contact',
+            'theme',
+            'description',
+            'footer_description',
+            'journal_footer_text',
+            'secondary_image',
+            'secondary_image_url',
+            'default_carousel_image',
+            'favicon',
+            'enable_preprints',
+            'is_secure',
+            'password_number',
+            'password_upper',
+            'password_length',
+            'password_reset_text',
+            'registration_text',
+            'tracking_code',
+            'disable_journals',
+            'privacy_policy_url',
         )
         widgets = {
             'theme': forms.Select(
                 choices=logic.get_theme_list()
-            )
+            ),
+            'footer_description': SummernoteWidget(),
+            'journal_footer_text': SummernoteWidget(),
+            'password_reset_text': SummernoteWidget(),
+            'registration_text': SummernoteWidget(),
         }
 
     def save(self, commit=True):
@@ -59,9 +79,7 @@ class PressForm(forms.ModelForm):
 
 
 class PressJournalDescription(forms.Form):
-    description = forms.CharField(
-        widget=SummernoteWidget,
-    )
+    description = BleachField()
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')

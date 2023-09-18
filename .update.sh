@@ -14,5 +14,6 @@ python3 src/manage.py install_plugins
 python3 src/manage.py update_translation_fields
 python3 src/manage.py clear_cache
 python3 src/manage.py install_cron
+
 echo "REMINDER: don't forget to restart your webserver!"
 exit 0

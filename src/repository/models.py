@@ -15,6 +15,9 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
+from django_countries.fields import CountryField
+from django_bleach.models import BleachField
+from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -83,7 +86,10 @@ def repo_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
-class Repository(model_utils.AbstractSiteModel):
+class Repository(
+    model_utils.AbstractBleachModelMixin,
+    model_utils.AbstractSiteModel,
+):
     press = models.ForeignKey(
         'press.Press',
         null=True,
@@ -147,6 +153,22 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         verbose_name='Submission Start Text',
     )
+    file_upload_help = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Add any information that the author may need to know as "
+                  "part of the file upload process.",
+        verbose_name="File Upload Help",
+    )
+    require_pdf_help = models.TextField(
+        default='requires that all author uploads be PDF files.',
+        help_text='When a repository requires that all manuscripts be PDF this text is combined with the repository '
+                  'name and displayed with the default text it would diplay: RepositoryName requires that all author '
+                  'uploads be PDF files.',
+        verbose_name="Limit Upload to PDF Help",
+        null=True,
+        blank=True,
+    )
     submission = models.TextField(blank=True, null=True)
     publication = models.TextField(blank=True, null=True)
     decline = models.TextField(blank=True, null=True)
@@ -202,6 +224,7 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Licence',
         blank=True,
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -242,7 +265,7 @@ class Repository(model_utils.AbstractSiteModel):
         if self.domain and not settings.URL_CONFIG == 'path':
             return logic.build_url(
                     netloc=self.domain,
-                    scheme=self.SCHEMES[self.is_secure],
+                    scheme=self._get_scheme(),
                     port=None,
                     path=path,
             )
@@ -359,14 +382,11 @@ class Preprint(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
         help_text=_(
-            'Please avoid pasting content from word processors as they can add '
-            'unwanted styling to the abstract. You can retype the abstract '
-            'here or copy and paste it into notepad/a plain text editor before '
-            'pasting here.',
+            'Copying and pasting from word processors is supported.',
         )
 
     )
@@ -815,11 +835,9 @@ class PreprintAccess(models.Model):
     )
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey(
-        'core.Country',
-        blank=True,
+    country = CountryField(
         null=True,
-        on_delete=models.SET_NULL,
+        blank=True,
     )
 
     @property

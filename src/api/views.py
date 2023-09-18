@@ -17,6 +17,7 @@ from api import serializers, permissions as api_permissions
 from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
+from repository import models as repository_models
 
 
 @api_view(['GET'])
@@ -33,11 +34,14 @@ def index(request):
     return HttpResponse(json_content, content_type="application/json")
 
 
-@permission_classes((permissions.IsAdminUser,))
 class AccountViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows staff to see user accounts.
+    API endpoint that allows editors and staff to see user accounts.
     """
+    permission_classes = [
+        api_permissions.IsEditor
+        |api_permissions.IsSectionEditor
+    ]
     serializer_class = serializers.AccountSerializer
 
     def get_queryset(self):
@@ -47,14 +51,13 @@ class AccountViewSet(viewsets.ModelViewSet):
         """
         queryset = core_models.Account.objects.all()
         search = self.request.query_params.get('search')
-        escaped = re.escape(search)
-        split_term = [re.escape(word) for word in search.split(" ")]
-        split_term.append(escaped)
-        search_regex = "^({})$".format(
-            "|".join({name for name in split_term})
-        )
-
-        if search is not None:
+        if search:
+            escaped = re.escape(search)
+            split_term = [re.escape(word) for word in search.split(" ")]
+            split_term.append(escaped)
+            search_regex = "^({})$".format(
+                "|".join({name for name in split_term})
+            )
             queryset = queryset.filter(
                 Q(email__icontains=search) |
                 Q(first_name__iregex=search_regex) |
@@ -139,6 +142,19 @@ class ArticleViewSet(viewsets.ModelViewSet):
                                                                 date_published__lte=timezone.now())
 
         return queryset
+
+
+class PreprintViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint for preprints.
+    """
+    serializer_class = serializers.PreprintSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        return repository_models.Preprint.objects.filter(repository=self.request.repository,
+                                                         date_published__lte=timezone.now(),
+                                                         stage=repository_models.STAGE_PREPRINT_PUBLISHED)
 
 
 def oai(request):

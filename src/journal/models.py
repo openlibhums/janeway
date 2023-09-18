@@ -75,7 +75,7 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
-    code = models.CharField(max_length=24, unique=True, help_text=gettext(
+    code = models.CharField(max_length=40, unique=True, help_text=gettext(
         'Short acronym for the journal. Used as part of the journal URL'
         'in path mode and to uniquely identify the journal'
     ))
@@ -335,7 +335,7 @@ class Journal(AbstractSiteModel):
                 path = path[len(site_path):]
             return logic.build_url(
                     netloc=self.domain,
-                    scheme=self.SCHEMES[self.is_secure],
+                    scheme=self._get_scheme(),
                     port=None,
                     path=path,
             )
@@ -1256,14 +1256,12 @@ def setup_default_form(sender, instance, created, **kwargs):
         from review import models as review_models
 
         if not review_models.ReviewForm.objects.filter(
-                slug='default-form',
                 journal=instance,
         ).exists():
 
             default_review_form = review_models.ReviewForm.objects.create(
                 journal=instance,
                 name='Default Form',
-                slug='default-form',
                 intro='Please complete the form below.',
                 thanks='Thank you for completing the review.'
             )

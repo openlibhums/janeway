@@ -44,10 +44,18 @@
 
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
-                {% else %}
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}">
+                            {{ item.link_name }}
+                            <i class="material-icons right">
+                                arrow_drop_down
+                            </i>
+                        </a>
+                    </li>
+                {% elif not item.for_footer %}
                 <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
@@ -57,15 +65,22 @@
             {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="account">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
 
-        <ul class="side-nav" id="nav-mobile">
+        <ul class="sidenav" id="nav-mobile">
             {% if request.journal.nav_home %}
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
@@ -90,23 +105,41 @@
 
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}-mobile">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}-mobile">
+                            {{ item.link_name }}
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
+                    </li>
                 {% else %}
                     <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="dropdown1">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#!" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
+        <a
+            href="#!"
+            data-target="nav-mobile"
+            class="sidenav-trigger">
+            <i class="material-icons">menu</i>
+        </a>
     </div>
 </nav>
 

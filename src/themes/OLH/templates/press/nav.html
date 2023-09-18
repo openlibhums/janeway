@@ -15,7 +15,7 @@
                         {% endfor %}
                     </ul>
                 </li>
-            {% else %}
+            {% elif not item.for_footer %}
                 <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
             {% endif %}
         {% endfor %}

@@ -1,0 +1,56 @@
+<div class="button-group">
+    {% if not small %}<a href="{% url 'review_view_review' article.pk review.pk %}"
+       class="button">View</a>{% endif %}
+    <a class="button {% if not small %}dropdown arrow-only{% endif %}"
+       data-toggle="review-dropdown-{{ review.pk }}">{% if small %}<i class="fa fa-cog"></i>{% endif %}</a>
+</div>
+<div class="dropdown-pane {{ dropdown }}"
+     id="review-dropdown-{{ review.pk }}"
+     data-dropdown data-close-on-click="true"
+     data-alignment="bottom"
+     >
+    <ul class="menu vertical actions">
+        {% if small %}
+            <li>
+                <a href="{% url 'review_view_review' article.pk review.pk %}"><i class="fa fa-binoculars"></i>View</a>
+            </li>
+        {% endif %}
+        {% if review.decision == 'withdrawn' or review.date_declined %}
+            <li>
+                <a href="{% url 'review_reset_review' article.pk review.pk %}"><i
+                        class="fa fa-retweet action-icon">&nbsp;</i>Reset</a>
+            </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'review_edit_review' article.pk review.pk %}"><i
+                    class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
+        </li>
+        {% if not review.is_complete %}
+            <li>
+                <a href="
+                        {% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}">
+                    <i class="fa fa-clock-o action-icon"></i> Send Reminder
+                </a>
+            </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i
+                    class="fa fa-star action-icon">&nbsp;</i>Rate</a>
+        </li>
+        <li>
+            <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i
+                    class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a>
+        </li>
+        <li>
+            <a href="{% url 'review_delete_review' article.pk review.pk %}"><i
+                    class="fa fa-trash action-icon">&nbsp;</i>Delete</a>
+        </li>
+        {% if request.user.is_admin %}
+            <li>
+                <a target="_blank"
+                   href="{% url 'admin:review_reviewassignment_change' review.pk %}"><span
+                        class="fa fa-cogs"> </span> Edit in Admin</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>

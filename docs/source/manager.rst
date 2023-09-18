@@ -17,4 +17,5 @@ Manager
    manager/users/index
    manager/other/index
    manager/other/template_variables
+   manager/press/index
 

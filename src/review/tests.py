@@ -3,16 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 
-import datetime
-
-from django.test import TestCase, Client, override_settings
-from django.utils import timezone
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.core.management import call_command
+from django.utils import timezone
+from django.conf import settings
 
-
-from core import models as core_models
+from core import models as core_models, files
 from journal import models as journal_models
 from production import models as production_models
 from review import models as review_models, forms, logic
@@ -22,10 +21,13 @@ from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
 from utils.testing import helpers
+from utils.shared import clear_cache
 
 
 # Create your tests here.
 class ReviewTests(TestCase):
+    def setUp(self):
+        self.files = list()
 
     @override_settings(URL_CONFIG='domain')
     def test_index_view_with_no_questions(self):
@@ -58,7 +60,7 @@ class ReviewTests(TestCase):
     def test_total_review_count(self):
         self.assertEqual(
             self.article_review_completed.reviewassignment_set.all().count(),
-            2,
+            3,
         )
 
     def test_completed_reviews_with_decision_count(self):
@@ -98,6 +100,351 @@ class ReviewTests(TestCase):
             data=data,
         )
         self.assertFalse(form.is_valid())
+
+    def test_csv_reviewer_import_good(self):
+        # create a fake request object
+        request = self.setup_request_object()
+
+        # prep csv
+        csv_content = "{}\n{}".format(
+            self.reviewer_csv_header_row,
+            self.good_reviewer_content_line,
+        )
+        self.test_csv = SimpleUploadedFile(
+            'test_reviewer_file.csv',
+            bytes(csv_content.encode("utf-8"))
+        )
+        filename, path = files.save_file_to_temp(self.test_csv)
+
+        # prep form with data
+        details_form = forms.BulkReviewAssignmentForm(
+            {
+                'visibility': 'double-blind',
+                'form': self.review_form,
+                'date_due': '2023-01-01',
+            }
+        )
+        details_form.is_valid()
+
+        reviewers, error = logic.process_reviewer_csv(
+            path,
+            request,
+            self.article_under_review,
+            details_form,
+        )
+        self.assertTrue(
+            isinstance(
+                reviewers[0].get('review_assignment'),
+                review_models.ReviewAssignment,
+            )
+        )
+        self.assertFalse(
+            error
+        )
+        os.unlink(path)
+
+    def test_csv_reviewer_import_bad(self):
+        # create a fake request object
+        request = self.setup_request_object()
+        self.test_csv = SimpleUploadedFile(
+            'test_reviewer_file.csv',
+            bytes(self.empty_reviewer_content_line)
+        )
+        filename, path = files.save_file_to_temp(self.test_csv)
+
+        # prep form with data
+        details_form = forms.BulkReviewAssignmentForm(
+            {
+                'visibility': 'double-blind',
+                'form': self.review_form,
+                'date_due': '2023-01-01',
+            }
+        )
+        details_form.is_valid()
+        reviewers, error = logic.process_reviewer_csv(
+            path,
+            request,
+            self.article_under_review,
+            details_form,
+        )
+        self.assertFalse(reviewers)
+        os.unlink(path)
+
+    def test_csv_review_import_uses_existing_user_account(self):
+        request = self.setup_request_object()
+
+        # prep csv
+        csv_content = "{}\n{}".format(
+            self.reviewer_csv_header_row,
+            self.regular_user_csv_line,
+        )
+        self.test_csv = SimpleUploadedFile(
+            'test_reviewer_file.csv',
+            bytes(csv_content.encode("utf-8"))
+        )
+        filename, path = files.save_file_to_temp(self.test_csv)
+
+        # prep form with data
+        details_form = forms.BulkReviewAssignmentForm(
+            {
+                'visibility': 'double-blind',
+                'form': self.review_form,
+                'date_due': '2023-01-01',
+            }
+        )
+        details_form.is_valid()
+        reviewers, error = logic.process_reviewer_csv(
+            path,
+            request,
+            self.article_under_review,
+            details_form,
+        )
+        self.assertTrue(
+            reviewers[0].get('account'),
+            self.regular_user,
+        )
+
+    def test_csv_doesnt_create_duplicate_assignments(self):
+        request = self.setup_request_object()
+
+        # prep csv
+        csv_content = "{}\n{}".format(
+            self.reviewer_csv_header_row,
+            self.regular_user_csv_line,
+        )
+        self.test_csv = SimpleUploadedFile(
+            'test_reviewer_file.csv',
+            bytes(csv_content.encode("utf-8"))
+        )
+        filename, path = files.save_file_to_temp(self.test_csv)
+
+        # prep form with data
+        details_form = forms.BulkReviewAssignmentForm(
+            {
+                'visibility': 'double-blind',
+                'form': self.review_form,
+                'date_due': '2023-01-01',
+            }
+        )
+        details_form.is_valid()
+        reviewers, error = logic.process_reviewer_csv(
+            path,
+            request,
+            self.article_review_completed,
+            details_form,
+        )
+        self.assertTrue(
+            reviewers[0].get('review_assignment'),
+            self.review_assignment_complete,
+        )
+
+    def test_completed_reviews_shared_setting(self):
+        # setup data
+        article_with_completed_reviews = helpers.create_article(
+            self.journal_one,
+            **{'owner': self.regular_user,
+                'title': 'Test Article',
+                'stage': submission_models.STAGE_UNDER_REVIEW}
+        )
+        round_one, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=1,
+        )
+        round_two, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=2,
+        )
+        round_one_completed_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=True,
+            review_round=round_one,
+        )
+        round_two_active_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=False,
+            review_round=round_two,
+            reviewer=self.regular_user,
+        )
+
+        # turn setting on
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='On',
+        )
+        clear_cache()
+
+        # test on
+        self.client.force_login(self.second_user)
+        reversed_url = reverse(
+                'do_review',
+                kwargs={
+                    'assignment_id': round_two_active_review.pk,
+                }
+            )
+        url_with_access_code = f"{reversed_url}?access_code={round_two_active_review.access_code}"
+        response = self.client.get(
+            url_with_access_code,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(
+            response,
+            f"View Review #{round_one_completed_review.pk}"
+        )
+
+        # turn setting off
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='',
+        )
+        clear_cache()
+
+        # test off
+        self.client.force_login(self.regular_user)
+        response = self.client.get(
+            url_with_access_code,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertNotContains(
+            response,
+            "Please click 'View Review' below to view the peer review report"
+        )
+
+    def test_shared_review_download_view(self):
+        """
+        Tests route 1 of the reviewer_shared_review_download view allows and
+        denies access as required.
+        """
+        article_with_completed_reviews = helpers.create_article(
+            self.journal_one,
+            **{'owner': self.regular_user,
+               'title': 'Test Article',
+               'stage': submission_models.STAGE_UNDER_REVIEW}
+        )
+        round_one, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=1,
+        )
+        round_two, c = review_models.ReviewRound.objects.get_or_create(
+            article=article_with_completed_reviews,
+            round_number=2,
+        )
+        request = self.setup_request_object()
+        test_file = SimpleUploadedFile(
+            "file.txt",
+            b"content",
+        )
+        file = files.save_file(
+            request,
+            test_file,
+            label='Test',
+            public=True,
+            path_parts=('articles', article_with_completed_reviews.pk),
+        )
+        round_one_completed_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=True,
+            review_round=round_one,
+            reviewer=self.second_reviewer,
+            review_file=file,
+        )
+        round_two_active_review = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article_with_completed_reviews,
+            is_complete=False,
+            review_round=round_two,
+            reviewer=self.second_user,
+        )
+
+        # turn setting on
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='display_completed_reviews_in_additional_rounds',
+            journal=self.journal_one,
+            value='On',
+        )
+        clear_cache()
+        download_url = reverse(
+            'reviewer_shared_review_download',
+            kwargs={
+                'article_id': article_with_completed_reviews.pk,
+                'review_id': round_one_completed_review.pk,
+            }
+        )
+
+        # in this instance, second_user should have access to download the
+        self.client.force_login(
+            self.second_user,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        # in this instance second_reviewer should not have any access.
+        self.client.force_login(
+            self.second_reviewer,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            404,
+        )
+
+        # if we now mark this article as shared second_reviewer should
+        # be able to access the download
+        article_with_completed_reviews.reviews_shared = True
+        article_with_completed_reviews.save()
+
+        self.client.force_login(
+            self.second_reviewer,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            200,
+        )
+
+        # test that a regular user cant access the download link
+        self.client.force_login(
+            self.regular_user,
+        )
+        response = self.client.get(
+            download_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEquals(
+            response.status_code,
+            403,
+        )
+
+        # finally, delete the file from disk
+        files.delete_file(article_with_completed_reviews, file)
+
+
+    def setup_request_object(self):
+        request = helpers.Request()
+        request.user = self.editor
+        request.journal = self.journal_one
+        request.press = self.journal_one.press
+        request.site_type = self.journal_one
+        return request
 
     @staticmethod
     def create_user(username, roles=None, journal=None):
@@ -289,7 +636,7 @@ class ReviewTests(TestCase):
         self.article_author_is_owner.authors.add(self.editor)
         self.article_author_is_owner.authors.add(self.author)
 
-        self.review_form = review_models.ReviewForm(name="A Form", slug="A Slug", intro="i", thanks="t",
+        self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)
         self.review_form.save()
 
@@ -330,7 +677,7 @@ class ReviewTests(TestCase):
             review_round=self.round_one,
             reviewer=self.regular_user,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             date_complete=timezone.now(),
@@ -344,16 +691,27 @@ class ReviewTests(TestCase):
             review_round=self.round_two,
             reviewer=self.second_reviewer,
             editor=self.editor,
-            date_due=datetime.datetime.now(),
+            date_due=timezone.now(),
             form=self.review_form,
             is_complete=True,
             decision='withdrawn',
         )
 
+        self.review_assignment_declined, created = review_models.ReviewAssignment.objects.get_or_create(
+            article=self.article_review_completed,
+            review_round=self.round_two,
+            reviewer=self.second_reviewer,
+            editor=self.editor,
+            date_due=timezone.now(),
+            date_declined=timezone.now(),
+            form=self.review_form,
+            is_complete=False,
+        )
+
         self.review_assignment = review_models.ReviewAssignment(article=self.article_under_review,
                                                                 reviewer=self.second_user,
                                                                 editor=self.editor,
-                                                                date_due=datetime.datetime.now(),
+                                                                date_due=timezone.now(),
                                                                 form=self.review_form)
 
         self.review_assignment.save()
@@ -361,7 +719,7 @@ class ReviewTests(TestCase):
         self.review_assignment_not_in_scope = review_models.ReviewAssignment(article=self.article_in_production,
                                                                              reviewer=self.regular_user,
                                                                              editor=self.editor,
-                                                                             date_due=datetime.datetime.now(),
+                                                                             date_due=timezone.now(),
                                                                              form=self.review_form)
         self.review_assignment_not_in_scope.save()
 
@@ -478,4 +836,32 @@ class ReviewTests(TestCase):
         update_settings(
             self.journal_one,
             management_command=False,
+        )
+        self.reviewer_csv_header_row = b"salutation,firstname,middlename,lastname,email_address,department,institution,country,interests,reason"
+        self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
+        self.empty_reviewer_content_line = b" "
+        self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
+
+    def test_request_revisions_context(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'review_request_revisions',
+                kwargs={'article_id': self.article_review_completed.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        response.context.get('incomplete')
+        self.assertEqual(
+            self.article_review_completed,
+            response.context.get('article'),
+        )
+        # This test does not cover the revision request form
+        self.assertEqual(
+            0,
+            response.context.get('pending_approval').count(),
+        )
+        self.assertEqual(
+            0,
+            response.context.get('incomplete').count(),
         )

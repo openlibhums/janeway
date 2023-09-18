@@ -30,8 +30,12 @@
                             <h2>Look</h2>
                         </div>
                         {{ form.theme|foundation }}
+                        {{ form.description|foundation }}
                         {{ form.footer_description|foundation }}
+                        {{ form.journal_footer_text|foundation }}
                         {{ form.press_logo|foundation }}
+                        {{ form.secondary_image|foundation }}
+                        {{ form.secondary_image_url|foundation }}
                         {{ form.default_carousel_image|foundation }}
                         {{ form.favicon|foundation }}
 
@@ -63,8 +67,4 @@
         </div>
     </div>
     </section>
-{% endblock %}
-
-{% block js %}
-    {% include "elements/jqte.html" %}
 {% endblock %}

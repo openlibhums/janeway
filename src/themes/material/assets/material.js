@@ -7,27 +7,24 @@ function figure_downloads() {
 
 function table_downloads() {
 	var tables = $("div[id^=T]");
-	console.log(tables);
 	$( tables ).each( function( index, element ){
-		console.log(this);
 	    $(this).find('.table-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i><a target="_blank" href="table/' + $( this ).attr('id') +'">Download</a></p>' );
 	});
 }
 
 
 $( document ).ready(function(){
-    $(".button-collapse").sideNav();
-    $('select').material_select();
-    $('.modal').modal();
     figure_downloads();
     table_downloads();
 })
 
 var $root = $('html, body');
 
-$('a[href^="#"]').click(function() {
+$('a[href^="#"]:not(a[href$="!"])').click(function() {
+  // The jquery selector needs to exclude href="#!"
+  // or the event listener will interfere with the sidenav trigger
     var href = $.attr(this, 'href');
-    if (href && href != "#!") {
+    if (href) {
 
         $root.animate({
             scrollTop: $(href).offset().top

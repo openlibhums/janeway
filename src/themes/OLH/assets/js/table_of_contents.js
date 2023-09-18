@@ -12,7 +12,8 @@ $( document ).ready(function() {
     $("#main_article h2, #main_article h3").each(function () {
 
         link = $(this);
-        title = link.text();
+        link.find('a').contents().unwrap();
+        title = link.html();
 
         if (!link.attr("id")) {
             link.attr('id', 'heading' + iter.toString());

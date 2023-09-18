@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.urls import re_path
 
 from review import views
+from review.const import EditorialDecisions
 
 urlpatterns = [
     re_path(r'^$', views.home, name='review_home'),
@@ -111,7 +112,13 @@ urlpatterns = [
     re_path(r'^reviewer/(?P<assignment_id>\d+)/file_download/all/$', views.review_download_all_files,
         name='review_download_all_files'),
 
-    re_path(r'^article/(?P<article_id>\d+)/access_denied/$', views.review_warning, name='review_warning'),
+    re_path(
+        r'^article/(?P<article_id>\d+)/decision/(?P<decision>{decision_options})/access_denied/$'.format(
+            decision_options="|".join(
+                decision.value for decision in EditorialDecisions)
+        ),
+        views.review_warning,
+        name='review_warning'),
 
     # Review forms
     re_path(r'^manager/forms/$',
@@ -133,5 +140,27 @@ urlpatterns = [
     re_path(r'^article/(?P<article_id>\d+)/decision_helper/$',
         views.decision_helper,
         name='decision_helper',
-        )
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/csv-import/$',
+        views.upload_reviewers_from_csv,
+        name='upload_reviewers_from_csv',
+    ),
+
+    # Review Sharing
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/$',
+        views.editor_share_reviews,
+        name='editor_share_reviews',
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/reviewer/$',
+        views.reviewer_share_reviews,
+        name='reviewer_share_reviews',
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/download/(?P<review_id>\d+)/$',
+        views.reviewer_shared_review_download,
+        name='reviewer_shared_review_download',
+    ),
 ]

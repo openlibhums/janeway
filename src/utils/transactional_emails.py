@@ -15,6 +15,7 @@ from utils import (
 )
 from core import models as core_models
 from review import logic as review_logic
+from review.const import EditorialDecisions as ED
 
 
 def send_reviewer_withdrawl_notice(**kwargs):
@@ -418,6 +419,7 @@ def send_article_decision(**kwargs):
     article = kwargs['article']
     request = kwargs['request']
     decision = kwargs['decision']
+    subject = ""
     user_message_content = kwargs['user_message_content']
 
     if 'skip' not in kwargs:
@@ -435,11 +437,11 @@ def send_article_decision(**kwargs):
                 'types': 'Article Decision',
                 'target': article}
 
-    if decision == 'accept':
+    if decision == ED.ACCEPT.value:
         subject = 'subject_review_decision_accept'
-    elif decision == 'decline':
+    elif decision == ED.DECLINE.value:
         subject = 'subject_review_decision_decline'
-    elif decision == 'undecline':
+    elif decision == ED.UNDECLINE.value:
         subject = 'subject_review_decision_undecline'
 
 
@@ -494,26 +496,42 @@ def send_revisions_request(**kwargs):
 def send_revisions_complete(**kwargs):
     request = kwargs['request']
     revision = kwargs['revision']
+    article = revision.article
 
     action_text = ''
     for action in revision.actions.all():
         action_text = "{0}<br><br>{1} - {2}".format(action_text, action.logged, action.text)
 
     description = ('<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'
-        ''.format(request.user.full_name(), revision.article.title, action_text)
+        ''.format(request.user.full_name(), article.title, action_text)
     )
-    notify_helpers.send_email_with_body_from_user(
-        request,
-        'subject_revisions_complete_receipt',
-        {editor.email for editor in get_assignment_editors(revision)},
-        description,
+    url = request.journal.site_url(
+        path=reverse(
+            'view_revision',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            },
+        )
+    )
+    notify_helpers.send_email_with_body_from_setting_template(
+        request=request,
+        template='revisions_complete_editor_notification',
+        subject='subject_revisions_complete_editor_notification',
+        to={editor.email for editor in get_assignment_editors(revision)},
+        context={
+            'request': request,
+            'revision': revision,
+            'url': url,
+        },
+        log_dict={
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Revisions Complete',
+            'target': article,
+        }
     )
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(
-        types='Revisions Complete', description=action_text, level='Info',
-        request=request, target=revision.article,
-    )
 
 
 def send_revisions_author_receipt(**kwargs):

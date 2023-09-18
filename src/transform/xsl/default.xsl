@@ -982,8 +982,8 @@
                     <xsl:variable name="caption" select="parent::table-wrap/label/text()"/>
                     <xsl:variable name="graphics" select="following-sibling::graphic/@xlink:href"/>
                     <div class="fig-inline-img-set">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
+                        <a href="{$graphics}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img img-fluid" />
                         </a>
                     </div>
                 </xsl:if>
@@ -1000,7 +1000,7 @@
 
     <xsl:template match="table-wrap/table">
       <xsl:variable name="graphics" select="./@xlink:href"/>
-        <table>
+        <table class="table">
          <xsl:choose>
           <xsl:when test="./@content-type = 'example'">
             <xsl:attribute name="content-type">
@@ -1390,8 +1390,8 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}"/>
+                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="img-fluid"/>
                         </a>
                     </div>
                     <xsl:apply-templates/>
@@ -1417,24 +1417,24 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="graphics" select="graphic/@xlink:href"/>
+
         <div id="{$id}" class="fig-inline-img-set">
 	  <xsl:for-each select="graphic">
+          <xsl:variable name="alt">
+              <xsl:choose>
+                  <xsl:when test="../alt-text">
+                      <xsl:value-of select="../alt-text/text()"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:value-of select="../label/text()"/>
+                  </xsl:otherwise>
+              </xsl:choose>
+          </xsl:variable>
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}">
-      <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img">
-        <xsl:attribute name="alt">
-          <xsl:choose>
-            <xsl:when test="../alt-text">
-              <xsl:value-of select="../alt-text/text()" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="../label/text()" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:attribute>
-      </img>
+                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                            <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
                 </div>
@@ -3671,20 +3671,11 @@
     </xsl:template>
 
     <xsl:template match="code">
-        <xsl:choose>
-            <xsl:when test="@xml:space = 'preserve'">
-                <pre>
-                    <code>
-                        <xsl:apply-templates/>
-                    </code>
-                </pre>
-            </xsl:when>
-            <xsl:otherwise>
-                <code>
-                    <xsl:apply-templates/>
-                </code>
-            </xsl:otherwise>
-        </xsl:choose>
+       <pre>
+         <code>
+           <xsl:apply-templates/>
+         </code>
+       </pre>
     </xsl:template>
 
     <!-- END - general format -->

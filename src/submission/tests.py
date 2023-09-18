@@ -36,7 +36,7 @@ from utils.testing.helpers import create_galley, request_context
 FROZEN_DATETIME_2020 = timezone.make_aware(timezone.datetime(2020, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 0))
 
-# Create your tests here.
+
 class SubmissionTests(TestCase):
     roles_path = os.path.join(
         settings.BASE_DIR,
@@ -90,6 +90,20 @@ class SubmissionTests(TestCase):
 
         return author_1, author_2
 
+    def create_sections(self):
+        self.section_1 = models.Section.objects.create(
+            name='Test Public Section',
+            journal=self.journal_one,
+        )
+        self.section_2 = models.Section.objects.create(
+            name='Test Private Section',
+            public_submissions=False,
+            journal=self.journal_one
+        )
+        self.section_3 = models.Section.objects.create(
+            journal=self.journal_one,
+        )
+
     def setUp(self):
         """
         Setup the test environment.
@@ -98,6 +112,7 @@ class SubmissionTests(TestCase):
         self.journal_one = self.create_journal()
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
+        self.create_sections()
 
     def test_article_image_galley(self):
         article = models.Article.objects.create(
@@ -443,6 +458,7 @@ class SubmissionTests(TestCase):
     @override_settings(URL_CONFIG='domain')
     def test_submit_info_view_form_selection_author(self):
         author_1, author_2 = self.create_authors()
+        clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test article: a test of author sections",
@@ -451,7 +467,7 @@ class SubmissionTests(TestCase):
         with translation.override("en"):
             section = models.Section.objects.create(
                 journal=self.journal_one,
-                name="section",
+                name="Test Section",
                 public_submissions=False,
             )
         self.client.force_login(
@@ -505,7 +521,9 @@ class SubmissionTests(TestCase):
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
     def test_url_based_orcid_cleaned(self):
-        clean_orcid = forms.utility_clean_orcid('https://orcid.org/0000-0003-2126-266X')
+        clean_orcid = forms.utility_clean_orcid(
+            'https://orcid.org/0000-0003-2126-266X'
+        )
         self.assertEqual(
             clean_orcid,
             '0000-0003-2126-266X',
@@ -655,6 +673,60 @@ class SubmissionTests(TestCase):
             page_numbers='custom'
         )
         self.assertEqual(article.page_range, 'custom')
+
+    def test_editor_sees_non_public_sections(self):
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: Testing non public sections',
+            current_step=2,
+            owner=self.editor,
+        )
+        self.client.force_login(
+            self.editor,
+        )
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article.pk},
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )
+        self.assertContains(
+            response,
+            self.section_2.display_name_public_submission(),
+        )
+
+    def test_author_doesnt_see_non_public_section(self):
+        author = helpers.create_author(self.journal_one)
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title='Test article: Testing public sections',
+            current_step=2,
+            owner=author
+        )
+        self.client.force_login(
+            author,
+        )
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article.pk},
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )
+        self.assertNotContains(
+            response,
+            self.section_2.display_name_public_submission(),
+        )
 
 
 class ArticleSearchTests(TransactionTestCase):

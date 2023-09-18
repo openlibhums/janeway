@@ -25,13 +25,15 @@ from django.utils.translation import gettext_lazy as _
 from core import models as core_models, files, forms as core_forms, logic as core_logic
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
+from review.const import EditorialDecisions as ED
 from security.decorators import (
     editor_user_required, reviewer_user_required,
     reviewer_user_for_assignment_required,
     file_user_required, article_decision_not_made, article_author_required,
     editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required,
-    any_editor_user_required
+    any_editor_user_required, setting_is_enabled,
+    user_has_completed_review_for_article
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
@@ -390,6 +392,14 @@ def in_review(request, article_id):
         if 'move_to_review' in request.POST and article.stage == submission_models.STAGE_UNASSIGNED:
             article.stage = submission_models.STAGE_UNDER_REVIEW
             article.save()
+
+        if 'table_format_reviews' in request.POST:
+            request.session['table_format_reviews'] = True
+            request.session.modified = True
+
+        if 'expanded_format_reviews' in request.POST:
+            request.session.pop('table_format_reviews')
+            request.session.modified = True
 
         if 'new_review_round' in request.POST:
 
@@ -797,26 +807,35 @@ def do_review(request, assignment_id):
     :param assignment_id: ReviewAssignment PK
     :return: a context for a Django template
     """
-
     access_code = logic.get_access_code(request)
 
     if access_code:
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.REVIEW_ACCESSIBLE_STAGES) &
             Q(access_code=access_code)
         )
     else:
         assignment = models.ReviewAssignment.objects.get(
             Q(pk=assignment_id) &
             Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(article__stage__in=submission_models.REVIEW_ACCESSIBLE_STAGES) &
             Q(reviewer=request.user)
         )
 
     allow_save_review = setting_handler.get_setting(
         'general', 'enable_save_review_progress', request.journal,
+    ).processed_value
+    open_review_initial = setting_handler.get_setting(
+        'general',
+        'open_review_default_opt_in',
+        request.journal,
+    ).processed_value
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
+        request.journal,
     ).processed_value
 
     fields_required = False
@@ -830,6 +849,8 @@ def do_review(request, assignment_id):
     decision_form = forms.ReviewerDecisionForm(
         instance=assignment,
         decision_required=decision_required,
+        open_review_initial=open_review_initial,
+        recommendation_disabled=recommendation_disabled,
     )
 
     if 'review_file' in request.GET:
@@ -875,6 +896,7 @@ def do_review(request, assignment_id):
             request.POST,
             instance=assignment,
             decision_required=decision_required,
+            recommendation_disabled=recommendation_disabled,
         )
 
         if form.is_valid() and decision_form.is_valid():
@@ -1035,7 +1057,20 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviewers = logic.get_reviewer_candidates(article, request.user)
+
+    # if setting enabled, fetch reviewers who have completed a review
+    # in a past review round.
+    past_reviewers = []
+    if request.journal.get_setting('general', 'display_past_reviewers'):
+        past_reviewers = logic.get_previous_round_reviewers(
+            article,
+        )
+    reviewers = logic.get_reviewer_candidates(
+        article,
+        user=request.user,
+        reviewers_to_exclude=past_reviewers,
+    )
+
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1118,6 +1153,7 @@ def add_review_assignment(request, article_id):
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
+        'past_reviewers': past_reviewers,
     }
 
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):
@@ -1398,8 +1434,17 @@ def withdraw_review(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
-        messages.add_message(request, messages.WARNING, 'You cannot withdraw a review that is already complete.')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot withdraw a review that is already complete.',
+        )
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     email_content = logic.get_withdrawl_notification(request, review)
 
@@ -1413,15 +1458,23 @@ def withdraw_review(request, article_id, review_id):
         if 'skip' in request.POST:
             kwargs['skip'] = True
 
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEW_WITHDRAWL, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVIEW_WITHDRAWL,
+            **kwargs,
+        )
 
         review.date_complete = timezone.now()
-        review.decision = 'withdrawn'
+        review.decision = models.RD.DECISION_WITHDRAWN
         review.is_complete = True
         review.save()
 
         messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     template = 'review/withdraw_review.html'
     context = {
@@ -1503,7 +1556,6 @@ def review_decision(request, article_id, decision):
 
         if decision == 'accept':
             article.accept_article()
-            article.snapshot_authors(article, force_update=False)
             try:
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_ARTICLE_ACCEPTED,
@@ -1661,12 +1713,11 @@ def request_revisions(request, article_id):
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
-    pending_approval = review_round.reviewassignment_set.filter(
+    pending_approval = review_round.active_reviews().filter(
         is_complete=True,
         for_author_consumption=False,
-        date_declined__isnull=True,
     )
-    incomplete = review_round.reviewassignment_set.filter(
+    incomplete = review_round.active_reviews().filter(
         is_complete=False,
     )
 
@@ -1822,7 +1873,13 @@ def do_revisions(request, article_id, revision_id):
     revision_files = logic.group_files(revision_request.article, reviews)
 
     if request.POST:
-
+        post_redirect = reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article_id,
+                'revision_id': revision_id
+            }
+        )
         if 'delete' in request.POST:
             file_id = request.POST.get('delete')
             file = get_object_or_404(core_models.File, pk=file_id)
@@ -1835,35 +1892,21 @@ def do_revisions(request, article_id, revision_id):
                 request.user,
                 revision_request,
             )
-            return redirect(
-                reverse(
-                    'do_revisions',
-                    kwargs={
-                        'article_id': article_id,
-                        'revision_id': revision_id
-                    }
-                )
-            )
+            return redirect(post_redirect)
 
         elif 'save' in request.POST:
-            covering_letter = request.POST.get('author_note')
-            revision_request.author_note = covering_letter
-            revision_request.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Thanks. Your covering letter has been saved.',
+            form = forms.DoRevisions(
+                request.POST,
+                instance=revision_request
             )
-            return redirect(
-                reverse(
-                    'do_revisions',
-                    kwargs={
-                        'article_id': article_id,
-                        'revision_id': revision_id
-                    }
+            if form.is_valid():
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Thanks. Your covering letter has been saved.',
                 )
-            )
-
+                return redirect(post_redirect)
         else:
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
@@ -1873,23 +1916,20 @@ def do_revisions(request, article_id, revision_id):
                 )
             if form.is_valid() and form.is_confirmed():
                 form.save()
-
                 kwargs = {
                     'revision': revision_request,
                     'request': request,
                 }
-
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_REVISIONS_COMPLETE,
                     **kwargs
                 )
-
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Thank you for submitting your revisions. The Editor has been notified.',
+                    'Thank you for submitting your revisions. '
+                    'The Editor has been notified.',
                 )
-
                 revision_request.date_completed = timezone.now()
                 revision_request.save()
                 return redirect(reverse('core_dashboard'))
@@ -2033,9 +2073,10 @@ def view_revision(request, article_id, revision_id):
 
 
 @editor_user_required
-def review_warning(request, article_id):
+def review_warning(request, article_id, decision):
     """
-    Checks if an editor user is the author of an article amd blocks their access temporarily.
+    Checks if an editor user is the author of an article and blocks their
+    access temporarily.
     If overwritten, all Editors are notified.
     :param request: HttpRequest object
     :param article_id: Article PK
@@ -2052,10 +2093,30 @@ def review_warning(request, article_id):
                 task_object=article,
                 **kwargs
         )
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+
+        if decision == ED.REVIEW.value:
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk},
+                ),
+            )
+        else:
+            return redirect(
+                reverse(
+                    'review_decision',
+                    kwargs={
+                        'article_id': article.pk,
+                        'decision': decision,
+                    },
+                ),
+            )
     else:
         messages.add_message(
-                request, messages.WARNING, 'This action is not allowed.')
+            request,
+            messages.WARNING,
+            'This action is not allowed.',
+        )
 
     template = 'review/review_warning.html'
     context = {
@@ -2223,7 +2284,7 @@ def draft_decision_text(request, article_id):
     if not decision:
         raise Http404
 
-    if decision in ['accept', 'reject']:
+    if decision in {ED.ACCEPT.value, ED.DECLINE.value}:
         decision_text = logic.get_decision_content(
             request=request,
             article=article,
@@ -2231,7 +2292,7 @@ def draft_decision_text(request, article_id):
             author_review_url=author_review_url,
         )
 
-    elif decision in ['minor_revisions', 'major_revisions']:
+    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value}:
         revision = models.RevisionRequest(
             article=article,
             editor=request.user,
@@ -2448,7 +2509,14 @@ def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
-    decision_form = forms.FakeReviewerDecisionForm()
+    recommendation_disabled = setting_handler.get_setting(
+        'general',
+        'disable_reviewer_recommendation',
+        request.journal,
+    ).processed_value
+    decision_form = forms.FakeReviewerDecisionForm(
+        recommendation_disabled=recommendation_disabled,
+    )
 
     template = 'review/manager/preview_form.html'
     context = {
@@ -2611,3 +2679,226 @@ def decision_helper(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@any_editor_user_required
+def upload_reviewers_from_csv(request, article_id):
+    """
+    Allows an editor to load reviewers in form a CSV.
+    """
+    errors = []
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    form = forms.BulkReviewAssignmentForm(
+        journal=request.journal,
+    )
+    if request.POST and request.FILES:
+        reviewer_csv = request.FILES.get('reviewer_csv')
+        form = forms.BulkReviewAssignmentForm(
+            request.POST,
+            request.FILES,
+            journal=request.journal,
+        )
+        filename, path = files.save_file_to_temp(reviewer_csv)
+        if form.is_valid():
+            reviewers, import_error = logic.process_reviewer_csv(path, request, article, form)
+
+            if import_error:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    import_error,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{} Review assignments saved.'.format(len(reviewers)),
+                )
+                article.stage = submission_models.STAGE_UNDER_REVIEW
+                article.save()
+
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={
+                        'article_id': article.pk,
+                    }
+                )
+            )
+
+    template = 'admin/review/upload_reviewers_from_csv.html'
+    context = {
+        'article': article,
+        'form': form,
+        'errors': errors,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+@editor_user_required
+@setting_is_enabled(
+    setting_name='enable_share_reviews_decision',
+    setting_group_name='general',
+)
+def editor_share_reviews(request, article_id):
+    """
+    Allows an editor to share current reviews amongst the assigned reviewers.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    reviews = article.completed_reviews_with_decision
+    distinct_reviewers = reviews.distinct('reviewer')
+
+    for review in distinct_reviewers:
+        review.email_content = logic.get_share_review_content(
+            request,
+            article,
+            review,
+        )
+    form = forms.ShareReviewsForm(
+        reviews=distinct_reviewers,
+    )
+
+    if request.POST:
+        form = forms.ShareReviewsForm(
+            request.POST,
+            reviews=distinct_reviewers,
+        )
+        if form.is_valid():
+            article.mark_reviews_shared()
+            logic.send_review_share_message(
+                request,
+                article,
+                request.journal.get_setting(
+                    'email_subject',
+                    'subject_share_reviews_notification',
+                ),
+                form.cleaned_data,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Reviews shared with reviewers.'
+            )
+            return redirect(
+                reverse(
+                    'decision_helper',
+                    kwargs={
+                        'article_id': article.pk,
+                    }
+                )
+            )
+
+    template = 'review/share/editor.html'
+    context = {
+        'article': article,
+        'reviews': reviews,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@user_has_completed_review_for_article
+@setting_is_enabled(
+    setting_name='enable_share_reviews_decision',
+    setting_group_name='general',
+)
+def reviewer_share_reviews(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        reviews_shared=True,
+    )
+    reviews = article.completed_reviews_with_decision
+    template = 'review/share/reviewer.html'
+    context = {
+        'article': article,
+        'reviews': reviews,
+        'shared_reviews': True,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@reviewer_user_required
+def reviewer_shared_review_download(request, article_id, review_id):
+    """
+    Returns a file if the user is a legitimate reviewer and the review has
+    a file.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    review_assignment = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article=article,
+    )
+
+    # There are two possible routes that could mark the user as legitimate.
+    # 1. Auto sharing of reviews is enabled and the current user is a
+    # reviewer in the current review round.
+    # 2. The share reviews decision is enabled, this article has been shared
+    # and the current user has completed a review for the article.
+
+    # Route 1
+    if request.journal.get_setting(
+        'general',
+        'display_completed_reviews_in_additional_rounds',
+    ):
+        # Fetch all the users who have an active review assignment in the
+        # article's current round.
+        current_round_reviewers = [
+            review.reviewer for review in
+            models.ReviewAssignment.objects.filter(
+                article=article,
+                review_round=article.current_review_round_object(),
+                date_complete__isnull=True,
+                is_complete=False,
+            )]
+
+        # If the current user is in the list, serve the file.
+        if request.user in current_round_reviewers:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    # Route 2
+    if article.reviews_shared:
+        # Fetch all reviewers who have completed a review.
+        reviewers_with_complete_review = [
+            review.reviewer for review in
+            article.completed_reviews_with_decision
+        ]
+        if request.user in reviewers_with_complete_review:
+            return files.serve_file(
+                request,
+                review_assignment.review_file,
+                article,
+            )
+
+    raise Http404(
+        'You do not have permission to download this file.'
+    )

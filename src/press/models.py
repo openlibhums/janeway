@@ -14,10 +14,11 @@ from django.db import models
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, SVGImageField
 from utils import logic
 from utils.function_cache import cache
 from utils.logger import get_logger
+from press import utils
 
 
 logger = get_logger(__name__)
@@ -67,10 +68,38 @@ class Press(AbstractSiteModel):
         verbose_name='Press Logo',
         on_delete=models.SET_NULL,
     )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Publisher description',
+        help_text='This will appear in web search results and on social media when the press URL is shared',
+    )
     footer_description = models.TextField(
         null=True,
         blank=True,
+        verbose_name='Footer text',
         help_text='Additional HTML for the press footer.',
+    )
+    journal_footer_text = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Journal footer text',
+        help_text='Text that will appear in the footer '
+                  'of every journal, to display publisher '
+                  'address or other essential info. ',
+    )
+    secondary_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text='Optional secondary logo for footer. '
+                  'Not implemented in all themes.',
+    )
+    secondary_image_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text='Turns secondary image into a link.',
     )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
@@ -95,7 +124,6 @@ class Press(AbstractSiteModel):
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
-
     password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
     registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
 
@@ -190,7 +218,7 @@ class Press(AbstractSiteModel):
 
         return logic.build_url(
             netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
+            scheme=self._get_scheme(),
             port=port,
             path=_path,
         )
@@ -307,6 +335,10 @@ class Press(AbstractSiteModel):
             return False
 
         return True
+
+    @cache(600)
+    def navigation_items(self):
+        return utils.get_navigation_items(self)
 
     @property
     def code(self):

@@ -21,6 +21,7 @@ from journal import models as journal_models
 from production import models as production_models
 from security import decorators
 from review import models as review_models
+from review.const import ReviewerDecisions as RD
 from submission import models as submission_models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
@@ -3068,7 +3069,7 @@ class TestSecurity(TestCase):
 
         request = self.prepare_request_with_user(self.editor, self.journal_one)
         response = decorated_func(request, **kwargs)
-        expected_path = '/review/article/{0}/access_denied/'.format(
+        expected_path = '/review/article/{0}/decision/review/access_denied/'.format(
                 self.article_author_is_owner.pk)
         self.assertTrue(response.url.endswith(expected_path))
 
@@ -3896,6 +3897,76 @@ class TestSecurity(TestCase):
         )
         setting.editable_by.add(editor_role)
 
+    def test_setting_is_enabled_permission_denied(self):
+        func = Mock()
+        decorator = decorators.setting_is_enabled(
+            setting_name='enable_share_reviews_decision',
+            setting_group_name='general',
+        )
+        decorated_func = decorator(func)
+        request = self.prepare_request_with_user(
+            self.editor,
+            self.journal_one
+        )
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request)
+
+    def test_setting_is_enabled_access_granted(self):
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='enable_share_reviews_decision',
+            journal=self.journal_one,
+            value='On',
+        )
+        func = Mock()
+        decorator = decorators.setting_is_enabled(
+            setting_name='enable_share_reviews_decision',
+            setting_group_name='general',
+        )
+        decorated_func = decorator(func)
+        request = self.prepare_request_with_user(
+            self.editor,
+            self.journal_one
+        )
+        decorated_func(request)
+        self.assertTrue(
+            func.called,
+            "setting_is_enabled incorrectly raises a permission denied.",
+        )
+
+    def test_user_has_completed_review_for_article_denied(self):
+        func = Mock()
+        decorated_func = decorators.user_has_completed_review_for_article(func)
+        kwargs = {
+            'article_id': self.article_review_completed.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.second_user,
+            journal=self.journal_one,
+        )
+
+        # test that the callback was called
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_user_has_completed_review_for_article_granted(self):
+        func = Mock()
+        decorated_func = decorators.user_has_completed_review_for_article(func)
+        kwargs = {
+            'article_id': self.article_review_completed.pk
+        }
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+        decorated_func(request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "user_has_completed_review_for_article incorrectly raises a "
+            "permission denied.",
+        )
+
     # General helper functions
 
     @staticmethod
@@ -4139,17 +4210,20 @@ class TestSecurity(TestCase):
         self.article_author_is_owner.authors.add(self.editor)
         self.article_author_is_owner.authors.add(self.author)
 
-        self.review_form = review_models.ReviewForm(name="A Form", slug="A Slug", intro="i", thanks="t",
+        self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)
         self.review_form.save()
 
-        self.review_assignment_complete = review_models.ReviewAssignment(article=self.article_review_completed,
-                                                                         reviewer=self.regular_user,
-                                                                         editor=self.editor,
-                                                                         date_due=datetime.datetime.now(),
-                                                                         form=self.review_form,
-                                                                         is_complete=True,
-                                                                         date_complete=timezone.now())
+        self.review_assignment_complete = review_models.ReviewAssignment(
+            article=self.article_review_completed,
+            reviewer=self.regular_user,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            date_complete=timezone.now(),
+            decision=RD.DECISION_ACCEPT.value,
+        )
 
         self.review_assignment_complete.save()
 

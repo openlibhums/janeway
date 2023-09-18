@@ -1842,8 +1842,11 @@ msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:31
 msgid ""
-"The projected issue setting helps you track which issue an article is "
-"intended to be published with."
+"The projected issue field can be used internally to keep "
+"track of plans and communicate with typesetters, without "
+"affecting issue assignment or displaying anything publicly. "
+"It is helpful for journals that add articles to issues on a "
+"rolling basis and publish them individually."
 msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:32
@@ -1852,8 +1855,8 @@ msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:33
 msgid ""
-"Select an issue from the drop down on the left and press save, this articles "
-"projected issue will now be set."
+"Select an issue from the drop down on the left and press save. "
+"This article's projected issue will now be set."
 msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:34
@@ -1861,7 +1864,7 @@ msgid "Can I unset a projected issue?"
 msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:35
-msgid "Yes, simply select the blank option (-------) from the drop down."
+msgid "Yes, you can select the blank option (-------) from the dropdown."
 msgstr ""
 
 #: src/templates/admin/review/revision/do_revision.html:106

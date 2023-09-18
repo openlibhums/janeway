@@ -10,12 +10,69 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from review.const import (
+    EditorialDecisions as ED,
+    ReviewerDecisions as RD,
+    VisibilityOptions as VO
+)
 from utils import shared
+
 
 assignment_choices = (
     ('editor', 'Editor'),
     ('section-editor', 'Section Editor'),
 )
+
+
+def all_review_decisions():
+    """
+    Review decision options presented in admin.
+    """
+    return (
+        (RD.DECISION_ACCEPT.value, 'Accept Without Revisions'),
+        (RD.DECISION_MINOR.value, 'Minor Revisions Required'),
+        (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
+        (RD.DECISION_REJECT.value, 'Reject'),
+        (RD.DECISION_NO_RECOMMENDATION.value, 'No Recommendation'),
+    )
+
+
+def reviewer_decision_choices():
+    """
+    Review decision options presented to a Reviewer.
+    """
+    return (
+        (RD.DECISION_ACCEPT.value, 'Accept Without Revisions'),
+        (RD.DECISION_MINOR.value, 'Minor Revisions Required'),
+        (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
+        (RD.DECISION_REJECT.value, 'Reject'),
+    )
+
+
+def review_decision():
+    return (
+        (ED.ACCEPT.value, 'Accept Without Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
+        # Preserved the inconsistent verbose name below to avoid confusion to
+        # existing section editors
+        (ED.DECLINE.value, 'Reject'),
+    )
+
+
+def review_type():
+    return (
+        ('traditional', 'Traditional'),
+        # ('annotation', 'Annotation'),
+    )
+
+
+def review_visibilty():
+    return (
+        (VO.OPEN.value, 'Open'),
+        (VO.SINGLE_ANON.value, 'Single Anonymous'),
+        (VO.DOUBLE_ANON.value, 'Double Anonymous')
+    )
 
 
 class EditorAssignment(models.Model):
@@ -33,30 +90,6 @@ class EditorAssignment(models.Model):
 
     class Meta:
         unique_together = ('article', 'editor')
-
-
-def review_decision():
-    return (
-        ('accept', 'Accept Without Revisions'),
-        ('minor_revisions', 'Minor Revisions Required'),
-        ('major_revisions', 'Major Revisions Required'),
-        ('reject', 'Reject'),
-    )
-
-
-def review_type():
-    return (
-        ('traditional', 'Traditional'),
-        # ('annotation', 'Annotation'),
-    )
-
-
-def review_visibilty():
-    return (
-        ('open', 'Open'),
-        ('blind', 'Single Anonymous'),
-        ('double-blind', 'Double Anonymous')
-    )
 
 
 class ReviewRound(models.Model):
@@ -147,7 +180,7 @@ class ReviewAssignment(models.Model):
         max_length=20,
         blank=True,
         null=True,
-        choices=review_decision(),
+        choices=all_review_decisions(),
         verbose_name='Recommendation',
     )
     competing_interests = models.TextField(blank=True, null=True,
@@ -159,7 +192,7 @@ class ReviewAssignment(models.Model):
     visibility = models.CharField(
         max_length=20, choices=review_visibilty(),
         default='double-blind',
-        verbose_name=_("Anonimity"),
+        verbose_name=_("Anonymity"),
     )
     form = models.ForeignKey('ReviewForm', null=True, on_delete=models.SET_NULL)
     access_code = models.CharField(max_length=100, blank=True, null=True)
@@ -243,7 +276,7 @@ class ReviewAssignment(models.Model):
 
     @property
     def status(self):
-        if self.decision == 'withdrawn':
+        if self.decision == RD.DECISION_WITHDRAWN.value:
             return {
                 'code': 'withdrawn',
                 'display': 'Withdrawn',
@@ -284,6 +317,15 @@ class ReviewAssignment(models.Model):
                 'reminder': 'request',
             }
 
+    def request_decision_status(self):
+        if self.decision == RD.DECISION_WITHDRAWN.value:
+            return f'Withdrawn {self.date_complete.date()}'
+        elif self.date_accepted:
+            return f'Accepted {self.date_accepted.date()}'
+        elif self.date_declined:
+            return f'Declined {self.date_declined.date()}'
+        return 'Awaiting acknowledgement'
+
     def visibility_statement(self):
         if self.for_author_consumption:
             return _("available for the author to access")
@@ -306,16 +348,19 @@ class ReviewForm(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200)
 
-    intro = models.TextField(help_text="Message displayed at the start of the review form.")
-    thanks = models.TextField(help_text="Message displayed after the reviewer is finished.")
+    intro = models.TextField(
+        help_text="Message displayed at the start of the review form.",
+    )
+    thanks = models.TextField(
+        help_text="Message displayed after the reviewer is finished.",
+    )
 
     elements = models.ManyToManyField('ReviewFormElement')
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return u'{0} - {1}'.format(self.id, self.name)
+        return self.name
 
 
 def element_kind_choices():
@@ -480,8 +525,8 @@ class RevisionAction(models.Model):
 
 def revision_type():
     return (
-        ('minor_revisions', 'Minor Revisions'),
-        ('major_revisions', 'Major Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
     )
 
 
@@ -499,12 +544,22 @@ class RevisionRequest(models.Model):
     author_note = models.TextField(
         blank=True,
         null=True,
-        verbose_name="Covering Letter",
-        help_text="You can add an optional covering letter to the editor with details of the "
-                  "changes that you have made to your revised manuscript."
+        verbose_name="Covering Letter to Editor",
+        help_text="If you would like to include a cover letter for the editor "
+                  "providing changes you made to your revised manuscript, "
+                  "please add this above'"
     )  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
+
+    response_letter = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Response Letter to Reviewers",
+        help_text='You have the option to include a response letter for the '
+                  'reviewers, providing details about the changes you made '
+                  'to your manuscript or counter arguments.',
+    )
 
     date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()
@@ -568,7 +623,7 @@ class DecisionDraft(models.Model):
 
     editor_decision = models.CharField(
         max_length=20,
-        choices=(('accept', 'Accept'), ('decline', 'Decline')),
+        choices=((ED.ACCEPT.value, 'Accept'), (ED.DECLINE.value, 'Decline')),
         null=True,
         blank=True,
     )

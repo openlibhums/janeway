@@ -2054,10 +2054,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonimity drop down when creating a review assignment.",
+            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
             "is_translatable": false,
             "name": "default_review_visibility",
-            "pretty_name": "Default Review Anonimity",
+            "pretty_name": "Default Review Anonymity",
             "type": "select"
         },
         "value": {
@@ -2192,25 +2192,6 @@
             "name": "press_journal_description",
             "pretty_name": "Journal Description for Press Site",
             "type": "rich-text"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
-            "description": "Enables the CI submission field.",
-            "is_translatable": false,
-            "name": "submission_competing_interests",
-            "pretty_name": "Competing Interests",
-            "type": "boolean"
         },
         "value": {
             "default": ""
@@ -3879,7 +3860,7 @@
         },
         "setting": {
             "description": "Enable open peer review mode on this journal. With this feature enabled, each peer review can be approved for public display alongside its published article. The peer reviewer and the editor must separately approve each review before it is made public.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "open_peer_review",
             "pretty_name": "Enable open peer review",
             "type": "boolean"
@@ -4034,6 +4015,25 @@
             "is_translatable": false,
             "name": "enable_suggested_reviewers",
             "pretty_name": "Enable Suggested Reviewers",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When this setting is enabled the review assignment page will show a table of reviewers who have completed a review in past review rounds.",
+            "is_translatable": false,
+            "name": "display_past_reviewers",
+            "pretty_name": "Display List of Reviewers from Past Review Rounds",
             "type": "boolean"
         },
         "value": {
@@ -4782,6 +4782,195 @@
         "editable_by": [
             "journal-manager"
         ]
+    },  
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Reviewers opt in to open review by default, the field will be checked forcing them to opt out if they want to.",
+            "is_translatable": false,
+            "name": "open_review_default_opt_in",
+            "pretty_name": "Open Review Defaults to Opt In",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Reviewers will not be asked to make any recommendation e.g. Accept or Reject. Review recommendation will be set to No Recommendation",
+            "is_translatable": false,
+            "name": "disable_reviewer_recommendation",
+            "pretty_name": "Disable Reviewer Recommendation",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Adds a new decision to the decision helper that allows editors to share peer reviews amongst assigned reviewers.",
+            "is_translatable": false,
+            "name": "enable_share_reviews_decision",
+            "pretty_name": "Enable Share Reviews Decision",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When in an additional review round (eg round 2 or 3) reviewers will see completed reviews from previous rounds in the review interface.",
+            "is_translatable": false,
+            "name": "display_completed_reviews_in_additional_rounds",
+            "pretty_name": "Display Completed Reviews in Review Interface",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "This text is displayed to reviewers when \"Display Completed Reviews in Review Interface\" is enabled.",
+            "is_translatable": false,
+            "name": "display_completed_reviews_in_additional_rounds_text",
+            "pretty_name": "Display Completed Reviews in Review Interface Text",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>It is our policy to share completed reviews from prior review rounds with all reviewers engaged in the review process. You can find the completed reviews from prior rounds below.</p>"
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent by editors to reviewers when sharing peer reviews.",
+            "is_translatable": true,
+            "name": "share_reviews_notification",
+            "pretty_name": "Share Reviews Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ review.reviewer.full_name }},</p><p>We would like to express our gratitude for your valuable contribution as a peer reviewer for our article. At our journal, it is our policy to share completed peer reviews with all the reviewers involved. We would like to provide you with the opportunity to access not only your own review but also those of your peers.</p><p>To access the reviews, use the following link: {{ url }}</p><p>Thank you once again for your time,</p><p>{{ request.user.signature }}</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Share Reviews Notification.",
+            "is_translatable": true,
+            "name": "subject_share_reviews_notification",
+            "pretty_name": "Subject for Share Reviews Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Sharing Peer Reviews"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When this setting is enabled and you make either a share reviews decision or are sharing reviews via the review interface then Janeway will include any reviewer response letters.",
+            "is_translatable": false,
+            "name": "share_author_response_letters",
+            "pretty_name": "Automatically Share Author Response Letters",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent editors when an author completes a revision request.",
+            "is_translatable": true,
+            "name": "revisions_complete_editor_notification",
+            "pretty_name": "Revisions Complete Editor Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>{{ revision.article.correspondence_author.full_name }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Editor Notification.",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_editor_notification",
+            "pretty_name": "Subject for Revisions Complete Editor Notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     },
     {
         "group": {
@@ -4798,13 +4987,13 @@
             "default": "<p>An email sent to {% for email in event.to %}{{ email }}{% if not forloop.last %}, {% endif %}{% endfor %} has not been delivered.{% if target %} This message was in regards to {{ event.content_type.model }} #{{ target.pk }} \"{{ target.title|safe }}\".{% endif %}</p><p>Kind Regards,</p>"
         },
         "editable_by": [
-            "editor",
-            "journal-manager"
+            "journal-manager",
+            "editor"
         ]
     },
     {
-        "group": {
-            "name": "email_subject"
+         "group": {
+            "name": "email"
         },
         "setting": {
             "description": "Subject for Bounced Email Notification.",
@@ -4817,8 +5006,8 @@
             "default": "Email Bounced"
         },
         "editable_by": [
-            "editor",
-            "journal-manager"
+            "journal-manager",
+            "editor"
         ]
     }
 ]

@@ -81,9 +81,9 @@ REMINDER_CHOICES = (
 
 RUN_TYPE_CHOICES = (
     # Before the event
-    ('before', 'Before'),
+    ('before', 'before the due date'),
     # After the event
-    ('after', 'After'),
+    ('after', 'after the due date'),
 )
 
 
@@ -100,20 +100,37 @@ class Reminder(models.Model):
     )
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
-    days = models.PositiveIntegerField(help_text="The number of days before or after this reminder should fire")
-    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist "
-                                                               "you will be asked to create it. Should have no spaces.")
+    days = models.PositiveIntegerField(
+        help_text="The number of days before or "
+                  "after the due date this "
+                  "reminder should fire",
+    )
+    template_name = models.CharField(
+        max_length=100,
+        help_text="The name of the email template. "
+                  "If it does not exist, you will be "
+                  "asked to create it. "
+                  "Should have no spaces.",
+    )
     subject = models.CharField(max_length=200)
 
     def __str__(self):
-        return "{0}: {1}, {2}, {3}".format(self.journal.code, self.run_type, self.type, self.subject)
+        return "{0}: {1}, {2}, {3}".format(
+            self.journal.code,
+            self.run_type,
+            self.type,
+            self.subject,
+        )
 
     def target_date(self):
         """
-        Works out the target date of a reminder by adding or subtracting a timedelta from today's date.
-        Examples: Reminder set to send 5 days before the due date we take today's date and add 5 days to search
-        for ReviewAssignments that are due 5 days from now. The reverse is true for after, we remove 5 days from
-        today's date to work out which ReviewAssignments were due 5 days ago.
+        Works out the target date of a reminder by adding or subtracting a
+        timedelta from today's date.
+        Examples: For a reminder set to send 5 days before the due date,
+        we take today's date and add 5 days to search for
+        ReviewAssignments that are due 5 days from now. The reverse
+        is true for after: we remove 5 days from today's date to work
+        out which ReviewAssignments were due 5 days ago.
         """
         date_time = None
 
@@ -200,14 +217,22 @@ class Reminder(models.Model):
                     self.journal,
                     self.template_name,
                 )
-
+                log_dict = {
+                    'level': 'Info',
+                    'action_text': 'Automated reminder sent',
+                    'types': 'Automated Reminder',
+                    'target': item.article,
+                    'actor': None,
+                }
                 notify_helpers.send_email_with_body_from_user(
                     request,
                     self.subject,
                     to,
                     message,
+                    log_dict=log_dict,
                 )
-                # Create a SentReminder object to ensure we don't do this more than once by accident.
+                # Create a SentReminder object to ensure we don't do this more
+                # than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
                 logger.info('Reminder sent for {0}'.format(item))
             elif test:
@@ -226,8 +251,9 @@ class Request(object):
         self.site_type = None
         self.port = 8000
         self.secure = False
-        self.user = False
+        self.user = None
         self.FILES = None
+        self.META = {}
 
     def is_secure(self):
         if self.secure is False:
