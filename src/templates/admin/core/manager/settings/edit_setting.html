@@ -49,7 +49,7 @@
                                 Journals with a specific journal override will not use this value.</h5>
                         {% endif %}
                         </h5>
-                        {% if setting.description %}<p>{{ setting.description|safe }}</p>{% endif %}
+                        {% if setting.description %}<label for="id_value">{{ setting.description|safe }}</label>{% endif %}
 
                         {% include "elements/forms/errors.html" with form=edit_form %}
 

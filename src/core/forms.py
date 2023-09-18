@@ -51,6 +51,7 @@ class EditKey(forms.Form):
 
         self.fields['value'].initial = value
         self.fields['value'].required = False
+        self.fields['value'].label = ''
 
     value = forms.CharField(label='')
 
