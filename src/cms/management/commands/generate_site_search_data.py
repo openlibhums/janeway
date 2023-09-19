@@ -7,18 +7,18 @@ logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Generates a new site search index and saves it as a MediaFile'
+    help = 'Generates new site search data and saves it as a MediaFile'
 
     def add_arguments(self, parser):
         parser.add_argument('--press_id', type=int)
 
     def handle(self, *args, **options):
         if options['press_id']:
-            documents, index_file = cms_logic.update_index(press_id=options['press_id'])
+            documents = cms_logic.update_search_data(press_id=options['press_id'])
         else:
-            documents, index_file = cms_logic.update_index()
+            documents = cms_logic.update_search_data()
         logger.info(
             self.style.SUCCESS(
-                f'Successfully updated {documents} and {index_file}'
+                f'Successfully updated {documents}'
             )
         )
