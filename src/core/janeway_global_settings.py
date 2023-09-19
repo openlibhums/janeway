@@ -516,8 +516,10 @@ if os.environ.get("DB_VENDOR") == "postgres":
 
 ENABLE_FULL_TEXT_SEARCH = False
 
-# Press website search using lunr (does not search articles, issues, preprints, or books).
-# Expects a tuple or None. Tuple examples: (23, 'daily')  (12, 'hourly')  (30, 'mins')
+# Press website search using MiniSearch
+# (does not search articles, issues, preprints, or books).
+# Expects a tuple or None. Tuple examples: (23, 'daily')
+# (12, 'hourly')  (30, 'mins')
 SITE_SEARCH_INDEXING_FREQUENCY = (4, 'daily')
 SITE_SEARCH_DIR = 'site_search_test' if IN_TEST_RUNNER else 'site_search'
 
