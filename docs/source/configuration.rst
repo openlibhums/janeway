@@ -113,6 +113,15 @@ There is a command you can run once ``ENABLE_FULL_TEXT`` is set to True
 The above command will generate the relevant indexes for full-text search to work within Janeway.
 
 
+Press site search
+-----------------
+
+Janeway provides limited support for static site search of press website content. Currently it is only available when using the `Hourglass press-level theme <https://github.com/BirkbeckCTP/hourglass>`_.
+
+To enable site search, set ``SITE_SEARCH_INDEXING_FREQUENCY`` to ``(4, 'daily')`` (or another crontab frequency) in your settings file. To disable it, set this setting to ``None``.
+
+You can also immediately generate the search data by running the server and then running the command ``python manage.py generate_site_search_index``.
+
 Theming
 --------
 Janeway includes three core themes by default:
