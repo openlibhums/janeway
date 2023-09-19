@@ -23,6 +23,7 @@ from utils.middleware import BaseMiddleware
 from core import models as core_models
 from journal import models as journal_models
 from repository import models as repository_models
+from cms import logic as cms_logic
 
 logger = get_logger(__name__)
 
@@ -117,6 +118,17 @@ class SiteSettingsMiddleware(BaseMiddleware):
             request.site_type = request.site_object = press
             request.model_content_type = ContentType.objects.get_for_model(press)
             request.press_base_url = press.site_url()
+
+            # Site search data urls
+            if (
+                settings.SITE_SEARCH_INDEXING_FREQUENCY
+                and not settings.IN_TEST_RUNNER
+            ):
+
+                docs_file, index_file = cms_logic.get_index_files(request.press)
+                request.site_search_docs_url = docs_file.file.url
+                request.site_search_index_url = index_file.file.url
+
         else:
             raise Http404()
 
