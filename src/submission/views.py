@@ -613,7 +613,7 @@ def edit_metadata(request, article_id):
             pop_disabled_fields=False,
             editor_view=True,
         )
-        frozen_author, modal = None, None
+
         return_param = request.GET.get('return')
         reverse_url = create_language_override_redirect(
             request,
@@ -622,11 +622,12 @@ def edit_metadata(request, article_id):
             query_strings={'return': return_param}
         )
 
+        frozen_author, modal, author_form = None, None, forms.EditFrozenAuthor()
         if request.GET.get('author'):
             frozen_author, modal = logic.get_author(request, article)
             author_form = forms.EditFrozenAuthor(instance=frozen_author)
-        else:
-            author_form = forms.EditFrozenAuthor()
+        elif request.GET.get('modal') == 'author':
+            modal = 'author'
 
         if request.POST:
             if 'add_funder' in request.POST:
