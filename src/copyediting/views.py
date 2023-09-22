@@ -24,6 +24,7 @@ from security.decorators import (
 
 from submission import models as submission_models
 
+
 @any_editor_user_required
 def copyediting(request):
     """
@@ -229,12 +230,15 @@ def edit_assignment(request, article_id, copyedit_id):
             )
         )
 
-    form = forms.CopyeditAssignmentForm(
+    form = forms.EditCopyeditAssignment(
         instance=copyedit,
     )
 
     if request.POST:
-        form = forms.CopyeditAssignmentForm(request.POST, instance=copyedit)
+        form = forms.EditCopyeditAssignment(
+            request.POST,
+            instance=copyedit,
+        )
 
         if form.is_valid():
             form.save()

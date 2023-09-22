@@ -22,6 +22,7 @@
             <div class="row expanded">
                 <form method="POST">
                     {% csrf_token %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     <div class="large-6 columns">{{ form.editor_note|foundation }}</div>
                     <div class="large-6 columns">{{ form.due|foundation }}</div>
                     <div class="large-12 columns">
