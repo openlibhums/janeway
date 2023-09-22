@@ -1121,25 +1121,47 @@ def supp_file_doi(request, article_id, supp_file_id):
         'crossref_date_suffix',
     )
 
-    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
+    test_mode = setting_handler.get_setting(
+        'Identifiers',
+        'crossref_test',
+        article.journal
+    ).processed_value
 
     if not article.get_doi():
-        messages.add_message(request, messages.INFO, 'Parent article must have a DOI before you can assign a'
-                                                     'supplementary file a DOI.')
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Parent article must have a DOI before you can assign a '
+            'supplementary file a DOI.')
 
-    xml_context = {'supp_file': supplementary_file,
-                   'article': article,
-                   'batch_id': uuid.uuid4(),
-                   'timestamp_suffix': timestamp_suffix,
-                   'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                                 article.journal).processed_value,
-                   'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                                  article.journal).processed_value,
-                   'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                             article.journal).processed_value,
-                   'parent_doi': article.get_doi()
-                   }
-    xml_content = render_to_string('common/identifiers/crossref_component.xml', xml_context, request)
+    xml_context = {
+        'supp_file': supplementary_file,
+        'article': article,
+        'batch_id': uuid.uuid4(),
+        'timestamp_suffix': timestamp_suffix,
+        'depositor_name': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_name',
+            article.journal
+        ).processed_value,
+        'depositor_email': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_email',
+            article.journal
+        ).processed_value,
+        'registrant': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_registrant',
+            article.journal
+        ).processed_value,
+        'parent_doi': article.get_doi(),
+        'now': datetime.datetime.now(),
+    }
+    xml_content = render_to_string(
+        'common/identifiers/crossref_component.xml',
+        xml_context,
+        request
+    )
 
     if request.POST:
         from identifiers import logic
