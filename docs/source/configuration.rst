@@ -120,7 +120,7 @@ Janeway provides limited support for static site search of press website content
 
 To enable site search, set ``SITE_SEARCH_INDEXING_FREQUENCY`` to ``(4, 'daily')`` (or another crontab frequency) in your settings file. To disable it, set this setting to ``None``.
 
-You can also immediately generate the search data by running the server and then running the command ``python manage.py generate_site_search_index``.
+You can also immediately generate the search data by running the server and then running the command ``python manage.py generate_site_search_data``.
 
 Theming
 --------

@@ -149,9 +149,6 @@ class Command(BaseCommand):
             call_command('build_assets')
             print("Installing plugins.")
             call_command('install_plugins')
-            if settings.SITE_SEARCH_INDEXING_FREQUENCY:
-                print("Generating press site search index")
-                call_command('generate_site_search_index', '--press_id', press.pk)
             print("Installing Cron jobs")
             try:
                 call_command('install_cron')
