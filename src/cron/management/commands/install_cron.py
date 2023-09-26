@@ -84,9 +84,9 @@ class Command(BaseCommand):
             task_time, task_type = settings.SITE_SEARCH_INDEXING_FREQUENCY
             jobs.append(
                 {
-                    'name': '{}_site_search_index'.format(cwd),
+                    'name': '{}_site_search_data'.format(cwd),
                     'time': task_time,
-                    'task': 'generate_site_search_index',
+                    'task': 'generate_site_search_data',
                     'type': task_type,
                 }
             )
