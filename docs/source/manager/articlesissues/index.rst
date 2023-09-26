@@ -99,6 +99,24 @@ You can reorder the Section headers using the arrows Up and Down arrows on the r
 
 In addition, if the issue has guest editors you can add them using the Guest Editor manager at the bottom of the Issue page.
 
+Projected Issues
+~~~~~~~~~~~~~~~~
+Janeway allows editors to mark articles as projected to be published within a given issue. This can be done in the Editor Assignment stage by using the "Assign Projected Issue" button.
+
+.. warning:: Assigning an article a projected issue is not the same as assigning an article directly to an issue. Projected issues are used mainly for internal tracking.
+
+.. figure:: ../../nstatic/assign_projected_issue_link.png
+
+    On the Editor Assignment screen you can see which issue an article is projected to be in.
+
+On the projected issue screen you can select, from a drop down, the issue you expect the article to be published in.
+
+.. figure:: ../../nstatic/assign_a_projected_issue.png
+
+    Select an issue and click "Save Projected Issue" to update the projected issue for your article.
+
+
+
 Article Sections
 ----------------
 .. Note::
