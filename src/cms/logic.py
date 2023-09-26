@@ -146,6 +146,10 @@ def get_press_site_search_data():
                     exclude = True
                 if deeper_url == indexed_url + '/':
                     exclude = True
+                if 'https://' + deeper_url == indexed_url:
+                    exclude = True
+                if deeper_url == 'https://' + indexed_url:
+                    exclude = True
             if (
                 not exclude
             ) and (
