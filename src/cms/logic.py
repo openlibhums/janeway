@@ -98,7 +98,10 @@ def get_press_site_search_data():
     def add_page(url):
         time.sleep(.25)
         try:
-            response = requests.get(url)
+            headers = {
+                'Accept': 'text/html; charset=utf-8'
+            }
+            response = requests.get(url, headers=headers)
             indexed_urls.append(url)
         except requests.exceptions.ConnectionError:
             logger.warn('Please run server to index site search')
