@@ -110,6 +110,9 @@ def get_press_site_search_data():
         if response.status_code != 200:
             return
 
+        if 'text/html' not in response.headers['Content-Type']:
+            return
+
         html = BeautifulSoup(response.text, 'html.parser')
         body = html.find('body')
         if not isinstance(body, Tag):
