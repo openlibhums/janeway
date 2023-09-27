@@ -126,8 +126,10 @@
                                 </tr>
                             {% endfor %}
                         </table>
-                        <h5>Covering Letter from Author</h5>
-                        <blockquote>{{ review.author_note|safe }}</blockquote>
+                        <div class="title-area">
+                            <h2>Covering Letter from Author</h2>
+                        </div>
+                        {{ review.author_note|safe }}
                         {% if not forloop.last %}
                         <hr />
                         {% endif %}
