@@ -15,6 +15,9 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
+from django_countries.fields import CountryField
+from django_bleach.models import BleachField
+from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -83,7 +86,10 @@ def repo_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
-class Repository(model_utils.AbstractSiteModel):
+class Repository(
+    model_utils.AbstractBleachModelMixin,
+    model_utils.AbstractSiteModel,
+):
     press = models.ForeignKey(
         'press.Press',
         null=True,
@@ -218,6 +224,7 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Licence',
         blank=True,
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -375,14 +382,11 @@ class Preprint(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
         help_text=_(
-            'Please avoid pasting content from word processors as they can add '
-            'unwanted styling to the abstract. You can retype the abstract '
-            'here or copy and paste it into notepad/a plain text editor before '
-            'pasting here.',
+            'Copying and pasting from word processors is supported.',
         )
 
     )
@@ -831,11 +835,9 @@ class PreprintAccess(models.Model):
     )
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey(
-        'core.Country',
-        blank=True,
+    country = CountryField(
         null=True,
-        on_delete=models.SET_NULL,
+        blank=True,
     )
 
     @property

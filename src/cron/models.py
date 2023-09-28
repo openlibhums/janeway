@@ -217,14 +217,22 @@ class Reminder(models.Model):
                     self.journal,
                     self.template_name,
                 )
-
+                log_dict = {
+                    'level': 'Info',
+                    'action_text': 'Automated reminder sent',
+                    'types': 'Automated Reminder',
+                    'target': item.article,
+                    'actor': None,
+                }
                 notify_helpers.send_email_with_body_from_user(
                     request,
                     self.subject,
                     to,
                     message,
+                    log_dict=log_dict,
                 )
-                # Create a SentReminder object to ensure we don't do this more than once by accident.
+                # Create a SentReminder object to ensure we don't do this more
+                # than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
                 logger.info('Reminder sent for {0}'.format(item))
             elif test:
@@ -243,8 +251,9 @@ class Request(object):
         self.site_type = None
         self.port = 8000
         self.secure = False
-        self.user = False
+        self.user = None
         self.FILES = None
+        self.META = {}
 
     def is_secure(self):
         if self.secure is False:

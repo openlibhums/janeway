@@ -14,18 +14,17 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
 from django_summernote.widgets import SummernoteWidget
+from django_bleach.forms import BleachField
+from django_bleach.utils import get_bleach_default_options
+from bleach import clean as bleach_clean
 
 from core import models, validators
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm, HTMLDateInput
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm
 from utils.logger import get_logger
 from submission import models as submission_models
-
-# This will set is_checkbox attribute to True for checkboxes.
-# Usage:  {% if field.field.is_checkbox %}
-setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
 
 logger = get_logger(__name__)
 
@@ -39,7 +38,7 @@ class EditKey(forms.Form):
         if self.key_type == 'rich-text':
             self.fields['value'].widget = SummernoteWidget()
         elif self.key_type == 'boolean':
-            self.fields['value'].widget = forms.CheckboxInput()
+            self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
         elif self.key_type == 'integer':
             self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
         elif self.key_type == 'file' or self.key_type == 'journalthumb':
@@ -51,6 +50,7 @@ class EditKey(forms.Form):
 
         self.fields['value'].initial = value
         self.fields['value'].required = False
+        self.fields['value'].label = ''
 
     value = forms.CharField(label='')
 
@@ -83,6 +83,9 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):
+
+    description = BleachField()
+
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
@@ -93,9 +96,6 @@ class EditorialGroupForm(JanewayTranslationModelForm):
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
-        widgets = {
-            'description': SummernoteWidget(),
-        }
 
 
 class PasswordResetForm(forms.Form):
@@ -410,6 +410,13 @@ class NotificationForm(forms.ModelForm):
     class Meta:
         model = journal_models.Notifications
         exclude = ('journal',)
+        widgets = {
+            'active': forms.CheckboxInput(
+                attrs={
+                    'is_checkbox': True,
+                }
+            ),
+        }
 
 
 class ArticleMetaImageForm(forms.ModelForm):
@@ -617,11 +624,20 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
-            # To do:
             elif facet['type'] == 'date_time':
                 self.fields[facet_key] = forms.DateTimeField(
-                    widget=HTMLDateInput(),
                     required=False,
+                    widget=forms.DateTimeInput(
+                        attrs={'type': 'datetime-local'}
+                    ),
+                )
+
+            elif facet['type'] == 'date':
+                self.fields[facet_key] = forms.DateField(
+                    required=False,
+                    widget=forms.DateInput(
+                        attrs={'type': 'date'}
+                    ),
                 )
 
             elif facet['type'] == 'boolean':
@@ -748,3 +764,28 @@ class ConfirmableIfErrorsForm(ConfirmableForm):
             return super().is_confirmed()
         else:
             return True
+
+
+class BleachFormMixin(forms.BaseForm):
+    """
+    Allows optional bleaching of values of rich-text fields
+    during form cleaning based on a Boolean.
+    """
+
+    BLEACHABLE_FIELDS = []
+    BLEACH_BOOLEAN_FIELD = 'support_copy_paste'
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self.BLEACH_BOOLEAN_FIELD:
+            bleach_kwargs = get_bleach_default_options()
+            for field in self.BLEACHABLE_FIELDS:
+                data = getattr(obj, field)
+                setattr(obj, field, bleach_clean(data, **bleach_kwargs))
+        if commit:
+            obj.save()
+        return obj
+
+
+class BleachableModelForm(BleachFormMixin, forms.ModelForm):
+    pass

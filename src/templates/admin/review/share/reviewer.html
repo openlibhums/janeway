@@ -1,0 +1,41 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Shared Peer Reviews{% endblock %}
+{% block title-section %}Shared Peer Reviews{% endblock %}
+{% block title-sub %}#{{ article.pk }} /
+    {{ article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Shared Peer Reviews</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <section>
+        <div class="row column expanded">
+            <div class="box">
+                <div class="title-area">
+                    <h2>About Shared Reviews</h2>
+                </div>
+                <div class="content">
+                    <p>The following reviews have been shared with you were written for "{{ article.title|safe }}". They have also been shared with the other reviews of this article.</p>
+                </div>
+
+                <div class="title-area">
+                    <h2>Reviews</h2>
+                </div>
+                <div class="content">
+                    {% include "admin/elements/review/view_reviews.html" with reviews=reviews shared_reviews=shared_reviews %}
+                </div>
+                {% if journal_settings.general.share_author_response_letters and article.completed_revision_requests %}
+                    <div class="title-area">
+                        <h2>Revision Response Letters</h2>
+                    </div>
+                    <div class="content">
+                        {% include "admin/elements/review/revision_responses.html" with article=article %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock body %}

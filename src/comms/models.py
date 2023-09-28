@@ -5,8 +5,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
+from simple_history.models import HistoricalRecords
 
 from core import files
+from core.model_utils import AbstractBleachModelMixin
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -14,7 +16,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-class NewsItem(models.Model):
+class NewsItem(AbstractBleachModelMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
@@ -38,6 +40,7 @@ class NewsItem(models.Model):
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
                   "the news item with whatever text is added here.",
     )
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ('-posted', 'title')

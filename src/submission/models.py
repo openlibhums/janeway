@@ -34,6 +34,9 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django_countries.fields import CountryField
+from django_bleach.models import BleachField
+
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -51,6 +54,10 @@ from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from journal import models as journal_models
+from review.const import (
+    ReviewerDecisions as RD,
+    VisibilityOptions as VO,
+)
 
 logger = get_logger(__name__)
 
@@ -253,6 +260,13 @@ REVIEW_STAGES = {
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION,
     STAGE_ACCEPTED,
+}
+
+# Stages used to determine if a review assignment is open
+REVIEW_ACCESSIBLE_STAGES = {
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
+    STAGE_UNDER_REVISION
 }
 
 COPYEDITING_STAGES = {
@@ -614,7 +628,10 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-    title = models.CharField(max_length=999, help_text=_('Your article title'))
+    title = BleachField(
+        max_length=999,
+        help_text=_('Your article title'),
+    )
     subtitle = models.CharField(
         # Note: subtitle is deprecated as of version 1.4.2
         max_length=999,
@@ -622,13 +639,10 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
-        help_text=_('Please avoid pasting content from word processors as they can add '
-                    'unwanted styling to the abstract. You can retype the abstract '
-                    'here or copy and paste it into notepad/a plain text editor before '
-                    'pasting here.')
+        help_text=_('Copying and pasting from word processors is supported.'),
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
@@ -807,6 +821,12 @@ class Article(AbstractLastModifiedModel):
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
+
+    reviews_shared = models.BooleanField(
+        default=False,
+        help_text="Marked true when an editor manually shares reviews with "
+                  "other reviewers using the decision helper page.",
+    )
 
     objects = ArticleSearchManager()
     active_objects = ActiveArticleManager()
@@ -1431,10 +1451,20 @@ class Article(AbstractLastModifiedModel):
             decision__isnull=False,
         ).exclude(decision='withdrawn')
 
+    @property
+    def completed_reviews_with_decision_previous_rounds(self):
+        completed_reviews = self.completed_reviews_with_decision
+        return completed_reviews.filter(
+            review_round__round_number__lt=self.current_review_round(),
+        )
+
     def active_review_request_for_user(self, user):
         try:
-            return self.reviewassignment_set.filter(is_complete=False, date_declined__isnull=True,
-                                                    reviewer=user).first()
+            return self.reviewassignment_set.filter(
+                is_complete=False,
+                date_declined__isnull=True,
+                reviewer=user
+            ).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
@@ -1445,6 +1475,11 @@ class Article(AbstractLastModifiedModel):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
+
+        # Frozen author records should be updated at acceptance,
+        # so we fire the default force_update=True on snapshot_authors
+        self.snapshot_authors()
+
         self.date_accepted = timezone.now()
         self.date_declined = None
 
@@ -1484,6 +1519,10 @@ class Article(AbstractLastModifiedModel):
         self.date_declined = None
         self.stage = STAGE_PREPRINT_PUBLISHED
         self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
+        self.save()
+
+    def mark_reviews_shared(self):
+        self.reviews_shared = True
         self.save()
 
     def user_is_author(self, user):
@@ -1545,6 +1584,9 @@ class Article(AbstractLastModifiedModel):
 
     def active_revision_requests(self):
         return self.revisionrequest_set.filter(date_completed__isnull=True)
+
+    def completed_revision_requests(self):
+        return self.revisionrequest_set.filter(date_completed__isnull=False)
 
     def active_author_copyedits(self):
         author_copyedits = []
@@ -1814,6 +1856,14 @@ class Article(AbstractLastModifiedModel):
 
         return last_mod_date
 
+    @cache(600)
+    def pinned(self):
+        if journal_models.PinnedArticle.objects.filter(
+            journal=self.journal,
+            article=self,
+        ):
+            return True
+
 
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(
@@ -1855,11 +1905,9 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     " for the account will be populated instead."
                    ),
     )
-    country = models.ForeignKey(
-        'core.Country',
+    country = CountryField(
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
     )
 
     order = models.PositiveIntegerField(default=1)
@@ -2062,6 +2110,19 @@ class Section(AbstractLastModifiedModel):
         if self.name:
             return self.name
         return f"Unnamed Section {self.pk}"
+
+    def display_name_public_submission(self):
+        """
+        Returns a display name that informs the user if the section is
+        close for submission.
+        """
+        name = f"Unnamed Section {self.pk}"
+        if self.name:
+            name = self.name
+        if not self.public_submissions:
+            name = f"{name} (Public Submission Closed)"
+
+        return name
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)

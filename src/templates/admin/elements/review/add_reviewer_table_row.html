@@ -1,0 +1,8 @@
+<td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
+<td>{{ reviewer.full_name }}</td>
+<td>{{ reviewer.email }}</td>
+<td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
+<td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+<td>{{ reviewer.rating_average|default_if_none:"" }}</td>
+<td>{{ reviewer.reviewer.all.0.date_complete }}</td>
+{% if past_reviewers %}<td>{% if reviewer in past_reviewers %}Yes{% else %}No{% endif %}</td>{% endif %}

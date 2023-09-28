@@ -23,7 +23,7 @@ from utils import render_template, shared
 from utils.function_cache import cache
 from events import logic as event_logic
 from repository import models, forms
-from metrics.logic import get_iso_country_code, iso_to_country_object
+from metrics.logic import get_iso_country_code
 
 
 def get_month_day_range(date):
@@ -506,7 +506,6 @@ def store_preprint_access(request, preprint, file=None):
 
         ip = shared.get_ip_address(request)
         iso_country_code = get_iso_country_code(ip)
-        country = iso_to_country_object(iso_country_code)
         counter_tracking_id = request.session.get('counter_tracking')
         identifier = counter_tracking_id if counter_tracking_id else hash(ip)
 
@@ -525,7 +524,7 @@ def store_preprint_access(request, preprint, file=None):
                 preprint=preprint,
                 file=file,
                 identifier=identifier,
-                country=country,
+                country=iso_country_code,
             )
 
 

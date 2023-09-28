@@ -404,7 +404,7 @@ h5 {
 }
 
 .small-caps {
-    font-variant: small-caps
+    font-variant: all-small-caps
 }
 
 /* Remove default bullets */
@@ -456,7 +456,10 @@ nav ul li {
     line-height: 90px;
 }
 
-nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
+nav,
+nav .nav-wrapper i,
+nav a.sidenav-trigger,
+nav a.sidenav-trigger i {
     line-height: 90px;
 }
 
@@ -477,7 +480,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     color: white;
 }
 
-.button-collapse {
+.sidenav-trigger {
     color: #616161;
 }
 

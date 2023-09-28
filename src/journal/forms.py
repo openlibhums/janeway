@@ -13,7 +13,7 @@ from django_summernote.widgets import SummernoteWidget
 
 from core import models as core_models
 from journal import models as journal_models, logic
-from utils.forms import CaptchaForm, LeftBooleanField
+from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
         # Translators: Search order options
@@ -92,14 +92,15 @@ class SearchForm(forms.Form):
         if self.data and not self.has_filter:
             for search_filter in self.SEARCH_FILTERS:
                 self.data[search_filter] = "on"
+        self.label_suffix = ''
 
     article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
-    title = LeftBooleanField(initial=True, label=_('Search Titles'), required=False)
-    abstract = LeftBooleanField(initial=True, label=_('Search Abstract'), required=False)
-    authors = LeftBooleanField(initial=True, label=_('Search Authors'), required=False)
-    keywords = LeftBooleanField(initial=True, label=_("Search Keywords"), required=False)
-    full_text = LeftBooleanField(initial=True, label=_("Search Full Text"), required=False)
-    orcid = LeftBooleanField(label=_("Search ORCIDs"), required=False)
+    title = forms.BooleanField(initial=True, label=_('Search Titles'), required=False)
+    abstract = forms.BooleanField(initial=True, label=_('Search Abstract'), required=False)
+    authors = forms.BooleanField(initial=True, label=_('Search Authors'), required=False)
+    keywords = forms.BooleanField(initial=True, label=_("Search Keywords"), required=False)
+    full_text = forms.BooleanField(initial=True, label=_("Search Full Text"), required=False)
+    orcid = forms.BooleanField(label=_("Search ORCIDs"), required=False)
     sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
 
     def get_search_filters(self):

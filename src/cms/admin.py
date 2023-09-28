@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from cms import models
+from simple_history.admin import SimpleHistoryAdmin
 
 
 class NavigationItemAdmin(admin.ModelAdmin):
@@ -19,7 +20,7 @@ class NavigationItemAdmin(admin.ModelAdmin):
     raw_id_fields = ('page', 'top_level_nav')
 
 
-class PageAdmin(admin.ModelAdmin):
+class PageAdmin(SimpleHistoryAdmin):
     list_display = ('display_name', 'name', 'edited', 'object')
     list_filter = (admin_utils.GenericRelationJournalFilter,
                    admin_utils.GenericRelationPressFilter,

@@ -27,7 +27,7 @@ class ArticleStart(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('publication_fees', 'submission_requirements', 'copyright_notice', 'comments_editor',
+        fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
                   'competing_interests')
 
     def __init__(self, *args, **kwargs):
@@ -35,7 +35,6 @@ class ArticleStart(forms.ModelForm):
         super(ArticleStart, self).__init__(*args, **kwargs)
 
         self.fields['competing_interests'].label = ''
-        self.fields['comments_editor'].label = ''
 
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
@@ -60,9 +59,6 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
-
-        if not journal.submissionconfiguration.comments_to_the_editor:
-            self.fields.pop('comments_editor')
 
 
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
@@ -100,6 +96,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
         self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
+        editor_view = kwargs.pop('editor_view', False)
 
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -195,6 +192,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         except models.FieldAnswer.DoesNotExist:
                             pass
 
+                    # if the editor is viewing the page, don't set additional
+                    # fields to be required.
+                    if editor_view:
+                        self.fields[element.name].required = False
+
+
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
@@ -228,6 +231,13 @@ class ArticleInfoSubmit(ArticleInfo):
 class EditorArticleInfoSubmit(ArticleInfo):
     # Used when an editor is making a submission.
     FILTER_PUBLIC_FIELDS = False
+
+    def __init__(self, *args, **kwargs):
+        super(EditorArticleInfoSubmit, self).__init__(*args, **kwargs)
+        self.fields['section'].label_from_instance = lambda obj: obj.display_name_public_submission
+        self.fields['section'].help_text = "As an editor you will see all " \
+                                           "sections even if they are  " \
+                                           "closed for public submission"
 
 
 class AuthorForm(forms.ModelForm):
@@ -284,6 +294,15 @@ class AuthorForm(forms.ModelForm):
                 ' 0000-0000-0000-0000',
             )
         return orcid_string
+
+
+class SubmissionCommentsForm(forms.ModelForm):
+    class Meta:
+        model = models.Article
+        fields = ('comments_editor',)
+        labels = {
+            'comments_editor': '',
+        }
 
 
 class FileDetails(forms.ModelForm):
@@ -475,6 +494,7 @@ class FunderForm(forms.ModelForm):
             self.article.funders.add(funder)
             self.article.save()
         return funder
+
 
 def utility_clean_orcid(orcid):
     """

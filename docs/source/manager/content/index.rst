@@ -254,3 +254,21 @@ Once a file is uploaded a link is provided that you can then insert into CMS pag
 .. figure:: ../../nstatic/media_files.gif
 
     Upload and deletion of a media file.
+
+
+Copy-Paste and Rich Text Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When working on webpages, news items, and other fields such as abstracts,
+many people copy and paste from a word processor into Janeway. As of
+version 1.5.1, Janeway handles this better than before. It keeps standard
+styling like italics, bolding, lists, and semantic HTML markup, but it
+removes custom styling and non-semantic HTML markup. This leads to better
+results in most cases.
+
+However, for edge cases, such as when you are writing custom HTML and CSS
+in your web content or news items, there is a field called "Support copy
+paste" to control whether Janeway helps with markup. With it on, Janeway
+will separate the wheat from the chaff, as described above. With it off,
+Janeway won't touch the text you enter, and you'll have full control of
+the markup and styling via the code view.

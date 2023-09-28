@@ -10,9 +10,17 @@ from utils import setting_handler
 
 def get_message_content(request, context, template, plugin=False, template_is_setting=False):
     if plugin:
-        template = setting_handler.get_plugin_setting(plugin, template, None).value
+        template = setting_handler.get_plugin_setting(
+            plugin,
+            template,
+            None
+        ).value
     elif not template_is_setting:
-        template = setting_handler.get_setting('email', template, request.journal).value
+        template = setting_handler.get_setting(
+            'email',
+            template,
+            request.journal,
+        ).value
 
     template = Template(template)
     con = RequestContext(request)
