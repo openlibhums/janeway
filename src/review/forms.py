@@ -87,7 +87,7 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
             self.fields['visibility'].initial = default_visibility.value
 
         if default_due:
-            due_date = timezone.now() + timedelta(days=int(default_due))
+            due_date = timezone.now().date() + timedelta(days=int(default_due))
             self.fields['date_due'].initial = due_date
 
         if default_form and not self.instance.form:
