@@ -21,6 +21,10 @@
 
         <!-- and handle TEI -->
         <xsl:apply-templates select="/tei:TEI/tei:text/tei:body"/>
+	<xsl:if test="not(//back/fn-group)">
+	  <!-- Handle the dubious case where the footnotes are inserted immediately when referenced rather than at the fn-group section (ScienceOpen) -->
+	  <xsl:call-template name="body-footnotes" />
+	</xsl:if>
     </xsl:template>
 
     <xsl:template match="//body/@*">
@@ -422,6 +426,18 @@
         </section>
     </xsl:template>
 
+  <xsl:template name="body-footnotes">
+    <!-- Handle footnotes scattered around the body inside p tags, rather than fn-group -->
+    <xsl:if test="//article/body/p/fn">
+      <h2>Footnotes</h2>
+        <ol class="footnotes">
+          <xsl:for-each select="//article/body/p/fn">
+	    <xsl:call-template name="referenced-footnote" />
+          </xsl:for-each>
+        </ol>
+    </xsl:if>
+  </xsl:template>
+
     <xsl:template match="fn-group">
         <h2>Notes</h2>
         <ol class="footnotes">
@@ -430,6 +446,10 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
+      <xsl:call-template name="referenced-footnote" />
+    </xsl:template>
+
+    <xsl:template name="referenced-footnote">
         <xsl:variable name="fn-id">
             <xsl:value-of select="@id"/>
         </xsl:variable>
@@ -3770,6 +3790,7 @@
     <xsl:template match="object-id | table-wrap/label"/>
     <xsl:template match="funding-group//institution-wrap/institution-id"/>
     <xsl:template match="table-wrap/graphic"/>
+    <xsl:template match="article/body/p/fn"/>
     <xsl:template match="author-notes/fn[@fn-type='present-address']/label"/>
     <xsl:template match="author-notes/fn[@fn-type='deceased']/label"/>
 
