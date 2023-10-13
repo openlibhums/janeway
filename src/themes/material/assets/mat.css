@@ -310,6 +310,11 @@ a:hover .article-title {
     overflow-x: auto;
 }
 
+.math-formulae {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
 .table-wrap {
     overflow-x: auto;
 }
