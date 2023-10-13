@@ -357,10 +357,16 @@ footer svg {
 
 .article-table {
   display: block;
-  overflow-x: scroll;}
+  overflow-x: scroll;
+}
 
 .table-caption {
     margin-bottom: 8px;
+}
+
+.math-formulae {
+    overflow-x: auto;
+    padding-bottom: 1rem;
 }
 
 .journal-card-title {
