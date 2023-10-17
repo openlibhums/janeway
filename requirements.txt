@@ -40,7 +40,7 @@ mock
 mozilla-django-oidc==1.2.4
 orcid==1.0.3
 pdfkit==1.0.0
-pdfminer==20191125
+pdfminer.six
 psycopg2-binary~=2.8.6
 pyasn1==0.1.9
 pycparser==2.14
