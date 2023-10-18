@@ -958,6 +958,7 @@ class PreprintVersion(models.Model):
     title = models.CharField(
         max_length=300,
         help_text=_('Your article title'),
+        blank=True,
     )
     abstract = models.TextField(
         blank=True,
