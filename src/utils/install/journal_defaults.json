@@ -4782,5 +4782,23 @@
         "editable_by": [
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Action URL for an external newsletter subscription signup form",
+            "is_translatable": false,
+            "name": "external_newsletter_signup_url",
+            "pretty_name": "External Newsletter Signup URL",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     }
 ]
