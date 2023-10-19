@@ -979,9 +979,9 @@ class Issue(AbstractLastModifiedModel):
         ) or [settings.LANGUAGE_CODE]
 
         for lang in journal_languages:
-            translation.activate(lang)
-            # set save as False to avoid infinite recursion
-            self.update_display_title(save=False)
+            with translation.override(lang):
+                # set save as False to avoid infinite recursion
+                self.update_display_title(save=False)
         super().save(*args, **kwargs)
 
     def __str__(self):
