@@ -4645,7 +4645,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.safe_title|safe }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ author_review.assignment.article.correspondence_author.full_name }},</p><p>The copyediting review request for \"{{ author_review.assignment.article.safe_title }}\" that we sent you has been deleted.</p><p>Regards,</p>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
