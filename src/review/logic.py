@@ -39,7 +39,7 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         'reviewer',
         queryset=models.ReviewAssignment.objects.filter(
             article__journal=article.journal
-        ).order_by("-date_complete")
+        ).exclude(date_complete__isnull=True).order_by("-date_complete")
     )
     active_reviews_count = models.ReviewAssignment.objects.filter(
         is_complete=False,
