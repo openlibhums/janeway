@@ -512,7 +512,7 @@ class Preprint(models.Model):
         if self.title:
             return mark_safe(self.title)
         else:
-            return "<Untitled>"
+            return "[Untitled]"
 
     @property
     def supplementaryfiles(self):
@@ -982,7 +982,7 @@ class PreprintVersion(models.Model):
         if self.title:
             return mark_safe(self.title)
         else:
-            return "<Untitled>"
+            return "[Untitled]"
 
     def __str__(self):
         return f'{self.preprint} (version {self.version})'
@@ -1183,7 +1183,7 @@ class VersionQueue(models.Model):
         if self.title:
             return mark_safe(self.title)
         else:
-            return "<Untitled>"
+            return "[Untitled]"
 
 
 def review_status_choices():

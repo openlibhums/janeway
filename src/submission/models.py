@@ -785,7 +785,7 @@ class Article(AbstractLastModifiedModel):
         if self.title:
             return mark_safe(self.title)
         else:
-            return "<Untitled>"
+            return "[Untitled]"
 
     @property
     def how_to_cite(self):
