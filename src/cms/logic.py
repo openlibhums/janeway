@@ -197,7 +197,7 @@ def update_search_data(press_id=1):
         docs_file.unlink()
 
     documents = get_press_site_search_data()
-    docs_json = json.dumps(documents)
+    docs_json = json.dumps(documents, separators=(',', ':'))
 
     content_file = ContentFile(docs_json.encode('utf-8'))
     docs_file.file.save(docs_filename, content_file, save=True)
