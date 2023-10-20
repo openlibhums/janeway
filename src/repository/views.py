@@ -1537,10 +1537,14 @@ def repository_wizard(request, short_name=None, step='1'):
                     )
                 )
 
-            # Bump the step by 1
-            kwargs = {'step': int(step) + 1}
-            if updated_repository:
-                kwargs['short_name'] = updated_repository.short_name
+            kwargs = {
+                'short_name': updated_repository.short_name,
+                'step': step,
+            }
+
+            if 'next' in request.POST:
+                kwargs['step'] = str(int(step) + 1)
+
             return redirect(
                 reverse(
                     'repository_wizard_with_id',

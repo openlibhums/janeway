@@ -45,8 +45,9 @@
                             {{ form|foundation }}
                             <div class="row expanded">
                                 <div class="large-12 columns">
-                                    <button type="submit" name="save_press" class="success button">{% if step == 1 %}
-                                        Create{% else %}Save{% endif %} Repository
+                                    <button class="warning button" type="submit" name="stay">Save</button>
+                                    <button type="submit" name="next" class="success button">{% if step == 1 %}
+                                        Create Repository{% else %}Save and Continue{% endif %}
                                     </button>
                                     {% if repository.history %}
                                         <a class="button" data-open="history_modal">
