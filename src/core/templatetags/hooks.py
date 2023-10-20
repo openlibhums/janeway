@@ -17,8 +17,14 @@ def hook(context, hook_name, *args, **kwargs):
         for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
             hook_module = import_module(hook.get('module'))
             function = getattr(hook_module, hook.get('function'))
-            html = html + function(context, *args, **kwargs)
+            hook_output = function(context, *args, **kwargs)
 
-        return mark_safe(html)
+            if hook_output:
+                html = html + hook_output
+        if html:
+            return mark_safe(html)
     except Exception as e:
         logger.error('Error rendering hook {0}: {1}'.format(hook_name, e))
+        if settings.DEBUG:
+            return f"[DEBUG] Error rendering hook output: {e}"
+    return ''

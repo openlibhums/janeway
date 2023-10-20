@@ -1,7 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
-{% load roles %}
-{% load i18n %}
+{% load static roles i18n hooks %}
 
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
@@ -297,6 +295,7 @@
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>
                             <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
                                     class="fa fa-minus-circle action-icon">&nbsp;</i>Decline Article</a></li>
+                            {% hook 'unassigned_additional_actions' %}
                         </ul>
                     {% else %}
                         <div class="bs-callout bs-callout-info">
