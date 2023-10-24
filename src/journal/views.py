@@ -49,6 +49,7 @@ from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
 from events import logic as event_logic
+from repository import models as repo_models
 
 logger = get_logger(__name__)
 
@@ -1986,7 +1987,7 @@ def author_list(request):
     return render(request, template, context)
 
 
-def sitemap(request, issue_id=None):
+def sitemap(request, issue_or_subject_id=None):
     """
     Renders an XML sitemap based on articles and pages available to the journal.
     :param request: HttpRequest object
@@ -1994,28 +1995,47 @@ def sitemap(request, issue_id=None):
     """
     try:
         path_parts = None
-        if issue_id:
-            issue = get_object_or_404(
-                models.Issue,
-                pk=issue_id,
-                journal=request.journal,
-            )
-            path_parts = [
-                request.journal.code,
-                '{}_sitemap.xml'.format(issue.pk),
-            ]
-        else:
+        if request.journal:
             path_parts = [
                 request.journal.code,
                 'sitemap.xml',
             ]
-
+            if issue_or_subject_id:
+                try:
+                    issue = models.Issue.objects.get(
+                        pk=issue_or_subject_id,
+                        journal=request.journal,
+                    )
+                    path_parts = [
+                        request.journal.code,
+                        '{}_sitemap.xml'.format(issue.pk),
+                    ]
+                except models.Issue.DoesNotExist:
+                    pass
+        elif request.repository:
+            path_parts = [
+                request.repository.short_name,
+                'sitemap.xml',
+            ]
+            if issue_or_subject_id:
+                try:
+                    subject = repo_models.Subject.objects.get(
+                        pk=issue_or_subject_id,
+                        repository=request.repository,
+                    )
+                    path_parts = [
+                        request.repository.code,
+                        '{}_sitemap.xml'.format(subject.pk),
+                    ]
+                except repo_models.Subject.DoesNotExist:
+                    pass
         if path_parts:
             return files.serve_sitemap_file(path_parts)
     except FileNotFoundError:
         logger.warning('Sitemap for {} not found.'.format(request.journal.name))
 
     raise Http404()
+
 
 @decorators.frontend_enabled
 def search(request):

@@ -208,7 +208,7 @@ urlpatterns = [
 
     re_path(r'^robots.txt$', press_views.robots, name='website_robots'),
     re_path(r'^sitemap.xml$', press_views.sitemap, name='website_sitemap'),
-    re_path(r'^(?P<issue_id>\d+)_sitemap.xml$', journal_views.sitemap, name='website_sitemap'),
+    re_path(r'^(?P<issue_or_subject_id>\d+)_sitemap.xml$', journal_views.sitemap, name='website_sitemap'),
 
     re_path(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
 

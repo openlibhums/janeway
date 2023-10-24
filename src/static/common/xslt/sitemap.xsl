@@ -27,7 +27,7 @@
 			<body>
 				<h1>Sitemap</h1>
 					<p>
-						This sitemap is designed to be machine readable. Here we have applied a stylesheet to make it more human friendly. Janeway sitemaps operate on the following hierarchy:
+						This sitemap is designed to be machine-readable. Here we have applied a stylesheet to make it more human friendly. Janeway sitemaps operate on the following hierarchy:
 					</p>
                     <ul>
                         <li>
@@ -37,6 +37,17 @@
                                     Issue Sitemap Index
                                     <ul>
                                         <li>Issue Sitemap (lists articles)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            Repository Sitemap Index
+                            <ul>
+                                <li>
+                                    Subject Sitemap Index
+                                    <ul>
+                                        <li>Subject Sitemap (lists repository objects)</li>
                                     </ul>
                                 </li>
                             </ul>
