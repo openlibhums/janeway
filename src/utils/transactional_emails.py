@@ -726,7 +726,8 @@ def send_copyedit_decision(**kwargs):
 def send_copyedit_author_review(**kwargs):
     request = kwargs['request']
     copyedit_assignment = kwargs['copyedit_assignment']
-    user_message_content = kwargs['user_message_content']
+    author_review = kwargs['author_review']
+    email_data = kwargs['email_data']
     skip = kwargs.get('skip', False)
 
     description = '{0} has requested copyedit review for {1} from {2}'.format(
@@ -735,12 +736,22 @@ def send_copyedit_author_review(**kwargs):
         copyedit_assignment.article.correspondence_author.full_name())
 
     if not skip:
-        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Author Review',
-                    'target': copyedit_assignment.article}
+        log_dict = {
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Copyedit Author Review',
+            'target': copyedit_assignment.article,
+        }
 
-        notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_notify_author',
-                                                      copyedit_assignment.article.correspondence_author.email,
-                                                      user_message_content, log_dict=log_dict)
+        core_email.send_email(
+            copyedit_assignment.article.correspondence_author,
+            email_data,
+            request,
+            article=copyedit_assignment.article,
+            log_dict=log_dict,
+        )
+        author_review.notified = True
+        author_review.save()
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -782,8 +793,8 @@ def send_copyedit_complete(**kwargs):
 def send_author_copyedit_deleted(**kwargs):
     request = kwargs.get('request')
     author_review = kwargs.get('author_review')
-    subject = kwargs.get('subject')
-    user_message_content = kwargs.get('user_message_content')
+    article = kwargs["article"]
+    email_data = kwargs.get('email_data')
     skip = kwargs.get('skip', False)
 
     description = '{0} has deleted a copyedit review for {1} from {2}'.format(
@@ -795,26 +806,27 @@ def send_author_copyedit_deleted(**kwargs):
         'level': 'Info',
         'action_text': description,
         'types': 'Author Copyedit Review Deleted',
-        'target': author_review.assignment.article,
     }
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            author_review.author,
+            email_data,
             request,
-            subject,
-            author_review.assignment.article.correspondence_author.email,
-            user_message_content,
+            article=article,
             log_dict=log_dict,
         )
-    else:
-        util_models.LogEntry.add_entry(
-            'Author Copyedit Review Deleted',
-            description,
-            'Info',
-            request.user,
-            request,
-            author_review.assignment.article,
-        )
+
+    util_models.LogEntry.add_entry(
+        'Author Copyedit Review Deleted',
+        description,
+        'Info',
+        request.user,
+        request,
+        article,
+    )
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
 def send_copyedit_ack(**kwargs):
