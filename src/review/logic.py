@@ -113,7 +113,6 @@ def get_suggested_reviewers(article, reviewers):
 
     return suggested_reviewers
 
-
 def get_previous_round_reviewers(article):
     """
     Builds a queryset of candidates who have previously completed a review
@@ -138,7 +137,7 @@ def get_previous_round_reviewers(article):
     )
 
 
-def get_assignment_content(request, article, editor, assignment):
+def get_assignment_context(request, article, editor, assignment):
     review_in_review_url = request.journal.site_url(
         reverse(
             'review_in_review',
@@ -152,7 +151,8 @@ def get_assignment_content(request, article, editor, assignment):
         'review_in_review_url': review_in_review_url,
     }
 
-    return render_template.get_message_content(request, email_context, 'editor_assignment')
+    return email_context
+
 
 
 def get_review_url(request, review_assignment):
@@ -191,9 +191,9 @@ def get_article_details_for_review(article):
     return mark_safe(detail_string)
 
 
-def get_reviewer_notification(
-    request, article, editor, review_assignment,
-    reminder=False,
+def get_reviewer_notification_context(
+    request, article, editor,
+    review_assignment,
 ):
     review_url = get_review_url(request, review_assignment)
     article_details = get_article_details_for_review(article)
@@ -206,6 +206,17 @@ def get_reviewer_notification(
         'article_details': article_details,
     }
 
+    return email_context
+
+
+def get_reviewer_notification(
+    request, article, editor, review_assignment,
+    reminder=False,
+):
+
+    email_context = get_reviewer_notification_context(
+        request, article, editor, review_assignment,
+    )
     if reminder and reminder == 'request':
         return render_template.get_message_content(
             request,
@@ -226,28 +237,29 @@ def get_reviewer_notification(
         )
 
 
-def get_withdrawl_notification(request, review_assignment):
+def get_withdrawal_notification_context(request, review_assignment):
 
     email_context = {
         'article': review_assignment.article,
         'review_assignment': review_assignment,
         'editor': request.user,
     }
+    return email_context
 
-    return render_template.get_message_content(request, email_context, 'review_withdrawl')
 
 
-def get_unassignment_notification(request, assignment):
+def get_unassignment_context(request, assignment):
     email_context = {
         'article': assignment.article,
         'assignment': assignment,
         'editor': request.user,
     }
 
-    return render_template.get_message_content(request, email_context, 'unassign_editor')
+    return email_context
 
 
-def get_decision_content(request, article, decision, author_review_url):
+
+def get_decision_context(request, article, decision, author_review_url):
 
     email_context = {
         'article': article,
@@ -255,9 +267,7 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    template_name = "review_decision_{0}".format(decision)
-
-    return render_template.get_message_content(request, email_context, template_name)
+    return email_context
 
 
 def get_revision_request_content(request, article, revision, draft=False):
@@ -692,7 +702,7 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
             editor_type=assignment_type,
         )
         if request and created:
-            message_content = get_assignment_content(
+            message_content = get_assignment_context(
                 request,
                 article,
                 editor,

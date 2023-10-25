@@ -18,11 +18,17 @@ from django_bleach.forms import BleachField
 from django_bleach.utils import get_bleach_default_options
 from bleach import clean as bleach_clean
 
-from core import models, validators
+from core import email, models, validators
+from core.forms.fields import MultipleFileField, TagitField
 from utils.logic import get_current_request
 from journal import models as journal_models
-from utils import setting_handler
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm, CaptchaForm
+from utils import render_template, setting_handler
+from utils.forms import (
+    KeywordModelForm,
+    JanewayTranslationModelForm,
+    CaptchaForm,
+    HTMLDateInput,
+)
 from utils.logger import get_logger
 from submission import models as submission_models
 
@@ -764,6 +770,73 @@ class ConfirmableIfErrorsForm(ConfirmableForm):
             return super().is_confirmed()
         else:
             return True
+
+
+class EmailForm(forms.Form):
+    subject = forms.CharField(max_length=1000)
+    cc = TagitField(
+        required=False,
+        max_length=10000,
+    )
+    bcc = TagitField(
+        required=False,
+        max_length=10000,
+    )
+    body = forms.CharField(widget=SummernoteWidget)
+    attachments = MultipleFileField(required=False)
+
+    def clean_cc(self):
+        cc = self.cleaned_data['cc']
+        return self.email_sequence_cleaner("cc", cc)
+
+    def clean_bcc(self):
+        cc = self.cleaned_data['bcc']
+        return self.email_sequence_cleaner("bcc", cc)
+
+    def email_sequence_cleaner(self, field, email_seq):
+        if not email_seq or email_seq  == '':
+            return tuple()
+
+        for address in email_seq:
+            try:
+                validate_email(address)
+            except ValidationError:
+                self.add_error(field, 'Invalid email address ({}).'.format(address))
+
+        return email_seq
+
+    def as_dataclass(self):
+        return email.EmailData(**self.cleaned_data)
+
+
+class SettingEmailForm(EmailForm):
+    """ An Email form that populates initial data using Janeway email settings
+
+    During initialization, the email and subject settings are retrieved,
+    matching the given setting_name
+    :param setting_name: The name of the setting (Group must be email)
+    :param email_context: A dict of the context required to populate the email
+    :param request: The instance of this HttpRequest
+    :param journal: (Optional) an instance of journal.models.Journal
+    """
+    def __init__(self, *args, **kwargs):
+        setting_name = kwargs.pop("setting_name")
+        email_context = kwargs.pop("email_context", {})
+        subject_setting_name = "subject_" + setting_name
+        request = kwargs.pop("request")
+        journal = kwargs.pop("journal", None) or request.journal
+        initial_subject = setting_handler.get_email_subject_setting(
+            setting_name=subject_setting_name,
+            journal=journal,
+        )
+
+        super().__init__(*args, **kwargs)
+        self.fields["subject"].initial = initial_subject
+        self.fields["body"].initial = render_template.get_message_content(
+            request,
+            email_context,
+            setting_name,
+        )
 
 
 class BleachFormMixin(forms.BaseForm):

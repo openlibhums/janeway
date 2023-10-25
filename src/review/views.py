@@ -22,7 +22,12 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 
-from core import models as core_models, files, forms as core_forms, logic as core_logic
+from core import (
+        files,
+        forms as core_forms,
+        logic as core_logic,
+        models as core_models,
+)
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
 from review.const import EditorialDecisions as ED
@@ -264,39 +269,53 @@ def unassign_editor(request, article_id, editor_id):
     assignment = get_object_or_404(
         models.EditorAssignment, article=article, editor=editor
     )
-    email_content = logic.get_unassignment_notification(request, assignment)
+    skip = request.POST.get("skip")
+    email_context = logic.get_unassignment_context(request, assignment)
+    form = core_forms.SettingEmailForm(
+            setting_name="unassign_editor",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.method == "POST":
-        email_content = request.POST.get('content_email')
-        kwargs = {'message': email_content,
-                  'assignment': assignment,
-                  'request': request,
-                  'skip': request.POST.get('skip', False)
-        }
-
-        event_logic.Events.raise_event(
-                event_logic.Events.ON_ARTICLE_UNASSIGNED, **kwargs)
-
-        assignment.delete()
-
-        util_models.LogEntry.add_entry(
-            types='EditorialAction',
-            description='Editor {0} unassigned from article {1}'
-                ''.format(editor.full_name(), article.id),
-            level='Info',
-            request=request,
-            target=article,
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="unassign_editor",
+                email_context=email_context,
+                request=request,
         )
 
-        return redirect(reverse(
-            'review_unassigned_article', kwargs={'article_id': article_id}
-        ))
+        if form.is_valid() or skip:
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'assignment': assignment,
+                'request': request,
+                'skip': skip,
+            }
+
+            event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_UNASSIGNED, **kwargs)
+
+            assignment.delete()
+
+            util_models.LogEntry.add_entry(
+                types='EditorialAction',
+                description='Editor {0} unassigned from article {1}'
+                    ''.format(editor.full_name(), article.id),
+                level='Info',
+                request=request,
+                target=article,
+            )
+
+            return redirect(reverse(
+                'review_unassigned_article', kwargs={'article_id': article_id}
+            ))
 
     template = 'review/unassign_editor.html'
     context = {
         'article': article,
         'assignment': assignment,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -315,33 +334,42 @@ def assignment_notification(request, article_id, editor_id):
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor, notified=False)
 
-    email_content = logic.get_assignment_content(request, article, editor, assignment)
+    email_context = logic.get_assignment_context(request, article, editor, assignment)
+    form = core_forms.SettingEmailForm(
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="editor_assignment",
+                email_context=email_context,
+                request=request,
+        )
+        if form.is_valid():
+            kwargs = {
+                'editor_assignment': assignment,
+                'request': request,
+                'skip': request.POST.get("skip"),
+                'email_data': form.as_dataclass(),
+            }
 
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'editor_assignment': assignment,
-                  'request': request,
-                  'skip': False,
-                  'acknowledgement': True}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDITOR_MANUALLY_ASSIGNED, **kwargs)
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
-
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE, **kwargs)
-
-        if request.GET.get('return', None):
-            return redirect(request.GET.get('return'))
-        else:
-            return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
+            if request.GET.get('return', None):
+                return redirect(request.GET.get('return'))
+            else:
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
 
     template = 'review/assignment_notification.html'
     context = {
         'article': article_id,
         'editor': editor,
         'assignment': assignment,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -1179,25 +1207,37 @@ def notify_reviewer(request, article_id, review_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
-    email_content = logic.get_reviewer_notification(request, article, request.user, review)
+    email_context = logic.get_reviewer_notification_context(
+        request, article, request.user, review)
+
+    form = core_forms.SettingEmailForm(
+            setting_name="review_assignment",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'review_assignment': review,
-                  'request': request,
-                  'skip': False,
-                  'acknowledgement': True}
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="review_assignment",
+                email_context=email_context,
+                request=request,
+        )
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
-            event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE, **kwargs)
-            return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+        if form.is_valid() or skip:
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'review_assignment': review,
+                'request': request,
+                'skip': skip,
+            }
 
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEWER_REQUESTED_NOTIFICATION, **kwargs)
 
-        review.date_requested = timezone.now()
-        review.save()
+            review.date_requested = timezone.now()
+            review.save()
 
         return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
 
@@ -1205,7 +1245,7 @@ def notify_reviewer(request, article_id, review_id):
     context = {
         'article': article,
         'review': review,
-        'email_content': email_content,
+        'form': form,
         'assignment': review,
     }
 
@@ -1446,41 +1486,57 @@ def withdraw_review(request, article_id, review_id):
             )
         )
 
-    email_content = logic.get_withdrawl_notification(request, review)
+    email_context = logic.get_withdrawal_notification_context(request, review)
+    setting_name = "review_withdrawl"
+    form = core_forms.SettingEmailForm(
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
-        email_content = request.POST.get('content_email')
-        kwargs = {'user_message_content': email_content,
-                  'review_assignment': review,
-                  'request': request,
-                  'skip': False}
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
 
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_REVIEW_WITHDRAWL,
-            **kwargs,
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
         )
 
-        review.date_complete = timezone.now()
-        review.decision = models.RD.DECISION_WITHDRAWN
-        review.is_complete = True
-        review.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
-        return redirect(
-            reverse(
-                'review_in_review',
-                kwargs={'article_id': article.pk},
+        if form.is_valid() or skip:
+            review.date_complete = timezone.now()
+            review.decision = models.RD.DECISION_WITHDRAWN.value
+            review.is_complete = True
+            review.save()
+
+            kwargs = {
+                'review_assignment': review,
+                'request': request,
+                'email_data': form.as_dataclass(),
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEW_WITHDRAWL,
+                **kwargs,
             )
-        )
+
+
+            messages.add_message(request, messages.SUCCESS, 'Review withdrawn')
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
     template = 'review/withdraw_review.html'
     context = {
         'article': article,
         'review': review,
-        'email_content': email_content,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -1535,73 +1591,101 @@ def review_decision(request, article_id, decision):
     author_review_url = request.journal.site_url(
             reverse('review_author_view', kwargs={'article_id': article.id})
     )
-    email_content = logic.get_decision_content(request, article, decision, author_review_url)
+    email_context = logic.get_decision_context(
+        request, article, decision, author_review_url)
+    setting_name = "review_decision_{0}".format(decision)
+
+    form = core_forms.SettingEmailForm(
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+    )
 
     if (article.date_accepted or article.date_declined) and decision != 'undecline':
         messages.add_message(request, messages.WARNING, _('This article has already been accepted or declined.'))
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
-        email_content = request.POST.get('decision_rationale')
-        kwargs = {
-            'article': article,
-            'request': request,
-            'decision': decision,
-            'user_message_content': email_content,
-            'skip': False,
-        }
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name=setting_name,
+            email_context=email_context,
+            request=request,
+        )
+        skip = "skip" in request.POST
+        if form.is_valid() or skip:
 
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
+            kwargs = {
+                'article': article,
+                'request': request,
+                'decision': decision,
+                'email_data': form.as_dataclass(),
+                'skip': skip,
+            }
 
-        if decision == 'accept':
-            article.accept_article()
-            try:
+            if decision == 'accept':
+                article.accept_article()
+                article.snapshot_authors(article, force_update=False)
+                try:
+                    event_logic.Events.raise_event(
+                        event_logic.Events.ON_ARTICLE_ACCEPTED,
+                        task_object=article,
+                        **kwargs
+                    )
+
+                    workflow_kwargs = {
+                        'handshake_url': 'review_home',
+                        'request': request,
+                        'article': article,
+                        'switch_stage': True
+                    }
+
+                    return event_logic.Events.raise_event(
+                        event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                        task_object=article,
+                        **workflow_kwargs
+                    )
+
+                except:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f'An error occurred when processing {article.title}'
+                    )
+                    return redirect(reverse(
+                        'review_in_review',
+                        kwargs={'article_id': article.pk}
+                    ))
+
+            elif decision == 'decline':
+                article.decline_article()
                 event_logic.Events.raise_event(
-                    event_logic.Events.ON_ARTICLE_ACCEPTED,
-                    task_object=article,
-                    **kwargs
+                    event_logic.Events.ON_ARTICLE_DECLINED,
+                    task_object=article, **kwargs,
                 )
+                return redirect(reverse('core_dashboard'))
 
-                workflow_kwargs = {
-                    'handshake_url': 'review_home',
-                    'request': request,
-                    'article': article,
-                    'switch_stage': True
-                }
-
-                return event_logic.Events.raise_event(
-                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                    task_object=article,
-                    **workflow_kwargs
+            elif decision == 'undecline':
+                article.undo_review_decision()
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_UNDECLINED,
+                    task_object=article, **kwargs,
                 )
+                if article.stage == submission_models.STAGE_UNASSIGNED:
+                    return redirect(reverse(
+                        'review_unassigned_article',
+                        kwargs={'article_id': article.pk},
+                    ))
+                elif article.stage == submission_models.STAGE_ASSIGNED:
+                    return redirect(reverse(
+                        'review_in_review', kwargs={'article_id': article.pk}))
 
-            except:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f'An error occurred when processing {article.title}'
-                )
-                return redirect(reverse(
-                    'review_in_review',
-                    kwargs={'article_id': article.pk}
-                ))
-
-        elif decision == 'decline':
-            article.decline_article()
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
-            return redirect(reverse('core_dashboard'))
-
-        elif decision == 'undecline':
-            article.undo_review_decision()
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_UNDECLINED, task_object=article, **kwargs)
-            if article.stage == submission_models.STAGE_UNASSIGNED:
-                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
-            elif article.stage == submission_models.STAGE_ASSIGNED:
-                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
-
-        messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+            messages.add_message(
+                request, messages.INFO,
+                'Article {0} has been {1}ed'.format(article.title, decision),
+            )
+            return redirect(reverse(
+                'article_copyediting', kwargs={'article_id': article.pk}))
 
     accept_article_warning = core_logic.render_nested_setting(
         'accept_article_warning',
@@ -1614,7 +1698,7 @@ def review_decision(request, article_id, decision):
     context = {
         'article': article,
         'decision': decision,
-        'email_content': email_content,
+        'form': form,
         'accept_article_warning': accept_article_warning,
     }
 
@@ -2741,6 +2825,7 @@ def upload_reviewers_from_csv(request, article_id):
         template,
         context,
     )
+
 
 @editor_user_required
 @setting_is_enabled(

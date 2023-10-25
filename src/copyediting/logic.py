@@ -52,7 +52,7 @@ def get_user_from_post(request):
         return None
 
 
-def get_copyeditor_notification(request, article, copyedit):
+def get_copyeditor_notification_context(request, article, copyedit):
     """
     Takes a set of variables and renders a template into a string.
     :param request: HttpRequest object
@@ -67,8 +67,7 @@ def get_copyeditor_notification(request, article, copyedit):
         'assignment': copyedit,
         'copyedit_requests_url': copyedit_requests_url,
     }
-
-    return render_template.get_message_content(request, email_context, 'copyeditor_assignment_notification')
+    return email_context
 
 
 def get_copyedit_message(request, article, copyedit, template,
@@ -103,6 +102,24 @@ def get_copyedit_message(request, article, copyedit, template,
 
     return render_template.get_message_content(request, email_context, template)
 
+def get_author_copyedit_message_context(request, copyedit, author_review):
+    article = copyedit.article
+    copyedit_review_url = request.journal.site_url(path=reverse(
+        'author_copyedit', args=[article.pk, author_review.pk]))
+
+    copyedit_requests_url = request.journal.site_url(path=reverse(
+        'copyedit_requests'))
+
+    email_context = {
+        'article': article,
+        'assignment': copyedit,
+        'author_review': author_review,
+        'author_copyedit_url': copyedit_review_url,
+        'copyedit_requests_url': copyedit_requests_url,
+    }
+    return email_context
+
+
 
 def handle_file_post(request, copyedit):
     """
@@ -127,33 +144,6 @@ def handle_file_post(request, copyedit):
         return None
     else:
         return errors
-
-
-def request_author_review(request, article, copyedit, author_review):
-    """
-    :param request:
-    :param article:
-    :param copyedit:
-    :param author_review:
-    :return:
-    """
-    user_message_content = request.POST.get('content_email')
-    skip = True if 'skip' in request.POST else False
-    kwargs = {
-        'copyedit_assignment': copyedit,
-        'article': article,
-        'author_review': author_review,
-        'user_message_content': user_message_content,
-        'request': request,
-        'skip': skip,
-    }
-
-    if not skip:
-        author_review.notified = True
-        author_review.save()
-
-    event_logic.Events.raise_event(
-        event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)
 
 
 def accept_copyedit(copyedit, article, request):

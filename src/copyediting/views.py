@@ -13,7 +13,12 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from copyediting import models, logic, forms
-from core import models as core_models, files, logic as core_logic
+from core import (
+        files,
+        forms as core_forms,
+        models as core_models,
+        logic as core_logic,
+)
 from events import logic as event_logic
 from security.decorators import (
     production_user_or_editor_required, copyeditor_user_required,
@@ -178,28 +183,43 @@ def notify_copyeditor_assignment(request, article_id, copyedit_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
-    user_message_content = logic.get_copyeditor_notification(request, article, copyedit)
+    email_context = logic.get_copyeditor_notification_context(
+        request, article, copyedit,
+    )
+    form = core_forms.SettingEmailForm(
+            setting_name="copyeditor_assignment_notification",
+            email_context=email_context,
+            request=request,
+    )
 
     if request.POST:
-        user_message_content = request.POST.get('content_email')
+        form = core_forms.SettingEmailForm(
+                request.POST, request.FILES,
+                setting_name="copyeditor_assignment_notification",
+                email_context=email_context,
+                request=request,
+        )
+        skip = 'skip' in request.POST
+        if form.is_valid() or skip:
 
-        kwargs = {
-            'user_message_content': user_message_content,
-            'article': article,
-            'copyedit_assignment': copyedit,
-            'request': request,
-            'skip': True if 'skip' in request.POST else False
-        }
+            kwargs = {
+                'article': article,
+                'copyedit_assignment': copyedit,
+                'request': request,
+                'skip': skip,
+                'email_data': form.as_dataclass()
+            }
 
-        event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_ASSIGNMENT, **kwargs)
-        messages.add_message(request, messages.INFO, 'Copyedit requested.')
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_COPYEDIT_ASSIGNMENT, **kwargs)
+            messages.add_message(request, messages.INFO, 'Copyedit requested.')
+            return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
 
     template = 'copyediting/notify_copyeditor_assignment.html'
     context = {
         'article': article,
         'copyedit': copyedit,
-        'user_message_content': user_message_content,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -551,51 +571,60 @@ def request_author_copyedit(request, article_id, copyedit_id,
         assignment=copyedit,
     )
 
-    email_content = logic.get_copyedit_message(
+    email_context = logic.get_author_copyedit_message_context(
         request,
-        article,
         copyedit,
-        'copyeditor_notify_author',
-        author_review=author_review,
-
+        author_review,
     )
 
-    email_subject = request.journal.get_setting(
-        'email_subject',
-        'subject_copyeditor_notify_author',
+    form = core_forms.SettingEmailForm(
+        setting_name='copyeditor_notify_author',
+        email_context=email_context,
+        request=request,
     )
 
     if request.POST:
-        logic.request_author_review(
-            request,
-            article,
-            copyedit,
-            author_review,
+        skip = 'skip' in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name='copyeditor_notify_author',
+            email_context=email_context,
+            request=request,
         )
+        if form.is_valid() or skip:
+            kwargs = {
+                'copyedit_assignment': copyedit,
+                'article': article,
+                'author_review': author_review,
+                'email_data': form.as_dataclass(),
+                'request': request,
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Author review requested.',
-        )
-
-        return redirect(
-            reverse(
-                'editor_review',
-                kwargs={
-                    'article_id': article.pk,
-                    'copyedit_id': copyedit.pk,
-                }
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Author review requested.',
             )
-        )
+
+            return redirect(
+                reverse(
+                    'editor_review',
+                    kwargs={
+                        'article_id': article.pk,
+                        'copyedit_id': copyedit.pk,
+                    }
+                )
+            )
 
     template = 'copyediting/request_author_copyedit.html'
     context = {
         'article': article,
         'copyedit': copyedit,
         'author_review': author_review,
-        'email_content': email_content,
-        'email_subject': email_subject,
+        'form':form,
     }
 
     return render(request, template, context)
@@ -608,56 +637,67 @@ def delete_author_review(request, article_id, copyedit_id, author_review_id):
         pk=author_review_id,
         assignment__article__journal=request.journal,
     )
-    email_template = logic.get_copyedit_message(
+    article = author_review.assignment.article,
+    copyedit = author_review.assignment
+
+    email_context = logic.get_author_copyedit_message_context(
         request,
-        article=author_review.assignment.article,
-        copyedit=author_review.assignment,
-        template='author_copyedit_deleted',
-        author_review=author_review,
+        copyedit,
+        author_review,
     )
-    email_subject = request.journal.get_setting(
-        'email_subject',
-        'subject_author_copyedit_deleted',
+
+    form = core_forms.SettingEmailForm(
+        setting_name='author_copyedit_deleted',
+        email_context=email_context,
+        request=request,
     )
 
     if request.POST:
-        event_kwargs = {
-            'user_message_content': request.POST.get('user_message_content'),
-            'subject': email_subject,
-            'author_review': author_review,
-            'request': request,
-            'skip': True if 'skip' in request.POST else False
-        }
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
-            **event_kwargs,
+        skip = 'skip' in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name='author_copyedit_deleted',
+            email_context=email_context,
+            request=request,
         )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Author review for {} has been deleted.'.format(
-                author_review.assignment.article.title,
+        if form.is_valid() or skip:
+            author_review.delete()
+            kwargs = {
+                'copyedit_assignment': copyedit,
+                'article': article,
+                'author_review': author_review,
+                'email_data': form.as_dataclass(),
+                'request': request,
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW_DELETED,
+                **kwargs,
             )
-        )
-        author_review.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Author review for {} has been deleted.'.format(
+                    author_review.assignment.article.title,
+                )
+            )
 
-        return redirect(
-            reverse(
-                'editor_review',
-                kwargs={
-                    'article_id': article_id,
-                    'copyedit_id': copyedit_id,
-                }
+            return redirect(
+                reverse(
+                    'editor_review',
+                    kwargs={
+                        'article_id': article_id,
+                        'copyedit_id': copyedit_id,
+                    }
+                )
             )
-        )
 
     template = 'admin/copyediting/delete_author_review.html'
     context = {
         'author_review': author_review,
         'article': author_review.assignment.article,
         'copyedit': author_review.assignment,
-        'email_template': email_template,
-        'email_subject': email_subject,
+        'form': form,
     }
     return render(
         request,

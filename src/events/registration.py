@@ -19,10 +19,14 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       workflow.workflow_auto_assign_editors)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
                                       transactional_emails.send_editor_assigned_acknowledgements)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_MANUALLY_ASSIGNED,
+                                      transactional_emails.send_editor_manually_assigned)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
         transactional_emails.send_editor_unassigned_notice)
 
 # Review
+event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_REQUESTED_NOTIFICATION,
+                                      transactional_emails.send_reviewer_requested)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,
                                       transactional_emails.send_reviewer_requested_acknowledgements)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_WITHDRAWL,

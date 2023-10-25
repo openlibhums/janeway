@@ -41,7 +41,11 @@ from utils.notify_plugins import notify_email
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
-from core import models as core_models, include_urls # include_urls so that notify modules load
+from core import (
+        email as core_email,
+        include_urls, # include_urls so that notify modules load
+        models as core_models,
+)
 from copyediting import models as copyediting_models
 
 
@@ -258,12 +262,18 @@ class TransactionalReviewEmailTests(UtilsTests):
         }
 
         expected_recipient = self.review_assignment.reviewer.email
+        subject_setting_name = 'subject_review_withdrawl'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        email_data = core_email.EmailData(
+            subject=subject_setting,
+            body=self.test_message,
+        )
+        kwargs["email_data"] = email_data
 
         send_reviewer_withdrawl_notice(**kwargs)
 
         self.assertEqual(expected_recipient, mail.outbox[0].to[0])
 
-        subject_setting_name = 'subject_review_withdrawl'
         subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
@@ -271,17 +281,25 @@ class TransactionalReviewEmailTests(UtilsTests):
 
     def test_send_editor_unassigned_notice(self):
         expected_recipient_one = self.review_assignment.editor.email
+        subject_setting_name = 'subject_unassign_editor'
+        subject_setting = self.get_default_email_subject(
+                subject_setting_name,
+                journal=self.review_assignment.article.journal,
+            )
+        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+
+        email_data = core_email.EmailData(
+            subject=subject_setting,
+            body=self.test_message,
+        )
         send_editor_unassigned_notice(
             request=self.request,
-            message=self.test_message,
+            email_data=email_data,
             assignment=self.review_assignment,
         )
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
-        subject_setting_name = 'subject_unassign_editor'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
 
@@ -426,13 +444,18 @@ class TransactionalReviewEmailTests(UtilsTests):
 
         for i, decision in enumerate(['accept', 'decline']): # to be added: 'undecline'
             kwargs['decision'] = decision
+            subject_setting_name = f'subject_review_decision_{decision}'
+            subject_setting = self.get_default_email_subject(subject_setting_name)
+            email_data = core_email.EmailData(
+                subject=subject_setting,
+                body=self.test_message,
+            )
+            kwargs["email_data"] = email_data
 
             send_article_decision(**kwargs)
 
             self.assertEqual(expected_recipient_one, mail.outbox[i].to[0])
 
-            subject_setting_name = f'subject_review_decision_{decision}'
-            subject_setting = self.get_default_email_subject(subject_setting_name)
             expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
             self.assertEqual(expected_subject, mail.outbox[i].subject)
 
@@ -510,7 +533,18 @@ class CopyeditingEmailSubjectTests(UtilsTests):
             (send_copyedit_reopen, 'subject_copyeditor_reopen_task' ),
             (send_author_copyedit_complete, 'subject_author_copyedit_complete'),
        ):
+            subject_setting = self.get_default_email_subject(
+                    subject_setting_name,
+                    journal=self.article_under_review.journal,
+                )
+
+            email_data = core_email.EmailData(
+                subject=subject_setting,
+                body=self.test_message,
+            )
             kwargs = dict(**self.base_kwargs)
+            kwargs["email_data"] = email_data
+            expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
             kwargs['copyedit_assignment'] = helpers.create_copyedit_assignment(
                 article = self.article_under_review,
                 copyeditor = self.copyeditor,
@@ -524,8 +558,11 @@ class CopyeditingEmailSubjectTests(UtilsTests):
                 assignment=kwargs['copyedit'],
                 notified=True
             )
+            email_data = core_email.EmailData(
+                subject=subject_setting,
+                body=self.test_message,
+            )
             email_function(**kwargs)
-            subject_setting = self.get_default_email_subject(subject_setting_name)
             expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
             self.assertEqual(expected_subject, mail.outbox[-1].subject)
 
