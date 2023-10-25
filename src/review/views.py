@@ -1204,7 +1204,6 @@ def notify_reviewer(request, article_id, review_id):
         )
 
         if form.is_valid() or skip:
-            import pdb;pdb.set_trace()
             kwargs = {
                 'email_data': form.as_dataclass(),
                 'review_assignment': review,
