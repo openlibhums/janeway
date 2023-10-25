@@ -52,7 +52,7 @@ def get_user_from_post(request):
         return None
 
 
-def get_copyeditor_notification(request, article, copyedit):
+def get_copyeditor_notification_context(request, article, copyedit):
     """
     Takes a set of variables and renders a template into a string.
     :param request: HttpRequest object
@@ -67,8 +67,7 @@ def get_copyeditor_notification(request, article, copyedit):
         'assignment': copyedit,
         'copyedit_requests_url': copyedit_requests_url,
     }
-
-    return render_template.get_message_content(request, email_context, 'copyeditor_assignment_notification')
+    return email_context
 
 
 def get_copyedit_message(request, article, copyedit, template,

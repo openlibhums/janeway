@@ -624,7 +624,8 @@ def send_revisions_author_receipt(**kwargs):
 def send_copyedit_assignment(**kwargs):
     request = kwargs['request']
     copyedit_assignment = kwargs['copyedit_assignment']
-    user_message_content = kwargs['user_message_content']
+    article = kwargs['article']
+    email_data = kwargs["email_data"]
     skip = kwargs.get('skip', False)
 
     description = '{0} has requested copyediting for {1} due on {2}'.format(
@@ -639,11 +640,14 @@ def send_copyedit_assignment(**kwargs):
             'types': 'Copyedit Assignment',
             'target': copyedit_assignment.article,
         }
-        response = notify_helpers.send_email_with_body_from_user(
-            request, 'subject_copyeditor_assignment_notification',
-            copyedit_assignment.copyeditor.email,
-            user_message_content, log_dict,
+        core_email.send_email(
+            copyedit_assignment.copyeditor,
+            email_data,
+            request,
+            article=article,
+            log_dict=log_dict,
         )
+
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
