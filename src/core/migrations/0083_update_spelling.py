@@ -29,6 +29,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0082_galley_file_not_nullable'),
+        ('core', '0082_mark_safe_article_title'),
+        ('core', '0082_galley_file_not_nullable'),
+        ('core', '0082_auto_20230515_1706'),
     ]
 
     operations = [

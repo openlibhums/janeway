@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('submission', '0072_auto_20230322_1540'),
+        ('submission', '0072_auto_20230607_1512'),
     ]
 
     operations = [
