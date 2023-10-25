@@ -1613,7 +1613,7 @@ def review_decision(request, article_id, decision):
             request=request,
         )
         skip = "skip" in request.POST
-        if form.is_valid() skip:
+        if form.is_valid() or skip:
 
             kwargs = {
                 'article': article,

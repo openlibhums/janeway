@@ -2,6 +2,8 @@ from core.forms.forms import (
     AccessRequestForm,
     AdminUserForm,
     ArticleMetaImageForm,
+    BleachableModelForm,
+    BleachableModelForm,
     CBVFacetForm,
     ConfirmableForm,
     ConfirmableIfErrorsForm,
