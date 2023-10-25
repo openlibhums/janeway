@@ -277,7 +277,8 @@ ul.tagit li.tagit-choice-read-only {
 }
 
 ul.tagit li.tagit-choice-editable {
-    padding: .2em 18px .2em .5em;
+    padding: 0em 18px 0em .5em;
+    margin-top: .2rem;
 }
 
 ul.tagit li.tagit-new {
@@ -322,6 +323,7 @@ ul.tagit input[type="text"] {
     width: inherit;
     background-color: inherit;
     outline: none;
+    max-height: 1.5rem;
 }
 
 th {

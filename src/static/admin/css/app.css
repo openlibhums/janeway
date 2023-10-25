@@ -1860,7 +1860,7 @@ kbd {
     margin-left: 0; }
 
 [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
-textarea {
+textarea, ul.tagit{
   display: block;
   box-sizing: border-box;
   width: 100%;
