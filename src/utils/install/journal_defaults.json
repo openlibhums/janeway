@@ -4993,7 +4993,7 @@
     },
     {
          "group": {
-            "name": "email"
+            "name": "email_subject"
         },
         "setting": {
             "description": "Subject for Bounced Email Notification.",
