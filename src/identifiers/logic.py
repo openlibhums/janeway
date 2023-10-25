@@ -230,7 +230,7 @@ def create_crossref_doi_batch_context(journal, identifiers):
 
     template_context = {
         'batch_id': uuid4(),
-        'now': timezone.now(),
+        'now': datetime.datetime.now(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
         'timestamp_suffix': timestamp_suffix,
         'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',

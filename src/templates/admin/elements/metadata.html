@@ -11,7 +11,7 @@
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
             class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
 {% endif %}
-<h4>{{ article.title|safe }}</h4>
+<h4>{{ article.safe_title }}</h4>
 <table class="scroll small">
     <tr>
         <th>Section</th>
@@ -69,7 +69,7 @@
         <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No comments{% endif %}
         </td>
     </tr>
-    {% if journal_settings.general.submission_competing_interests %}
+    {% if request.journal.submissionconfiguration.competing_interests %}
         <tr>
             <th colspan="4">Competing Interests</th>
         </tr>

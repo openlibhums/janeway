@@ -5,7 +5,7 @@
 
 {% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
 {% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -52,13 +52,11 @@
                                class="button success"><i
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept
                                 Article</a> Accept Article</a>
-
                             <a href="#" data-open="newround"
                                class="button warning"><i
                                     class="fa fa-plus-circle action-icon">&nbsp;</i>New
                                 Review Round
                             </a>
-
                             <a href="{% url 'review_decision' article.id 'decline' %}"
                                class="button alert"><i
                                     class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
@@ -67,6 +65,11 @@
                                class="button warning"><i
                                     class="fa fa-inbox action-icon">&nbsp;</i>Request
                                 Revisions</a>
+                            {% if journal_settings.general.enable_share_reviews_decision %}
+                            <a href="{% url 'editor_share_reviews' article.pk %}"
+                               class="button info"><i
+                                    class="fa fa-share-square-o action-icon">&nbsp;</i>Share Reviews</a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endif %}

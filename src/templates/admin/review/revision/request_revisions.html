@@ -3,7 +3,7 @@
 
 {% block title %}Request Revisions{% endblock title %}
 {% block title-section %}Request Revisions{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -40,19 +40,23 @@
 
                 <div class="content">
                     <div class="row expanded">
-                        <p>You can request that an author make revisions to their article by selecting a due date and supplying them with feedback below. If you need to attach any documents, after you've filled in your revisions request you can add attachments on the next page.</p>
-                             {% include "elements/forms/errors.html" with form=form %}
                         <div class="large-6 columns">
-                            {{ form.editor_note|foundation }}
-                        </div>
-                        <div class="large-3 columns">
-                            {{ form.type|foundation }}
-                        </div>
-                        <div class="large-3 columns">
-                            {{ form.date_due|foundation }}
+                            <p>You can request that an author make revisions to
+                                their article by selecting a due date and
+                                supplying them with feedback below in the
+                                editor note field. You will
+                                have the option to send an email, with
+                                attachments, on the next page.
+                            </p>
+                            {% include "elements/forms/errors.html" with form=form %}
+                            {{ form|foundation }}
+
+                            <button class="button success"
+                                    name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
+                                Next
+                            </button>
                         </div>
                     </div>
-                    <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">Next</button>
                 </div>
             </div>
         </form>

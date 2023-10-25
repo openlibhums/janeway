@@ -33,7 +33,7 @@
                         <tbody>
                             {% for article in articles %}
                                 <tr>
-                                    <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
+                                    <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
                                     <td>{{ article.section.name }}</td>
                                     <td><a href="{% url 'edit_identifiers' article.pk %}" target="_blank">{{ article.get_doi }}</a></td>
                                     <td>{{ article.date_published|date:"Y-m-d H:i" }}</td>

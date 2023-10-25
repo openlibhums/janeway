@@ -6,7 +6,7 @@
 
 {% block title %}Copyediting Review{% endblock %}
 {% block title-section %}Copyediting Review{% endblock %}
-{% block title-sub %}{{ copyedit.article.title }}{% endblock %}
+{% block title-sub %}{{ copyedit.article.safe_title }}{% endblock %}
 
 {% block css %}
     <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}

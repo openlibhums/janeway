@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-divider">
-        <h5>{{ article.pk }} - {{ article.title|safe }}</h5>
+        <h5>{{ article.pk }} - {{ article.safe_title }}</h5>
     </div>
     <div class="card-section">
         {% if type == "unassigned" %}

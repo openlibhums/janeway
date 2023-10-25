@@ -50,7 +50,6 @@ urlpatterns = [
     # Root Site URLS
     re_path(r'^$', press_views.index, name='website_index'),
     re_path(r'^journals/$', press_views.journals, name='press_journals'),
-    re_path(r'^article_list/$', core_views.FilteredArticlesListView.as_view(), name='article_list'),
     re_path(r'^conferences/$', press_views.conferences, name='press_conferences'),
     re_path(r'^kanban/$', core_views.kanban, name='kanban'),
     re_path(r'^login/$', core_views.user_login, name='core_login'),

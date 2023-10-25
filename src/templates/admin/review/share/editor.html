@@ -1,0 +1,103 @@
+{% extends "admin/core/base.html" %}
+{% load settings %}
+
+{% block title %}Sharing Peer Reviews{% endblock %}
+{% block title-section %}Sharing Peer Reviews{% endblock %}
+{% block title-sub %}#{{ article.pk }} /
+    {{ article.correspondence_author.last_name }} /
+    {{ article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li><a href="{% url 'decision_helper' article.pk %}">Decision Helper</a>
+    </li>
+    <li>Share Peer Reviews</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <section>
+        <div class="row column expanded">
+            <div class="box">
+                <div class="title-area">
+                    <h2>About Sharing Peer Reviews</h2>
+                </div>
+                <div class="content">
+                    {% if reviews %}
+                        <p>You can share the contents of completed peer reviews
+                            with all the reviewers involved with this article.
+                            Reviewers will have the opportunity to see the peer
+                            reviews with any editor alterations.</p>
+
+                        <div class="callout primary">
+                            <p><span class="fa fa-info-circle"></span>
+                                The following reviews are complete and have a reviewer recommendation:</p>
+                            <ul>
+                                {% for review in reviews %}
+                                    <li>Review #{{ review.pk }}
+                                        by {{ review.reviewer.full_name }}</li>
+                                {% empty %}
+                                    <li>
+                                        This article has no completed reviews
+                                        to share.
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p>Each reviewer will receive a single email even
+                                if they have multiple reviews for this
+                                article.</p>
+                        </div>
+                        </div>
+                        <div class="title-area">
+                            <h2>Message to Reviewers</h2>
+                        </div>
+                        <div class="content">
+                            <div class="card">
+                                <div class="card-divider">
+                                    <p>From {{ request.user.full_name }}</p>
+                                    {% setting_var request.journal 'subject_share_reviews_notification' as subject %}
+                                    <p>Subject: <strong>{{ subject }}</strong>
+                                    </p>
+                                </div>
+                                <form method="POST"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="card-section">
+                                        {{ form.as_p }}
+                                        <label for="attachment">Attachment
+                                            (You can select multiple
+                                            files): </label>
+                                        <input type="file" name="attachment"
+                                               multiple>
+                                    </div>
+                                    <div class="card-divider">
+                                        <div class="button-group">
+                                            <button type="submit"
+                                                    class="button success"
+                                                    name="send"><i
+                                                    class="fa fa-envelope-o">&nbsp;</i>Send
+                                            </button>
+                                            <button type="submit"
+                                                    class="button warning"
+                                                    name="skip"><i
+                                                    class="fa fa-step-forward">&nbsp;</i>Skip
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="content">
+                            <div class="callout info">
+                                <p><span
+                                        class="fa fa-exclamation-triangle"></span>
+                                    This article has no reviews that are marked
+                                    for consumption.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock body %}

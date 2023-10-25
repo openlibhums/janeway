@@ -2,7 +2,7 @@
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint Comments{% endblock %}
-{% block title-sub %}Management interface for {{ article.title|safe }} comments{% endblock %}
+{% block title-sub %}Management interface for {{ article.safe_title }} comments{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>

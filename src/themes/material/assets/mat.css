@@ -310,6 +310,11 @@ a:hover .article-title {
     overflow-x: auto;
 }
 
+.math-formulae {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
 .table-wrap {
     overflow-x: auto;
 }
@@ -404,7 +409,7 @@ h5 {
 }
 
 .small-caps {
-    font-variant: small-caps
+    font-variant: all-small-caps
 }
 
 /* Remove default bullets */
@@ -456,7 +461,10 @@ nav ul li {
     line-height: 90px;
 }
 
-nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
+nav,
+nav .nav-wrapper i,
+nav a.sidenav-trigger,
+nav a.sidenav-trigger i {
     line-height: 90px;
 }
 
@@ -477,7 +485,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     color: white;
 }
 
-.button-collapse {
+.sidenav-trigger {
     color: #616161;
 }
 
@@ -686,4 +694,14 @@ strong {
 
 #homepage-element-search-bar .input-field #search_term {
   font-size: 1.5rem;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
 }

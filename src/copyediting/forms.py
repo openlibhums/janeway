@@ -74,6 +74,15 @@ class CopyeditAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm
         return potential_errors
 
 
+class EditCopyeditAssignment(forms.ModelForm):
+    class Meta:
+        model = models.CopyeditAssignment
+        fields = (
+            'editor_note',
+            'due',
+        )
+
+
 class CopyEditForm(forms.ModelForm):
     class Meta:
         model = models.CopyeditAssignment

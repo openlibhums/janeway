@@ -38,7 +38,7 @@
                     {% for pin in pinned_articles %}                       
                         <tr id="orders-{{ pin.pk }}">
                             <td>{{ pin.sequence }}</td>
-                            <td>{{ pin.article.title|safe }}</td>
+                            <td>{{ pin.article.safe_title }}</td>
                             <td>{{ pin.article.doi }}</td>
                             <td>{{ pin.article.correspondence_author.full_name }}</td>
                             <td>{{ pin.article.date_published }}</td>
@@ -73,7 +73,7 @@
                         {% for article in published_articles %}
                             {% if article.is_published %}                         
                             <tr>
-                                <td>{{ article.title|safe }}</td>
+                                <td>{{ article.safe_title }}</td>
                                 <td>{{ article.doi }}</td>
                                 <td>{{ article.correspondence_author.full_name }}</td>
                                 <td>{{ article.date_published }}</td>

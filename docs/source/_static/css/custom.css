@@ -1,0 +1,14 @@
+.wy-nav-content {
+    max-width: 90%;
+}
+
+img {
+	border-width: 5px;
+	border-style: solid;
+	border-color: #efefef;
+}
+
+.caption {
+	background-color: #efefef;
+	padding: 10px;
+}

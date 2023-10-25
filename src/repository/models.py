@@ -11,10 +11,14 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
+from django_countries.fields import CountryField
+from django_bleach.models import BleachField
+from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -83,7 +87,10 @@ def repo_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
-class Repository(model_utils.AbstractSiteModel):
+class Repository(
+    model_utils.AbstractBleachModelMixin,
+    model_utils.AbstractSiteModel,
+):
     press = models.ForeignKey(
         'press.Press',
         null=True,
@@ -218,6 +225,7 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Licence',
         blank=True,
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -375,14 +383,11 @@ class Preprint(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
         help_text=_(
-            'Please avoid pasting content from word processors as they can add '
-            'unwanted styling to the abstract. You can retype the abstract '
-            'here or copy and paste it into notepad/a plain text editor before '
-            'pasting here.',
+            'Copying and pasting from word processors is supported.',
         )
 
     )
@@ -521,6 +526,13 @@ class Preprint(models.Model):
         ).select_related('account')
 
         return [pa.account for pa in preprint_authors]
+
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "[Untitled]"
 
     @property
     def supplementaryfiles(self):
@@ -831,11 +843,9 @@ class PreprintAccess(models.Model):
     )
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    country = models.ForeignKey(
-        'core.Country',
-        blank=True,
+    country = CountryField(
         null=True,
-        on_delete=models.SET_NULL,
+        blank=True,
     )
 
     @property
@@ -956,6 +966,7 @@ class PreprintVersion(models.Model):
     title = models.CharField(
         max_length=300,
         help_text=_('Your article title'),
+        blank=True,
     )
     abstract = models.TextField(
         blank=True,
@@ -984,6 +995,13 @@ class PreprintVersion(models.Model):
             return self.file.contents()
         else:
             return ''
+
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "[Untitled]"
 
     def __str__(self):
         return f'{self.preprint} (version {self.version})'
@@ -1178,6 +1196,13 @@ class VersionQueue(models.Model):
             return _('Under Review')
         else:
             return _('Declined')
+
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "[Untitled]"
 
 
 def review_status_choices():

@@ -3,13 +3,13 @@
 
 
 {% block title %}Replacing Article File for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Replacing Article File for {{ revision_request.article.title }}{% endblock %}
+{% block title-section %}Replacing Article File for {{ revision_request.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
     <li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions
-        for {{ revision_request.article.title }}</a></li>
+        for {{ revision_request.article.safe_title }}</a></li>
     <li>Replace File</li>
 {% endblock breadcrumbs %}
 
@@ -23,7 +23,7 @@
                         <h2>Upload Guidelines</h2>
                     </div>
                     <div class="content">
-                        <p>You are revising article #{{ article.pk }}, {{ article.title|safe }}. </p><p>Add a label, select a file and use the Upload and Continue button to upload the file</p>
+                        <p>You are revising article #{{ article.pk }}, {{ article.safe_title }}. </p><p>Add a label, select a file and use the Upload and Continue button to upload the file</p>
                         {% if error %}
                             <div class="alert alert-warning" role="alert">{{ error }}</div>
                         {% endif %}

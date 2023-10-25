@@ -20,6 +20,7 @@
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
+                        <a class="button" href="{% url 'cms_file_list' %}">Media Manager</a>
                         <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Contact Manager</a>
                         <a class="button" href="{% url 'press_edit_press' %}">Edit Press Details</a>
@@ -114,7 +115,7 @@
                             <tbody>
                             {% for article in published_articles %}
                                 <tr>
-                                    <td>{{ article.title|safe }}</td>
+                                    <td>{{ article.safe_title }}</td>
                                     <td>{{ article.journal.name }}</td>
                                     <td>{{ article.metrics.views }}</td>
                                     <td>{{ article.metrics.downloads }}</td>
@@ -128,6 +129,10 @@
                                         <a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}"><i
                                                 class="fa fa-linkedin"></i></a></h5>
                                     </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">There are no published articles to display.</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

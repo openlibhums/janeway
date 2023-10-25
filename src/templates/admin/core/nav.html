@@ -125,6 +125,7 @@
                     <i class="fa fa-plug">&nbsp;</i> Plugins
                 </a>
             </li>
+            {% hook 'journal_editor_nav_block' %}
         {% endif %}
         {% if request.user.is_staff %}
             <li>

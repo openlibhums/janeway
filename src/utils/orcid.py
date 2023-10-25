@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 from urllib.parse import urlencode
 
+from collections import defaultdict
 from django.conf import settings
 from django.urls import reverse
 import requests
@@ -64,7 +65,7 @@ def build_redirect_uri(site):
 
 
 def get_orcid_record_details(orcid):
-    details = {}
+    details = defaultdict(lambda: None)
     try:
         logger.info("Retrieving ORCiD profile for %s", orcid)
         api_client = OrcidAPI(
@@ -83,8 +84,11 @@ def get_orcid_record_details(orcid):
                 email["email"]
                 for email in user_record["emails"]["email"]
             ]
-            details["last_name"] = user_record["name"]["family-name"]["value"]
-            details["first_name"] = user_record["name"]["given-names"]["value"]
+            try:
+                details["last_name"] = user_record["name"]["family-name"]["value"]
+                details["first_name"] = user_record["name"]["given-names"]["value"]
+            except KeyError:
+                pass
     except HTTPError as e:
         logger.info("Couldn't retrieve profile with ORCID %s", orcid)
         logger.info(e)

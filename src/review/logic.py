@@ -24,6 +24,7 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.utils.safestring import mark_safe
 from docx import Document
+from django_countries import countries
 
 from utils import render_template, setting_handler, notify_helpers
 from core import models as core_models, files
@@ -33,22 +34,13 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_reviewer_candidates(article, user=None):
-    """ Builds a queryset of candidates for peer review for the given article
-    :param article: an instance of submission.models.Article
-    :param user: The user requesting candidates who would be filtered out
-    """
-    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
-    reviewers = [review.reviewer.pk for review in review_assignments]
-    if user:
-        reviewers.append(user.pk)
+def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
         'reviewer',
         queryset=models.ReviewAssignment.objects.filter(
             article__journal=article.journal
         ).order_by("-date_complete")
     )
-    # TODO swap the below subqueries with filtered annotations on Django 2.0+
     active_reviews_count = models.ReviewAssignment.objects.filter(
         is_complete=False,
         reviewer=OuterRef("id"),
@@ -68,8 +60,9 @@ def get_reviewer_candidates(article, user=None):
         rating_average=Avg("rating"),
     ).values("rating_average")
 
-    reviewers = article.journal.users_with_role('reviewer').exclude(
-        pk__in=reviewers,
+    # TODO swap the below subqueries with filtered annotations on Django 2.0+
+    reviewers = candidate_queryset.exclude(
+        pk__in=exclude_pks,
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
@@ -81,8 +74,31 @@ def get_reviewer_candidates(article, user=None):
     ).annotate(
         rating_average=Subquery(rating_average, output_field=IntegerField()),
     )
-
     return reviewers
+
+
+def get_reviewer_candidates(article, user=None, reviewers_to_exclude=None):
+    """ Builds a queryset of candidates for peer review for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    :param reviewers_to_exclude: queryset of Account objects
+    """
+    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [review.reviewer.pk for review in review_assignments]
+    if user:
+        reviewer_pks_to_exclude.append(user.pk)
+
+    if reviewers_to_exclude:
+        for reviewer in reviewers_to_exclude:
+            reviewer_pks_to_exclude.append(
+                reviewer.pk,
+            )
+
+    return get_reviewers(
+        article,
+        article.journal.users_with_role('reviewer'),
+        reviewer_pks_to_exclude
+    )
 
 
 def get_suggested_reviewers(article, reviewers):
@@ -96,6 +112,29 @@ def get_suggested_reviewers(article, reviewers):
                 break
 
     return suggested_reviewers
+
+def get_previous_round_reviewers(article):
+    """
+    Builds a queryset of candidates who have previously completed a review
+    for this article.
+    :param article: an instance of submission.models.Article
+    """
+    review_assignments = article.reviewassignment_set.filter(
+        review_round=article.current_review_round_object())
+    reviewer_pks_to_exclude = [
+        review.reviewer.pk for review in review_assignments
+    ]
+
+    completed_review_reviewer_pks = [
+        review.reviewer.pk for review in article.completed_reviews_with_decision
+    ]
+    return get_reviewers(
+        article,
+        core_models.Account.objects.filter(
+            pk__in=completed_review_reviewer_pks,
+        ),
+        reviewer_pks_to_exclude,
+    )
 
 
 def get_assignment_context(request, article, editor, assignment):
@@ -250,6 +289,47 @@ def get_revision_request_content(request, article, revision, draft=False):
         email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
     return render_template.get_message_content(request, email_context, 'request_revisions')
+
+
+def get_share_review_content(request, article, review):
+    url = request.journal.site_url(
+        reverse(
+            'reviewer_share_reviews',
+            kwargs={'article_id': article.pk}
+        )
+    )
+    email_context = {
+        'article': article,
+        'review': review,
+        'url': url,
+    }
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        'share_reviews_notification',
+    )
+
+
+def send_review_share_message(request, article, subject, form_data):
+    for review_pk, email_content in form_data.items():
+        review = models.ReviewAssignment.objects.get(
+            pk=review_pk,
+            article__journal=article.journal,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            subject,
+            review.reviewer.email,
+            email_content,
+            log_dict={
+                'level': 'Info',
+                'action_text': f'Reviews link shared with {review.reviewer.full_name()}',
+                'types': 'Review Sharing',
+                'actor': request.user,
+                'target': article,
+            }
+        )
 
 
 def get_reviewer_from_post(request):
@@ -657,10 +737,13 @@ def process_reviewer_csv(path, request, article, form):
         reader = csv.DictReader(csv_file)
         reviewers = []
         for row in reader:
-            try:
-                country = core_models.Country.objects.get(code=row.get('country'))
-            except core_models.Country.DoesNotExist:
-                country = None
+
+            # Validate country code against ISO-3166-1
+            country = None
+            if row.get('country'):
+                valid_alpha2 = countries.alpha2(row.get('country'))
+                if valid_alpha2:
+                    country = valid_alpha2
 
             reviewer, created = core_models.Account.objects.get_or_create(
                 email=row.get('email_address'),
@@ -740,3 +823,22 @@ def process_reviewer_csv(path, request, article, form):
         return [], e
 
 
+def handle_response_letter_upload(request, revision_request):
+    response_letter = request.FILES.get('response_letter')
+    if response_letter:
+        file = files.save_file_to_article(
+            response_letter,
+            revision_request.article,
+            owner=request.user,
+            label='Response Letter',
+        )
+        revision_request.response_letter = file
+        revision_request.save()
+        return file
+
+    messages.add_message(
+        request,
+        messages.WARNING,
+        'No response letter selected.',
+    )
+    return

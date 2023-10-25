@@ -19,7 +19,7 @@
         <div class="col m12">
             <div class="card">
             {% if not journal_settings.article.disable_article_large_image %}
-                <div class="card-image article-card waves-effect waves-block waves-light">
+                <div class="card-image article-card">
                         <img class="orbit-image"
                             {% if article.large_image_file.id %}
                              src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
@@ -543,4 +543,5 @@
     });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
+    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
 {% endblock %}

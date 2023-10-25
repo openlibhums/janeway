@@ -7,7 +7,7 @@
 {% block breadcrumbs %}
 {{ block.super }}
 <li>Edit</li>
-<li>{{ article.title }}</li>
+<li>{{ article.safe_title }}</li>
 <li>Identifiers</li>
 {% endblock breadcrumbs %}
 

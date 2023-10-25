@@ -34,6 +34,7 @@
                         <form method="GET" id={{ facet_form.id }}>
                             {% for field in facet_form %}
                                 <div class="columns small-12 medium-6">
+
                                     <fieldset style="padding-bottom: 24px">
                                         <legend>{{ field.label|safe }}</legend>
                                         <div class="facet">
@@ -45,7 +46,7 @@
                                                             {{ checkbox.choice_label|safe }}
                                                         </label>
                                                     {% endfor %}
-                                                {% elif widgetclass == 'HTMLDateInput' %}
+                                                {% elif widgetclass == 'DateInput' %}
                                                     {{ field }}
                                                 {% endif %}
                                             {% endwith %}
@@ -91,9 +92,9 @@
                             <td>{{ article.pk }}</td>
                             <td>
                                 {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
-                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                                    <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.safe_title }}</a>
                                 {% else %}
-                                    <a href="{% external_journal_url article_journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                                    <a href="{% external_journal_url article_journal 'manage_archive_article' article.pk %}" target="_blank">{{ article.safe_title }}</a>
                                 {% endif %}
                             </td>
                             {% if not journal %}

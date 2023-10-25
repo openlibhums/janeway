@@ -99,9 +99,15 @@ Presents a list of users who are currently logged into your install of Janeway. 
 
 Merge Users (Press Manager only)
 --------------------------------
-From the press manager, staff memebers can now merge two accounts together, in order to remove any potential duplicates.
-All linked objects (tasks, articles, roles, files...) will be transferred from the source account onto the destination account.
-The account profile itself is left untouched, so any profile details on the source account will be lost.
+The press manager now enables staff members to merge two accounts to eliminate potential duplicates. All associated objects such as tasks, articles, roles, and files will be moved from the source account to the destination account. The account profile remains unchanged, meaning any profile information in the source account will be lost.
+
+.. warning:: When searching for users to merge, note that the user account in the left column will be merged into the user account in the right column.
+
+.. figure:: ../../nstatic/merge_users.gif
+    :alt: A press manager user is merging two accounts together. The search for one user then the other and click the merge button.
+    :class: with-border
+
+    A press manager is merging Andy Byers' account into Katheryn Janeway's account.
 
 Granular Manager Permissions
 ----------------------------

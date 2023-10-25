@@ -146,4 +146,21 @@ urlpatterns = [
         views.upload_reviewers_from_csv,
         name='upload_reviewers_from_csv',
     ),
+
+    # Review Sharing
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/$',
+        views.editor_share_reviews,
+        name='editor_share_reviews',
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/reviewer/$',
+        views.reviewer_share_reviews,
+        name='reviewer_share_reviews',
+    ),
+    re_path(
+        r'^article/(?P<article_id>\d+)/share/download/(?P<review_id>\d+)/$',
+        views.reviewer_shared_review_download,
+        name='reviewer_shared_review_download',
+    ),
 ]

@@ -4,12 +4,12 @@
 {% load i18n %}
 
 {% block title %}Revision for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Revision for {{ revision_request.article.title }}{% endblock %}
+{% block title-section %}Revision for {{ revision_request.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
-    <li>Revisions for {{ revision_request.article.title }}</li>
+    <li>Revisions for {{ revision_request.article.safe_title }}</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -93,11 +93,30 @@
                             </tr>
                         {% endfor %}
                     </table>
+                </div>
+                <div class="title-area">
+                    <h2>Responses</h2>
+                </div>
+                <div class="content">
+                    <p>In this section you can add a covering letter for the editor and a response letter that will be shared with the reviewers.</p>
                     {% include "elements/forms/errors.html" with form=form %}
-                    {{ form.author_note|foundation }}
+                    <div class="row expanded">
+                        <div class="large-6 medium-12 columns">
+                            {{ form.author_note|foundation }}
+                        </div>
+                        <div class="large-6 medium-12 columns">
+                            {{ form.response_letter|foundation }}
+                        </div>
+                    </div>
 
-                    <p>If you want to save your covering letter and come back later, click the 'Save Covering Letter' button below. Once you are ready to send your letter, see the 'Finishing Up' section below.</p>
-                    <button class="button success" name="save">Save Covering Letter</button>
+                    <p>If you want to save your responses and
+                        come back later, click the 'Save Responses'
+                        button below. Once you are ready to
+                        send your letters, see the 'Finishing Up'
+                        section below.</p>
+                    <button class="button success" name="save">
+                        Save Responses
+                    </button>
                 </div>
                 <div class="title-area">
                     <h2>Finishing Up</h2>

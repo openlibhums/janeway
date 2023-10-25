@@ -30,7 +30,7 @@
 
                     <ul>
                         {% for article in license_articles %}
-                        <li>{{ article.title|safe }}</li>
+                        <li>{{ article.safe_title }}</li>
                         {% endfor %}
                     </ul>
                 </div>

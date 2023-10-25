@@ -31,6 +31,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import linebreaksbr
+from django_countries.fields import CountryField
 import swapper
 
 from core import files, validators
@@ -75,6 +76,8 @@ SALUTATION_CHOICES = (
     ('Prof.', 'Prof.'),
 )
 
+# COUNTRY_CHOICES was deprecated in version 1.5.1
+# Use django_countries.countries instead
 COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
                    (u'DZ', u'Algeria'), (u'AS', u'American Samoa'), (u'AD', u'Andorra'), (u'AO', u'Angola'),
                    (u'AI', u'Anguilla'), (u'AQ', u'Antarctica'), (u'AG', u'Antigua and Barbuda'), (u'AR', u'Argentina'),
@@ -153,6 +156,8 @@ TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 SUMMERNOTE_SENTINEL = '<p><br></p>'
 
 
+# Country was deprecated in version 1.5.1
+# Use django_countries.CountryField instead
 class Country(models.Model):
     code = models.TextField(max_length=5)
     name = models.TextField(max_length=255)
@@ -236,12 +241,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
     confirmation_code = models.CharField(max_length=200, blank=True, null=True)
     signature = models.TextField(null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(
-        Country,
+
+    country = CountryField(
         null=True,
         blank=True,
-        verbose_name=_('Country'),
-        on_delete=models.SET_NULL,
     )
     preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
 
@@ -1151,11 +1154,7 @@ class Galley(AbstractLastModifiedModel):
         null=True,
         on_delete=models.CASCADE,
     )
-    file = models.ForeignKey(
-        File,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)

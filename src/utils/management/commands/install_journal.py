@@ -5,6 +5,7 @@ from django.utils import translation
 from journal import models as journal_models
 import utils.install as install
 
+
 class Command(BaseCommand):
     """ A management command to install a new journal."""
 

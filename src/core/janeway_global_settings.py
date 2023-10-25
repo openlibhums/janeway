@@ -25,6 +25,9 @@ from django.contrib import messages
 
 from core import plugin_installed_apps
 
+# X_FRAME_OPTIONS must be set to SAMEORIGIN or the embedded PDF viewer will not work
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
@@ -88,15 +91,18 @@ INSTALLED_APPS = [
 
     # 3rd Party
     'mozilla_django_oidc',
+    'django_countries',
     'django_summernote',
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
+    'materializecssform',
     'captcha',
     'simplemathcaptcha',
+    'simple_history',
     'hijack',
     'hcaptcha',
+    'django_bleach',
 
     # Forms
     'django.forms',
@@ -124,6 +130,7 @@ MIDDLEWARE = (
     'django.middleware.gzip.GZipMiddleware',
     'journal.middleware.LanguageMiddleware',
     'hijack.middleware.HijackUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -273,12 +280,37 @@ STATIC_URL = '/static/'
 if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
+# Django bleach settings
+# Which HTML tags are allowed
+BLEACH_ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'article', 'main', 'aside',
+    'header', 'footer', 'main', 'section', 'ul', 'ol', 'li',
+    'figure', 'figcaption', 'img', 'pre', 'blockquote',
+    'p', 'b', 'i', 'u', 'em', 'strong', 'a',
+    'table', 'tr', 'th', 'td', 'thead', 'tbody', 'tfoot',
+]
+
+# Which HTML attributes are allowed
+BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target']
+
+# Which CSS properties are allowed in 'style' attributes (assuming
+# style is an allowed attribute)
+# BLEACH_ALLOWED_STYLES = []
+
+# Strip unknown tags if True, replace with HTML escaped characters if
+# False
+BLEACH_STRIP_TAGS = True
+
+# Strip comments, or leave them in.
+BLEACH_STRIP_COMMENTS = False
+
+# Which widget to use for bleached HTML fields
+BLEACH_DEFAULT_WIDGET = 'django_summernote.widgets.SummernoteWidget'
+
+# Summernote settings
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
     'iframe': True,  # or set False to use SummernoteInplaceWidget - no iframe mode
-
-    # Using Summernote Air-mode
-    'airMode': False,
 
     # Use native HTML tags (`<b>`, `<i>`, ...) instead of style attributes
     # (Firefox, Chrome only)
@@ -287,13 +319,58 @@ SUMMERNOTE_CONFIG = {
     # Set text direction : 'left to right' is default.
     'direction': 'ltr',
 
-    # Change editor size
-    'width': '100%',
-    'height': '350',
-
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
     'attachment_filesize_limit': 2056 * 2056,
+
+    'css': (
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/theme/monokai.min.css',
+    ),
+
+    # You can put custom Summernote settings
+    'summernote': {
+        # Using Summernote Air-mode
+        'airMode': False,
+
+        # Change editor size
+        'width': '100%',
+        # 'height': '480',
+
+        # Toolbar customization
+        # https://summernote.org/deep-dive/#custom-toolbar-popover
+        'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            # ['fontname', ['fontname']],
+            # ['color', ['color']],
+            ['para', ['ul', 'ol']],  # , 'paragraph'
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],   # , 'video'
+            ['misc', ['undo', 'redo', 'help']],
+            ['view', ['fullscreen', 'codeview']],
+        ],
+
+        'popover': {
+          'image': [
+            ['remove', ['removeMedia']]
+          ],
+          'link': [
+            ['link', ['linkDialogShow', 'unlink']]
+          ],
+          'table': [
+            ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
+            ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
+          ],
+        },
+
+        'codemirror': {
+            'mode': 'htmlmixed',
+            'lineNumbers': 'true',
+            'lineWrapping': 'true',
+            # You have to include theme file in 'css' or 'css_for_inplace' before using it.
+            'theme': 'monokai',
+        },
+    },
 }
 
 # 1.9 appears confused about where null and blank are required for many to
@@ -371,8 +448,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = os.environ.get(
-    'JANEWAY_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend',
-)
+    'JANEWAY_EMAIL_BACKEND',
+) or 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
 EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
 EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')
@@ -510,7 +587,6 @@ if ENABLE_OIDC:
         'django.contrib.auth.backends.ModelBackend',
     )
 
-    
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
     CORE_FILETEXT_MODEL = "core.PGFileText"
@@ -523,6 +599,7 @@ CORE_THEMES = [
     'material',
     'clean',
 ]
+
 INSTALLATION_BASE_THEME = 'OLH'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -530,5 +607,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Use pagination for all of our APIs based on Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }

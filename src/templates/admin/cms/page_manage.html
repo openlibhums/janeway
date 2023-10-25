@@ -25,20 +25,30 @@
                 {% include "admin/elements/translations/form_tabs.html" with object=page %}
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form|foundation }}
+                    {{ form.display_name|foundation }}
+                    {{ form.name|foundation }}
+                    {{ form.content|foundation }}
+                    {{ form.support_copy_paste|foundation }}
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <p>If you want to upload and link to a file, use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
                                 Files</a> system.</p>
                             <button type="submit" class="button success">Save</button>
+                            {% if page.history %}
+                                <a class="button" data-open="history_modal">
+                                    <i class="fa fa-history" aria-hidden="True"></i>
+                                    View History
+                                </a>
+                            {% endif %}
                             <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"
                                     class="alert button pull-right">Delete
                             </button>
                         </div>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
+
+    {% include 'admin/elements/history_modal.html' with history=page.history.all view_url="admin:cms_page_history" %}
 {% endblock body %}

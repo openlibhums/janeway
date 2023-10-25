@@ -46,7 +46,6 @@ from modeltranslation.utils import auto_populate
 from PIL import Image
 import xml.etree.cElementTree as et
 
-from utils import logic
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -96,6 +95,8 @@ class AbstractSiteModel(models.Model):
         return obj
 
     def site_url(self, path=None):
+        # This is here to avoid circular imports
+        from utils import logic
         return logic.build_url(
             netloc=self.domain,
             scheme=self._get_scheme(),
@@ -566,3 +567,28 @@ class SearchVector(DjangoSearchVector):
     # Override template to ignore function
     function = None
     template = '%(expressions)s'
+
+
+class AbstractBleachModelMixin(models.Model):
+
+    """
+    A mixin for models with a field that needs to be bleached
+    most of the time to support copy-paste, but not in all cases,
+    so you cannot use django_bleach.BleachField.
+    Combine this mixin with core.forms.BleachableModelForm.
+    """
+
+    support_copy_paste = models.BooleanField(
+        default=True,
+        help_text='Turn this on if copy-pasting content '
+                  'from a word processor, '
+                  'or using the toolbar to format text. '
+                  'It tells Janeway to clear out formatting '
+                  'that does not play nice. '
+                  'Turn it off and leave it off if anyone has '
+                  'added custom HTML or CSS using the code view, '
+                  'since it might remove custom code.',
+    )
+
+    class Meta:
+        abstract = True

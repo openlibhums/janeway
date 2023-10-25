@@ -364,10 +364,10 @@ def repository_search(request, search_term=None):
 
         from_author = models.PreprintAuthor.objects.filter(
             (
-                    Q(author__first_name__in=split_search_term) |
-                    Q(author__middle_name__in=split_search_term) |
-                    Q(author__last_name__in=split_search_term) |
-                    Q(author__affiliation__icontains=search_term)
+                Q(account__first_name__in=split_search_term) |
+                Q(account__middle_name__in=split_search_term) |
+                Q(account__last_name__in=split_search_term) |
+                Q(account__institution__icontains=search_term)
             )
         )
 
@@ -1542,10 +1542,14 @@ def repository_wizard(request, short_name=None, step='1'):
                     )
                 )
 
-            # Bump the step by 1
-            kwargs = {'step': int(step) + 1}
-            if updated_repository:
-                kwargs['short_name'] = updated_repository.short_name
+            kwargs = {
+                'short_name': updated_repository.short_name,
+                'step': step,
+            }
+
+            if 'next' in request.POST:
+                kwargs['step'] = str(int(step) + 1)
+
             return redirect(
                 reverse(
                     'repository_wizard_with_id',

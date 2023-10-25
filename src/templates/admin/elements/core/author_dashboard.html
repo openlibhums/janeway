@@ -20,7 +20,7 @@
                     <tbody>
                     {% for article in progress_submissions %}
                         <tr>
-                            <td>{% if article.title %}{{ article.title|safe }}{% else %}No Title
+                            <td>{% if article.title %}{{ article.safe_title }}{% else %}No Title
                                 Assigned{% endif %}</td>
                             <td>{{ article.step_name }}</td>
                             <td>{{ article.date_started }}</td>
@@ -50,7 +50,7 @@
                     <tbody>
                     {% for article in active_submissions %}
                         <tr>
-                            <td>{% if article.title %}{{ article.title|safe }}{% else %}No Title
+                            <td>{% if article.title %}{{ article.safe_title }}{% else %}No Title
                                 Assigned{% endif %}</td>
                             <td>{{ article.get_stage_display }}</td>
                             <td>{{ article.date_submitted }}</td>
@@ -95,7 +95,7 @@
                     <tbody>
                     {% for article in published_submissions %}
                         <tr>
-                            <td>{{ article.title|safe }}</td>
+                            <td>{{ article.safe_title }}</td>
                             <td>{{ article.get_stage_display }}</td>
                             <td>{{ article.date_published }}</td>
                             <td>

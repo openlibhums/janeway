@@ -9,7 +9,7 @@
 
 {% block title %}Article Archive {{ article.pk }}{% endblock title %}
 {% block title-section %}{% if article.stage == 'Rejected' %}Rejected Article {% else %}Article Archive{% endif %} {{ article.pk }}{% endblock %}
-{% block title-sub %}{{ article.title|safe }}{% endblock %}
+{% block title-sub %}{{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -25,7 +25,7 @@
                 {% if not article.stage == 'Rejected' %}
                     <a class="button" href="{% url 'publish_article' article.pk %}">{% trans 'Edit Publication Info' %}</a>
                 {% endif %}
-                {% if article.is_remote %}<a class="button" href="{{ article.remote_url }}">{% trans 'Remote Article View' %}<i class="fa fa-external-link"></i></a>{% endif %}
+                {% if article.is_remote %}<a class="button" href="{{ article.remote_url }}">{% trans 'Remote Article View' %} <i class="fa fa-external-link"></i></a>{% endif %}
                 {% hook 'request_edit' %}
             </div>
             <div class="content">

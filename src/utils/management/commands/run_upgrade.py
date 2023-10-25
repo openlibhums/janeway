@@ -29,6 +29,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        raise DeprecationWarning('This command is deprecated. Use the update script .update.sh')
         if not options.get('path'):
             print('No upgrade selected. Available upgrade paths: ')
             for file in get_modules():

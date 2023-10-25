@@ -416,6 +416,11 @@ main section {
   word-wrap: break-word;
 }
 
+.math-formulae {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
 .dark-primary-bg {
   background: var(--primary-dark-color);
 

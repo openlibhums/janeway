@@ -4,7 +4,7 @@
 {% block title %}Editor Review Copyedit{% endblock %}
 {% block title-section %}Review Copyedit Assignment #{{ copyedit.id }} by
     {{ copyedit.copyeditor.full_name }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -126,8 +126,10 @@
                                 </tr>
                             {% endfor %}
                         </table>
-                        <h5>Covering Letter from Author</h5>
-                        <blockquote>{{ review.author_note|safe }}</blockquote>
+                        <div class="title-area">
+                            <h2>Covering Letter from Author</h2>
+                        </div>
+                        {{ review.author_note|safe }}
                         {% if not forloop.last %}
                         <hr />
                         {% endif %}

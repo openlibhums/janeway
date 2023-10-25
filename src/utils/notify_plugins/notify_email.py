@@ -14,7 +14,6 @@ from utils import notify
 
 SANITIZE_FROM_RE = re.compile("\r|\n|\t|\"|<|>|,")
 
-
 def sanitize_from(from_):
     return re.sub(SANITIZE_FROM_RE, "", from_)
 
@@ -43,13 +42,14 @@ def send_email(
 
     if request and request.user and not request.user.is_anonymous and request.user.email not in to:
         reply_to = [request.user.email]
-        full_from_string = "{0} <{1}>".format(request.user.full_name(), from_email)
-
-
+        full_from_string = "\"{0}\" <{1}>".format(
+            sanitize_from(request.user.full_name()),
+            from_email,
+        )
     else:
         reply_to = []
         if request:
-            full_from_string = "{0} <{1}>".format(
+            full_from_string = "\"{0}\" <{1}>".format(
                     sanitize_from(request.site_type.name),
                     from_email
             )
@@ -64,13 +64,12 @@ def send_email(
         full_from_string, settings.DEFAULT_CHARSET,
     )
 
-
     # if a replyto is passed to this function, use that.
     if replyto:
         reply_to = replyto
 
-    # if there is no reply_to set yet, check if the journal has a custom replyto_address and
-    # use that.
+    # if there is no reply_to set yet, check if the journal has a custom
+    # replyto_address and use that.
     if not reply_to:
         custom_reply_to = setting_handler.get_setting(
             'general', 'replyto_address', journal,

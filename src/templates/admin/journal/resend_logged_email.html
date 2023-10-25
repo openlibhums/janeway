@@ -3,7 +3,7 @@
 
 {% block title %}Resend Logged Email{% endblock %}
 {% block title-section %}Resend Logged Email ID #{{ log_entry.pk }}{% endblock %}
-{% block title-sub %}Log entry for article #{{ article.pk }}: {{ article.title|safe }}{% endblock %}
+{% block title-sub %}Log entry for article #{{ article.pk }}: {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}

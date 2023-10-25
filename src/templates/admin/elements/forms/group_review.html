@@ -10,7 +10,7 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
     {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_suggested_reviewers %}
-
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_past_reviewers %}
 </div>
 
 <div class="title-area">
@@ -50,6 +50,17 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.hide_review_data_pre_release %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_peer_review_data_block %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_peer_review_data_on_review_page %}
+</div>
+
+<div class="title-area">
+    <h2>Sharing Peer Reviews</h2>
+</div>
+<div class="content">
+    <p>The settings provided in this section control the sharing of completed peer reviews among reviewers of an article.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_share_reviews_decision %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_completed_reviews_in_additional_rounds %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_completed_reviews_in_additional_rounds_text %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.share_author_response_letters %}
 </div>
 
 <div class="title-area">

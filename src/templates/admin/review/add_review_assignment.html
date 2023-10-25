@@ -2,7 +2,7 @@
 {% load foundation %}
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -18,7 +18,6 @@
             <div class="box">
                 <div class="title-area">
                     <h2>1. Select Reviewer</h2>
-
                         <a href="{% if journal_settings.general.enable_one_click_access %}#{% else %}{% url 'core_add_user' %}?role=reviewer&return={{ request.path }}{% endif %}" class="button" data-open="reviewer"><i class="fa fa-plus">&nbsp;</i>Add New Reviewer</a>
                         <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
                 </div>
@@ -30,6 +29,13 @@
                         If you cannot find the reviewer you want in this list you can use "Enroll Existing User" to search the database and give users the Reviewer role, or "Add New Reviewer" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).
                         {% endblocktrans %}
                     </p>
+
+                    {% if past_reviewers %}
+                        <div class="callout primary">
+                            <p><span class="fa fa-info-circle"></span> Reviewers who have compeleted a review for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Reviewed Article</strong> column.</p>
+                        </div>
+                    {% endif %}
+
                     <table class="small scroll" id="reviewers">
                         <thead>
                         <tr>
@@ -40,32 +46,25 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
+                            {% if past_reviewers %}<th>Has Reviewed Article</th>{% endif %}
                         </tr>
                         </thead>
 
                         <tbody>
+                        {% for reviewer in past_reviewers %}
+                            <tr>
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
+                            </tr>
+                        {% endfor %}
                         {% for reviewer in suggested_reviewers %}
-                            <tr style="color: forestgreen">
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
-                                <td>{{ reviewer.full_name }}</td>
-                                <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
-                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
-                                    {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
-                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
+                            <tr class="green">
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
                             </tr>
                         {% endfor %}
                         {% for reviewer in reviewers %}
                             {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
                             <tr>
-                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
-                                <td>{{ reviewer.full_name }}</td>
-                                <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
-                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
-                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
                             </tr>
                             {% endif %}
                         {% empty %}

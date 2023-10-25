@@ -9,7 +9,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_article_images' %}">Article Images Manager</a></li>
-    <li>Image for {{ article.title|safe }}</li>
+    <li>Image for {{ article.safe_title }}</li>
 {% endblock %}
 
 {% block body %}

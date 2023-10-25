@@ -6,7 +6,7 @@
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
@@ -14,6 +14,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Summary of Article</h2>
+                <a class="button" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
             </div>
             <div class="content">
                 <table class="hover scroll">
@@ -63,7 +64,7 @@
                         <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No
                             comments{% endif %}</td>
                     </tr>
-                    {% if journal_settings.general.submission_competing_interests %}
+                    {% if request.journal.submissionconfiguration.competing_interests %}
                         <tr>
                             <th colspan="4">Competing Interests</th>
                         </tr>

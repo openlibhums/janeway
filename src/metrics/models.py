@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.db import models
 from django.utils import timezone
+from django_countries.fields import CountryField
 
 
 def access_choices():
@@ -23,11 +24,9 @@ class ArticleAccess(models.Model):
     identifier = models.CharField(max_length=200)
     accessed = models.DateTimeField(default=timezone.now)
     galley_type = models.CharField(max_length=200, null=True, blank=True)
-    country = models.ForeignKey(
-        'core.Country',
-        blank=True,
+    country = CountryField(
         null=True,
-        on_delete=models.SET_NULL,
+        blank=True,
     )
 
     class Meta:

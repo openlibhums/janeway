@@ -1,7 +1,7 @@
 {% load pages %}
 
-<div class="pagination-block">
-    <div class="input-group-field columns small-8">
+<div class="pagination-block row">
+    <div class="input-group-field columns small-12 medium-6 large-8">
         {% if is_paginated %}
             <ul class="pagination">
                 {% if page_obj.has_previous %}
@@ -10,7 +10,9 @@
 
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
-                        <li>...</li>
+                        <li>
+                            <button disabled name="ellipsis">...</button>
+                        </li>
                     {% else %}
                         <li class="{% if page_obj.number == page.number %}current{% endif %}">
                             <button name="page" value="{{ page.number }}" form={{ form_id }}>{{ page.number }}</button>
@@ -24,7 +26,7 @@
             </ul>
         {% endif %}
     </div>
-    <div class="columns small-2">
+    <div class="columns small-6 medium-3 large-2">
         <select class="input-group-field" onchange="this.form.submit()" name="paginate_by" form={{ form_id }}>
             <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
             <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
@@ -35,7 +37,7 @@
             {% endif %}
         </select>
     </div>
-    <div class="small-2 columns">
+    <div class="columns small-6 medium-3 large-2">
         <label labelfor="paginate_by">
             records per page
         </label>

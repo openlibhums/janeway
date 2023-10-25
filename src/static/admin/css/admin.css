@@ -813,3 +813,7 @@ ul.menu {
 .hijacked-warning-controls form {
 	display: inline;
 }
+
+.summernote-div {
+  margin-bottom: 16px;
+}

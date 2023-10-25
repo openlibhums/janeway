@@ -4,7 +4,7 @@
 
 {% block title %}Copyedit for {{ copyedit.article.title }}{% endblock title %}
 {% block title-section %}Copyedit{% endblock %}
-{% block title-sub %}{{ copyedit.article.title }}{% endblock %}
+{% block title-sub %}{{ copyedit.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

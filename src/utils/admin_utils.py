@@ -30,7 +30,7 @@ class ArticleFKModelAdmin(admin.ModelAdmin):
     """
 
     def _journal(self, obj):
-        return obj.article.journal if obj else ''
+        return obj.article.journal if obj and obj.article else ''
 
     def _article(self, obj):
         return truncatewords_html(str(obj.article), 5) if obj else ''

@@ -191,15 +191,17 @@ def manager_index(request):
         request,
         nested_settings=[('support_email','general')],
     )
+    published_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_PUBLISHED,
+        journal__isnull=False,
+    ).select_related('journal')[:50]
 
     template = 'press/press_manager_index.html'
     context = {
         'journals': journal_models.Journal.objects.all().order_by('sequence'),
         'form': form,
         'modal': modal,
-        'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED
-        ).select_related('journal')[:50],
+        'published_articles': published_articles,
         'version': version,
         'repositories': models.Repository.objects.all(),
         'url_config': settings.URL_CONFIG,

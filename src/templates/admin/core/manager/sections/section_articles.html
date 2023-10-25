@@ -38,7 +38,7 @@
                     <tbody>
                         {% for article in section.article_set.all %}
                             <tr>
-                                <td>{{ article.title|safe }}</td>
+                                <td>{{ article.safe_title }}</td>
                                 <td>{{ article.date_submitted }}</td>
                                 <td>{{ article.stage }}</td>
                                 <td>{{ article.correspondence_author.full_name }}</td>

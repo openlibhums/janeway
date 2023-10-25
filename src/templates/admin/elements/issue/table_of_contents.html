@@ -39,7 +39,7 @@
                             <tr id="articles-{{ article.pk }}">
                                 <td><i class="fa fa-sort"></i> {{ article.id }}</td>
                                 <td>
-                                    <a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a>
+                                    <a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a>
                                 </td>
                                 <td>{{ article.date_published }}</td>
                                 <td>{{ article.author_list }}</td>

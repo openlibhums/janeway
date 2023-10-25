@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load hooks %}
 {% load i18n %}
+{% load bootstrap4 %}
 
 {% hook 'filter_search' %}
 
@@ -33,7 +34,7 @@
                         <div class="form-group">
                             {% if not keyword %}
                                 {% include 'elements/forms/errors.html'  with form=form%}
-                                {{ form.as_p }}
+                                {% bootstrap_form form %}
                             {% else %}
                                 You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
                             {% endif %}

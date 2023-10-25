@@ -6,7 +6,7 @@
 
 {% block title %}Article - {{ article.pk }}{% endblock title %}
 {% block admin-header %}Article - {{ article.pk }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -20,7 +20,7 @@
     <div class="box">
         <div class="title-area">
             <h2>No Production Assignment Found
-                for {{ article.title|safe }}</h2>
+                for {{ article.safe_title }}</h2>
         </div>
         <div class="content">
             <p>

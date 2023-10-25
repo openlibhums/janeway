@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load materialize %}
+{% load materializecss %}
 {% load i18n %}
 {% load static %}
 
@@ -18,10 +18,10 @@
                         {{ request.repository.login_text|safe }}
                     {% endif %}
                     <p>{% trans "Password Rules" %}:</p>
-                    <ul class="no-top-margin">
-                        <li>- {% blocktrans %}Your password should be {{ request.press.password_length }} characters long.{% endblocktrans %}</li>
-                        {% if request.press.password_upper %}<li>- {% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
-                        {% if request.press.password_number %}<li>- {% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
+                    <ul class="no-top-margin browser-default">
+                        <li>{% blocktrans with password_length=request.press.password_length %}Your password should be {{ password_length }} characters long.{% endblocktrans %}</li>
+                        {% if request.press.password_upper %}<li>{% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
+                        {% if request.press.password_number %}<li>{% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
                     </ul>
                     <p>{% blocktrans %}For more information read our
                         <a href="#passwordmodal" class="modal-trigger">password guide</a>
@@ -29,7 +29,7 @@
                     <form method="POST">
                         {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
-                        {% materialize_form form=form %}
+                        {{ form|materializecss }}
                         <p>{% trans "By registering an account you agree to our" %}
                           {% if journal_settings.general.privacy_policy_url %}
                             <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>

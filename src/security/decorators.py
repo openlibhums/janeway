@@ -42,7 +42,8 @@ def base_check(request, login_redirect=False):
         or not request.user.is_active
     ):
         if login_redirect is True:
-            params = urlencode({"next": request.path})
+            request_params = request.GET.urlencode()
+            params = urlencode({"next": f"{request.path}?{request_params}"})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         elif isinstance(login_redirect, str):
             params = urlencode({"next": redirect})
@@ -550,8 +551,7 @@ def reviewer_user_for_assignment_required(func):
 
             if assignment:
 
-                if assignment.article.stage != models.STAGE_ASSIGNED \
-                        and assignment.article.stage != models.STAGE_UNDER_REVIEW:
+                if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
                     deny_access(request)
                 else:
                     return func(request, *args, **kwargs)
@@ -559,6 +559,41 @@ def reviewer_user_for_assignment_required(func):
                 deny_access(request)
         except review_models.ReviewAssignment.DoesNotExist:
             deny_access(request)
+
+    return wrapper
+
+
+def user_has_completed_review_for_article(func):
+    """
+    Checks that the current user has completed a review for the current
+    article object.
+
+    Can be used on views that have an article_id kwarg.
+
+    Usage:
+
+    @user_has_completed_review_for_article
+    def a_view(request):
+        # add view content here
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get('article_id')
+        if article_id:
+            article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+            reviewers = [
+                review.reviewer for review in article.completed_reviews_with_decision
+            ]
+            if request.user in reviewers:
+                return func(request, *args, **kwargs)
+
+        # all other routes return PermissionDenied
+        deny_access(request)
 
     return wrapper
 
@@ -1325,7 +1360,7 @@ def article_is_not_submitted(func):
     Checks that an article is not already submitted.
     """
     @wraps(func)
-    def article_is_not_submitted(request, *args, **kwargs):
+    def _article_is_not_submitted(request, *args, **kwargs):
         article_id = kwargs.get('article_id')
         try:
             article = models.Article.objects.get(
@@ -1337,4 +1372,37 @@ def article_is_not_submitted(func):
         except models.Article.DoesNotExist:
             raise Http404('This article has already been submitted.')
 
-    return article_is_not_submitted
+    return _article_is_not_submitted
+
+
+def setting_is_enabled(setting_name, setting_group_name):
+    """
+    Checks that given setting is True. Generally this should only be used
+    with boolean settings. Usable only by views where request.journal is set,
+    otherwise returns permission denied.
+
+    Example usage:
+    @setting_is_enabled(setting_name="test", setting_group_name="test_grp")
+    def my_view(request):
+        # add view code
+
+    If a setting is not found, this decorator will return PermissionDenied.
+    """
+    def decorator(func):
+        @wraps(func)
+        def inner(request, *args, **kwargs):
+            # Check if we have a journal and if the setting returns True
+            try:
+                if request.journal and request.journal.get_setting(
+                        group_name=setting_group_name,
+                        setting_name=setting_name,
+                ):
+                    return func(request, *args, **kwargs)
+            except core_models.Setting.DoesNotExist:
+                pass  # if no setting found, assume that we should deny access
+
+            # All other outcomes return permission denied.
+            deny_access(request)
+
+        return inner
+    return decorator

@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from comms import models
+from simple_history.admin import SimpleHistoryAdmin
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -20,7 +21,7 @@ class TagAdmin(admin.ModelAdmin):
     ]
 
 
-class NewsItemAdmin(admin.ModelAdmin):
+class NewsItemAdmin(SimpleHistoryAdmin):
     list_display = ('title', 'posted', 'posted_by',
                     'start_display', 'end_display', 'object')
     list_filter = (admin_utils.GenericRelationJournalFilter,

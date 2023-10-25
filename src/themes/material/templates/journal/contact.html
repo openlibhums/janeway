@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 {% load i18n %}
-{% load materialize %}
+{% load materializecss %}
 
 {% block title %}{% trans "Contact" %}{% endblock %}
 
@@ -40,7 +40,7 @@
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}
 
-                        {% materialize_form form=contact_form %}
+                        {{ contact_form|materializecss }}
 
                         <button type="submit" class="btn">{% trans "Send Message" %}</button>
                     </form>
@@ -48,12 +48,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block js %}
-    <script>
-        $(document).ready(function () {
-            $('select').material_select();
-        });
-    </script>
 {% endblock %}

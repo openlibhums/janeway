@@ -16,6 +16,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.engine import Engine
+from django.shortcuts import reverse
 
 import mock
 from utils import (
@@ -25,6 +26,7 @@ from utils import (
     template_override_middleware,
     setting_handler,
     notify,
+    logic,
 )
 
 from utils import install
@@ -976,21 +978,29 @@ class AdminTestMeta(type):
     def build_test_case(cls, model, admin_class):
         raise NotImplementedError()
 
+
 class AdminSearchTestMeta(AdminTestMeta):
     def build_test_case(model, admin_class):
         app_label = model._meta.app_label
         model_name = model._meta.model_name
         url_name = f'admin:{app_label}_{model_name}_changelist'
-        url = reverse(url_name)
+        url = reverse(url_name) + '?q=test'
+
         def test_case(instance):
-            response = instance.client.get(url, SERVER_NAME=instance.press.domain)
+            response = instance.client.get(
+                url,
+                SERVER_NAME=instance.press.domain,
+            )
             instance.assertEqual(response.status_code, 200)
         test_name = f'test_admin_view_{app_label}_{model_name}'
         return test_name, test_case
 
+
 class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
+
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         user_model = get_user_model()
         cls.superuser = user_model.objects.create_superuser(
             username='super',
@@ -999,5 +1009,75 @@ class TestAdmin(TestCase, metaclass=AdminSearchTestMeta):
         )
         cls.press = helpers.create_press()
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.press.delete()
+        cls.superuser.delete()
+
     def setUp(self):
         self.client.force_login(self.superuser)
+
+
+class TestBounceEmailRoutes(UtilsTests):
+
+    def test_send_bounce_notification_actor_is_editor(self):
+        """
+        Tests that when an email sent by an editor bounces the bounce
+        notification is sent to that editor.
+        """
+        fake_log_entry = util_models.LogEntry.add_entry(
+            'Test Log Entry',
+            'This is a fake log entry',
+            level='Info',
+            actor=self.editor,
+            target=self.submitted_article,
+            is_email=True,
+            to='tuvix@security.voyager.fed',
+            message_id='12324343432',
+            subject='This is all just a test',
+        )
+        logic.send_bounce_notification_to_event_actor(fake_log_entry)
+        self.assertEqual(self.editor.email, mail.outbox[0].to[0])
+
+    def test_send_bounce_notification_actor_is_author(self):
+        """
+        Tests that bounce emails are not sent to authors. They are instead
+        directed to the press' primary contact.
+        """
+        fake_log_entry = util_models.LogEntry.add_entry(
+            'Test Log Entry',
+            'This is a fake log entry',
+            level='Info',
+            actor=self.author,
+            target=self.submitted_article,
+            is_email=True,
+            to='tuvix@security.voyager.fed',
+            message_id='12324343432',
+            subject='This is all just a test',
+        )
+        logic.send_bounce_notification_to_event_actor(fake_log_entry)
+        self.assertEqual(self.press.main_contact, mail.outbox[0].to[0])
+
+    def test_mailgun_webhook(self):
+        message_id = '12324343432'
+        fake_log_entry = util_models.LogEntry.add_entry(
+            'Test Log Entry',
+            'This is a fake log entry',
+            level='Info',
+            actor=self.editor,
+            target=self.submitted_article,
+            is_email=True,
+            to='tuvix@security.voyager.fed',
+            message_id=message_id,
+            subject='This is all just a test',
+        )
+        fake_mailgun_post = {
+            'Message-Id': message_id,
+            'token': '122112',
+            'timestamp': timezone.now(),
+            'signature': 'dsfsfsdfsdfsdfds',
+            'event': 'dropped',
+        }
+        logic.parse_mailgun_webhook(fake_mailgun_post)
+        self.assertEqual(self.editor.email, mail.outbox[0].to[0])

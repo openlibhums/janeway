@@ -45,7 +45,7 @@
                     {% for article in articles %}
                         <tr>
                             <td>{{ article.pk }}</td>
-                            <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
+                            <td><a href="{% url 'review_in_review' article.pk %}">{{ article.safe_title }}</a></td>
                             <td>{{ article.date_submitted }}</td>
                             <td>{{ article.correspondence_author.full_name }}</td>
                             <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>

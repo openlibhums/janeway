@@ -271,9 +271,6 @@ def get_settings_to_edit(display_group, journal, user):
             {'name': 'user_automatically_author',
              'object': setting_handler.get_setting('general', 'user_automatically_author', journal),
              },
-            {'name': 'submission_competing_interests',
-             'object': setting_handler.get_setting('general', 'submission_competing_interests', journal),
-             },
             {'name': 'submission_summary',
              'object': setting_handler.get_setting('general', 'submission_summary', journal),
              },
@@ -380,6 +377,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
             {
+                'name': 'display_past_reviewers',
+                'object': setting_handler.get_setting('general', 'display_past_reviewers', journal),
+            },
+            {
                 'name': 'enable_peer_review_data_on_review_page',
                 'object': setting_handler.get_setting('general', 'enable_peer_review_data_on_review_page', journal),
             },
@@ -398,6 +399,22 @@ def get_settings_to_edit(display_group, journal, user):
             {
                 'name': 'disable_reviewer_recommendation',
                 'object': setting_handler.get_setting('general', 'disable_reviewer_recommendation', journal),
+            },
+            {
+                'name': 'enable_share_reviews_decision',
+                'object': setting_handler.get_setting('general', 'enable_share_reviews_decision', journal),
+            },
+            {
+                'name': 'display_completed_reviews_in_additional_rounds',
+                'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds', journal),
+            },
+            {
+                'name': 'share_author_response_letters',
+                'object': setting_handler.get_setting('general', 'share_author_response_letters', journal),
+            },
+            {
+                'name': 'display_completed_reviews_in_additional_rounds_text',
+                'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds_text', journal),
             },
         ]
         setting_group = 'general'
