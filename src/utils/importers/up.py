@@ -13,7 +13,6 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.contrib.contenttypes.models import ContentType
-from django_countries import countries
 
 from utils.importers import shared
 from submission import models
@@ -29,8 +28,6 @@ from cms import models as cms_models
 logger = get_logger(__name__)
 
 # note: URL to pass for import is http://journal.org/jms/index.php/up/oai/
-
-COUNTRY_NAMES_CODES = {name: code for code, name in countries}
 
 
 def get_thumbnails_url(url):
@@ -524,12 +521,15 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
     else:
         logger.info("Didn't find account for {0}. Creating.".format(profile_dict['email']))
 
-        country_code = COUNTRY_NAMES_CODES.get(profile_dict['Country'], None)
-        if not country_code:
-            logger.warning(
-                "Country not found: %s" % profile_dict["Country"]
-            )
-        profile_dict['Country'] = country_code
+        if profile_dict['Country'] == '—':
+            profile_dict['Country'] = None
+        else:
+            try:
+                profile_dict['Country'] = core_models.Country.objects.get(name=profile_dict['Country'])
+            except Exception:
+                logger.warning(
+                    "Country not found: %s" % profile_dict["Country"])
+                profile_dict['Country'] = None
 
         if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
             profile_dict['Salutation'] = ''
@@ -705,13 +705,14 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
                 biography=author.get('bio'),
             )
 
-        # Assign a country if the code is recognised in ISO-3166-1
+        # If we have a country, fetch its record
         if author.get('country'):
-            valid_alpha2 = countries.alpha2(author.get('country'))
-            if valid_alpha2:
-                author_record.country = valid_alpha2
+            try:
+                country = core_models.Country.objects.get(code=author.get('country'))
+                author_record.country = country
                 author_record.save()
-
+            except core_models.Country.DoesNotExist:
+                pass
         # Add authors to m2m and create an order record
         article.authors.add(author_record)
         models.ArticleAuthorOrder.objects.create(article=article,
@@ -1225,8 +1226,10 @@ def split_affiliation(affiliation):
         department = parts[0]
         institution = parts[1]
         country = parts[2]
-
-    country = COUNTRY_NAMES_CODES.get(country, None)
+    try:
+        country = core_models.Country.objects.get(name=country)
+    except core_models.Country.DoesNotExist:
+        country = None
 
     return department, institution, country
 

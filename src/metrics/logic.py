@@ -14,7 +14,6 @@ import hashlib
 from django.db import transaction, OperationalError
 from django.utils import timezone
 from django.conf import settings
-from django_countries import countries
 
 from metrics import models
 from utils import shared
@@ -225,6 +224,7 @@ def store_article_access(request, article, access_type, galley_type=None):
 
     ip = shared.get_ip_address(request)
     iso_country_code = get_iso_country_code(ip)
+    country = iso_to_country_object(iso_country_code)
     counter_tracking_id = request.session.get('counter_tracking')
 
     if user_agent and not user_agent.is_bot:
@@ -256,7 +256,7 @@ def store_article_access(request, article, access_type, galley_type=None):
                     type=access_type,
                     identifier=identifier,
                     galley_type=galley_type,
-                    country=iso_country_code,
+                    country=country,
                     accessed=current_time,
                 )
                 # Raise the Article Access event.
@@ -286,8 +286,6 @@ def get_view_and_download_totals(articles):
     return total_views, total_downs
 
 
-# The Country object was deprecated in version 1.5.1
-# Use django_countries.CountryField instead
 def iso_to_country_object(code):
     if settings.DEBUG:
         code = 'GB'
@@ -308,11 +306,8 @@ def get_iso_country_code(ip):
 
     try:
         response = reader.country(ip)
-        valid_alpha2 = countries.alpha2(response.country.iso_code)
-        return valid_alpha2 if valid_alpha2 else 'OTHER'
+        return response.country.iso_code if response.country.iso_code else 'OTHER'
     except AddressNotFoundError:
-        if settings.DEBUG:
-            return 'GB'
         if ip == '127.0.0.1':
             return "GB"
         return 'OTHER'

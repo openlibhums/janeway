@@ -58,7 +58,7 @@ The account object stores information about users.
 - linkedin (Str)
 - website (Str)
 - interest (M2M Interest)
-- country (CountryField, ISO-3166-1 code)
+- country (FK Country)
 - preferred_timezone (Str, valid timezone)
 - is_active (Bool)
 - is_staff (Bool)
