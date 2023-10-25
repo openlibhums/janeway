@@ -567,51 +567,60 @@ def request_author_copyedit(request, article_id, copyedit_id,
         assignment=copyedit,
     )
 
-    email_content = logic.get_copyedit_message(
+    email_context = logic.get_author_copyedit_message_context(
         request,
-        article,
         copyedit,
-        'copyeditor_notify_author',
-        author_review=author_review,
-
+        author_review,
     )
 
-    email_subject = request.journal.get_setting(
-        'email_subject',
-        'subject_copyeditor_notify_author',
+    form = core_forms.SettingEmailForm(
+        setting_name='copyeditor_notify_author',
+        email_context=email_context,
+        request=request,
     )
 
     if request.POST:
-        logic.request_author_review(
-            request,
-            article,
-            copyedit,
-            author_review,
+        skip = 'skip' in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name='copyeditor_notify_author',
+            email_context=email_context,
+            request=request,
         )
+        if form.is_valid() or skip:
+            kwargs = {
+                'copyedit_assignment': copyedit,
+                'article': article,
+                'author_review': author_review,
+                'email_data': form.as_dataclass(),
+                'request': request,
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Author review requested.',
-        )
-
-        return redirect(
-            reverse(
-                'editor_review',
-                kwargs={
-                    'article_id': article.pk,
-                    'copyedit_id': copyedit.pk,
-                }
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Author review requested.',
             )
-        )
+
+            return redirect(
+                reverse(
+                    'editor_review',
+                    kwargs={
+                        'article_id': article.pk,
+                        'copyedit_id': copyedit.pk,
+                    }
+                )
+            )
 
     template = 'copyediting/request_author_copyedit.html'
     context = {
         'article': article,
         'copyedit': copyedit,
         'author_review': author_review,
-        'email_content': email_content,
-        'email_subject': email_subject,
+        'form':form,
     }
 
     return render(request, template, context)

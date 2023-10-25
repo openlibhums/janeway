@@ -22,25 +22,7 @@
         <div class="content">
             <p>You can send a message to the author or skip it.</p>
             <div class="card">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card-divider">
-                        <h4>To {{ copyedit.article.correspondence_author.full_name }}</h4>
-                        <h5>From {{ request.user.full_name }}</h5>
-                    </div>
-                    <div class="card-section">
-                         <p>Subject: <strong>{{ email_subject }}</strong></p>
-                        <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
-                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
-                        <input type="file" name="attachment" multiple>
-                    </div>
-                    <div class="card-divider">
-                        <div class="button-group">
-                            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
-                        </div>
-                    </div>
-                </form>
+                {% include 'admin/elements/email_form.html' with form=form skip=1 %}
             </div>
         </div>
     </div>
@@ -48,5 +30,10 @@
 {% endblock %}
 
 {% block js %}
-	{% include "elements/jqte.html" %}
+    {{ block.super}}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
 {% endblock js %}
+
+
