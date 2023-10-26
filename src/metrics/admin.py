@@ -34,7 +34,7 @@ class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
     list_filter = ('article__journal', 'accessed', 'type', 'galley_type',)
     search_fields = ('article__title', 'article__pk', 'identifier',
                      'article__journal__code',
-                     'type', 'galley_type', 'accessed', 'country',
+                     'type', 'galley_type', 'accessed',
                      'country__name')
     raw_id_fields = ('article',)
     date_hierarchy = ('accessed')
