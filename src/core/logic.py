@@ -609,7 +609,7 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
     else:
         new_file = files.overwrite_file(
                 uploaded_file,
-                article.large_image_file,
+                article.thumbnail_image_file,
                 ('articles', article.pk)
         )
         article.thumbnail_image_file = new_file
