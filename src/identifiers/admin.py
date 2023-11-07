@@ -30,8 +30,17 @@ class IdentifierAdmin(admin_utils.ArticleFKModelAdmin):
     search_fields = ('pk', 'id_type', 'identifier', 'article__title')
     raw_id_fields = ('article',)
 
+    def _article(self, obj):
+        if obj.article:
+            return obj.article
+        elif obj.review:
+            return obj.review.article
+        else:
+            return ''
+
     def _article_url(self, obj):
-        return obj.article.url if obj else ''
+        if obj and obj.article:
+            return obj.article.url
 
     def _registration_status(self, obj):
         if obj and obj.crossrefstatus:
@@ -53,7 +62,9 @@ class CrossrefStatusAdmin(admin.ModelAdmin):
     readonly_fields = ('deposits', 'message')
 
     def _journal(self, obj):
-        return obj.identifier.article.journal if obj else ''
+        if obj and obj.identifier.article:
+            return obj.identifier.article.journal
+        return ''
 
 
 class CrossrefDepositAdmin(admin.ModelAdmin):
@@ -68,8 +79,12 @@ class CrossrefDepositAdmin(admin.ModelAdmin):
     list_select_related = True
 
     def _journal(self, obj):
-        if obj and obj.crossrefstatus_set.first():
-            return obj.crossrefstatus_set.first().identifier.article.journal
+        fist_status = obj.crossrefstatus_set.first()
+
+        if obj and fist_status and fist_status.identifier.article:
+            return fist_status.identifier.article.journal
+        elif obj and fist_status and fist_status.identifier.review:
+            return fist_status.identifier.review.article.journal
         else:
             return ''
 
