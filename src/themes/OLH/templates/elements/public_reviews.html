@@ -8,14 +8,19 @@
                     </h4>
                 </div>
                 <div class="card-section">
+                    <p>
+                        <strong>Reviewer: </strong> {{ review.reviewer.full_name }}<br />
+                        <strong>DOI:</strong> {{ review.get_doi }}
+                    </p>
                     {% for answer in review.review_form_answers %}
                         {% if answer.author_can_see %}
-                            <p class="{{ answer.element.width }}">
-                                <b>{{ answer.element.name }}</b>
+                            <p>
+                                <strong>{{ answer.element.name }}</strong>
                                 <br/>
-                                {{ answer.answer|linebreaksbr }}
+                                {{ answer.answer|safe|linebreaksbr }}
                                 <br/><br/>
                             </p>
+
                         {% endif %}
                     {% endfor %}
                     <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
