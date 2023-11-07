@@ -1066,7 +1066,7 @@ class PreprintVersion(models.Model):
         return f'{self.preprint} (version {self.version})'
 
     def get_doi_pattern(self):
-        return f"{self.preprint.repository.crossref_prefix}/{self.preprint.repository.short_name}.{self.preprint.pk}.v{self.pk}"
+        return f"{self.preprint.repository.crossref_prefix}/{self.preprint.repository.short_name}.{self.preprint.pk}.v{self.version}"
 
     def get_doi(self, _object=False):
         try:
