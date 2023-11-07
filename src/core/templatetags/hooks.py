@@ -11,7 +11,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def hook(context, hook_name, *args, **kwargs):
+def hook(context, hook_name, default_value='', *args, **kwargs):
     try:
         html = ''
         for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
@@ -27,4 +27,4 @@ def hook(context, hook_name, *args, **kwargs):
         logger.error('Error rendering hook {0}: {1}'.format(hook_name, e))
         if settings.DEBUG:
             return f"[DEBUG] Error rendering hook output: {e}"
-    return ''
+    return mark_safe(default_value)
