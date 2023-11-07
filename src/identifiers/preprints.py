@@ -53,8 +53,6 @@ def send_preprint_version_crossref_deposit(repository, versions, identifiers):
         template,
         template_context,
     )
-    from pprint import pprint
-    pprint(document)
     filename = uuid4()
     crossref_deposit = models.CrossrefDeposit.objects.create(
         document=document,
