@@ -21,15 +21,21 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.http import urlencode
 
 
-from repository import forms, logic as repository_logic, models
 from core import (
     email as core_email,
     files,
+    logic as core_logic,
     models as core_models,
     forms as core_forms,
     views as core_views,
 )
 from journal import models as journal_models
+from repository import (
+    forms,
+    logic as repository_logic,
+    models,
+    decorators,
+)
 from utils import (
     logger,
     logic as utils_logic,
@@ -49,7 +55,7 @@ from security.decorators import (
 logger = logger.get_logger(__name__)
 
 
-
+@decorators.headless_mode_check
 def repository_home(
     request,
     rou_code=None,
@@ -305,6 +311,7 @@ def repository_author_article(request, preprint_id):
     return render(request, template, context)
 
 
+@decorators.headless_mode_check
 def repository_about(request):
     """
     Displays the about page with text about preprints
@@ -315,6 +322,7 @@ def repository_about(request):
     return render(request, template, {})
 
 
+@decorators.headless_mode_check
 def repository_subject_list(request):
     """
     Displays a list of enabled subjects for selection.
@@ -398,6 +406,7 @@ def repository_list(request):
     })
 
 
+@decorators.headless_mode_check
 def repository_search(request, search_term=None):
     """
     Redirects legacy search URL with optional search_term to the
@@ -413,6 +422,8 @@ def repository_search(request, search_term=None):
     return redirect(f"{reverse('repository_list')}?{urlencode(query)}")
 
 
+
+@decorators.headless_mode_check
 def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
@@ -534,7 +545,7 @@ def repository_pdf(request, preprint_id):
     return render(request, template, context)
 
 
-# TODO: Re-implement
+@decorators.headless_mode_check
 def preprints_editors(request):
     """
     Displays lists of preprint editors by their subject group.
