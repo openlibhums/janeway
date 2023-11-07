@@ -446,12 +446,6 @@ def article(request, identifier_type, identifier):
             article_object,
             "view",
             galley.type if galley else None)
-    else:
-        article_object.abstract = (
-            "<p><strong>This is an accepted article with a DOI pre-assigned"
-            " that is not yet published.</strong></p>"
-        ) + (article_object.abstract or "")
-
 
     if request.journal.disable_html_downloads:
         # exclude any HTML galleys.
@@ -507,8 +501,6 @@ def print_article(request, identifier_type, identifier):
             content = galley.file_content(recover=True)
         else:
             content = ''
-    else:
-        article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
