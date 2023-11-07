@@ -33,15 +33,21 @@ logger = get_logger(__name__)
 
 CROSSREF_TIMEOUT_SECONDS = 30
 
+
 def register_crossref_doi(identifier):
     return register_batch_of_crossref_dois([identifier.article])
 
 
-def register_batch_of_crossref_dois(articles, **kwargs):
+def check_deposits_from_same_journal(articles):
     journals = set([article.journal for article in articles])
     if len(journals) > 1:
-        status = 'Articles must all be from the same journal'
-        error = True
+        return 'Articles must all be from the same journal', True, journals
+    return 'All articles from same journal', False, journals
+
+
+def register_batch_of_crossref_dois(articles, **kwargs):
+    status, error, journals = check_deposits_from_same_journal(articles)
+    if error:
         logger.debug(status)
         return status, error
     else:
@@ -175,6 +181,7 @@ def poll_dois_for_articles(articles, **kwargs):
             crossref_status.update()
 
     return status, error
+
 
 def register_crossref_component(article, xml, supp_file):
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
@@ -565,81 +572,6 @@ def preview_registration_information(article):
 
     else:
         return ''
-
-def get_preprint_tempate_context(request, identifier):
-    article = identifier.article
-
-    template_context = {
-        'batch_id': uuid4(),
-        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-        'depositor_name': request.press.name,
-        'depositor_email': request.press.main_contact,
-        'registrant': request.press.name,
-        'journal_title': request.press.name,
-        'journal_issn': '',
-        'journal_month': identifier.article.date_published.month,
-        'journal_day': identifier.article.date_published.day,
-        'journal_year': identifier.article.date_published.year,
-        'journal_volume': 0,
-        'journal_issue': 0,
-        'article_title': '{0}{1}{2}'.format(
-            identifier.article.title,
-            ' ' if identifier.article.subtitle is not None else '',
-            identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
-        'article_month': identifier.article.date_published.month,
-        'article_day': identifier.article.date_published.day,
-        'article_year': identifier.article.date_published.year,
-        'doi': identifier.identifier,
-        'article_url': reverse('preprints_article', kwargs={'article_id': article.pk}),
-    }
-
-    return template_context
-
-
-def register_preprint_doi(request, crossref_enabled, identifier):
-    """
-    Registers a preprint doi with crossref, has its own function as preprints dont have things like issues.
-    :param identifier: Identifier object
-    :return: Nothing
-    """
-
-    if not crossref_enabled:
-        messages.add_message(request, messages.WARNING, 'Crossref DOIs are not enabled for this preprint service.')
-    else:
-
-        # Set the URL for depositing based on whether we are in test mode
-        if request.press.get_setting_value('Crossref Test Mode') == 'On':
-            url = CROSSREF_TEST_URL
-        else:
-            url = CROSSREF_LIVE_URL
-
-        template_context = get_preprint_tempate_context(request, identifier)
-        template = 'common/identifiers/crossref.xml'
-        rendered = render_to_string(template, template_context)
-
-        pdfs = identifier.article.pdfs
-        if len(pdfs) > 0:
-            template_context['pdf_url'] = identifier.article.pdf_url
-
-        response = requests.post(url, data=rendered.encode('utf-8'),
-                                 auth=(request.press.get_setting_value("Crossref Login"),
-                                       request.press.get_setting_value("Crossref Password")),
-                                 headers={"Content-Type": "application/vnd.crossref.deposit+xml"})
-
-        if response.status_code != 200:
-            util_models.LogEntry.add_entry('Error',
-                                           "Error depositing: {0}. {1}".format(response.status_code, response.text),
-                                           'Debug',
-                                           target=identifier.article)
-            logger.error("Error depositing: {}".format(response.status_code))
-            logger.error(response.text)
-        else:
-            token = response.json()['message']['batch-id']
-            status = response.json()['message']['status']
-            util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
-                                           target=identifier.article)
-            logger.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
 
 
 def generate_issue_doi_from_logic(issue):
