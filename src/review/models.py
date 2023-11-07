@@ -16,6 +16,7 @@ from review.const import (
     VisibilityOptions as VO
 )
 from utils import shared
+from identifiers import models as identifier_models, logic as id_logic
 
 
 assignment_choices = (
@@ -330,6 +331,48 @@ class ReviewAssignment(models.Model):
         if self.for_author_consumption:
             return _("available for the author to access")
         return _("not available for the author to access")
+
+    def decision_to_crossref(self):
+        """
+        Maps a decision to Crossref deposit recommendations.
+        """
+        if self.decision == RD.DECISION_ACCEPT.value:
+            return 'accept'
+        elif self.decision == RD.DECISION_MINOR.value:
+            return 'minor-revision'
+        elif self.decision == RD.DECISION_MAJOR.value:
+            return 'major-revision'
+        elif self.decision == RD.DECISION_REJECT.value:
+            return 'reject'
+
+    def get_doi_pattern(self):
+        if self.article.is_accepted():
+            article_pattern = self.article.get_doi()
+            return f"{article_pattern}.r{self.pk}"
+        return None
+
+    def get_doi(self, _object=False):
+        try:
+            try:
+                doi = identifier_models.Identifier.objects.get(
+                    id_type='doi',
+                    review=self
+                )
+            except identifier_models.Identifier.MultipleObjectsReturned:
+                doi = identifier_models.Identifier.objects.filter(
+                    id_type='doi',
+                    review=self,
+                ).first()
+            if not _object:
+                return doi.identifier
+            else:
+                return doi
+        except identifier_models.Identifier.DoesNotExist:
+            return None
+
+    def register_doi(self):
+        if self.article.is_accepted():
+            id_logic.register_review_doi(self.get_doi_pattern())
 
     def __str__(self):
         if self.reviewer:
