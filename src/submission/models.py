@@ -2091,6 +2091,10 @@ class Article(AbstractLastModifiedModel):
             id = id_logic.generate_crossref_doi_with_pattern(self)
             if self.journal.register_doi_at_acceptance:
                 id.register()
+            id_logic.deposit_doi_for_reviews(
+                self.journal,
+                self.completed_reviews_with_permission,
+            )
 
     def decline_article(self):
         self.date_declined = timezone.now()
@@ -2589,6 +2593,14 @@ class Article(AbstractLastModifiedModel):
             return self.journal.press.default_carousel_image.url
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
+
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):

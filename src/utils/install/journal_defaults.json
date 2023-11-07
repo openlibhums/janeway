@@ -5070,6 +5070,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "Enable this to show that this journal uses the isolinear plugin.",
+            "is_translatable": true,
+            "name": "uses_isolinear_plugin",
+            "pretty_name": "Journal Uses Isolinear Plugin",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "name": "notify_section_editors_of_publication",
             "pretty_name": "Notify Section Editors of Publication",
             "type": "boolean",

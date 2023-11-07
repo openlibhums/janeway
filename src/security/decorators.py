@@ -746,6 +746,10 @@ def article_stage_accepted_or_later_required(func):
         article_object = models.Article.get_article(
             request.journal, identifier_type, identifier
         )
+        if article_object and article_object.journal.get_setting(
+            "general", "uses_isolinear_plugin",
+        ):
+            return func(request, *args, **kwargs)
 
         if article_object is None or not article_object.is_accepted():
             deny_access(request)
