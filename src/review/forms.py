@@ -401,14 +401,20 @@ class ReviewReminderForm(forms.Form):
 class ReviewVisibilityForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ('for_author_consumption', 'display_review_file')
+        fields = (
+            'for_author_consumption',
+            'display_review_file',
+            'display_public',
+        )
         labels = {
             "for_author_consumption": _("Author can access this review"),
             "display_review_file": _("Author can access review file"),
+            "display_public": _("Display Review Publicly")
         }
         widgets = {
             "for_author_consumption": HTMLSwitchInput(),
             "display_review_file": HTMLSwitchInput(),
+            "display_public": HTMLSwitchInput(),
         }
 
     def __init__(self, *args, **kwargs):
