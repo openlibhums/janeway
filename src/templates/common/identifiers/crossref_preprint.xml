@@ -1,0 +1,29 @@
+<posted_content>
+    <group_title>{{ version.preprint.repository.name }}</group_title>
+
+    <contributors>
+        {% for author in version.preprint.preprintauthor_set.all %}
+        <person_name sequence="first" contributor_role="author">
+            <given_name>{{ author.account.first_name }}</given_name>
+            <surname>{{ author.account.last_name }}</surname>
+            {% if author.account.orcid %}<ORCID>https://orcid.org/{{ author.account.orcid }}</ORCID>{% endif %}
+        </person_name>
+        {% endfor %}
+    </contributors>
+    <titles>
+        <title>{{ version.preprint.title }}</title>
+    </titles>
+    <posted_date>
+        <month>{{ version.date_time.month }}</month>
+        <day>{{ version.date_time.day }}</day>
+        <year>{{ version.date_time.year }}</year>
+    </posted_date>
+    <program xmlns="http://www.crossref.org/AccessIndicators.xsd">
+        <free_to_read start_date="{{ version.preprint.date_published|date:"Y-m-d" }}"/>
+        <license_ref>{{ version.preprint.license.url }}</license_ref>
+    </program>
+    <doi_data>
+        <doi>{{ version.get_doi }}</doi>
+        <resource>{{ version.preprint.url }}?version={{ version.version }}</resource>
+    </doi_data>
+</posted_content>
