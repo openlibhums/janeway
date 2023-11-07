@@ -27,6 +27,7 @@ from repository import install
 from utils.function_cache import cache
 from submission import models as submission_models
 from events import logic as event_logic
+from identifiers import models as identifier_models
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -237,6 +238,49 @@ class Repository(
         blank=False,
         default='OLH',
         choices=theme_choices(),
+    )
+    headless_mode = models.BooleanField(
+        default=False,
+        help_text='Enable this feature to make this repository run in headless'
+                  ' mode, with no front end.',
+    )
+    crossref_enable = models.BooleanField(
+        default=False,
+        help_text='Enable to use crossref. All other fields must be complete.',
+    )
+    crossref_username = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_password = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_depositor_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_depositor_email = models.EmailField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_registrant = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_prefix = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_test_mode = models.BooleanField(
+        default=False,
+        help_text='Enable to use Crossref test.',
     )
 
     class Meta:
@@ -1020,6 +1064,28 @@ class PreprintVersion(models.Model):
 
     def __str__(self):
         return f'{self.preprint} (version {self.version})'
+
+    def get_doi_pattern(self):
+        return f"{self.preprint.repository.crossref_prefix}/{self.preprint.repository.short_name}.{self.preprint.pk}.v{self.pk}"
+
+    def get_doi(self, _object=False):
+        try:
+            try:
+                doi = identifier_models.Identifier.objects.get(
+                    id_type='doi',
+                    preprint_version=self
+                )
+            except identifier_models.Identifier.MultipleObjectsReturned:
+                doi = identifier_models.Identifier.objects.filter(
+                    id_type='doi',
+                    preprint_version=self,
+                ).first()
+            if not _object:
+                return doi.identifier
+            else:
+                return doi
+        except identifier_models.Identifier.DoesNotExist:
+            return None
 
 
 class Comment(models.Model):

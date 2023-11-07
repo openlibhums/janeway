@@ -488,6 +488,7 @@ class RepositorySite(BleachableModelForm, RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            'headless_mode',
             'about',
             'logo',
             'hero_background',
