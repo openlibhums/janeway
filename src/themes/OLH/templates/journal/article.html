@@ -302,6 +302,8 @@
                                         {% endif %}
                                             {% if article.peer_reviewed %}
                                                 <h5>{% trans "Peer Reviewed" %}</h5>
+                                            {% elif journal_settings.general.uses_isolinear_plugin and not article.is_published  %}
+                                                <h5>Preprint Under Review</h5>
                                             {% endif %}
                                         </div>
                                         {% if article.date_published or article.date_accepted or proofing %}
@@ -378,7 +380,7 @@
                                             Note to proofreader: Download links on this page begin to work when the article is published.
                                         </p>
                                     {% endif %}
-                                {% elif article.preprint %}
+                                {% elif journal_settings.general.uses_isolinear_plugin and article.preprint %}
                                     <h3>{% trans "Download" %}</h3>
                                     {% hook 'preprint_version_downloads' %}
                                 {% else %}
@@ -473,7 +475,7 @@
                         </div>
                         {% endfor %}
 
-                        {% if article.preprint and not journal_settings.general.uses_isolinear_plugin %}
+                        {% if article.preprint and article.is_published %}
                         <div class="section hide-for-small-only">
                             <h3>{{ article.preprint.repository.object_name }}</h3>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
