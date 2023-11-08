@@ -5028,5 +5028,24 @@
             "journal-manager",
             "editor"
         ]
+    },
+    {
+         "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "If enabled crossref DOIs will be minted for open reviews.",
+            "is_translatable": true,
+            "name": "mint_open_review_dois",
+            "pretty_name": "Mint Open Review DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
     }
 ]
