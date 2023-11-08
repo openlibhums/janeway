@@ -1013,6 +1013,7 @@ class PreprintVersion(models.Model):
     file = models.ForeignKey(
         PreprintFile,
         on_delete=models.CASCADE,
+        null=True,
     )
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
