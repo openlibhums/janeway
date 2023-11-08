@@ -277,6 +277,8 @@
                                         {% endif %}
                                             {% if article.peer_reviewed %}
                                                 <p>{% trans "Peer Reviewed" %}</p>
+                                            {% elif journal_settings.general.uses_isolinear_plugin and not article.is_published %}
+                                                <h5>Preprint Under Review</h5>
                                             {% endif %}
                                         </div>
                                         {% if article.date_published or article.date_accepted or proofing %}
@@ -358,7 +360,7 @@
                                     {% else %}
                                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                                     {% endif %}
-                                {% elif article.preprint %}
+                                {% elif journal_settings.general.uses_isolinear_plugin and article.preprint %}
                                     <h3>{% trans "Download" %}</h3>
                                     {% hook 'preprint_version_downloads' %}
                                 {% else %}
