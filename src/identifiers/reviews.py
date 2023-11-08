@@ -12,6 +12,20 @@ from utils import models as util_models
 logger = get_logger(__name__)
 
 
+def review_doi_mint_event_listener(**kwargs):
+    request = kwargs.get('request')
+    review = kwargs.get('review_assignment')
+
+    mint_review_dois = request.journal.get_setting(
+        'Identifiers', 'mint_open_review_dois',
+    )
+
+    # Check if minting DOIs is enabled and the review has public permission
+    # from the author.
+    if mint_review_dois and review.permission_to_make_public:
+        deposit_doi_for_reviews(request.journal, [review])
+
+
 def deposit_doi_for_reviews(journal, reviews):
     status, error, journals = logic.check_deposits_from_same_journal(
         [review.article for review in reviews]
@@ -22,8 +36,6 @@ def deposit_doi_for_reviews(journal, reviews):
     use_crossref, mode, missing_settings = logic.check_crossref_settings(
         journal
     )
-    # Filter out non-accepted articles
-    reviews = filter_non_accepted_articles(reviews)
     identifiers = get_dois_for_reviews(reviews)
     if use_crossref and not missing_settings:
         return send_review_crossref_deposit(
@@ -46,14 +58,6 @@ def get_dois_for_reviews(reviews):
         )
         identifiers.append(identifier)
     return identifiers
-
-
-def filter_non_accepted_articles(reviews):
-    pks_to_exclude = list()
-    for review in reviews:
-        if not review.article.is_accepted():
-            pks_to_exclude.append(review.pk)
-    return reviews.exclude(pk__in=pks_to_exclude)
 
 
 def send_review_crossref_deposit(mode, reviews, identifiers, journal):
@@ -143,3 +147,5 @@ def send_review_crossref_deposit(mode, reviews, identifiers, journal):
             identifier=identifier,
         )
         crossref_status.update()
+
+    return status
