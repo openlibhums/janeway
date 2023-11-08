@@ -110,3 +110,4 @@ def deposit_doi_for_preprint_version(repository, preprint_versions):
                 preprint_versions,
                 identifiers
             )
+        return error
