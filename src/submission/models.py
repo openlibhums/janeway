@@ -2091,10 +2091,6 @@ class Article(AbstractLastModifiedModel):
             id = id_logic.generate_crossref_doi_with_pattern(self)
             if self.journal.register_doi_at_acceptance:
                 id.register()
-            id_logic.deposit_doi_for_reviews(
-                self.journal,
-                self.completed_reviews_with_permission,
-            )
 
     def decline_article(self):
         self.date_declined = timezone.now()
