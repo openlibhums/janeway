@@ -951,8 +951,10 @@ def do_review(request, assignment_id):
 
                 assignment.save()
 
-                kwargs = {'review_assignment': assignment,
-                        'request': request}
+                kwargs = {
+                    'review_assignment': assignment,
+                    'request': request,
+                }
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_REVIEW_COMPLETE,
                     task_object=assignment.article,
