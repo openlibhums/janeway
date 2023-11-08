@@ -346,10 +346,8 @@ class ReviewAssignment(models.Model):
             return 'reject'
 
     def get_doi_pattern(self):
-        if self.article.is_accepted():
-            article_pattern = self.article.get_doi()
-            return f"{article_pattern}.r{self.pk}"
-        return None
+        article_pattern = self.article.doi_pattern_preview
+        return f"{article_pattern}.r{self.pk}"
 
     def get_doi(self, _object=False):
         try:
