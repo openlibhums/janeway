@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from identifiers import logic as identifier_logic
+from identifiers import reviews
 from submission import models as submission_models
 
 
