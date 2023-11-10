@@ -2317,6 +2317,14 @@ class SubmissionConfiguration(models.Model):
         help_text=_('The default license applied when no option is presented'),
         on_delete=models.SET_NULL,
     )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_('The license that is applied to open peer reviews.'),
+        on_delete=models.SET_NULL,
+        related_name='open_peer_review_license',
+    )
     default_language = models.CharField(
         max_length=200,
         null=True,
