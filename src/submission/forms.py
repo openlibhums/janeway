@@ -413,6 +413,11 @@ class ConfiguratorForm(forms.ModelForm):
         self.fields["default_license"].queryset = models.Licence.objects.filter(
             journal=self.instance.journal,
         )
+        self.fields[
+            'open_peer_review_license'
+        ].queryset = models.Licence.objects.filter(
+            journal=self.instance.journal,
+        )
 
     def clean(self):
         cleaned_data = super().clean()
