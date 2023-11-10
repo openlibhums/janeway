@@ -10,7 +10,9 @@
                 <div class="card-section">
                     <p>
                         <strong>Reviewer: </strong> {{ review.reviewer.full_name }}<br />
-                        <strong>DOI:</strong> {{ review.get_doi }}
+                        {% if review.reviewer.orcid %}<strong>ORCID: </strong><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"> https://orcid.org/{{ review.reviewer.orcid }}<br />{% endif %}
+                        <strong>DOI:</strong> {{ review.get_doi }} <br />
+                        <strong>Date Completed:</strong> {{ review.date_complete|date:"Y-m-d" }}<br />
                     </p>
                     {% for answer in review.review_form_answers %}
                         {% if answer.author_can_see %}
@@ -23,6 +25,10 @@
 
                         {% endif %}
                     {% endfor %}
+                    {% if request.journal.submissionconfiguration.open_peer_review_license %}
+                        <p><strong>License: </strong>{{ request.journal.submissionconfiguration.open_peer_review_license.name }}</p>
+                        <p>{{ request.journal.submissionconfiguration.open_peer_review_license.text }}</p>
+                    {% endif %}
                     <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
                         review and may pertain to an earlier version of the document.</p>
                     <button class="close-button" data-close aria-label="Close reveal" type="button">
