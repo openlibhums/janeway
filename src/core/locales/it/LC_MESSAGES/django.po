@@ -2,20 +2,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-08 15:36+0000\n"
+"POT-Creation-Date: 2023-11-13 17:42+0000\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 
-#: src/comms/models.py:91
+#: src/comms/models.py:94
 #, fuzzy, python-brace-format
 #| msgid "Posted by"
 msgid "Posted by {byline}"
 msgstr "Pubblicato da"
 
-#: src/comms/models.py:92
+#: src/comms/models.py:95
 #, fuzzy, python-brace-format
 #| msgid "Posted by"
 msgid "Posted by  {byline}"
@@ -25,41 +25,41 @@ msgstr "Pubblicato da"
 msgid "Are you sure you want to create a copyediting assignment?"
 msgstr ""
 
-#: src/copyediting/forms.py:90
+#: src/copyediting/forms.py:99
 msgid "Are you sure you want to ask the author to review copyedits?"
 msgstr ""
 
-#: src/copyediting/forms.py:137
+#: src/copyediting/forms.py:146
 msgid "Are you sure you want to complete the copyedit task?"
 msgstr ""
 
-#: src/core/forms.py:98
+#: src/core/forms/forms.py:109
 msgid "Password 1"
 msgstr "Password 1"
 
-#: src/core/forms.py:99
+#: src/core/forms/forms.py:110
 msgid "Password 2"
 msgstr "Password 2"
 
-#: src/core/forms.py:117
+#: src/core/forms/forms.py:128
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:32
 #: src/themes/OLH/templates/press/core/login.html:33
 msgid "Password"
 msgstr "Password"
 
-#: src/core/forms.py:118
+#: src/core/forms/forms.py:129
 msgid "Repeat Password"
 msgstr "Ripeti la password"
 
-#: src/core/forms.py:476
+#: src/core/forms/forms.py:494
 msgid "E-mail"
 msgstr "Email"
 
-#: src/core/forms.py:690
+#: src/core/forms/forms.py:717
 msgid "Are you sure?"
 msgstr ""
 
-#: src/core/forms.py:718
+#: src/core/forms/forms.py:748
 #, python-format
 msgid ""
 "The account belonging to %(email)s has not yet been activated, so the "
@@ -104,47 +104,47 @@ msgstr ""
 msgid "Issues and Collections"
 msgstr "Visualizza raccolta"
 
-#: src/core/janeway_global_settings.py:246
+#: src/core/janeway_global_settings.py:252
 #, fuzzy
 #| msgid "English"
-msgid "English (GB)"
+msgid "English"
 msgstr "inglese"
 
-#: src/core/janeway_global_settings.py:247
+#: src/core/janeway_global_settings.py:253
 #, fuzzy
 #| msgid "English"
 msgid "English (US)"
 msgstr "inglese"
 
-#: src/core/janeway_global_settings.py:248
+#: src/core/janeway_global_settings.py:254
 msgid "French"
 msgstr "francese"
 
-#: src/core/janeway_global_settings.py:249
+#: src/core/janeway_global_settings.py:255
 msgid "German"
 msgstr "tedesco"
 
-#: src/core/janeway_global_settings.py:250
+#: src/core/janeway_global_settings.py:256
 msgid "Dutch"
 msgstr ""
 
-#: src/core/janeway_global_settings.py:251
+#: src/core/janeway_global_settings.py:257
 msgid "Welsh"
 msgstr "Gallese"
 
-#: src/core/logic.py:754
+#: src/core/logic.py:805
 msgid "Your password must be {} characters long"
 msgstr ""
 
-#: src/core/logic.py:758
+#: src/core/logic.py:809
 msgid "An uppercase character is required"
 msgstr ""
 
-#: src/core/logic.py:761
+#: src/core/logic.py:812
 msgid "A number is required"
 msgstr ""
 
-#: src/core/models.py:205 src/templates/admin/repository/article.html:213
+#: src/core/models.py:208 src/templates/admin/repository/article.html:213
 #: src/templates/admin/repository/author_article.html:92
 #: src/templates/admin/repository/submit/authors.html:80
 #: src/templates/admin/submission/submit_authors.html:65
@@ -157,60 +157,60 @@ msgstr ""
 msgid "Email"
 msgstr "Email"
 
-#: src/core/models.py:206
+#: src/core/models.py:209
 msgid "Username"
 msgstr "Nome utente"
 
-#: src/core/models.py:208
+#: src/core/models.py:211
 msgid "First name"
 msgstr "Nome"
 
-#: src/core/models.py:209
+#: src/core/models.py:212
 msgid "Middle name"
 msgstr "Secondo nome"
 
-#: src/core/models.py:210
+#: src/core/models.py:213
 msgid "Last name"
 msgstr "Cognome"
 
-#: src/core/models.py:214
+#: src/core/models.py:217
 msgid "Salutation"
 msgstr "Titolo"
 
-#: src/core/models.py:219
+#: src/core/models.py:222
 msgid "Name suffix eg. jr"
 msgstr ""
 
-#: src/core/models.py:221
+#: src/core/models.py:224
 #: src/themes/OLH/templates/core/accounts/public_profile.html:19
 #: src/themes/clean/templates/core/accounts/public_profile.html:19
 #: src/themes/material/templates/core/accounts/public_profile.html:19
 msgid "Biography"
 msgstr "Biografia"
 
-#: src/core/models.py:222 src/submission/models.py:1748
+#: src/core/models.py:225 src/submission/models.py:1934
 msgid "ORCiD"
 msgstr "ORCID"
 
-#: src/core/models.py:223
+#: src/core/models.py:226
 msgid "Institution"
 msgstr "Istituzione"
 
-#: src/core/models.py:224
+#: src/core/models.py:227
 msgid "Department"
 msgstr "Dipartimento"
 
-#: src/core/models.py:236
+#: src/core/models.py:243
 #: src/themes/OLH/templates/core/accounts/public_profile.html:15
 #: src/themes/clean/templates/core/accounts/public_profile.html:15
 #: src/themes/material/templates/core/accounts/public_profile.html:15
 msgid "Country"
 msgstr "Nazione"
 
-#: src/core/models.py:756 src/core/models.py:1024 src/repository/models.py:772
+#: src/core/models.py:837 src/core/models.py:1115 src/repository/models.py:824
 #: src/templates/admin/submission/submit_files.html:40
 #: src/templates/admin/submission/submit_files.html:80
-#: src/templates/admin/submission/submit_review.html:129
+#: src/templates/admin/submission/submit_review.html:120
 #: src/themes/OLH/templates/repository/review.html:74
 #: src/themes/OLH/templates/repository/review.html:93
 #: src/themes/OLH/templates/repository/submit_files.html:38
@@ -218,27 +218,27 @@ msgstr "Nazione"
 msgid "Label"
 msgstr "Etichetta"
 
-#: src/core/models.py:757 src/core/models.py:1025
+#: src/core/models.py:838 src/core/models.py:1116
 msgid "Description"
 msgstr "Descrizione"
 
-#: src/core/models.py:1047
+#: src/core/models.py:1142
 msgid "Other"
 msgstr ""
 
-#: src/core/models.py:1048
+#: src/core/models.py:1143
 msgid "Image"
 msgstr ""
 
-#: src/core/models.py:1355
+#: src/core/models.py:1485
 msgid "Your contact email address"
 msgstr "Il tuo indirizzo email"
 
-#: src/core/models.py:1356
+#: src/core/models.py:1486
 msgid "Subject"
 msgstr "Argomento"
 
-#: src/core/models.py:1357
+#: src/core/models.py:1487
 msgid "Your message"
 msgstr "Il tuo messaggio"
 
@@ -259,7 +259,7 @@ msgstr ""
 "Il tipo MIME {mimetype} non è valido. I tipi validi sono: {validator."
 "mimetypes}"
 
-#: src/core/views.py:1906
+#: src/core/views.py:1933
 msgid ""
 "You cannot remove a section that contains articles. Remove articles from the "
 "section if you want to delete it."
@@ -270,72 +270,74 @@ msgid "Max. 300 characters."
 msgstr ""
 
 #. Translators: Search order options
-#: src/journal/forms.py:24
+#: src/journal/forms.py:20
 msgid "Relevance"
 msgstr ""
 
-#: src/journal/forms.py:25
+#: src/journal/forms.py:21 src/journal/views.py:2627
 #, fuzzy
 #| msgid "Title"
 msgid "Titles A-Z"
 msgstr "Titolo"
 
-#: src/journal/forms.py:26
+#: src/journal/forms.py:22 src/journal/views.py:2628
 #, fuzzy
 #| msgid "Title"
 msgid "Titles Z-A"
 msgstr "Titolo"
 
-#: src/journal/forms.py:27
+#: src/journal/forms.py:23 src/journal/views.py:2629
 msgid "Newest"
 msgstr ""
 
-#: src/journal/forms.py:28
+#: src/journal/forms.py:24 src/journal/views.py:2630
 msgid "Oldest"
 msgstr ""
 
-#: src/journal/forms.py:100
+#: src/journal/forms.py:97
 #: src/themes/clean/templates/core/homepage_elements/search_bar.html:20
 #, fuzzy
 #| msgid "Search"
 msgid "Search term"
 msgstr "Ricerca"
 
-#: src/journal/forms.py:101
+#: src/journal/forms.py:98
 #, fuzzy
 #| msgid "Search preprints"
 msgid "Search Titles"
 msgstr "Cerca preprints"
 
-#: src/journal/forms.py:102
+#: src/journal/forms.py:99
 #, fuzzy
 #| msgid "Abstract"
 msgid "Search Abstract"
 msgstr "Abstract"
 
-#: src/journal/forms.py:103
+#: src/journal/forms.py:100
 #, fuzzy
 #| msgid "Search for Existing Authors"
 msgid "Search Authors"
 msgstr "Cerca gli autori esistenti"
 
-#: src/journal/forms.py:104
+#: src/journal/forms.py:101
 #, fuzzy
 #| msgid "Keywords"
 msgid "Search Keywords"
 msgstr "Parole chiave"
 
-#: src/journal/forms.py:105
+#: src/journal/forms.py:102
 msgid "Search Full Text"
 msgstr ""
 
-#: src/journal/forms.py:106
+#: src/journal/forms.py:103
 #, fuzzy
 #| msgid "Search"
 msgid "Search ORCIDs"
 msgstr "Ricerca"
 
-#: src/journal/forms.py:107
+#: src/journal/forms.py:104 src/templates/common/elements/sorting.html:16
+#: src/themes/clean/templates/elements/sorting.html:17
+#: src/themes/material/templates/elements/sorting.html:31
 #, fuzzy
 #| msgid "Your article title"
 msgid "Sort results by"
@@ -347,178 +349,168 @@ msgstr ""
 "Gli articoli senza una sezione non possono essere aggiunti ad una "
 "pubblicazione."
 
-#: src/journal/models.py:80
+#: src/journal/models.py:79
 msgid ""
 "Short acronym for the journal. Used as part of the journal URLin path mode "
 "and to uniquely identify the journal"
 msgstr ""
 
-#: src/journal/models.py:98
+#: src/journal/models.py:97
 msgid ""
 "The default thumbnail for articles, not to be confused with 'Default cover "
 "image'."
 msgstr ""
 
-#: src/journal/models.py:106
+#: src/journal/models.py:105
 msgid "Replaces the press logo in the footer."
 msgstr ""
 
-#: src/journal/models.py:113
+#: src/journal/models.py:112
 msgid ""
 "The default cover image for journal issues and for the journal's listing on "
 "the press-level website."
 msgstr ""
 
-#: src/journal/models.py:121
+#: src/journal/models.py:120
 #, fuzzy
 #| msgid "The default language of articles when lang is hidden"
 msgid "The default background image for article openers and carousel items."
 msgstr "La lingua predefinita degli articoli quando la lingua è nascosta"
 
-#: src/journal/models.py:129
+#: src/journal/models.py:128
 msgid ""
 "The logo-sized image at the top of all pages, typically used for journal "
 "logos."
 msgstr ""
 
-#: src/journal/models.py:137
+#: src/journal/models.py:136
 msgid ""
 "The tiny round or square image appearing in browser tabs before the webpage "
 "title"
 msgstr ""
 
-#: src/journal/models.py:148
+#: src/journal/models.py:147
 #, fuzzy
 #| msgid "This article has been peer reviewed."
 msgid "This field has been deprecated in v1.4.3"
 msgstr "Questo articolo è stato soggetto a peer review."
 
-#: src/journal/models.py:158
+#: src/journal/models.py:157
 msgid "When enabled, the journal is marked as not hosted in Janeway."
 msgstr ""
 
-#: src/journal/models.py:169
+#: src/journal/models.py:168
 msgid "If the journal is remote you can link to its submission page."
 msgstr ""
 
-#: src/journal/models.py:174
+#: src/journal/models.py:173
 msgid "If the journal is remote you can link to its home page."
 msgstr ""
 
-#: src/journal/models.py:178
+#: src/journal/models.py:177
 msgid "Enables a \"View PDF\" link on article pages."
 msgstr ""
 
-#: src/journal/models.py:220
+#: src/journal/models.py:219
 msgid ""
 "Whether to display article numbers. Article numbers are distinct from "
 "article ID and can be set in Edit Metadata."
 msgstr ""
 
-#: src/journal/models.py:539
+#: src/journal/models.py:550
 #, fuzzy
 #| msgid "Subtitle of the article display format; Title: Subtitle"
 msgid "Autogenerated cache of the display format of an issue title"
 msgstr ""
 "Sottotitoli del formato di visualizzazione dell'articolo; Titolo: sottotitolo"
 
-#: src/journal/models.py:554
+#: src/journal/models.py:565
 msgid "Image representing the cover of a printed issue or volume"
 msgstr ""
 
-#: src/journal/models.py:560
+#: src/journal/models.py:571
 msgid "landscape hero image used in the carousel and issue page"
 msgstr ""
 
-#: src/journal/models.py:579
+#: src/journal/models.py:590
 msgid ""
 "An optional alphanumeric code (Slug) used to generate a verbose  url for "
 "this issue. e.g: 'winter-special-issue'."
 msgstr ""
 
-#: src/journal/models.py:601
+#: src/journal/models.py:612
 msgid ""
 "An ISBN is relevant for non-serial collections such as conference proceedings"
 msgstr ""
 
-#: src/journal/models.py:642
+#: src/journal/models.py:653
 #: src/themes/OLH/templates/press/press_journals.html:71
 #: src/themes/clean/templates/press/press_journals.html:42
 #: src/themes/material/templates/press/press_journals.html:46
 msgid "Current Issue"
 msgstr "Pubblicazione corrente"
 
-#: src/journal/models.py:688
-#: src/templates/common/elements/journal/article_issue_list.html:4
-#: src/themes/OLH/templates/403.html:5
-#: src/themes/OLH/templates/journal/issue.html:9
-#: src/themes/clean/templates/journal/issue.html:8
-#: src/themes/material/templates/elements/journal/issue_sidebar.html:8
-#: src/themes/material/templates/journal/issue.html:8
-msgid "Issue"
-msgstr "Pubblicazione"
-
-#: src/journal/models.py:701
+#: src/journal/models.py:711
 msgid "pages"
 msgstr ""
 
-#: src/journal/models.py:703
+#: src/journal/models.py:713
 msgid "page"
 msgstr ""
 
-#: src/journal/models.py:1199
+#: src/journal/models.py:1282
 msgid "Please add as much detail as you can."
 msgstr ""
 
-#: src/journal/views.py:732
+#: src/journal/views.py:751
 msgid "No file uploaded"
 msgstr "Nessun file caricato"
 
-#: src/journal/views.py:990
+#: src/journal/views.py:1009
 msgid "Issue not in this journal’s issue list."
 msgstr ""
 
-#: src/journal/views.py:1110
+#: src/journal/views.py:1129
 msgid "Article set for publication."
 msgstr "Articolo pronto per la pubblicazione."
 
-#: src/journal/views.py:1383
+#: src/journal/views.py:1401
 msgid "You cannot move the first section up the order list"
 msgstr "Non puoi spostare la prima sezione più in su nell'ordine"
 
-#: src/journal/views.py:1415
+#: src/journal/views.py:1433
 msgid "You cannot move the last section down the order list"
 msgstr "Non puoi spostare l'ultima sezione più in giù nell'ordine"
 
-#: src/journal/views.py:1422
+#: src/journal/views.py:1440
 msgid "This page accepts post requests only."
 msgstr "Questa pagina accetta solo richieste di post."
 
-#: src/journal/views.py:1492
+#: src/journal/views.py:1511
 msgid "User is already a guest editor."
 msgstr "L'utente è già un guest editor."
 
-#: src/journal/views.py:1498
+#: src/journal/views.py:1517
 msgid "This user is not a member of this journal."
 msgstr "L'utente non è un membro di questa rivista."
 
-#: src/journal/views.py:1544
+#: src/journal/views.py:1570
 msgid "Editor removed from Issue."
 msgstr "L'editore è stato rimosso da questa pubblicazione."
 
-#: src/journal/views.py:1550
+#: src/journal/views.py:1576
 msgid "Issue Editor not found."
 msgstr "Editore della pubblicazione non trovato."
 
-#: src/journal/views.py:1556
+#: src/journal/views.py:1582
 msgid "No Issue Editor ID supplied."
 msgstr "ID dell'editore della pubblicazione non fornito."
 
-#: src/journal/views.py:1703
+#: src/journal/views.py:1729
 msgid "Uploaded file is not UTF-8 encoded"
 msgstr "Il file caricato non è codificato in UTF-8"
 
-#: src/journal/views.py:1797
+#: src/journal/views.py:1823
 msgid ""
 "You must login before you can become a reviewer. Click the button below to "
 "login."
@@ -526,7 +518,7 @@ msgstr ""
 "È necessario accedere prima di poter diventare un revisore. Fai clic sul "
 "pulsante qui sotto per accedere."
 
-#: src/journal/views.py:1802
+#: src/journal/views.py:1828
 msgid ""
 "You are not yet a reviewer for this journal. Click the button below to "
 "become a reviewer."
@@ -534,86 +526,122 @@ msgstr ""
 "Non sei ancora un revisore per questa rivista. Fai clic sul pulsante qui "
 "sotto per diventare un revisore."
 
-#: src/journal/views.py:1807
+#: src/journal/views.py:1833
 msgid "You are already a reviewer."
 msgstr "Sei già un revisore."
 
-#: src/journal/views.py:1814
+#: src/journal/views.py:1840
 msgid "You are now a reviewer"
 msgstr "Ora sei un revisore"
 
-#: src/journal/views.py:1853
+#: src/journal/views.py:1879
 msgid "Your message has been sent."
 msgstr "Il tuo messaggio è stato inviato."
 
-#: src/journal/views.py:2284 src/journal/views.py:2301
-#: src/journal/views.py:2311
+#: src/journal/views.py:2310 src/journal/views.py:2327
+#: src/journal/views.py:2337
 msgid "Production file uploaded."
 msgstr "File per la produzione caricato."
 
-#: src/journal/views.py:2321
+#: src/journal/views.py:2347
 msgid "Proofing file uploaded."
 msgstr "File caricato per la correzione."
 
-#: src/press/views.py:404
+#: src/journal/views.py:2603
+#, fuzzy
+#| msgid "Published"
+msgid "Published after"
+msgstr "Pubblicato"
+
+#: src/journal/views.py:2607
+#, fuzzy
+#| msgid "Published on"
+msgid "Published before"
+msgstr "Pubblicato su"
+
+#: src/journal/views.py:2612
+#: src/templates/admin/submission/submit_review.html:70
+#: src/themes/OLH/templates/repository/review.html:38
+msgid "Section"
+msgstr "Sezione"
+
+#: src/journal/views.py:2631 src/themes/OLH/templates/repository/list.html:69
+#: src/themes/OLH/templates/repository/search.html:54
+#: src/themes/material/templates/preprints/list.html:80
+#: src/themes/material/templates/repository/list.html:61
+msgid "Author Name"
+msgstr "Nome dell'autore"
+
+#: src/journal/views.py:2632
+msgid "Volume"
+msgstr ""
+
+#: src/press/views.py:406
 #, fuzzy
 #| msgid "Description"
 msgid "Description deleted."
 msgstr "Descrizione"
 
-#: src/press/views.py:417
+#: src/press/views.py:419
 #, fuzzy
 #| msgid "Description"
 msgid "Description saved."
 msgstr "Descrizione"
 
-#: src/repository/forms.py:41 src/submission/forms.py:79
+#: src/repository/forms.py:44 src/submission/forms.py:75
 #: src/templates/admin/core/manager/sections/section_articles.html:30
-#: src/templates/admin/submission/submit_review.html:55
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:19
+#: src/templates/admin/submission/submit_review.html:46
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:21
 #: src/themes/OLH/templates/repository/list.html:67
 #: src/themes/OLH/templates/repository/review.html:25
 #: src/themes/OLH/templates/repository/search.html:52
-#: src/themes/clean/templates/journal/articles.html:63
+#: src/themes/clean/templates/journal/articles.html:65
 #: src/themes/material/templates/journal/articles.html:90
 #: src/themes/material/templates/preprints/list.html:78
 #: src/themes/material/templates/repository/list.html:59
 msgid "Title"
 msgstr "Titolo"
 
-#: src/repository/forms.py:44 src/submission/forms.py:83
+#: src/repository/forms.py:47 src/submission/forms.py:79
 msgid "Enter your article's abstract here"
 msgstr "Inserisci l'abstract del tuo articolo qui"
 
-#: src/repository/models.py:123
+#: src/repository/models.py:133
 msgid "Used for outputs including DC and Citation metadata"
 msgstr ""
 
-#: src/repository/models.py:128
+#: src/repository/models.py:138
 msgid ""
 "The contents of this field are output into the JS areaat the foot of every "
 "Repository page."
 msgstr ""
 
-#: src/repository/models.py:137
+#: src/repository/models.py:147
 msgid ""
 "If set to True, this will require all file uploads fromauthors to be PDF "
 "files."
 msgstr ""
 
-#: src/repository/models.py:304
+#: src/repository/models.py:337
 msgid ""
 "If this field is to be output as a dc metadata field you can addthe type "
 "here."
 msgstr ""
 
-#: src/repository/models.py:347 src/repository/models.py:887
-#: src/repository/models.py:1023 src/submission/models.py:548
+#: src/repository/models.py:383 src/repository/models.py:969
+#: src/repository/models.py:1126 src/submission/models.py:631
 msgid "Your article title"
 msgstr "Il titolo dell'articolo"
 
-#: src/repository/models.py:353 src/repository/models.py:893
-#: src/repository/models.py:1029 src/submission/models.py:559
+#: src/repository/models.py:389 src/submission/models.py:643
+msgid "Copying and pasting from word processors is supported."
+msgstr ""
+
+#: src/repository/models.py:935
+msgid "ORCID"
+msgstr ""
+
+#: src/repository/models.py:976 src/repository/models.py:1132
 msgid ""
 "Please avoid pasting content from word processors as they can add unwanted "
 "styling to the abstract. You can retype the abstract here or copy and paste "
@@ -624,37 +652,33 @@ msgstr ""
 "l'abstract qui o copiarlo e incollarlo in un blocco note/un editor di testo "
 "prima di incollarlo qui."
 
-#: src/repository/models.py:860
-msgid "ORCID"
-msgstr ""
-
-#: src/repository/models.py:1092
+#: src/repository/models.py:1195
 msgid "Approved"
 msgstr ""
 
-#: src/repository/models.py:1094
+#: src/repository/models.py:1197
 #, fuzzy
 #| msgid "Peer Review"
 msgid "Under Review"
 msgstr "Peer review"
 
-#: src/repository/models.py:1096 src/templates/admin/review/view_review.html:65
+#: src/repository/models.py:1199 src/templates/admin/review/view_review.html:64
 #, fuzzy
 #| msgid "Disciplines"
 msgid "Declined"
 msgstr "Discipline"
 
-#: src/repository/views.py:1067
+#: src/repository/views.py:1072
 #, fuzzy
 #| msgid "Author Information"
 msgid "Author information saved"
 msgstr "Informazioni sull'autore"
 
-#: src/review/forms.py:177
+#: src/review/forms.py:233
 msgid "Are you sure you want to request revisions?"
 msgstr ""
 
-#: src/review/forms.py:221
+#: src/review/forms.py:277
 #, fuzzy
 #| msgid "Enter your new password twice to complete the reset process"
 msgid "Are you sure you want to complete the revision request?"
@@ -662,32 +686,32 @@ msgstr ""
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
 
-#: src/review/forms.py:340
+#: src/review/forms.py:402
 msgid "Author can access this review"
 msgstr ""
 
-#: src/review/forms.py:341
+#: src/review/forms.py:403
 msgid "Author can access review file"
 msgstr ""
 
-#: src/review/forms.py:361
+#: src/review/forms.py:423
 #, python-format
 msgid "Author can see ‘%(name)s’"
 msgstr ""
 
-#: src/review/models.py:137
-msgid "Anonimity"
+#: src/review/models.py:195
+msgid "Anonymity"
 msgstr ""
 
-#: src/review/models.py:259
+#: src/review/models.py:331
 msgid "available for the author to access"
 msgstr ""
 
-#: src/review/models.py:260
+#: src/review/models.py:332
 msgid "not available for the author to access"
 msgstr ""
 
-#: src/review/views.py:1488
+#: src/review/views.py:1605
 #, fuzzy
 #| msgid "This article has been peer reviewed."
 msgid "This article has already been accepted or declined."
@@ -701,60 +725,60 @@ msgstr "Questa pagina è accessibile solo tramite Riviste."
 msgid "Submission is disabled for this journal."
 msgstr "L'invio di contributi non è consentito per questa rivista."
 
-#: src/submission/forms.py:80
-#: src/templates/admin/submission/submit_review.html:57
+#: src/submission/forms.py:76
+#: src/templates/admin/submission/submit_review.html:48
 msgid "Subtitle"
 msgstr "Sottotitolo"
 
-#: src/submission/forms.py:311
+#: src/submission/forms.py:333
 #, python-format
 msgid "Currently linked to %s, leave blank to use this address"
 msgstr ""
 
-#: src/submission/forms.py:316
+#: src/submission/forms.py:338
 #, python-format
 msgid "If left blank, the account ORCiD will be used (%s)"
 msgstr ""
 
-#: src/submission/models.py:554
+#: src/submission/models.py:638
 msgid "Do not use--deprecated in version 1.4.1 and later."
 msgstr ""
 
-#: src/submission/models.py:571
+#: src/submission/models.py:652
 msgid "The primary language of the article"
 msgstr "La lingua principale dell'articolo"
 
-#: src/submission/models.py:632
+#: src/submission/models.py:713
 msgid "Custom page range. e.g.: 'I-VII' or 1-3,4-8"
 msgstr ""
 
-#: src/submission/models.py:684 src/submission/models.py:691
+#: src/submission/models.py:765 src/submission/models.py:772
 msgid ""
 "Name of the publisher who published this article Only relevant to migrated "
 "articles from a different publisher"
 msgstr ""
 
-#: src/submission/models.py:697
+#: src/submission/models.py:778
 msgid ""
 "Original ISSN of this article's journal when published Only relevant for "
 "back content published under a different title"
 msgstr ""
 
-#: src/submission/models.py:1708
+#: src/submission/models.py:1889
 msgid "Optional name prefix (e.g: Prof or Dr)"
 msgstr ""
 
-#: src/submission/models.py:1713
+#: src/submission/models.py:1894
 msgid "Optional name suffix (e.g.: Jr or III)"
 msgstr ""
 
-#: src/submission/models.py:1724
+#: src/submission/models.py:1905
 #, fuzzy
 #| msgid "Biography"
 msgid "Frozen Biography"
 msgstr "Biografia"
 
-#: src/submission/models.py:1725
+#: src/submission/models.py:1906
 msgid ""
 "The author's biography at the time they published the linked article. For "
 "this article only, it overrides any main biography attached to the author's "
@@ -762,102 +786,102 @@ msgid ""
 "account will be populated instead."
 msgstr ""
 
-#: src/submission/models.py:1744
+#: src/submission/models.py:1930
 #, fuzzy
 #| msgid "Author Name"
 msgid "Author Email"
 msgstr "Nome dell'autore"
 
-#: src/submission/models.py:1749
+#: src/submission/models.py:1935
 msgid ""
 "ORCiD to be displayed when no account is associated with this author. It "
 "should be introduced in code format (e.g: 0000-0000-0000-000X)"
 msgstr ""
 
-#: src/submission/models.py:1756
+#: src/submission/models.py:1942
 msgid ""
 "If checked, this authors email address link will be displayed on the article "
 "page."
 msgstr ""
 
-#: src/submission/models.py:2072
+#: src/submission/models.py:2302
 #: src/templates/admin/submission/submit_files.html:69
 msgid "Figures and Data Files"
 msgstr "Figure e file di dati"
 
-#: src/submission/models.py:2079
+#: src/submission/models.py:2309
 msgid "The default license applied when no option is presented"
 msgstr ""
 "La licenza predefinita applicata quando non viene presentata alcuna opzione"
 
-#: src/submission/models.py:2086
+#: src/submission/models.py:2317
 msgid "The default language of articles when lang is hidden"
 msgstr "La lingua predefinita degli articoli quando la lingua è nascosta"
 
-#: src/submission/models.py:2092
+#: src/submission/models.py:2323
 msgid "The default section of articles when no option is presented"
 msgstr ""
 "La sezione predefinita degli articoli quando non viene selezionata alcuna "
 "opzione"
 
-#: src/submission/views.py:256 src/submission/views.py:291
-#: src/submission/views.py:316
+#: src/submission/views.py:260 src/submission/views.py:295
+#: src/submission/views.py:320
 #, python-brace-format
 msgid "{author_name} added to the article."
 msgstr "{author_name} aggiunto all'articolo."
 
-#: src/submission/views.py:284
+#: src/submission/views.py:288
 msgid "Errors found in the new author form"
 msgstr "Errori trovati nel modulo per il nuovo autore"
 
-#: src/submission/views.py:305
+#: src/submission/views.py:309
 msgid "An empty search is not allowed."
 msgstr "Ricerca vuota non consentita."
 
-#: src/submission/views.py:323
+#: src/submission/views.py:327
 msgid "No author found with those details."
 msgstr "Nessun autore trovato con quei dettagli."
 
-#: src/submission/views.py:333
+#: src/submission/views.py:337
 msgid "You must select a main author."
 msgstr "Devi selezionare un autore principale."
 
-#: src/submission/views.py:444
+#: src/submission/views.py:447
 msgid "File deleted"
 msgstr "File eliminato"
 
-#: src/submission/views.py:552
+#: src/submission/views.py:564
 #, python-brace-format
 msgid "Article {title} submitted"
 msgstr "L'articolo {title} è stato inviato"
 
-#: src/submission/views.py:638
+#: src/submission/views.py:661
 msgid "Metadata updated."
 msgstr "Metadati aggiornati."
 
-#: src/submission/views.py:650
+#: src/submission/views.py:673
 msgid "Primary author set."
 msgstr ""
 
-#: src/submission/views.py:667
+#: src/submission/views.py:690
 #, python-brace-format
 msgid "Author {author_name} updated."
 msgstr "Autore {author_name} aggiornato."
 
-#: src/submission/views.py:685
+#: src/submission/views.py:708
 msgid "Frozen Author deleted."
 msgstr "Autore Bloccato eliminato."
 
-#: src/submission/views.py:799
+#: src/submission/views.py:823
 msgid "License saved."
 msgstr "Licenza salvata."
 
-#: src/submission/views.py:844
+#: src/submission/views.py:868
 #, python-brace-format
 msgid "License {license_name} deleted."
 msgstr "Licenza {license_name} eliminata."
 
-#: src/submission/views.py:880
+#: src/submission/views.py:904
 msgid "Configuration updated."
 msgstr "Configurazione aggiornata."
 
@@ -920,24 +944,30 @@ msgstr "Sezioni"
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:7
 #: src/themes/OLH/templates/press/nav.html:48
 #: src/themes/clean/templates/core/nav.html:90
-#: src/themes/material/templates/core/nav.html:121
-#: src/themes/material/templates/core/nav.html:143
-#: src/themes/material/templates/press/nav.html:84
-#: src/themes/material/templates/press/nav.html:95
+#: src/themes/material/templates/core/nav.html:154
+#: src/themes/material/templates/core/nav.html:176
+#: src/themes/material/templates/press/nav.html:130
+#: src/themes/material/templates/press/nav.html:141
 msgid "Manager"
 msgstr "Manager"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:13
 #: src/templates/admin/core/manager/sections/section_articles.html:20
 #: src/themes/OLH/templates/core/nav.html:24
-#: src/themes/OLH/templates/journal/articles.html:7
-#: src/themes/OLH/templates/journal/articles.html:33
+#: src/themes/OLH/templates/journal/article_list.html:6
+#: src/themes/OLH/templates/journal/article_list.html:22
+#: src/themes/OLH/templates/journal/articles.html:9
+#: src/themes/OLH/templates/journal/articles.html:35
 #: src/themes/OLH/templates/journal/search.html:29
 #: src/themes/clean/templates/core/nav.html:21
-#: src/themes/clean/templates/journal/articles.html:5
-#: src/themes/clean/templates/journal/articles.html:10
+#: src/themes/clean/templates/journal/article_list.html:7
+#: src/themes/clean/templates/journal/article_list.html:12
+#: src/themes/clean/templates/journal/articles.html:7
+#: src/themes/clean/templates/journal/articles.html:12
 #: src/themes/material/templates/core/nav.html:30
-#: src/themes/material/templates/core/nav.html:76
+#: src/themes/material/templates/core/nav.html:91
+#: src/themes/material/templates/journal/article_list.html:7
+#: src/themes/material/templates/journal/article_list.html:13
 #: src/themes/material/templates/journal/articles.html:6
 #: src/themes/material/templates/journal/articles.html:8
 #: src/themes/material/templates/journal/articles.html:13
@@ -1037,17 +1067,20 @@ msgid "You have an active access request that was submitted on: "
 msgstr ""
 
 #: src/templates/admin/elements/confirm_modal.html:7
+#: src/templates/admin/elements/review/draft_decisions_js.html:13
 #, fuzzy
 #| msgid "Information"
 msgid "Confirmation"
 msgstr "Informazioni"
 
 #: src/templates/admin/elements/confirm_modal.html:22
-#: src/templates/admin/review/decision_helper.html:108
+#: src/templates/admin/elements/review/draft_decisions_js.html:27
+#: src/templates/admin/review/decision_helper.html:111
 msgid "Yes"
 msgstr ""
 
 #: src/templates/admin/elements/confirm_modal.html:25
+#: src/templates/admin/elements/review/draft_decisions_js.html:34
 msgid "No, go back"
 msgstr ""
 
@@ -1070,35 +1103,35 @@ msgid ""
 "disable the display of citation metrics below"
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_journal.html:31
+#: src/templates/admin/elements/forms/group_journal.html:32
 msgid ""
 "You can set the from address your journal will use to send emails and the "
 "base signature that will be included."
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_journal.html:41
+#: src/templates/admin/elements/forms/group_journal.html:42
 msgid ""
 "Where you have a journal in your press that is not hosted on Janeway you can "
 "link directly to the journal and submit pages."
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_journal.html:48
+#: src/templates/admin/elements/forms/group_journal.html:49
 msgid "Slack/Discord Integration"
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_journal.html:51
+#: src/templates/admin/elements/forms/group_journal.html:52
 msgid ""
 "You can integrate Janeway into Slack (and Discord as they support the same "
 "endpoints) by setting it up below."
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_journal.html:57
+#: src/templates/admin/elements/forms/group_journal.html:58
 #, fuzzy
 #| msgid "Export"
 msgid "Support"
 msgstr "Esportare"
 
-#: src/templates/admin/elements/forms/group_journal.html:60
+#: src/templates/admin/elements/forms/group_journal.html:61
 msgid "How should editors and staff members get help with Janeway?"
 msgstr ""
 
@@ -1121,15 +1154,15 @@ msgstr ""
 msgid "Review Form manager"
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_review.html:20
+#: src/templates/admin/elements/forms/group_review.html:29
 msgid "Settings here determine the review form experience."
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_review.html:31
+#: src/templates/admin/elements/forms/group_review.html:41
 msgid "Settings here determine the review experience for editors."
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_review.html:39
+#: src/templates/admin/elements/forms/group_review.html:49
 msgid "Settings here determine the review experience for authors."
 msgstr ""
 
@@ -1137,15 +1170,13 @@ msgstr ""
 msgid "Full Width Navbar only applies to the Material theme"
 msgstr ""
 
-#: src/templates/admin/elements/forms/group_submission.html:42
+#: src/templates/admin/elements/forms/group_submission.html:41
 msgid ""
 "The text below make up the Submission page as well as the Submission "
 "Agreement that authors accept."
 msgstr ""
 
 #: src/templates/admin/elements/fundref/fundref.html:24
-#: src/templates/admin/elements/fundref/fundref.html:114
-#: src/templates/admin/submission/submit_funding.html:93
 msgid "Funder"
 msgstr "Finanziatore"
 
@@ -1157,13 +1188,9 @@ msgstr "Finanziatore"
 msgid "Add funder"
 msgstr "Aggiungi finanziatore"
 
-#: src/templates/admin/elements/fundref/fundref.html:137
-msgid "Funder DOI (optional)"
-msgstr "Finanziatore DOI (facoltativo)"
-
-#: src/templates/admin/elements/fundref/fundref.html:158
-msgid "Funder grant number (optional)"
-msgstr "Numero del finanziamento (facoltativo)"
+#: src/templates/admin/elements/history_modal.html:8
+msgid "History"
+msgstr ""
 
 #: src/templates/admin/elements/issue/sort_toc.html:6
 msgid ""
@@ -1215,7 +1242,7 @@ msgstr "Salva il commento editoriale"
 #: src/templates/admin/elements/repository/metadata_form.html:39
 #: src/templates/admin/repository/submit/start.html:73
 #: src/themes/OLH/templates/repository/submit_start.html:52
-#: src/utils/forms.py:59
+#: src/utils/forms.py:55
 msgid "Hit Enter to add a new keyword."
 msgstr "Premi Invio per aggiungere una nuova parola chiave."
 
@@ -1253,61 +1280,71 @@ msgstr "Aggiungi un nuovo file"
 msgid "Add File"
 msgstr "Aggiungi file"
 
-#: src/templates/admin/journal/contact.html:22
-#: src/themes/OLH/templates/journal/contact.html:17
-#: src/themes/material/templates/journal/contact.html:19
+#: src/templates/admin/hijack/notification.html:5
+#, python-format
+msgid "You are currently working on behalf of %(user)s."
+msgstr "Attualmente stai lavorando per conto di %(user)s."
+
+#: src/templates/admin/hijack/notification.html:9
+#, python-format
+msgid "release %(user)s"
+msgstr "rilascia %(user)s"
+
+#: src/templates/admin/journal/contact.html:18
+#: src/themes/OLH/templates/journal/contact.html:12
+#: src/themes/material/templates/journal/contact.html:14
 msgid "Journal Representatives"
 msgstr "Rappresentanti delle riviste"
 
-#: src/templates/admin/journal/contact.html:24
-#: src/themes/OLH/templates/journal/contact.html:19
+#: src/templates/admin/journal/contact.html:20
+#: src/themes/OLH/templates/journal/contact.html:14
 #: src/themes/OLH/templates/press/journal/contact.html:11
-#: src/themes/material/templates/journal/contact.html:21
+#: src/themes/material/templates/journal/contact.html:16
 msgid "Press Representatives"
 msgstr "Rappresentanti stampa"
 
-#: src/templates/admin/journal/contact.html:31
-#: src/themes/OLH/templates/journal/contact.html:26
-#: src/themes/clean/templates/journal/contact.html:21
-#: src/themes/material/templates/journal/contact.html:30
+#: src/templates/admin/journal/contact.html:27
+#: src/themes/OLH/templates/journal/contact.html:21
+#: src/themes/clean/templates/journal/contact.html:16
+#: src/themes/material/templates/journal/contact.html:25
 msgid "Contact Information"
 msgstr "Contatti"
 
-#: src/templates/admin/journal/contact.html:36
+#: src/templates/admin/journal/contact.html:32
 #: src/themes/OLH/templates/core/nav.html:41
-#: src/themes/OLH/templates/elements/journal_footer.html:16
-#: src/themes/OLH/templates/journal/contact.html:6
-#: src/themes/OLH/templates/journal/contact.html:31
+#: src/themes/OLH/templates/elements/journal_footer.html:29
+#: src/themes/OLH/templates/journal/contact.html:5
+#: src/themes/OLH/templates/journal/contact.html:26
 #: src/themes/OLH/templates/press/elements/press_footer.html:14
 #: src/themes/OLH/templates/press/journal/contact.html:5
 #: src/themes/OLH/templates/press/journal/contact.html:18
 #: src/themes/OLH/templates/press/nav.html:40
 #: src/themes/clean/templates/core/nav.html:68
-#: src/themes/clean/templates/elements/journal_footer.html:26
+#: src/themes/clean/templates/elements/journal_footer.html:39
 #: src/themes/clean/templates/elements/press_footer.html:17
-#: src/themes/clean/templates/journal/contact.html:6
-#: src/themes/clean/templates/journal/contact.html:26
+#: src/themes/clean/templates/journal/contact.html:5
+#: src/themes/clean/templates/journal/contact.html:21
 #: src/themes/material/templates/core/nav.html:42
-#: src/themes/material/templates/core/nav.html:88
-#: src/themes/material/templates/journal/contact.html:6
-#: src/themes/material/templates/journal/contact.html:43
-#: src/themes/material/templates/press/nav.html:38
-#: src/themes/material/templates/press/nav.html:68
+#: src/themes/material/templates/core/nav.html:103
+#: src/themes/material/templates/journal/contact.html:5
+#: src/themes/material/templates/journal/contact.html:37
+#: src/themes/material/templates/press/nav.html:52
+#: src/themes/material/templates/press/nav.html:102
 msgid "Contact"
 msgstr "Contatto"
 
-#: src/templates/admin/journal/contact.html:42
-#: src/themes/OLH/templates/journal/contact.html:35
+#: src/templates/admin/journal/contact.html:38
+#: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22
-#: src/themes/clean/templates/journal/contact.html:32
+#: src/themes/clean/templates/journal/contact.html:27
 msgid "Who would you like to contact?"
 msgstr "Chi vorresti contattare?"
 
-#: src/templates/admin/journal/contact.html:56
-#: src/themes/OLH/templates/journal/contact.html:44
+#: src/templates/admin/journal/contact.html:52
+#: src/themes/OLH/templates/journal/contact.html:39
 #: src/themes/OLH/templates/press/journal/contact.html:30
-#: src/themes/clean/templates/journal/contact.html:42
-#: src/themes/material/templates/journal/contact.html:51
+#: src/themes/clean/templates/journal/contact.html:37
+#: src/themes/material/templates/journal/contact.html:45
 msgid "Send Message"
 msgstr "Invia messaggio"
 
@@ -1334,7 +1371,7 @@ msgid "Undo Article Rejection"
 msgstr ""
 
 #: src/templates/admin/journal/manage/archive_article.html:182
-#: src/templates/admin/submission/submit_review.html:10
+#: src/templates/admin/submission/submit_review.html:7
 #: src/templates/admin/submission/timeline.html:43
 #: src/templates/admin/submission/timeline.html:44
 #: src/templates/admin/submission/timeline.html:51
@@ -1377,58 +1414,58 @@ msgstr ""
 #: src/templates/admin/journal/submissions.html:35
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:48
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:50
-#: src/themes/OLH/templates/core/accounts/register.html:6
-#: src/themes/OLH/templates/core/accounts/register.html:101
+#: src/themes/OLH/templates/core/accounts/register.html:5
+#: src/themes/OLH/templates/core/accounts/register.html:96
 #: src/themes/OLH/templates/core/base.html:133
 #: src/themes/OLH/templates/core/nav.html:77
 #: src/themes/OLH/templates/journal/submissions.html:30
 #: src/themes/OLH/templates/press/nav.html:58
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:41
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:43
-#: src/themes/clean/templates/core/accounts/register.html:6
-#: src/themes/clean/templates/core/accounts/register.html:44
+#: src/themes/clean/templates/core/accounts/register.html:5
+#: src/themes/clean/templates/core/accounts/register.html:39
 #: src/themes/clean/templates/core/nav.html:104
 #: src/themes/clean/templates/journal/submissions.html:17
-#: src/themes/material/templates/core/accounts/register.html:7
-#: src/themes/material/templates/core/accounts/register.html:49
-#: src/themes/material/templates/core/nav.html:64
-#: src/themes/material/templates/core/nav.html:106
+#: src/themes/material/templates/core/accounts/register.html:6
+#: src/themes/material/templates/core/accounts/register.html:44
+#: src/themes/material/templates/core/nav.html:79
+#: src/themes/material/templates/core/nav.html:134
 #: src/themes/material/templates/journal/submissions.html:33
-#: src/themes/material/templates/press/nav.html:46
-#: src/themes/material/templates/press/nav.html:74
-#: src/themes/material/templates/repository/nav.html:46
+#: src/themes/material/templates/press/nav.html:67
+#: src/themes/material/templates/press/nav.html:115
+#: src/themes/material/templates/repository/nav.html:60
 msgid "Register"
 msgstr "Iscrizione"
 
 #: src/templates/admin/journal/submissions.html:36
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:28
 #: src/themes/OLH/templates/core/base.html:133
-#: src/themes/OLH/templates/core/login.html:7
+#: src/themes/OLH/templates/core/login.html:6
 #: src/themes/OLH/templates/core/nav.html:76
-#: src/themes/OLH/templates/elements/journal_footer.html:17
+#: src/themes/OLH/templates/elements/journal_footer.html:30
 #: src/themes/OLH/templates/journal/become_reviewer.html:16
 #: src/themes/OLH/templates/journal/submissions.html:31
 #: src/themes/OLH/templates/press/core/login.html:5
 #: src/themes/OLH/templates/press/elements/press_footer.html:15
 #: src/themes/OLH/templates/press/nav.html:57
-#: src/themes/clean/templates/core/login.html:6
+#: src/themes/clean/templates/core/login.html:5
 #: src/themes/clean/templates/core/nav.html:103
 #: src/themes/clean/templates/journal/become_reviewer.html:13
 #: src/themes/clean/templates/journal/submissions.html:18
-#: src/themes/material/templates/core/login.html:6
-#: src/themes/material/templates/core/login.html:47
-#: src/themes/material/templates/core/nav.html:63
-#: src/themes/material/templates/core/nav.html:105
+#: src/themes/material/templates/core/login.html:5
+#: src/themes/material/templates/core/login.html:42
+#: src/themes/material/templates/core/nav.html:78
+#: src/themes/material/templates/core/nav.html:133
 #: src/themes/material/templates/journal/become_reviewer.html:16
 #: src/themes/material/templates/journal/submissions.html:34
-#: src/themes/material/templates/press/nav.html:45
-#: src/themes/material/templates/press/nav.html:73
-#: src/themes/material/templates/repository/nav.html:45
+#: src/themes/material/templates/press/nav.html:66
+#: src/themes/material/templates/press/nav.html:114
+#: src/themes/material/templates/repository/nav.html:59
 msgid "Login"
 msgstr "Accesso"
 
 #: src/templates/admin/journal/submissions.html:38
-#: src/templates/admin/submission/start.html:83
+#: src/templates/admin/submission/start.html:72
 #: src/themes/OLH/templates/core/nav.html:43
 #: src/themes/OLH/templates/journal/submissions.html:32
 #: src/themes/OLH/templates/repository/submit_start.html:94
@@ -1452,7 +1489,7 @@ msgstr "Licenze"
 #: src/templates/admin/journal/submissions.html:48
 #: src/themes/OLH/templates/journal/submissions.html:40
 #: src/themes/clean/templates/journal/submissions.html:27
-#: src/themes/material/templates/journal/submissions.html:45
+#: src/themes/material/templates/journal/submissions.html:46
 msgid "allows the following licences for submission"
 msgstr "consente le seguenti licenze per l'invio"
 
@@ -1464,8 +1501,8 @@ msgstr ""
 #: src/templates/admin/press/edit_press_journal_description.html:11
 #: src/templates/admin/press/edit_press_journal_description.html:17
 #: src/templates/admin/repository/article.html:215
-#: src/templates/admin/review/unassigned_article.html:116
-#: src/templates/admin/review/view_review.html:114
+#: src/templates/admin/review/unassigned_article.html:117
+#: src/templates/admin/review/view_review.html:112
 #: src/themes/OLH/templates/elements/edit_author.html:4
 msgid "Edit"
 msgstr "Modifica"
@@ -1483,8 +1520,8 @@ msgid ""
 msgstr ""
 
 #: src/templates/admin/press/edit_press_journal_description.html:24
-#: src/templates/admin/review/view_review.html:170
-#: src/templates/admin/review/view_review.html:191
+#: src/templates/admin/review/view_review.html:168
+#: src/templates/admin/review/view_review.html:189
 msgid "Save"
 msgstr ""
 
@@ -1549,7 +1586,7 @@ msgid "Add Authors to"
 msgstr "Aggiungi autori a"
 
 #: src/templates/admin/repository/submit/authors.html:23
-#: src/themes/clean/templates/journal/article.html:178
+#: src/themes/clean/templates/journal/article.html:217
 msgid "Information"
 msgstr "Informazioni"
 
@@ -1618,24 +1655,24 @@ msgstr ""
 "Questo aprirà una finestra popup per completare i loro dettagli."
 
 #: src/templates/admin/repository/submit/authors.html:70
-#: src/themes/OLH/templates/journal/article.html:26
-#: src/themes/OLH/templates/journal/article.html:62
-#: src/themes/OLH/templates/journal/article.html:155
-#: src/themes/OLH/templates/journal/article.html:294
+#: src/themes/OLH/templates/journal/article.html:27
+#: src/themes/OLH/templates/journal/article.html:63
+#: src/themes/OLH/templates/journal/article.html:158
+#: src/themes/OLH/templates/journal/article.html:334
 #: src/themes/OLH/templates/journal/authors.html:4
 #: src/themes/OLH/templates/journal/authors.html:5
 #: src/themes/OLH/templates/journal/authors.html:11
 #: src/themes/OLH/templates/journal/print.html:15
 #: src/themes/OLH/templates/repository/article.html:24
-#: src/themes/clean/templates/journal/article.html:36
-#: src/themes/clean/templates/journal/article.html:134
+#: src/themes/clean/templates/journal/article.html:37
+#: src/themes/clean/templates/journal/article.html:167
 #: src/themes/clean/templates/journal/print.html:15
-#: src/themes/material/templates/journal/article.html:242
+#: src/themes/material/templates/journal/article.html:269
 #: src/themes/material/templates/journal/authors.html:5
 #: src/themes/material/templates/journal/authors.html:6
 #: src/themes/material/templates/journal/authors.html:10
 #: src/themes/material/templates/preprints/article.html:28
-#: src/themes/material/templates/repository/preprint.html:77
+#: src/themes/material/templates/repository/preprint.html:149
 msgid "Authors"
 msgstr "Autori"
 
@@ -1662,42 +1699,40 @@ msgstr "Carica files"
 msgid "You can use the form below to select and upload your manuscript file."
 msgstr ""
 
-#: src/templates/admin/repository/submit/files.html:32
-msgid "requires that all author uploads be PDF files."
-msgstr ""
-
-#: src/templates/admin/repository/submit/files.html:34
-msgid "You can upload a file in any format though PDF is recommended."
-msgstr ""
-
-#: src/templates/admin/repository/submit/files.html:44
+#: src/templates/admin/repository/submit/files.html:47
 #, fuzzy
 #| msgid "Supplementary Files"
 msgid "Supplementary files"
 msgstr "File supplementari"
 
-#: src/templates/admin/repository/submit/files.html:47
+#: src/templates/admin/repository/submit/files.html:50
 msgid "Optional links to externaly hosted supplementary files."
 msgstr ""
 
-#: src/templates/admin/repository/submit/files.html:48
-#: src/templates/admin/repository/submit/files.html:98
-#: src/templates/admin/repository/submit/files.html:105
+#: src/templates/admin/repository/submit/files.html:51
+#: src/templates/admin/repository/submit/files.html:101
+#: src/templates/admin/repository/submit/files.html:108
 #: src/templates/admin/repository/supp_files_body.html:53
 #, fuzzy
 #| msgid "Supplementary Files"
 msgid "Add New Supplementary File"
 msgstr "File supplementari"
 
-#: src/templates/admin/repository/submit/files.html:57
+#: src/templates/admin/repository/submit/files.html:60
 msgid ""
 "If you want to change this file you can upload a new one and it will be "
 "overwritten."
 msgstr ""
 
-#: src/templates/admin/repository/submit/files.html:90
+#: src/templates/admin/repository/submit/files.html:93
 msgid "Complete Step 3 of 3"
 msgstr ""
+
+#: src/templates/admin/repository/submit/files.html:120
+#, fuzzy
+#| msgid "Sections submission information"
+msgid "Submission Information"
+msgstr "Informazione per l'invio delle sezioni"
 
 #: src/templates/admin/repository/submit/review.html:8
 #, fuzzy
@@ -1727,7 +1762,7 @@ msgid ""
 "show the oldest request first."
 msgstr ""
 
-#: src/templates/admin/review/add_review_assignment.html:28
+#: src/templates/admin/review/add_review_assignment.html:27
 msgid ""
 "\n"
 "                        You can select a reviewer using the radio buttons in "
@@ -1746,11 +1781,11 @@ msgid ""
 "to the author:"
 msgstr ""
 
-#: src/templates/admin/review/decision_helper.html:98
+#: src/templates/admin/review/decision_helper.html:101
 msgid "Review is visible to the author:"
 msgstr ""
 
-#: src/templates/admin/review/decision_helper.html:109
+#: src/templates/admin/review/decision_helper.html:112
 #, fuzzy
 #| msgid "Note"
 msgid "No"
@@ -1771,14 +1806,14 @@ msgid "assign an editor"
 msgstr ""
 
 #: src/templates/admin/review/in_review.html:41
-#: src/templates/admin/review/unassigned_article.html:287
+#: src/templates/admin/review/unassigned_article.html:288
 msgid ""
 "This paper has not had an automatic plagiarism check. If you wish to do so "
 "you can run a"
 msgstr ""
 
 #: src/templates/admin/review/in_review.html:41
-#: src/templates/admin/review/unassigned_article.html:287
+#: src/templates/admin/review/unassigned_article.html:288
 msgid "Similarity Check via iThenticate"
 msgstr ""
 
@@ -1791,7 +1826,7 @@ msgid ""
 "                                            "
 msgstr ""
 
-#: src/templates/admin/review/in_review.html:200
+#: src/templates/admin/review/in_review.html:217
 msgid ""
 "\n"
 "                                The latest manuscript and figure files for "
@@ -1800,7 +1835,7 @@ msgid ""
 "                                "
 msgstr ""
 
-#: src/templates/admin/review/in_review.html:270
+#: src/templates/admin/review/in_review.html:287
 msgid "Move to Next Stage"
 msgstr ""
 
@@ -1814,34 +1849,50 @@ msgstr "A cosa serve?"
 
 #: src/templates/admin/review/projected_issue.html:31
 msgid ""
-"The projected issue setting helps you track which issue an article is "
-"intended to be published with."
+"The projected issue field can be used internally to keep track of plans and "
+"communicate with typesetters, without affecting issue assignment or "
+"displaying anything publicly. It is helpful for journals that add articles "
+"to issues on a rolling basis and publish them individually."
 msgstr ""
-"Questa opzione ti permette di scegliere la pubblicazione in cui l'articolo "
-"verrà pubblicato."
 
 #: src/templates/admin/review/projected_issue.html:32
+msgid ""
+"You can assign articles directly to issues in the prepublication stage or "
+"through "
+msgstr ""
+
+#: src/templates/admin/review/projected_issue.html:32
+msgid "issue management"
+msgstr ""
+
+#: src/templates/admin/review/projected_issue.html:33
 msgid "How does it work?"
 msgstr "Come funziona?"
 
-#: src/templates/admin/review/projected_issue.html:33
+#: src/templates/admin/review/projected_issue.html:34
+#, fuzzy
+#| msgid ""
+#| "Select an issue from the drop down on the left and press save, this "
+#| "articles projected issue will now be set."
 msgid ""
-"Select an issue from the drop down on the left and press save, this articles "
-"projected issue will now be set."
+"Select an issue from the drop down on the left and press save. This "
+"article's projected issue will now be set."
 msgstr ""
 "Seleziona una pubblicazione dal menù a sinistra e clicca \"Salva\". "
 "L'articolo verrà pubblicato nella pubblicazione selezionata."
 
-#: src/templates/admin/review/projected_issue.html:34
+#: src/templates/admin/review/projected_issue.html:35
 msgid "Can I unset a projected issue?"
 msgstr "Posso rimuovere la pubblicazione selezionata?"
 
-#: src/templates/admin/review/projected_issue.html:35
-msgid "Yes, simply select the blank option (-------) from the drop down."
+#: src/templates/admin/review/projected_issue.html:36
+#, fuzzy
+#| msgid "Yes, simply select the blank option (-------) from the drop down."
+msgid "Yes, you can select the blank option (-------) from the dropdown."
 msgstr ""
 "Sì, seleziona semplicemente l'opzione vuota (-------) nel menù a discesa"
 
-#: src/templates/admin/review/revision/do_revision.html:106
+#: src/templates/admin/review/revision/do_revision.html:125
 msgid ""
 "When you have completed your revisions and finished writing your covering "
 "letter, click the 'Submit Revisions' button below to finish. Please note "
@@ -1849,23 +1900,23 @@ msgid ""
 "revisions once you click 'Submit Revisions'"
 msgstr ""
 
-#: src/templates/admin/review/unassigned_article.html:116
+#: src/templates/admin/review/unassigned_article.html:117
 msgid "Assign"
 msgstr "Assegna"
 
-#: src/templates/admin/review/unassigned_article.html:116
+#: src/templates/admin/review/unassigned_article.html:117
 msgid "Projected Issue"
 msgstr "Seleziona una pubblicazione"
 
-#: src/templates/admin/review/unassigned_article.html:121
+#: src/templates/admin/review/unassigned_article.html:122
 msgid "This article is projected to be published as part of"
 msgstr "Questo articolo verrà pubblicato in"
 
-#: src/templates/admin/review/unassigned_article.html:123
+#: src/templates/admin/review/unassigned_article.html:124
 msgid "This article is not projected to be published as part of any issue."
 msgstr "La pubblicazione di cui l'articolo farà parte non è stata selezionata."
 
-#: src/templates/admin/review/unassigned_article.html:136
+#: src/templates/admin/review/unassigned_article.html:137
 msgid ""
 "To check an article for possible plagiarism, you can send an article for an "
 "automated Similarity Check via iThenticate by clicking Send below. The "
@@ -1936,75 +1987,67 @@ msgid "Access Code"
 msgstr ""
 
 #: src/templates/admin/review/view_review.html:55
-#, fuzzy
-#| msgid "Versions"
-msgid "Decision"
-msgstr "Versioni"
+msgid "Recommendation"
+msgstr ""
 
-#: src/templates/admin/review/view_review.html:56
-#, fuzzy
-#| msgid "Complete"
-msgid "Completed"
-msgstr "Completa"
-
-#: src/templates/admin/review/view_review.html:59
+#: src/templates/admin/review/view_review.html:58
 #, fuzzy
 #| msgid "Peer Reviewed"
 msgid "Email peer reviewer"
 msgstr "Peer reviewed"
 
-#: src/templates/admin/review/view_review.html:63
+#: src/templates/admin/review/view_review.html:62
 msgid "Withdrawn"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:64
-#: src/themes/material/templates/journal/article.html:360
+#: src/templates/admin/review/view_review.html:63
+#: src/themes/material/templates/journal/article.html:394
 msgid "Accepted"
 msgstr "Accettato"
 
-#: src/templates/admin/review/view_review.html:66
+#: src/templates/admin/review/view_review.html:65
 msgid "Awaiting acknowledgement"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:81
+#: src/templates/admin/review/view_review.html:79
 msgid "Summary of Review"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:85
+#: src/templates/admin/review/view_review.html:83
 msgid "No review was undertaken."
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:91
+#: src/templates/admin/review/view_review.html:89
 #, fuzzy
 #| msgid "Review"
 msgid "Review File"
 msgstr "Revisione"
 
-#: src/templates/admin/review/view_review.html:106
+#: src/templates/admin/review/view_review.html:104
 #, fuzzy
 #| msgid "Edit Issue"
 msgid "Edited Answer"
 msgstr "Modifica pubblicazione"
 
-#: src/templates/admin/review/view_review.html:124
+#: src/templates/admin/review/view_review.html:122
 msgid "Reset"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:135
+#: src/templates/admin/review/view_review.html:133
 #, fuzzy
 #| msgid "Comments to the Editor"
 msgid "Comments for the Editor"
 msgstr "Commenti per l'editore"
 
-#: src/templates/admin/review/view_review.html:151
+#: src/templates/admin/review/view_review.html:149
 msgid "Review Availability Controls"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:157
+#: src/templates/admin/review/view_review.html:155
 msgid "Review Visibility"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:162
+#: src/templates/admin/review/view_review.html:160
 #, python-format
 msgid ""
 "\n"
@@ -2015,11 +2058,11 @@ msgid ""
 "                                        "
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:175
+#: src/templates/admin/review/view_review.html:173
 msgid "Answer Visibility"
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:179
+#: src/templates/admin/review/view_review.html:177
 msgid ""
 "\n"
 "                                                The toggles below control "
@@ -2032,13 +2075,13 @@ msgid ""
 "                                            "
 msgstr ""
 
-#: src/templates/admin/review/view_review.html:204
+#: src/templates/admin/review/view_review.html:202
 #, fuzzy
 #| msgid "Peer Reviewed"
 msgid "Suggested Reviewers"
 msgstr "Peer reviewed"
 
-#: src/templates/admin/submission/edit/metadata.html:173
+#: src/templates/admin/submission/edit/metadata.html:178
 msgid ""
 "\n"
 "                            You can search the <a href=\"https://www."
@@ -2112,15 +2155,11 @@ msgid "Copyright Notice"
 msgstr "Avviso sul copyright"
 
 #: src/templates/admin/submission/start.html:66
-#: src/themes/OLH/templates/journal/article.html:384
-#: src/themes/clean/templates/journal/article.html:214
-#: src/themes/material/templates/journal/article.html:388
+#: src/themes/OLH/templates/journal/article.html:430
+#: src/themes/clean/templates/journal/article.html:255
+#: src/themes/material/templates/journal/article.html:424
 msgid "Competing Interests"
 msgstr "Conflitto di interessi"
-
-#: src/templates/admin/submission/start.html:75
-msgid "Comments to the Editor"
-msgstr "Commenti per l'editore"
 
 #: src/templates/admin/submission/submit_authors.html:5
 #: src/templates/admin/submission/timeline.html:20
@@ -2151,18 +2190,21 @@ msgstr "Cerca per indirizzo email o ORDi"
 
 #: src/templates/admin/submission/submit_authors.html:35
 #: src/themes/OLH/templates/core/base.html:145
-#: src/themes/OLH/templates/journal/full-text-search.html:7
-#: src/themes/OLH/templates/journal/full-text-search.html:9
-#: src/themes/OLH/templates/journal/full-text-search.html:44
+#: src/themes/OLH/templates/journal/full-text-search.html:8
+#: src/themes/OLH/templates/journal/full-text-search.html:10
+#: src/themes/OLH/templates/journal/full-text-search.html:70
 #: src/themes/OLH/templates/journal/search.html:8
 #: src/themes/OLH/templates/repository/authors.html:37
-#: src/themes/clean/templates/journal/full-text-search.html:7
-#: src/themes/clean/templates/journal/full-text-search.html:9
+#: src/themes/clean/templates/journal/article_list.html:50
+#: src/themes/clean/templates/journal/full-text-search.html:8
+#: src/themes/clean/templates/journal/full-text-search.html:10
 #: src/themes/clean/templates/journal/search.html:7
 #: src/themes/clean/templates/journal/search.html:9
+#: src/themes/clean/templates/journal/search.html:63
+#: src/themes/material/templates/journal/article_list.html:58
 #: src/themes/material/templates/journal/articles.html:68
-#: src/themes/material/templates/journal/full-text-search.html:9
-#: src/themes/material/templates/journal/full-text-search.html:11
+#: src/themes/material/templates/journal/full-text-search.html:8
+#: src/themes/material/templates/journal/full-text-search.html:10
 #: src/themes/material/templates/journal/new_search.html:7
 #: src/themes/material/templates/journal/new_search.html:42
 #: src/themes/material/templates/journal/search.html:7
@@ -2224,7 +2266,7 @@ msgstr "Carica"
 
 #: src/templates/admin/submission/submit_files.html:41
 #: src/templates/admin/submission/submit_files.html:81
-#: src/templates/admin/submission/submit_review.html:130
+#: src/templates/admin/submission/submit_review.html:121
 #: src/themes/OLH/templates/repository/review.html:75
 #: src/themes/OLH/templates/repository/review.html:94
 #: src/themes/OLH/templates/repository/submit_files.html:39
@@ -2243,7 +2285,7 @@ msgstr "Nessun file caricato"
 
 #: src/templates/admin/submission/submit_funding.html:7
 #: src/templates/admin/submission/submit_info.html:6
-#: src/templates/admin/submission/submit_review.html:52
+#: src/templates/admin/submission/submit_review.html:43
 #: src/themes/OLH/templates/repository/review.html:22
 msgid "Article Info"
 msgstr "Informazioni sull'articolo"
@@ -2251,8 +2293,9 @@ msgstr "Informazioni sull'articolo"
 #: src/templates/admin/submission/submit_funding.html:16
 #: src/templates/admin/submission/timeline.html:36
 #: src/templates/admin/submission/timeline.html:37
-#: src/themes/OLH/templates/journal/article.html:214
-#: src/themes/material/templates/journal/article.html:139
+#: src/themes/OLH/templates/journal/article.html:231
+#: src/themes/clean/templates/journal/article.html:123
+#: src/themes/material/templates/journal/article.html:151
 msgid "Funding"
 msgstr "Finanziamento"
 
@@ -2280,19 +2323,6 @@ msgstr "Numero del fondo di finanziamento"
 msgid "No funders added."
 msgstr "Nessun finanziatore aggiunto."
 
-#: src/templates/admin/submission/submit_funding.html:99
-msgid "Funder DOI"
-msgstr "DOI del finanziatore"
-
-#: src/templates/admin/submission/submit_funding.html:99
-#: src/templates/admin/submission/submit_funding.html:105
-msgid "(optional)"
-msgstr "(facoltativo)"
-
-#: src/templates/admin/submission/submit_funding.html:105
-msgid "Funder grant number"
-msgstr "Numero del fondo del finanziatore"
-
 #: src/templates/admin/submission/submit_info.html:16
 msgid "This article is a preprint"
 msgstr "Questo articolo è un preprint"
@@ -2302,28 +2332,28 @@ msgid "View license information"
 msgstr "Visualizza le informazioni sulla licenza"
 
 #: src/templates/admin/submission/submit_info.html:67
-#: src/themes/OLH/templates/journal/article.html:175
+#: src/themes/OLH/templates/journal/article.html:178
 #: src/themes/OLH/templates/journal/keywords.html:6
 #: src/themes/OLH/templates/journal/keywords.html:12
 #: src/themes/OLH/templates/journal/print.html:33
 #: src/themes/OLH/templates/journal/search.html:40
 #: src/themes/OLH/templates/repository/list.html:68
 #: src/themes/OLH/templates/repository/search.html:53
-#: src/themes/clean/templates/journal/article.html:81
-#: src/themes/clean/templates/journal/full-text-search.html:43
+#: src/themes/clean/templates/journal/article.html:82
+#: src/themes/clean/templates/journal/full-text-search.html:44
 #: src/themes/clean/templates/journal/keywords.html:4
 #: src/themes/clean/templates/journal/keywords.html:5
 #: src/themes/clean/templates/journal/print.html:33
 #: src/themes/clean/templates/journal/search.html:46
-#: src/themes/material/templates/journal/article.html:80
-#: src/themes/material/templates/journal/full-text-search.html:54
+#: src/themes/material/templates/journal/article.html:81
+#: src/themes/material/templates/journal/full-text-search.html:46
 #: src/themes/material/templates/journal/keywords.html:4
 #: src/themes/material/templates/journal/keywords.html:5
 #: src/themes/material/templates/journal/keywords.html:8
 #: src/themes/material/templates/journal/search.html:50
 #: src/themes/material/templates/preprints/list.html:79
 #: src/themes/material/templates/repository/list.html:60
-#: src/themes/material/templates/repository/preprint.html:100
+#: src/themes/material/templates/repository/preprint.html:172
 msgid "Keywords"
 msgstr "Parole chiave"
 
@@ -2335,72 +2365,66 @@ msgstr "Informazioni sulla licenza"
 msgid "allows the following licenses for submission"
 msgstr "consente le seguenti licenze per l'invio"
 
-#: src/templates/admin/submission/submit_review.html:24
+#: src/templates/admin/submission/submit_review.html:21
 msgid ""
 "Please review your submission use the details below. If you need to make "
 "changes use the links above to move back along the submission steps. You "
-"must click the Complete Submission button at the foot of this page to "
-"complete the submission process, you will then receive a receipt email. "
+"must click the <strong>Complete Submission</strong> button at the foot of "
+"this page to complete the submission process, you will then receive a "
+"receipt email. "
 msgstr ""
 
-#: src/templates/admin/submission/submit_review.html:47
-#: src/themes/OLH/templates/repository/review.html:18
-msgid "Comments to Editor"
-msgstr "Commenti per l'editor"
-
-#: src/templates/admin/submission/submit_review.html:68
-#: src/themes/OLH/templates/journal/article.html:172
+#: src/templates/admin/submission/submit_review.html:59
+#: src/themes/OLH/templates/journal/article.html:175
 #: src/themes/OLH/templates/journal/print.html:30
 #: src/themes/OLH/templates/repository/article.html:39
 #: src/themes/OLH/templates/repository/review.html:31
-#: src/themes/clean/templates/journal/article.html:77
+#: src/themes/clean/templates/journal/article.html:78
 #: src/themes/clean/templates/journal/print.html:30
-#: src/themes/material/templates/journal/article.html:72
+#: src/themes/material/templates/journal/article.html:73
 #: src/themes/material/templates/preprints/article.html:43
-#: src/themes/material/templates/repository/preprint.html:85
+#: src/themes/material/templates/repository/preprint.html:157
 msgid "Abstract"
 msgstr "Abstract"
 
-#: src/templates/admin/submission/submit_review.html:77
+#: src/templates/admin/submission/submit_review.html:68
 #: src/themes/OLH/templates/repository/review.html:37
 msgid "Language"
 msgstr "Lingua"
 
-#: src/templates/admin/submission/submit_review.html:79
-#: src/themes/OLH/templates/repository/review.html:38
-#: src/themes/clean/templates/elements/sections_block.html:7
-msgid "Section"
-msgstr "Sezione"
-
-#: src/templates/admin/submission/submit_review.html:81
+#: src/templates/admin/submission/submit_review.html:72
 #: src/themes/OLH/templates/repository/review.html:39
-#: src/themes/material/templates/journal/article.html:377
+#: src/themes/material/templates/journal/article.html:413
 msgid "Licence"
 msgstr "Licenza"
 
-#: src/templates/admin/submission/submit_review.html:103
+#: src/templates/admin/submission/submit_review.html:94
 #: src/themes/OLH/templates/repository/review.html:49
 msgid "Author Info"
 msgstr "Informazioni sull'autore"
 
-#: src/templates/admin/submission/submit_review.html:126
+#: src/templates/admin/submission/submit_review.html:117
 #: src/templates/admin/submission/timeline.html:28
 #: src/templates/admin/submission/timeline.html:29
 #: src/themes/OLH/templates/repository/review.html:68
 msgid "Article Files"
 msgstr "File degli articoli"
 
-#: src/templates/admin/submission/submit_review.html:154
+#: src/templates/admin/submission/submit_review.html:146
+msgid "Comments to the Editor"
+msgstr "Commenti per l'editore"
+
+#: src/templates/admin/submission/submit_review.html:155
 #: src/themes/OLH/templates/repository/review.html:111
 msgid "Complete"
 msgstr "Completa"
 
-#: src/templates/admin/submission/submit_review.html:154
+#: src/templates/admin/submission/submit_review.html:155
 #: src/themes/OLH/templates/core/nav.html:40
 #: src/themes/OLH/templates/repository/review.html:111
 #: src/themes/clean/templates/core/nav.html:47
 #: src/themes/material/templates/core/nav.html:39
-#: src/themes/material/templates/core/nav.html:85
+#: src/themes/material/templates/core/nav.html:100
 msgid "Submission"
 msgstr "Proposta"
 
@@ -2413,16 +2437,6 @@ msgstr "Proposta iniziata"
 msgid "Article Information"
 msgstr "Informazioni sull'articolo"
 
-#: src/templates/common/elements/hijack-notification.html:6
-#, python-format
-msgid "You are currently working on behalf of %(user)s."
-msgstr "Attualmente stai lavorando per conto di %(user)s."
-
-#: src/templates/common/elements/hijack-notification.html:10
-#, python-format
-msgid "release %(user)s"
-msgstr "rilascia %(user)s"
-
 #: src/templates/common/elements/journal/article_issue_list.html:4
 #: src/themes/OLH/templates/core/nav.html:25
 #: src/themes/OLH/templates/journal/issues.html:7
@@ -2430,10 +2444,19 @@ msgstr "rilascia %(user)s"
 #: src/themes/clean/templates/core/nav.html:24
 #: src/themes/clean/templates/journal/issues.html:6
 #: src/themes/material/templates/core/nav.html:33
-#: src/themes/material/templates/core/nav.html:79
+#: src/themes/material/templates/core/nav.html:94
 #: src/themes/material/templates/journal/issues.html:6
 msgid "Issues"
 msgstr "Pubblicazioni"
+
+#: src/templates/common/elements/journal/article_issue_list.html:4
+#: src/themes/OLH/templates/403.html:4
+#: src/themes/OLH/templates/journal/issue.html:9
+#: src/themes/clean/templates/journal/issue.html:8
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:8
+#: src/themes/material/templates/journal/issue.html:8
+msgid "Issue"
+msgstr "Pubblicazione"
 
 #: src/templates/common/elements/journal/article_issue_list.html:10
 msgid "Primary: "
@@ -2443,17 +2466,32 @@ msgstr ""
 msgid "This article is not a part of any issues"
 msgstr "Questo articolo non è parte di alcuna pubblicazione."
 
-#: src/themes/OLH/templates/403.html:17
+#: src/templates/common/elements/sorting.html:7
+#: src/themes/clean/templates/elements/sorting.html:7
+#: src/themes/material/templates/elements/sorting.html:7
+#, python-format
+msgid ""
+"\n"
+"                    1 result\n"
+"                "
+msgid_plural ""
+"\n"
+"                    %(result_count)s results\n"
+"                "
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/themes/OLH/templates/403.html:16
 msgid "Permission Denied"
 msgstr "Permesso negato"
 
-#: src/themes/OLH/templates/404.html:10 src/themes/clean/templates/404.html:13
-#: src/themes/material/templates/404.html:10
+#: src/themes/OLH/templates/404.html:9 src/themes/clean/templates/404.html:12
+#: src/themes/material/templates/404.html:9
 msgid "Page Not Found"
 msgstr "Pagina non trovata"
 
-#: src/themes/OLH/templates/404.html:11 src/themes/clean/templates/404.html:14
-#: src/themes/material/templates/404.html:11
+#: src/themes/OLH/templates/404.html:10 src/themes/clean/templates/404.html:13
+#: src/themes/material/templates/404.html:10
 msgid "Sorry, the page you were looking for was not found."
 msgstr "Siamo spiacenti, la pagina che stavi cercando non è stata trovata."
 
@@ -2461,12 +2499,12 @@ msgstr "Siamo spiacenti, la pagina che stavi cercando non è stata trovata."
 #: src/themes/clean/templates/500.html:11
 #: src/themes/clean/templates/500.html:26
 #: src/themes/material/templates/500.html:9
-#: src/themes/material/templates/500.html:22
+#: src/themes/material/templates/500.html:24
 msgid "Server Error"
 msgstr "Errore del server"
 
 #: src/themes/OLH/templates/500.html:29
-#: src/themes/material/templates/500.html:23
+#: src/themes/material/templates/500.html:25
 msgid "A server error has occurred"
 msgstr ""
 
@@ -2575,10 +2613,10 @@ msgstr "Hai dimenticato la password?"
 #: src/themes/clean/templates/core/accounts/public_profile.html:4
 #: src/themes/clean/templates/core/nav.html:98
 #: src/themes/material/templates/core/accounts/public_profile.html:5
-#: src/themes/material/templates/core/nav.html:132
-#: src/themes/material/templates/core/nav.html:167
-#: src/themes/material/templates/press/nav.html:89
-#: src/themes/material/templates/press/nav.html:100
+#: src/themes/material/templates/core/nav.html:165
+#: src/themes/material/templates/core/nav.html:200
+#: src/themes/material/templates/press/nav.html:135
+#: src/themes/material/templates/press/nav.html:146
 msgid "Profile"
 msgstr "Profilo"
 
@@ -2594,111 +2632,109 @@ msgstr "Ruoli"
 msgid "Publications"
 msgstr "Pubblicazioni"
 
-#: src/themes/OLH/templates/core/accounts/register.html:30
-#: src/themes/clean/templates/core/accounts/register.html:22
-#: src/themes/material/templates/core/accounts/register.html:20
+#: src/themes/OLH/templates/core/accounts/register.html:25
+#: src/themes/clean/templates/core/accounts/register.html:17
+#: src/themes/material/templates/core/accounts/register.html:15
 #, fuzzy
 #| msgid "Register for"
 msgid "Register for an"
 msgstr "Registrati per"
 
-#: src/themes/OLH/templates/core/accounts/register.html:30
-#: src/themes/clean/templates/core/accounts/register.html:22
-#: src/themes/material/templates/core/accounts/register.html:20
+#: src/themes/OLH/templates/core/accounts/register.html:25
+#: src/themes/clean/templates/core/accounts/register.html:17
+#: src/themes/material/templates/core/accounts/register.html:15
 #, fuzzy
 #| msgid "Account"
 msgid "account"
 msgstr "Account"
 
-#: src/themes/OLH/templates/core/accounts/register.html:31
+#: src/themes/OLH/templates/core/accounts/register.html:26
 #: src/themes/OLH/templates/core/accounts/reset_password.html:27
-#: src/themes/clean/templates/core/accounts/register.html:23
+#: src/themes/clean/templates/core/accounts/register.html:18
 #: src/themes/clean/templates/core/accounts/reset_password.html:17
-#: src/themes/material/templates/core/accounts/register.html:25
+#: src/themes/material/templates/core/accounts/register.html:20
 #: src/themes/material/templates/core/accounts/reset_password.html:17
 #, fuzzy
 #| msgid "Password Guide"
 msgid "Password Rules"
 msgstr "Guida password"
 
-#: src/themes/OLH/templates/core/accounts/register.html:33
-#: src/themes/OLH/templates/core/accounts/reset_password.html:29
-#: src/themes/clean/templates/core/accounts/register.html:25
-#: src/themes/clean/templates/core/accounts/reset_password.html:19
-#: src/themes/material/templates/core/accounts/register.html:27
+#: src/themes/OLH/templates/core/accounts/register.html:28
+#: src/themes/clean/templates/core/accounts/register.html:20
+#: src/themes/material/templates/core/accounts/register.html:22
+#: src/themes/material/templates/core/accounts/reset_password.html:19
 #, python-format
-msgid ""
-"Your password should be %(request.press.password_length)s characters long."
+msgid "Your password should be %(password_length)s characters long."
 msgstr ""
 
-#: src/themes/OLH/templates/core/accounts/register.html:34
+#: src/themes/OLH/templates/core/accounts/register.html:29
 #: src/themes/OLH/templates/core/accounts/reset_password.html:30
-#: src/themes/clean/templates/core/accounts/register.html:26
+#: src/themes/clean/templates/core/accounts/register.html:21
 #: src/themes/clean/templates/core/accounts/reset_password.html:20
-#: src/themes/material/templates/core/accounts/register.html:28
+#: src/themes/material/templates/core/accounts/register.html:23
 #: src/themes/material/templates/core/accounts/reset_password.html:20
 msgid "Your password should contain at least one upper case letter.\""
 msgstr ""
 
-#: src/themes/OLH/templates/core/accounts/register.html:35
+#: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/OLH/templates/core/accounts/reset_password.html:31
-#: src/themes/clean/templates/core/accounts/register.html:27
+#: src/themes/clean/templates/core/accounts/register.html:22
 #: src/themes/clean/templates/core/accounts/reset_password.html:21
-#: src/themes/material/templates/core/accounts/register.html:29
+#: src/themes/material/templates/core/accounts/register.html:24
 #: src/themes/material/templates/core/accounts/reset_password.html:21
 #, python-format
 msgid "Your password should contain at least one number.\" %%}"
 msgstr ""
 
-#: src/themes/OLH/templates/core/accounts/register.html:37
+#: src/themes/OLH/templates/core/accounts/register.html:32
 msgid ""
 "For more information read our <a href=\"#\" data-open=\"password-modal"
 "\">password guide</a>."
 msgstr ""
 
-#: src/themes/OLH/templates/core/accounts/register.html:88
-#: src/themes/clean/templates/core/accounts/register.html:32
-#: src/themes/material/templates/core/accounts/register.html:38
+#: src/themes/OLH/templates/core/accounts/register.html:83
+#: src/themes/clean/templates/core/accounts/register.html:27
+#: src/themes/material/templates/core/accounts/register.html:33
 msgid "By registering an account you agree to our"
 msgstr "Registrando un account accetti il ​​nostro"
 
-#: src/themes/OLH/templates/core/accounts/register.html:90
-#: src/themes/OLH/templates/core/accounts/register.html:92
-#: src/themes/OLH/templates/elements/journal_footer.html:12
-#: src/themes/OLH/templates/elements/journal_footer.html:14
+#: src/themes/OLH/templates/core/accounts/register.html:85
+#: src/themes/OLH/templates/core/accounts/register.html:87
+#: src/themes/OLH/templates/elements/journal_footer.html:25
+#: src/themes/OLH/templates/elements/journal_footer.html:27
 #: src/themes/OLH/templates/press/elements/press_footer.html:9
 #: src/themes/OLH/templates/press/elements/press_footer.html:11
-#: src/themes/clean/templates/core/accounts/register.html:34
-#: src/themes/clean/templates/core/accounts/register.html:36
-#: src/themes/clean/templates/elements/journal_footer.html:20
-#: src/themes/clean/templates/elements/journal_footer.html:24
+#: src/themes/clean/templates/core/accounts/register.html:29
+#: src/themes/clean/templates/core/accounts/register.html:31
+#: src/themes/clean/templates/elements/journal_footer.html:33
+#: src/themes/clean/templates/elements/journal_footer.html:37
 #: src/themes/clean/templates/elements/press_footer.html:11
 #: src/themes/clean/templates/elements/press_footer.html:14
-#: src/themes/material/templates/core/accounts/register.html:40
-#: src/themes/material/templates/core/accounts/register.html:42
-#: src/themes/material/templates/elements/journal_footer.html:12
+#: src/themes/material/templates/core/accounts/register.html:35
+#: src/themes/material/templates/core/accounts/register.html:37
+#: src/themes/material/templates/elements/journal_footer.html:28
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
-#: src/themes/OLH/templates/core/accounts/register.html:111
+#: src/themes/OLH/templates/core/accounts/register.html:106
 #: src/themes/OLH/templates/core/accounts/reset_password.html:48
-#: src/themes/material/templates/core/accounts/register.html:58
+#: src/themes/material/templates/core/accounts/register.html:53
 #: src/themes/material/templates/core/accounts/reset_password.html:41
 msgid "Password Guide"
 msgstr "Guida password"
 
-#: src/themes/OLH/templates/core/accounts/register.html:112
+#: src/themes/OLH/templates/core/accounts/register.html:107
 #: src/themes/OLH/templates/core/accounts/reset_password.html:49
 #: src/themes/clean/templates/core/accounts/reset_password.html:49
-#: src/themes/material/templates/core/accounts/register.html:59
+#: src/themes/material/templates/core/accounts/register.html:54
 #: src/themes/material/templates/core/accounts/reset_password.html:42
 msgid "When it comes to passwords, length is better than complexity."
 msgstr ""
 "Quando si tratta di password, la lunghezza è preferibile alla complessità."
 
-#: src/themes/OLH/templates/core/accounts/register.html:113
+#: src/themes/OLH/templates/core/accounts/register.html:108
 #: src/themes/OLH/templates/core/accounts/reset_password.html:50
-#: src/themes/material/templates/core/accounts/register.html:60
+#: src/themes/material/templates/core/accounts/register.html:55
 #: src/themes/material/templates/core/accounts/reset_password.html:43
 msgid ""
 "Its a common myth that a short and complex password (Jfjfy&65^87) is more "
@@ -2708,7 +2744,7 @@ msgstr ""
 "più sicura di una password lunga e semplice (le nostre fantastiche rocce "
 "dalla base lunare)."
 
-#: src/themes/OLH/templates/core/accounts/register.html:114
+#: src/themes/OLH/templates/core/accounts/register.html:109
 #: src/themes/OLH/templates/core/accounts/reset_password.html:51
 msgid ""
 "We recommend selecting a long, but easy to remember password such as our "
@@ -2741,8 +2777,15 @@ msgstr ""
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
 
+#: src/themes/OLH/templates/core/accounts/reset_password.html:29
+#: src/themes/clean/templates/core/accounts/reset_password.html:19
+#, python-format
+msgid ""
+"Your password should be %(request.press.password_length)s characters long."
+msgstr ""
+
 #: src/themes/OLH/templates/core/accounts/reset_password.html:33
-#: src/themes/material/templates/core/accounts/register.html:31
+#: src/themes/material/templates/core/accounts/register.html:26
 msgid ""
 "For more information read our\n"
 "                        <a href=\"#passwordmodal\" class=\"modal-trigger"
@@ -2756,47 +2799,47 @@ msgstr ""
 #: src/themes/OLH/templates/press/press_index.html:5
 #: src/themes/clean/templates/core/nav.html:16
 #: src/themes/material/templates/core/nav.html:24
-#: src/themes/material/templates/core/nav.html:70
-#: src/themes/material/templates/press/nav.html:18
-#: src/themes/material/templates/press/nav.html:51
+#: src/themes/material/templates/core/nav.html:85
+#: src/themes/material/templates/press/nav.html:19
+#: src/themes/material/templates/press/nav.html:72
 #: src/themes/material/templates/repository/nav.html:18
-#: src/themes/material/templates/repository/nav.html:35
+#: src/themes/material/templates/repository/nav.html:42
 msgid "Home"
 msgstr "Home"
 
-#: src/themes/OLH/templates/core/login.html:32
+#: src/themes/OLH/templates/core/login.html:27
 #: src/themes/OLH/templates/press/core/login.html:25
-#: src/themes/clean/templates/core/login.html:19
+#: src/themes/clean/templates/core/login.html:14
 msgid "Log in with your account"
 msgstr "Accedi con il tuo account"
 
-#: src/themes/OLH/templates/core/login.html:33
-#: src/themes/clean/templates/core/login.html:21
-#: src/themes/material/templates/core/login.html:23
+#: src/themes/OLH/templates/core/login.html:28
+#: src/themes/clean/templates/core/login.html:16
+#: src/themes/material/templates/core/login.html:18
 msgid "Log in with ORCiD"
 msgstr "Accedi con ORCiD"
 
-#: src/themes/OLH/templates/core/login.html:36
+#: src/themes/OLH/templates/core/login.html:31
 #: src/themes/OLH/templates/press/core/login.html:28
-#: src/themes/clean/templates/core/login.html:25
-#: src/themes/material/templates/core/login.html:27
+#: src/themes/clean/templates/core/login.html:20
+#: src/themes/material/templates/core/login.html:22
 #, fuzzy
 #| msgid "Login with ORCiD"
 msgid "Login with"
 msgstr "Accedi con ORCiD"
 
-#: src/themes/OLH/templates/core/login.html:48
-#: src/themes/clean/templates/core/login.html:45
+#: src/themes/OLH/templates/core/login.html:43
+#: src/themes/clean/templates/core/login.html:40
 msgid "Log in"
 msgstr "Accedi"
 
-#: src/themes/OLH/templates/core/login.html:49
-#: src/themes/clean/templates/core/login.html:49
+#: src/themes/OLH/templates/core/login.html:44
+#: src/themes/clean/templates/core/login.html:44
 msgid "Forgotten your password?"
 msgstr "Hai dimenticato la password?"
 
-#: src/themes/OLH/templates/core/login.html:50
-#: src/themes/clean/templates/core/login.html:53
+#: src/themes/OLH/templates/core/login.html:45
+#: src/themes/clean/templates/core/login.html:48
 msgid "Register a new account"
 msgstr "Crea un nuovo account"
 
@@ -2810,7 +2853,7 @@ msgstr "Crea un nuovo account"
 #: src/themes/clean/templates/journal/editorial_team.html:4
 #: src/themes/clean/templates/journal/editorial_team.html:9
 #: src/themes/material/templates/core/nav.html:36
-#: src/themes/material/templates/core/nav.html:82
+#: src/themes/material/templates/core/nav.html:97
 #: src/themes/material/templates/journal/editorial_team.html:11
 #: src/themes/material/templates/preprints/editors.html:5
 #: src/themes/material/templates/preprints/editors.html:6
@@ -2825,7 +2868,7 @@ msgstr "Team editoriale"
 #: src/themes/clean/templates/journal/become_reviewer.html:4
 #: src/themes/clean/templates/journal/become_reviewer.html:5
 #: src/themes/clean/templates/journal/become_reviewer.html:17
-#: src/themes/material/templates/core/nav.html:56
+#: src/themes/material/templates/core/nav.html:64
 #: src/themes/material/templates/journal/become_reviewer.html:4
 #: src/themes/material/templates/journal/become_reviewer.html:5
 #: src/themes/material/templates/journal/become_reviewer.html:10
@@ -2835,21 +2878,21 @@ msgstr "Diventa un revisore"
 
 #: src/themes/OLH/templates/core/nav.html:47
 #: src/themes/OLH/templates/press/nav.html:43
-#: src/themes/material/templates/core/nav.html:60
-#: src/themes/material/templates/core/nav.html:102
-#: src/themes/material/templates/press/nav.html:42
-#: src/themes/material/templates/press/nav.html:70
-#: src/themes/material/templates/repository/nav.html:42
+#: src/themes/material/templates/core/nav.html:73
+#: src/themes/material/templates/core/nav.html:128
+#: src/themes/material/templates/press/nav.html:61
+#: src/themes/material/templates/press/nav.html:109
+#: src/themes/material/templates/repository/nav.html:54
 msgid "Account"
 msgstr "Account"
 
 #: src/themes/OLH/templates/core/nav.html:50
 #: src/themes/OLH/templates/elements/right_hand_menu.html:4
 #: src/themes/clean/templates/core/nav.html:85
-#: src/themes/material/templates/core/nav.html:116
-#: src/themes/material/templates/core/nav.html:137
-#: src/themes/material/templates/repository/nav.html:56
-#: src/themes/material/templates/repository/nav.html:64
+#: src/themes/material/templates/core/nav.html:149
+#: src/themes/material/templates/core/nav.html:170
+#: src/themes/material/templates/repository/nav.html:75
+#: src/themes/material/templates/repository/nav.html:83
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -2860,41 +2903,41 @@ msgstr "Dashboard"
 #: src/themes/clean/templates/core/nav.html:86
 #: src/themes/clean/templates/press/press_journals.html:29
 #: src/themes/clean/templates/press/press_journals.html:36
-#: src/themes/material/templates/core/nav.html:118
-#: src/themes/material/templates/core/nav.html:140
+#: src/themes/material/templates/core/nav.html:151
+#: src/themes/material/templates/core/nav.html:173
 #: src/themes/material/templates/press/press_journals.html:33
 #: src/themes/material/templates/press/press_journals.html:40
 #: src/themes/material/templates/repository/nav.html:22
-#: src/themes/material/templates/repository/nav.html:39
+#: src/themes/material/templates/repository/nav.html:46
 msgid "Submit"
 msgstr "Invia"
 
 #: src/themes/OLH/templates/core/nav.html:56
 #: src/themes/OLH/templates/elements/right_hand_menu.html:5
 #: src/themes/clean/templates/core/nav.html:89
-#: src/themes/material/templates/core/nav.html:120
-#: src/themes/material/templates/core/nav.html:138
+#: src/themes/material/templates/core/nav.html:153
+#: src/themes/material/templates/core/nav.html:171
 msgid "Kanban"
 msgstr "Kanban"
 
 #: src/themes/OLH/templates/core/nav.html:59
 #: src/themes/OLH/templates/elements/right_hand_menu.html:25
 #: src/themes/clean/templates/core/nav.html:92
-#: src/themes/material/templates/core/nav.html:123
-#: src/themes/material/templates/core/nav.html:155
+#: src/themes/material/templates/core/nav.html:156
+#: src/themes/material/templates/core/nav.html:188
 msgid "Edit Article"
 msgstr "Modifica articolo"
 
 #: src/themes/OLH/templates/core/nav.html:62
 #: src/themes/OLH/templates/elements/right_hand_menu.html:28
-#: src/themes/material/templates/core/nav.html:126
-#: src/themes/material/templates/core/nav.html:158
+#: src/themes/material/templates/core/nav.html:159
+#: src/themes/material/templates/core/nav.html:191
 msgid "Edit Issue"
 msgstr "Modifica pubblicazione"
 
 #: src/themes/OLH/templates/core/nav.html:66
 #: src/themes/OLH/templates/elements/right_hand_menu.html:31
-#: src/themes/material/templates/core/nav.html:161
+#: src/themes/material/templates/core/nav.html:194
 msgid "Edit News Item"
 msgstr "Modifica la notizia"
 
@@ -2903,12 +2946,12 @@ msgstr "Modifica la notizia"
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:8
 #: src/themes/OLH/templates/press/nav.html:51
 #: src/themes/clean/templates/core/nav.html:96
-#: src/themes/material/templates/core/nav.html:130
-#: src/themes/material/templates/core/nav.html:165
-#: src/themes/material/templates/press/nav.html:87
-#: src/themes/material/templates/press/nav.html:98
-#: src/themes/material/templates/repository/nav.html:58
-#: src/themes/material/templates/repository/nav.html:66
+#: src/themes/material/templates/core/nav.html:163
+#: src/themes/material/templates/core/nav.html:198
+#: src/themes/material/templates/press/nav.html:133
+#: src/themes/material/templates/press/nav.html:144
+#: src/themes/material/templates/repository/nav.html:77
+#: src/themes/material/templates/repository/nav.html:85
 msgid "Admin"
 msgstr "Admin"
 
@@ -2917,12 +2960,12 @@ msgstr "Admin"
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:13
 #: src/themes/OLH/templates/press/nav.html:55
 #: src/themes/clean/templates/core/nav.html:99
-#: src/themes/material/templates/core/nav.html:133
-#: src/themes/material/templates/core/nav.html:168
-#: src/themes/material/templates/press/nav.html:90
-#: src/themes/material/templates/press/nav.html:101
-#: src/themes/material/templates/repository/nav.html:60
-#: src/themes/material/templates/repository/nav.html:68
+#: src/themes/material/templates/core/nav.html:166
+#: src/themes/material/templates/core/nav.html:201
+#: src/themes/material/templates/press/nav.html:136
+#: src/themes/material/templates/press/nav.html:147
+#: src/themes/material/templates/repository/nav.html:79
+#: src/themes/material/templates/repository/nav.html:87
 msgid "Logout"
 msgstr "Esci"
 
@@ -3151,43 +3194,42 @@ msgstr ""
 msgid "Save Metadata"
 msgstr "Salva i metadati"
 
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:4
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:6
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
-#: src/themes/clean/templates/journal/articles.html:48
+#: src/themes/clean/templates/journal/articles.html:50
 #: src/themes/material/templates/journal/articles.html:82
 msgid "Show"
 msgstr "Mostra"
 
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:14
-#: src/themes/clean/templates/journal/articles.html:58
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:16
+#: src/themes/clean/templates/journal/articles.html:60
 #: src/themes/material/templates/journal/articles.html:85
 msgid "Sort"
 msgstr "Ordina"
 
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:17
-#: src/themes/clean/templates/journal/articles.html:61
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:19
+#: src/themes/clean/templates/journal/articles.html:63
 #: src/themes/material/templates/journal/articles.html:88
 msgid "Date"
 msgstr "Data"
 
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:24
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:32
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:26
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:34
 #: src/themes/OLH/templates/elements/journal/search_form.html:20
 #: src/themes/OLH/templates/press/press_journals.html:93
 #: src/themes/OLH/templates/press/press_journals.html:94
-#: src/themes/clean/templates/journal/articles.html:79
-#: src/themes/clean/templates/journal/full-text-search.html:53
-#: src/themes/clean/templates/journal/search.html:60
+#: src/themes/clean/templates/journal/articles.html:81
+#: src/themes/clean/templates/journal/full-text-search.html:54
 #: src/themes/clean/templates/press/press_journals.html:56
 #: src/themes/material/templates/journal/articles.html:95
 #: src/themes/material/templates/journal/articles.html:106
-#: src/themes/material/templates/journal/full-text-search.html:64
+#: src/themes/material/templates/journal/full-text-search.html:61
 #: src/themes/material/templates/press/press_journals.html:59
 msgid "Filter"
 msgstr "Filtro"
 
-#: src/themes/OLH/templates/elements/journal/article_filter_form.html:34
-#: src/themes/clean/templates/journal/articles.html:82
+#: src/themes/OLH/templates/elements/journal/article_filter_form.html:36
+#: src/themes/clean/templates/journal/articles.html:84
 #: src/themes/material/templates/journal/articles.html:109
 msgid "Clear Filters"
 msgstr "Rimuovi filtri"
@@ -3198,7 +3240,7 @@ msgstr "Rimuovi filtri"
 msgid "and"
 msgstr ""
 
-#: src/themes/OLH/templates/elements/journal/box_article.html:27
+#: src/themes/OLH/templates/elements/journal/box_article.html:30
 #: src/themes/clean/templates/elements/article_listing.html:40
 #: src/themes/material/templates/elements/article_listing.html:41
 msgid "Also a part of:"
@@ -3238,7 +3280,7 @@ msgstr "Sito web"
 
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:4
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:4
-#: src/themes/clean/templates/journal/article.html:242
+#: src/themes/clean/templates/journal/article.html:283
 msgid "Twitter"
 msgstr "Twitter"
 
@@ -3258,14 +3300,14 @@ msgid "Linkedin"
 msgstr "Linkedin"
 
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:7
-#: src/themes/OLH/templates/journal/article.html:237
+#: src/themes/OLH/templates/journal/article.html:265
 #: src/themes/OLH/templates/repository/article.html:116
 #: src/themes/clean/templates/elements/journal/issue_sidebar.html:6
-#: src/themes/clean/templates/journal/article.html:240
+#: src/themes/clean/templates/journal/article.html:281
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:5
-#: src/themes/material/templates/journal/article.html:164
+#: src/themes/material/templates/journal/article.html:188
 #: src/themes/material/templates/preprints/article.html:133
-#: src/themes/material/templates/repository/preprint.html:64
+#: src/themes/material/templates/repository/preprint.html:132
 msgid "Downloads"
 msgstr "Download"
 
@@ -3299,14 +3341,15 @@ msgid "You are currently browsing by keyword"
 msgstr "Stai attualmente visualizzando gli articoli per parola chiave"
 
 #: src/themes/OLH/templates/elements/journal/search_form.html:11
+#: src/themes/clean/templates/journal/article_list.html:36
 msgid "Search for an article"
 msgstr "Cerca un articolo"
 
 #: src/themes/OLH/templates/elements/journal/summary_modal.html:3
-#: src/themes/OLH/templates/journal/article.html:393
-#: src/themes/clean/templates/journal/article.html:209
+#: src/themes/OLH/templates/journal/article.html:439
+#: src/themes/clean/templates/journal/article.html:250
 #: src/themes/material/templates/elements/summary_modal.html:5
-#: src/themes/material/templates/journal/article.html:346
+#: src/themes/material/templates/journal/article.html:380
 msgid "Non Specialist Summary"
 msgstr "Riepilogo non specializzato"
 
@@ -3316,45 +3359,71 @@ msgid "This article has no summary"
 msgstr "Questo articolo non ha un riassunto"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:15
-#: src/themes/material/templates/core/nav.html:145
+#: src/themes/material/templates/core/nav.html:178
 msgid "Edit Submissions Page"
 msgstr "Modifica la pagina per le proposte"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:16
-#: src/themes/material/templates/core/nav.html:146
+#: src/themes/material/templates/core/nav.html:179
 msgid "Edit Journal Info"
 msgstr "Modifica le informazioni sulla rivista"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:19
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:10
-#: src/themes/material/templates/core/nav.html:149
+#: src/themes/material/templates/core/nav.html:182
 msgid "Edit Page"
 msgstr "Modifica la pagina"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:22
-#: src/themes/material/templates/core/nav.html:152
+#: src/themes/material/templates/core/nav.html:185
 msgid "Manage Editorial Team"
 msgstr "Gestisci il team editoriale"
 
-#: src/themes/OLH/templates/elements/section_block.html:7
+#: src/themes/OLH/templates/elements/section_block.html:6
+#: src/themes/clean/templates/elements/sections_block.html:7
+#: src/themes/material/templates/elements/sections_display.html:5
+#, fuzzy
+#| msgid "Your article title"
+msgid "Section or article type"
+msgstr "Il titolo dell'articolo"
+
+#: src/themes/OLH/templates/elements/section_block.html:9
 #: src/themes/clean/templates/elements/sections_block.html:8
-#: src/themes/material/templates/elements/sections_display.html:6
+#: src/themes/material/templates/elements/sections_display.html:8
 msgid "Public Submissions"
 msgstr "Proposte pubbliche"
 
-#: src/themes/OLH/templates/elements/section_block.html:10
-#: src/themes/OLH/templates/journal/article.html:266
+#: src/themes/OLH/templates/elements/section_block.html:12
+#: src/themes/OLH/templates/journal/article.html:300
 #: src/themes/clean/templates/elements/sections_block.html:9
-#: src/themes/clean/templates/journal/article.html:201
-#: src/themes/material/templates/elements/sections_display.html:9
+#: src/themes/clean/templates/journal/article.html:242
+#: src/themes/material/templates/elements/sections_display.html:11
 msgid "Peer Reviewed"
 msgstr "Peer reviewed"
 
-#: src/themes/OLH/templates/elements/section_block.html:13
+#: src/themes/OLH/templates/elements/section_block.html:15
 #: src/themes/clean/templates/elements/sections_block.html:10
-#: src/themes/material/templates/elements/sections_display.html:12
+#: src/themes/material/templates/elements/sections_display.html:14
 msgid "Indexed"
 msgstr "Indicizzato"
+
+#: src/themes/OLH/templates/elements/section_block.html:27
+#: src/themes/OLH/templates/elements/section_block.html:36
+#: src/themes/OLH/templates/elements/section_block.html:45
+#: src/themes/material/templates/elements/sections_display.html:26
+#: src/themes/material/templates/elements/sections_display.html:35
+#: src/themes/material/templates/elements/sections_display.html:44
+msgid "yes"
+msgstr ""
+
+#: src/themes/OLH/templates/elements/section_block.html:29
+#: src/themes/OLH/templates/elements/section_block.html:38
+#: src/themes/OLH/templates/elements/section_block.html:47
+#: src/themes/material/templates/elements/sections_display.html:28
+#: src/themes/material/templates/elements/sections_display.html:37
+#: src/themes/material/templates/elements/sections_display.html:46
+msgid "no"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/submit/file.html:8
 msgid ""
@@ -3418,193 +3487,210 @@ msgstr "Preprint"
 msgid "Article"
 msgstr "Articolo"
 
-#: src/themes/OLH/templates/journal/article.html:27
-#: src/themes/OLH/templates/journal/article.html:63
-#: src/themes/OLH/templates/journal/article.html:156
+#: src/themes/OLH/templates/journal/article.html:28
+#: src/themes/OLH/templates/journal/article.html:64
+#: src/themes/OLH/templates/journal/article.html:159
 #: src/themes/OLH/templates/journal/print.html:15
-#: src/themes/clean/templates/journal/article.html:37
+#: src/themes/clean/templates/journal/article.html:38
 #: src/themes/clean/templates/journal/print.html:15
 msgid "Author"
 msgstr "Autore"
 
-#: src/themes/OLH/templates/journal/article.html:112
-#: src/themes/material/templates/journal/article.html:223
+#: src/themes/OLH/templates/journal/article.html:115
+#: src/themes/material/templates/journal/article.html:250
 msgid "Share"
 msgstr "Condividi"
 
-#: src/themes/OLH/templates/journal/article.html:127
+#: src/themes/OLH/templates/journal/article.html:130
 msgid "Dyslexia"
 msgstr "Dislessia"
 
-#: src/themes/OLH/templates/journal/article.html:131
-#: src/themes/OLH/templates/journal/article.html:132
-#: src/themes/OLH/templates/journal/article.html:133
+#: src/themes/OLH/templates/journal/article.html:134
+#: src/themes/OLH/templates/journal/article.html:135
+#: src/themes/OLH/templates/journal/article.html:136
 #: src/themes/OLH/templates/press/press_journals.html:61
 #: src/themes/OLH/templates/press/press_journals.html:68
-#: src/themes/clean/templates/journal/article.html:162
+#: src/themes/clean/templates/journal/article.html:195
 #: src/themes/clean/templates/press/press_journals.html:32
 #: src/themes/clean/templates/press/press_journals.html:39
-#: src/themes/material/templates/journal/article.html:275
+#: src/themes/material/templates/journal/article.html:303
 #: src/themes/material/templates/press/press_journals.html:36
 #: src/themes/material/templates/press/press_journals.html:43
 msgid "View"
 msgstr "Vista"
 
-#: src/themes/OLH/templates/journal/article.html:177
+#: src/themes/OLH/templates/journal/article.html:183
 #: src/themes/OLH/templates/journal/print.html:35
-#: src/themes/clean/templates/journal/article.html:88
+#: src/themes/clean/templates/journal/article.html:89
 #: src/themes/clean/templates/journal/print.html:35
-#: src/themes/material/templates/journal/article.html:89
+#: src/themes/material/templates/journal/article.html:91
 msgid "How to Cite"
 msgstr "Come citare"
 
-#: src/themes/OLH/templates/journal/article.html:181
-#: src/themes/clean/templates/journal/article.html:92
-#: src/themes/material/templates/journal/article.html:97
+#: src/themes/OLH/templates/journal/article.html:190
+#: src/themes/clean/templates/journal/article.html:95
+#: src/themes/material/templates/journal/article.html:101
 msgid "Rights"
 msgstr ""
 
-#: src/themes/OLH/templates/journal/article.html:186
-#: src/themes/clean/templates/journal/article.html:113
-#: src/themes/material/templates/journal/article.html:106
+#: src/themes/OLH/templates/journal/article.html:195
+#: src/themes/clean/templates/journal/article.html:143
+#: src/themes/material/templates/journal/article.html:110
 msgid "Publisher Notes"
 msgstr "Note dell'editore"
 
-#: src/themes/OLH/templates/journal/article.html:200
-#: src/themes/OLH/templates/journal/article.html:314
-#: src/themes/OLH/templates/journal/article.html:319
+#: src/themes/OLH/templates/journal/article.html:210
+#: src/themes/OLH/templates/journal/article.html:355
+#: src/themes/OLH/templates/journal/article.html:359
 #: src/themes/OLH/templates/repository/article.html:96
 #: src/themes/OLH/templates/repository/article.html:100
 #: src/themes/OLH/templates/repository/article.html:139
-#: src/themes/clean/templates/journal/article.html:100
-#: src/themes/clean/templates/journal/article.html:153
-#: src/themes/clean/templates/journal/article.html:158
+#: src/themes/clean/templates/journal/article.html:104
+#: src/themes/clean/templates/journal/article.html:186
+#: src/themes/clean/templates/journal/article.html:191
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:8
-#: src/themes/material/templates/journal/article.html:119
-#: src/themes/material/templates/journal/article.html:122
-#: src/themes/material/templates/journal/article.html:265
-#: src/themes/material/templates/journal/article.html:271
+#: src/themes/material/templates/journal/article.html:124
+#: src/themes/material/templates/journal/article.html:127
+#: src/themes/material/templates/journal/article.html:293
+#: src/themes/material/templates/journal/article.html:299
 #: src/themes/material/templates/preprints/article.html:113
 #: src/themes/material/templates/preprints/article.html:117
 #: src/themes/material/templates/preprints/article.html:139
 msgid "Download"
 msgstr "Download"
 
-#: src/themes/OLH/templates/journal/article.html:231
+#: src/themes/OLH/templates/journal/article.html:241
+#, python-format
+msgid ""
+"\n"
+"                                                        (grant %(id)s)\n"
+"                                                    "
+msgstr ""
+
+#: src/themes/OLH/templates/journal/article.html:259
 #: src/themes/OLH/templates/repository/article.html:115
-#: src/themes/clean/templates/journal/article.html:239
-#: src/themes/material/templates/journal/article.html:158
+#: src/themes/clean/templates/journal/article.html:280
+#: src/themes/material/templates/journal/article.html:182
 #: src/themes/material/templates/preprints/article.html:132
 msgid "Views"
 msgstr "Visualizzazioni"
 
-#: src/themes/OLH/templates/journal/article.html:243
-#: src/themes/clean/templates/journal/article.html:248
-#: src/themes/material/templates/journal/article.html:196
+#: src/themes/OLH/templates/journal/article.html:271
+#: src/themes/clean/templates/journal/article.html:289
+#: src/themes/material/templates/journal/article.html:220
 msgid "Citations"
 msgstr "Citazioni"
 
-#: src/themes/OLH/templates/journal/article.html:256
+#: src/themes/OLH/templates/journal/article.html:285
 #: src/themes/OLH/templates/repository/article.html:106
-#: src/themes/clean/templates/journal/article.html:181
+#: src/themes/clean/templates/journal/article.html:221
 #: src/themes/material/templates/preprints/article.html:123
 msgid "Published on"
 msgstr "Pubblicato su"
 
-#: src/themes/OLH/templates/journal/article.html:259
-#: src/themes/clean/templates/journal/article.html:183
+#: src/themes/OLH/templates/journal/article.html:289
+#: src/themes/clean/templates/journal/article.html:224
 msgid "Accepted on"
 msgstr "Accettato "
 
-#: src/themes/OLH/templates/journal/article.html:270
+#: src/themes/OLH/templates/journal/article.html:308
 #: src/themes/OLH/templates/repository/article.html:107
-#: src/themes/clean/templates/journal/article.html:204
+#: src/themes/clean/templates/journal/article.html:245
 #: src/themes/material/templates/preprints/article.html:124
-#: src/themes/material/templates/repository/preprint.html:118
+#: src/themes/material/templates/repository/preprint.html:190
 msgid "License"
 msgstr "Licenza"
 
-#: src/themes/OLH/templates/journal/article.html:339
-#: src/themes/material/templates/journal/article.html:398
+#: src/themes/OLH/templates/journal/article.html:385
+#: src/themes/material/templates/journal/article.html:434
 msgid "Identifiers"
 msgstr ""
 
-#: src/themes/OLH/templates/journal/article.html:349
-#: src/themes/material/templates/journal/article.html:292
+#: src/themes/OLH/templates/journal/article.html:395
+#: src/themes/material/templates/journal/article.html:326
 #, fuzzy
 #| msgid "Publication Fees"
 msgid "Publication details"
 msgstr "Tariffe di pubblicazione"
 
-#: src/themes/OLH/templates/journal/article.html:352
-#: src/themes/clean/templates/journal/article.html:186
-#: src/themes/material/templates/journal/article.html:296
+#: src/themes/OLH/templates/journal/article.html:398
+#: src/themes/clean/templates/journal/article.html:227
+#: src/themes/material/templates/journal/article.html:330
 msgid "Pages"
 msgstr ""
 
-#: src/themes/OLH/templates/journal/article.html:355
-#: src/themes/clean/templates/journal/article.html:189
+#: src/themes/OLH/templates/journal/article.html:401
+#: src/themes/clean/templates/journal/article.html:230
 #, fuzzy
 #| msgid "Grant Number"
 msgid "Article Number"
 msgstr "Numero del fondo di finanziamento"
 
-#: src/themes/OLH/templates/journal/article.html:358
-#: src/themes/clean/templates/journal/article.html:192
-#: src/themes/material/templates/journal/article.html:308
+#: src/themes/OLH/templates/journal/article.html:404
+#: src/themes/clean/templates/journal/article.html:233
+#: src/themes/material/templates/journal/article.html:342
 #, fuzzy
 #| msgid "Published"
 msgid "Publisher"
 msgstr "Pubblicato"
 
-#: src/themes/OLH/templates/journal/article.html:361
-#: src/themes/clean/templates/journal/article.html:195
+#: src/themes/OLH/templates/journal/article.html:407
+#: src/themes/clean/templates/journal/article.html:236
 #, fuzzy
 #| msgid "Publications"
 msgid "Original Publication"
 msgstr "Pubblicazioni"
 
-#: src/themes/OLH/templates/journal/article.html:364
-#: src/themes/clean/templates/journal/article.html:198
-#: src/themes/material/templates/journal/article.html:320
+#: src/themes/OLH/templates/journal/article.html:410
+#: src/themes/clean/templates/journal/article.html:239
+#: src/themes/material/templates/journal/article.html:354
 msgid "Original ISSN"
 msgstr ""
 
-#: src/themes/OLH/templates/journal/article.html:372
-#: src/themes/clean/templates/journal/article.html:170
-#: src/themes/material/templates/journal/article.html:332
-#: src/themes/material/templates/repository/preprint.html:68
+#: src/themes/OLH/templates/journal/article.html:418
+#: src/themes/clean/templates/journal/article.html:209
+#: src/themes/material/templates/journal/article.html:366
+#: src/themes/material/templates/repository/preprint.html:140
 msgid "Supplementary Files"
 msgstr "File supplementari"
 
-#: src/themes/OLH/templates/journal/article.html:395
-#: src/themes/material/templates/journal/article.html:347
+#: src/themes/OLH/templates/journal/article.html:441
+#: src/themes/material/templates/journal/article.html:381
 msgid "View Summary"
 msgstr "Visualizza riepilogo"
 
-#: src/themes/OLH/templates/journal/article.html:402
+#: src/themes/OLH/templates/journal/article.html:448
 msgid "Jump to"
 msgstr "Vai a"
 
-#: src/themes/OLH/templates/journal/article.html:428
+#: src/themes/OLH/templates/journal/article.html:474
 msgid "File Checksums (MD5)"
 msgstr "File Checksums (MD5)"
 
-#: src/themes/OLH/templates/journal/article.html:441
-#: src/themes/material/templates/journal/article.html:410
+#: src/themes/OLH/templates/journal/article.html:487
+#: src/themes/material/templates/journal/article.html:446
 msgid "Peer Review"
 msgstr "Peer review"
 
-#: src/themes/OLH/templates/journal/articles.html:28
+#: src/themes/OLH/templates/journal/article_list.html:27
+#: src/themes/clean/templates/journal/article_list.html:19
+#: src/themes/material/templates/journal/article_list.html:26
+#: src/themes/material/templates/journal/full-text-search.html:26
+#: src/themes/material/templates/journal/new_search.html:21
+#: src/themes/material/templates/journal/search.html:23
+msgid "No articles to display."
+msgstr "Nessun articolo da mostrare."
+
+#: src/themes/OLH/templates/journal/articles.html:30
 msgid "Pinned Articles"
 msgstr "Articoli appuntati"
 
-#: src/themes/OLH/templates/journal/articles.html:37
+#: src/themes/OLH/templates/journal/articles.html:39
 msgid "There are no articles published in this journal yet"
 msgstr "Non ci sono ancora articoli pubblicati su questa rivista"
 
 #: src/themes/OLH/templates/journal/collections.html:29
-#: src/themes/material/templates/journal/article.html:366
+#: src/themes/material/templates/journal/article.html:400
 msgid "Published"
 msgstr "Pubblicato"
 
@@ -3682,7 +3768,7 @@ msgstr "Non ci sono ancora pubblicazioni di questa rivista."
 #: src/themes/OLH/templates/journal/search.html:23
 #: src/themes/clean/templates/journal/keyword.html:4
 #: src/themes/clean/templates/journal/keyword.html:5
-#: src/themes/material/templates/journal/full-text-search.html:18
+#: src/themes/material/templates/journal/full-text-search.html:17
 #: src/themes/material/templates/journal/keyword.html:4
 #: src/themes/material/templates/journal/keyword.html:5
 #: src/themes/material/templates/journal/search.html:14
@@ -3702,7 +3788,7 @@ msgid "Articles that use this keyword are listed below."
 msgstr "Gli articoli che utilizzano questa parola chiave sono elencati sotto."
 
 #: src/themes/OLH/templates/journal/search.html:21
-#: src/themes/material/templates/journal/full-text-search.html:16
+#: src/themes/material/templates/journal/full-text-search.html:15
 #: src/themes/material/templates/journal/new_search.html:12
 #: src/themes/material/templates/journal/search.html:12
 msgid "Searching for"
@@ -3724,7 +3810,7 @@ msgstr "Accedi con ORCiD"
 #: src/themes/OLH/templates/press/core/news/index.html:5
 #: src/themes/OLH/templates/press/core/news/index.html:10
 #: src/themes/OLH/templates/press/core/news/item.html:5
-#: src/themes/material/templates/core/nav.html:73
+#: src/themes/material/templates/core/nav.html:88
 #: src/themes/material/templates/press/core/news/index.html:5
 #: src/themes/material/templates/press/core/news/index.html:10
 #: src/themes/material/templates/press/core/news/item.html:5
@@ -3776,7 +3862,7 @@ msgstr "Discipline"
 #: src/themes/material/templates/repository/about.html:4
 #: src/themes/material/templates/repository/about.html:9
 #: src/themes/material/templates/repository/nav.html:19
-#: src/themes/material/templates/repository/nav.html:36
+#: src/themes/material/templates/repository/nav.html:43
 msgid "About"
 msgstr "Info"
 
@@ -3795,7 +3881,7 @@ msgstr ""
 #: src/themes/OLH/templates/repository/article.html:52
 #: src/themes/OLH/templates/repository/submit_start.html:69
 #: src/themes/material/templates/preprints/article.html:63
-#: src/themes/material/templates/repository/preprint.html:149
+#: src/themes/material/templates/repository/preprint.html:87
 msgid "Comments"
 msgstr "Commenti"
 
@@ -3807,13 +3893,13 @@ msgstr ""
 "articolo."
 
 #: src/themes/OLH/templates/repository/article.html:113
-#: src/themes/clean/templates/journal/article.html:237
+#: src/themes/clean/templates/journal/article.html:278
 #: src/themes/material/templates/preprints/article.html:130
 msgid "Metrics"
 msgstr "Metrica"
 
 #: src/themes/OLH/templates/repository/article.html:118
-#: src/themes/clean/templates/journal/article.html:251
+#: src/themes/clean/templates/journal/article.html:292
 #: src/themes/material/templates/preprints/article.html:145
 msgid "Citation"
 msgstr "Citazione"
@@ -3889,13 +3975,6 @@ msgstr "Cerca preprints"
 msgid "Searching by"
 msgstr "Ricerca per"
 
-#: src/themes/OLH/templates/repository/list.html:69
-#: src/themes/OLH/templates/repository/search.html:54
-#: src/themes/material/templates/preprints/list.html:80
-#: src/themes/material/templates/repository/list.html:61
-msgid "Author Name"
-msgstr "Nome dell'autore"
-
 #: src/themes/OLH/templates/repository/list.html:70
 #: src/themes/OLH/templates/repository/search.html:55
 #: src/themes/material/templates/repository/list.html:62
@@ -3909,6 +3988,10 @@ msgstr "Filtra per argomento"
 #: src/themes/OLH/templates/repository/review.html:5
 msgid "Review Preprint Submission"
 msgstr "Revisiona il Preprint"
+
+#: src/themes/OLH/templates/repository/review.html:18
+msgid "Comments to Editor"
+msgstr "Commenti per l'editor"
 
 #: src/themes/OLH/templates/repository/review.html:59
 msgid "No authors yet! Add one."
@@ -3998,7 +4081,7 @@ msgstr "Password dimenticata"
 msgid "profile photo"
 msgstr "foto del profilo"
 
-#: src/themes/clean/templates/core/accounts/register.html:29
+#: src/themes/clean/templates/core/accounts/register.html:24
 msgid ""
 "For more information read our <a href=\"#\" data-toggle=\"modal\" data-"
 "target=\"#passwordmodal\">password guide</a>."
@@ -4096,45 +4179,53 @@ msgstr "Citazione Vancouver-Style"
 msgid "Sections submission information"
 msgstr "Informazione per l'invio delle sezioni"
 
-#: src/themes/clean/templates/journal/article.html:227
+#: src/themes/clean/templates/journal/article.html:133
+#, python-format
+msgid ""
+"\n"
+"                                        (grant %(id)s)\n"
+"                                    "
+msgstr ""
+
+#: src/themes/clean/templates/journal/article.html:268
 #, fuzzy
 #| msgid "Peer Review"
 msgid "Open Peer Reviews"
 msgstr "Peer review"
 
-#: src/themes/clean/templates/journal/article.html:244
-#: src/themes/material/templates/journal/article.html:179
+#: src/themes/clean/templates/journal/article.html:285
+#: src/themes/material/templates/journal/article.html:203
 msgid "Wikipedia"
 msgstr "Wikipedia"
 
-#: src/themes/clean/templates/journal/article.html:246
-#: src/themes/material/templates/journal/article.html:187
+#: src/themes/clean/templates/journal/article.html:287
+#: src/themes/material/templates/journal/article.html:211
 msgid "Reddit"
 msgstr "Reddit"
 
-#: src/themes/clean/templates/journal/article.html:263
+#: src/themes/clean/templates/journal/article.html:304
 #, fuzzy
 #| msgid "Download"
 msgid "Download RIS"
 msgstr "Download"
 
-#: src/themes/clean/templates/journal/article.html:266
+#: src/themes/clean/templates/journal/article.html:307
 #, fuzzy
 #| msgid "Download"
 msgid "Download BibTeX"
 msgstr "Download"
 
-#: src/themes/clean/templates/journal/article.html:282
-#: src/themes/material/templates/journal/article.html:458
-#: src/themes/material/templates/journal/submissions.html:71
+#: src/themes/clean/templates/journal/article.html:323
+#: src/themes/material/templates/journal/article.html:494
+#: src/themes/material/templates/journal/submissions.html:72
 msgid "Table of Contents"
 msgstr "Sommario"
 
-#: src/themes/clean/templates/journal/articles.html:46
+#: src/themes/clean/templates/journal/articles.html:48
 msgid "Sort and Filter"
 msgstr "Ordina e filtra"
 
-#: src/themes/clean/templates/journal/contact.html:15
+#: src/themes/clean/templates/journal/contact.html:10
 msgid "Journal Contacts"
 msgstr "Contatti della rivista"
 
@@ -4164,8 +4255,8 @@ msgid "This journal has no issues"
 msgstr "Questa rivista non ha pubblicazioni"
 
 #: src/themes/clean/templates/press/nav.html:43
-#: src/themes/material/templates/press/nav.html:34
-#: src/themes/material/templates/press/nav.html:65
+#: src/themes/material/templates/press/nav.html:46
+#: src/themes/material/templates/press/nav.html:97
 msgid "Repositories"
 msgstr ""
 
@@ -4182,7 +4273,7 @@ msgstr ""
 "Nessun account inattivo trovato con questo codice di attivazione. E' "
 "possibile che il tuo account sia già attivo, puoi verificarlo provando a "
 
-#: src/themes/material/templates/core/accounts/register.html:61
+#: src/themes/material/templates/core/accounts/register.html:56
 #: src/themes/material/templates/core/accounts/reset_password.html:44
 msgid ""
 "We recommend selecting a long, but easy to remember password such as <i>our "
@@ -4198,35 +4289,25 @@ msgstr ""
 "come <i>Jfjfy&65^87</i> che richiederebbe poco più di 600 anni su un "
 "computer standard."
 
-#: src/themes/material/templates/core/accounts/register.html:66
+#: src/themes/material/templates/core/accounts/register.html:61
 #: src/themes/material/templates/core/accounts/reset_password.html:49
 #: src/themes/material/templates/elements/summary_modal.html:13
 msgid "Close"
 msgstr "Chiudi"
 
-#: src/themes/material/templates/core/accounts/reset_password.html:19
-#, python-format
-msgid "Your password should be %(password_length)s characters long."
-msgstr ""
-
-#: src/themes/material/templates/core/login.html:20
+#: src/themes/material/templates/core/login.html:15
 #, fuzzy
 #| msgid "Log in with your account"
 msgid "Login with your account"
 msgstr "Accedi con il tuo account"
 
-#: src/themes/material/templates/core/login.html:50
+#: src/themes/material/templates/core/login.html:45
 msgid "Register an Account"
 msgstr "Registra un account"
 
-#: src/themes/material/templates/core/login.html:53
+#: src/themes/material/templates/core/login.html:48
 msgid "Reset Your Password"
 msgstr "Reimposta la tua password"
-
-#: src/themes/material/templates/core/nav.html:109
-#: src/themes/material/templates/press/nav.html:77
-msgid "menu"
-msgstr "menu"
 
 #: src/themes/material/templates/core/news/index.html:39
 #, fuzzy
@@ -4280,31 +4361,39 @@ msgstr "Esportare"
 msgid "More Information "
 msgstr "Informazioni sull'autore"
 
-#: src/themes/material/templates/journal/article.html:171
+#: src/themes/material/templates/journal/article.html:161
+#, python-format
+msgid ""
+"\n"
+"                                                (grant %(id)s)\n"
+"                                            "
+msgstr ""
+
+#: src/themes/material/templates/journal/article.html:195
 msgid "Tweets"
 msgstr "Tweets"
 
-#: src/themes/material/templates/journal/article.html:302
+#: src/themes/material/templates/journal/article.html:336
 #, fuzzy
 #| msgid "Article Info"
 msgid "Article No."
 msgstr "Informazioni sull'articolo"
 
-#: src/themes/material/templates/journal/article.html:314
+#: src/themes/material/templates/journal/article.html:348
 #, fuzzy
 #| msgid "Publications"
 msgid "Publication"
 msgstr "Pubblicazioni"
 
-#: src/themes/material/templates/journal/article.html:355
+#: src/themes/material/templates/journal/article.html:389
 msgid "Dates"
 msgstr "Date"
 
-#: src/themes/material/templates/journal/article.html:414
+#: src/themes/material/templates/journal/article.html:450
 msgid "This article has been peer reviewed."
 msgstr "Questo articolo è stato soggetto a peer review."
 
-#: src/themes/material/templates/journal/article.html:442
+#: src/themes/material/templates/journal/article.html:478
 msgid "File Checksums"
 msgstr "Checksum dei file"
 
@@ -4322,12 +4411,6 @@ msgstr "Visualizza raccolta"
 #: src/themes/material/templates/journal/collections.html:38
 msgid "There are no collections to display"
 msgstr "Non ci sono raccolte da mostrare"
-
-#: src/themes/material/templates/journal/full-text-search.html:27
-#: src/themes/material/templates/journal/new_search.html:21
-#: src/themes/material/templates/journal/search.html:23
-msgid "No articles to display."
-msgstr "Nessun articolo da mostrare."
 
 #: src/themes/material/templates/journal/issues.html:35
 #, fuzzy
@@ -4417,38 +4500,73 @@ msgid "Start New Submission"
 msgstr "Inizia la proposta"
 
 #: src/themes/material/templates/repository/nav.html:21
-#: src/themes/material/templates/repository/nav.html:38
-#: src/themes/material/templates/repository/preprint.html:96
+#: src/themes/material/templates/repository/nav.html:45
+#: src/themes/material/templates/repository/preprint.html:168
 #, fuzzy
 #| msgid "Subject"
 msgid "Subjects"
 msgstr "Argomento"
 
-#: src/themes/material/templates/repository/preprint.html:132
+#: src/themes/material/templates/repository/preprint.html:70
 #, fuzzy
 #| msgid "Comments"
 msgid "Add a Comment"
 msgstr "Commenti"
 
-#: src/utils/forms.py:106
+#: src/utils/forms.py:102
 #, fuzzy, python-format
 #| msgid "What is %(num1)i %(operator)s %(num2)i? "
 msgid "What is %(num1)i %(operator)s %(num2)i? "
 msgstr "Cos'è % (num1)i% (operatore)s %(num2)i? "
 
-#: src/utils/forms.py:107
+#: src/utils/forms.py:103
 msgid "Answer this question: "
 msgstr "Rispondi a questa domanda: "
 
-#: src/utils/transactional_emails.py:297
+#: src/utils/transactional_emails.py:369
 #, fuzzy
 #| msgid "Accepted"
 msgid "accepted"
 msgstr "Accettato"
 
-#: src/utils/transactional_emails.py:307
+#: src/utils/transactional_emails.py:379
 msgid "declined"
 msgstr ""
+
+#~ msgid "Funder DOI (optional)"
+#~ msgstr "Finanziatore DOI (facoltativo)"
+
+#~ msgid "Funder grant number (optional)"
+#~ msgstr "Numero del finanziamento (facoltativo)"
+
+#~ msgid ""
+#~ "The projected issue setting helps you track which issue an article is "
+#~ "intended to be published with."
+#~ msgstr ""
+#~ "Questa opzione ti permette di scegliere la pubblicazione in cui "
+#~ "l'articolo verrà pubblicato."
+
+#, fuzzy
+#~| msgid "Versions"
+#~ msgid "Decision"
+#~ msgstr "Versioni"
+
+#, fuzzy
+#~| msgid "Complete"
+#~ msgid "Completed"
+#~ msgstr "Completa"
+
+#~ msgid "Funder DOI"
+#~ msgstr "DOI del finanziatore"
+
+#~ msgid "(optional)"
+#~ msgstr "(facoltativo)"
+
+#~ msgid "Funder grant number"
+#~ msgstr "Numero del fondo del finanziatore"
+
+#~ msgid "menu"
+#~ msgstr "menu"
 
 #~ msgid "Anti-spam captcha"
 #~ msgstr "Captcha anti-spam"
