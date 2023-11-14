@@ -1,5 +1,134 @@
 Changelog
 =========
+v1.5.1 Archer
+-------------
+Upgrade Notes
+^^^^^^^^^^^^^
+
+To run this upgrade, you can use Janeway's built-in script (.update.sh).
+There are no expected backwards-incompatible changes when upgrading from 1.5.0
+
+What's Changed
+^^^^^^^^^^^^^^
+* Recognises .avif as a valid image mime by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3495
+* [XSLT] Allows styled-content to declare custom CSS classes by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3494
+* Adds support for fig/alt-text to JATS XSLT by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3493
+* Fixes a typo in our Readme file by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3520
+* Update requirements for Python 3.10 compatibility #3524 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3525
+* Remove recaptcha_init templatetag by @yakky in https://github.com/BirkbeckCTP/janeway/pull/3507
+* Added a janeway db bases SessionStore and overwrite clear_expired by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3476
+* Update docs/requirements.txt to pin a few module versions by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3485
+* Merge b_1_5_0 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3532
+* Bump sqlparse from 0.2.3 to 0.4.4 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3499
+* Bump django from 3.2.18 to 3.2.19 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3539
+* B 1 5 0 v2 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3540
+* 3316 improve sitemap generation by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3535
+* B 1 5 0 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3552
+* #3288 update generate_preprints command and tweaked preprint.html. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3443
+* #3188 issue_add_articles now uses the active_objects manager by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3460
+* #3533 the Logs, Documents and More dropdown now has a link directly to the Edit Metadata page by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3534
+* #3404 adds some enhancements to the repository submission file upload by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3479
+* #3502 DOI edit and add buttons will no longer be shown to authors on the article metadata page. Text on the identifiers section has also been updated by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3513
+* Adds a check_plugin_exists function to utils.plugins by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3553
+* Disable is_secure URL builder checks when DEBUG is on by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3554
+* #3491 editors will no longer see the Review Form ID field and the slug field has been removed entirely by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3536
+* Press managers can customise some elements of journal footers by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3531
+* 3427 automated reminder help text has been update to make the function of the Review (Accepted) review type clearer by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3538
+* Increases the journal code CharField max_length to 40 by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3546
+* Peer review invite  by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3541
+* #3289 remove ID from section __str__ by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3459
+* Fix a SASS bug that unset default colors on OLH theme by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3530
+* Use raw ID fields for files in a few spots for quicker loading by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3527
+* Fix bug that reloaded an email template without user confirming by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3518
+* Fix bug with section display on submissions page by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3523
+* 3101 article figures now enlarge with lightbox as the default on-click effect by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3537
+* Add a test for whether /usr/bin/crontab exists, before attempting to run install_cron. Warn if crontab not found. by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3461
+* Updates the JATS 1.2 XML document with additional information by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3506
+* Make sure review visibility warning only shows up when it should by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3519
+* Issue assignment clarity by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3511
+* Modify article pages for all themes to support proofing accuracy by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3471
+* Editors and Section Editors can now access the account API endpoint. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3544
+* Uses Django's SQL compiler to sort FT search results by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3575
+* #1471 pass decisions through to the warning view so it can redirect the user properly by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3570
+* Bump requests from 2.25.1 to 2.31.0 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3566
+* BirkbeckCTP/typesetting#184 galley.type and galley.file.mime_type will now be synced when a galley.file changes by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3580
+* Fix bug that prevented BookLink from loading in admin by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3583
+* B 1 5 0 by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3590
+* Fixes a bug where the footer in material theme would not be fixed at the bottom of the page by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3585
+* Order news by sequence and display date by @gamboz in https://github.com/BirkbeckCTP/janeway/pull/3600
+* Fixes an issue were email settings were empty on Docker by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3619
+* #2214: Re-instate default-li for submission items on material theme by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3642
+* Remove "Incomplete submissions" from repository manager by @alainna in https://github.com/BirkbeckCTP/janeway/pull/3626
+* Bump django from 3.2.19 to 3.2.20 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3623
+* Fix bug that kept small caps from being applied by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3603
+* Snapshot and update authors on acceptance before deposit #2702 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3592
+* 2986 fixes an error that caused edit_metadata to fail when additional fields were present. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3568
+* 965 the old submission_competing_interests has been removed, this is controlled by submission configuration by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3569
+* #3348 comments to the editor field has been moved to the end of the submission flow by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3581
+* Deprecate run_upgrade command  by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3696
+* Fix invalid anchor tag #3697 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3698
+* Add menu option for press-level media manager #3144 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3699
+* Modify funder help text in submission migrations by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3704
+* #3627 the email sent to editors when an author completes revisions is now a template and is logged correctly by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3655
+* #3618 the review preview form now renders correctly accounting for display settings by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3649
+* #3616 reviewers can now access reviews in any of the accessible review stages. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3660
+* #3099 reminder emails are now logged by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3648
+* #3604 Updated spelling of anonimity to anonymity. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3613
+* #3598 the press manager index no longer errors when an article is orphaned from its journal. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3614
+* Upgrade materialize by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3594
+* #3586 fixes the display of the Review Files section when there are no files and its widescreen display by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3587
+* Auto-generated table of contents for articles (TOCs) can now have HTML in them. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3526
+* Add preprint API endpoint by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3166
+* #3665 the Draft Decisions model now uses the correct decision types. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3666
+* #870 removed the is_checkbox monkey patch by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3615
+* Rework article list as class-based view by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3597
+* 2445 review response letter & sharing peer reviews by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3610
+* Use django_countries library by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3582
+* Use environment variables for defaults for the install_janeway management command by @hardyoyo in https://github.com/BirkbeckCTP/janeway/pull/3324
+* #2444 added a new setting that controls the appearance of a list of reviewers that have previously completed a review in a past round for the current article. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3591
+* #3652 when an editor views the submission form they will now see information about which sections are not open for public submission. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3654
+* Fixes an odd merge issue. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3720
+* Support copy-paste in rich-text fields and fine-tune editing window by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3446
+* Password length requirement is displayed properly on all themes. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3700
+* #3643 when editing a single setting using the edit_key view unchecking a boolean now works as expected. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3651
+* #3240 when a mailgun email is logged as failed or bounced it will now send an email to the actor (if they are staff, editor or repo manger) and log that it was sent by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3512
+* Fix article list view access by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3723
+* 3630 the Live Article link in LDM will now link to the remote url when is_remote and remote_url are set by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3650
+* Pin urllib3<2 due to compatibility issues with requests by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3737
+* Apply scrollbar to long unbroken MathJax lines #3753 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3754
+* XSLT 1.5.1 Fixes & Updates by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3750
+* Bump pillow from 9.4.0 to 10.0.1 by @dependabot in https://github.com/BirkbeckCTP/janeway/pull/3748
+* Fix KeyError when logging with orcid and name is not publicly available by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3758
+* Bump pdfminer to fix bug with blank password on PDFs by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3757
+* Allow blank preprint version titles so that they can be edited in admin by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3759
+* #3716 next_workflow_element will no longer error out when an article is published. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3718
+* 3705 Adds a signal that will create a directory in src/files when a new journal is created. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3706
+* #3728 editing a copyedit assignment will now success and, if it fails, it will disply an error. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3729
+* #3733 wording on the projected issue page has been updated, documentation for how this works has also been added. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3734
+* #3728 when editing a frozen author record the Add Author button now works as expected. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3730
+* #3486 DOI batch deposit timestamps are now generated in the view using datetime rather than the now templatetag which uses timezone. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3721
+* Removed light and wave effects from headers in the material theme. These serve no real purpose and stop users from copying the title text easily. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3668
+* #3684 the merge users documentation has been updated and now includes an animated gif. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3686
+* Adds an edit metadata button to the unassigned article/editor assignment page. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3687
+* Altmetric badges will now display as expected on the material theme. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3680
+* Author review text will now display properly when checked by an editor by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3739
+* Include GET parameters when redirecting after login #3701 by @joemull in https://github.com/BirkbeckCTP/janeway/pull/3702
+* Ensure article titles are marked as safe consistently by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3543
+* When editing repository settings repository managers can choose to save and stay on the current page or save and move to the next step. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3667
+* #3487 when requesting revisions the Editor Note field is now optional and is no longer inserted into the outgoing request email. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3681
+* #3731 mailbox labels are now wrapped in quotes and sanitize_from is appllied to journal and user names by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3762
+* #3372 the issue title is now cached in all available languages, or the default if none are enabled. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3663
+* prevents None from appearing in Add Review Assignment by @hachacha in https://github.com/BirkbeckCTP/janeway/pull/3764
+* Repository comments will now display properly in the manager interface by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3647
+* Added some info about OAI to docs by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3636
+* #3423 moved comments box under preprint iframe. by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3645
+* 3638 orcid pattern update by @ajrbyers in https://github.com/BirkbeckCTP/janeway/pull/3646
+* Adds a new form and widget that implements CC and BCC fields for all emails by @mauromsl in https://github.com/BirkbeckCTP/janeway/pull/3121
+
+## New Contributors
+* @yakky made their first contribution in https://github.com/BirkbeckCTP/janeway/pull/3507
+
+**Full Changelog**: https://github.com/BirkbeckCTP/janeway/compare/v1.5.0...v1.5.1
 
 v1.5.0 Torres
 -------------
