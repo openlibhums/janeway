@@ -329,3 +329,7 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
         return parsed_datetime
     else:
         return make_aware(parsed_datetime)
+
+def get_janeway_patch_version():
+    from janeway import __version__
+    return f"{__version__.major}.{__version__.minor}.{__version__.patch}"
