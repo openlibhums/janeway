@@ -53,6 +53,7 @@ ifdef DEBUG_SMTP
 	JANEWAY_EMAIL_PORT=1025
 	JANEWAY_EMAIL_USE_TLS=
 endif
+LOCALES_DIR = ./src/core/locales
 
 export DB_VENDOR
 export DB_HOST
@@ -116,6 +117,19 @@ migrate:		## Runs Django's migrate command
 	bash -c "make command CMD=migrate"
 makemigrations:		## Runs Django's makemigrations command
 	bash -c "make command CMD=makemigrations"
+makemessages:
+	#$(foreach file, $(wildcard $(LOCALES_DIR)/*), make command CMD="makemessages --locale=$(file) --ignore=src/plugins/*";)
+	#@for f in $(shell ls ${LOCALES_DIR}); make command CMD='makemessages --locale=$${f} --ignore=src/plugins/*';)
+	bash -c "make command CMD='makemessages \
+		--locale=de \
+		--locale=cy \
+		--locale=fr \
+		--locale=it \
+		--locale=nl \
+		--locale=en-us \
+		--ignore=src/plugins/* \
+	'"
+
 build_assets:		## Runs Janeway's build_assets command
 	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
