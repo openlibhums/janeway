@@ -326,7 +326,7 @@ LIST_RECORDS_DATA_JATS = """
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
-    <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns="https://jats.nlm.nih.gov/publishing/1.2/" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:jats="https://jats.nlm.nih.gov/publishing/1.2/" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <front>
             <journal-meta>
                 <journal-id journal-id-type="issn">0000-0000</journal-id>
@@ -483,7 +483,7 @@ GET_RECORD_DATA_JATS = """
     <datestamp>1986-07-12T15:00:00Z</datestamp>
     </header>
         <metadata>
-    <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns="https://jats.nlm.nih.gov/publishing/1.2/" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:jats="https://jats.nlm.nih.gov/publishing/1.2/" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <front>
             <journal-meta>
                 <journal-id journal-id-type="issn">0000-0000</journal-id>
