@@ -2613,6 +2613,10 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
             date_published__lte=timezone.now(),
             stage=submission_models.STAGE_PUBLISHED,
         )
+    def get_order_by(self):
+        order_by = self.request.GET.get('order_by', '-date_published')
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ''
 
     def get_order_by_choices(self):
         return [
