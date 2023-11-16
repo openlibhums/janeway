@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="row">
     <div class="col-md-7">
-        <small>{{ press.footer_description|safe }}</small>
+        <small>{{ press.footer_description|default:""|safe }}</small>
     </div>
     <div class="col-md-5 text-right">
         <small><p>

@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="large-5 columns" data-equalizer-watch>
     <p>
-{{ press.footer_description|safe }}
+{{ press.footer_description|default:""|safe }}
 </div>
 <div class="large-5 columns large-text-right" data-equalizer-watch>
     <ul class="inline-list">

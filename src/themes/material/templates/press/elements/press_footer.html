@@ -4,6 +4,6 @@
         {% svg request.press_cover %}
     </div>
     <div class="col m10">
-        <p><small>{{ press.footer_description|safe }}</small></p>
+        <p><small>{{ press.footer_description|default:""|safe }}</small></p>
     </div>
 </div>
