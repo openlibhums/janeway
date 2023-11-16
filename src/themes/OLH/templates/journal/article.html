@@ -65,11 +65,11 @@
                                     {% endif %}
                                 </strong>
                                     {% for author in article.frozen_authors.all %}
-                                        <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                                itemtype="http://schema.org/Person"
-                                                                                                itemprop="author"
-                                                                                                href="#"
-                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
+                                        <span><span itemscope
+                                                    itemtype="http://schema.org/Person"
+                                                    itemprop="author"
+                                                    href="#"
+                                                    {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
                                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
                                                 <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
@@ -79,7 +79,7 @@
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
                                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
-                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
 
                             </div>
