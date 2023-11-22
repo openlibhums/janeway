@@ -2835,14 +2835,17 @@
   </xsl:template>
 
   <xsl:template match="person-group" mode="none">
+    
+   <!-- 
+    MS: I'm removing this because I have no idea when it is useful, and has unintended consequences on formatting of certain citations.
+    I can see that it special cases given names that are in all caps, but the special case seems to format the name as "given name, surname" as opposed
+    to the "surname, given names" format applied below.
     <xsl:variable name="gnms" select="string(descendant::given-names)"/>
     <xsl:variable name="GNMS">
       <xsl:call-template name="capitalize">
         <xsl:with-param name="str" select="$gnms"/>
       </xsl:call-template>
     </xsl:variable>
-
-    <xsl:choose>
       <xsl:when test="$gnms=$GNMS">
         <xsl:apply-templates/>
             <xsl:if test="not(preceding-sibling::person-group)">
@@ -2851,35 +2854,32 @@
             <xsl:text>).</xsl:text>
             </xsl:if>
       </xsl:when>
-
+   -->
+    <xsl:choose>
+      <xsl:when test="self::person-group/@person-group-type='author'"> 
+          <xsl:apply-templates select="node()" mode="none"/>            
+        <xsl:if test="not(preceding-sibling::person-group)">
+        <xsl:text>. (</xsl:text>
+        <xsl:value-of select="..//year"/>
+        <xsl:text>).</xsl:text>
+        </xsl:if>
+      </xsl:when>
+      <xsl:when test="self::person-group/@person-group-type='editor'">
+        <strong>
+          <xsl:apply-templates select="node()" mode="none"/>
+        </strong>
+        <xsl:if test="not(preceding-sibling::person-group)">
+        <xsl:text>. (</xsl:text>
+        <xsl:value-of select="..//year"/>
+        <xsl:text>).</xsl:text>
+        </xsl:if>
+      </xsl:when>
       <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="self::person-group/@person-group-type='author'">
-            <strong>
-              <xsl:apply-templates select="node()" mode="none"/>
-            </strong>
-            <xsl:if test="not(preceding-sibling::person-group)">
-            <xsl:text>. (</xsl:text>
-            <xsl:value-of select="..//year"/>
-            <xsl:text>).</xsl:text>
-            </xsl:if>
-          </xsl:when>
-          <xsl:when test="self::person-group/@person-group-type='editor'">
-            <strong>
-              <xsl:apply-templates select="node()" mode="none"/>
-            </strong>
-            <xsl:if test="not(preceding-sibling::person-group)">
-            <xsl:text>. (</xsl:text>
-            <xsl:value-of select="..//year"/>
-            <xsl:text>).</xsl:text>
-            </xsl:if>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates select="node()" mode="none"/>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="node()" mode="none"/>
       </xsl:otherwise>
     </xsl:choose>
+  
+    
 
 
     <xsl:text>&#160;</xsl:text>
@@ -2928,7 +2928,6 @@
         </em>
       </xsl:otherwise>
     </xsl:choose>
-
     <xsl:choose>
       <xsl:when test="following-sibling::edition">
         <xsl:text>. </xsl:text>
