@@ -1716,7 +1716,7 @@
   <xsl:template match="ref">
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
-          <p id="{parent::*/@id}">
+          <p id="{@id}">
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
