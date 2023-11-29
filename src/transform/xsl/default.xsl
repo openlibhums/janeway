@@ -2718,7 +2718,7 @@
         <xsl:value-of select="given-names"/>
         <xsl:choose>
           <xsl:when test="not(following-sibling::name)">
-            <xsl:text> </xsl:text>
+            <xsl:text>.</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>; </xsl:text>
@@ -2859,7 +2859,7 @@
       <xsl:when test="self::person-group/@person-group-type='author'"> 
           <xsl:apply-templates select="node()" mode="none"/>            
         <xsl:if test="not(preceding-sibling::person-group)">
-        <xsl:text>. (</xsl:text>
+        <xsl:text> (</xsl:text>
         <xsl:value-of select="..//year"/>
         <xsl:text>).</xsl:text>
         </xsl:if>
