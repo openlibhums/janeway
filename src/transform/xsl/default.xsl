@@ -2910,10 +2910,7 @@
   </xsl:template>
 
   <xsl:template match="collab" mode="none">
-    <strong>
-
       <xsl:apply-templates/>
-    </strong>
     <xsl:if test="@collab-type">
       <xsl:text>, </xsl:text>
       <xsl:value-of select="@collab-type"/>
