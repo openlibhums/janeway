@@ -439,11 +439,23 @@
   </xsl:template>
 
     <xsl:template match="fn-group">
+      <xsl:if test="name(*[1]) != 'title'">
+         <!-- Adds a header for footnotes when there the first child is not a title tag
+           *( See 'back/fn-group/title[1]' for heading implementation)
+         -->
         <h2>Notes</h2>
+      </xsl:if>
         <ol class="footnotes">
             <xsl:apply-templates/>
         </ol>
     </xsl:template>
+
+  <xsl:template match="back/fn-group/title[1]">
+    <!-- Render the first title of the fn-group as a top level article header -->
+    <xsl:element name="h2">
+      <xsl:value-of select="node()"/>
+    </xsl:element>
+  </xsl:template>
 
     <xsl:template match="fn-group/fn">
       <xsl:call-template name="referenced-footnote" />
