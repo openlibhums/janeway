@@ -6,7 +6,6 @@ __maintainer__ = "Open Library of Humanities"
 import os
 import glob
 import json
-from re import search
 import time
 import requests
 from urllib.parse import urlparse, urljoin
@@ -17,7 +16,7 @@ from django.core.exceptions import ImproperlyConfigured
 from journal import models as journal_models
 from repository import models as repository_models
 from cms import models as models
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, NavigableString, Tag, Comment
 from django.core.files.base import ContentFile
 from press import models as press_models
 from utils import setting_handler
@@ -65,9 +64,9 @@ def gobble_sibling_text(sibling, original_part):
 
     # Recursively get sibling text
     if isinstance(sibling, NavigableString):
-        sibling_text = sibling
+        sibling_text = sibling.strip()
     else:
-        sibling_text = sibling.get_text()
+        sibling_text = sibling.get_text().strip()
     next_sibling_text = gobble_sibling_text(
         sibling.next_sibling,
         original_part
@@ -79,7 +78,8 @@ def gobble_sibling_text(sibling, original_part):
     else:
         sibling.decompose()
 
-    return sibling_text + ' ' + next_sibling_text
+    gobbled_text = sibling_text + ' ' + next_sibling_text
+    return gobbled_text.strip()
 
 
 def get_text_for_parent(parent, original_part):
@@ -95,7 +95,7 @@ def get_text_for_parent(parent, original_part):
 
 def get_text_for_header(part):
     """
-    Gets the wrapping section or div
+    Gets the sibling text or parent text
     when given an h2, h3, or h4
     """
 
@@ -121,29 +121,21 @@ def add_searchable_page_parts(url, body):
 
     headings = ['h4', 'h3', 'h2']
 
+    def get_part_url(part):
+        part_id = part.get('id', '')
+        if part_id:
+            return urljoin(url, '#' + part_id)
+        else:
+            return remove_fragment(url)
+
     for h in headings:
         for part in body.find_all(h, id=True):
-            try:
-                part_id = part['id']
-                part_url = urljoin(url, '#' + part_id)
-                part_name = part.get_text().strip()
-                part_text = get_text_for_header(part)
-                add_part_as_doc(part, part_url, part_name, part_text)
-            except TypeError:
+            if not part:
                 continue
-
-    for part in body.find_all(id=True):
-        try:
-            part_id = part['id']
-            part_url = urljoin(url, '#' + part_id)
-            part_name = ''
-            for h in headings:
-                if part.find(h):
-                    part_name = part.find(h).get_text().strip()
-            part_text = part.get_text()
+            part_url = get_part_url(part)
+            part_name = part.get_text().strip()
+            part_text = get_text_for_header(part)
             add_part_as_doc(part, part_url, part_name, part_text)
-        except TypeError:
-            continue
 
 
 def get_page(url):
@@ -182,6 +174,8 @@ def get_body(html):
     for non_content_selector in ['script', '.djdt-hidden']:
         for element in body.select(non_content_selector):
             element.decompose()
+    for element in body.find_all(text=lambda text: isinstance(text, Comment)):
+        element.extract()
     return body
 
 
@@ -209,10 +203,14 @@ def url_in_scope(deeper_url):
     return True
 
 
+def remove_fragment(url):
+    fragment = urlparse(url).fragment
+    return url.replace('#' + fragment, '')
+
+
 def url_is_unique(deeper_url):
     def normalize(url):
-        fragment = urlparse(url).fragment
-        url = url.replace('#' + fragment, '')
+        url = remove_fragment(url)
         if url.endswith('/'):
             url = url[:-1]
         return url
@@ -247,10 +245,10 @@ def add_searchable_page(url):
         if url_in_scope(deeper_url) and url_is_unique(deeper_url):
             add_searchable_page(deeper_url)
 
+    name = get_name(html)
     decompose_non_content_page_regions(body)
 
     add_searchable_page_parts(url, body)
-    name = get_name(html)
     add_search_index_document(url, name, body.get_text())
 
 
