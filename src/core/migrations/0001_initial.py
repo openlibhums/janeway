@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
             name='Contact',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipient', models.EmailField(max_length=200, verbose_name='Who would you like to contact')),
+                ('recipient', models.EmailField(max_length=200, verbose_name='Who would you like to contact?')),
                 ('sender', models.EmailField(max_length=200, verbose_name='Your contact email address')),
                 ('subject', models.CharField(max_length=300, verbose_name='Subject')),
                 ('body', models.TextField(verbose_name='Your message')),
