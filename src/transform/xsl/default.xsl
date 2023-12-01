@@ -450,6 +450,13 @@
         </ol>
     </xsl:template>
 
+  <xsl:template match="back/notes/title[1]">
+    <!-- Render the first title of the notes as a top level article header -->
+    <xsl:element name="h2">
+      <xsl:value-of select="node()"/>
+    </xsl:element>
+  </xsl:template>
+
   <xsl:template match="back/fn-group/title[1]">
     <!-- Render the first title of the fn-group as a top level article header -->
     <xsl:element name="h2">
