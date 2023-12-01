@@ -2,7 +2,6 @@ import os
 
 from django.test import TestCase
 from django.core.management import call_command
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 from cms import models as cms_models
@@ -51,8 +50,8 @@ class TestSiteSearch(TestCase):
                   <p>September</p>
                 </div>
               </div>
-              <div id="winter">
-                <h2>Winter</h2>
+              <div>
+                <h2 id="winter">Winter</h2>
                 <p>New Year</p>
               </div>
               <script>Do not index me</script>
@@ -133,20 +132,16 @@ class TestSiteSearch(TestCase):
         add_doc.assert_called_with('example.org', 'Spring', 'May')
         self.assertFalse(soup.find(id='spring'))
 
-    @patch('cms.logic.get_text_for_header')
     @patch('cms.logic.add_part_as_doc')
-    def test_add_searchable_page_parts(self, add_part, get_text):
-        get_text.return_value = 'hello'
+    def test_add_searchable_page_parts(self, add_part):
         soup = BeautifulSoup(self.searchable_page, 'html.parser')
         cms_logic.add_searchable_page_parts('example.org', soup.find('body'))
-        autumn = soup.find(id='autumn')
-        get_text.assert_called_with(autumn)
         winter = soup.find(id='winter')
         add_part.assert_called_with(
             winter,
             'example.org#winter',
             'Winter',
-            '\nWinter\nNew Year\n',
+            'New Year',
         )
 
     def test_get_name(self):
