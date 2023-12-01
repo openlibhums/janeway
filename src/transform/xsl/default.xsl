@@ -438,7 +438,7 @@
     </xsl:if>
   </xsl:template>
 
-    <xsl:template match="fn-group">
+    <xsl:template match="back/fn-group">
       <xsl:if test="name(*[1]) != 'title'">
          <!-- Adds a header for footnotes when there the first child is not a title tag
            *( See 'back/fn-group/title[1]' for heading implementation)
