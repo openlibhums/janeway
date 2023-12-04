@@ -210,6 +210,13 @@ class EditorialGroupMemberInline(admin.TabularInline):
     raw_id_fields = ('user',)
 
 
+class StaffGroupMemberInline(admin.TabularInline):
+    model = press_models.StaffGroupMember
+    extra = 0
+    exclude = ('alternate_title', 'publications')
+    raw_id_fields = ('user',)
+
+
 class WorkflowLogInline(admin.TabularInline):
     model = core_models.WorkflowLog
     extra = 0
