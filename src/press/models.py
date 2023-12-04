@@ -374,3 +374,40 @@ class PressSetting(models.Model):
 
     def __str__(self):
         return '{name} - {press}'.format(name=self.name, press=self.press.name)
+
+
+class StaffGroup(models.Model):
+    name = models.CharField(max_length=500)
+    description = models.TextField(blank=True)
+    press = models.ForeignKey(
+        Press,
+        on_delete=models.CASCADE,
+    )
+    sequence = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('sequence',)
+
+    def __str__(self):
+        return f'{self.name}, {self.press.name}'
+
+
+class StaffGroupMember(models.Model):
+    group = models.ForeignKey(
+        StaffGroup,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    job_title = models.CharField(max_length=300, blank=True)
+    alternate_title = models.CharField(max_length=300, blank=True)
+    publications = models.TextField(blank=True)
+    sequence = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('sequence',)
+
+    def __str__(self):
+        return f'{self.user} in {self.group}'
