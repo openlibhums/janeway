@@ -846,7 +846,14 @@ class Article(AbstractLastModifiedModel):
 
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
-        author_str = " & ".join(a.citation_name() for a in authors)
+        author_str = ''
+        for author in authors:
+            if author == authors.first():
+                author_str = author.citation_name()
+            elif not author == authors.last():
+                author_str = author_str + f", {author.citation_name()}"
+            else:
+                author_str = author_str + f" & {author.citation_name()}"
         if author_str:
             author_str += ","
         year_str = ""
