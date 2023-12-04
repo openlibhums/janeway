@@ -218,6 +218,10 @@ main a:hover {
     margin-bottom: 15px !important;
 }
 
+.full-width-card {
+    min-width: 100%;
+}
+
 .card img {
     max-height: 250px;
     object-fit: cover;
