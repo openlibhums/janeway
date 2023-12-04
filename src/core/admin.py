@@ -51,8 +51,8 @@ class AccountAdmin(UserAdmin):
 
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
-            'middle_name', 'orcid', 'institution', 'department', 'twitter',
-            'linkedin', 'facebook', 'github', 'biography',
+            'name_prefix', 'middle_name', 'orcid', 'institution', 'department', 'twitter',
+            'linkedin', 'facebook', 'github', 'website', 'biography',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
     )
@@ -72,6 +72,7 @@ class AccountAdmin(UserAdmin):
         admin_utils.AccountRoleInline,
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
+        admin_utils.StaffGroupMemberInline,
         admin_utils.PasswordResetInline,
     ]
 

@@ -207,6 +207,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
+    name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
     middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
     last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
@@ -301,6 +302,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return str(self.id)
 
     def get_full_name(self):
+        """Deprecated"""
         return '{0} {1}{2}{3}'.format(self.first_name, self.middle_name, ' ' if self.middle_name != "" else "",
                                       self.last_name)
 
@@ -314,9 +316,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def full_name(self):
         name_elements = [
+            self.name_prefix,
             self.first_name,
             self.middle_name,
-            self.last_name
+            self.last_name,
+            self.suffix,
         ]
         return " ".join([name for name in name_elements if name])
 
@@ -467,13 +471,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
+            'name_prefix': self.name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
+            'name_suffix': self.suffix,
             'institution': self.institution,
             'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
-            'name_suffix': self.suffix,
         }
 
         frozen_author = self.frozen_author(article)
