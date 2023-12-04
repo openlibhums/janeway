@@ -8,6 +8,7 @@ from django.contrib import admin
 from django_summernote.admin import SummernoteModelAdmin
 
 from press import models
+from utils import admin_utils
 
 
 class PressAdmin(SummernoteModelAdmin):
@@ -27,9 +28,33 @@ class PressSettingAdmin(admin.ModelAdmin):
     search_fields = ('name', 'value')
 
 
+class StaffGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'sequence')
+    search_fields = ('name', 'description')
+
+    inlines = [
+        admin_utils.StaffGroupMemberInline,
+    ]
+
+
+class StaffGroupMemberAdmin(admin.ModelAdmin):
+    list_display = ('user', 'sequence')
+    raw_id_fields = (
+        'user',
+    )
+    search_fields = (
+        'description'
+        'user__email',
+        'user__first_name',
+        'user__last_name',
+    )
+
+
 admin_list = [
     (models.Press, PressAdmin),
-    (models.PressSetting, PressSettingAdmin)
+    (models.PressSetting, PressSettingAdmin),
+    (models.StaffGroup, StaffGroupAdmin),
+    (models.StaffGroupMember, StaffGroupMemberAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
