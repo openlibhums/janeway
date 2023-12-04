@@ -99,3 +99,14 @@ class PressJournalDescription(forms.Form):
                 self.journal,
                 description,
             )
+
+class StaffGroupMemberForm(forms.ModelForm):
+    """Lets a staff member edit a few fields related to their
+    press staff profile
+    """
+    class Meta:
+        model = models.StaffGroupMember
+        exclude = ('group', 'user', 'sequence')
+        widgets = {
+            'publications': SummernoteWidget(),
+        }

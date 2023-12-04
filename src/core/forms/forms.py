@@ -193,6 +193,10 @@ class EditAccountForm(forms.ModelForm):
                    'date_confirmed', 'confirmation_code', 'is_active',
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
+        widgets = {
+            'biography': SummernoteWidget(),
+            'signature': SummernoteWidget(),
+        }
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)

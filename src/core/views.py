@@ -45,6 +45,7 @@ from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
+from press import forms as press_forms
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
@@ -417,6 +418,13 @@ def edit_profile(request):
             request.journal
         ).value
 
+    if user.staffgroupmember_set.first():
+        staff_group_membership_form = press_forms.StaffGroupMemberForm(
+            instance=user.staffgroupmember_set.first()
+        )
+    else:
+        staff_group_membership_form = None
+
     if request.POST:
         if 'email' in request.POST:
             email_address = request.POST.get('email_address')
@@ -489,12 +497,24 @@ def edit_profile(request):
                 messages.add_message(request, messages.SUCCESS, 'Profile updated.')
                 return redirect(reverse('core_edit_profile'))
 
+        elif 'edit_staff_member_info' in request.POST:
+            form = press_forms.StaffGroupMemberForm(
+                request.POST,
+                instance=user.staffgroupmember_set.first()
+            )
+
+            if form.is_valid():
+                form.save()
+                messages.add_message(request, messages.SUCCESS, 'Staff member info updated.')
+                return redirect(reverse('core_edit_profile'))
+
         elif 'export' in request.POST:
             return logic.export_gdpr_user_profile(user)
 
     template = 'core/accounts/edit_profile.html'
     context = {
         'form': form,
+        'staff_group_membership_form': staff_group_membership_form,
         'user_to_edit': user,
         'send_reader_notifications': send_reader_notifications,
     }
@@ -516,16 +536,25 @@ def public_profile(request, uuid):
         is_active=True,
         enable_public_profile=True,
     )
-    roles = models.AccountRole.objects.filter(
-        user=user,
-        journal=request.journal,
-    )
+    if request.journal:
+        roles = models.AccountRole.objects.filter(
+            user=user,
+            journal=request.journal,
+        )
 
-    template = 'core/accounts/public_profile.html'
-    context = {
-        'user': user,
-        'roles': roles,
-    }
+        template = 'core/accounts/public_profile.html'
+        context = {
+            'user': user,
+            'roles': roles,
+        }
+        if not context['roles']:
+            raise Http404()
+    else:
+        template = 'press/staff_profile.html'
+        context = {
+            'user': user,
+            'staff_group_membership': user.staffgroupmember_set.first(),
+        }
 
     return render(request, template, context)
 
@@ -717,7 +746,6 @@ def manager_index(request):
     :return: HttpResponse object
     """
     if not request.journal:
-        from press import views as press_views
         return press_views.manager_index(request)
 
     template = 'core/manager/index.html'
