@@ -195,8 +195,8 @@ class EditAccountForm(forms.ModelForm):
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
         widgets = {
-            'biography': forms.Textarea(),
-            'signature': forms.Textarea(),
+            'biography': SummernoteWidget(),
+            'signature': SummernoteWidget(),
         }
 
     def save(self, commit=True):
