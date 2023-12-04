@@ -18,22 +18,41 @@ from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
-from repository import forms, logic as repository_logic, models
+from core import (
+    email as core_email,
+    files,
+    forms as core_forms,
+    logic as core_logic,
+    models as core_models,
+)
+from journal import models as journal_models
+from repository import (
+    forms,
+    logic as repository_logic,
+    models,
+    decorators,
+)
 from core import (
     email as core_email,
     files,
     forms as core_forms,
     models as core_models,
+    logic as core_logic,
+)
+from repository import (
+    forms,
+    logic as repository_logic,
+    models,
+    decorators,
 )
 from journal import models as journal_models
-from submission import models as submission_models
 
 
 from utils import (
-  logger,
-  logic as utils_logic,
-  models as utils_models,
-  shared as utils_shared,
+    logger,
+    logic as utils_logic,
+    models as utils_models,
+    shared as utils_shared,
 )
 from events import logic as event_logic
 from security.decorators import (
@@ -47,6 +66,7 @@ from security.decorators import (
 logger = logger.get_logger(__name__)
 
 
+@decorators.headless_mode_check
 def repository_home(request):
     """
     Displays the preprints home page with search box and 6 latest
@@ -259,6 +279,7 @@ def repository_author_article(request, preprint_id):
     return render(request, template, context)
 
 
+@decorators.headless_mode_check
 def repository_about(request):
     """
     Displays the about page with text about preprints
@@ -269,6 +290,7 @@ def repository_about(request):
     return render(request, template, {})
 
 
+@decorators.headless_mode_check
 def repository_subject_list(request):
     """
     Displays a list of enabled subjects for selection.
@@ -288,7 +310,7 @@ def repository_subject_list(request):
     return render(request, template, context)
 
 
-
+@decorators.headless_mode_check
 def repository_list(request, subject_id=None):
     """
     Displays a list of all published preprints.
@@ -332,6 +354,7 @@ def repository_list(request, subject_id=None):
     return render(request, template, context)
 
 
+@decorators.headless_mode_check
 def repository_search(request, search_term=None):
     """
     Searches for and displays a list of Preprints.
@@ -398,6 +421,7 @@ def repository_search(request, search_term=None):
     return render(request, template, context)
 
 
+@decorators.headless_mode_check
 def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
@@ -495,14 +519,14 @@ def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
 
-    template = 'repository/pdf.html'
+    template = 'common/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }
     return render(request, template, context)
 
 
-# TODO: Re-implement
+@decorators.headless_mode_check
 def preprints_editors(request):
     """
     Displays lists of preprint editors by their subject group.

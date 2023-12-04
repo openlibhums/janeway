@@ -1,4 +1,4 @@
-{% load securitytags %}
+{% load securitytags hooks %}
 
 {% is_editor as editor %}
 {% is_section_editor as section_editor %}
@@ -30,6 +30,7 @@
             <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
                     class="fa fa-cogs"></i></a></li>
         {% endif %}
+        {% hook 'logs_documents' %}
     </ul>
 </div>
 

@@ -5,9 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from core import models as core_models, workflow
 from utils import transactional_emails, workflow_tasks
-from events import logic as event_logic
 from journal import logic as journal_logic
-from identifiers import logic as id_logic
+from identifiers import logic as id_logic, reviews
 
 # wire up event notifications
 
@@ -49,6 +48,10 @@ event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION_DECLI
                                       transactional_emails.send_draft_decision_declined)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_SECURITY_OVERRIDE,
                                       transactional_emails.review_sec_override_notification)
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_REVIEW_COMPLETE,
+    reviews.review_doi_mint_event_listener,
+)
 
 # Revisions
 event_logic.Events.register_for_event(event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,

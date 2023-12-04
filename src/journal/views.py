@@ -446,12 +446,6 @@ def article(request, identifier_type, identifier):
             article_object,
             "view",
             galley.type if galley else None)
-    else:
-        article_object.abstract = (
-            "<p><strong>This is an accepted article with a DOI pre-assigned"
-            " that is not yet published.</strong></p>"
-        ) + (article_object.abstract or "")
-
 
     if request.journal.disable_html_downloads:
         # exclude any HTML galleys.
@@ -507,8 +501,6 @@ def print_article(request, identifier_type, identifier):
             content = galley.file_content(recover=True)
         else:
             content = ''
-    else:
-        article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
@@ -2621,13 +2613,17 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
             date_published__lte=timezone.now(),
             stage=submission_models.STAGE_PUBLISHED,
         )
+    def get_order_by(self):
+        order_by = self.request.GET.get('order_by', '-date_published')
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ''
 
     def get_order_by_choices(self):
         return [
-            ('title', _('Titles A-Z')),
-            ('-title', _('Titles Z-A')),
             ('-date_published', _('Newest')),
             ('date_published', _('Oldest')),
+            ('title', _('Titles A-Z')),
+            ('-title', _('Titles Z-A')),
             ('correspondence_author__last_name', _('Author Name')),
             ('primary_issue__volume', _('Volume')),
         ]

@@ -698,7 +698,10 @@ class Issue(AbstractLastModifiedModel):
         if journal.display_issue_number and self.issue and self.issue != "0":
             issue = "{%% trans 'Issue' %%} %s" % self.issue
         if journal.display_issue_year and self.date:
-            year = "{}".format(self.date.year)
+            try:
+                year = "{}".format(self.date.year)
+            except AttributeError:
+                year = ''
         if journal.display_issue_title:
             issue_title = self.issue_title
         if journal.display_article_number and article and article.article_number:

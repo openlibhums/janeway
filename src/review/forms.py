@@ -397,20 +397,33 @@ class ReviewReminderForm(forms.Form):
 class ReviewVisibilityForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ('for_author_consumption', 'display_review_file')
+        fields = (
+            'for_author_consumption',
+            'display_review_file',
+            'display_public',
+        )
         labels = {
             "for_author_consumption": _("Author can access this review"),
             "display_review_file": _("Author can access review file"),
+            "display_public": _("Display Review Publicly")
         }
         widgets = {
             "for_author_consumption": HTMLSwitchInput(),
             "display_review_file": HTMLSwitchInput(),
+            "display_public": HTMLSwitchInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super(ReviewVisibilityForm, self).__init__(*args, **kwargs)
         if not self.instance.review_file:
             self.fields.pop('display_review_file')
+        if self.instance:
+            open_review_enabled = self.instance.article.journal.get_setting(
+                'general',
+                'open_peer_review'
+            )
+            if not open_review_enabled or not self.instance.permission_to_make_public:
+                self.fields.pop('display_public')
 
 
 class AnswerVisibilityForm(forms.Form):

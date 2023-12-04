@@ -65,11 +65,11 @@
                                     {% endif %}
                                 </strong>
                                     {% for author in article.frozen_authors.all %}
-                                        <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                                itemtype="http://schema.org/Person"
-                                                                                                itemprop="author"
-                                                                                                href="#"
-                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
+                                        <span><span itemscope
+                                                    itemtype="http://schema.org/Person"
+                                                    itemprop="author"
+                                                    href="#"
+                                                    {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
                                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
                                                 <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
@@ -79,7 +79,7 @@
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
                                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
-                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
 
                             </div>
@@ -173,7 +173,11 @@
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
                                 <h3>{% trans "Abstract" %}</h3>
-                                <p>{{ article.abstract|safe }}</p>
+                                {% if journal_settings.general.uses_isolinear_plugin and not article.is_published %}
+                                    {% hook 'preprint_abstract_block' article.abstract %}
+                                {% else %}
+                                    {{ article.abstract_display|safe }}
+                                {% endif %}
                             {% endif %}
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published or proofing %}
@@ -202,28 +206,28 @@
                             {% endif %}
 
                             {% if article.is_published or proofing %}
-                            {% if galleys %}
-                                <div class="show-for-small-only">
-                                    <p>
-                                        <strong>Downloads:</strong><br/>
-                                        {% for galley in galleys %}
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                            <br/>
-                                            {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                                <a target="_blank"
-                                                   href="{% url 'article_view_galley' article.id galley.id %}">View
-                                                    PDF</a><br/>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </p>
-                                    {% if proofing %}
-                                        <p id="note_to_proofreader_1">
-                                            <i class="fa fa-info"></i>
-                                            Note to proofreader: Download links on this page begin to work when the article is published.
+                                {% if galleys %}
+                                    <div class="show-for-small-only">
+                                        <p>
+                                            <strong>Downloads:</strong><br/>
+                                            {% for galley in galleys %}
+                                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                                <br/>
+                                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                    <a target="_blank"
+                                                       href="{% url 'article_view_galley' article.id galley.id %}">View
+                                                        PDF</a><br/>
+                                                {% endif %}
+                                            {% endfor %}
                                         </p>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
+                                        {% if proofing %}
+                                            <p id="note_to_proofreader_1">
+                                                <i class="fa fa-info"></i>
+                                                Note to proofreader: Download links on this page begin to work when the article is published.
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             {% endif %}
 
                             {% if article.funders.all %}
@@ -298,6 +302,8 @@
                                         {% endif %}
                                             {% if article.peer_reviewed %}
                                                 <h5>{% trans "Peer Reviewed" %}</h5>
+                                            {% elif journal_settings.general.uses_isolinear_plugin and not article.is_published  %}
+                                                <h5>Preprint Under Review</h5>
                                             {% endif %}
                                         </div>
                                         {% if article.date_published or article.date_accepted or proofing %}
@@ -315,12 +321,14 @@
                                 <article id="main_article">
                                     <div itemprop="articleBody">
                                         {{ article_content|safe }}
+                                        {% hook 'article_content_block' %}
                                         <div id="article_footer_block">
                                             {% hook 'article_footer_block' %}
                                         </div>
                                     </div>
                                 </article>
                             {% endif %}
+                            {% hook 'article_content' %}
                         </div>
                     </div>
                 </div>
@@ -372,23 +380,28 @@
                                             Note to proofreader: Download links on this page begin to work when the article is published.
                                         </p>
                                     {% endif %}
+                                {% elif journal_settings.general.uses_isolinear_plugin and article.preprint %}
+                                    <h3>{% trans "Download" %}</h3>
+                                    {% hook 'preprint_version_downloads' %}
                                 {% else %}
                                     <p> Downloads are not available until this article is published </p>
                                 {% endif %}
                             </div>
+                            {% if article.published or proofing %}
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
-                        {% with article.get_doi_url as doi_url %}
-                        {% if doi_url %}
-                         <div class="section">
-                             <h3>{% trans "Identifiers" %}</h3>
-                             <ul>
-                                 <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
-                             </ul>
-                         </div>
-                         {% endif %}
-                        {% endwith %}
+                            {% endif %}
+                            {% with article.get_doi_url as doi_url %}
+                                {% if doi_url %}
+                                 <div class="section">
+                                     <h3>{% trans "Identifiers" %}</h3>
+                                     <ul>
+                                         <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                                     </ul>
+                                 </div>
+                                {% endif %}
+                            {% endwith %}
 
                         {% if article.has_publication_details %}
                          <div class="section">
@@ -462,7 +475,7 @@
                         </div>
                         {% endfor %}
 
-                        {% if article.preprint %}
+                        {% if article.preprint and article.is_published %}
                         <div class="section hide-for-small-only">
                             <h3>{{ article.preprint.repository.object_name }}</h3>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
@@ -470,6 +483,7 @@
                         </div>
                         {% endif %}
 
+                        {% if galleys %}
                         <div class="section hide-for-small-only">
                             <h3>{% trans "File Checksums (MD5)" %}</h3>
                             <ul>
@@ -480,16 +494,17 @@
                                 {% endfor %}
                             </ul>
                         </div>
+                        {% endif %}
 
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
                                     <h3>{% trans "Peer Review" %}</h3>
-                                    <p>
+                                    <ul>
                                         {% for review in article.public_reviews %}
-                                            <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
+                                            <li><a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
                                         {% endfor %}<br/>
-                                    </p>
+                                    </ul>
                                 {% endif %}
                             {% endif %}
                         </div>

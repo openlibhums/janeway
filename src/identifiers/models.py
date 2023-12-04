@@ -251,7 +251,26 @@ class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
     enabled = models.BooleanField(default=True)
-    article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
+    article = models.ForeignKey(
+        "submission.Article",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    preprint_version = models.ForeignKey(
+        "repository.PreprintVersion",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    review = models.ForeignKey(
+        "review.ReviewAssignment",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    # TODO: Add validation to ensure only one FK is filled.
 
     def __str__(self):
         return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
@@ -273,8 +292,11 @@ class Identifier(models.Model):
     def is_doi(self):
         if self.id_type == 'doi':
             return True
-
         return False
+
+    @property
+    def _object(self):
+        return self.article or self.preprint_version or self.review or None
 
 
 class BrokenDOI(models.Model):

@@ -65,7 +65,7 @@ def svg_or_image(image_field, css_class="", alt_text="", inline=False):
 
     if not inline or not mimetype or mimetype[0] != 'image/svg+xml':
         return mark_safe(
-            '<img src="{url}" class="{css_class} alt="{alt_text}">'.format(
+            '<img src="{url}" class="{css_class}" alt="{alt_text}">'.format(
                 url=image_field.url,
                 css_class=css_class,
                 alt_text=alt_text,

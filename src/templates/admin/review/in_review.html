@@ -1,7 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
-{% load itertools %}
-{% load roles %}
+{% load static itertools roles hooks %}
 
 {% block title %}Review {{ article.title }}{% endblock %}
 {% block title-section %}Peer Review{% endblock %}
@@ -274,35 +272,45 @@
                 </div>
                 <div class="content">{% user_has_role request 'editor' as editor %}
                     <ul class="menu vertical actions">
-
-
-                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
-                        </li>
-                        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                    {% if article.is_accepted %}
-                      {% if article.in_review_stages %}
-                        <li>
-                            <a href="{% url 'move_to_next_workflow_element' article.pk %}">
-                                <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
-                                {% trans 'Move to Next Stage' %}
-                            </a>
-                        </li>
-                      {% endif %}
-                    {% else %}
-                        <li>
-                            <a href="{% url 'decision_helper' article.pk %}">
-                                <span class="fa fa-gavel"></span> Make a Decision
-                            </a>
+                        <li><a data-open="summarymodal"><i
+                                class="fa fa-server action-icon">&nbsp;</i>View
+                            Metadata</a>
                         </li>
                         <li>
-                            <a href="#" data-open="newround" class="expanded">
-                                <i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'upload_reviewers_from_csv' article.id %}" class="expanded"><span class="fa fa-file-text"></span> Create Review Assignments from CSV</a>
-                        </li>
-                    {% endif %}
+                            <a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i
+                                    class="fa fa-file-archive-o">&nbsp;</i>Document
+                                Management</a></li>
+                        {% if article.is_accepted %}
+                            {% if article.in_review_stages %}
+                                <li>
+                                    <a href="{% url 'move_to_next_workflow_element' article.pk %}">
+                                        <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
+                                        {% trans 'Move to Next Stage' %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li>
+                                <a href="{% url 'decision_helper' article.pk %}">
+                                    <span class="fa fa-gavel"></span> Make a
+                                    Decision
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-open="newround"
+                                   class="expanded">
+                                    <i class="fa fa-plus-circle action-icon">&nbsp;</i>New
+                                    Review Round
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'upload_reviewers_from_csv' article.id %}"
+                                   class="expanded"><span
+                                        class="fa fa-file-text"></span> Create
+                                    Review Assignments from CSV</a>
+                            </li>
+                        {% endif %}
+                        {% hook 'review_actions' %}
                     </ul>
                 </div>
             </div>

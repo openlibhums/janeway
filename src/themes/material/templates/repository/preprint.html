@@ -162,6 +162,9 @@
                     {% if preprint.preprint_doi %}
                     <h5>DOI</h5>
                     <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% elif preprint.current_version.get_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ preprint.current_version.get_doi }}">https://doi.org/{{ preprint.current_version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}
