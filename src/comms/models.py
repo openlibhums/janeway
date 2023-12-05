@@ -19,9 +19,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 class ActiveNewsItemManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(
-            models.Q(start_display__lte=timezone.now()) | models.Q(start_display=None)
-        ).filter(
-            models.Q(end_display__gte=timezone.now()) | models.Q(end_display=None)
+            (models.Q(start_display__lte=timezone.now()) | models.Q(start_display=None))
+            & (models.Q(end_display__gte=timezone.now()) | models.Q(end_display=None))
         )
 
 
@@ -45,8 +44,8 @@ class NewsItem(AbstractBleachModelMixin, models.Model):
         blank=True,
         related_name='large_news_file',
         on_delete=models.SET_NULL,
-        help_text='An image for the top of the news item page and the'
-                  'news list page. Note that it will be automatically'
+        help_text='An image for the top of the news item page and the '
+                  'news list page. Note that it will be automatically '
                   'cropped to 750px x 324px, so wide images work best.',
     )
     tags = models.ManyToManyField('Tag', related_name='tags')
