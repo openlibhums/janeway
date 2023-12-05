@@ -52,7 +52,7 @@ class AccountAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
             'name_prefix', 'middle_name', 'orcid', 'institution', 'department', 'twitter',
-            'linkedin', 'facebook', 'github', 'website', 'biography',
+            'linkedin', 'facebook', 'github', 'website', 'biography', 'enable_public_profile',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
     )
