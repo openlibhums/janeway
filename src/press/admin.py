@@ -29,8 +29,14 @@ class PressSettingAdmin(admin.ModelAdmin):
 
 
 class StaffGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sequence')
-    search_fields = ('name', 'description')
+    list_display = (
+        'name',
+        'sequence',
+    )
+    search_fields = (
+        'name',
+        'description',
+    )
 
     inlines = [
         admin_utils.StaffGroupMemberInline,
@@ -38,15 +44,25 @@ class StaffGroupAdmin(admin.ModelAdmin):
 
 
 class StaffGroupMemberAdmin(admin.ModelAdmin):
-    list_display = ('user', 'sequence')
+    list_display = (
+        'user',
+        'job_title',
+        'group',
+        'sequence',
+    )
     raw_id_fields = (
         'user',
     )
+    list_filter = (
+        'user__enable_public_profile',
+        'group',
+    )
     search_fields = (
-        'description'
         'user__email',
         'user__first_name',
         'user__last_name',
+        'job_title',
+        'alternate_title',
     )
 
 
