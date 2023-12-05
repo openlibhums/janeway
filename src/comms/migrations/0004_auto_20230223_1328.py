@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='newsitem',
             name='large_image_file',
-            field=models.ForeignKey(blank=True, help_text='An image for the top of the news item page and thenews list page. Note that it will be automaticallycropped to 750px x 324px, so wide images work best.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='large_news_file', to='core.File'),
+            field=models.ForeignKey(blank=True, help_text='An image for the top of the news item page and the news list page. Note that it will be automatically cropped to 750px x 324px, so wide images work best.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='large_news_file', to='core.File'),
         ),
     ]
