@@ -3,11 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+
 from django import forms
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from django_summernote.widgets import SummernoteWidget
 
-from cms import models
+from cms import logic, models
 from core import models as core_models
 from utils.forms import JanewayTranslationModelForm
 
@@ -16,11 +19,32 @@ class PageForm(JanewayTranslationModelForm):
 
     class Meta:
         model = models.Page
-        fields = ('display_name', 'name', 'content')
-        exclude = ('journal', 'is_markdown', 'content_type', 'object_id')
+        fields = ('display_name', 'name', 'template', 'content',)
+        exclude = ('is_markdown', 'content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        self.journal = self.request.journal if self.request else None
+        self.press = self.request.press if self.request else None
+
         super(PageForm, self).__init__(*args, **kwargs)
+
+        if self.instance:
+            journal_type = ContentType.objects.get(app_label="journal", model="journal")
+            if self.instance.content_type == journal_type:
+                self.journal = journal_type.get_object_for_this_type(pk=self.instance.object_id)
+            press_type = ContentType.objects.get(app_label="press", model="press")
+            if self.instance.content_type == press_type:
+                self.press = press_type.get_object_for_this_type(pk=self.instance.object_id)
+
+        custom_templates = logic.get_custom_templates(self.journal, self.press)
+
+        if custom_templates:
+            self.fields['template'].widget = forms.Select(
+                choices=custom_templates
+            )
+        else:
+            self.fields.pop('template')
 
         self.fields['content'].widget = SummernoteWidget()
 

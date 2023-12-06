@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 import os
+import glob
 import time
 import requests
 from urllib.parse import urlparse, urljoin
@@ -18,6 +19,7 @@ from bs4 import BeautifulSoup, NavigableString, Tag, Comment
 from django.core.files.base import ContentFile
 from press import models as press_models
 from utils.logger import get_logger
+from utils import setting_handler
 
 import json
 
@@ -321,3 +323,51 @@ def get_search_data_file(press):
             'or run manage.py generate_site_search_data.'
         )
     return docs_file
+
+
+def get_custom_templates(journal, press):
+
+    if journal:
+        theme = setting_handler.get_setting(
+            'general',
+            'journal_theme',
+            journal,
+        ).processed_value
+    elif press and press.theme:
+        theme = press.theme
+    else:
+        theme = None
+
+    if not theme:
+        return []
+
+    custom_templates_setting = setting_handler.get_setting(
+        'general',
+        'custom_cms_templates',
+        journal,
+        default=False,
+    )
+    if not custom_templates_setting:
+        return []
+
+    custom_templates_folder = custom_templates_setting.processed_value
+    custom_templates_path = os.path.join(
+        settings.BASE_DIR,
+        'themes',
+        theme,
+        'templates',
+        custom_templates_folder,
+        '*.html'
+    )
+    custom_templates = [('','-----')]
+    for filepath in sorted(glob.glob(custom_templates_path)):
+        choice = (
+            os.path.join(
+                custom_templates_folder,
+                os.path.basename(filepath)
+            ),
+            os.path.basename(filepath),
+        )
+        custom_templates.append(choice)
+
+    return custom_templates
