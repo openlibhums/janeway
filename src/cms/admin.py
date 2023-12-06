@@ -26,7 +26,7 @@ class PageAdmin(SimpleHistoryAdmin):
                    admin_utils.GenericRelationPressFilter,
                    'edited')
     date_hierarchy = ('edited')
-    search_fields = ('display_name', 'name', 'content')
+    search_fields = ('display_name', 'name', 'content', 'template')
 
 
 class SubmissionItemAdmin(admin.ModelAdmin):
