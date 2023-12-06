@@ -45,7 +45,7 @@ from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
-from press import forms as press_forms
+from press import forms as press_forms, views as press_views
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
