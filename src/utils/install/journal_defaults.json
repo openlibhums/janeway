@@ -5027,5 +5027,23 @@
         "editable_by": [
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The name of a folder containing Django templates that can be used to populate Janeway CMS pages. The folder should be located in the theme's templates folder. All HTML files inside will be loaded into a dropdown in the CMS.",
+            "is_translatable": false,
+            "name": "custom_cms_templates",
+            "pretty_name": "Custom CMS Templates",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     }
 ]
