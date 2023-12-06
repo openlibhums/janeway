@@ -106,7 +106,9 @@ def view_page(request, page_name):
                                      content_type=request.model_content_type,
                                      object_id=request.site_type.pk)
 
-    if request.journal:
+    if current_page.template:
+        template = current_page.template
+    elif request.journal:
         template = 'cms/page.html'
     else:
         template = 'press/cms/page.html'
@@ -134,7 +136,7 @@ def page_manage(request, page_id=None):
             edit = True
         else:
             page = None
-            page_form = forms.PageForm()
+            page_form = forms.PageForm(request=request)
             edit = False
 
         if request.POST:
