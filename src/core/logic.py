@@ -54,14 +54,14 @@ def send_reset_token(request, reset_token):
             request.press.password_reset_text,
             template_is_setting=True,
         )
-        subject = 'Password Reset'
     else:
         message = render_template.get_message_content(
             request,
             context,
             'password_reset',
         )
-        subject = 'subject_password_reset'
+
+    subject = 'subject_password_reset'
 
     notify_helpers.send_email_with_body_from_user(
         request,
@@ -90,14 +90,14 @@ def send_confirmation_link(request, new_user):
             request.press.registration_text,
             template_is_setting=True,
         )
-        subject = 'Registration Confirmation'
     else:
         message = render_template.get_message_content(
             request,
             context,
             'new_user_registration',
         )
-        subject = 'subject_new_user_registration'
+
+    subject = 'subject_new_user_registration'
 
     notify_helpers.send_slack(
         request,
