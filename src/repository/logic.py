@@ -162,24 +162,39 @@ def raise_comment_event(request, comment):
 def comment_manager_post(request, preprint):
     if 'comment_public' in request.POST:
         comment_id = request.POST.get('comment_public')
+    elif 'comment_reviewed' in request.POST:
+        comment_id = request.POST.get('comment_reviewed')
     elif 'comment_delete' in request.POST:
         comment_id = request.POST.get('comment_delete')
     else:
-        comment_id = request.POST.get('comment_reviewed')
+        return
 
     comment = get_object_or_404(
         models.Comment,
         pk=comment_id,
         preprint=preprint,
-        repository=request.repository,
+        preprint__repository=request.repository,
     )
 
     if 'comment_public' in request.POST:
         comment.toggle_public()
-    elif 'comment_delete' in request.POST:
-        comment.delete()
-    else:
+    elif 'comment_reviewed' in request.POST:
         comment.mark_reviewed()
+
+    if 'comment_delete' in request.POST:
+        if request.user in request.repository.managers.all():
+            comment.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Comment deleted',
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'You do not have permission to delete this comment.',
+            )
 
 
 # TODO: Update this implementation
