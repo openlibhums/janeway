@@ -12,7 +12,7 @@
             <p class="info">
                 <strong>Published</strong>: {{ preprint.date_published|date:"Y-m-d" }}
                 <br />
-                {% if preprint.subject.exists %}<strong>Subjects</strong>: {% include "repository/elements/subject_display.html" %}{% endif %}
+                {% if preprint.subject.exists %}<strong>Subjects</strong>: {% include "common/repository/subject_display.html" %}{% endif %}
             </p>
             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
         </div>
