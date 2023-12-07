@@ -87,10 +87,13 @@
                         <h2>Review</h2>
                     </div>
                     <div class="content">
+                        <p><strong>Recommendation: </strong></p>
+                        <p>{{ review.recommendation.name|default:"No recommendation" }}</p>
+
                         <p><strong>Comment: </strong></p>
                         {{ review.comment.body|safe }}
-                        <p><strong>Anonymity: </strong>
-                            <br/>
+                        <p><strong>Anonymity: </strong></p>
+                        <p>
                             {% if review.anonymous %}Reviewer wishes to remain anonymous{% else %} Reviewer would like their name attached to the review{% endif %}
                         </p>
                     </div>
