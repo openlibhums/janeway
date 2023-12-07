@@ -10,6 +10,7 @@
                 <th>Date Due</th>
                 <th>Invite Status</th>
                 <th>Completed</th>
+                <th>Recommendation</th>
                 <th>Detail</th>
             </tr>
             <tr>
@@ -30,6 +31,9 @@
                 </td>
                 <td>{% if review.date_completed %}
                     {{ review.date_completed }}{% else %}--{% endif %}
+                </td>
+                <td>
+                    {{ review.recommendation }}
                 </td>
                 <td>
                     <a href="{% url 'repository_review_detail' preprint.pk review.pk %}">View Review Detail</a>

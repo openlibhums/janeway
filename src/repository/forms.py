@@ -674,6 +674,9 @@ class ReviewCommentForm(forms.Form):
         widget=SummernoteWidget(),
         label="Comments",
     )
+    recommendation = forms.ModelChoiceField(
+        queryset=models.ReviewRecommendation.objects.none(),
+    )
     anonymous = forms.BooleanField(
         help_text='Check if you want your comments to be displayed anonymously.',
         label="Comment Anonymously",
@@ -686,6 +689,11 @@ class ReviewCommentForm(forms.Form):
         if self.review.comment:
             self.fields['body'].initial = self.review.comment.body
             self.fields['anonymous'].initial = self.review.anonymous
+
+        self.fields['recommendation'].queryset = models.ReviewRecommendation.objects.filter(
+            repository=self.review.preprint.repository,
+            active=True,
+        )
 
     def save(self):
         if self.cleaned_data:
@@ -701,77 +709,27 @@ class ReviewCommentForm(forms.Form):
 
             self.review.anonymous = self.cleaned_data.get('anonymous', False)
             self.review.comment = comment
+            self.review.recommendation = self.cleaned_data.get('recommendation')
             self.review.save()
 
 
-class ReviewForm(forms.ModelForm):
+class RecommendationForm(forms.ModelForm):
     class Meta:
-        model = models.Review
+        model = models.ReviewRecommendation
         fields = (
-            'reviewer',
-            'date_due',
+            'name',
+            'active',
         )
-        widgets = {
-            'date_due': utils_forms.HTMLDateInput(),
-        }
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint')
-        self.manager = kwargs.pop('manager')
-        super(ReviewForm, self).__init__(*args, **kwargs)
-        self.fields['reviewer'].queryset = self.preprint.repository.reviewer_accounts()
+        self.repository = kwargs.pop('repository')
+        super(RecommendationForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        review = super(ReviewForm, self).save(commit=False)
-        review.preprint = self.preprint
-        review.manager = self.manager
-        review.status = 'new'
+        recommendation = super(RecommendationForm, self).save(commit=False)
+        recommendation.repository = self.repository
 
         if commit:
-            review.save()
+            recommendation.save()
 
-        return review
-
-
-class ReviewDueDateForm(forms.ModelForm):
-    class Meta:
-        model = models.Review
-        fields = ('date_due',)
-        widgets = {
-            'date_due': utils_forms.HTMLDateInput(),
-        }
-
-
-class ReviewCommentForm(forms.Form):
-    body = forms.CharField(
-        widget=SummernoteWidget(),
-        label="Comments",
-    )
-    anonymous = forms.BooleanField(
-        help_text='Check if you want your comments to be displayed anonymously.',
-        label="Comment Anonymously",
-        required=False,
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.review = kwargs.pop('review')
-        super(ReviewCommentForm, self).__init__(*args, **kwargs)
-        if self.review.comment:
-            self.fields['body'].initial = self.review.comment.body
-            self.fields['anonymous'].initial = self.review.anonymous
-
-    def save(self):
-        if self.cleaned_data:
-            if self.review.comment:
-                comment = self.review.comment
-            else:
-                comment = models.Comment()
-
-            comment.author = self.review.reviewer
-            comment.preprint = self.review.preprint
-            comment.body = self.cleaned_data.get('body')
-            comment.save()
-
-            self.review.anonymous = self.cleaned_data.get('anonymous', False)
-            self.review.comment = comment
-            self.review.save()
+        return recommendation
