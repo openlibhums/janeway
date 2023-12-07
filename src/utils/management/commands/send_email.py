@@ -3,11 +3,13 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 import os
+import json
+from more_itertools import chunked
 
 from journal import models as journal_models
 from repository import models as repository_models
 from press import models as press_models
-from utils import models as utils_models
+from utils import models as utils_models, setting_handler
 from utils.notify_helpers import send_email_with_body_from_user
 from utils.logger import get_logger
 from cron.models import Request
@@ -21,7 +23,13 @@ class Command(BaseCommand):
 
     Example usage:
 
-    python src/manage.py send_email --journal olhj --to someone@example.org someoneelse@example.org --cc onemore@example.org --subject "Hello" --body my_email.html
+    python src/manage.py send_email \
+        --journal olhj \
+        --to someone@example.org someoneelse@example.org \
+        --cc onemore@example.org \
+        --bcc bcc.json \
+        --subject "Hello" \
+        --body my_email.html
 
     There is currently no support for attachments
     """
@@ -31,27 +39,27 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--journal',
-            help='Journal code'
+            help='Journal code',
         )
         parser.add_argument(
             '--repository',
-            help='Repository short name'
+            help='Repository short name',
         )
         parser.add_argument(
             '--to',
             required=True,
             nargs='+',
-            help='Email addresses of TO recipients'
+            help='Email addresses of TO recipients',
         )
         parser.add_argument(
             '--cc',
             nargs='+',
-            help='Email addresses of CC recipients'
+            help='Email addresses of CC recipients',
         )
         parser.add_argument(
             '--bcc',
-            nargs='+',
-            help='Email addresses of BCC recipients'
+            help='Filepath to JSON file containing a list of email '
+                 'addresses of BCC recipients, relative to Janeway BASE_DIR',
         )
         parser.add_argument(
             '--subject',
@@ -62,14 +70,20 @@ class Command(BaseCommand):
             '--body',
             required=True,
             help='Filepath to UTF-8 text file, with optional HTML markup, '
-                 'relative to Janeway BASE_DIR'
+                 'relative to Janeway BASE_DIR',
         )
         parser.add_argument(
             '--confirm',
             help='Confirm with stdout and command line input before sending. '
-                 'Pass --no-confirm to send immediately.',
+                 'Pass --no-confirm to send immediately',
             default=True,
             action=BooleanOptionalAction,
+        )
+        parser.add_argument(
+            '--batchsize',
+            help='Batch size for many BCC recipients',
+            type=int,
+            default=50,
         )
 
     def handle(self, *args, **options):
@@ -79,12 +93,17 @@ class Command(BaseCommand):
         journal_code = options.get('journal')
         if journal_code:
             try:
-                journal = journal_models.Journal.objects.get(code=journal_code)
+                journal = journal_models.Journal.objects.get(
+                    code=journal_code
+                )
             except journal_models.Journal.DoesNotExist:
                 logger.error(
-                    self.style.ERROR(f'Journal code not recognised: {journal_code}')
+                    self.style.ERROR(
+                        f'Journal code not recognised: {journal_code}'
+                    )
                 )
-                self.print_help('manage.py', 'send_email')
+                if verbosity >= 1:
+                    self.print_help('manage.py', 'send_email')
                 return
         else:
             journal = None
@@ -92,10 +111,15 @@ class Command(BaseCommand):
         repository_short_name = options.get('repository')
         if repository_short_name:
             try:
-                repository= repository_models.Repository.objects.get(short_name=repository_short_name)
+                repository= repository_models.Repository.objects.get(
+                    short_name=repository_short_name
+                )
             except repository_models.Repository.DoesNotExist:
                 logger.error(
-                    self.style.ERROR(f'Repository short name not recognised: {repository_short_name}')
+                    self.style.ERROR(
+                        f'Repository short name not recognised: '
+                        f'{repository_short_name}'
+                    )
                 )
                 if verbosity >= 1:
                     self.print_help('manage.py', 'send_email')
@@ -138,25 +162,72 @@ class Command(BaseCommand):
             'target': None,
         }
         cc = options.get('cc') or ''
-        bcc = options.get('bcc') or ''
 
-        logger.info(
-            f'\n\n'
-            f'Preparing to send email from {request.site_type}\n\n'
-            f'Subject: {subject}\n\n'
-            f'TO: {to}\n\n'
-            f'CC: {cc}\n\n'
-            f'BCC: {bcc}\n\n'
-            f'Body: \n{body}\n\n'
-        )
+        batch_size = options['batchsize']
+
+        if (len(to) + len(cc)) > batch_size:
+            logger.error(
+                self.style.ERROR(
+                    f'TO and CC must have fewer than {batch_size} addresses'
+                )
+            )
+            return
+
+        if not options['bcc']:
+            bcc = []
+        else:
+            bcc_file = os.path.join(settings.BASE_DIR, options['bcc'])
+            try:
+                with open(bcc_file, 'r') as ref:
+                    bcc = json.loads(ref.read())
+            except FileNotFoundError:
+                logger.error(
+                    self.style.ERROR(f'File not found at {bcc_file}')
+                )
+                if verbosity >= 1:
+                    self.print_help('manage.py', 'send_email')
+                return
+
+        if len(bcc) > batch_size:
+
+            batch_num = 1
+            log_dict['action_text'] = f'{log_subject} (batch {batch_num})'
+
+            custom_reply_to_setting = setting_handler.get_setting(
+                'general',
+                'replyto_address',
+                journal,
+            )
+            if custom_reply_to_setting and custom_reply_to_setting.value:
+                reply_to = (custom_reply_to_setting.value,)
+            else:
+                logger.error(
+                    self.style.ERROR(
+                        f'replyto_address setting needed for BCC list '
+                        f'length over {batch_size}'
+                    )
+                )
+                return
 
         if options['confirm']:
+            logger.info(
+                f'\n\n'
+                f'Preparing to send email from {request.site_type}\n\n'
+                f'Subject: {subject}\n\n'
+                f'TO: {to}\n\n'
+                f'CC: {cc}\n\n'
+                f'BCC: {bcc}\n\n'
+                f'Body: \n{body}\n\n'
+            )
+
             send = input('Send? (yes/no): ')
 
             if not send.lower() == 'yes':
                 logger.info('Email discarded')
                 return
 
+        # Send batch 1
+        bcc_chunk = bcc[:batch_size]
         send_email_with_body_from_user(
             request,
             subject,
@@ -164,16 +235,39 @@ class Command(BaseCommand):
             body,
             log_dict=log_dict,
             cc=cc,
-            bcc=bcc,
+            bcc=bcc_chunk,
         )
+
+        # Send the rest with noreply address in TO and empty CC
+        if len(bcc) > batch_size:
+            to = reply_to
+            cc = []
+            for i, bcc_chunk in enumerate(
+                chunked(bcc[batch_size:], batch_size)
+            ):
+                batch_num = i + 2
+                log_dict['action_text'] = f'{log_subject} (batch {batch_num})'
+                send_email_with_body_from_user(
+                    request,
+                    subject,
+                    to,
+                    body,
+                    log_dict=log_dict,
+                    cc=cc,
+                    bcc=bcc_chunk,
+                )
+
         logger.info(self.style.SUCCESS('Email sent'))
 
-        new_log = utils_models.LogEntry.objects.filter(subject=log_subject).last()
+        new_log = utils_models.LogEntry.objects.filter(
+            subject__contains=log_subject
+        ).last()
         if new_log:
             logger.info(f'Log: {new_log}')
         else:
             logger.warn(
                 self.style.WARNING(
-                    'Email not logged. You may want to double check it was sent.'
+                    'Email not logged. You may want to '
+                    'double-check it was sent.'
                 )
             )

@@ -30,6 +30,7 @@ geoip2==3.0.0 # Newer versions require python >= 3.6
 html2text==2017.10.4
 idna==2.7
 ipaddress==1.0.16
+more_itertools==10.1.0
 jsmin==3.0.1
 kitchen==1.2.4
 libsass==0.22.0
