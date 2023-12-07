@@ -55,7 +55,7 @@ urlpatterns = [
 
     re_path(r'^list/(?P<subject_id>\d+)/$',
         views.repository_list,
-        name='preprints_list_subject'),
+        name='repository_list_subject'),
 
     re_path(r'^editors/$',
         views.preprints_editors,
