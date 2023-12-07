@@ -4,6 +4,7 @@ from django.contrib import messages
 
 from utils import setting_handler, models
 from security.decorators import editor_user_required
+from core.homepage_elements.news import forms
 
 
 @editor_user_required
@@ -28,6 +29,7 @@ def news_config(request):
     template = 'news_settings.html'
     context = {
         'number_of_articles': number_of_articles,
+        'form': forms.NewsForm(journal=request.journal)
     }
 
     return render(request, template, context)
