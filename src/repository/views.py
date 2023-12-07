@@ -495,7 +495,7 @@ def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
 
-    template = 'repository/pdf.html'
+    template = 'common/repository/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }
