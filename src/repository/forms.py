@@ -688,6 +688,7 @@ class ReviewCommentForm(forms.Form):
         if self.review.comment:
             self.fields['body'].initial = self.review.comment.body
             self.fields['anonymous'].initial = self.review.anonymous
+            self.fields['recommendation'].initial = self.review.recommendation.pk
 
         self.fields['recommendation'].queryset = models.ReviewRecommendation.objects.filter(
             repository=self.review.preprint.repository,
