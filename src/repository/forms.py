@@ -457,6 +457,7 @@ class RepositoryInitial(RepositoryBase):
             'domain',
             'object_name',
             'object_name_plural',
+            'theme',
             'publisher',
         )
         help_texts = {

@@ -60,6 +60,12 @@ def width_choices():
     )
 
 
+def theme_choices():
+    return(
+        (theme, theme) for theme in settings.REPOSITORY_THEMES
+    )
+
+
 fs_path = os.path.join('files/')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
 preprint_media_store = JanewayFileSystemStorage()
@@ -225,6 +231,12 @@ class Repository(
         blank=True,
     )
     history = HistoricalRecords()
+    theme = models.CharField(
+        max_length=20,
+        blank=False,
+        default='material',
+        choices=theme_choices(),
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -524,7 +536,7 @@ class Preprint(models.Model):
             preprint=self,
         ).select_related('account')
 
-        return [pa.account for pa in preprint_authors]
+        return [pa.account for pa in preprint_authors if pa.account]
 
     @property
     def safe_title(self):
