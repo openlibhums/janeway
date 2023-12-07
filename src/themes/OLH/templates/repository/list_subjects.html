@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load pages %}
+
+{% block title %}{{ request.repository.name }} Subjects{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row">
+            <div class="large-12 columns">
+                <h1>{{ request.repository.name }} Subjects</h1>
+                <p>Select a subject to
+                    view {{ request.repository.object_name_plural }} in that
+                    subject.</p>
+                <ul id="subjects" class="tree">
+                    {% include "common/repository/subject_tree.html" with subjects=top_level_subjects %}
+                </ul>
+            </div>
+        </div>
+    </section>
+{% endblock %}

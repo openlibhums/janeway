@@ -1,0 +1,16 @@
+<div class="row" data-equalizer data-equalize-on="medium">
+    {% for preprint in preprints %}
+        <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
+            <div class="callout"
+                 data-equalizer-watch>
+                <p><small><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></small></p>
+                <p><small>{{ preprint.display_authors_compact }}</small></p>
+                <p><small><i class="fa fa-calendar">&nbsp;</i>{{ preprint.date_published|date:"Y-m-d" }}</small></p>
+            </div>
+        </div>
+        {% if forloop.counter|divisibleby:3 %}
+            </div>
+            <div class="row" data-equalizer data-equalize-on="medium">
+        {% endif %}
+    {% endfor %}
+    </div>

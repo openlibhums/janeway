@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load truncate %}
 
 
 {% block title %}{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}
@@ -12,23 +13,30 @@
     <section id="content">
         <div class="row">
             <div class="large-8 columns border-right">
-                <h4>{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}{% endif %}</h4>
+                <div class="large-12 columns">
+                    <h1>{{ request.repository.object_name_plural }}</h1>
+                    <p>
+                        {% if search_term %}
+                            Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
+                        {% elif subject %}
+                            Filtering by Subject: {{ subject }}
+                        {% else %}
+                            There {% if preprints.paginator.count > 1 %}are {{ preprints.paginator.count }} {{ request.repository.object_name_plural }} listed.{% elif preprints.paginator.count == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
+                        {% endif %}
+                    </p>
+                </div>
                 {% for preprint in preprints %}
                     <div class="box article">
-                        <a href="{% url 'preprints_preprint' preprint.pk %}"
+                        <a href="{% url 'repository_preprint' preprint.pk %}"
                            class="box-link"></a>
                         <div class="clearfix">
                             <div class="large-12s columns end">
                                 <h2>{{ preprint.title|safe }}</h2>
-                                <p>{% for author in preprint.authors.all %}{% if forloop.last %}
-                                    {% if preprint.authors.all|length > 1 %} and
-                                    {% endif %}{% endif %}{{ author.full_name }}
-                                    {% if not forloop.last %}
-                                        {% if not forloop.counter == preprint.authors.all|length|add:-1 %},
-                                        {% endif %}{% endif %}{% endfor %}</p>
+                                <p>{{ preprint.display_authors_compact }}</p>
                                 <p><span class="date"><i
                                         class="fa fa-calendar"></i> {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;<i
-                                        class="fa fa-paperclip"></i> {{ preprint.get_subject_area }}</span></p>
+                                        class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
+                                <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
                             </div>
                         </div>
                     <hr />
@@ -53,7 +61,7 @@
             <aside class="large-4 columns" data-sticky-container>
                 <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                     <div class="section">
-                        <form method="POST" action="{% url 'preprints_search' %}">
+                        <form method="POST" action="{% url 'repository_search' %}">
                             {% csrf_token %}
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
@@ -87,7 +95,7 @@
                         <h5>{% trans "Filter by Subject" %}</h5>
                         <ul>
                             {% for list_subject in subjects %}
-                                {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' request.repository.short_name list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
+                                {% if not list_subject == subject %}<li><a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
                             {% endfor %}
                         </ul>
                         </div>
