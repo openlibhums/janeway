@@ -3,6 +3,17 @@
 from django.db import migrations, models
 
 
+def set_repo_themes(apps, schema_editor):
+    """
+    For existing repositories we should set the theme back to material.
+    """
+    Repository = apps.get_model(
+        'repository',
+        'Repository',
+    )
+    Repository.objects.all().update(theme='material')
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -18,11 +29,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repository',
             name='theme',
-            field=models.CharField(choices=[('material', 'material'), ('OLH', 'OLH')], default='material', max_length=20),
+            field=models.CharField(choices=[('material', 'material'), ('OLH', 'OLH')], default='OLH', max_length=20),
         ),
         migrations.AlterField(
             model_name='preprintversion',
             name='title',
             field=models.CharField(blank=True, help_text='Your article title', max_length=300),
+        ),
+        migrations.RunPython(
+            set_repo_themes,
+            reverse_code=migrations.RunPython.noop
         ),
     ]

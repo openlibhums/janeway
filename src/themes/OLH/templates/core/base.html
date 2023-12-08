@@ -65,8 +65,7 @@
                     {% endif %}
                 {% elif request.repository %}
                     {% if request.repository.logo %}
-                        <img src="{{ request.repository.logo.url }}"
-                             class="responsive-img"/>
+                        {% svg_or_image request.repository.logo %}
                     {% else %}
                         {{ request.repository.name }}
                     {% endif %}

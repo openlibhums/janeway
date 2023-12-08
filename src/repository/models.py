@@ -234,7 +234,7 @@ class Repository(
     theme = models.CharField(
         max_length=20,
         blank=False,
-        default='material',
+        default='OLH',
         choices=theme_choices(),
     )
 
