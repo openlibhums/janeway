@@ -3,10 +3,15 @@
 {% load roles %}
 {% load i18n %}
 
-
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/unassigned_base.html" %}
+    <li>{{ article.safe_title }}</li>
+{% endblock breadcrumbs %}
 
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
