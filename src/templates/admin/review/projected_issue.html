@@ -7,6 +7,13 @@
 {% block title-section %}Projected Issue{% endblock %}
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/unassigned_base.html" %}
+    <li><a href="{% url 'review_unassigned_article' article.pk %}">{{ article.safe_title }}</a></li>
+	<li>Assign Projected Issue</li>
+{% endblock breadcrumbs %}
+
 {% block body %}
 	<div class="row expanded">
 		<div class="large-6 columns">
