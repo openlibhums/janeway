@@ -600,6 +600,13 @@ CORE_THEMES = [
     'clean',
 ]
 
+# Repository theme setting determines which themes currently
+# support repositories.
+REPOSITORY_THEMES = [
+    'OLH',
+    'material',
+]
+
 INSTALLATION_BASE_THEME = 'OLH'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -609,10 +616,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
 }
-
-# Repository theme setting determines which themes currently
-# support repository themes.
-REPOSITORY_THEMES = [
-    'material',
-    'OLH',
-]
