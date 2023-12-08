@@ -13,18 +13,12 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-12 columns">
+    <div class="large-12 columns box">
+        {% include "admin/elements/forms/errors.html" with form=form %}
         <form method="POST">
             {% csrf_token %}
-            <small>You can set the number of news articles to display.</small>
-            <input type="number" name="number_of_articles" value="{{ number_of_articles }}">
+            {{ form|foundation }}
             <button type="submit" class="success button">Save</button>
         </form>
     </div>
 {% endblock body %}
-
-{% block js %}
-{% include "elements/jqte.html" %}
-{% endblock js %}
-
-

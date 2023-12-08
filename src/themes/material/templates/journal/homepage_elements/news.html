@@ -11,6 +11,19 @@
                     <span class="card-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</span>
                 </div>
                 {% for item in news_items %}
+                    {% if display_images %}
+                        {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
+                            <div class="card-image">
+                                <img src="{{ item.best_image_url }}"
+                                     alt="{{ item.title }}"/>
+                                <span class="card-title">
+                          <div class="carousel-text-wrapper">
+                            {{ item.title }}
+                          </div>
+                        </span>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                     <div class="card-content">
 
                         <span class="card-title">{{ item.title }}</span>
