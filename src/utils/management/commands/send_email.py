@@ -2,7 +2,7 @@ from django.contrib.auth.models import ContentType
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-import os
+import time
 import json
 from more_itertools import chunked
 
@@ -59,7 +59,11 @@ class Command(BaseCommand):
         parser.add_argument(
             '--bcc',
             help='Filepath to JSON file containing a list of email '
-                 'addresses of BCC recipients, relative to Janeway BASE_DIR',
+                 'addresses of BCC recipients',
+        )
+        parser.add_argument(
+            '--replyto',
+            help='Email address for replies',
         )
         parser.add_argument(
             '--subject',
@@ -69,8 +73,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--body',
             required=True,
-            help='Filepath to UTF-8 text file, with optional HTML markup, '
-                 'relative to Janeway BASE_DIR',
+            help='Filepath to UTF-8 text file, with optional HTML markup',
         )
         parser.add_argument(
             '--confirm',
@@ -143,7 +146,7 @@ class Command(BaseCommand):
         subject = options['subject']
         to = options['to']
 
-        body_file = os.path.join(settings.BASE_DIR, options['body'])
+        body_file = options['body']
         try:
             with open(body_file, 'r') as ref:
                 body = ref.read()
@@ -176,7 +179,7 @@ class Command(BaseCommand):
         if not options['bcc']:
             bcc = []
         else:
-            bcc_file = os.path.join(settings.BASE_DIR, options['bcc'])
+            bcc_file = options['bcc']
             try:
                 with open(bcc_file, 'r') as ref:
                     bcc = json.loads(ref.read())
@@ -193,21 +196,25 @@ class Command(BaseCommand):
             batch_num = 1
             log_dict['action_text'] = f'{log_subject} (batch {batch_num})'
 
-            custom_reply_to_setting = setting_handler.get_setting(
-                'general',
-                'replyto_address',
-                journal,
-            )
-            if custom_reply_to_setting and custom_reply_to_setting.value:
-                reply_to = (custom_reply_to_setting.value,)
+            if options['replyto']:
+                reply_to = (options['replyto'],)
             else:
-                logger.error(
-                    self.style.ERROR(
-                        f'replyto_address setting needed for BCC list '
-                        f'length over {batch_size}'
-                    )
+                custom_reply_to_setting = setting_handler.get_setting(
+                    'general',
+                    'replyto_address',
+                    journal,
                 )
-                return
+                if custom_reply_to_setting and custom_reply_to_setting.value:
+                    reply_to = (custom_reply_to_setting.value,)
+                else:
+                    logger.error(
+                        self.style.ERROR(
+                            f'--replyto argument or '
+                            f'replyto_address setting value needed for BCC list '
+                            f'length over {batch_size}'
+                        )
+                    )
+                    return
 
         if options['confirm']:
             logger.info(
@@ -245,6 +252,7 @@ class Command(BaseCommand):
             for i, bcc_chunk in enumerate(
                 chunked(bcc[batch_size:], batch_size)
             ):
+                time.sleep(0.5)
                 batch_num = i + 2
                 log_dict['action_text'] = f'{log_subject} (batch {batch_num})'
                 send_email_with_body_from_user(
