@@ -21,6 +21,11 @@ def yield_homepage_element_context(request, homepage_elements):
             request.journal if request.journal else None).value
         number_of_articles = int(
             number_of_articles) if number_of_articles else 2
+        display_images = setting_handler.get_setting(
+            'plugin:News',
+            'display_images',
+            request.journal,
+        ).value
 
         news_items = comms_models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(
@@ -29,6 +34,9 @@ def yield_homepage_element_context(request, homepage_elements):
             (Q(end_display__gte=timezone.now()) | Q(end_display=None))
         ).order_by('-posted')[:number_of_articles]
 
-        return {'news_items': news_items}
+        return {
+            'news_items': news_items,
+            'display_images': display_images,
+        }
     else:
         return {}

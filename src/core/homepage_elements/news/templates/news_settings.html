@@ -14,6 +14,7 @@
 
 {% block body %}
     <div class="large-12 columns box">
+        {% include "admin/elements/forms/errors.html" with form=form %}
         <form method="POST">
             {% csrf_token %}
             {{ form|foundation }}
