@@ -181,7 +181,7 @@
             "type": "char"
         },
         "value": {
-            "default": "janeway@voyager.com"
+            "default": "noreply@example.org"
         },
         "editable_by": [
             "journal-manager"
