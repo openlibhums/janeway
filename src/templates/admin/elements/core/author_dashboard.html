@@ -89,7 +89,7 @@
                         <th>Title</th>
                         <th>Current Stage</th>
                         <th>Date Published</th>
-                        <th>View Live</th>
+                        <th>View </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -99,7 +99,17 @@
                             <td>{{ article.get_stage_display }}</td>
                             <td>{{ article.date_published }}</td>
                             <td>
-                                <a class="small button" href="{{ article.url }}">View Live</a>
+                                <!--same link as "View Status" above for unpublished articles so history, peer reviews etc can be viewed -->
+                                <a class="small button" href="{% url 'core_dashboard_article' article.pk %}">History</a> 
+                                {% for revision in article.active_revision_requests %}
+                                    {% if not revision.date_completed %}
+                                        <a class="small button" href="{% url 'do_revisions' article.pk revision.pk %}">Revision
+                                            Request</a>
+                                    {% endif %}
+                                {% endfor %}
+                                            
+                                <!--links to published article-->
+                                <a class="small button" href="{{ article.url }}">Live</a>
                             </td>
                         </tr>
                     {% endfor %}
