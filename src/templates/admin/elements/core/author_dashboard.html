@@ -99,7 +99,8 @@
                             <td>{{ article.get_stage_display }}</td>
                             <td>{{ article.date_published }}</td>
                             <td>
-                                <!--same link as "View Status" above for unpublished articles so history, peer reviews etc can be viewed -->
+                                {% comment "same link as "View Status" above for unpublished articles so history, peer reviews etc can be viewed" %}
+                                {% endcomment %}
                                 <a class="small button" href="{% url 'core_dashboard_article' article.pk %}">History</a> 
                                 {% for revision in article.active_revision_requests %}
                                     {% if not revision.date_completed %}
@@ -108,7 +109,8 @@
                                     {% endif %}
                                 {% endfor %}
                                             
-                                <!--links to published article-->
+                                {% comment "links to published article" %}
+                                {% endcomment %}
                                 <a class="small button" href="{{ article.url }}">Live</a>
                             </td>
                         </tr>
