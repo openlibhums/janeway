@@ -495,7 +495,7 @@ def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
 
-    template = 'repository/pdf.html'
+    template = 'common/repository/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }
@@ -2391,3 +2391,88 @@ def send_user_email(request, user_id, preprint_id):
         'article': article,
     }
     return render(request, template, context)
+
+
+@is_repository_manager
+def list_review_recommendations(request):
+    recommendations = models.ReviewRecommendation.objects.filter(
+        repository=request.repository,
+    )
+    if request.POST and 'delete' in request.POST:
+        recommendation_id = request.POST.get('delete')
+        try:
+            recommendation = models.ReviewRecommendation.objects.get(
+                pk=recommendation_id,
+            )
+            if not recommendation.review_set.exists():
+                recommendation.delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Recommendation deleted.',
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'Recommendation is linked to reviews. You can mark it as'
+                    ' inactive if you no longer wish to use it.',
+                )
+        except models.ReviewRecommendation.DoesNotExist:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No recommendation found with that ID.',
+            )
+        return redirect(
+            reverse(
+                'repository_list_review_recommendations'
+            )
+        )
+    template = 'admin/repository/review/list_review_recommendations.html'
+    context = {
+        'recommendations': recommendations,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@is_repository_manager
+def manage_review_recommendation(request, recommendation_id=None):
+    recommendation = None
+    if recommendation_id:
+        recommendation = get_object_or_404(
+            models.ReviewRecommendation,
+            pk=recommendation_id,
+            repository=request.repository,
+        )
+    form = forms.RecommendationForm(
+        instance=recommendation,
+        repository=request.repository,
+    )
+    if request.POST:
+        form = forms.RecommendationForm(
+            request.POST,
+            instance=recommendation,
+            repository=request.repository,
+        )
+        if form.is_valid():
+            form.save()
+            return redirect(
+                reverse(
+                    'repository_list_review_recommendations'
+                )
+            )
+    template = 'admin/repository/review/manage_review_recommendation.html'
+    context = {
+        'recommendation': recommendation,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )

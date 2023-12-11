@@ -45,8 +45,12 @@ class Loader(FileSystemLoader):
                     pass
 
             elif request.repository:
-                # only the material theme supports repositories at the moment.
-                theme_setting = 'material'
+                theme_setting = 'OLH'
+                if (
+                        request.repository.theme and
+                        request.repository.theme in settings.REPOSITORY_THEMES
+                ):
+                    theme_setting = request.repository.theme
             else:
                 # this is the press site
                 theme_setting = request.press.theme

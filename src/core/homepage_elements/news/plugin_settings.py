@@ -40,6 +40,18 @@ def install():
         setting,
         default_value=DEFAULT_NEWS,
     )
+    setting = setting_handler.create_setting(
+        setting_group_name=plugin_group_name,
+        setting_name='display_images',
+        type='boolean',
+        pretty_name='Display Images',
+        description='When enabled the News Plugin will display news images.',
+        is_translatable=False,
+    )
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value='',
+    )
 
     for journal in journals:
         content_type = ContentType.objects.get_for_model(journal)

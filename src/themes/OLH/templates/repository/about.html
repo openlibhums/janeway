@@ -4,7 +4,7 @@
 {% block title %}{{ request.repository.name }}{% endblock %}
 
 {% block navbar %}
-    {% include "press/nav.html" %}
+    {% include "repository/nav.html" %}
 {% endblock navbar %}
 
 {% block body %}
@@ -12,12 +12,8 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h2 class="text-center">{% trans "About" %} {{ request.repository.name }}</h2>
-                {% if request.press.preprints_about %}
-                    {{ request.press.preprints_about|safe }}
-                {% else %}
-                    <p></p>
-                {% endif %}
+                <h1>{% trans "About" %} {{ request.repository.name }}</h1>
+                {{ request.repository.about|safe }}
             </div>
         </div>
     </section>

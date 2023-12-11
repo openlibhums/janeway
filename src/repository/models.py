@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
 import uuid
+import json
 from dateutil import parser as dateparser
 
 from django.db import models
@@ -57,6 +58,12 @@ def width_choices():
         (6, '6'),
         (9, '9'),
         (12, '12'),
+    )
+
+
+def theme_choices():
+    return(
+        (theme, theme) for theme in settings.REPOSITORY_THEMES
     )
 
 
@@ -225,6 +232,12 @@ class Repository(
         blank=True,
     )
     history = HistoricalRecords()
+    theme = models.CharField(
+        max_length=20,
+        blank=False,
+        default='OLH',
+        choices=theme_choices(),
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -524,7 +537,7 @@ class Preprint(models.Model):
             preprint=self,
         ).select_related('account')
 
-        return [pa.account for pa in preprint_authors]
+        return [pa.account for pa in preprint_authors if pa.account]
 
     @property
     def safe_title(self):
@@ -1216,6 +1229,22 @@ def review_status_choices():
     )
 
 
+class ReviewRecommendation(models.Model):
+    repository = models.ForeignKey(
+        'Repository',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=255,
+    )
+    active = models.BooleanField(
+        default=True,
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Review(models.Model):
     preprint = models.ForeignKey(
         'Preprint',
@@ -1276,6 +1305,11 @@ class Review(models.Model):
     )
     notification_sent = models.BooleanField(
         default=False,
+    )
+    recommendation = models.ForeignKey(
+        'ReviewRecommendation',
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     def accept(self, request):
@@ -1425,3 +1459,19 @@ def add_email_setting_defaults(sender, instance, **kwargs):
     """
     if instance._state.adding:
         install.load_settings(instance)
+
+        with open(
+            os.path.join(
+                settings.BASE_DIR,
+                'utils',
+                'install',
+                'default_repository_review_recommendations.json',
+            )
+        ) as defaults_file:
+            defaults = json.load(defaults_file)
+            for repo in Repository.objects.all():
+                for default in defaults:
+                    ReviewRecommendation.objects.get_or_create(
+                        repository=repo,
+                        name=default,
+                    )

@@ -1,0 +1,12 @@
+{% load roles %}
+{% load i18n %}
+
+<ul class="menu">
+    <li><a href="{% url 'repository_dashboard' %}">{% trans 'Dashboard' %}</a></li>
+    {% if request.user in request.repository.managers.all %}
+    <li><a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a></li>
+    {% endif %}
+    {% if request.user.is_admin %}<li><a href="/admin/">{% trans 'Admin' %}</a></li>{% endif %}
+    <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+    <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
+</ul>
