@@ -131,6 +131,7 @@ class Command(BaseCommand):
         press = press_models.Press.objects.first()
 
         request = Request()
+        request.META = {}
         request.journal = journal
         request.press = press
         request.repository = None
