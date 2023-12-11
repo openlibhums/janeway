@@ -513,23 +513,26 @@ class Journal(AbstractSiteModel):
             )
 
     def setup_default_review_form(self):
-        default_review_form = review_models.ReviewForm.objects.create(
+        default_review_form, c = review_models.ReviewForm.objects.get_or_create(
             journal=self,
             name='Default Form',
-            intro='Please complete the form below.',
-            thanks='Thank you for completing the review.'
+            defaults={
+                'intro': 'Please complete the form below.',
+                'thanks': 'Thank you for completing the review.',
+            }
         )
 
-        main_element = review_models.ReviewFormElement.objects.create(
-            name='Review',
-            kind='textarea',
-            required=True,
-            order=1,
-            width='large-12 columns',
-            help_text=gettext('Please add as much detail as you can.'),
-        )
+        if c:
+            main_element = review_models.ReviewFormElement.objects.create(
+                name='Review',
+                kind='textarea',
+                required=True,
+                order=1,
+                width='large-12 columns',
+                help_text=gettext('Please add as much detail as you can.'),
+            )
 
-        default_review_form.elements.add(main_element)
+            default_review_form.elements.add(main_element)
 
 
 class PinnedArticle(models.Model):
