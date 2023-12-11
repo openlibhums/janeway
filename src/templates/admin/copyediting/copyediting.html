@@ -20,6 +20,7 @@
                     <th>ID</th>
                     <th>Title</th>
                     <th>Submitted</th>
+                    <th>Accepted</th>
                     <th>Main Author</th>
                     <th>Section</th>
                     <th>Projected Issue</th>
@@ -33,6 +34,7 @@
                         <td>{{ article.pk }}</td>
                         <td>{{ article.safe_title }}</td>
                         <td>{{ article.date_submitted }}</td>
+                        <td>{{ article.date_accepted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{{ article.section.name }}</td>
                         <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
