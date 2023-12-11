@@ -13,7 +13,6 @@ from utils import models as utils_models, setting_handler
 from utils.notify_helpers import send_email_with_body_from_user
 from utils.logger import get_logger
 from cron.models import Request
-from argparse import BooleanOptionalAction
 
 logger = get_logger(__name__)
 
@@ -76,11 +75,10 @@ class Command(BaseCommand):
             help='Filepath to UTF-8 text file, with optional HTML markup',
         )
         parser.add_argument(
-            '--confirm',
-            help='Confirm with stdout and command line input before sending. '
-                 'Pass --no-confirm to send immediately',
-            default=True,
-            action=BooleanOptionalAction,
+            '--immediately',
+            help='By default, you get email data in stdout and must confirm to send. '
+                 'Pass --immediately to send immediately',
+            action='store_true',
         )
         parser.add_argument(
             '--batchsize',
@@ -216,7 +214,7 @@ class Command(BaseCommand):
                     )
                     return
 
-        if options['confirm']:
+        if not options['immediately']:
             logger.info(
                 f'\n\n'
                 f'Preparing to send email from {request.site_type}\n\n'
