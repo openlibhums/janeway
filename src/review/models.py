@@ -44,6 +44,7 @@ def reviewer_decision_choices():
     Review decision options presented to a Reviewer.
     """
     return (
+        (None, '-----------'),
         (RD.DECISION_ACCEPT.value, 'Accept Without Revisions'),
         (RD.DECISION_MINOR.value, 'Minor Revisions Required'),
         (RD.DECISION_MAJOR.value, 'Major Revisions Required'),
