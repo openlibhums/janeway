@@ -28,7 +28,7 @@
                             <h2 class="no-top-margin">{{ item.title }}</h2>
                         {% endif %}
                         <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
-                        <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                        <p>{{ item.body|truncatewords_html:50|safe }}</p>
                     </div>
                     <div class="card-action">
                         <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
