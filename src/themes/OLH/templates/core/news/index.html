@@ -22,7 +22,7 @@
                         <div class="large-7 columns">
                             <h4>{{ item.title }}</h4>
                             <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
-                            <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                            <p>{{ item.body|truncatewords_html:50|safe}}</p>
                             <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                         </div>
                     </div>
