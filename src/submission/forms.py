@@ -234,10 +234,11 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
     def __init__(self, *args, **kwargs):
         super(EditorArticleInfoSubmit, self).__init__(*args, **kwargs)
-        self.fields['section'].label_from_instance = lambda obj: obj.display_name_public_submission
-        self.fields['section'].help_text = "As an editor you will see all " \
-                                           "sections even if they are  " \
-                                           "closed for public submission"
+        if self.fields.get('section'):
+            self.fields['section'].label_from_instance = lambda obj: obj.display_name_public_submission
+            self.fields['section'].help_text = "As an editor you will see all " \
+                                               "sections even if they are  " \
+                                               "closed for public submission"
 
 
 class AuthorForm(forms.ModelForm):
