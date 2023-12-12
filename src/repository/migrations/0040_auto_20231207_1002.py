@@ -24,12 +24,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalrepository',
             name='theme',
-            field=models.CharField(choices=[('material', 'material'), ('OLH', 'OLH')], default='material', max_length=20),
+            field=models.CharField(choices=[('OLH', 'OLH'), ('material', 'material')], default='OLH', max_length=20),
         ),
         migrations.AddField(
             model_name='repository',
             name='theme',
-            field=models.CharField(choices=[('material', 'material'), ('OLH', 'OLH')], default='OLH', max_length=20),
+            field=models.CharField(choices=[('OLH', 'OLH'), ('material', 'material')], default='OLH', max_length=20),
         ),
         migrations.AlterField(
             model_name='preprintversion',

@@ -30,7 +30,7 @@ def add_default_recommendations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0039_alter_preprintversion_title'),
+        ('repository', '0040_auto_20231207_1002'),
     ]
 
     operations = [
