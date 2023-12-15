@@ -54,8 +54,11 @@
                 <h2>2. Select Files</h2>
             </div>
             <div class="content">
-                <p>Select the files that you would like to have typeset. This should include the latest version of the manuscript, as well as any supporting multimedia files, such as figures.</p>
+                <p>Please select the manuscript file that the typesetter should use to generate typeset files.</p>
                 {% include "typesetting/elements/file_list.html" with files=files %}
+
+                <p>Typesetters will automatically have access to the following data and figure files: </p>
+                {% include "typesetting/elements/data_fig_files.html" %}
             </div>
             <div class="title-area">
                 <h2>3. Set a Due Date</h2>

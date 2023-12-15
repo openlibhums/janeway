@@ -1,0 +1,18 @@
+<table class="scroll small">
+    <tr style="text-align: left">
+        <th>Label</th>
+        <th width="50%">Filename</th>
+        <th>Type</th>
+        <th>Modified</th>
+        <th></th>
+    </tr>
+    {% for file in article.data_figure_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.original_filename }}</td>
+            <td>Figure/Data</td>
+            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
+            <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
+        </tr>
+    {% endfor %}
+</table>
