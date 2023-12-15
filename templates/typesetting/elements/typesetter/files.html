@@ -6,6 +6,7 @@
         <th>Label</th>
         <th width="50%">Filename</th>
         <th>Type</th>
+        <th>Modified</th>
         <th></th>
     </tr>
     {% for file in assignment.files_to_typeset.all %}
@@ -13,6 +14,7 @@
             <td>{{ file.label }}</td>
             <td>{{ file.original_filename }}</td>
             <td>MS</td>
+            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a href="{% url 'typesetting_typesetter_download_file' assignment.pk file.pk %}"><i
                         class="fa fa-download">&nbsp;</i></a>
@@ -24,6 +26,7 @@
             <td>{{ file.label }}</td>
             <td>{{ file.original_filename }}</td>
             <td>Figure/Data</td>
+            <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a href="{% url 'typesetting_typesetter_download_file' assignment.pk file.pk %}"><i
                         class="fa fa-download">&nbsp;</i></a>
