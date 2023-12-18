@@ -1143,6 +1143,12 @@ class Article(AbstractLastModifiedModel):
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
 
+    @property
+    def stage_log_list(self):
+        return [
+            stage.stage_to for stage in self.articlestagelog_set.all()
+        ]
+
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
