@@ -65,7 +65,7 @@ urlpatterns = [
         name='journal_articles',
     ),
 
-    re_path(r'^funder_articles/(?P<funder_id>.+)$', views.funder_articles, name='funder_articles'),
+    re_path(r'^funder_articles/(?P<funder_id>\d+)$', views.funder_articles, name='funder_articles'),
 
     # Issues/Collections
     re_path(r'^issues/$', views.issues, name='journal_issues'),
