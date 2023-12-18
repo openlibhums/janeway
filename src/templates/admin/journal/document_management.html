@@ -72,9 +72,18 @@
             </table>
 
             <p>If required, you can upload new files to various sections of the workflow.</p>
-            <a class="button success" data-open="uploadbox" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
+            <a class="button success" data-open="uploadbox-man" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
                     class="fa fa-cloud-upload">
-                &nbsp;</i>Upload File</a>
+                &nbsp;</i>Upload Manuscript File</a>
+            <a class="button success" data-open="uploadbox-data" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
+                    class="fa fa-cloud-upload">
+                &nbsp;</i>Upload Figure/Data File</a>
+            <a class="button success" data-open="uploadbox-prod" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
+                    class="fa fa-cloud-upload">
+                &nbsp;</i>Upload Production File</a>
+            <a class="button success" data-open="uploadbox-proof" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
+                    class="fa fa-cloud-upload">
+                &nbsp;</i>Upload Proofing File</a>
 
         </div>
     </div>
@@ -89,7 +98,7 @@
         </form>
     </div>
 
-    <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+    <div class="reveal" id="uploadbox-man" data-reveal data-animation-in="slide-in-up"
          data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
@@ -97,7 +106,7 @@
             </div>
         </div>
         <div class="card-section">
-            <p>Add a label and then upload a file. You can only upload one file type at a <time class=""></time></p>
+            <p>Add a label and then upload a file. </p>
             {% if error %}
                 <div class="alert alert-warning" role="alert">{{ error }}</div>
             {% endif %}
@@ -122,8 +131,32 @@
                             &nbsp;</i>Upload
                         </button>
                     </div>
-                </div>
+                </div>                
+            </form>
+        </div>
+    </div>
 
+   <div class="reveal" id="uploadbox-data" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            <p>Add a label and then upload a file. </p>
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="label">File Label*</label>
+                <input type="text" maxlength="200" id="label" name="label" placeholder="Add file label here." required="required" />
+                <input type="hidden" name="upload" value="upload">
                 <h4>Figure/Data File</h4>
                 <div class="clearfix">
                     <div>
@@ -136,8 +169,32 @@
                             &nbsp;</i>Upload
                         </button>
                     </div>
-                </div>
+                </div>               
+            </form>
+        </div>
+    </div>
 
+    <div class="reveal" id="uploadbox-prod" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            <p>Add a label and then upload a file. </p>
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="label">File Label*</label>
+                <input type="text" maxlength="200" id="label" name="label" placeholder="Add file label here." required="required" />
+                <input type="hidden" name="upload" value="upload">
                 <h4>Production</h4>
                 <div class="clearfix">
                     <div>
@@ -150,8 +207,32 @@
                             &nbsp;</i>Upload
                         </button>
                     </div>
-                </div>
+                </div>               
+            </form>
+        </div>
+    </div>
 
+    <div class="reveal" id="uploadbox-proof" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            <p>Add a label and then upload a file.</p>
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="label">File Label*</label>
+                <input type="text" maxlength="200" id="label" name="label" placeholder="Add file label here." required="required" />
+                <input type="hidden" name="upload" value="upload">
                 <h4>Proofing</h4>
                 <div class="clearfix">
                     <div>
@@ -164,12 +245,10 @@
                             &nbsp;</i>Upload
                         </button>
                     </div>
-                </div>
+                </div>               
             </form>
         </div>
     </div>
-
-
 
 {% endblock body %}
 
