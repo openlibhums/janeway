@@ -817,7 +817,7 @@ class PreprintFile(models.Model):
 
     def download_url(self):
         return reverse(
-            'repository_download_file',
+            'repository_file_download',
             kwargs=self.reverse_kwargs(),
         )
 
