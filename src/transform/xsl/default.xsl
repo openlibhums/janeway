@@ -445,6 +445,12 @@
         </ol>
     </xsl:template>
 
+    <xsl:template match="table-wrap-foot/fn-group">
+      <ol class="table-footnotes">
+        <xsl:apply-templates/>
+      </ol>
+    </xsl:template>
+
     <xsl:template match="fn-group/fn">
       <xsl:call-template name="referenced-footnote" />
     </xsl:template>
