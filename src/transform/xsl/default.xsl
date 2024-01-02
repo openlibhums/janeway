@@ -3618,6 +3618,11 @@
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
+                    <xsl:otherwise>
+                      <ul>
+                        <xsl:apply-templates/>
+                      </ul>
+                    </xsl:otherwise>
                 </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
@@ -3628,10 +3633,10 @@
     <xsl:template match="list-item">
         <xsl:choose>
             <xsl:when test="not(parent::list[@list-type='gloss']) and not(parent::list[@list-type='sentence-gloss'])">
-                <!-- Target list-items that have a title so we can use the title as the list-item-type -->
-                <!-- See also match="title" where we handle wrapping the title in a span -->
+                <!-- Target list-items that have a label so we can use the title as the list-item-type -->
+                <!-- See also match="label" where we handle wrapping the label in a span -->
                 <xsl:choose>
-                    <xsl:when test="name(*[1]) = 'title'">
+                    <xsl:when test="name(*[1]) = 'label'">
                         <li class="no-list-type">
                             <xsl:apply-templates/>
                         </li>
@@ -3733,18 +3738,15 @@
       </xsl:template>
 
     <xsl:template match="title">
-        <xsl:choose>
-            <xsl:when test="name(parent::*) = 'list-item'">
-                <span class="jats-list-type">
-                    <xsl:value-of select="node()" />
-                </span>
-            </xsl:when>
-            <xsl:otherwise>
-                <strong>
-                    <xsl:apply-templates/>
-                </strong>
-            </xsl:otherwise>
-        </xsl:choose>
+      <strong>
+          <xsl:apply-templates/>
+      </strong>
+    </xsl:template>
+
+    <xsl:template match="list-item/label">
+      <span class="jats-list-type">
+          <xsl:value-of select="node()" />
+      </span>
     </xsl:template>
 
     <xsl:template match="disp-quote">
