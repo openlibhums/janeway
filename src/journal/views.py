@@ -2624,10 +2624,10 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
 
     def get_order_by_choices(self):
         return [
-            ('title', _('Titles A-Z')),
-            ('-title', _('Titles Z-A')),
             ('-date_published', _('Newest')),
             ('date_published', _('Oldest')),
+            ('title', _('Titles A-Z')),
+            ('-title', _('Titles Z-A')),
             ('correspondence_author__last_name', _('Author Name')),
             ('primary_issue__volume', _('Volume')),
         ]
