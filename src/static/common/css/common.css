@@ -266,7 +266,7 @@ article .list-romanupper {
   color: #fff;
 }
 .no-list-type {
-    list-style-type: none;
+    list-style-type: none !important;
 }
 .no-list-type:first-child p {
     display: inline;
