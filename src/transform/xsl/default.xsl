@@ -3549,6 +3549,15 @@
                             <xsl:attribute name="class">
                                 <xsl:value-of select="'list-romanlower'"/>
                             </xsl:attribute>
+                            <xsl:if test="@continued-from">
+                                <xsl:variable name="continued-from-id" select="@continued-from"/>
+                                <xsl:variable name="count-list-items">
+                                  <xsl:number count="list-item[ancestor::list[@id=$continued-from-id]]"  level="any"/>
+                                </xsl:variable>
+                                <xsl:attribute name="start">
+                                  <xsl:value-of select="$count-list-items + 1"/>
+                                </xsl:attribute>
+                            </xsl:if>
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
@@ -3557,6 +3566,15 @@
                             <xsl:attribute name="class">
                                 <xsl:value-of select="'list-romanupper'"/>
                             </xsl:attribute>
+                            <xsl:if test="@continued-from">
+                                <xsl:variable name="continued-from-id" select="@continued-from"/>
+                                <xsl:variable name="count-list-items">
+                                  <xsl:number count="list-item[ancestor::list[@id=$continued-from-id]]"  level="any"/>
+                                </xsl:variable>
+                                <xsl:attribute name="start">
+                                  <xsl:value-of select="$count-list-items + 1"/>
+                                </xsl:attribute>
+                            </xsl:if>
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
@@ -3565,6 +3583,15 @@
                             <xsl:attribute name="class">
                                 <xsl:value-of select="'list-alphalower'"/>
                             </xsl:attribute>
+                          <xsl:if test="@continued-from">
+                            <xsl:variable name="continued-from-id" select="@continued-from"/>
+                            <xsl:variable name="count-list-items">
+                              <xsl:number count="list-item[ancestor::list[@id=$continued-from-id]]"  level="any"/>
+                            </xsl:variable>
+                            <xsl:attribute name="start">
+                              <xsl:value-of select="$count-list-items + 1"/>
+                            </xsl:attribute>
+                          </xsl:if>
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
@@ -3573,6 +3600,15 @@
                             <xsl:attribute name="class">
                                 <xsl:value-of select="'list-alphaupper'"/>
                             </xsl:attribute>
+                          <xsl:if test="@continued-from">
+                            <xsl:variable name="continued-from-id" select="@continued-from"/>
+                            <xsl:variable name="count-list-items">
+                              <xsl:number count="list-item[ancestor::list[@id=$continued-from-id]]"  level="any"/>
+                            </xsl:variable>
+                            <xsl:attribute name="start">
+                              <xsl:value-of select="$count-list-items + 1"/>
+                            </xsl:attribute>
+                          </xsl:if>
                             <xsl:apply-templates/>
                         </ol>
                     </xsl:when>
