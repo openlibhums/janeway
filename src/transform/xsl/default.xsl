@@ -850,6 +850,8 @@
             <xsl:apply-templates select="*[name()!='sec'] | node()"/>
         </div>
     </xsl:template>
+  
+  <xsl:template match="sec/label"/>
 
     <xsl:template match="sec[not(@sec-type='datasets')]/title | boxed-text/caption/title">
         <xsl:if test="node() != ''">
