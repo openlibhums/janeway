@@ -9,12 +9,12 @@ from importlib import import_module
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
-from semver import Version
+from packaging import version
 
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
+from janeway import __version__ as janeway_version
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
-from utils.logic import get_janeway_version
 
 
 def get_dirs(directory):
@@ -88,12 +88,12 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 def validate_plugin_version(plugin_settings):
     valid = None
     try:
-        wants_version = Version.parse(plugin_settings.JANEWAY_VERSION)
+        wants_version = version.parse(plugin_settings.JANEWAY_VERSION)
     except AttributeError:
         # No MIN version pinned by plugin
         return
 
-    current_version = get_janeway_version()
+    current_version = version.parse(janeway_version.base_version)
     valid = current_version >= wants_version
 
     if not valid:

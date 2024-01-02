@@ -2,14 +2,23 @@
 
 from django.db import migrations, models
 
+def set_constraints_immediately(apps, schema_editor):
+    """Circumvents psql not allowing transactions with DDL operations"""
+    if schema_editor.connection.vendor.startswith("postgresql"):
+        schema_editor.execute("SET CONSTRAINTS ALL IMMEDIATE")
+
+def set_constraints_deferred(apps, schema_editor):
+    if schema_editor.connection.vendor.startswith("postgresql"):
+        schema_editor.execute("SET CONSTRAINTS ALL DEFERRED")
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('press', '0031_press_journal_footer_text'),
     ]
-
     operations = [
+        migrations.RunPython(set_constraints_immediately, reverse_code=set_constraints_deferred),
         migrations.AlterField(
             model_name='press',
             name='description',
@@ -28,4 +37,5 @@ class Migration(migrations.Migration):
             field=models.TextField(blank=True, default='', help_text='Text that will appear in the footer of every journal, to display publisher address or other essential info. ', verbose_name='Journal footer text'),
             preserve_default=False,
         ),
+        migrations.RunPython(set_constraints_deferred, reverse_code=set_constraints_immediately),
     ]

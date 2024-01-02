@@ -1,7 +1,7 @@
     <meta name="twitter:card" content="summary">
     {% if journal_settings.general.twitter_handle %}<meta name="twitter:site" content="{{ journal_settings.general.twitter_handle }}">{% endif %}
     <meta name="twitter:title" content="{{ article.title }}">
-    <meta name="twitter:description" content="{{ article.abstract }}">
+    <meta name="twitter:description" content="{{ article.abstract|striptags }}">
     {% if article.correspondence_author.twitter_handle %}<meta name="twitter:creator" content="{{ article.correspondence_author.twitter_handle }}">{% endif %}
     <meta name="twitter:image" content="{{ article.get_meta_image_path }}">
 
@@ -9,5 +9,5 @@
     <meta property="og:type" content="article" />
     <meta property="og:url" content="{{ article.url }}" />
     <meta property="og:image" content="{{ article.get_meta_image_path }}" />
-    <meta property="og:description" content="{{ article.abstract }}" />
+    <meta property="og:description" content="{{ article.abstract|striptags }}" />
     <meta property="og:site_name" content="{{ request.journal.name }}" />
