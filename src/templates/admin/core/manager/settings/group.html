@@ -8,7 +8,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'core_edit_settings_group' group %}">{{ group|capfirst }} Settings</a></li>
+    <li>{{ group|capfirst }} Settings</li>
 {% endblock %}
 
 {% block body %}
