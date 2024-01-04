@@ -8,8 +8,8 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-{% include "elements/breadcrumbs/review_base.html" %}
-<li>Request Revisions</li>
+    {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
+    <li>Request Revisions</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
