@@ -10,7 +10,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_roles' %}">Roles</a></li>
-    <li><a href="{% url 'core_manager_role' role.slug %}">{{ role.name }}</a></li>
+    <li>{{ role.name }}</li>
 {% endblock %}
 
 {% block body %}
