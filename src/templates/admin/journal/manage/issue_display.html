@@ -5,7 +5,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/issue_management.html" %}
+    {% include "elements/breadcrumbs/issue_management.html" with subpage="yes" %}
     <li>Issue Title Display Settings</li>
 {% endblock breadcrumbs %}
 
