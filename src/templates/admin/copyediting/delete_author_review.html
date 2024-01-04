@@ -9,8 +9,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/copyediting_base.html" %}
-    <li><a href="{% url 'editor_review' article.pk copyedit.pk %}">Review Copyediting</a></li>
+    {% include "elements/breadcrumbs/copyediting_base.html" with subpage="yes" %}
+    <li>Review Copyediting</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
