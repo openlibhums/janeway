@@ -5,8 +5,9 @@
 {% block title-section %}Copyedit Requests{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/copyediting_base.html" %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" with subpage="yes" %}
+    <li>Copyedit Requests</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
