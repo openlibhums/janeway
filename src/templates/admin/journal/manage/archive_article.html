@@ -14,6 +14,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'manage_archive' %}">Article Archive</a></li>
+    <li>{{ article.safe_title }}</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
