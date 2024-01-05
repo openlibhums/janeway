@@ -9,8 +9,12 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
-    {% if field %}<li><a href="{% url 'submission_fields_id' field.pk %}">{{ field.name }}</a></li>{% endif %}
+    {% if field %}
+        <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
+        <li>Edit {{ field.name }}</li>
+    {% else %}
+        <li>Submission Fields</li>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
