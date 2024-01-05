@@ -9,6 +9,11 @@
     <link href="{% static 'admin/css/timeline.css' %}"
           rel="stylesheet">{% endblock %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Submit an Article</li>
+{% endblock %}
+
 {% block body %}
     <article>
         <div class="box">
