@@ -6,6 +6,11 @@
 
 {% block title-section %}{% trans "Review your submission" %}{% endblock %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Submit an Article</li>
+{% endblock %}
+
 {% block body %}
     <div class="box">
         <form method="POST">
