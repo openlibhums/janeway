@@ -8,6 +8,11 @@
 	<li>Unassigned Articles</li>
 {% endblock breadcrumbs %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Unassigned Articles</li>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
         <div class="large-12 columns">
