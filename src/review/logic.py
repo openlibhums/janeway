@@ -26,7 +26,17 @@ from django.utils.safestring import mark_safe
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
+<<<<<<< HEAD
 from core import models as core_models, files, email
+=======
+from core import models as core_models, files, forms as core_forms
+>>>>>>> caa3bb92 (Refactor automatic editor assignment email #3866)
+from core import(
+    files,
+    forms as core_forms,
+    email,
+    models as core_models,
+)
 from review import models
 from review.const import EditorialDecisions as ED
 from events import logic as event_logic
@@ -724,20 +734,29 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
 
 
 def assign_editor(article, editor, assignment_type, request=None, skip=True):
-        assignment, created = models.EditorAssignment.objects.get_or_create(
-            article=article,
-            editor=editor,
-            editor_type=assignment_type,
+    assignment, created = models.EditorAssignment.objects.get_or_create(
+        article=article,
+        editor=editor,
+        editor_type=assignment_type,
+    )
+    if request and created:
+
+        email_context = get_assignment_context(
+            request,
+            article,
+            editor,
+            assignment,
         )
-        if request and created:
-            message_content = get_assignment_context(
-                request,
-                article,
-                editor,
-                assignment,
-            )
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name="editor_assignment",
+            subject_setting_name="subject_editor_assignment",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid():
             kwargs = {
-                'user_message_content': message_content,
+                'email_data': form.as_dataclass(),
                 'editor_assignment': assignment,
                 'request': request,
                 'skip': skip,
@@ -753,7 +772,7 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
                     event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
                     **kwargs,
                 )
-        return assignment, created
+    return assignment, created
 
 
 def process_reviewer_csv(path, request, article, form):

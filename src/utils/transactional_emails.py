@@ -81,29 +81,21 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
     This function is called via the event handling framework and it notifies that an editor has been assigned.
     It is wired up in core/urls.py. It is different to the below function in that this is called when an editor is
     assigned, whereas the below is only called when the user opts to send a message to the editor.
-    :param kwargs: a list of kwargs that includes editor_assignment, user_message_content, skip (boolean) and request
+    :param kwargs: a list of kwargs that includes email_data, editor_assignment, skip (boolean) and request
     :return: None
     """
 
+    email_data = kwargs['email_data']
     editor_assignment = kwargs['editor_assignment']
     article = editor_assignment.article
     request = kwargs['request']
-    user_message_content = kwargs['user_message_content']
-
-    if 'skip' not in kwargs:
-        kwargs['skip'] = True
-
-    skip = kwargs['skip']
+    skip = kwargs.get('skip', True)
     acknowledgement = kwargs['acknowledgement']
 
-    description = '{0} was assigned as the editor for "{1}"'.format(editor_assignment.editor.full_name(),
-                                                                    article.title)
-
-    context = {
-        'article': article,
-        'request': request,
-        'editor_assignment': editor_assignment
-    }
+    description = '{0} was assigned as the editor for "{1}"'.format(
+        editor_assignment.editor.full_name(),
+        article.title
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
@@ -112,21 +104,30 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
 
     # send to assigned editor
     if not skip:
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            editor_assignment.editor,
+            email_data,
             request,
-            'subject_editor_assignment',
-            editor_assignment.editor.email,
-            user_message_content,
-            log_dict=log_dict
+            article=article,
+            log_dict=log_dict,
         )
 
     # send to editor
     if not acknowledgement:
-        notify_helpers.send_slack(request, description, ['slack_editors'])
-        notify_helpers.send_email_with_body_from_setting_template(request, 'editor_assignment',
-                                                                  'subject_editor_assignment',
-                                                                  request.user.email, context,
-                                                                  log_dict=log_dict)
+        notify_helpers.send_slack(
+            request,
+            description,
+            ['slack_editors']
+        )
+
+        core_email.send_email(
+            request.user.email,
+            email_data,
+            request,
+            article=article,
+            log_dict=log_dict,
+        )
+
 
 def send_editor_assigned_acknowledgements(**kwargs):
     """
