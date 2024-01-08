@@ -97,7 +97,7 @@
         </div>
 
     </div>
-    {% include 'admin/elements/history_modal.html' with history=news_item.history.all view_url="admin:comms_newsitem_history" %}
+    {% include 'admin/elements/history_modal.html' with obj=news_item view_url="admin:comms_newsitem_history" %}
 {% endblock body %}
 
 {% block js %}
