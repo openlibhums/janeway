@@ -86,7 +86,7 @@
         </div>
     </section>
 
-    {% include 'admin/elements/history_modal.html' with history=repository.history.all view_url="admin:repository_repository_history" %}
+    {% include 'admin/elements/history_modal.html' with obj=repository view_url="admin:repository_repository_history" %}
 {% endblock %}
 
 {% block js %}

@@ -50,5 +50,5 @@
         </div>
     </div>
 
-    {% include 'admin/elements/history_modal.html' with history=page.history.all view_url="admin:cms_page_history" %}
+    {% include 'admin/elements/history_modal.html' with obj=page view_url="admin:cms_page_history" %}
 {% endblock body %}
