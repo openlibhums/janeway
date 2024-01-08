@@ -90,7 +90,7 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 class EditorialGroupForm(JanewayTranslationModelForm):
 
-    description = BleachField()
+    description = BleachField(required=False)
 
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
