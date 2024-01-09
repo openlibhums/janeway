@@ -843,7 +843,7 @@ def handle_response_letter_upload(request, revision_request):
 def get_distinct_reviews(reviews):
     """
     A utility function we have to use because MySQL does not support
-    distinct('field')
+    distinct('field'). Returns a list of review objects by distinct reviewer.
     """
     reviews_to_return = []
     reviewers = []
