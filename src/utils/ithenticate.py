@@ -48,7 +48,7 @@ def find_folder(server, sid, journal):
 
 
 def make_folder(server, sid, journal):
-    # Get the Ubiquity Press Folder then add a new journal folder inside and then return the id.
+    # Get the main folder then add a new journal folder inside and then return the id.
     folder_groups = server.group.list({'sid': sid})
     top_level_group = None
 
@@ -81,8 +81,13 @@ def send_to_ithenticate(article, file):
     open_file = codecs.open(file.self_article_path(), 'rb')
     data = xmlrpclib.Binary(bytes(open_file.read()))
 
+    # Python's XML RPC library cannot handle Django's SafeString objects
+    # so in order to get an actual string we set it below, using .strip()
+    # as a convenient method.
+    title = article.title.strip()
+
     article_dict = {
-        'title': article.title,
+        'title': title,
         'author_first': first_author.first_name,
         'author_last': first_author.last_name,
         'filename': os.path.basename(file.original_filename),
