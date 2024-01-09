@@ -2170,7 +2170,10 @@ def send_user_email(request, user_id, article_id=None):
         )
 
     if request.POST and 'send' in request.POST:
-        form = core_forms.EmailForm(request.POST)
+        form = core_forms.EmailForm(
+            request.POST,
+            request.FILES,
+        )
 
         if form.is_valid():
             core_email.send_email(
