@@ -2842,7 +2842,7 @@ def editor_share_reviews(request, article_id):
         journal=request.journal,
     )
     reviews = article.completed_reviews_with_decision
-    distinct_reviewers = reviews.distinct('reviewer')
+    distinct_reviewers = logic.get_distinct_reviews(reviews)
 
     for review in distinct_reviewers:
         review.email_content = logic.get_share_review_content(
