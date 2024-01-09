@@ -838,3 +838,18 @@ def handle_response_letter_upload(request, revision_request):
         'No response letter selected.',
     )
     return
+
+
+def get_distinct_reviews(reviews):
+    """
+    A utility function we have to use because MySQL does not support
+    distinct('field')
+    """
+    reviews_to_return = []
+    reviewers = []
+    for review in reviews:
+        if review.reviewer not in reviewers:
+            reviews_to_return.append(review)
+            reviewers.append(review.reviewer)
+
+    return reviews_to_return
