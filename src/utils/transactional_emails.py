@@ -154,7 +154,6 @@ def send_editor_manually_assigned(**kwargs):
     request = kwargs['request']
     skip = kwargs.get("skip", True)
 
-
     # send to assigned editor
     if not skip:
         core_email.send_email(
@@ -165,11 +164,12 @@ def send_editor_manually_assigned(**kwargs):
         )
 
     description = '{0} was assigned as the editor for "{1}"'.format(
-            editor_assignment.editor.full_name(),
-            article.title,
+        editor_assignment.editor.full_name(),
+        article.title,
     )
 
     notify_helpers.send_slack(request, description, ['slack_editors'])
+
 
 def send_reviewer_requested(**kwargs):
     """

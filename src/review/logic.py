@@ -26,7 +26,7 @@ from django.utils.safestring import mark_safe
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
-from core import models as core_models, files, forms as core_forms
+from core import models as core_models, files
 from review import models
 from review.const import EditorialDecisions as ED
 from events import logic as event_logic
@@ -694,27 +694,43 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
     )
 
 
-def assign_editor(article, editor, assignment_type, request=None, skip=True):
+def assign_editor(
+        article,
+        editor,
+        assignment_type,
+        request=None,
+        skip=True,
+        automate_email=False,
+):
+    from core.forms import SettingEmailForm
     assignment, created = models.EditorAssignment.objects.get_or_create(
         article=article,
         editor=editor,
         editor_type=assignment_type,
     )
-    if request and created:
-
+    if request and created and automate_email:
         email_context = get_assignment_context(
             request,
             article,
             editor,
             assignment,
         )
-        form = core_forms.SettingEmailForm(
-            request.POST, request.FILES,
+        form = SettingEmailForm(
             setting_name="editor_assignment",
-            subject_setting_name="subject_editor_assignment",
             email_context=email_context,
             request=request,
         )
+        post_data = {
+            'subject': form.fields['subject'].initial,
+            'body': form.fields['body'].initial,
+        }
+        form = SettingEmailForm(
+            post_data,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+        )
+
         if form.is_valid():
             kwargs = {
                 'email_data': form.as_dataclass(),
@@ -723,7 +739,6 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
                 'skip': skip,
                 'acknowledgement': False,
             }
-
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_ASSIGNED,
                 task_object=article, **kwargs,

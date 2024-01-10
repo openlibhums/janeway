@@ -343,10 +343,10 @@ def assignment_notification(request, article_id, editor_id):
 
     if request.POST:
         form = core_forms.SettingEmailForm(
-                request.POST, request.FILES,
-                setting_name="editor_assignment",
-                email_context=email_context,
-                request=request,
+            request.POST, request.FILES,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
         )
         if form.is_valid():
             kwargs = {
