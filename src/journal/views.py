@@ -2584,11 +2584,9 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
     A list of published articles that can be searched,
     sorted, and filtered
     """
-
     template_name = 'journal/article_list.html'
 
     def get_queryset(self, params_querydict=None):
-
         self.queryset = super().get_queryset(params_querydict)
         return self.queryset.filter(
             date_published__lte=timezone.now(),
@@ -2596,7 +2594,6 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
         )
 
     def get_facets(self):
-
         facets = {
             'date_published__date__gte': {
                 'type': 'date',
@@ -2631,6 +2628,11 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
             ('correspondence_author__last_name', _('Author Name')),
             ('primary_issue__volume', _('Volume')),
         ]
+
+    def get_order_by(self):
+        order_by = self.request.GET.get('order_by', '-date_published')
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ''
 
     def order_queryset(self, queryset):
         order_by = self.get_order_by()
