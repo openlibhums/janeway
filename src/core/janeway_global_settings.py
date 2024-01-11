@@ -291,7 +291,7 @@ BLEACH_ALLOWED_TAGS = [
 ]
 
 # Which HTML attributes are allowed
-BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target']
+BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target', 'id']
 
 # Which CSS properties are allowed in 'style' attributes (assuming
 # style is an allowed attribute)
