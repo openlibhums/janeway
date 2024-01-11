@@ -2598,8 +2598,15 @@ def preview_form(request, form_id):
         'disable_reviewer_recommendation',
         request.journal,
     ).processed_value
+    open_peer_review = setting_handler.get_setting(
+        'general',
+        'open_peer_review',
+        request.journal,
+    )
+
     decision_form = forms.FakeReviewerDecisionForm(
         recommendation_disabled=recommendation_disabled,
+        open_peer_review=open_peer_review,
     )
 
     template = 'review/manager/preview_form.html'
