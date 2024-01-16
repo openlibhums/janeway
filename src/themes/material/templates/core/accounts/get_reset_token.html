@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load i18n %}
+{% load i18n materializecss %}
 
 {% block title %}{% trans "Reset Password" %}{% endblock title %}
 
@@ -10,15 +10,16 @@
                 <div class="card-content">
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="form-group">
+                        <div class="form-group row">
+                            <div class="col s12">
                             {% trans "Enter your email address to begin the reset process" %}
-                            <div class="input-field">
-                                <input name="email_address" id="email_address" type="text"
-                                       placeholder="janeway@voyager.com">
-                                <label for="email_address">{% trans "Email" %}</label>
                             </div>
-                            <button type="submit"
+                            {{ form|materializecss}}
+                            <div class="col s12">
+                                <button type="submit"
                                     class="btn btn-primary btn-block">{% trans "Request Token" %}</button>
+                        
+                            </div>
                         </div>
                     </form>
                 </div>
