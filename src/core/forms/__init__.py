@@ -14,6 +14,7 @@ from core.forms.forms import (
     FileUploadForm,
     GeneratedPluginSettingForm,
     GeneratedSettingForm,
+    GetResetToken,
     JournalArticleForm,
     JournalAttributeForm,
     JournalContactForm,

@@ -121,6 +121,16 @@ class PasswordResetForm(forms.Form):
         return password_2
 
 
+class GetResetToken(forms.Form):
+    """ A form that validates password reset email addresses"""
+
+    email_address = forms.EmailField(
+        required=True, 
+        label=_("Email"),
+        widget=forms.EmailInput(attrs={"placeholder": "janeway@example.com"}),
+    )
+    
+
 class RegistrationForm(forms.ModelForm, CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""

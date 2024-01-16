@@ -224,20 +224,30 @@ def get_reset_token(request):
     :return: HttpResponse object
     """
     new_reset_token = None
+    form = forms.GetResetToken()
 
     if request.POST:
-        email_address = request.POST.get('email_address')
-        messages.add_message(request, messages.INFO, 'If your account was found, an email has been sent to you.')
-        try:
-            account = models.Account.objects.get(email__iexact=email_address)
-            logic.start_reset_process(request, account)
-            return redirect(reverse('core_login'))
-        except models.Account.DoesNotExist:
-            return redirect(reverse('core_login'))
+        form = forms.GetResetToken(
+            request.POST,
+        )
+        if form.is_valid():
+            email_address = form.cleaned_data.get("email_address")
+            messages.add_message(
+                request, 
+                messages.INFO,
+                'If your account was found, an email has been sent to you.',
+                )
+            try:
+                account = models.Account.objects.get(email__iexact=email_address)
+                logic.start_reset_process(request, account)
+                return redirect(reverse('core_login'))
+            except models.Account.DoesNotExist:
+                return redirect(reverse('core_login'))
 
     template = 'core/accounts/get_reset_token.html'
     context = {
         'new_reset_token': new_reset_token,
+        'form': form,
     }
 
     return render(request, template, context)
