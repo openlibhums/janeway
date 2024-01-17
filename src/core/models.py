@@ -1425,9 +1425,17 @@ class TaskCompleteEvents(models.Model):
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True, null=True)
+    press = models.ForeignKey(
+        'press.Press',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     journal = models.ForeignKey(
         'journal.Journal',
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     sequence = models.PositiveIntegerField()
 
@@ -1439,10 +1447,13 @@ class EditorialGroup(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def members(self):
-        return [member for member in self.editorialgroupmember_set.all()]
+        return self.editorialgroupmember_set.all()
 
     def __str__(self):
-        return f'{self.name} ({self.journal.code})'
+        if self.journal:
+            return f'{self.name} ({self.journal.code})'
+        else:
+            return f'{self.name} ({self.press})'
 
 
 class EditorialGroupMember(models.Model):
@@ -1455,6 +1466,10 @@ class EditorialGroupMember(models.Model):
         on_delete=models.CASCADE,
     )
     sequence = models.PositiveIntegerField()
+    statement = models.TextField(
+        blank=True,
+        help_text='A statement of interest or purpose',
+    )
 
     class Meta:
         ordering = ('sequence',)

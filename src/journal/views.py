@@ -1897,17 +1897,26 @@ def contact(request):
 @decorators.frontend_enabled
 def editorial_team(request, group_id=None):
     """
-    Displays a list of Editorial team members, an optional ID can be supplied to limit the display to a group only.
+    Displays a list of editorial team members at the journal level,
+    or governance groups or boards at the press level.
+    An optional ID can be supplied to limit the display to a group only.
     :param request: HttpRequest object
     :param group_id: EditorailGroup object PK
     :return: HttpResponse object
     """
+    kwargs = {
+        'journal': request.journal,
+        'press': request.press,
+    }
     if group_id:
-        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal, pk=group_id)
-    else:
-        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal)
+        kwargs['pk'] = group_id
 
-    template = 'journal/editorial_team.html'
+    editorial_groups = core_models.EditorialGroup.objects.filter(**kwargs)
+
+    if request.journal:
+        template = 'journal/editorial_team.html'
+    else:
+        template = 'press/editorial_team.html'
     context = {
         'editorial_groups': editorial_groups,
         'group_id': group_id,
