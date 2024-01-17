@@ -348,6 +348,10 @@ class Press(AbstractSiteModel):
             date_published__lte=timezone.now(),
         )
 
+    def next_group_order(self):
+        orderings = [group.sequence for group in self.editorialgroup_set.all()]
+        return max(orderings) + 1 if orderings else 0
+
     class Meta:
         verbose_name_plural = 'presses'
 
@@ -373,6 +377,9 @@ class StaffGroup(models.Model):
         on_delete=models.CASCADE,
     )
     sequence = models.PositiveIntegerField()
+
+    def members(self):
+        return self.staffgroupmember_set.all()
 
     class Meta:
         ordering = ('sequence',)

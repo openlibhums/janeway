@@ -51,7 +51,8 @@ class AccountAdmin(UserAdmin):
 
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
-            'name_prefix', 'middle_name', 'orcid', 'institution', 'department', 'twitter',
+            'name_prefix', 'middle_name', 'orcid',
+            'institution', 'department', 'country', 'twitter',
             'linkedin', 'facebook', 'github', 'website', 'biography', 'enable_public_profile',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
@@ -327,9 +328,9 @@ class GalleyAdmin(admin.ModelAdmin):
 
 
 class EditorialGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'journal', 'sequence')
-    list_filter = ('journal',)
-    search_fields = ('name', 'journal__code')
+    list_display = ('name', 'journal', 'press', 'sequence')
+    list_filter = ('journal', 'press')
+    search_fields = ('name', 'journal')
 
     inlines = [
         admin_utils.EditorialGroupMemberInline
@@ -342,7 +343,7 @@ class EditorialMemberAdmin(admin.ModelAdmin):
     raw_id_fields = ('user', )
     search_fields = ('pk', 'user__first_name', 'user__last_name',
                      'user__email', 'group__name', 'group__description',
-                     'group__journal__code')
+                     'group__journal')
 
     def _journal(self, obj):
         return obj.group.journal if obj else ''

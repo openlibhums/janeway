@@ -555,10 +555,13 @@ def public_profile(request, uuid):
         if not context['roles']:
             raise Http404()
     else:
-        template = 'press/staff_profile.html'
+        template = 'press/user_profile.html'
         context = {
             'user': user,
-            'staff_group_membership': user.staffgroupmember_set.first(),
+            'staff_groups': user.staffgroupmember_set.all(),
+            'governance_groups': user.editorialgroupmember_set.filter(
+                group__press=request.press
+            ),
         }
 
     return render(request, template, context)
@@ -1620,14 +1623,23 @@ def edit_editorial_group(request, group_id=None):
     """
     with translation.override(request.override_language):
         if group_id:
-            group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
+            group = get_object_or_404(
+                models.EditorialGroup,
+                pk=group_id,
+                journal=request.journal,
+                press=request.press,
+            )
             form = forms.EditorialGroupForm(
                 instance=group,
             )
         else:
             group = None
+            try:
+                next_sequence = request.journal.next_group_order()
+            except AttributeError:
+                next_sequence = request.press.next_group_order()
             form = forms.EditorialGroupForm(
-                next_sequence=request.journal.next_group_order(),
+                next_sequence=next_sequence
             )
 
         if request.POST:
@@ -1638,6 +1650,7 @@ def edit_editorial_group(request, group_id=None):
                 else:
                     group = form.save(commit=False)
                     group.journal = request.journal
+                    group.press = request.press
                     group.save()
 
                 return language_override_redirect(
@@ -1658,7 +1671,8 @@ def edit_editorial_group(request, group_id=None):
 @editor_user_required
 def add_member_to_group(request, group_id, user_id=None):
     """
-    Displays a list of users that are eligible to be added to an Editorial Group and displays those already in said
+    Displays a list of users that are eligible to be added to an Editorial
+    Group and displays those already in said
     group. Members can also be removed from Groups.
     :param request: HttpRequest object
     :param group_id: EditorialGroup object PK
