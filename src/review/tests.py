@@ -101,6 +101,26 @@ class ReviewTests(TestCase):
         )
         self.assertFalse(form.is_valid())
 
+    def test_reviewer_decision_form_no_decision(self):
+        article = helpers.create_article(self.journal_one,
+                                        **{'owner': self.regular_user,
+                                            'title': 'Test Article',
+                                            'stage': submission_models.STAGE_UNDER_REVIEW})
+        round, c = review_models.ReviewRound.objects.get_or_create(article=article, round_number=1,)
+
+        data = {'reviewer': str(self.regular_user.id), 'form': '36', 'visibility': 'double-blind', 'date_due': '2024-03-13'}
+        form = forms.ReviewAssignmentForm(data,
+                                          journal=self.journal_one,
+                                          article=article,
+                                          editor=self.editor,
+                                          reviewers=[],)
+
+        assignment = form.save()
+        form = forms.ReviewerDecisionForm(instance=assignment, decision_required=True)
+
+        self.assertIn("<option value=\"\" selected>-----------</option>", form.as_p())
+        self.assertFalse(form.is_valid())
+
     def test_csv_reviewer_import_good(self):
         # create a fake request object
         request = self.setup_request_object()
