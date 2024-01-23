@@ -90,7 +90,7 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 class EditorialGroupForm(JanewayTranslationModelForm):
 
-    description = BleachField(required=False)
+    # description = BleachField(required=False)
 
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
@@ -102,6 +102,7 @@ class EditorialGroupForm(JanewayTranslationModelForm):
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
+        widgets = {'description': SummernoteWidget()}
 
 
 class PasswordResetForm(forms.Form):
@@ -824,16 +825,16 @@ class BleachFormMixin(forms.BaseForm):
     BLEACHABLE_FIELDS = []
     BLEACH_BOOLEAN_FIELD = 'support_copy_paste'
 
-    def save(self, commit=True):
-        obj = super().save(commit=False)
-        if self.BLEACH_BOOLEAN_FIELD:
-            bleach_kwargs = get_bleach_default_options()
-            for field in self.BLEACHABLE_FIELDS:
-                data = getattr(obj, field)
-                setattr(obj, field, bleach_clean(data, **bleach_kwargs))
-        if commit:
-            obj.save()
-        return obj
+    # def save(self, commit=True):
+    #     obj = super().save(commit=False)
+    #     if self.BLEACH_BOOLEAN_FIELD:
+    #         bleach_kwargs = get_bleach_default_options()
+    #         for field in self.BLEACHABLE_FIELDS:
+    #             data = getattr(obj, field)
+    #             setattr(obj, field, bleach_clean(data, **bleach_kwargs))
+    #     if commit:
+    #         obj.save()
+    #     return obj
 
 
 class BleachableModelForm(BleachFormMixin, forms.ModelForm):
