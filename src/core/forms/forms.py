@@ -850,7 +850,7 @@ class BleachFormMixin(forms.BaseForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
-        if self.BLEACH_BOOLEAN_FIELD:
+        if self.cleaned_data.get(self.BLEACH_BOOLEAN_FIELD):
             bleach_kwargs = get_bleach_default_options()
             for field in self.BLEACHABLE_FIELDS:
                 data = getattr(obj, field)
