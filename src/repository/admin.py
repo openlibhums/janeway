@@ -57,7 +57,7 @@ class RepositoryFieldAnswerAdmin(admin.ModelAdmin):
 
 class PreprintAdmin(admin.ModelAdmin):
     list_display = ('pk', 'title', 'owner', 'repository',
-                    'date_submitted', 'doi', 'current_version' 'article')
+                    'date_submitted', 'doi', 'current_version', 'article')
     list_display_links = ('pk', 'title')
     list_filter = ('repository__short_name', 'date_started',
                    'date_submitted', 'date_accepted', 'date_declined',
