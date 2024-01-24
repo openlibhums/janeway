@@ -1748,6 +1748,9 @@
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
           <p id="{@id}">
+              <xsl:if test="label">
+                  <xsl:apply-templates select="label"/>
+              </xsl:if>
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
