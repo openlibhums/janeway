@@ -34,10 +34,6 @@ class TestSiteMiddleware(TestCase):
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)
         self.press.save()
-        call_command('generate_site_search_data', '--press_id', self.press.pk)
-
-    def tearDown(self):
-        call_command('delete_site_search_data', '--press_id', self.press.pk)
 
     @override_settings(URL_CONFIG="path")
     def test_journal_site_in_path_mode(self):
@@ -155,10 +151,6 @@ class TestTimezoneMiddleware(TestCase):
         self.regular_user = helpers.create_user("regularuser@timezone.com")
         self.regular_user.is_active = True
         self.regular_user.save()
-        call_command('generate_site_search_data', '--press_id', self.press.pk)
-
-    def tearDown(self):
-        call_command('delete_site_search_data', '--press_id', self.press.pk)
 
     @override_settings(URL_CONFIG="path")
     def test_default_case(self):
