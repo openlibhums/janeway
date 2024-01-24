@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0040_auto_20231107_1750'),
+        ('repository', '0042_auto_20231107_1750'),
     ]
 
     operations = [

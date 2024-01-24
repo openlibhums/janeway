@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0039_alter_preprintversion_title'),
+        ('repository', '0041_auto_20231207_1658'),
     ]
 
     operations = [
