@@ -24,6 +24,7 @@ from review import models as review_models
 from utils.logger import get_logger
 from review.const import EditorialDecisions as ED
 from cms import models as cms_models
+from press import models as press_models
 
 logger = get_logger(__name__)
 
@@ -1261,6 +1262,7 @@ def scrape_editorial_team(journal, base_url):
             group, c = core_models.EditorialGroup.objects.get_or_create(
                 name=header.text.strip(),
                 journal=journal,
+                press=press_models.Press.objects.first(),
                 sequence=header_sequence
             )
             header_sequence = header_sequence + 1
