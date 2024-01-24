@@ -846,10 +846,10 @@ def get_distinct_reviews(reviews):
     distinct('field'). Returns a list of review objects by distinct reviewer.
     """
     reviews_to_return = []
-    reviewers = []
+    reviewers = set()
     for review in reviews:
         if review.reviewer not in reviewers:
             reviews_to_return.append(review)
-            reviewers.append(review.reviewer)
+            reviewers.add(review.reviewer)
 
     return reviews_to_return
