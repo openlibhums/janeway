@@ -19,13 +19,13 @@ class Command(BaseCommand):
             files_deleted = cms_logic.delete_search_data()
 
         if files_deleted:
-            logger.info(
+            logger.debug(
                 self.style.SUCCESS(
                     'Deleted files: ' + ', '.join(files_deleted)
                 )
             )
         else:
-            logger.info(
+            logger.warning(
                 self.style.WARNING(
                     'No search data files found'
                 )

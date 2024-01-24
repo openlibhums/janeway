@@ -17,7 +17,7 @@ class Command(BaseCommand):
             documents = cms_logic.update_search_data(press_id=options['press_id'])
         else:
             documents = cms_logic.update_search_data()
-        logger.info(
+        logger.debug(
             self.style.SUCCESS(
                 f'Successfully updated {documents}'
             )
