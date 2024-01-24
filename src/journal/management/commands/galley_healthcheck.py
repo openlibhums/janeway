@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 elif render_galley:
                     images_url = retrieve_image_urls_from_galley(render_galley)
                     for url in images_url:
-                        response = requests.get(journal.site_url(path=url))
+                        response = requests.get(f"{article.url}{url}")
                         if not response.ok or not len(response.content):
                             print("[{}][MISSING IMAGE][{}]".format(article.pk, url))
 

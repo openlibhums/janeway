@@ -28,7 +28,7 @@ class IdentifierAdmin(admin_utils.ArticleFKModelAdmin):
     list_filter = ('article__journal', 'id_type')
     list_display_links = ('identifier', )
     search_fields = ('pk', 'id_type', 'identifier', 'article__title')
-    raw_id_fields = ('article',)
+    raw_id_fields = ('article', 'preprint_version', 'review')
 
     def _article(self, obj):
         if obj.article:
