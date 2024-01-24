@@ -209,7 +209,11 @@ class FakeReviewerDecisionForm(FakeModelForm, ReviewerDecisionForm):
 
     def __init__(self, *args, **kwargs):
         kwargs["disable_fields"] = True
+        open_peer_review = kwargs.pop('open_peer_review', None)
         super().__init__(*args, **kwargs)
+
+        if not (open_peer_review and open_peer_review.value):
+            del self.fields['permission_to_make_public']
 
 
 class ReplacementFileDetails(forms.ModelForm):

@@ -343,10 +343,10 @@ def assignment_notification(request, article_id, editor_id):
 
     if request.POST:
         form = core_forms.SettingEmailForm(
-                request.POST, request.FILES,
-                setting_name="editor_assignment",
-                email_context=email_context,
-                request=request,
+            request.POST, request.FILES,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
         )
         if form.is_valid():
             kwargs = {
@@ -2598,8 +2598,15 @@ def preview_form(request, form_id):
         'disable_reviewer_recommendation',
         request.journal,
     ).processed_value
+    open_peer_review = setting_handler.get_setting(
+        'general',
+        'open_peer_review',
+        request.journal,
+    )
+
     decision_form = forms.FakeReviewerDecisionForm(
         recommendation_disabled=recommendation_disabled,
+        open_peer_review=open_peer_review,
     )
 
     template = 'review/manager/preview_form.html'
@@ -2842,7 +2849,7 @@ def editor_share_reviews(request, article_id):
         journal=request.journal,
     )
     reviews = article.completed_reviews_with_decision
-    distinct_reviewers = reviews.distinct('reviewer')
+    distinct_reviewers = logic.get_distinct_reviews(reviews)
 
     for review in distinct_reviewers:
         review.email_content = logic.get_share_review_content(

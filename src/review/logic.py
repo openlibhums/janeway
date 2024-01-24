@@ -26,7 +26,12 @@ from django.utils.safestring import mark_safe
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
-from core import models as core_models, files
+from core import(
+    files,
+    forms as core_forms,
+    email,
+    models as core_models,
+)
 from review import models
 from review.const import EditorialDecisions as ED
 from events import logic as event_logic
@@ -246,7 +251,6 @@ def get_withdrawal_notification_context(request, review_assignment):
     return email_context
 
 
-
 def get_unassignment_context(request, assignment):
     email_context = {
         'article': assignment.article,
@@ -257,9 +261,7 @@ def get_unassignment_context(request, assignment):
     return email_context
 
 
-
 def get_decision_context(request, article, decision, author_review_url):
-
     email_context = {
         'article': article,
         'decision': decision,
@@ -267,6 +269,17 @@ def get_decision_context(request, article, decision, author_review_url):
     }
 
     return email_context
+
+
+def get_decision_content(request, article, decision, author_review_url):
+    context = get_decision_context(
+        request,
+        article,
+        decision,
+        author_review_url,
+    )
+    template_name = "review_decision_{0}".format(decision)
+    return render_template.get_message_content(request, context, template_name)
 
 
 def get_revision_request_content(request, article, revision, draft=False):
@@ -411,12 +424,32 @@ def handle_draft_declined(article, draft_decision, request):
 
 
 def handle_decision_action(article, draft, request):
+    # Setup email data
+    subject = 'Decision'
+    subject_setting_name = None
+    user_message = request.POST.get('email_message', 'No message found.')
+    if draft.decision == ED.ACCEPT.value:
+        subject_setting_name = 'subject_review_decision_accept'
+    elif draft.decision == ED.DECLINE.value:
+        subject_setting_name = 'subject_review_decision_decline'
+    elif draft.decision == ED.UNDECLINE.value:
+        subject_setting_name = 'subject_review_decision_undecline'
+    if subject_setting_name:
+        subject = setting_handler.get_email_subject_setting(
+            setting_name=subject_setting_name,
+            journal=request.journal,
+        )
+    email_data = email.EmailData(
+        subject=subject,
+        body=user_message,
+    )
+
     kwargs = {
         'article': article,
         'request': request,
         'decision': draft.decision,
-        'user_message_content': request.POST.get('email_message', 'No message found.'),
         'skip': False,
+        'email_data': email_data,
     }
 
     if draft.decision == ED.ACCEPT.value:
@@ -460,15 +493,16 @@ def handle_decision_action(article, draft, request):
                 'revision_id': revision.pk,
             }
         ))
-        kwargs['user_message_content'] = render_template.get_message_content(
+        revision_rendered_template = render_template.get_message_content(
             request,
             {'do_revisions_url': do_revisions_url},
-            kwargs['user_message_content'],
+            user_message,
             template_is_setting=True,
         )
         article.stage = submission_models.STAGE_UNDER_REVISION
         article.save()
 
+        kwargs['user_message_content'] = revision_rendered_template
         kwargs['revision'] = revision
         event_logic.Events.raise_event(
             event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
@@ -694,27 +728,51 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
     )
 
 
-def assign_editor(article, editor, assignment_type, request=None, skip=True):
-        assignment, created = models.EditorAssignment.objects.get_or_create(
-            article=article,
-            editor=editor,
-            editor_type=assignment_type,
+def assign_editor(
+        article,
+        editor,
+        assignment_type,
+        request=None,
+        skip=True,
+        automate_email=False,
+):
+    from core.forms import SettingEmailForm
+    assignment, created = models.EditorAssignment.objects.get_or_create(
+        article=article,
+        editor=editor,
+        editor_type=assignment_type,
+    )
+    if request and created and automate_email:
+        email_context = get_assignment_context(
+            request,
+            article,
+            editor,
+            assignment,
         )
-        if request and created:
-            message_content = get_assignment_context(
-                request,
-                article,
-                editor,
-                assignment,
-            )
+        form = SettingEmailForm(
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+        )
+        post_data = {
+            'subject': form.fields['subject'].initial,
+            'body': form.fields['body'].initial,
+        }
+        form = SettingEmailForm(
+            post_data,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+        )
+
+        if form.is_valid():
             kwargs = {
-                'user_message_content': message_content,
+                'email_data': form.as_dataclass(),
                 'editor_assignment': assignment,
                 'request': request,
                 'skip': skip,
                 'acknowledgement': False,
             }
-
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_ASSIGNED,
                 task_object=article, **kwargs,
@@ -724,7 +782,7 @@ def assign_editor(article, editor, assignment_type, request=None, skip=True):
                     event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
                     **kwargs,
                 )
-        return assignment, created
+    return assignment, created
 
 
 def process_reviewer_csv(path, request, article, form):
@@ -838,3 +896,18 @@ def handle_response_letter_upload(request, revision_request):
         'No response letter selected.',
     )
     return
+
+
+def get_distinct_reviews(reviews):
+    """
+    A utility function we have to use because MySQL does not support
+    distinct('field'). Returns a list of review objects by distinct reviewer.
+    """
+    reviews_to_return = []
+    reviewers = set()
+    for review in reviews:
+        if review.reviewer not in reviewers:
+            reviews_to_return.append(review)
+            reviewers.add(review.reviewer)
+
+    return reviews_to_return

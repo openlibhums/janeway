@@ -395,7 +395,8 @@ class Preprint(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
-    abstract = BleachField(
+    # abstract = BleachField(
+    abstract = models.TextField(
         blank=True,
         null=True,
         help_text=_(

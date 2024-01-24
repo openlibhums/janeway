@@ -18,6 +18,14 @@ Changes from v1.4.3
     - Labels will behave as expected when used with a title in `app` and `sec`
     - Footnotes in the article body are now rendered as expected
     - xref links to <sec> elements are now working properly
+    - Render labels of fig captions
+    - Render titles of back/notes as h2
+    - Fix rendering of table footnotes
+    - Undo bold collab name on element-citation
+    - Render ext-link in element-citation
+    - Use JATS footnote group title when present
+    - Use turn arrow glyph for linking to footnote reference
+
 """
 
 
