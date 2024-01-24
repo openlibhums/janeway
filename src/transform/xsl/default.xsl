@@ -1778,7 +1778,7 @@
   </xsl:template>
 
   <xsl:template match="element-citation//ext-link">
-    <xsl:apply-templates />
+    <xsl:apply-templates select="." mode="nscitation"/>
   </xsl:template>
 
   <xsl:template match="ref/label">
@@ -2916,10 +2916,6 @@
         <xsl:apply-templates select="node()" mode="none"/>
       </xsl:otherwise>
     </xsl:choose>
-  
-    
-
-
     <xsl:text>&#160;</xsl:text>
     <xsl:choose>
       <xsl:when test="self::person-group/@person-group-type='author'">
