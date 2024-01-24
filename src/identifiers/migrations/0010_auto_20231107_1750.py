@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0040_auto_20231107_1750'),
+        ('repository', '0042_auto_20231107_1750'),
         ('submission', '0073_bleach_title_20230523_1804'),
         ('review', '0022_remove_reviewform_slug'),
         ('identifiers', '0009_deduplicate_identifiers_20220527'),
