@@ -182,9 +182,8 @@ def get_body(html):
 
 
 def get_base():
-    scheme = 'http' if settings.DEBUG else 'https'
     press = press_models.Press.objects.first()
-    return f'{scheme}://{press.domain}'
+    return press.site_url()
 
 
 def excluded_urls():
