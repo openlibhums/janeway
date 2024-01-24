@@ -21,6 +21,7 @@ from django.core.files.base import ContentFile
 from press import models as press_models
 from utils import setting_handler
 from utils.logger import get_logger
+from utils.function_cache import cache
 
 logger = get_logger(__name__)
 
@@ -308,6 +309,7 @@ def delete_search_data(press_id=1):
     return files_deleted
 
 
+@cache(900)
 def get_search_data_file(press):
     docs_filename = os.path.join(
         settings.SITE_SEARCH_DIR,
