@@ -26,6 +26,7 @@ class PageForm(BleachableModelForm, JanewayTranslationModelForm):
         exclude = ('is_markdown', 'content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
+        # Set the press and journal from the request, if request is passed
         self.request = kwargs.pop('request', None)
         self.journal = self.request.journal if self.request else None
         self.press = self.request.press if self.request else None
@@ -33,6 +34,7 @@ class PageForm(BleachableModelForm, JanewayTranslationModelForm):
         super(PageForm, self).__init__(*args, **kwargs)
 
         if self.instance:
+            # Overwrite the journal and press if defined on the instance
             journal_type = ContentType.objects.get(app_label="journal", model="journal")
             if self.instance.content_type == journal_type:
                 self.journal = journal_type.get_object_for_this_type(pk=self.instance.object_id)
