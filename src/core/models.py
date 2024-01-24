@@ -303,9 +303,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return str(self.id)
 
     def get_full_name(self):
-        """Deprecated"""
-        return '{0} {1}{2}{3}'.format(self.first_name, self.middle_name, ' ' if self.middle_name != "" else "",
-                                      self.last_name)
+        """Deprecated in 1.5.2"""
+        return self.full_name()
 
     def get_short_name(self):
         return self.first_name
