@@ -55,7 +55,7 @@ urlpatterns = [
 
     re_path(r'^list/(?P<subject_id>\d+)/$',
         views.repository_list,
-        name='preprints_list_subject'),
+        name='repository_list_subject'),
 
     re_path(r'^editors/$',
         views.preprints_editors,
@@ -233,6 +233,15 @@ urlpatterns = [
     re_path(r'^manager/(?P<preprint_id>\d+)/send_to_journal/(?P<journal_id>\d+)/$',
         views.send_preprint_to_journal,
         name='repository_send_to_journal'),
+    re_path(r'^manager/recommendations/$',
+        views.list_review_recommendations,
+        name='repository_list_review_recommendations'),
+    re_path(r'^manager/recommendations/create/$',
+        views.manage_review_recommendation,
+        name='repository_create_review_recommendation'),
+    re_path(r'^manager/recommendations/(?P<recommendation_id>\d+)/edit/$',
+        views.manage_review_recommendation,
+        name='repository_edit_review_recommendation'),
 
     # Popup email
     re_path(r'^email/user/(?P<user_id>\d+)/preprint/(?P<preprint_id>\d+)/$',

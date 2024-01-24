@@ -35,6 +35,7 @@ from submission import models as submission_models
 from utils import setting_handler, logic, install
 from utils.function_cache import cache, mutable_cached_property
 from utils.logger import get_logger
+from review import models as review_models
 
 logger = get_logger(__name__)
 
@@ -510,6 +511,28 @@ class Journal(AbstractSiteModel):
                 group_name='general',
                 setting_name='journal_description',
             )
+
+    def setup_default_review_form(self):
+        default_review_form, c = review_models.ReviewForm.objects.get_or_create(
+            journal=self,
+            name='Default Form',
+            defaults={
+                'intro': 'Please complete the form below.',
+                'thanks': 'Thank you for completing the review.',
+            }
+        )
+
+        if c:
+            main_element = review_models.ReviewFormElement.objects.create(
+                name='Review',
+                kind='textarea',
+                required=True,
+                order=1,
+                width='large-12 columns',
+                help_text=gettext('Please add as much detail as you can.'),
+            )
+
+            default_review_form.elements.add(main_element)
 
 
 class PinnedArticle(models.Model):
@@ -1259,30 +1282,13 @@ def setup_submission_items(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Journal)
 def setup_default_form(sender, instance, created, **kwargs):
-    if created:
-        from review import models as review_models
+    # if this is a new journal and there is not default review for already
+    # create a new one with a default review element.
+    if created and not review_models.ReviewForm.objects.filter(
+            journal=instance,
+    ).exists():
+        instance.setup_default_review_form()
 
-        if not review_models.ReviewForm.objects.filter(
-                journal=instance,
-        ).exists():
-
-            default_review_form = review_models.ReviewForm.objects.create(
-                journal=instance,
-                name='Default Form',
-                intro='Please complete the form below.',
-                thanks='Thank you for completing the review.'
-            )
-
-            main_element = review_models.ReviewFormElement.objects.create(
-                name='Review',
-                kind='textarea',
-                required=True,
-                order=1,
-                width='large-12 columns',
-                help_text=gettext('Please add as much detail as you can.'),
-            )
-
-            default_review_form.elements.add(main_element)
 
 
 @receiver(post_save, sender=Journal)

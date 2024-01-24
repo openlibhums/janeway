@@ -1,2 +1,2 @@
-from semver import Version
-__version__ = Version.parse("1.5.1-RC-1")
+from packaging import version
+__version__ = version.parse("1.5.1-RC-4")

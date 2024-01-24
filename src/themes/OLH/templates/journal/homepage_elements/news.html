@@ -8,15 +8,33 @@
             <div class="row column text-center">
                 <h2 class="title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
             </div>
+            <div class="row">
             {% for item in news_items %}
-            <h5>{{ item.title }}</h5>
-            <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
-            <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-            <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
-            <hr />
+                {% if display_images %}
+                    {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
+                        <div class="large-5 columns">
+                            <a href="{% url 'core_news_item' item.pk %}"><img
+                                    class="news-image"
+                                    src="{{ item.best_image_url }}"
+                                    alt="{{ item.title }}"/></a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if display_images %}
+                    <div class="large-7 columns">
+                {% endif %}
+                <h5>{{ item.title }}</h5>
+                <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
+                <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                {% if display_images %}
+                    </div>
+                {% endif %}
+                <hr />
             {% empty %}
-            <h4>{% trans "This journal currently has no news items to display" %}.</h4>
+                <h4>{% trans "This journal currently has no news items to display" %}.</h4>
             {% endfor %}
+            </div>
         </div>
     </div>
 </section>

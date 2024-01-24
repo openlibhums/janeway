@@ -1,0 +1,63 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}Review Recommendations{% endblock %}
+{% block title-section %}Review Recommendations{% endblock %}
+{% block title-sub %}Manange review recommendations{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'repository_list_review_recommendations' %}">Review Recommendations</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="title-area">
+                <h2>Current Recommendations for {{ request.repository.name }}</h2>
+                <a href="{% url 'repository_create_review_recommendation' %}" class="button">Add New Recommendation</a>
+            </div>
+            <div class="content">
+                <p>You can create, edit and delete review recommendations for your repository using the interface here. </p>
+                <p>Recommendations that are linked to existing reviws cannot be deleted but you can mark them as inactive.</p>
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <table class="table scroll">
+                        <tr>
+                            <th>Name</th>
+                            <th>Active</th>
+                            <th>Linked to Reviews</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        {% for r in recommendations %}
+                            <tr>
+                                <td>{{ r.name }}</td>
+                                <td>{{ r.active|bool_fa }}</td>
+                                <td>{{ r.review_set.count }}</td>
+                                <td>
+                                    <a href="{% url 'repository_edit_review_recommendation' r.pk %}" class="tiny warning button">Edit</a>
+                                </td>
+                                <td>
+                                    <button class="tiny alert button del{% if r.review_set.count > 0 %} disabled{% endif %}" name="delete" value="{{ r.pk }}">Delete</button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No recommendations.</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static "common/js/confirm.js" %}"></script>
+{% endblock js %}

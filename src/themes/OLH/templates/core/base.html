@@ -63,6 +63,12 @@
                     {% else %}
                         <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
+                {% elif request.repository %}
+                    {% if request.repository.logo %}
+                        {% svg_or_image request.repository.logo %}
+                    {% else %}
+                        {{ request.repository.name }}
+                    {% endif %}
                 {% else %}
                     {% if 'svg' in request.press_cover %}
                         <a href="/">{% svg request.press_cover %}</a>
@@ -125,6 +131,8 @@
                             <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ request.user.full_name }}</a>
                             {% if request.journal %}
                                 {% include "elements/right_hand_menu.html" %}
+                            {% elif request.repository %}
+                                {% include "repository/elements/right_hand_menu.html" %}
                             {% else %}
                                 {% include "press/elements/right_hand_menu.html" %}
                             {% endif %}

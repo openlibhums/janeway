@@ -190,6 +190,14 @@ class ReviewAdmin(admin_utils.PreprintFKModelAdmin):
     date_hierarchy = ('date_assigned')
 
 
+class ReviewRecommendationAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'repository')
+    list_display_links = ('pk', 'name',)
+    list_filter = ('repository',)
+    raw_id_fields = ('repository',)
+    search_fields = ('name',)
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.RepositoryRole, RepositoryRoleAdmin),
@@ -206,7 +214,7 @@ admin_list = [
     (models.Subject, SubjectAdmin),
     (models.VersionQueue, VersionQueueAdmin),
     (models.Review, ReviewAdmin),
-
+    (models.ReviewRecommendation, ReviewRecommendationAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

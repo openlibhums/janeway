@@ -490,30 +490,23 @@ def send_article_decision(**kwargs):
     article = kwargs['article']
     request = kwargs['request']
     decision = kwargs['decision']
-    subject = ""
 
     if 'skip' not in kwargs:
         kwargs['skip'] = True
 
     skip = kwargs['skip']
 
-    description = '{0}\'s article "{1}" has been {2}ed by {3}'.format(article.correspondence_author.full_name(),
-                                                                      article.title,
-                                                                      decision,
-                                                                      request.user.full_name())
+    description = '{0}\'s article "{1}" has been {2}ed by {3}'.format(
+        article.correspondence_author.full_name(),
+        article.title,
+        decision,
+        request.user.full_name()
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
                 'types': 'Article Decision',
                 'target': article}
-
-    if decision == ED.ACCEPT.value:
-        subject = 'subject_review_decision_accept'
-    elif decision == ED.DECLINE.value:
-        subject = 'subject_review_decision_decline'
-    elif decision == ED.UNDECLINE.value:
-        subject = 'subject_review_decision_undecline'
-
 
     if not skip:
         core_email.send_email(

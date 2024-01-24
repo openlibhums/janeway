@@ -626,7 +626,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-    title = BleachField(
+    # title = BleachField(
+    title = models.CharField(
         max_length=999,
         help_text=_('Your article title'),
     )
@@ -637,7 +638,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
-    abstract = BleachField(
+    # abstract = BleachField(
+    abstract = models.TextField(
         blank=True,
         null=True,
         help_text=_('Copying and pasting from word processors is supported.'),
@@ -846,7 +848,14 @@ class Article(AbstractLastModifiedModel):
 
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
-        author_str = " & ".join(a.citation_name() for a in authors)
+        author_str = ''
+        for author in authors:
+            if author == authors.first():
+                author_str = author.citation_name()
+            elif not author == authors.last():
+                author_str = author_str + f", {author.citation_name()}"
+            else:
+                author_str = author_str + f" & {author.citation_name()}"
         if author_str:
             author_str += ","
         year_str = ""

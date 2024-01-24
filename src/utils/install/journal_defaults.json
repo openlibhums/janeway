@@ -1149,7 +1149,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.safe_title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
+            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is a notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.safe_title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
         },
         "editable_by": [
             "editor",

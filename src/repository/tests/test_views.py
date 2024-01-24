@@ -51,6 +51,10 @@ class TestModels(TestCase):
             self.subject,
             title='Preprint Number One',
         )
+        self.recommendation, _ = rm.ReviewRecommendation.objects.get_or_create(
+            repository=self.repository,
+            name='Accept',
+        )
         self.server_name = "repo.test.com"
         update_settings()
         clear_script_prefix()
@@ -121,6 +125,7 @@ class TestModels(TestCase):
         data = {
             'body': 'This is my review.',
             'anonymous': True,
+            'recommendation': self.recommendation.pk,
         }
         path = reverse(
             'repository_submit_review',
@@ -236,7 +241,8 @@ class TestModels(TestCase):
             manager=self.repo_manager,
             date_due=timezone.now(),
             status='complete',
-            comment=comment
+            comment=comment,
+            recommendation=self.recommendation,
         )
         path = reverse(
             'repository_edit_review_comment',
@@ -251,6 +257,7 @@ class TestModels(TestCase):
             data={
                 'body': 'This is my slightly different review.',
                 'anonymous': False,
+                'recommendation': self.recommendation.pk,
             },
             SERVER_NAME=self.server_name,
         )

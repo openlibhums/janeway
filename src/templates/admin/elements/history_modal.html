@@ -8,7 +8,7 @@
             <h4>{% trans "History" %}</h4>
         </div>
         <div class="card-section">
-            {% if history %}
+            {% if obj.history.all %}
                 <table>
                     <thead>
                         <th>Version</th>
@@ -16,7 +16,7 @@
                         <th>ID</th>
                     </thead>
                     <tbody>
-                        {% for version in history|slice:":10" %}
+                        {% for version in obj.history.all|slice:":10" %}
                             <tr>
                                 <td>
                                     {% if request.user.is_staff %}
@@ -39,13 +39,13 @@
                                 <td>{{ version.history_id }}</td>
                             </tr>
                         {% endfor %}
-                        {% with rest=history.count|add:"-10" %}
+                        {% with rest=obj.history.count|add:"-10" %}
                             {% if rest > 0 %}
                                 <tr>
                                     <td>
                                         {% if request.user.is_staff %}
                                             <a
-                                                href="{% url view_url version.id %}">
+                                                href="{% url view_url obj.id %}">
                                                 {{ rest }} more version{{ rest|pluralize }}
                                             </a>
                                         {% else %}
