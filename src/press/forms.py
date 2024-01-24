@@ -79,9 +79,7 @@ class PressForm(forms.ModelForm):
 
 
 class PressJournalDescription(forms.Form):
-
-    description = forms.CharField(widget=SummernoteWidget)
-    # description = BleachField(required=False)
+    description = BleachField()
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')

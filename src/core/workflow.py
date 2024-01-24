@@ -283,25 +283,11 @@ def workflow_auto_assign_editors(**kwargs):
 
         assignment_type = "editor"
         for editor in section.editors.all():
-            assign_editor(
-                article,
-                editor,
-                assignment_type,
-                request,
-                skip,
-                automate_email=True,
-            )
+            assign_editor(article, editor, assignment_type, request, skip)
 
         assignment_type = "section-editor"
         for s_editor in section.section_editors.all():
-            assign_editor(
-                article,
-                s_editor,
-                assignment_type,
-                request,
-                skip,
-                automate_email=True,
-            )
+            assign_editor(article, s_editor, assignment_type, request, skip)
 
 
 def workflow_journal_choices(journal):

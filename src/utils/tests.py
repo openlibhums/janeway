@@ -10,10 +10,13 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.core.management import call_command
+from django.contrib import admin
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 from django.template.engine import Engine
+from django.shortcuts import reverse
 
 import mock
 from utils import (
@@ -21,6 +24,8 @@ from utils import (
     models,
     oidc,
     template_override_middleware,
+    setting_handler,
+    notify,
     logic,
 )
 
@@ -29,6 +34,7 @@ from utils.transactional_emails import *
 from utils.forms import FakeModelForm, KeywordModelForm
 from utils.logic import generate_sitemap
 from utils.testing import helpers
+from utils.install import update_xsl_files
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
 
@@ -36,9 +42,9 @@ from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
 from core import (
-    email as core_email,
-    models as core_models,
-    forms as core_forms
+        email as core_email,
+        include_urls, # include_urls so that notify modules load
+        models as core_models,
 )
 from copyediting import models as copyediting_models
 
@@ -296,29 +302,26 @@ class TransactionalReviewEmailTests(UtilsTests):
 
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
+
     def test_send_editor_assigned_acknowledgements(self):
+
         editor_assignment = helpers.create_editor_assignment(
             article=self.article_under_review,
             editor=self.editor_two,
         )
-        subject_setting_name = 'subject_editor_assignment'
-        subject_setting = self.get_default_email_subject(subject_setting_name)
-        email_data = core_email.EmailData(
-            subject=subject_setting,
-            body=self.test_message,
-        )
-
         expected_recipient_one = editor_assignment.editor.email
         kwargs = dict(**self.base_kwargs)
         kwargs['editor_assignment'] = editor_assignment
         kwargs['acknowledgment'] = True
-        kwargs['email_data'] = email_data
         send_editor_assigned_acknowledgements(**kwargs)
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
 
+        subject_setting_name = 'subject_editor_assignment'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
+
 
     def test_send_reviewer_requested_acknowledgements(self):
         kwargs = dict(**self.base_kwargs)

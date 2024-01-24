@@ -369,10 +369,6 @@ def repository_search(request, search_term=None):
                 Q(account__last_name__in=split_search_term) |
                 Q(account__institution__icontains=search_term)
             )
-            &
-            (
-                Q(preprint__repository=request.repository)
-            )
         )
 
         preprints_from_author = [pa.preprint for pa in models.PreprintAuthor.objects.filter(

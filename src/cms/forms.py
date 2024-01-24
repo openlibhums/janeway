@@ -78,15 +78,12 @@ class NavForm(JanewayTranslationModelForm):
 
 class SubmissionItemForm(JanewayTranslationModelForm):
 
-    # text = BleachField(required=False)
+    text = BleachField()
 
     class Meta:
         model = models.SubmissionItem
         fields = ('title', 'text', 'order', 'existing_setting')
         exclude = ('journal',)
-        widgets = {'text': SummernoteWidget()}
-
-
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')

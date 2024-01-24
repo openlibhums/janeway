@@ -626,8 +626,7 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-    # title = BleachField(
-    title = models.CharField(
+    title = BleachField(
         max_length=999,
         help_text=_('Your article title'),
     )
@@ -638,8 +637,7 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
-    # abstract = BleachField(
-    abstract = models.TextField(
+    abstract = BleachField(
         blank=True,
         null=True,
         help_text=_('Copying and pasting from word processors is supported.'),
