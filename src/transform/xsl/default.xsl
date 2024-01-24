@@ -872,9 +872,21 @@
 
     <xsl:template match="sec[not(@sec-type='datasets')]/title | boxed-text/caption/title">
         <xsl:if test="node() != ''">
+            <!-- Janeway's article headers always start at <h2>, so the calculation has to be h1 + 1 + (count of parent sec) -->
             <xsl:element name="h{count(ancestor::sec) + 1}">
               <xsl:if test="preceding-sibling::label">
                 <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
+                <xsl:apply-templates select="@* | node()"/>
+            </xsl:element>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="back/notes/sec/title">
+        <xsl:if test="node() != ''">
+            <!-- When a section is inside a notes block, we are rendering an h2 with "Notes", so we start counting sec header levels from h1 + 2 -->
+            <xsl:element name="h{count(ancestor::sec) + 2}">
+                <xsl:if test="preceding-sibling::label">
+                    <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
                 <xsl:apply-templates select="@* | node()"/>
             </xsl:element>
         </xsl:if>
