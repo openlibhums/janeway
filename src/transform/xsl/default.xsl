@@ -2903,9 +2903,7 @@
         </xsl:if>
       </xsl:when>
       <xsl:when test="self::person-group/@person-group-type='editor'">
-        <strong>
           <xsl:apply-templates select="node()" mode="none"/>
-        </strong>
         <xsl:if test="not(preceding-sibling::person-group)">
         <xsl:text>. (</xsl:text>
         <xsl:value-of select="..//year"/>
