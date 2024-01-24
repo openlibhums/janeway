@@ -32,7 +32,7 @@
                                 {% if journal_settings.styling.enable_editorial_images %}
                                     <img class="thumbnail editorial-image" src="
                                             {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                         alt="Photo of Uranus.">
+                                         alt="{% if member.user.profile_image %}Headshot photograph of {{ member.user.full_name }}{% else %}A generic headshot photograph of a person{% endif %}">
                                 {% endif %}
                                 <strong>{{ member.user.full_name }}</strong><br/>
                                 <i>
