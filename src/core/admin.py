@@ -329,7 +329,7 @@ class GalleyAdmin(admin.ModelAdmin):
 class EditorialGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'journal', 'press', 'sequence')
     list_filter = ('journal', 'press')
-    search_fields = ('name', 'journal')
+    search_fields = ('name',)
 
     inlines = [
         admin_utils.EditorialGroupMemberInline
@@ -341,8 +341,7 @@ class EditorialMemberAdmin(admin.ModelAdmin):
     list_filter = ('group__journal', 'group')
     raw_id_fields = ('user', )
     search_fields = ('pk', 'user__first_name', 'user__last_name',
-                     'user__email', 'group__name', 'group__description',
-                     'group__journal')
+                     'user__email', 'group__name', 'group__description')
 
     def _journal(self, obj):
         return obj.group.journal if obj else ''
