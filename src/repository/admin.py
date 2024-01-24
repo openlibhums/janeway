@@ -87,6 +87,7 @@ class PreprintAdmin(admin.ModelAdmin):
         "date_submitted",
         "doi",
         "current_version",
+        "article",
     )
     list_display_links = ("pk", "title")
     list_filter = (
