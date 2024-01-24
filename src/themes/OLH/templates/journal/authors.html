@@ -24,7 +24,7 @@
 
                             <img class="thumbnail editorial-image" src="
                                     {% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                 alt="Photo of Uranus.">
+                                 alt="{% if author.profile_image %}Headshot photograph of {{ author.full_name }}{% else %}A generic headshot photograph of a person {% endif %}">
 
                         {% endif %}
 
