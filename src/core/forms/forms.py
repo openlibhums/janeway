@@ -101,7 +101,7 @@ class EditorialGroupForm(JanewayTranslationModelForm):
     class Meta:
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
-        exclude = ('journal',)
+        exclude = ('journal', 'press')
         widgets = {'description': SummernoteWidget()}
 
 
