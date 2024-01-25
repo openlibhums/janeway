@@ -12,6 +12,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.apps import apps
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
@@ -347,16 +348,16 @@ class Press(AbstractSiteModel):
         return 'press'
 
     @property
-    def active_journals(self):
-        from journal import models as journal_models
-        # imported here to avoid circular imports
-        return journal_models.Journal.objects.filter(
+    def public_journals(self):
+        Journal = apps.get_model('journal.Journal')
+        return Journal.objects.filter(
             hide_from_press=False,
         )
 
     @property
     def published_articles(self):
-        return submission_models.Article.objects.filter(
+        Article = apps.get_model('submission.Article')
+        return Article.objects.filter(
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
         )
