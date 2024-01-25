@@ -26,6 +26,7 @@ from repository import models as repo_models
 from utils.logic import get_aware_datetime
 from uuid import uuid4
 from review.const import ReviewerDecisions as RD
+from cms import models as cms_models
 
 
 def create_user(username, roles=None, journal=None, **attrs):
@@ -562,3 +563,18 @@ def create_access_request(journal, user, role, **kwargs):
         text='Automatic request as author added to an article.',
     )
     return access_request
+
+def create_cms_page(content_type, object_id, **kwargs):
+    name = kwargs.get('name', 'test-name')
+    display_name = kwargs.get('display_name', 'Test display name')
+    content = kwargs.get('content', 'Test content')
+    is_markdown = kwargs.get('is_markdown', False)
+
+    return cms_models.Page.objects.create(
+        content_type=content_type,
+        object_id=object_id,
+        name=name,
+        display_name=display_name,
+        content=content,
+        is_markdown=is_markdown,
+    )

@@ -11,8 +11,18 @@ from django.conf import settings
 from cms import models as models
 from utils import setting_handler
 
-def get_custom_templates(journal, press):
 
+def get_custom_templates_folder(journal):
+    setting = setting_handler.get_setting(
+        'general',
+        'custom_cms_templates',
+        journal,
+        default=False,
+    )
+    return setting.processed_value if setting else ''
+
+
+def get_custom_templates_path(journal, press):
     if journal:
         theme = setting_handler.get_setting(
             'general',
@@ -22,38 +32,27 @@ def get_custom_templates(journal, press):
     elif press and press.theme:
         theme = press.theme
     else:
-        theme = None
+        return ''
 
-    if not theme:
+    folder = get_custom_templates_folder(journal)
+    if not folder:
+        return ''
+
+    return os.path.join(settings.BASE_DIR, 'themes', theme, 'templates', folder)
+
+
+def get_custom_templates(journal, press):
+
+    templates_folder = get_custom_templates_folder(journal)
+    templates_path = get_custom_templates_path(journal, press)
+    if not templates_folder or not templates_path:
         return []
 
-    custom_templates_setting = setting_handler.get_setting(
-        'general',
-        'custom_cms_templates',
-        journal,
-        default=False,
-    )
-    if not custom_templates_setting:
-        return []
-
-    custom_templates_folder = custom_templates_setting.processed_value
-    custom_templates_path = os.path.join(
-        settings.BASE_DIR,
-        'themes',
-        theme,
-        'templates',
-        custom_templates_folder,
-        '*.html'
-    )
     custom_templates = [('','-----')]
-    for filepath in sorted(glob.glob(custom_templates_path)):
+    for filepath in sorted(glob.glob(os.path.join(templates_path, '*.html'))):
         choice = (
-            os.path.join(
-                custom_templates_folder,
-                os.path.basename(filepath)
-            ),
+            os.path.join(templates_folder, os.path.basename(filepath)),
             os.path.basename(filepath),
         )
         custom_templates.append(choice)
-
     return custom_templates

@@ -27,6 +27,7 @@
                     {% csrf_token %}
                     {{ form.display_name|foundation }}
                     {{ form.name|foundation }}
+                    {{ form.template|foundation }}
                     {{ form.content|foundation }}
                     {#{{ form.support_copy_paste|foundation }}#}
                     <div class="row expanded">

@@ -3,16 +3,23 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
+from django.shortcuts import (
+    render,
+    get_object_or_404,
+    redirect,
+    HttpResponse,
+    Http404
+)
 from django.urls import reverse
 from django.utils import translation
 from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required
-from cms import models, forms
+from cms import models, forms, logic
 from core import files
 from core import models as core_models
 from core.forms import XSLFileForm
@@ -20,6 +27,9 @@ from journal import models as journal_models
 from utils import setting_handler
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect, set_order
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @editor_user_required
@@ -102,18 +112,39 @@ def view_page(request, page_name):
     :param page_name: a string matching models.Page.page_name
     :return: HttpResponse object
     """
-    current_page = get_object_or_404(models.Page, name=page_name,
-                                     content_type=request.model_content_type,
-                                     object_id=request.site_type.pk)
+    page = get_object_or_404(
+        models.Page,
+        name=page_name,
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk
+    )
 
-    if current_page.template:
-        template = current_page.template
+    if page.template:
+        templates_path = logic.get_custom_templates_path(
+            request.journal,
+            request.press
+        )
+        if not templates_path:
+            logger.error(
+                f'No custom template folder has been set '
+                f'but CMS page {page.pk} expects to find one.'
+            )
+            raise Http404
+        elif not os.path.exists(os.path.join(templates_path, page.template)):
+            logger.error(
+                f'CMS page {page.pk} is set to use '
+                f'nonexistent template {page.template}.'
+            )
+            raise Http404
+        else:
+            template = page.template
     elif request.journal:
         template = 'cms/page.html'
     else:
         template = 'press/cms/page.html'
+
     context = {
-        'page': current_page,
+        'page': page,
     }
 
     return render(request, template, context)
