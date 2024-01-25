@@ -166,11 +166,12 @@ def news_list(request, tag=None, presswide=False):
         )
 
     if tag:
+        unquoted_tag = urllib.parse.unquote(tag)
         news_objects = news_objects.filter(
-            tags__text=urllib.parse.unquote(tag),
+            tags__text=unquoted_tag,
         )
         tag = models.Tag.objects.get(
-            text=urllib.parse.unquote(tag)
+            text=unquoted_tag
         )
 
     paginator = Paginator(news_objects, 12)
