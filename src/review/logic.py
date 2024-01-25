@@ -28,7 +28,6 @@ from docx import Document
 from utils import render_template, setting_handler, notify_helpers
 from core import(
     files,
-    forms as core_forms,
     email,
     models as core_models,
 )
