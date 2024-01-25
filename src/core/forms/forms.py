@@ -108,7 +108,7 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 class PasswordResetForm(forms.Form):
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Confirm Password'))
+    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -236,7 +236,7 @@ class AdminUserForm(forms.ModelForm):
 
         if active == 'add':
             self.fields['password_1'] = forms.CharField(widget=forms.PasswordInput, label="Password")
-            self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat password")
+            self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat Password")
 
         if request and not request.user.is_admin:
             self.fields.pop('is_staff', None)
