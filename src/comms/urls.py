@@ -15,12 +15,6 @@ urlpatterns = [
         views.news_list,
         name='core_news_list_tag_presswide',
     ),
-    re_path(
-        r'^press_overview/$',
-        views.press_overview,
-        name='core_news_press_overview',
-    ),
-
     re_path(r'^manager/$', views.news, name='core_manager_news'),
     re_path(r'^manager/edit/(?P<news_pk>\d+)/$', views.edit_news, name='core_manager_edit_news'),
 

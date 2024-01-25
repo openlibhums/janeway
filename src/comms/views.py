@@ -202,57 +202,6 @@ def news_list(request, tag=None, presswide=False):
     return render(request, template, context)
 
 
-def press_overview(request):
-    """
-    Gets NewsItem lists by tag or by the content type of the
-    object (e.g. press, journal), in the order they are passed in the URL.
-    Expects GET request query parameters such as in this example:
-    /news/press_overview/?tags__text=Announcement&tags__text=Blog&content_type__model=journal
-    :param request: HttpRequest object
-    :return: HttpResponse object
-    """
-
-    all_tags = models.Tag.objects.all().annotate(
-        Count('tags')
-    ).order_by('-tags__count', 'text')
-
-    tag_texts = [tag.text for tag in all_tags]
-    tag_sets = {}
-    object_sets = {}
-    for key in request.GET:
-        if key == 'tags__text':
-            for value in request.GET.getlist(key):
-                if value in tag_texts:
-                    tag_sets[value] = models.NewsItem.active_objects.filter(
-                        content_type=request.model_content_type,
-                        object_id=request.site_type.id,
-                        tags__text=value,
-                    )
-        elif key == 'content_type__model':
-            for value in request.GET.getlist(key):
-                if value in ['press', 'journal']:
-                    object_sets[value] = models.NewsItem.active_objects.filter(
-                        content_type__model=value,
-                    )
-
-    pinned_items = models.NewsItem.active_objects.filter(
-        content_type=request.model_content_type,
-        object_id=request.site_type.id,
-        pinned=True,
-    )
-
-    template = 'press/news/overview.html'
-
-    context = {
-        'tag_sets': tag_sets,
-        'object_sets': object_sets,
-        'pinned_items': pinned_items,
-        'all_tags': all_tags,
-    }
-
-    return render(request, template, context)
-
-
 def news_item(request, news_pk):
     """
     Renders a news item for public display.
