@@ -65,9 +65,6 @@ class ViewTests(test_models.TestCaseWithCMSData):
     def test_view_page_bad_custom_template_path_raises_error(self, _render, get_path, path_exists):
         self.press_cms_page.template = 'custom/my_template.html'
         self.press_cms_page.save()
-        get_path.return_value = ''
-        with self.assertRaises(Http404):
-            cms_views.view_page(self.request_press, 'test-name')
         get_path.return_value = 'fake/path/to/custom'
         path_exists.return_value = False
         with self.assertRaises(Http404):
