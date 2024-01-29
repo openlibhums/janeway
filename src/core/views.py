@@ -541,28 +541,28 @@ def public_profile(request, uuid):
         is_active=True,
         enable_public_profile=True,
     )
+    template = 'core/accounts/public_profile.html'
+    context = {
+        'user': user,
+    }
+
     if request.journal:
-        roles = models.AccountRole.objects.filter(
+        context['editorial_groups'] = user.editorialgroupmember_set.filter(
+            group__journal=request.journal
+        )
+        context['roles'] = models.AccountRole.objects.filter(
             user=user,
             journal=request.journal,
         )
-
-        template = 'core/accounts/public_profile.html'
-        context = {
-            'user': user,
-            'roles': roles,
-        }
         if not context['roles']:
             raise Http404()
-    else:
-        template = 'press/user_profile.html'
-        context = {
-            'user': user,
-            'staff_groups': user.staffgroupmember_set.all(),
-            'governance_groups': user.editorialgroupmember_set.filter(
-                group__press=request.press
-            ),
-        }
+
+    elif request.press:
+        context['editorial_groups'] = user.editorialgroupmember_set.filter(
+            group__press=request.press,
+            group__journal__isnull=True,
+        )
+        context['staff_groups'] = user.staffgroupmember_set.all()
 
     return render(request, template, context)
 
