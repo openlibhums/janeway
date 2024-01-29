@@ -29,9 +29,8 @@
                 {% if staff_groups %}
                   <p>
                     <strong>{% trans "Staff roles" %}: </strong><br>
-                    {% for membership in staff_groups %}
-                      {{ membership.job_title }}
-                    {% endfor %}
+                    {{ staff_groups.first.job_title }}
+                    {% comment %}No support yet for multiple staff groups{% endcomment %}
                   </p>
                 {% endif %}
                 {% if user.affiliation %}
