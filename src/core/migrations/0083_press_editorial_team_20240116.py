@@ -29,6 +29,18 @@ class Migration(migrations.Migration):
                 to='press.press'
             ),
         ),
+        migrations.RunPython(
+            set_press_for_journal_editorial_teams,
+            reverse_code=migrations.RunPython.noop
+        ),
+        migrations.AlterField(
+            model_name='editorialgroup',
+            name='press',
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='press.press'
+            ),
+        ),
         migrations.AlterField(
             model_name='editorialgroup',
             name='journal',
@@ -38,10 +50,6 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.CASCADE,
                 to='journal.journal'
             ),
-        ),
-        migrations.RunPython(
-            set_press_for_journal_editorial_teams,
-            reverse_code=migrations.RunPython.noop
         ),
         migrations.AddField(
             model_name='editorialgroupmember',
