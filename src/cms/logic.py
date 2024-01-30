@@ -119,22 +119,19 @@ def add_part_as_doc(part, part_url, part_name, part_text):
     part.decompose()
 
 
-def add_searchable_page_parts(url, body):
-
-    headings = ['h4', 'h3', 'h2']
-
-    def get_part_url(part):
-        part_id = part.get('id', '')
-        if part_id:
-            return urljoin(url, '#' + part_id)
-        else:
-            return remove_fragment(url)
+def add_searchable_page_parts(url, body, headings=None):
+    if not headings:
+        headings = ['h4', 'h3', 'h2']
 
     for h in headings:
         for part in body.find_all(h, id=True):
             if not part:
                 continue
-            part_url = get_part_url(part)
+            part_id = part.get('id', '')
+            if part_id:
+                part_url = urljoin(url, '#' + part_id)
+            else:
+                part_url = remove_fragment(url)
             part_name = part.get_text().strip()
             part_text = get_text_for_header(part)
             add_part_as_doc(part, part_url, part_name, part_text)
@@ -181,11 +178,12 @@ def get_body(html):
     return body
 
 
-def get_base():
-    press = press_models.Press.objects.first()
+@cache(900)
+def get_base(press):
     return press.site_url()
 
 
+@cache(900)
 def excluded_urls():
     return [
         journal.site_url() for journal in journal_models.Journal.objects.all()
@@ -194,8 +192,8 @@ def excluded_urls():
     ]
 
 
-def url_in_scope(deeper_url):
-    base = get_base()
+def url_in_scope(press, deeper_url):
+    base = get_base(press)
     if urlparse(deeper_url).hostname != urlparse(base).hostname:
         return False
     for excluded_url in excluded_urls():
@@ -209,17 +207,18 @@ def remove_fragment(url):
     return url.replace('#' + fragment, '')
 
 
-def url_is_unique(deeper_url):
-    def normalize(url):
-        url = remove_fragment(url)
-        if url.endswith('/'):
-            url = url[:-1]
-        return url
+def normalize_url(url):
+    url = remove_fragment(url)
+    if url.endswith('/'):
+        url = url[:-1]
+    return url
 
+
+def url_is_new(deeper_url):
     if deeper_url in fetched_urls:
         return False
     for fetched_url in fetched_urls:
-        if normalize(fetched_url) == normalize(deeper_url):
+        if normalize_url(fetched_url) == normalize_url(deeper_url):
             return False
     return True
 
@@ -230,8 +229,7 @@ def decompose_non_content_page_regions(body):
             element.decompose()
 
 
-def add_searchable_page(url):
-
+def add_searchable_page(press, url):
     html = get_page(url)
     if not html:
         return
@@ -243,8 +241,8 @@ def add_searchable_page(url):
     for anchor in body.find_all('a'):
         href = anchor.get('href', '').strip()
         deeper_url = urljoin(url, href)
-        if url_in_scope(deeper_url) and url_is_unique(deeper_url):
-            add_searchable_page(deeper_url)
+        if url_in_scope(press, deeper_url) and url_is_new(deeper_url):
+            add_searchable_page(press, deeper_url)
 
     name = get_name(html)
     decompose_non_content_page_regions(body)
@@ -253,14 +251,14 @@ def add_searchable_page(url):
     add_search_index_document(url, name, body.get_text())
 
 
-def get_press_site_search_data():
+def get_press_site_search_data(press):
     """
     Generates data for press-level site search index
     to be used by MiniSearch
     """
 
-    base = get_base()
-    add_searchable_page(base)
+    base = get_base(press)
+    add_searchable_page(press, base)
 
     if not len(search_documents) > 0:
         logger.error('Search data store is empty')
@@ -268,19 +266,29 @@ def get_press_site_search_data():
     return search_documents
 
 
-def update_search_data(press_id=1):
-    press = press_models.Press.objects.get(pk=press_id)
-    docs_filename = os.path.join(
+def get_search_docs_filename(press):
+    return os.path.join(
         settings.SITE_SEARCH_DIR,
         f'_press_{ press.pk }_documents.json'
     )
+
+
+def get_search_docs_filepath(press):
+    return os.path.join(
+        SITE_SEARCH_PATH,
+        f'_press_{ press.pk }_documents.json'
+    )
+
+
+def update_search_data(press):
+    docs_filename = get_search_docs_filename(press)
     docs_file, created = models.MediaFile.objects.get_or_create(
         label=docs_filename
     )
     if not created:
         docs_file.unlink()
 
-    documents = get_press_site_search_data()
+    documents = get_press_site_search_data(press)
     docs_json = json.dumps(documents, separators=(',', ':'))
 
     content_file = ContentFile(docs_json.encode('utf-8'))
@@ -288,13 +296,9 @@ def update_search_data(press_id=1):
     return docs_file
 
 
-def delete_search_data(press_id=1):
-    press = press_models.Press.objects.get(pk=press_id)
+def delete_search_data(press):
+    path = get_search_docs_filepath(press)
     files_deleted = []
-    path = os.path.join(
-        SITE_SEARCH_PATH,
-        f'_press_{ press.pk }_documents.json',
-    )
     if os.path.exists(path):
         os.unlink(path)
         files_deleted.append(path)
@@ -310,20 +314,16 @@ def delete_search_data(press_id=1):
 
 
 @cache(900)
-def get_search_data_file(press):
-    docs_filename = os.path.join(
-        settings.SITE_SEARCH_DIR,
-        f'_press_{ press.pk }_documents.json'
-    )
+def get_search_data_url(press):
+    docs_filename = get_search_docs_filename(press)
     try:
-        docs_file = models.MediaFile.objects.get(label=docs_filename)
+        return models.MediaFile.objects.get(label=docs_filename).file.url
     except models.MediaFile.DoesNotExist:
         raise ImproperlyConfigured(
             'Site search indexing is turned on, but there is no data file. '
             'Set settings.SITE_SEARCH_INDEXING_FREQUENCY to None to turn off, '
             'or run manage.py generate_site_search_data.'
         )
-    return docs_file
 
 
 def get_custom_templates_folder(journal):

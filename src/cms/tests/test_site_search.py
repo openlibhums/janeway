@@ -67,9 +67,9 @@ class TestSiteSearch(TestCase):
 
     def tearDown(self):
         cms_logic.search_documents = []
-        cms_logic.indexed_urls = set()
+        cms_logic.fetched_urls = set()
         try:
-            call_command('delete_site_search_data')
+            call_command('delete_site_search_data', '--press_id', self.press.pk)
         except FileNotFoundError:
             pass
 
@@ -169,13 +169,22 @@ class TestSiteSearch(TestCase):
         get_base.return_value = 'https://www.openlibhums.org'
         excluded_urls.return_value = ['https://www.openlibhums.org/journal1']
         self.assertTrue(
-            cms_logic.url_in_scope('https://www.openlibhums.org/my-site-page/')
+            cms_logic.url_in_scope(
+                self.press,
+                'https://www.openlibhums.org/my-site-page/',
+            ),
         )
         self.assertFalse(
-            cms_logic.url_in_scope('https://www.openlibhums.org/journal1/a/')
+            cms_logic.url_in_scope(
+                self.press,
+                'https://www.openlibhums.org/journal1/a/',
+            )
         )
         self.assertFalse(
-            cms_logic.url_in_scope('https://www.wikipedia.org')
+            cms_logic.url_in_scope(
+                self.press,
+                'https://www.wikipedia.org'
+            )
         )
 
     @patch('cms.logic.update_search_data')
@@ -201,7 +210,7 @@ class TestSiteSearch(TestCase):
         get_press_site_search_data.return_value = [
             {'test': 'test value', 'other': 'other value'}
         ]
-        cms_logic.update_search_data(self.press.pk)
+        cms_logic.update_search_data(self.press)
         docs_file = cms_models.MediaFile.objects.get(label=self.docs_label)
         self.assertTrue(os.path.exists(docs_file.file.path))
 
@@ -210,12 +219,12 @@ class TestSiteSearch(TestCase):
         get_press_site_search_data.return_value = [
             {'old': ''}
         ]
-        cms_logic.update_search_data(self.press.pk)
+        cms_logic.update_search_data(self.press)
 
         get_press_site_search_data.return_value = [
             {'new': ''}
         ]
-        cms_logic.update_search_data(self.press.pk)
+        cms_logic.update_search_data(self.press)
         get_press_site_search_data.assert_called()
 
         media_file = cms_models.MediaFile.objects.get(label=self.docs_label)
