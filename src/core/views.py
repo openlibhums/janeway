@@ -45,7 +45,7 @@ from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
-from press import forms as press_forms, views as press_views
+from press import forms as press_forms
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
@@ -754,7 +754,8 @@ def manager_index(request):
     :return: HttpResponse object
     """
     if not request.journal:
-        return press_views.manager_index(request)
+        from press.views import manager_index as press_manager_index
+        return press_manager_index(request)
 
     template = 'core/manager/index.html'
 
