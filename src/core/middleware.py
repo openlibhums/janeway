@@ -124,8 +124,7 @@ class SiteSettingsMiddleware(BaseMiddleware):
                 settings.SITE_SEARCH_INDEXING_FREQUENCY
                 and not settings.IN_TEST_RUNNER
             ):
-                docs_file = cms_logic.get_search_data_file(request.press)
-                request.site_search_docs_url = docs_file.file.url
+                request.site_search_docs_url = cms_logic.get_search_data_url(request.press)
 
         else:
             raise Http404()

@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from cms import logic as cms_logic
 from utils.logger import get_logger
+from press import models as press_models
 
 logger = get_logger(__name__)
 
@@ -14,9 +15,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['press_id']:
-            files_deleted = cms_logic.delete_search_data(press_id=options['press_id'])
+            press = press_models.Press.objects.get(pk=options['press_id'])
         else:
-            files_deleted = cms_logic.delete_search_data()
+            press = press_models.Press.objects.first()
+        files_deleted = cms_logic.delete_search_data(press)
 
         if files_deleted:
             logger.debug(
