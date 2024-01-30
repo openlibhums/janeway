@@ -175,6 +175,7 @@ def get_page(
         return None, fetched_urls
 
     if response.status_code != 200:
+        logger.warn(f'Could not access {url}')
         return None, fetched_urls
 
     if 'text/html' not in response.headers['Content-Type']:
