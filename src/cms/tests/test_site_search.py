@@ -65,18 +65,25 @@ class TestSiteSearch(TestCase):
         cls.journal_one.delete()
         cls.journal_two.delete()
 
+    def setUp(self):
+        self.docs = []
+
     def tearDown(self):
-        cms_logic.search_documents = []
-        cms_logic.fetched_urls = set()
+        del self.docs
         try:
             call_command('delete_site_search_data', '--press_id', self.press.pk)
         except FileNotFoundError:
             pass
 
     def test_add_search_index_document(self):
-        cms_logic.add_search_index_document('example.org', 'Example', 'Hello')
+        docs = cms_logic.add_search_index_document(
+            self.docs,
+            'example.org',
+            'Example',
+            'Hello',
+        )
         self.assertDictEqual(
-            cms_logic.search_documents[-1],
+            docs[-1],
             {
                 'id': 0,
                 'url': 'example.org',
@@ -84,10 +91,15 @@ class TestSiteSearch(TestCase):
                 'text': 'Hello',
             }
         )
-        self.assertEqual(len(cms_logic.search_documents), 1)
-        cms_logic.add_search_index_document('example.org/2', 'Other', 'Hi')
-        self.assertEqual(cms_logic.search_documents[-1]['id'], 1)
-        self.assertEqual(len(cms_logic.search_documents), 2)
+        self.assertEqual(len(docs), 1)
+        docs = cms_logic.add_search_index_document(
+            docs,
+            'example.org/2',
+            'Other',
+            'Hi',
+        )
+        self.assertEqual(docs[-1]['id'], 1)
+        self.assertEqual(len(docs), 2)
 
     def test_gobble_sibling_text(self):
         soup = BeautifulSoup(self.searchable_page, 'html.parser')
@@ -122,27 +134,26 @@ class TestSiteSearch(TestCase):
 
     @patch('cms.logic.add_search_index_document')
     def test_add_part_as_doc(self, add_doc):
-        soup = BeautifulSoup(self.searchable_page, 'html.parser')
-        spring = soup.find(id='spring')
-        cms_logic.add_part_as_doc(spring, 'example.org', '', 'May')
+        cms_logic.add_part_as_doc(self.docs, 'example.org', '', 'May')
         add_doc.assert_not_called()
-        cms_logic.add_part_as_doc(spring, 'example.org', 'Spring', '')
+        cms_logic.add_part_as_doc(self.docs, 'example.org', 'Spring', '')
         add_doc.assert_not_called()
-        cms_logic.add_part_as_doc(spring, 'example.org', 'Spring', 'May')
-        add_doc.assert_called_with('example.org', 'Spring', 'May')
-        self.assertFalse(soup.find(id='spring'))
+        cms_logic.add_part_as_doc(self.docs, 'example.org', 'Spring', 'May')
+        add_doc.assert_called_with(self.docs, 'example.org', 'Spring', 'May')
 
     @patch('cms.logic.add_part_as_doc')
     def test_add_searchable_page_parts(self, add_part):
         soup = BeautifulSoup(self.searchable_page, 'html.parser')
-        cms_logic.add_searchable_page_parts('example.org', soup.find('body'))
-        winter = soup.find(id='winter')
+        body = soup.find('body')
+        self.assertTrue(soup.find(id='winter'))
+        docs = cms_logic.add_searchable_page_parts(self.docs, 'example.org', body)
         add_part.assert_called_with(
-            winter,
+            docs,
             'example.org#winter',
             'Winter',
             'New Year',
         )
+        self.assertFalse(soup.find(id='winter'))
 
     def test_get_name(self):
         html_with_h1 = BeautifulSoup('<h1>h1</h1>', 'html.parser')
