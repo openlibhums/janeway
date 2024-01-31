@@ -3,6 +3,12 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.apps import apps
+
+
+def default_press_id():
+    Press = apps.get_model("press", "Press")
+    return Press.objects.first().pk
 
 
 class Migration(migrations.Migration):
@@ -20,7 +26,11 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=500)),
                 ('description', models.TextField(blank=True)),
                 ('sequence', models.PositiveIntegerField()),
-                ('press', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='press.press')),
+                ('press', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='press.press',
+                    default=default_press_id,
+                )),
             ],
             options={
                 'ordering': ('sequence',),
