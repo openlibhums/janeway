@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
+from django.db.models import Q
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
@@ -721,10 +722,11 @@ def typesetting_assignments(request):
 
     active_assignments = assignments.filter(
         completed__isnull=True,
+        cancelled__isnull=True,
     )
 
     completed_assignments = assignments.filter(
-        completed__isnull=False,
+        Q(completed__isnull=False) | Q(cancelled__isnull=False),
     )
 
     template = 'typesetting/typesetting_assignments.html'

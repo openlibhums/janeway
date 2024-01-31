@@ -50,7 +50,7 @@
                     <th>Title</th>
                     <th>Round</th>
                     <th>Assigned</th>
-                    <th>Completed</th>
+                    <th>Completed/Cancelled</th>
                 </thead>
                 {% for assignment in completed_assignments %}
                 <tbody>
@@ -58,7 +58,7 @@
                     <td>{{ assignment.round.article.title|safe }}</td>
                     <td>{{ assignment.round }}</td>
                     <td>{{ assignment.assigned }}</td>
-                    <td>{{ assignment.completed }}</td>
+                    <td>{% if assignment.completed %}Completed: {{ assignment.completed }}{% else %}Cancelled: {{ assignment.cancelled }}{% endif %}</td>
                 </tbody>
                 {% endfor %}
             </table>
