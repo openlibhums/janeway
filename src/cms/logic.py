@@ -9,7 +9,6 @@ import glob
 import json
 import time
 import requests
-from typing import Tuple, List, Dict
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
@@ -34,15 +33,17 @@ SITE_SEARCH_PATH = os.path.join(
 )
 
 
-def add_search_index_document(
-    docs: List[Dict],
-    url: str,
-    name: str,
-    text: str,
-) -> List[Dict]:
+def add_search_index_document(docs, url, name, text):
     """
     Adds the data for a part or page to the search index
+
+    :type docs: list[dict]
+    :type url: str
+    :type name: str
+    :type text: str
+    :rtype: list[dict]
     """
+
     data = {}
     data['id'] = len(docs)
     data['url'] = url
@@ -52,13 +53,14 @@ def add_search_index_document(
     return docs
 
 
-def gobble_sibling_text(
-    sibling: Tag | NavigableString,
-    original_part: Tag | NavigableString,
-) -> str:
+def gobble_sibling_text(sibling, original_part):
     """
     Recursively collects a series of parallel elements for
     indexing together, stopping before another heading
+
+    :type sibling: Tag | NavigableString
+    :type original_part: Tag | NavigableString
+    :rtype: str
     """
 
     # Handle no sibling
@@ -91,10 +93,13 @@ def gobble_sibling_text(
     return gobbled_text.strip()
 
 
-def get_text_for_parent(
-    parent: Tag | NavigableString,
-    original_part: Tag | NavigableString,
-) -> str:
+def get_text_for_parent(parent, original_part):
+    """Gets for a parent element and its siblings
+
+    :type parent: Tag | NavigableString
+    :type original_part: Tag | NavigableString
+    :rtype: str
+    """
     if not parent:
         return ''
 
@@ -105,10 +110,13 @@ def get_text_for_parent(
         return get_text_for_parent(parent.parent, original_part)
 
 
-def get_text_for_header(part: Tag | NavigableString) -> str:
+def get_text_for_header(part):
     """
     Gets the sibling text or parent text
     when given an h2, h3, or h4
+
+    :type part: Tag | NavigableString
+    :rtype: str
     """
 
     # Try gobbling first
@@ -120,12 +128,16 @@ def get_text_for_header(part: Tag | NavigableString) -> str:
     return get_text_for_parent(part.parent, part)
 
 
-def add_part_as_doc(
-    docs: List[Dict],
-    part_url: str,
-    part_name: str,
-    part_text: str,
-) -> List[Dict]:
+def add_part_as_doc(docs, part_url, part_name, part_text):
+    """
+    Adds a section of the page as an index document
+
+    :type docs: list[dict]
+    :type part_url: str
+    :type part_name: str
+    :type part_text: str
+    :rtype: list[dict]
+    """
     if not part_name or not part_text:
         # HTML tree with id has no heading
         # or no text content
@@ -133,12 +145,19 @@ def add_part_as_doc(
     return add_search_index_document(docs, part_url, part_name, part_text)
 
 
-def add_searchable_page_parts(
-        docs: List[Dict],
-        url: str,
-        body: Tag,
-        headings: List | None = None,
-    ) -> List[Dict]:
+def add_searchable_page_parts(docs, url, body, headings=None):
+    """
+    Finds the sections of the page that can stand
+    alone as index documents, adds them to the docs,
+    and decomposes them so that they are not also indexed
+    as part of their larger page.
+
+    :type docs: list[dict]
+    :type url: str
+    :type body: Tag
+    :type headings: list | None
+    :rtype: list[dict]
+    """
     if not headings:
         headings = ['h4', 'h3', 'h2']
 
@@ -158,13 +177,38 @@ def add_searchable_page_parts(
     return docs
 
 
-def get_page(
-    url: str,
-    fetched_urls: set[str]
-) -> Tuple[BeautifulSoup | None, set[str]]:
+def remove_fragment(url):
+    """
+    Removes any fragment found in the url
+
+    :type url: str
+    :rtype: str
+    """
+    fragment = urlparse(url).fragment
+    return url.replace('#' + fragment, '')
+
+
+def normalize_url(url):
+    """
+    Removes any fragment and trailing slash
+
+    :type url: str
+    :rtype: str
+    """
+    return remove_fragment(url).rstrip('/')
+
+
+def get_page(url, fetched_urls):
+    """
+    Gets a new page using requests
+
+    :type url: str
+    :type fetched_urls: set[str]
+    :rtype: tuple[BeautifulSoup | None, set[str]]
+    """
     time.sleep(.1)
     try:
-        fetched_urls.add(url)
+        fetched_urls.add(normalize_url(url))
         headers = {
             'Accept': 'text/html; charset=utf-8'
         }
@@ -185,14 +229,27 @@ def get_page(
     return soup, fetched_urls
 
 
-def get_name(html: BeautifulSoup) -> str:
+def get_name(html):
+    """
+    Gets the h1 or otherwise the title of the page
+
+    :type html: BeautifulSoup
+    :rtype: str
+    """
     try:
         return html.find('h1').get_text().strip()
     except AttributeError:
         return html.title.get_text().strip()
 
 
-def get_body(html: BeautifulSoup) -> Tag | None:
+def get_body(html):
+    """
+    Gets the body of the page and removes
+    JavaScript, comments, and other unwanted elements
+
+    :type html: BeautifulSoup
+    :rtype: Tag | None
+    """
     body = html.find('body')
     if not isinstance(body, Tag):
         return
@@ -205,12 +262,24 @@ def get_body(html: BeautifulSoup) -> Tag | None:
 
 
 @cache(900)
-def get_base(press: press_models.Press) -> str:
+def get_base(press):
+    """
+    Gets and caches the site base
+
+    :type press: press_models.Press
+    :rtype: str
+    """
     return press.site_url()
 
 
 @cache(900)
-def excluded_urls() -> List[str]:
+def excluded_urls():
+    """
+    Gets and caches URLs that should be excluded, even
+    though they might match base domain
+
+    :rtype: list[str]
+    """
     return [
         journal.site_url() for journal in journal_models.Journal.objects.all()
     ] + [
@@ -218,7 +287,14 @@ def excluded_urls() -> List[str]:
     ]
 
 
-def url_in_scope(press: press_models.Press, deeper_url: str) -> bool:
+def url_in_scope(press, deeper_url):
+    """
+    Decides if a URL is in scope for site search
+
+    :type press: press_models.Press
+    :type deeper_url: str
+    :rtype: bool
+    """
     base = get_base(press)
     if urlparse(deeper_url).hostname != urlparse(base).hostname:
         return False
@@ -228,39 +304,44 @@ def url_in_scope(press: press_models.Press, deeper_url: str) -> bool:
     return True
 
 
-def remove_fragment(url: str) -> str:
-    fragment = urlparse(url).fragment
-    return url.replace('#' + fragment, '')
+def url_is_new(fetched_urls, deeper_url):
+    """
+    Decides if a URL is new, or not yet fetched
 
-
-def normalize_url(url: str) -> str:
-    url = remove_fragment(url)
-    if url.endswith('/'):
-        url = url[:-1]
-    return url
-
-
-def url_is_new(fetched_urls: set[str], deeper_url: str) -> bool:
-    if deeper_url in fetched_urls:
+    :type fetched_urls: set[str]
+    :type deeper_url: str
+    :rtype: bool
+    """
+    if normalize_url(deeper_url) in fetched_urls:
         return False
-    for fetched_url in fetched_urls:
-        if normalize_url(fetched_url) == normalize_url(deeper_url):
-            return False
-    return True
+    else:
+        return True
 
 
-def decompose_non_content_page_regions(body: Tag) -> None:
+def decompose_non_content_page_regions(body):
+    """
+    Decomposes regions of the page that are inside the body
+    but not indexable
+
+    :type body: Tag
+    :rtype: None
+    """
     for non_content_selector in ['header', 'footer', 'h1']:
         for element in body.select(non_content_selector):
             element.decompose()
 
 
-def add_searchable_page(
-        press: press_models.Press,
-        docs: List[Dict],
-        fetched_urls: set[str],
-        url: str,
-    ) -> Tuple[List[Dict], set[str]]:
+def add_searchable_page(press, docs, fetched_urls, url):
+    """
+    Adds a searchable page to the index and recurses
+    over indexable anchor links found on that page
+
+    :type press: press_models.Press
+    :type docs: list[dict]
+    :type fetched_urls: set[str]
+    :type url: str
+    :rtype: tuple[list[dict], set[str]]
+    """
     html, fetched_urls = get_page(url, fetched_urls)
     if not html:
         return docs, fetched_urls
@@ -284,14 +365,19 @@ def add_searchable_page(
     decompose_non_content_page_regions(body)
 
     docs = add_searchable_page_parts(docs, url, body)
-    docs = add_search_index_document(docs, url, name, body.get_text())
+
+    rest_of_body = body.get_text()
+    docs = add_search_index_document(docs, url, name, rest_of_body)
     return docs, fetched_urls
 
 
-def get_press_site_search_data(press: press_models.Press) -> List[Dict]:
+def get_press_site_search_data(press):
     """
     Generates data for press-level site search index
     to be used by MiniSearch
+
+    :type press: press_models.Press
+    :rtype: list[dict]
     """
     docs = []
     fetched_urls = set()
