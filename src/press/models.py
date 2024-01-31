@@ -16,7 +16,7 @@ from django.apps import apps
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, SVGImageField
+from core.model_utils import AbstractSiteModel, SVGImageField, default_press_id
 from submission import models as submission_models
 from utils import logic
 from utils.function_cache import cache
@@ -386,6 +386,7 @@ class StaffGroup(models.Model):
     press = models.ForeignKey(
         Press,
         on_delete=models.CASCADE,
+        default=default_press_id,
     )
     sequence = models.PositiveIntegerField()
 
