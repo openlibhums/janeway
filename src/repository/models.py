@@ -1088,6 +1088,18 @@ class PreprintVersion(models.Model):
         except identifier_models.Identifier.DoesNotExist:
             return None
 
+    def public_download_url(self):
+        path = reverse(
+            'repository_file_download',
+            kwargs={
+                'preprint_id': self.preprint.pk,
+                'file_id': self.file.pk,
+            },
+        )
+        return self.preprint.repository.site_url(
+            path=path,
+        )
+
 
 class Comment(models.Model):
     author = models.ForeignKey(

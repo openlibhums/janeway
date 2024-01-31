@@ -24,7 +24,15 @@ class FrozenAuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = submission_models.FrozenAuthor
-        fields = ('first_name', 'middle_name', 'last_name', 'name_suffix', 'institution', 'department', 'country')
+        fields = (
+            'first_name',
+            'middle_name',
+            'last_name',
+            'name_suffix',
+            'institution',
+            'department',
+            'country',
+        )
 
     country = serializers.ReadOnlyField(
         read_only=True,
@@ -68,11 +76,13 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         many=True
     )
 
+
 class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = repository_models.Subject
         fields = ('name',)
+
 
 class PreprintFileSerializer(serializers.ModelSerializer):
 
@@ -80,11 +90,27 @@ class PreprintFileSerializer(serializers.ModelSerializer):
         model = repository_models.PreprintFile
         fields = ('original_filename', 'mime_type', 'download_url',)
 
+
+class PreprintVersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = repository_models.PreprintVersion
+        fields = (
+            'version',
+            'date_time',
+            'title',
+            'abstract',
+            'public_download_url',
+        )
+
+
 class PreprintSupplementaryFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = repository_models.PreprintSupplementaryFile
         fields = ('url', 'label',)
+
+
 class IssueSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -129,6 +155,7 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
             'salutation', 'orcid', 'is_active',
         )
 
+
 class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -137,6 +164,7 @@ class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
             'pk', 'first_name', 'middle_name', 'last_name',
             'salutation', 'orcid',
         )
+
 
 class AccountRoleSerializer(serializers.ModelSerializer):
 
@@ -153,10 +181,12 @@ class AccountRoleSerializer(serializers.ModelSerializer):
             account_role = core_models.AccountRole.objects.create(**validated_data)
             return account_role
 
+
 class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = repository_models.RepositoryFieldAnswer
         fields = ['pk', 'answer']
+
 
 class PreprintSerializer(serializers.ModelSerializer):
 
@@ -164,7 +194,8 @@ class PreprintSerializer(serializers.ModelSerializer):
         model = repository_models.Preprint
         fields = ('pk', 'title', 'abstract', 'license', 'keywords', 
                   'date_submitted', 'date_accepted', 'date_published',
-                  'doi', 'preprint_doi', 'authors', 'subject', 'files', 'supplementary_files')
+                  'doi', 'preprint_doi', 'authors', 'subject', 'versions',
+                  'supplementary_files')
         depth = 2
 
     authors = PreprintAccountSerializer(
@@ -180,16 +211,17 @@ class PreprintSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
-    files = PreprintFileSerializer(
-        source="preprintfile_set",
-        many=True,
-        read_only=True,
-    )
     supplementary_files = PreprintSupplementaryFileSerializer(
         source="preprintsupplementaryfile_set",
         many=True,
         read_only=True,
     )
+    versions = PreprintVersionSerializer(
+        source="preprintversion_set",
+        many=True,
+        read_only=True,
+    )
+
     def validate(self, data):
         request = self.context.get('request', None)
         role = data.get("role")
