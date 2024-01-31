@@ -81,10 +81,12 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     galleys = GalleySerializer(source="galley_set", many=True)
 
 
+
 class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = repository_models.Subject
         fields = ("name",)
+
 
 
 class PreprintFileSerializer(serializers.ModelSerializer):
@@ -94,6 +96,20 @@ class PreprintFileSerializer(serializers.ModelSerializer):
             "original_filename",
             "mime_type",
             "download_url",
+        )
+
+
+
+class PreprintVersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = repository_models.PreprintVersion
+        fields = (
+            'version',
+            'date_time',
+            'title',
+            'abstract',
+            'public_download_url',
         )
 
 
@@ -221,6 +237,7 @@ class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
         fields = ["pk", "answer"]
 
 
+
 class PreprintSerializer(serializers.ModelSerializer):
     class Meta:
         model = repository_models.Preprint
@@ -238,6 +255,7 @@ class PreprintSerializer(serializers.ModelSerializer):
             "authors",
             "subject",
             "files",
+            "versions",
             "supplementary_files",
         )
         depth = 2
@@ -255,13 +273,13 @@ class PreprintSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
-    files = PreprintFileSerializer(
-        source="preprintfile_set",
+    supplementary_files = PreprintSupplementaryFileSerializer(
+        source="preprintsupplementaryfile_set",
         many=True,
         read_only=True,
     )
-    supplementary_files = PreprintSupplementaryFileSerializer(
-        source="preprintsupplementaryfile_set",
+    versions = PreprintVersionSerializer(
+        source="preprintversion_set",
         many=True,
         read_only=True,
     )
