@@ -40,6 +40,7 @@ from core.model_utils import (
     AbstractSiteModel,
     PGCaseInsensitiveEmailField,
     SearchLookup,
+    default_press_id,
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
@@ -1427,8 +1428,7 @@ class EditorialGroup(models.Model):
     press = models.ForeignKey(
         'press.Press',
         on_delete=models.CASCADE,
-        blank=True,
-        null=True,
+        default=default_press_id,
     )
     journal = models.ForeignKey(
         'journal.Journal',

@@ -2,12 +2,12 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.apps import apps
 
 
-def set_press_for_journal_editorial_teams(apps, schema_editor):
+def default_press_id():
     Press = apps.get_model("press", "Press")
-    EditorialGroup = apps.get_model("core", "EditorialGroup")
-    EditorialGroup.objects.all().update(press=Press.objects.first())
+    return Press.objects.first().pk
 
 
 class Migration(migrations.Migration):
@@ -23,22 +23,9 @@ class Migration(migrations.Migration):
             model_name='editorialgroup',
             name='press',
             field=models.ForeignKey(
-                blank=True,
-                null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to='press.press'
-            ),
-        ),
-        migrations.RunPython(
-            set_press_for_journal_editorial_teams,
-            reverse_code=migrations.RunPython.noop
-        ),
-        migrations.AlterField(
-            model_name='editorialgroup',
-            name='press',
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                to='press.press'
+                to='press.press',
+                default=default_press_id,
             ),
         ),
         migrations.AlterField(

@@ -11,6 +11,7 @@ import re
 import sys
 
 from django import forms
+from django.apps import apps
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -592,3 +593,12 @@ class AbstractBleachModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+def default_press():
+    Press = apps.get_model("press", "Press")
+    return Press.objects.first()
+
+
+def default_press_id():
+    return default_press().pk
