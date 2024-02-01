@@ -2,10 +2,11 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-from django.apps import apps
+
+import core.models
 
 
-def default_press_id():
+def set_default_press_id(apps, schema_editor):
     Press = apps.get_model("press", "Press")
     return Press.objects.first().pk
 
@@ -25,7 +26,17 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 to='press.press',
-                default=default_press_id,
+                null=True,
+            ),
+        ),
+        migrations.RunPython(set_default_press_id, reverse_code=migrations.RunPython.noop)
+        migrations.AlterField(
+            model_name='editorialgroup',
+            name='press',
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='press.press',
+                default=core.models.default_press_id,
             ),
         ),
         migrations.AlterField(
