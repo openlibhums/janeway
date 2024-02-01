@@ -23,6 +23,7 @@ from django.db import(
     connection,
     IntegrityError,
     models,
+    ProgrammingError,
     transaction,
 )
 from django.db.models import fields, Q, Manager
@@ -596,9 +597,17 @@ class AbstractBleachModelMixin(models.Model):
 
 
 def default_press():
-    Press = apps.get_model("press", "Press")
-    return Press.objects.first()
+    try:
+        Press = apps.get_model("press", "Press")
+        return Press.objects.first()
+    except ProgrammingError:
+        # Initial migration will attempt to call this,
+        # even when no EditorialGroups are created
+        return
+
 
 
 def default_press_id():
-    return default_press().pk
+    default_press_obj = default_press()
+    if default_press_obj:
+        return default_press_obj.pk

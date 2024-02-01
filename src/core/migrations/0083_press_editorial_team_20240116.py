@@ -8,10 +8,14 @@ import core.models
 
 def set_default_press_id(apps, schema_editor):
     Press = apps.get_model("press", "Press")
-    return Press.objects.first().pk
+    EditorialGroup = apps.get_model("core", "EditorialGroup")
+    press = Press.objects.first()
+    if press:
+        EditorialGroup.objects.filter(press__isnull=True).update(press=press)
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('journal', '0059_alter_prepublicationchecklistitem_completed_by'),
@@ -29,7 +33,7 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
-        migrations.RunPython(set_default_press_id, reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(set_default_press_id, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='editorialgroup',
             name='press',
