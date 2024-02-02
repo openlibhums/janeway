@@ -130,7 +130,9 @@ def view_page(request, page_name):
                 f'but CMS page {page.pk} expects to find one.'
             )
             raise Http404
-        elif not os.path.exists(os.path.join(templates_path, page.template)):
+        elif not os.path.exists(
+            os.path.join(templates_path, os.path.basename(page.template))
+        ):
             logger.error(
                 f'CMS page {page.pk} is set to use '
                 f'nonexistent template {page.template}.'
