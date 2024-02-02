@@ -170,9 +170,7 @@ def news_list(request, tag=None, presswide=False):
         news_objects = news_objects.filter(
             tags__text=unquoted_tag,
         )
-        tag = models.Tag.objects.get(
-            text=unquoted_tag
-        )
+        tag = get_object_or_404(models.Tag, text=unquoted_tag)
 
     paginator = Paginator(news_objects, 12)
     page = request.GET.get('page', 1)
