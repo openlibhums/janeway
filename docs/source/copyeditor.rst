@@ -60,7 +60,7 @@ Once you complete the request, the card will move to the ‘Completed’ column.
 
 
 .. figure:: nstatic/completed_copyedit.png
-    :alt:Alt: The three columns on the ‘Copyedit Requests’ page (‘Awaiting initial decision’, ‘In progress’ and ‘Completed’. There is a task in the right column that has been completed.
+    :alt: The three columns on the ‘Copyedit Requests’ page (‘Awaiting initial decision’, ‘In progress’ and ‘Completed’. There is a task in the right column that has been completed.
 
     A task that has been completed
 
