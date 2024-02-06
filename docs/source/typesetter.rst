@@ -1,135 +1,125 @@
 Typesetter Guide
 ================
-When a typesetting task is assigned you will receive an email notification and also be able to see the task on your dashboard under _Production_.
+When you have been assigned a typesetting task, you will receive an email notification containing a link. This link will lead to the Janeway Dashboard.
 
-.. figure:: nstatic/production_block.png
+.. note:: This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
 
-    Production block
+.. figure:: nstatic/Typesetting_dashboardblock.png
+    :alt: The typesetter Dashboard displaying the number of typesetter tasks assigned.
 
-Clicking on view requests will display three columns
+    Typesetter dashboard block block
 
-- Awaiting Decision
-    - New Assignments.
-- In Progress
-    - Assignments you have accepted but no completed.
-- Completed
-    - Assignments you have completed.
+From here, you will be able to see the number of open typesetting assignments you have. If you click on this, it will take you to the ‘Typesettings Assignments’ page. Here you can view your currently open typesetting assignments (the top block) and your completed assignments (the bottom block).
 
-.. figure:: nstatic/typesetting_requests.png
+For the open assignments, it will display:
+- Title
+- Current typesetting round
+- Date is was assigned
+- Due date
+- Time to due date
 
-    Typesetting requests
+For the completed assignments, it will display:
+- Title
+- Typesetting round
+- Date it was assigned
+- Completion date
+
+.. figure:: nstatic/Typesetting_assignments.png
+    :alt: The ‘Typesettings assignments’ page.
+
+You can then click ‘View Assignment’ to display the assignment page.
 
 Typesetting a Paper
 -------------------
-Once you have accepted a request you can then use the view button to display the typesetter interface. This allows typesetters to pull files and view the metadata of the paper so they can produce Galley proofs. The interface is broken in 4 sections.
+On this page, you will find relevant information about the typesetting task. This will include the instructions, manuscript files, metadata, options to accept or decline the task, and space to upload completed files.
 
-- Files uploaded for production
-    - Lists the files that are to be used in generating the galley proofs.
-- Current Galleys
-    - Lists any galley proofs that already exist.
-- Source Files
-    - This is an area for you to upload any intermediate source files (indesign etc).
-- Notes
-    - Displays the request from the editor and a link to view the article's metadata.
+.. figure:: nstatic/Typesetting_assignments.png
+    :alt: The ‘Assignment information’ page.
 
-.. figure:: nstatic/typeset_article.png
+This page is broken in three sections.
 
-    Typesetter interface
+- Assignmentment information
+    - In this section, you will be able to see any comments from the editor or proofreaders which have been provided to you. You will also be able to view and download the files to typeset (manuscript files), any supplementary files, and space to upload your completed work and source files (if required).
+- Metadata
+    - This is where you will find all of the relevant metadata for the typesetting task.
+- Complete typesetting
+    - Under this section, you can leave any notes you may have to the editors. This is also where you will mark the assignment as complete to submit the uploaded files.
 
-Uploading a Galley
-------------------
-You can use the Upload a new galley button to upload a new file. There are three upload options.
+Uploading a Typeset File
+^^^^^^^^^^^^^^^^^^^^^^^
+You can use the ‘Upload a New Typeset File’ button to upload a new typeset file. 
 
-- XML/HTML
-- PDF
-- Other (for any other file types)
+Source files (such as Adobe In Design files) can be uploaded using the ‘Upload New Source File’ button (if required).
 
-Janeway processes each differently (or in the case of Other, not at all) so ensure you select the correct upload box.
+.. figure:: nstatic/typesetting_files.png
+    :alt: The files section of the typesetting page. It shows the ‘Files to typeset’, ‘Upload typeset files’ and ‘Upload source file’ options.
 
-.. warning::
-    Janeway operates with the UTF8 encoding, so you should ensure your plain text galleys (HTML and XML) use this encoding.
+.. figure:: nstatic/typesetting_upload.png
+    :alt: The ‘Upload a typeset file’ upload. It provides the options to provide a label for the file, toggle whether the file should be publicly available after the article is published, choose a file to upload and then confirm the upload.
 
-Missing Supplements
-^^^^^^^^^^^^^^^^^^^
-When you upload an XML or HTML galley Janeway will scan it for images and warn you if there you need to upload those images. You can do this by editing the galley file.
+Janeway will attempt to provide an appropriate label if this is left blank. If you wish to make sure the label is correct, you can enter a filetype label in this textbox. For instructions on how to edit a label, please see the section below.
 
-.. figure:: nstatic/galleys.png
+.. Warning::
+    Janeway operates with the UTF8 encoding. Please ensure that any HTML and XML files you upload use this encoding.
 
-    Article with galleys, XML galley has two missing images
 
-In the Edit Galley screen you can upload individual image files, select from exising figure files or upload a zip file of images.
+Editing typeset files and uploading additional files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you need to make changes to the typeset files and reupload it or upload additional files, this can be done through the ‘Edit Typeset File’ page. This page can be accessed by clicking on the ‘Edit’ button.
 
-.. tip::
-    If you have lots of images ensure they have the correct name (eg, whatever they are called in the XML/HTML file) and zip them. You can use the zip uploaded to upload them in one go.
+.. figure:: nstatic/typesetting_edit_button.png
+    :alt: The ‘Upload typeset files’ section, showing two uploaded files. It displays the following metadata for the file: Janeway ID, label, filename and date it was last modified. Additionally, it displays the following options: edit, download and preview. It also displays the figure files’ status: ‘N/A’ for a file with no figure files and ‘Missing figures’ for a file with missing figures.
 
-Managing Galleys
-----------------
-In addition to uploading images alongside galley files you can also:
+.. figure:: nstatic/Typesetting_filehistory.png
+    :alt: The ‘Edit typeset file’ page.
 
-- Replace the galley if you've made changes to the original file.
-- Upload a CSS file to go along with the galley.
-- Change the XSLT file used to render the galley.
-- View the galley's history or delete it.
+This page is broken in three sections:
+- The typeset file
+	- Here you can replace the typeset file, see the file history.
+- Typeset file details
+	- Here you can edit the file label which denotes the filetype.
+- Additional file uploads
+    - Select from images existing image files
+    - Upload individual image files
+    - Upload a zip file of images
+    - Upload a CSS file to go along with the galley
+    - Change the XSLT file used to render the galley
 
-Completing Typesetting
-----------------------
-Once you have uploaded the required galleys and their files you will notice a new Note to Editor box has appeared in the Notes section, you can use this to complete your task.
+Managing typeset files
+^^^^^^^^^^^^^^^^^^^^^
+In the first section of the page, you can view the file currently uploaded, and replace or download it. You can also view the file's history by clicking on the button under 'History'. 
 
-Once you have marked it as complete the card will move into the Completed column.
+This will open a page where you can download and re-instate previous versions uploaded, or delete the current file entirely (in case you have uploaded an incorrect file).
 
-Typesetting Plugin (New!)
--------------------------
-The Typesetting plugin is the new workflow used in Janeway for typesetting.
-It is currently deployed as a plugin but we intend to replace the above process with this new system in the near future.
+.. figure:: nstatic/edit_typesetting_file.png
+    :alt: The File history and metadata page. It shows the article’s metadata, previous versions of the file (with options to download or re-instate them), and the current version (with the option to download, replace and delete it).
 
-With this new plugin, we aim to simplify the process of working on corrections for the typesetter with a brand new interface that is used both when uploading the initial typesetting files as well as when working on corrections. The summary of improvements includes:
+Managing images / figure files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. figure:: nstatic/typesetting_image_upload
+    :alt: A screenshot displaying the available options for adding image files: uploading a file in a section for a dedicated image (displaying its filename), uploading images as additional files or uploading a zip file.
 
-- Unified interface for all typesetting tasks
-- Better and more complete display of the article metadata
-- Error detection warnings: Incomplete corrections, missing figure files, missing metadata...
-- Full display of the proofreading comments and corrections requested
-- Single input form for uploading galley files
+When a file that has been typeset in HTML or XML contains image links, Janeway will detect these and prompt you to upload the image files.The file names should match the src or href used in the XML/HTML and should be relative (e.g. src="fig1.jpg").
 
-On your dashboard, there should be a card indicating the number of typesetting tasks that are currently awaiting for you to complete:
+If the image files were already uploaded onto Janeway, you can select them instead.
 
-.. figure:: nstatic/typesetting/typesettingcard.png
+If you need to upload a large number of images, it might be faster to use the zip uploader (see ‘Upload Zip File’ in the image below). To do so, create a .zip archive file with all of the image files. The image filename must match the link in the typeset file, otherwise it will not import them.
 
-When uploading a new Galley (now referred to as 'Typeset Files'), there is now a single button interface where the typesetter uploads a file and gives it an optional label. Janeway will use the best label for the file provided, but typesetters can edit the label to add a different one if necessary.
+Styling
+^^^^^^^
+On this page, you can also upload a CSS file associated with the article for an individual style, if required. We recommend avoiding style changes to the header and footer type elements as this will affect the layout of the page.
 
-.. figure:: nstatic/typesetting/upload_typeset_file.png
-
-   Screenshot of the new file upload box
-
-Image Files
-^^^^^^^^^^^
-
-When a typeset file in the XML or HTML format is uploaded that has image links Janeway will detect them and prompt the typesetter to upload them. Image filenames should match those within the XML or HTML.
-
-.. figure:: nstatic/typesetting/images_missing.png
-
-At this point, press the edit button and upload each image on the box matching the filename from the XML/HTML file:
-
-.. figure:: nstatic/typesetting/typesetter_images.png
-
-If an XML or HTML file has a large number of images it is often faster to use the zip uploader. Create a .zip archive file and within it place each of the image files. The image filename must match the link in the typeset file otherwise it will not import them.
-
-Source Files
-^^^^^^^^^^^^
-
-If any intermiadate files have been used for the production of the Files (such as Adobe In Design files), they can be uploaded under the 'Source Files' section
-
-.. figure:: nstatic/typesetting/source_files.png
-
-   Screenshot of the source files form
+You can also select the XSL file used for rendering the HTML out of the file. This will be the Janeway default (1.4.3.) except if explicitly instructed otherwise (this will be communicated by the editors as part of the typesetting task or agreement).
 
 Finishing Up
 ^^^^^^^^^^^^
 
-Before you can complete the task, Janeway will warn you of any potential problems it detects with your files, such as potential missing images on the XML/HTML files or Typeset Files that have not yet been corrected.
+Once you are done with the typesetting (or correction) task, you can leave a note for the editor and complete it for the editor to review. Please note that once you complete the task, you will be unable to return to this page.
+
+.. note:: If you attempt to complete the typesetting task with potential issues remaining (e.g. missing image files, typeset files that have not been corrected), Janeway will warn you about this.
 
 .. figure:: nstatic/typesetting/images_missing_warning.png
-
-Once you are done with the typesetting or correction task, you can leave a note for the editor and complete it for the editor to review.
+    :alt: A missing figure warning. It reads "Some of the typeset files don't have their images uploaded." Below it the file and filetype are displayed and the following text: "You can add images to the typeset file by hitting 'Edit'. A menu will show you which images are missing."
 
 Typesetting Recipes
 -------------------
