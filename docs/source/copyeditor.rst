@@ -49,7 +49,7 @@ This is where you can find the files you need to complete the copyediting task. 
 
 Complete task
 ^^^^^^^^^^^^^
-.. figure:: nstatic/Copyedit_complete_task.png
+.. figure:: nstatic/copyedit_complete_task.png
     :alt: The ‘Complete task’ section with a textbox for the notes to the editor. There is a ‘Complete copyedit task’ button at the bottom.
 
  In this section you can leave any notes for the editor. They may pass these to the author if so required.
