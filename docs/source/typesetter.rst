@@ -2,12 +2,10 @@ Typesetter Guide
 ================
 When you have been assigned a typesetting task, you will receive an email notification containing a link. This link will lead to the Janeway Dashboard.
 
-.. note:: This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
+.. note: This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
 
 .. figure:: nstatic/typesetting_dashboardblock.png
     :alt: The typesetter Dashboard displaying the number of typesetter tasks assigned.
-
-    Typesetter dashboard block block
 
 From here, you will be able to see the number of open typesetting assignments you have. If you click on this, it will take you to the ‘Typesettings Assignments’ page. Here you can view your currently open typesetting assignments (the top block) and your completed assignments (the bottom block).
 
@@ -59,9 +57,8 @@ Source files (such as Adobe In Design files) can be uploaded using the ‘Upload
 
 Janeway will attempt to provide an appropriate label if this is left blank. If you wish to make sure the label is correct, you can enter a filetype label in this textbox. For instructions on how to edit a label, please see the section below.
 
-.. Warning::
+.. warning:
     Janeway operates with the UTF8 encoding. Please ensure that any HTML and XML files you upload use this encoding.
-
 
 Editing typeset files and uploading additional files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
