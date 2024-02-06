@@ -73,5 +73,6 @@ If the editor has reopened the task, you will receive an email containing a link
 
     A task that has been reopened on the left and the original completed task on the right
 
-It may appear as though the task has been duplicated, but the one in the ‘Completed’ column is the original task and the one shown under ‘In Progress’ will be the reopened version. 
-From here, this works the same way as any other copyediting task. The updated paper will be found under and can be downloaded from ‘Article Files’ for you to work on.Once you have completed your copyedit, it can be uploaded under ‘Copyedited Files’. When you have done this, press ‘Complete Copyedit Task’ to submit your work. The reopened task will be moved to ‘Complete’ and the editor will be notified. 
+It may appear as though the task has been duplicated, but the one in the ‘Completed’ column is the original task and the one shown under ‘In Progress’ will be the reopened version.
+
+From here, this works the same way as any other copyediting task. The updated paper will be found under and can be downloaded from ‘Article Files’ for you to work on. Once you have completed your copyedit, it can be uploaded under ‘Copyedited Files’. When you have done this, press ‘Complete Copyedit Task’ to submit your work. The reopened task will be moved to ‘Complete’ and the editor will be notified. 
