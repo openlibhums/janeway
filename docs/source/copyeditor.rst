@@ -54,14 +54,13 @@ Complete task
 
  In this section you can leave any notes for the editor. They may pass these to the author if so required.
 
- .. note:: Make sure to press ‘Complete Copyedit Task’ after uploading the files and leaving your comments so that these will be sent to the editor correctly.
+ .. note:: 
+    Make sure to press ‘Complete Copyedit Task’ after uploading the files and leaving your comments so that these will be sent to the editor correctly.
 
 Once you complete the request, the card will move to the ‘Completed’ column.
 
-
 .. figure:: nstatic/completed_copyedit.png
     :alt: The three columns on the ‘Copyedit Requests’ page (‘Awaiting initial decision’, ‘In progress’ and ‘Completed’. There is a task in the right column that has been completed.
-
     A task that has been completed
 
 The editor can then either accept your copyedited manuscript and move onto the next stage of the publishing workflow or send it to the author for review. The author can provide feedback and the editor can decide whether to accept or send it back to you for more copyediting.
