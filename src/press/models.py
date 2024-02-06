@@ -349,7 +349,8 @@ class Press(AbstractSiteModel):
         Journal = apps.get_model('journal.Journal')
         return Journal.objects.filter(
             hide_from_press=False,
-        )
+            is_conference=False,
+        ).order_by('sequence')
 
     @property
     def published_articles(self):

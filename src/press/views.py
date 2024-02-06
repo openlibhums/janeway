@@ -123,12 +123,9 @@ def journals(request):
 
     template = "press/press_journals.html"
 
-    journal_objects = journal_models.Journal.objects.filter(
-            hide_from_press=False,
-            is_conference=False,
-    ).order_by('sequence')
-
-    context = {'journals': journal_objects}
+    context = {
+        'journals': request.press.public_journals,
+    }
 
     return render(request, template, context)
 
