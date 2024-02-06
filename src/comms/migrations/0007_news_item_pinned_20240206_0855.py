@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0086_alter_account_preferred_timezone'),
         ('comms', '0006_merge_0004_auto_20230223_1328_0005_historicalnewsitem'),
     ]
 
