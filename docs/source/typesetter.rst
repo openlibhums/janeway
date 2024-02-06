@@ -2,7 +2,7 @@ Typesetter Guide
 ================
 When you have been assigned a typesetting task, you will receive an email notification containing a link. This link will lead to the Janeway Dashboard.
 
-.. note:: 
+.. note: 
     This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
 
 .. figure:: nstatic/typesetting_dashboardblock.png
@@ -60,7 +60,7 @@ Source files (such as Adobe In Design files) can be uploaded using the ‘Upload
 
 Janeway will attempt to provide an appropriate label if this is left blank. If you wish to make sure the label is correct, you can enter a filetype label in this textbox. For instructions on how to edit a label, please see the section below.
 
-.. warning::
+.. warning:
     Janeway operates with the UTF8 encoding. Please ensure that any HTML and XML files you upload use this encoding.
 
 Editing typeset files and uploading additional files
@@ -92,12 +92,12 @@ In the first section of the page, you can view the file currently uploaded, and 
 
 This will open a page where you can download and re-instate previous versions uploaded, or delete the current file entirely (in case you have uploaded an incorrect file).
 
-.. figure:: nstatic/edit_typesetting_file.png
+.. figure:: nstatic/edit_typeset_file.png
     :alt: The File history and metadata page. It shows the article’s metadata, previous versions of the file (with options to download or re-instate them), and the current version (with the option to download, replace and delete it).
 
 Managing images / figure files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. figure:: nstatic/typesetting_image_upload
+.. figure:: nstatic/typesetting_image_upload.png
     :alt: A screenshot displaying the available options for adding image files: uploading a file in a section for a dedicated image (displaying its filename), uploading images as additional files or uploading a zip file.
 
 When a file that has been typeset in HTML or XML contains image links, Janeway will detect these and prompt you to upload the image files.The file names should match the src or href used in the XML/HTML and should be relative (e.g. src="fig1.jpg").
