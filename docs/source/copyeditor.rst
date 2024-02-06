@@ -39,7 +39,6 @@ Once you have clicked into a paper, the next page you see will be broken into fo
 .. figure:: nstatic/copyedit_page.png
     :alt: The ‘Article Copyediting’ page. It displays information about the manuscript, the article files, completed files and a ‘comments to the editor’ textbox. The ‘Download’, ‘Upload File’ and ‘Complete copyedit task’ buttons are highlighted.
 
-
 Article files & Copyedited files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. figure:: nstatic/Copyedit_files.png
