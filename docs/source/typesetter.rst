@@ -2,7 +2,7 @@ Typesetter Guide
 ================
 When you have been assigned a typesetting task, you will receive an email notification containing a link. This link will lead to the Janeway Dashboard.
 
-.. note: 
+.. note:: 
     This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
 
 .. figure:: nstatic/typesetting_dashboardblock.png
@@ -60,7 +60,7 @@ Source files (such as Adobe In Design files) can be uploaded using the ‘Upload
 
 Janeway will attempt to provide an appropriate label if this is left blank. If you wish to make sure the label is correct, you can enter a filetype label in this textbox. For instructions on how to edit a label, please see the section below.
 
-.. warning:
+.. warning::
     Janeway operates with the UTF8 encoding. Please ensure that any HTML and XML files you upload use this encoding.
 
 Editing typeset files and uploading additional files
