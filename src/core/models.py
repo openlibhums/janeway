@@ -66,13 +66,13 @@ def profile_images_upload_path(instance, filename):
 
 
 SALUTATION_CHOICES = (
-    ('Miss', 'Miss'),
-    ('Ms', 'Ms'),
-    ('Mrs', 'Mrs'),
-    ('Mr', 'Mr'),
-    ('Mx', 'Mx'),
-    ('Dr', 'Dr'),
-    ('Prof.', 'Prof.'),
+    ('Prof.', _('Prof.')),
+    ('Miss', _('Miss')),
+    ('Ms', _('Ms')),
+    ('Mrs', _('Mrs')),
+    ('Mr', _('Mr)')),
+    ('Mx', _('Mx')),
+    ('Dr', _('Dr')),
 )
 
 COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
