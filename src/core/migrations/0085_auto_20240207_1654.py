@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='account',
             name='salutation',
-            field=models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr)'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation'),
+            field=models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation'),
         ),
         migrations.AlterField(
             model_name='account',

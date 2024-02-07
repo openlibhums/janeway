@@ -29,7 +29,7 @@
                             {% if request.press.password_upper %}<li>{% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
                             {% if request.press.password_number %}<li>{% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
                         </ul>
-                        <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">{% trans 'password guide' %}</a>.{% endblocktrans %}</p>
+                        <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
 
                         {% include "elements/forms/errors.html" with form=form %}
 

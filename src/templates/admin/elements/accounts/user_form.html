@@ -68,7 +68,7 @@
     </div>
     <div class="large-12 columns">
         <label for="id_interests">{% trans 'Review Interests' %}</label>
-        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> Hit Enter to add a new interest.
+        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> {% trans "Hit Enter to add a new interest" %}.
     </div>
 </div>
 

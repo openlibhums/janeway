@@ -69,7 +69,7 @@ SALUTATION_CHOICES = (
     ('Miss', _('Miss')),
     ('Ms', _('Ms')),
     ('Mrs', _('Mrs')),
-    ('Mr', _('Mr)')),
+    ('Mr', _('Mr')),
     ('Mx', _('Mx')),
     ('Dr', _('Dr')),
     ('Prof.', _('Prof.')),
