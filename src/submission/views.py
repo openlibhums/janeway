@@ -498,7 +498,7 @@ def submit_files(request, article_id):
                     return redirect(reverse(
                         'submit_review', kwargs={'article_id': article_id}))
             else:
-                error = "You must upload a manuscript file."
+                error = _("You must upload a manuscript file.")
 
     template = "admin/submission/submit_files.html"
 
