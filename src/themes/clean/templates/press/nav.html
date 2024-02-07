@@ -58,7 +58,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Account
+                        {% trans 'Account' %}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="user">
                         {% user_has_role request 'editor' as user_is_editor %}

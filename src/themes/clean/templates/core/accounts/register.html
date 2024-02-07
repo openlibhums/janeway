@@ -57,13 +57,14 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="lead">{% trans 'When it comes to passwords, length is better than complexity' %}.</p>
+                    {% blocktrans %}
+                    <p class="lead">When it comes to passwords, length is better than complexity.</p>
                     <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
                         uncomplicated password (our awesome moon base rocks).</p>
                     <p>We recommend selecting a long, but easy to remember password such as <em>our awesome moon base
                         rocks</em> which would take an estimated septillion years to crack as opposed to a complex one
                         like <em>Jfjfy&65^87</em> {% trans 'which would take just over 600 years on a standard computer' %}.</p>
-
+                    {% endblocktrans %}
                 </div>
             </div>
         </div>
