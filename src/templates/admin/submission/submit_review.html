@@ -22,19 +22,19 @@
 
                     {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
                         <div class="title-area">
-                            <h2>Agreements</h2>
+                            <h2>{% trans 'Agreements' %}</h2>
                         </div>
                         <p>
                         {% if request.journal.submissionconfiguration.publication_fees %}
-                            <i class="fa fa-check-circle green"></i> Agreed to Publication Fees statement.<br />
+                            <i class="fa fa-check-circle green"></i> {% trans "Agreed to Publication Fees statement" %} .<br />
                         {% endif %}
 
                         {% if request.journal.submissionconfiguration.submission_check %}
-                            <i class="fa fa-check-circle green"></i> Agreed to Submission Checklist.<br />
+                            <i class="fa fa-check-circle green"></i> {% trans "Agreed to Submission Checklist" %} .<br />
                         {% endif %}
 
                         {% if request.journal.submissionconfiguration.copyright_notice %}
-                            <i class="fa fa-check-circle green"></i> Agreed to Copyright statement.<br />
+                        <i class="fa fa-check-circle green"></i> {% trans "Agreed to Copyright statement" %}.<br />
                         {% endif %}
                         </p>
 
@@ -94,12 +94,12 @@
                     <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
                     <table class="table small">
                         <tr>
-                            <th>First Name</th>
-                            <th>Middle Name</th>
-                            <th>Last Name</th>
-                            <th>Email Address</th>
-                            <th>ORCID</th>
-                            <th>Affiliation</th>
+                            <th>{% trans 'First Name' %}</th>
+                            <th>{% trans 'Middle Name' %}</th>
+                            <th>{% trans 'Last Name' %}</th>
+                            <th>{% trans 'Email Address' %}</th>
+                            <th>{% trans 'ORCID' %}</th>
+                            <th>{% trans 'Affiliation' %}</th>
                         </tr>
                         {% for order in article.articleauthororder_set.all %}
                             <tr>
@@ -107,7 +107,7 @@
                                 <td>{{ order.author.middle_name|default_if_none:"--" }}</td>
                                 <td>{{ order.author.last_name }}</td>
                                 <td>{{ order.author.email }}</td>
-                                <td>{{ order.author.orcid|default_if_none:"No ORCID supplied" }}</td>
+                                <td>{{ order.author.orcid|default_if_none:_("No ORCID supplied") }}</td>
                                 <td>{{ order.author.affiliation }}</td>
                             </tr>
                         {% endfor %}
@@ -119,13 +119,13 @@
                         <tr>
                             <th>{% trans "Label" %}</th>
                             <th>{% trans "File Name" %}</th>
-                            <th>File Type</th>
+                            <th>{% trans 'File Type' %}</th>
                         </tr>
                         {% for file in article.manuscript_files.all %}
                             <tr>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file }}</td>
-                                <td>Manuscript</td>
+                                <td>{% trans 'Manuscript' %}</td>
                             </tr>
                         {% endfor %}
                         {% if request.journal.submissionconfiguration.figures_data %}
@@ -133,7 +133,7 @@
                                 <tr>
                                     <td>{{ file.label }}</td>
                                     <td>{{ file }}</td>
-                                    <td>Figure/Data</td>
+                                    <td>{% trans 'Figure/Data' %}</td>
                                 </tr>
                             {% endfor %}
                         {% endif %}
@@ -146,7 +146,7 @@
                             <h2>{% trans "Comments to the Editor" %}</h2>
                         </div>
                         <div class="content submission-content">
-                            <p>Before submitting you have the option to add additional comments for the editor using the field below. Only the editor will see anything you add here.</p>
+                            <p>{% trans 'Before submitting you have the option to add additional comments for the editor using the field below. Only the editor will see anything you add here.' %}</p>
                             {{ form.comments_editor|foundation }}
                         </div>
                     {% endif %}
