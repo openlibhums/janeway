@@ -3,8 +3,7 @@
     <div class="section">
         {% if not keyword %}
             {{ form.article_search.errors }}
-            <label for="{{ form.article_search.id_for_label }}">Search titles, keywords,
-                and authors</label>
+            <label for="{{ form.article_search.id_for_label }}">{% trans "Search titles, keywords, and authors" %}</label>
             {{ form.article_search }}
         {% else %}
             {% trans 'You are currently browsing by keyword' %}.
@@ -12,7 +11,7 @@
         {% endif %}
     </div>
     <div class="section">
-        <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+        <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
         {{ form.sort.errors }}
         {{ form.sort }}
     </div>

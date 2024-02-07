@@ -74,8 +74,8 @@ def user_login(request):
 
     if bad_logins >= 10:
         messages.info(
-                request,
-                'You have been banned from logging in due to failed attempts.'
+            request,
+            _('You have been banned from logging in due to failed attempts.'),
         )
         logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
@@ -118,15 +118,19 @@ def user_login(request):
 
                 if empty_password_check:
                     messages.add_message(request, messages.INFO,
-                                         'Password reset process has been initiated, please check your inbox for a'
-                                         ' reset request link.')
+                        _(
+                            'Password reset process has been initiated,'
+                            ' please check your inbox for a'
+                            ' reset request link.'
+                        ),
+                    )
                     logic.start_reset_process(request, empty_password_check)
                 else:
 
                     messages.add_message(
                         request, messages.ERROR,
-                        'Wrong email/password combination or your'
-                        ' email address has not been confirmed yet.',
+                        _('Wrong email/password combination or your'
+                        ' email address has not been confirmed yet.'),
                     )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
@@ -212,7 +216,7 @@ def user_logout(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    messages.info(request, 'You have been logged out.')
+    messages.info(request, _('You have been logged out.'))
     logout(request)
     return redirect(reverse('website_index'))
 
@@ -227,7 +231,10 @@ def get_reset_token(request):
 
     if request.POST:
         email_address = request.POST.get('email_address')
-        messages.add_message(request, messages.INFO, 'If your account was found, an email has been sent to you.')
+        messages.add_message(
+                request, messages.INFO,
+                _('If your account was found, an email has been sent to you.'),
+        )
         try:
             account = models.Account.objects.get(email__iexact=email_address)
             logic.start_reset_process(request, account)

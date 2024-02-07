@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Non Specialist Summary</h5>
+                <h5 class="modal-title" id="exampleModalLabel">{% trans 'Non Specialist Summary' %}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -12,7 +12,7 @@
                 {% if article.non_specialist_summary %}
                 {{ article.non_specialist_summary|safe }}
                 {% else %}
-                <p>This article has no summary</p>
+                <p>{% trans 'This article has no summary' %}</p>
                 {% endif %}
             </div>
 

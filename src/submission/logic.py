@@ -95,7 +95,7 @@ def check_file(uploaded_file, request, form):
         if mime in files.EDITABLE_FORMAT:
             return True
         else:
-            form.add_error(None, 'You must upload a file that is either a Doc, Docx, RTF or ODT.')
+            form.add_error(None, _('You must upload a file that is either a Doc, Docx, RTF or ODT.'))
             return False
     else:
         return True

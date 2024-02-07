@@ -16,12 +16,12 @@
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-block">
-                        <h5>Login</h5>
+                        <h5>{% trans 'Login' %}</h5>
                         <div class="form-group">
-                            <label>Email</label>
+                            <label>{% trans 'Email' %}</label>
                             <input name="user_name" type="text" placeholder="janeway@voyager.com" class="form-control">
 
-                            <label>Password</label>
+                            <label>{% trans 'Password' %}</label>
                             <input type="password" placeholder="Password" name="user_pass" class="form-control">
 
                             <input name="orcid_token" type="hidden" value="{{ token.token }}" class="form-control">

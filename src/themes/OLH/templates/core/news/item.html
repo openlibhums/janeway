@@ -37,7 +37,7 @@
                     {{ news_item.body|safe }}
                 </div>
                 <div class="large-3 columns">
-                    <h7>Tags <i class="fa fa-tags">&nbsp;</i></h7>
+                    <h7>{% trans 'Tags ' %}<i class="fa fa-tags">&nbsp;</i></h7>
                      <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
                 </div>
             </div>

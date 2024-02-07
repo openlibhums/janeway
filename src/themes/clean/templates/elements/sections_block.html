@@ -14,12 +14,12 @@
     {% for section in sections %}
         <tr>
             <td>{{ section.name }}</td>
-            <td>{% if section.public_submissions %}<span class="fa fa-check"> Yes</span>{% else %}
-                <span class="fa fa-times"> No</span>{% endif %}</td>
-            <td>{% if section.number_of_reviewers > 0 %}<span class="fa fa-check"> Yes</span>{% else %}
-                <span class="fa fa-times"> No</span>{% endif %}</td>
-            <td>{% if section.indexing %}<span class="fa fa-check"> Yes</span>{% else %}
-                <span class="fa fa-times"> No</span>{% endif %}</td>
+            <td>{% if section.public_submissions %}<span class="fa fa-check"> {% trans 'Yes' %}</span>{% else %}
+                <span class="fa fa-times"> {% trans 'No' %}}</td>
+            <td>{% if section.number_of_reviewers > 0 %}<span class="fa fa-check"> {% trans 'Yes' %}</span>{% else %}
+                <span class="fa fa-times"> {% trans 'No' %}</span>{% endif %}</td>
+            <td>{% if section.indexing %}<span class="fa fa-check"> {% trans 'Yes' %}</span>{% else %}
+                <span class="fa fa-times"> {% trans 'No' %}}</td>
         </tr>
         {% empty %}
     {% endfor %}

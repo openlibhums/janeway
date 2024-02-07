@@ -14,7 +14,7 @@
                 <h4>{{ item.title }}</h4>
                 <h6>{{ item.byline }} on {{ item.posted|date:"Y-m-d" }}</h6>
                 <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                <a href="{% url 'core_news_item' item.pk %}">Read More</a>
+                <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
                 <hr/>
             </div>
         {% empty %}

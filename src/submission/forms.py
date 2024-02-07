@@ -97,8 +97,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         journal = kwargs.pop('journal', None)
         self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
         editor_view = kwargs.pop('editor_view', False)
-
         super(ArticleInfo, self).__init__(*args, **kwargs)
+
+        # Flag labels for translation
+        for field in self.fields.values():
+            field.label = _(field.label)
+
         if 'instance' in kwargs:
             article = kwargs['instance']
             section_queryset = models.Section.objects.filter(
@@ -264,17 +268,17 @@ class AuthorForm(forms.ModelForm):
 
         widgets = {
             'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
-            'middle_name': forms.TextInput(attrs={'placeholder': 'Middle name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'Last name'}),
+            'middle_name': forms.TextInput(attrs={'placeholder': _('Middle name')}),
+            'last_name': forms.TextInput(attrs={'placeholder': _('Last name')}),
             'biography': forms.Textarea(
-                attrs={'placeholder': 'Enter biography here'}),
-            'institution': forms.TextInput(attrs={'placeholder': 'Institution'}),
-            'department': forms.TextInput(attrs={'placeholder': 'Department'}),
-            'twitter': forms.TextInput(attrs={'placeholder': 'Twitter handle'}),
-            'linkedin': forms.TextInput(attrs={'placeholder': 'LinkedIn profile'}),
-            'impactstory': forms.TextInput(attrs={'placeholder': 'ImpactStory profile'}),
-            'orcid': forms.TextInput(attrs={'placeholder': 'ORCID ID'}),
-            'email': forms.TextInput(attrs={'placeholder': 'Email address'}),
+                attrs={'placeholder': _('Enter biography here')}),
+            'institution': forms.TextInput(attrs={'placeholder': _('Institution')}),
+            'department': forms.TextInput(attrs={'placeholder': _('Department')}),
+            'twitter': forms.TextInput(attrs={'placeholder': _('Twitter handle')}),
+            'linkedin': forms.TextInput(attrs={'placeholder': _('LinkedIn profile')}),
+            'impactstory': forms.TextInput(attrs={'placeholder': _('ImpactStory profile')}),
+            'orcid': forms.TextInput(attrs={'placeholder': _('ORCID ID')}),
+            'email': forms.TextInput(attrs={'placeholder': _('Email address')}),
         }
 
     def __init__(self, *args, **kwargs):
