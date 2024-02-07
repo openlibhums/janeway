@@ -105,7 +105,7 @@
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
                         <button class="menu-icon" type="button" data-toggle></button>
-                        <div class="title-bar-title">Options</div>
+                        <div class="title-bar-title">{% trans 'Options' %}</div>
                     </div>
                     <div id="options-menu">
                         <div class="large-6 columns">
@@ -134,8 +134,8 @@
                                         <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
                                         <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
                                         <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
-                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> Download RIS</a></li>
-                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}"> Download BibTeX</a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -205,14 +205,12 @@
                             {% if galleys %}
                                 <div class="show-for-small-only">
                                     <p>
-                                        <strong>Downloads:</strong><br/>
+                                        <strong>{% trans 'Downloads' %}:</strong><br/>
                                         {% for galley in galleys %}
                                             <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                             <br/>
                                             {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                                <a target="_blank"
-                                                   href="{% url 'article_view_galley' article.id galley.id %}">View
-                                                    PDF</a><br/>
+                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a><br/>
                                             {% endif %}
                                         {% endfor %}
                                     </p>
@@ -360,7 +358,7 @@
                                                 {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                                     </li>
                                                     <li>
-                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">View PDF</a>
+                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
                                                     </li>
                                                 {% endif %}
                                             </li>
@@ -373,7 +371,7 @@
                                         </p>
                                     {% endif %}
                                 {% else %}
-                                    <p> Downloads are not available until this article is published </p>
+                                    <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
                             <div class="section">
@@ -471,7 +469,7 @@
                         {% endif %}
 
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "File Checksums (MD5)" %}</h3>
+                            <h3>{% trans "File Checksums" %} (MD5)</h3>
                             <ul>
                                 {% for galley in galleys %}
                                     <li>

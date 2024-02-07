@@ -57,7 +57,7 @@
                                                 itemprop="name">({{ author.institution }})</span></span>{% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}></span>
+                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}</a>{% endif %}</span></span>
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -291,24 +291,18 @@
                     {% endif %}
                     <h2>{% trans "Citation" %}</h2>
                     <div class="btn-group-vertical">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
-                            Harvard-Style Citation
-                        </button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
-                            Vancouver-Style Citation
-                        </button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
-                            APA-Style Citation
-                        </button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-Style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-Style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-Style Citation' %}</button>
                         <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
-                            {% trans 'Download RIS' %}
+                            {% trans 'Download' %} RIS
                         </a>
                         <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
-                            {% trans 'Download BibTeX' %}
+                            {% trans 'Download' %} BibTeX
                         </a>
                         <br/>
                     </div>
-                    <h2>File Checksums (MD5)</h2>
+                    <h2>{% trans 'File Checksums' %}</h2> (MD5)
                     <ul>
                         {% for galley in galleys %}
                             <li>

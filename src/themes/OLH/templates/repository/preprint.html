@@ -50,7 +50,7 @@
             </div>
             <div itemprop="articleBody" id="pdf">
                 {% if preprint.current_version_file_type == 'html' %}
-                    <h5>Preprint Body</h5>
+                    <h5>{% trans 'Preprint Body' %}</h5>
                     {{ html|safe }}
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
@@ -63,7 +63,7 @@
                         <form method="POST">
                             {% csrf_token %}
                             {{ form|foundation }}
-                            <button type="submit" class="success button">Add Comment</button>
+                            <button type="submit" class="success button">{% trans 'Add Comment' %}</button>
                         </form>
                     </div>
                 {% endif %}
