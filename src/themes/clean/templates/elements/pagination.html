@@ -59,7 +59,7 @@
             <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
             <option value="100" {% if paginate_by == "100" %}selected{% endif %}>100</option>
             {% if page_obj.paginator %}
-                <option value="all" {% if paginate_by == "all" %}selected{% endif %}>all</option>
+                <option value="all" {% if paginate_by == "all" %}selected{% endif %}>{% trans 'all' %}</option>
             {% endif %}
         </select>
         <div class="input-group-append">

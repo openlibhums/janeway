@@ -57,7 +57,7 @@
                                                 itemprop="name">({{ author.institution }})</span></span>{% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"> Contact</a>{% endif %}</span></span>
+                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}></span>
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -99,7 +99,7 @@
                 {% if galleys %}
                     <div class="d-lg-none d-xl-none d-md-none">
                         <p>
-                            <strong>Downloads:</strong><br/>
+                            <strong>{% trans 'Downloads' %}><br/>
                             {% for galley in galleys %}
                                 <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                 <br/>
@@ -346,7 +346,7 @@
      <script>
     $('.table-expansion').each(function(){
         var child = $(this).children(":first")
-        child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">View Larger Table</button>')
+        child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">{% trans 'View Larger Table' %}</button>')
     });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>

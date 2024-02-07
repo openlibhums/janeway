@@ -11,9 +11,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto font-weight-bold">
-            <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="/" class="nav-link">{% trans 'Home' %}></li>
             {% if journal_settings.general.enable_news_display %}
-                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
+                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{% trans 'News' %}></li>{% endif %}
 
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
@@ -34,7 +34,7 @@
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}{% if request.press.publishes_journals and not request.press.disable_journals %}
-            <li class="nav-item"><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+            <li class="nav-item"><a href="{% url 'press_journals' %}" class="nav-link">{% trans 'Journals' %}></li>
         {% endif %}
             {% if request.press.enable_preprints %}
                 <li class="nav-item dropdown">
@@ -50,7 +50,7 @@
                 </li>
                 <li class="nav-item"></li>
             {% endif %}
-            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}></li>
             {% hook 'nav_block' %}
         </ul>
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
@@ -63,20 +63,20 @@
                     <div class="dropdown-menu" aria-labelledby="user">
                         {% user_has_role request 'editor' as user_is_editor %}
                         {% if user_is_editor or request.user.is_staff %}
-                            <a class="dropdown-item" href="{% url 'core_manager_index' %}">Manager</a>
+                            <a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a>
                         {% endif %}
                         {% if request.user.is_staff %}
-                            <a class="dropdown-item" href="/admin/">Admin</a>
+                            <a class="dropdown-item" href="/admin/">{% trans 'Admin' %}</a>
                         {% endif %}
-                        <a class="dropdown-item" href="{% url 'core_edit_profile' %}">Profile</a>
-                        <a class="dropdown-item" href="{% url 'core_logout' %}">Logout</a>
+                        <a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a>
+                        <a class="dropdown-item" href="{% url 'core_logout' %}">{% trans 'Logout' %}</a>
                     </div>
                 </li>
             {% else %}
                 <li class="nav-item"><a href="{% url 'core_login' %}" class="nav-link"><i class="fa fa-sign-in">
-                    &nbsp;</i>Login</a></li>
+                    &nbsp;</i>{% trans 'Login' %}></li>
                 <li class="nav-item"><a href="{% url 'core_register' %}" class="nav-link"><i class="fa fa-user-plus">
-                    &nbsp;</i>Register</a></li>
+                    &nbsp;</i>{% trans 'Register' %}></li>
             {% endif %}
         </ul>
     </div>

@@ -25,12 +25,12 @@
                         </p>
                         {% endif %}
                     {% endfor %}
-                    <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
+                    <p><b>{% trans 'Note' %}><br/>This review refers to round {{ review.review_round.round_number }} of peer
                         review and may pertain to an earlier version of the document.</p>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
                 </div>
             </div>
         </div>

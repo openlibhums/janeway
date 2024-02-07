@@ -7,7 +7,7 @@
 {% block body %}
 <div class="row">
     <div class="col-md-12">
-        <h1>Journals</h1>
+        <h1>{% trans 'Journals' %}</h1>
     </div>
     <div class="col-lg-8 col-md-10 journal-container">
         {% for current_journal in journals %}
@@ -49,7 +49,7 @@
                 </div>
             </div>
         {% empty %}
-            <p>No journals to list.</p>
+            <p>{% trans 'No journals to list' %}.</p>
         {% endfor %}
     </div>
     <div class="col-lg-4 col-md-2">
