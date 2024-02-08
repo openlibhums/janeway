@@ -133,6 +133,6 @@ makemessages:
 build_assets:		## Runs Janeway's build_assets command
 	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
-	bash -c "docker build --no-cache -t janeway-base:latest -f dockerfiles/Dockerfile.base ."
+	bash -c "docker build --no-cache -t birkbeckctp/janeway-base:latest -f dockerfiles/Dockerfile.base ."
 snakeviz:
 	docker-compose run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
