@@ -20,8 +20,9 @@
                     submission process. You should set a default license, language and section so that these fields
                     can be configured when the fields are not being used.</p>
                 <form method="POST">
-                    {% csrf_token %}
+                    {% include "elements/translations/form_tabs.html" with object=configuration %}
                     {% include "elements/forms/errors.html" %}
+                    {% csrf_token %}
                     {{ form|foundation }}
                     <button class="success button">Save Configuration</button>
                 </form>
