@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-07 17:33+0000\n"
+"POT-Creation-Date: 2024-02-12 11:42+0000\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -383,7 +383,51 @@ msgstr ""
 msgid "If your account was found, an email has been sent to you."
 msgstr ""
 
-#: src/core/views.py:1940
+#: src/core/views.py:355
+msgid ""
+"Your account has been created, please follow theinstructions in the email "
+"that has been sent to you."
+msgstr ""
+
+#: src/core/views.py:400
+#, fuzzy
+#| msgid "Account"
+msgid "Account activated"
+msgstr "Cuenta"
+
+#: src/core/views.py:442
+msgid "An account with that email address already exists."
+msgstr ""
+
+#: src/core/views.py:448
+#, fuzzy
+#| msgid "Update Email Address"
+msgid "Email address is not valid."
+msgstr "Actualización de la dirección de correo electrónico"
+
+#: src/core/views.py:463
+#, fuzzy
+#| msgid "Password Guide"
+msgid "Password updated."
+msgstr "Guia de contraseña"
+
+#: src/core/views.py:467
+msgid "Passwords do not match"
+msgstr ""
+
+#: src/core/views.py:470
+msgid "Old password is not correct."
+msgstr ""
+
+#: src/core/views.py:480
+msgid "Successfully subscribed to article notifications."
+msgstr ""
+
+#: src/core/views.py:491
+msgid "Successfully unsubscribed from article notifications."
+msgstr ""
+
+#: src/core/views.py:1943
 msgid ""
 "You cannot remove a section that contains articles. Remove articles from the "
 "section if you want to delete it."
@@ -669,6 +713,42 @@ msgstr "Nombre del autor"
 
 #: src/journal/views.py:2632
 msgid "Volume"
+msgstr ""
+
+#: src/plugins_bak/typesetting/forms.py:16
+msgid "Are you sure you want to create a typesetting assignment?"
+msgstr ""
+
+#: src/plugins_bak/typesetting/forms.py:90
+msgid "Are you sure you want to create a proofreading assignment?"
+msgstr ""
+
+#: src/plugins_bak/typesetting/forms.py:160
+msgid "Text to show as the download link on the article page"
+msgstr ""
+
+#: src/plugins_bak/typesetting/forms.py:199
+msgid "Are you sure you want to complete the proofreading task?"
+msgstr ""
+
+#: src/plugins_bak/typesetting/forms.py:224
+msgid "You have not proofed some galleys:"
+msgstr ""
+
+#: src/plugins_bak/typesetting/logic.py:164
+msgid "Article has no typeset files"
+msgstr ""
+
+#: src/plugins_bak/typesetting/logic.py:165
+msgid "One or more typeset files are missing images"
+msgstr ""
+
+#: src/plugins_bak/typesetting/logic.py:167
+msgid "One or more typesetting or proofing tasks haven't been completed"
+msgstr ""
+
+#: src/plugins_bak/typesetting/templates/typesetting/typesetting_proofreading_assignment.html:116
+msgid "Mark Task as Complete"
 msgstr ""
 
 #: src/press/views.py:406
@@ -3475,6 +3555,14 @@ msgstr "Resumen no especializado"
 msgid "This article has no summary"
 msgstr "Este artículo no tiene resumen."
 
+#: src/themes/OLH/templates/elements/journal_footer.html:6
+#: src/themes/clean/templates/elements/journal_footer.html:8
+#: src/themes/material/templates/elements/journal_footer.html:6
+#, fuzzy
+#| msgid "Published"
+msgid "Published by"
+msgstr "Publicado"
+
 #: src/themes/OLH/templates/elements/public_reviews.html:21
 #, python-format
 msgid ""
@@ -4253,6 +4341,10 @@ msgstr ""
 #: src/themes/material/templates/elements/summary_modal.html:13
 msgid "Close"
 msgstr "Cerrar"
+
+#: src/themes/clean/templates/elements/journal_footer.html:7
+msgid "Print ISSN"
+msgstr ""
 
 #: src/themes/clean/templates/elements/pagination.html:62
 #, fuzzy
