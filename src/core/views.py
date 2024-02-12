@@ -350,8 +350,11 @@ def register(request):
                 new_user.add_account_role('author', request.journal)
             logic.send_confirmation_link(request, new_user)
 
-            messages.add_message(request, messages.SUCCESS, 'Your account has been created, please follow the'
-                                                            'instructions in the email that has been sent to you.')
+            messages.add_message(
+                    request, messages.SUCCESS,
+                    _('Your account has been created, please follow the'
+                    'instructions in the email that has been sent to you.'),
+            )
             return redirect(reverse('core_login'))
 
     template = 'core/accounts/register.html'
@@ -394,7 +397,7 @@ def activate_account(request, token):
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Account activated',
+            _('Account activated'),
         )
 
         return redirect(reverse('core_login'))
@@ -436,13 +439,13 @@ def edit_profile(request):
                     messages.add_message(
                         request,
                         messages.WARNING,
-                        'An account with that email address already exists.',
+                        _('An account with that email address already exists.'),
                     )
             except ValidationError:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'Email address is not valid.',
+                    _('Email address is not valid.'),
                 )
 
         elif 'change_password' in request.POST:
@@ -457,14 +460,14 @@ def edit_profile(request):
                     if not problems:
                         request.user.set_password(new_pass_one)
                         request.user.save()
-                        messages.add_message(request, messages.SUCCESS, 'Password updated.')
+                        messages.add_message(request, messages.SUCCESS, _('Password updated.'))
                     else:
                         [messages.add_message(request, messages.INFO, problem) for problem in problems]
                 else:
-                    messages.add_message(request, messages.WARNING, 'Passwords do not match')
+                    messages.add_message(request, messages.WARNING, _('Passwords do not match'))
 
             else:
-                messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+                messages.add_message(request, messages.WARNING, _('Old password is not correct.'))
 
         elif 'subscribe' in request.POST and send_reader_notifications:
             request.user.add_account_role(
@@ -474,7 +477,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully subscribed to article notifications.',
+                _('Successfully subscribed to article notifications.'),
             )
 
         elif 'unsubscribe' in request.POST and send_reader_notifications:
@@ -485,7 +488,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully unsubscribed from article notifications.',
+                _('Successfully unsubscribed from article notifications.'),
             )
 
         elif 'edit_profile' in request.POST:
