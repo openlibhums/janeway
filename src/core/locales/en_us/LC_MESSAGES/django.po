@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-12 11:42+0000\n"
+"POT-Creation-Date: 2024-02-12 16:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1545,11 +1545,6 @@ msgid "Undo Article Rejection"
 msgstr ""
 
 #: src/templates/admin/journal/manage/archive_article.html:182
-#: src/templates/admin/submission/submit_review.html:7
-#: src/templates/admin/submission/timeline.html:43
-#: src/templates/admin/submission/timeline.html:44
-#: src/templates/admin/submission/timeline.html:51
-#: src/templates/admin/submission/timeline.html:52
 msgid "Review"
 msgstr ""
 
@@ -2451,6 +2446,14 @@ msgstr ""
 
 #: src/templates/admin/submission/submit_info.html:99
 msgid "allows the following licenses for submission"
+msgstr ""
+
+#: src/templates/admin/submission/submit_review.html:7
+#: src/templates/admin/submission/timeline.html:43
+#: src/templates/admin/submission/timeline.html:44
+#: src/templates/admin/submission/timeline.html:51
+#: src/templates/admin/submission/timeline.html:52
+msgid "Review your submission"
 msgstr ""
 
 #: src/templates/admin/submission/submit_review.html:21

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-12 11:42+0000\n"
+"POT-Creation-Date: 2024-02-12 16:34+0000\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1691,11 +1691,6 @@ msgid "Undo Article Rejection"
 msgstr ""
 
 #: src/templates/admin/journal/manage/archive_article.html:182
-#: src/templates/admin/submission/submit_review.html:7
-#: src/templates/admin/submission/timeline.html:43
-#: src/templates/admin/submission/timeline.html:44
-#: src/templates/admin/submission/timeline.html:51
-#: src/templates/admin/submission/timeline.html:52
 msgid "Review"
 msgstr "Review"
 
@@ -2672,6 +2667,16 @@ msgstr "Licentie informatie"
 #: src/templates/admin/submission/submit_info.html:99
 msgid "allows the following licenses for submission"
 msgstr "laat de volgende licenties toe bij inzendingen"
+
+#: src/templates/admin/submission/submit_review.html:7
+#: src/templates/admin/submission/timeline.html:43
+#: src/templates/admin/submission/timeline.html:44
+#: src/templates/admin/submission/timeline.html:51
+#: src/templates/admin/submission/timeline.html:52
+#, fuzzy
+#| msgid "Review Preprint Submission"
+msgid "Review your submission"
+msgstr "Preprint inzending reviewen"
 
 #: src/templates/admin/submission/submit_review.html:21
 msgid ""
@@ -4940,9 +4945,6 @@ msgstr "geweigerd"
 
 #~ msgid "This repository has no subjects or editors to display."
 #~ msgstr "Deze repository heeft geen onderwerpen of editors om weer te geven."
-
-#~ msgid "Review Preprint Submission"
-#~ msgstr "Preprint inzending reviewen"
 
 #~ msgid "Comments to Editor"
 #~ msgstr "Opmerkingen voor de editor"
