@@ -99,7 +99,7 @@
                 {% if galleys %}
                     <div class="d-lg-none d-xl-none d-md-none">
                         <p>
-                            <strong>{% trans 'Downloads' %}><br/>
+                            <strong>{% trans 'Downloads' %}></strong><br/>
                             {% for galley in galleys %}
                                 <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                 <br/>
