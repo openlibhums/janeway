@@ -2194,7 +2194,7 @@ msgid ""
 "through "
 msgstr ""
 "Sie können Artikel direkt den Ausgaben in der Vorveröffentlichungsphase "
-"zuordnen oder über die␣"
+"zuordnen oder über die"
 
 #: src/templates/admin/review/projected_issue.html:32
 msgid "issue management"
@@ -2739,7 +2739,6 @@ msgstr ""
 "verschiedenen Einreichungsschritten zu navigieren. Sie müssen den <strong>"
 "\"Einreichung vollständig\"</strong>-Button am Fuß der Seite klicken, um den "
 "Einreichungsprozess abzuschließen. Sie werden eine Bestätigungsmail erhalten."
-"␣"
 
 #: src/templates/admin/submission/submit_review.html:25
 msgid "Agreements"
@@ -2898,11 +2897,11 @@ msgid_plural ""
 msgstr[0] ""
 "\n"
 "                    1 Ergebnis\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 msgstr[1] ""
 "\n"
 "                    %(result_count)s Ergebnisse\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/OLH/templates/403.html:13 src/themes/clean/templates/403.html:11
 msgid "Maintenance Mode"
@@ -3449,7 +3448,7 @@ msgstr "Diese Zeitschrift hat momentan keine aktuellen Meldungen zum Anzeigen."
 #: src/themes/clean/templates/core/news/item.html:20
 #: src/themes/clean/templates/press/core/news/item.html:16
 msgid "Tags "
-msgstr "Tags␣"
+msgstr "Tags"
 
 #: src/themes/OLH/templates/core/news/item.html:47
 #: src/themes/clean/templates/core/news/item.html:22
@@ -3834,7 +3833,7 @@ msgstr ""
 "Runde %(review.review_round.round_number) des\n"
 "                        Reviewverfahrens und kann sich auf eine frühere "
 "Version des Dokuments beziehen.</p>\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:15
 #: src/themes/material/templates/core/nav.html:178
@@ -4000,7 +3999,7 @@ msgstr "Herunterladen"
 
 #: src/themes/OLH/templates/journal/article.html:138
 msgid " Download"
-msgstr "␣Herunterladen"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/article.html:183
 #: src/themes/OLH/templates/journal/print.html:35
@@ -4036,7 +4035,7 @@ msgid ""
 msgstr ""
 "\n"
 "                                                        (grant %(id)s)\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/OLH/templates/journal/article.html:257
 #: src/themes/clean/templates/journal/article.html:280
@@ -4074,7 +4073,7 @@ msgstr "Lizenz"
 msgid "Downloads are not available until this article is published "
 msgstr ""
 "Das Herunterladen ist nicht verfügbar, bis dieser Artikel veröffentlicht "
-"wurde␣"
+"wurde"
 
 #: src/themes/OLH/templates/journal/article.html:383
 #: src/themes/material/templates/journal/article.html:434
@@ -4530,7 +4529,7 @@ msgstr ""
 "Entschlüsselung dauern würde - im Gegensatz zu einem komplexen wie "
 "<em>Jfjfy&65^87</em>, welches auf einem Standardcomputer etwas über 600 "
 "Jahre für die Entschlüsselung brauchen würde.</p>\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:23
 #: src/themes/material/templates/core/accounts/reset_password.html:23
@@ -4573,7 +4572,7 @@ msgstr ""
 
 #: src/themes/clean/templates/core/nav.html:82
 msgid "Account "
-msgstr "Konto␣"
+msgstr "Konto"
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:9
 msgid ""
@@ -4657,7 +4656,7 @@ msgstr ""
 "Runde %(review.review_round.round_number) des\n"
 "                        Reviewverfahrens und kann sich auf eine frühere "
 "Version des Dokuments beziehen.</p>\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/clean/templates/elements/sections_block.html:4
 msgid "Sections submission information"
@@ -4672,7 +4671,7 @@ msgid ""
 msgstr ""
 "\n"
 "                                        (grant %(id)s)\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/clean/templates/journal/article.html:268
 msgid "Open Peer Reviews"
@@ -4865,7 +4864,7 @@ msgstr ""
 "\n"
 "\n"
 "                                                (grant %(id)s)\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+""
 
 #: src/themes/material/templates/journal/article.html:195
 msgid "Tweets"
