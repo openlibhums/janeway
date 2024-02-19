@@ -13,10 +13,10 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
-from django_summernote.widgets import SummernoteWidget
 from django_bleach.forms import BleachField
 from django_bleach.utils import get_bleach_default_options
 from bleach import clean as bleach_clean
+from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
@@ -42,7 +42,7 @@ class EditKey(forms.Form):
         super(EditKey, self).__init__(*args, **kwargs)
 
         if self.key_type == 'rich-text':
-            self.fields['value'].widget = SummernoteWidget()
+            self.fields['value'].widget = TinyMCE()
         elif self.key_type == 'boolean':
             self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
         elif self.key_type == 'integer':
@@ -90,7 +90,6 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 class EditorialGroupForm(JanewayTranslationModelForm):
 
-    # description = BleachField(required=False)
 
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
@@ -102,7 +101,6 @@ class EditorialGroupForm(JanewayTranslationModelForm):
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
-        widgets = {'description': SummernoteWidget()}
 
 
 class PasswordResetForm(forms.Form):
@@ -321,7 +319,7 @@ class GeneratedSettingForm(forms.Form):
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(widget=SummernoteWidget, required=False)
+                self.fields[field['name']] = forms.CharField(required=False)
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
@@ -759,7 +757,7 @@ class EmailForm(forms.Form):
         required=False,
         max_length=10000,
     )
-    body = forms.CharField(widget=SummernoteWidget)
+    body = forms.CharField(widget=TinyMCE)
     attachments = MultipleFileField(required=False)
 
     def clean_cc(self):
