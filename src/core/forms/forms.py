@@ -14,8 +14,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
 from django_bleach.forms import BleachField
-from django_bleach.utils import get_bleach_default_options
-from bleach import clean as bleach_clean
 from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
@@ -812,28 +810,3 @@ class SettingEmailForm(EmailForm):
             email_context,
             setting_name,
         )
-
-
-class BleachFormMixin(forms.BaseForm):
-    """
-    Allows optional bleaching of values of rich-text fields
-    during form cleaning based on a Boolean.
-    """
-
-    BLEACHABLE_FIELDS = []
-    BLEACH_BOOLEAN_FIELD = 'support_copy_paste'
-
-    # def save(self, commit=True):
-    #     obj = super().save(commit=False)
-    #     if self.BLEACH_BOOLEAN_FIELD:
-    #         bleach_kwargs = get_bleach_default_options()
-    #         for field in self.BLEACHABLE_FIELDS:
-    #             data = getattr(obj, field)
-    #             setattr(obj, field, bleach_clean(data, **bleach_kwargs))
-    #     if commit:
-    #         obj.save()
-    #     return obj
-
-
-class BleachableModelForm(BleachFormMixin, forms.ModelForm):
-    pass
