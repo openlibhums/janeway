@@ -40,6 +40,7 @@ from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django_bleach.models import BleachField
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
@@ -592,3 +593,19 @@ class AbstractBleachModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+class JanewayBleachField(BleachField):
+    """ An override of BleachField to avoid casting SafeString from db
+    Bleachfield automatically casts the default return type (string) into
+    a SafeString, which is okay when using the value for HTML rendering but
+    not when using the value elsewhere (XML encoding)
+    https://github.com/marksweb/django-bleach/blob/504b3784c525886ba1974eb9ecbff89314688491/django_bleach/models.py#L76
+    """
+    def from_db_value(self, value,expression, connection):
+        return value
+
+class JanewayBleachCharField(JanewayBleachField):
+    """ An override of BleachField to use a TextInput but get sanitization"""
+    def formfield(self, **kwargs):
+        kwargs["widget"] = forms.TextInput()
+        return super().formfield(**kwargs)
