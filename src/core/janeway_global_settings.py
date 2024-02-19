@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'mozilla_django_oidc',
     'django_countries',
     'django_summernote',
+    'tinymce',
     'bootstrap4',
     'rest_framework',
     'foundationform',
@@ -615,4 +616,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
+}
+TINYMCE_JS_URL = os.path.join(STATIC_URL, "common/js/tinymce/tinymce.min.js")
+TINYMCE_COMPRESSOR = False
+TINYMCE_DEFAULT_CONFIG = {
+    "width": "100%",
+    "resize": "both",
+    "promotion": False,
+    "branding": False,
+    "menubar": "",
+    "plugins": "autoresize advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"
+        " fullscreen insertdatetime media table paste code help wordcount spellchecker",
+    "toolbar": "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft"
+        " outdent indent |  numlist bullist checklist | forecolor"
+        " backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons |"
+        " fullscreen | image media template link anchor codesample |"
+        " a11ycheck ltr rtl | showcomments addcomment code",
 }
