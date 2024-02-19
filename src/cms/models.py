@@ -12,12 +12,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
-from core.model_utils import AbstractBleachModelMixin
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import JanewayBleachField
 from utils.logic import build_url_for_request
 
 
-class Page(AbstractBleachModelMixin, models.Model):
+class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
@@ -35,7 +35,7 @@ class Page(AbstractBleachModelMixin, models.Model):
                   'displayed in the nav and in the top-level heading '
                   'on the page (e.g. “Research Integrity”).',
     )
-    content = models.TextField(
+    content = JanewayBleachField(
         null=True,
         blank=True,
         help_text='The content of the page. For headings, we recommend '
@@ -203,7 +203,7 @@ class SubmissionItem(models.Model):
         on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=255)
-    text = models.TextField(blank=True, null=True)
+    text = JanewayBleachField(blank=True, null=True)
     order = models.IntegerField(default=99)
     existing_setting = models.ForeignKey(
         'core.Setting',
