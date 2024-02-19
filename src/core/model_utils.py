@@ -604,6 +604,14 @@ class JanewayBleachField(BleachField):
     def from_db_value(self, value,expression, connection):
         return value
 
+    def pre_save(self, model_instance, *args, **kwargs):
+        data = getattr(model_instance, self.attname)
+        try:
+            return super().pre_save(model_instance, *args, **kwargs)
+        except TypeError:
+            # Gracefully ignore typerrors on BleachField
+            return data
+
 class JanewayBleachCharField(JanewayBleachField):
     """ An override of BleachField to use a TextInput but get sanitization"""
     def formfield(self, **kwargs):

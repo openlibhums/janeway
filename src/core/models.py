@@ -38,6 +38,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
     AbstractSiteModel,
+    JanewayBleachField,
     PGCaseInsensitiveEmailField,
     SearchLookup,
 )
@@ -221,7 +222,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text=_('Name suffix eg. jr'),
     )
-    biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
+    biography = JanewayBleachField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
     institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
@@ -234,7 +235,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
     confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
-    signature = models.TextField(null=True, blank=True, verbose_name=_("Signature"))
+    signature = JanewayBleachField(null=True, blank=True, verbose_name=_("Signature"))
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(
         Country,
@@ -699,7 +700,7 @@ class Setting(models.Model):
     )
     types = models.CharField(max_length=20, choices=setting_types)
     pretty_name = models.CharField(max_length=100, default='')
-    description = models.TextField(null=True, blank=True)
+    description = JanewayBleachField(null=True, blank=True)
 
     is_translatable = models.BooleanField(default=False)
 
@@ -744,7 +745,7 @@ class SettingValue(models.Model):
         Setting,
         models.CASCADE,
     )
-    value = models.TextField(null=True, blank=True)
+    value = JanewayBleachField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -843,7 +844,7 @@ class File(AbstractLastModifiedModel):
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
     label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
-    description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
+    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -1121,7 +1122,7 @@ class FileHistory(models.Model):
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
     label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
-    description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
+    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -1306,7 +1307,7 @@ class XSLFile(models.Model):
         help_text="A label to help recognise this stylesheet",
         unique=True,
     )
-    comments = models.TextField(blank=True, null=True)
+    comments = JanewayBleachField(blank=True, null=True)
     original_filename = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
@@ -1360,7 +1361,7 @@ class Task(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
     title = models.CharField(max_length=300)
-    description = models.TextField()
+    description = JanewayBleachField()
     complete_events = models.ManyToManyField('core.TaskCompleteEvents')
     link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
     assignees = models.ManyToManyField(Account)
@@ -1427,7 +1428,7 @@ class TaskCompleteEvents(models.Model):
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
-    description = models.TextField(blank=True, null=True)
+    description = JanewayBleachField(blank=True, null=True)
     journal = models.ForeignKey(
         'journal.Journal',
         on_delete=models.CASCADE,
@@ -1492,7 +1493,7 @@ class Contact(models.Model):
     recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
-    body = models.TextField(verbose_name=_('Your message'))
+    body = JanewayBleachField(verbose_name=_('Your message'))
     client_ip = models.GenericIPAddressField()
     date_sent = models.DateField(auto_now_add=True)
 
@@ -1723,11 +1724,11 @@ class AccessRequest(models.Model):
     processed = models.BooleanField(
         default=False,
     )
-    text = models.TextField(
+    text = JanewayBleachField(
         blank=True,
         null=True,
     )
-    evaluation_note = models.TextField(
+    evaluation_note = JanewayBleachField(
         null=True,
         help_text='This note will be sent to the requester when you approve or decline their request.',
     )
