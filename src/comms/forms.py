@@ -3,12 +3,10 @@ from django import forms
 from django_summernote.widgets import SummernoteWidget
 
 from comms import models
-from core.forms import BleachableModelForm
 
 
-class NewsItemForm(BleachableModelForm, forms.ModelForm):
+class NewsItemForm(forms.ModelForm):
 
-    BLEACHABLE_FIELDS = ['body']
 
     image_file = forms.FileField(required=False)
     tags = forms.CharField(required=False)
@@ -24,6 +22,3 @@ class NewsItemForm(BleachableModelForm, forms.ModelForm):
     class Meta:
         model = models.NewsItem
         exclude = ('content_type', 'object_id', 'posted', 'posted_by', 'large_image_file', 'tags')
-        widgets = {
-            'body': SummernoteWidget(),
-        }
