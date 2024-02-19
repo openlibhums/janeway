@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from simple_history.models import HistoricalRecords
 
 from core import files
-from core.model_utils import AbstractBleachModelMixin
+from core.model_utils import JanewayBleachField
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -16,13 +16,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-class NewsItem(AbstractBleachModelMixin, models.Model):
+class NewsItem(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
     title = models.CharField(max_length=500)
-    body = models.TextField()
+    body = JanewayBleachField()
     posted = models.DateTimeField(default=timezone.now)
     posted_by = models.ForeignKey('core.Account', blank=True, null=True, on_delete=models.SET_NULL)
 
