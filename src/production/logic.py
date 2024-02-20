@@ -174,22 +174,39 @@ def replace_galley_file(article, request, galley, uploaded_file):
 
 
 def save_galley_image(galley, request, uploaded_file, label="Galley Image", fixed=False):
-
+    filename = uploaded_file.name
     if fixed:
-        filename = request.POST.get('file_name')
         uploaded_file_mime = files.check_in_memory_mime(uploaded_file)
         expected_mime = files.guess_mime(filename)
 
         if not uploaded_file_mime == expected_mime:
-            messages.add_message(request, messages.WARNING, 'The file you uploaded does not match the mime of the '
-                                                            'file expected.')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'The file you uploaded does not match the mime of the '
+                'file expected.',
+            )
+
+    # Check if an image with this name already exists for this galley.
+    # If found, return the found image and stop the save process.
+    check_image_exists = galley.images.filter(
+        original_filename=filename,
+    )
+    if check_image_exists:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f'An image called {filename} already exists. Use the replace '
+            f'file function to upload a new version.',
+        )
+        return check_image_exists
 
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
     new_file.is_galley = False
     new_file.label = label
 
     if fixed:
-        new_file.original_filename = request.POST.get('file_name')
+        new_file.original_filename = filename
 
     new_file.save()
 
