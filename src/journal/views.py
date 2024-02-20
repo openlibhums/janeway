@@ -932,7 +932,16 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     if not galley:
         raise Http404
 
-    figure = get_object_or_404(galley.images, original_filename=file_name)
+    # Use a filter with .first() here to avoid an error when two images with
+    # the same name are present.
+    figure = galley.images.filter(
+        original_filename=file_name
+    ).latest(
+        'last_modified',
+    )
+
+    if not figure:
+        raise Http404
 
     return files.serve_file(request, figure, figure_article)
 
