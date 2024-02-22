@@ -23,7 +23,7 @@
 		    {% for article in articles %}
 		        {% include "elements/article_listing.html" with article=article %}
 		    {% empty %}
-		        <p>No articles to display.</p>
+		        <p>{% trans "No articles to display" %}.</p>
 		    {% endfor %}
 
 	    </div>
@@ -35,11 +35,11 @@
                         <div class="form-group">
                             {% if not keyword %}
                                 {{ form.article_search.errors }}
-                                <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
+                                <label for="{{ form.article_search.id_for_label }}">{% trans 'Search titles, keywords, and authors' %}</label>
                                 {{ form.article_search }}
                                 
                             {% else %}
-                                You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
+                                You are currently browsing by keyword. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
                             {% endif %}
                         </div>
                         <div class="form-group">
@@ -52,7 +52,7 @@
                             </label>
                         </div>
                         <div class="form-group">
-                            <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+                            <label for="{{ form.sort.id_for_label }}">{% trans 'Sort articles by' %}</label>
                                 {{ form.sort.errors }}
                                 {{ form.sort }}
                         </div>                        

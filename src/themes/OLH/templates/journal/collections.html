@@ -25,7 +25,7 @@
                                 onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                             >
                             <div class="content">
-                                <p>Collection<br/>
+                                <p>{% trans 'Collection' %}<br/>
                                     <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>
                                 </p>
                                 <h2>{{ collection.issue_title }}</h2>

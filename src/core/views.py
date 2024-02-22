@@ -75,8 +75,8 @@ def user_login(request):
 
     if bad_logins >= 10:
         messages.info(
-                request,
-                'You have been banned from logging in due to failed attempts.'
+            request,
+            _('You have been banned from logging in due to failed attempts.'),
         )
         logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
@@ -119,15 +119,19 @@ def user_login(request):
 
                 if empty_password_check:
                     messages.add_message(request, messages.INFO,
-                                         'Password reset process has been initiated, please check your inbox for a'
-                                         ' reset request link.')
+                        _(
+                            'Password reset process has been initiated,'
+                            ' please check your inbox for a'
+                            ' reset request link.'
+                        ),
+                    )
                     logic.start_reset_process(request, empty_password_check)
                 else:
 
                     messages.add_message(
                         request, messages.ERROR,
-                        'Wrong email/password combination or your'
-                        ' email address has not been confirmed yet.',
+                        _('Wrong email/password combination or your'
+                        ' email address has not been confirmed yet.'),
                     )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
@@ -213,7 +217,7 @@ def user_logout(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    messages.info(request, 'You have been logged out.')
+    messages.info(request, _('You have been logged out.'))
     logout(request)
     return redirect(reverse('website_index'))
 
@@ -228,7 +232,10 @@ def get_reset_token(request):
 
     if request.POST:
         email_address = request.POST.get('email_address')
-        messages.add_message(request, messages.INFO, 'If your account was found, an email has been sent to you.')
+        messages.add_message(
+                request, messages.INFO,
+                _('If your account was found, an email has been sent to you.'),
+        )
         try:
             account = models.Account.objects.get(email__iexact=email_address)
             logic.start_reset_process(request, account)
@@ -345,11 +352,9 @@ def register(request):
             logic.send_confirmation_link(request, new_user)
 
             messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Your account has been created. '
-                'Please follow the instructions '
-                'in the email that has been sent to you.'
+                request, messages.SUCCESS,
+                _('Your account has been created, please follow the'
+                'instructions in the email that has been sent to you.'),
             )
             return redirect(reverse('core_login'))
 
@@ -393,7 +398,7 @@ def activate_account(request, token):
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Account activated',
+            _('Account activated'),
         )
 
         return redirect(reverse('core_login'))
@@ -442,13 +447,13 @@ def edit_profile(request):
                     messages.add_message(
                         request,
                         messages.WARNING,
-                        'An account with that email address already exists.',
+                        _('An account with that email address already exists.'),
                     )
             except ValidationError:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'Email address is not valid.',
+                    _('Email address is not valid.'),
                 )
 
         elif 'change_password' in request.POST:
@@ -463,14 +468,14 @@ def edit_profile(request):
                     if not problems:
                         request.user.set_password(new_pass_one)
                         request.user.save()
-                        messages.add_message(request, messages.SUCCESS, 'Password updated.')
+                        messages.add_message(request, messages.SUCCESS, _('Password updated.'))
                     else:
                         [messages.add_message(request, messages.INFO, problem) for problem in problems]
                 else:
-                    messages.add_message(request, messages.WARNING, 'Passwords do not match')
+                    messages.add_message(request, messages.WARNING, _('Passwords do not match'))
 
             else:
-                messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+                messages.add_message(request, messages.WARNING, _('Old password is not correct.'))
 
         elif 'subscribe' in request.POST and send_reader_notifications:
             request.user.add_account_role(
@@ -480,7 +485,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully subscribed to article notifications.',
+                _('Successfully subscribed to article notifications.'),
             )
 
         elif 'unsubscribe' in request.POST and send_reader_notifications:
@@ -491,7 +496,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully unsubscribed from article notifications.',
+                _('Successfully unsubscribed from article notifications.'),
             )
 
         elif 'edit_profile' in request.POST:

@@ -40,16 +40,16 @@
             <li class="li {% if article.current_step >= 5 %}complete{% endif %}">
                 <div class="status">
                     <h4>{% if article %}{% if article.current_step >= 5 %}
-                        <a href="{% url 'submit_review' article.id %}">{% trans "Review" %}</a>{% else %}
-                        {% trans "Review" %}{% endif %}{% else %}{% trans "Review" %}{% endif %} </h4>
+                        <a href="{% url 'submit_review' article.id %}">{% trans "Review your submission" %}</a>{% else %}
+                        {% trans "Review your submission" %}{% endif %}{% else %}{% trans "Review your submission" %}{% endif %} </h4>
                 </div>
             </li>
         {% else %}
             <li class="li {% if article.current_step >= 4 %}complete{% endif %}">
                 <div class="status">
                     <h4>{% if article %}{% if article.current_step >= 4 %}
-                        <a href="{% url 'submit_review' article.id %}">{% trans "Review" %}</a>{% else %}
-                        {% trans "Review" %}{% endif %}{% else %}{% trans "Review" %}{% endif %} </h4>
+                        <a href="{% url 'submit_review' article.id %}">{% trans "Review your submission" %}</a>{% else %}
+                        {% trans "Review your submission" %}{% endif %}{% else %}{% trans "Review your submission" %}{% endif %} </h4>
                 </div>
             </li>
         {% endif %}

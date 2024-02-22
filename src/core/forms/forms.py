@@ -130,7 +130,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
     register_as_reader = forms.BooleanField(
         label='Register for Article Notifications',
-        help_text='Check this box if you would like to receive notifications of new articles published in this journal',
+        help_text=_('Check this box if you would like to receive notifications of new articles published in this journal'),
         required=False,
     )
 

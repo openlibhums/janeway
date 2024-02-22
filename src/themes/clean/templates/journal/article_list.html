@@ -23,7 +23,7 @@
         <aside class="col-md-4">
             <div class="card">
                 <div class="card-block">
-                    <h3>Search</h3>
+                    <h3>{% trans 'Search' %}</h3>
                     <form method="POST" action="{% url 'search' %}">
                         {% csrf_token %}
                         <div class="form-group">

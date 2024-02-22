@@ -10,7 +10,7 @@
     <section id="content">
         <div class="row column">
             {% if request.META.maintenance_mode %}
-            <h2>Maintenance Mode</h2>
+            <h2>{% trans 'Maintenance Mode' %}</h2>
             <p>{{ request.META.maintenance_mode.value|safe }}</p>
             {% else %}
             <h2>{% trans "Permission Denied" %}</h2>

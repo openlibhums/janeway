@@ -67,13 +67,13 @@ def profile_images_upload_path(instance, filename):
 
 
 SALUTATION_CHOICES = (
-    ('Miss', 'Miss'),
-    ('Ms', 'Ms'),
-    ('Mrs', 'Mrs'),
-    ('Mr', 'Mr'),
-    ('Mx', 'Mx'),
-    ('Dr', 'Dr'),
-    ('Prof.', 'Prof.'),
+    ('Miss', _('Miss')),
+    ('Ms', _('Ms')),
+    ('Mrs', _('Mrs')),
+    ('Mr', _('Mr')),
+    ('Mx', _('Mx')),
+    ('Dr', _('Dr')),
+    ('Prof.', _('Prof.')),
 )
 
 COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
@@ -227,16 +227,16 @@ class Account(AbstractBaseUser, PermissionsMixin):
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
     institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Handle")
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
-    website = models.URLField(max_length=300, null=True, blank=True, verbose_name="Website")
-    github = models.CharField(max_length=300, null=True, blank=True, verbose_name="Github Username")
-    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs)
+    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
+    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
+    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
+    website = models.URLField(max_length=300, null=True, blank=True, verbose_name=_('Website'))
+    github = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Github Username'))
+    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
-    confirmation_code = models.CharField(max_length=200, blank=True, null=True)
-    signature = models.TextField(null=True, blank=True)
+    confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
+    signature = models.TextField(null=True, blank=True, verbose_name=_("Signature"))
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(
         Country,
@@ -245,15 +245,23 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Country'),
         on_delete=models.SET_NULL,
     )
-    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
+    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES, verbose_name=_("Preferred Timezone"))
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    enable_digest = models.BooleanField(default=False)
-    enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
-                                                'available to the public.')
+    enable_digest = models.BooleanField(
+        default=False,
+        verbose_name=_("Enable Digest"),
+    )
+    enable_public_profile = models.BooleanField(
+        default=False,
+        help_text=_(
+            'If enabled, your basic profile will be available to the public.'
+        ),
+        verbose_name=_("Enable public profile"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -560,7 +568,7 @@ def generate_expiry_date():
 class OrcidToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     orcid = models.CharField(max_length=200)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
 
     def __str__(self):
         return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
@@ -572,7 +580,7 @@ class PasswordResetToken(models.Model):
         on_delete=models.CASCADE,
     )
     token = models.CharField(max_length=300, default=uuid.uuid4)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
     expired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -834,7 +842,7 @@ class SettingValue(models.Model):
 
 
 class File(AbstractLastModifiedModel):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
@@ -851,7 +859,7 @@ class File(AbstractLastModifiedModel):
 
     # Remote galley handling
     is_remote = models.BooleanField(default=False)
-    remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
+    remote_url = models.URLField(blank=True, null=True, verbose_name=_('Remote URL of file'))
 
     history = models.ManyToManyField(
         'FileHistory',
@@ -1112,7 +1120,7 @@ def update_file_index(sender, instance, **kwargs):
 
 
 class FileHistory(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
@@ -1500,7 +1508,7 @@ class Contacts(models.Model):
 
 
 class Contact(models.Model):
-    recipient = models.EmailField(max_length=200, verbose_name='Who would you like to contact?')
+    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
     body = models.TextField(verbose_name=_('Your message'))
