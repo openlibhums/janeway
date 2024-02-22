@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -827,8 +829,7 @@ def preprints_manager(request):
         date_declined__isnull=False,
         repository=request.repository,
     )
-    metrics_summary = repository_logic.metrics_summary(published_preprints)
-    versisons = models.VersionQueue.objects.filter(
+    versions = models.VersionQueue.objects.filter(
         date_decision__isnull=True,
         preprint__repository=request.repository,
     )
@@ -843,8 +844,7 @@ def preprints_manager(request):
         'published_preprints': published_preprints,
         'incomplete_preprints': incomplete_preprints,
         'rejected_preprints': rejected_preprints,
-        'version_queue': versisons,
-        'metrics_summary': metrics_summary,
+        'version_queue': versions,
         'subjects': subjects,
     }
 

@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from user_agents import parse as parse_ua_string
-from datetime import timedelta
+from datetime import datetime, timedelta
 from collections import Counter
 
 from django.utils import timezone
@@ -13,16 +13,16 @@ from django.db.models import (
     OuterRef,
     Subquery,
     Value,
+    Count,
 )
 from django.db.models.functions import Concat
-from django.forms import formset_factory
 
 from production.logic import save_galley
 from core import models as core_models, files
 from utils import render_template, shared
 from utils.function_cache import cache
 from events import logic as event_logic
-from repository import models, forms
+from repository import models
 from metrics.logic import get_iso_country_code, iso_to_country_object
 
 
@@ -33,50 +33,6 @@ def get_month_day_range(date):
     last_day = date + relativedelta(day=1, months=+1, days=-1)
     first_day = date + relativedelta(day=1)
     return first_day, last_day
-
-
-def metrics_summary(published_preprints):
-    """
-    Fetches view counts for a month and year.
-    :param published_preprints: preprint queryset
-    :return: dictionary with access results
-    """
-    first_this_month, last_this_month = get_month_day_range(timezone.now())
-    last_month_date = timezone.now() - relativedelta(months=1)
-    first_last_month, last_last_month = get_month_day_range(last_month_date)
-
-    total_accesses_this_month = models.PreprintAccess.objects.filter(
-        accessed__gte=first_this_month,
-        accessed__lte=last_this_month,
-        preprint__in=published_preprints,
-    )
-
-    total_accesses_last_month = models.PreprintAccess.objects.filter(
-        accessed__gte=first_last_month,
-        accessed__lte=last_last_month,
-        preprint__in=published_preprints,
-    )
-
-    views_this_month = total_accesses_this_month.filter(
-        file__isnull=True,
-    ).count()
-    views_last_month = total_accesses_last_month.filter(
-        file__isnull=True,
-    ).count()
-    downloads_this_month = total_accesses_this_month.filter(
-        file__isnull=False,
-    ).count()
-    downloads_last_month = total_accesses_last_month.filter(
-        file__isnull=False,
-    ).count()
-
-
-    return {
-        'views_this_month': views_this_month,
-        'views_last_month': views_last_month,
-        'downloads_this_month': downloads_this_month,
-        'downloads_last_month': downloads_last_month,
-    }
 
 
 def handle_file_upload(request, preprint):
