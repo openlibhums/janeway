@@ -116,68 +116,11 @@
                 </div>
             </div>
         </div>
-
-    <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Metrics Summary</h2>
-                </div>
-                <div class="content">
-                    <canvas id="metrics_chart" width="400" height="400"></canvas>
-                </div>
-            </div>
-        </div>
-
-
     </div>
 
 {% endblock %}
 
-{% cache 600 metrics request.repository.id %}
-
 {% block js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
-    <script>
-        var ctx = document.getElementById("metrics_chart");
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ["Views this Month", "Downloads this Month", "Views Last Month", "Downloads Last Month"],
-                datasets: [{
-                    label: 'Preprint Accesses',
-                    data: [{{ metrics_summary.views_this_month }}, {{ metrics_summary.downloads_this_month }}, {{ metrics_summary.views_last_month }}, {{ metrics_summary.downloads_last_monnth }}],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255,99,132,1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255,99,132,1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-    </script>
     {% include "elements/datatables.html" with target="#unpub" page_length=10 sort=1 order='desc' %}
     {% include "elements/datatables.html" with target="#pubd" page_length=10 sort=2 order='desc' %}
 {% endblock %}
-{% endcache %}
