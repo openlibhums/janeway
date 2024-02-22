@@ -385,6 +385,7 @@ def typesetting_edit_galley(request, galley_id, article_id):
                     uploaded_file,
                     label,
                     fixed=True,
+                    check_for_existing_images=True,
                 )
 
         if 'image-upload' in request.POST:
@@ -395,6 +396,7 @@ def typesetting_edit_galley(request, galley_id, article_id):
                     uploaded_file,
                     label,
                     fixed=False,
+                    check_for_existing_images=True,
                 )
 
         elif 'css-upload' in request.POST:
