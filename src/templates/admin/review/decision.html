@@ -56,7 +56,11 @@
                             <h4>To {{ article.correspondence_author.full_name }}</h4>
                             <h5>From {{ request.user.full_name }}</h5>
                         </div>
-                        {% url 'review_in_review' article.pk as cancel_url %}
+                        {% if article.stage == 'Unassigned' %}
+                            {% url 'review_unassigned_article' article.pk as cancel_url %}
+                        {% else %}
+                            {% url 'decision_helper' article.pk as cancel_url %}
+                        {% endif %}
                         {% include 'admin/elements/email_form.html' with form=form skip=1 cancel_url=cancel_url %}
                     </div>
             </div>
