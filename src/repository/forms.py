@@ -516,6 +516,7 @@ class RepositorySubmission(RepositoryBase):
         fields = (
             'start',
             'file_upload_help',
+            'additional_version_help',
             'submission_agreement',
             'limit_upload_to_pdf',
             'require_pdf_help',
@@ -526,6 +527,7 @@ class RepositorySubmission(RepositoryBase):
             'start': SummernoteWidget,
             'submission_agreement': SummernoteWidget,
             'file_upload_help': SummernoteWidget,
+            'additional_version_help': SummernoteWidget,
             'managers': FilteredSelectMultiple(
                 "Accounts",
                 False,

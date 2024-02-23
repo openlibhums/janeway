@@ -54,6 +54,9 @@
                         <li>As you've selected Metadata Correction you cannot upload a new file version.</li>
                         {% endif %}
                     </ul>
+                    {% if request.repository.additional_version_help %}
+                        {{ request.repository.additional_version_help|safe }}
+                    {% endif %}
                 </div>
             </div>
         </div>

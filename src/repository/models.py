@@ -206,7 +206,14 @@ class Repository(
                 "their uploaded manuscript, supplementary materials and "
                 "any supplied metadata.</p>",
     )
-
+    additional_version_help = models.TextField(
+        blank=True,
+        help_text='This text allows repository managers to provide additional '
+                  'information to authors when they are uploading an update '
+                  'to their submission.',
+        default='',
+        verbose_name="Additional version upload help text"
+    )
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(
         'submission.Article',
