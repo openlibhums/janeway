@@ -39,13 +39,14 @@ class SettingAdmin(admin.ModelAdmin):
 
 class AccountAdmin(UserAdmin):
     """Displays Account objects in the Django admin interface."""
-    list_display = ('email', 'orcid', 'first_name', 'middle_name',
+    list_display = ('id', 'email', 'orcid', 'first_name', 'middle_name',
                     'last_name', 'institution', '_roles_in', 'last_login')
+    list_display_links = ('id', 'email')
     list_filter = ('accountrole__journal',
                    'repositoryrole__repository__short_name',
                    'is_active', 'is_staff', 'is_admin', 'is_superuser',
                    'last_login')
-    search_fields = ('username', 'email', 'first_name', 'middle_name',
+    search_fields = ('id', 'username', 'email', 'first_name', 'middle_name',
                      'last_name', 'orcid', 'institution',
                      'biography', 'signature')
 
