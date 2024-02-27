@@ -255,6 +255,13 @@ def issues(request):
         'issues': issue_objects,
         'issue_type': issue_type,
     }
+    if request.journal.get_setting(
+        'general',
+        'group_issues_by_decade',
+    ):
+        context['issues_by_decade'] = request.journal.issues_by_decade(
+            issues_to_sort=issue_objects,
+        )
     return render(request, template, context)
 
 
