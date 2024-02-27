@@ -374,6 +374,24 @@ class Journal(AbstractSiteModel):
             date__lte=timezone.now(),
         )
 
+    def issues_by_decade(self, issues_to_sort=None):
+        issue_decade_dict = {}
+
+        if not issues_to_sort:
+            issues_to_sort = Issue.objects.filter(
+                journal=self,
+                date__lte=timezone.now(),
+                issue_type__code='issue',
+            )
+        for issue in issues_to_sort:
+            issue_year = issue.date_published.year
+            decade = issue_year - (issue_year % 10)
+            if issue_decade_dict.get(decade):
+                issue_decade_dict[decade].append(issue)
+            else:
+                issue_decade_dict[decade] = [issue]
+        return issue_decade_dict
+
     def editors(self):
         """ Returns all users enrolled as editors for the journal
         :return: A queryset of core.models.Account
