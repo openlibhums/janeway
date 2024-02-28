@@ -11,6 +11,12 @@
         <div class="col-md-12">
             <h1>{% trans issue_type.plural_name %}</h1>
 
+            {% if journal_settings.general.group_issues_by_decade %}
+                {% include "elements/journal/issue_list_by_decade.html" %}
+            {% else %}
+                {% include "elements/journal/issue_list.html" %}
+            {% endif %}
+
 
             {% if request.journal.current_issue %}
                 <p>{% trans 'The current issue is' %}: </p>
@@ -21,15 +27,7 @@
                 </ul>
             {% endif %}
 
-            <p>Issue Archive: </p>
-            <ul>
-                {% for issue in issues %}
-                    <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }}
-                        &bull; {{ issue.articles.all.count }} {% trans "items" %}</a></li>
-                    {% empty %}
-                    <li>{% trans 'This journal has no issues' %}.</li>
-                {% endfor %}
-            </ul>
+
 
         </div>
     </div>
