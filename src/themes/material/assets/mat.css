@@ -712,3 +712,20 @@ body {
 main {
     flex: 1 0 auto;
 }
+
+.list-inline {
+  padding-left: 0;
+  list-style: none;
+}
+
+.list-inline-item {
+  display: inline-block;
+}
+
+.list-inline-item:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.decade-list-item:hover {
+    text-decoration: underline;
+}
