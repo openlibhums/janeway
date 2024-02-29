@@ -10,25 +10,15 @@
     <div class="row">
         <div class="col-md-12">
             <h1>{% trans issue_type.plural_name %}</h1>
+            {% if request.journal.current_issue %}
+                <p>{% trans 'The current issue is' %}: <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a></p>
+            {% endif %}
 
-            {% if journal_settings.general.group_issues_by_decade %}
+            {% if request.journal.display_issues_grouped_by_decade %}
                 {% include "elements/journal/issue_list_by_decade.html" %}
             {% else %}
                 {% include "elements/journal/issue_list.html" %}
             {% endif %}
-
-
-            {% if request.journal.current_issue %}
-                <p>{% trans 'The current issue is' %}: </p>
-                <ul>
-                    <li>
-                        <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a>
-                    </li>
-                </ul>
-            {% endif %}
-
-
-
         </div>
     </div>
 {% endblock %}
