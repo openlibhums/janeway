@@ -5045,24 +5045,5 @@
         "editable_by": [
             "journal-manager"
         ]
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
-            "description": "Enables grouping of issue by decade on the issue list page.",
-            "is_translatable": false,
-            "name": "group_issues_by_decade",
-            "pretty_name": "Group Issues by Decade",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
     }
 ]

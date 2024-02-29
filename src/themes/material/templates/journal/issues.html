@@ -13,7 +13,7 @@
             <h1>{% trans issue_type.plural_name %}</h1>
         </div>
         <div class="col m12">
-            {% if journal_settings.general.group_issues_by_decade %}
+            {% if request.journal.display_issues_grouped_by_decade %}
                 {% include "elements/journal/issue_list_by_decade.html" %}
             {% else %}
                 {% include "elements/journal/issue_list.html" %}
