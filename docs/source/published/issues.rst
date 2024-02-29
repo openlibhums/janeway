@@ -19,7 +19,7 @@ Janeway comes with two issue types built in: Issue and Collection. Collections d
 
 Display Settings
 ----------------
-In the top right of the Issue Management page there is the Edit Display Settings button. This allows you to configure how issue titles are displayed.
+In the top right of the Issue Management page there is the Edit Display Settings button. This allows you to configure how issue titles and the issue page are displayed.
 
 You can turn these elements on or off:
 
@@ -29,6 +29,8 @@ You can turn these elements on or off:
 - Issue title
 - Article number
 - Article page numbers
+- Issue DOI
+- Group issues by decade
 
 Here are a few example issue displays:
 
@@ -41,6 +43,9 @@ Here are a few example issue displays:
 
 .. tip::
     You can use the article number field to set an arbitrary number for each article, whether to distinguish articles within each volume or issue or to number articles across volumes and issues. Article number is an optional field separate from article ID and can be set in Edit Metadata.
+
+.. tip::
+    If your journal has a lot of issues you can enable the "Group issues by decade" feature to allow readers to jump to a specific decade on the issues interface.
 
 Creating and Editing Issue Details
 ----------------------------------
