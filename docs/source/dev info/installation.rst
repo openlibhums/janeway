@@ -165,5 +165,5 @@ Janeway supports single sign on from two sources: Open ID Connect (OIDC) and ORC
    :maxdepth: 4
    :caption: SSO Providers
 
-   oidc
-   orcid
+   dev info/oidc
+   dev info/orcid
