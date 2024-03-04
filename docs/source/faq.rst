@@ -3,7 +3,7 @@ Frequently Asked Questions
 
 Assigning Users Roles
 ---------------------
-Janeway has nine roles.
+Janeway has eight roles.
 
 - Author
 - Editor
@@ -12,8 +12,10 @@ Janeway has nine roles.
 - Copyeditor
 - Typesetter
 - Proofreader
-- Proofing Manager (this role will be deprecated in version 1.4)
 - Production Manager
+
+.. note::
+   The Proofing Manager role has been deprecated in 1.4 and is no longer in use.
 
 To add users to a role you can use the :ref:`Enrol Users<enrolusersanchor>` interface.
 
