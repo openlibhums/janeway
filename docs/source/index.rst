@@ -11,7 +11,7 @@ Janeway is a digital platform for publishing scholarly articles online, from sub
 This guide has been written to avoid using language like "easy", "just" or "simply". A massive shout out to Emma Barnes and her awesome site https://www.justsimply.dev/
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
    :caption: Contents
 
    faq
