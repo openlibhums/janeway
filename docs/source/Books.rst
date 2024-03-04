@@ -104,7 +104,7 @@ This section contains the following fields:
     - This is a required field.
 - Cover
 - DOI
-    - DOIs for monographs and chapters cannot be minted directly through Janeway, but if a DOI has been chosen, it can be added here. To mint a DOI for a monograph or chapter after it has been uploaded, you can do so through the Crossref website: https://apps.crossref.org/webDeposit/
+    - DOIs for monographs and chapters cannot be minted directly through Janeway, but if a DOI has been chosen, it can be added here. To mint a DOI for a monograph or chapter after it has been uploaded, you can do so through the `Crossref website <https://apps.crossref.org/webDeposit/>`_
 - ISBN
 - Purchase URL
     - If this book has an option for physical purchase, this is where this can be linked. It will show as an option next to the ‘Read’ and ‘Download’ buttons on the book’s page.
@@ -205,23 +205,50 @@ Metadata can be imported using a .csv file encoded in UTF-8 [#] with certain hea
 
 These headers are:
 
-==================== =================================== ================= 
-Field                Notes                               Required?
-==================== =================================== ================= 
-Prefix                                                   No
-Title                                                    Yes
-Subtitle                                                 No
-Description                                              No
-Pages                                                    Yes [#]
-Edited volume       If edited, set this field to '1'     No
-Date published                                           No
-Publisher name                                           No
-Publisher location                                       No
-DOI                                                      No
-ISBN                                                     No
-Purchase URL                                             No
-==================== =================================== ================= 
-
+.. list-table:: Books import headers
+   :widths: 25 50 25
+   :header-rows: 1
+   
+   * - Field
+     - Notes
+     - Required?
+   * - Prefix
+     -
+     - No
+   * - Title
+     - 
+     - Yes
+   * - Subtitle
+     -
+     - No
+   * - Description
+     - 
+     - No
+   * - Pages
+     -
+     - Yes [#]
+   * - Edited volume
+     - If this is an edited volume, set this field to '1'
+     - No
+   * - Date published
+     - 
+     - No
+   * - Publisher name
+     - 
+     - No
+   * - Publisher location
+     - 
+     - No
+   * - DOI
+     - 
+     - No
+   * - ISBN
+     - 
+     - No
+   * - Purchase URL
+     - 
+     - No
+    
 .. [#] Using a character encoding other than UTF-8 can cause bugs during imports or updates. `(What is character encoding?) <https://www.w3.org/International/questions/qa-what-is-encoding>`_. These apps save .csvs with UTF-8 by default: OpenRefine, LibreOffice, Google Sheets, and Apple Numbers. However! If you use Microsoft Excel, keep in mind some versions don’t automatically create .csv files with UTF-8 character encoding. This may cause punctuation and special characters to be garbled on import. So, when saving, look for the ‘.csv (UTF-8)’ option in the drop-down box.
 .. [#] Required due to a bug - we aim to fix this in the near future.
 
