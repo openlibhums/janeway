@@ -252,7 +252,7 @@ These headers are:
 .. [#] Using a character encoding other than UTF-8 can cause bugs during imports or updates. `(What is character encoding?) <https://www.w3.org/International/questions/qa-what-is-encoding>`_. These apps save .csvs with UTF-8 by default: OpenRefine, LibreOffice, Google Sheets, and Apple Numbers. However! If you use Microsoft Excel, keep in mind some versions don’t automatically create .csv files with UTF-8 character encoding. This may cause punctuation and special characters to be garbled on import. So, when saving, look for the ‘.csv (UTF-8)’ option in the drop-down box.
 .. [#] Required due to a bug - we aim to fix this in the near future.
 
-.. warning:: Due to a bug, UTF8 does not seem to be properly recognised when specific browser-editor combinations are used. We are investigating this. If the file is not properly read upon upload, you may also wish to try a regular .csv file (not UTF8 encoded). If you still encounter an error, please contact Support.
+.. warning:: Due to a bug, UTF-8 does not seem to be properly recognised when specific browser-editor combinations are used. We are investigating this. If the file is not properly read upon upload, you may also wish to try a regular .csv file (not UTF-8 encoded). If you still encounter an error, please contact Support.
 
 Once the import file has successfully been uploaded, the imported books will show on the main dashboard. You can now click on these to upload the files themselves and to make any further edits.
 
