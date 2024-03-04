@@ -2,6 +2,7 @@ Books plugin
 =============
 
 Through this plugin, all book-related tasks and metadata are managed. This plugin has three key functionalities:
+
 - Adding new books through either individual uploads or a bulk import.
 - Metrics for reporting (overall or monthly)
 - Categories - this can be used for imprints, series or other types of categorisation you may wish to use for published materials.
@@ -13,6 +14,7 @@ Main dashboard
     :alt: Books plug-in dashboard, displaying all books with titles and their details (outlined in the text following this image), and the various functionalities in the right-hand top.
 
 From the books dashboard, you can manage all tasks and data related to monographs (or similar items). It also provides an overview of all items published through this plug-in and the following information for all of them (they can also be sorted by any of these):
+
 - ID
 - Title
 - Subtitle
@@ -67,6 +69,7 @@ When adding a new category, the following fields are available:
 Adding a new book
 -------------------
 New monographs are added through the ‘Add new book’ option, which is positioned rightmost in the topbar of the main dashboard. 
+
 .. figure:: nstatic/books_addbook_dash.png
     :alt: The ‘Add a new book’ page. On the left, the book details can be filled into various text boxes. On the right are sections for ‘Contributors’, ‘Formats’ and ‘Chapters’. These are currently blocked, which is indicated for each of them with a red bar and the text “Save book before adding contributors/formats/chapters”.
 
@@ -75,8 +78,7 @@ Before the manuscript files can be uploaded, various metadata fields need to be 
 .. figure:: nstatic/books_addbook_details.png
     :alt: " "
 
-This section 
-contains the following fields:
+This section contains the following fields:
 
 - Prefix
 - Title
@@ -199,7 +201,7 @@ Importing books
 -------------------
 You can import the metadata for multiple monographs into Janeway at once using the ‘import books’ option. This is commonly used for migrations.
 
-Metadata can be imported using a .csv file encoded in UTF-8[#] with certain headers. There is an example import here, with pre-prepared headers: books plugin example import [hyperlink to file].
+Metadata can be imported using a .csv file encoded in UTF-8 [#] with certain headers. There is an example import here, with pre-prepared headers: books plugin example import [hyperlink to file].
 
 These headers are:
 
@@ -210,7 +212,7 @@ Prefix                                                   No
 Title                                                    Yes
 Subtitle                                                 No
 Description                                              No
-Pages                                                    Yes[#]
+Pages                                                    Yes [#]
 Edited volume       If edited, set this field to '1'     No
 Date published                                           No
 Publisher name                                           No
