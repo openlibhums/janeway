@@ -2,7 +2,6 @@ Books plugin
 =============
 
 Through this plugin, all book-related tasks and metadata are managed. This plugin has three key functionalities:
-
 - Adding new books through either individual uploads or a bulk import.
 - Metrics for reporting (overall or monthly)
 - Categories - this can be used for imprints, series or other types of categorisation you may wish to use for published materials.
@@ -14,7 +13,6 @@ Main dashboard
     :alt: Books plug-in dashboard, displaying all books with titles and their details (outlined in the text following this image), and the various functionalities in the right-hand top.
 
 From the books dashboard, you can manage all tasks and data related to monographs (or similar items). It also provides an overview of all items published through this plug-in and the following information for all of them (they can also be sorted by any of these):
-
 - ID
 - Title
 - Subtitle
@@ -29,6 +27,7 @@ From the books dashboard, you can manage all tasks and data related to monograph
     :alt: " "
 
 The bar on top represents access to the key functions of the books plugin:
+
 - Metrics by Month
 - (General) Metrics
 - Import Books
@@ -147,6 +146,7 @@ This is where manuscript files are uploaded. Various file types can be used, suc
     :alt: The page where manuscript files can be uploaded. Fields are described in the text below this image.
 
 This page contains the following fields:
+
 - Title
     - The title field is where you specify the format. This will be displayed on the website as ‘Download [title]’ (see image below). This field is case-sensitive, so you may wish to be consistent with capitalisation. This is a required field.
 - Sequence
@@ -166,6 +166,7 @@ Make sure that the filename of the file uploaded is consistent and correct. Whil
 
 Chapters
 ~~~~~~~~~~
+
 .. figure:: nstatic/books_.png
     :alt: Chapter dashboard with various fields for entering metadata.
 
@@ -240,12 +241,14 @@ On this page, you can view the general access metrics for monographs, as well as
 Books metrics
 ~~~~~~~~~~~~~~~
 The first section of this dashboard displays the total views and downloads (each in their respective column) per book. The columns can be sorted by ID, Title, Subtitle, First Author name, Date published, Reads and Downloads.
+
 .. figure:: nstatic/books_monthlymetrics_dashboard.png
     :alt: " "
 
 Format Metrics
 ~~~~~~~~~~~~~~~~~
 This section sorts the data by format, providing insights into how specific formats are performing. This section can be sorted by Format, Title, Views and Downloads.
+
 .. figure:: nstatic/books_.png
     :alt: " "
 
