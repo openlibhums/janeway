@@ -47,6 +47,7 @@ On the edit template page there is a small guide showing some of the variables y
 
 
 .. figure:: ../../nstatic/create_reminders.gif
+    :alt: A GIF showing the reating, editing and deleting a reminder, showing the various screens and fields.
 
     Creating, editing and deleting a reminder.
 
@@ -71,6 +72,8 @@ When editing a template you will see the default version of the email at the top
     When editing an email that has a URL placeholder (like {{ review_url }} ) it is important that you do not add anything immediately after this placeholder as email clients may interpret them as part of the link.
 
 .. figure:: ../../nstatic/edit_template.png
+    :alt: The review assignment email template screen, showing the default value with the customisation textbox below it.
+    :class: Screenshot
 
     Editing an email template.
 
@@ -79,12 +82,16 @@ Publication Notifications (Readers)
 Janeway (as of version 1.4.4) supports publication notifications via a new role called "reader". This feature can be toggled on or off for any given journal. Once the setting is toggled on anyone with an account can sign up to receive emails when new articles are published via their profile page. This feature has been designed with continuous publication in mind but will also work well for those who publish full issues.
 
 .. figure:: ../../nstatic/publication-notifications.png
+    :alt: Publication Notification page, showing the Readers section on the left and Sent Notifications section on the right.
+    :class: Screenshot
 
     Viewing readers and notifications in Manager.
 
 Journal staff can toggle the feature on by visiting Manager > Publication Notification (Readers) and using the link displayed on that page (see figure above).
 
 .. figure:: ../../nstatic/register-for-reader-notifications.png
+    :alt: Example of the subscribe to article noticification button.
+    :class: Screenshot
 
     Registering for reader notifications.
 
