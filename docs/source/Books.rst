@@ -2,6 +2,7 @@ Books plugin
 =============
 
 Through this plugin, all book-related tasks and metadata are managed. This plugin has three key functionalities:
+
 - Adding new books through either individual uploads or a bulk import.
 - Metrics for reporting (overall or monthly)
 - Categories - this can be used for imprints, series or other types of categorisation you may wish to use for published materials.
@@ -13,6 +14,7 @@ Main dashboard
     :alt: Books plug-in dashboard, displaying all books with titles and their details (outlined in the text following this image), and the various functionalities in the right-hand top.
 
 From the books dashboard, you can manage all tasks and data related to monographs (or similar items). It also provides an overview of all items published through this plug-in and the following information for all of them (they can also be sorted by any of these):
+
 - ID
 - Title
 - Subtitle
