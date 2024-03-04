@@ -9,5 +9,4 @@ Information for developers
   dev info/configuration
   dev info/robotsandsitemaps
   dev info/api
-  dev info/oicd
   dev info/plugins
