@@ -5,8 +5,8 @@ Information for developers
    :maxdepth: 2
    :caption: Developer information
    
-  installation
-  configuration
-  robotsandsitemaps
-  api
-  plugins
+  dev info/installation
+  dev info/configuration
+  dev info/robotsandsitemaps
+  dev info/api
+  dev info/plugins
