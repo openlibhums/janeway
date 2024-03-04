@@ -8,4 +8,5 @@ Information for developers
   installation
   configuration
   robotsandsitemaps
+  api
   plugins
