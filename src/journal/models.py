@@ -390,11 +390,20 @@ class Journal(AbstractSiteModel):
             )
         for issue in issues_to_sort:
             issue_year = issue.date_published.year
-            decade = issue_year - (issue_year % 10)
-            if issue_decade_dict.get(decade):
-                issue_decade_dict[decade].append(issue)
+            decade_start = issue_year - (issue_year % 10)
+            decade_end = decade_start + 9
+
+            # if the decade is greater than the current year, cap at the
+            # current year.
+            date = timezone.now().date()
+            if decade_end > date.year:
+                decade_end = date.year
+
+            decade_span = f"{decade_start} - {decade_end}"
+            if issue_decade_dict.get(decade_span):
+                issue_decade_dict[decade_span].append(issue)
             else:
-                issue_decade_dict[decade] = [issue]
+                issue_decade_dict[decade_span] = [issue]
         return issue_decade_dict
 
     def editors(self):
