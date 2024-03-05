@@ -23,7 +23,7 @@ For the completed assignments, it will display:
 - Date it was assigned
 - Completion date
 
-.. figure:: nstatic/Typesetting_assignments.png
+.. figure:: ../nstatic/typesetting_assignments.png
 	:alt: The Typesettings assignments page.
 	:class: Screenshot
 
@@ -33,7 +33,7 @@ Typesetting a Paper
 -------------------
 On this page, you will find relevant information about the typesetting task. This will include the instructions, manuscript files, metadata, options to accept or decline the task, and space to upload completed files.
 
-.. figure:: nstatic/Typesetting_assignments.png
+.. figure:: ../nstatic/typesetting_assignments.png
 	:alt: The ‘Assignment information’ page.
 	:class: Screenshot
 
@@ -54,13 +54,13 @@ This page is broken in three sections.
 
 Uploading a Typeset File
 ^^^^^^^^^^^^^^^^^^^^^^^
-.. figure:: nstatic/typesetting_files.png
+.. figure:: ../nstatic/typesetting_files.png
 	:alt: The files section of the typesetting page. It shows the ‘Files to typeset’, ‘Upload typeset files’ and ‘Upload source file’ options.
 
 Click ‘Upload a New Typeset File’ button to upload your completed work. 
 Source files (such as Adobe In Design files) can be uploaded using the ‘Upload New Source File’ button (if required).
 
-.. figure:: nstatic/typesetting_upload.png
+.. figure:: ../nstatic/typesetting_upload.png
 	:alt: The ‘Upload a typeset file’ upload. It provides the options to add a label for the file, toggle whether the file should be publicly available after the article is published, choose a file to upload, and then confirm the upload.
 
 In this box, you will find the option to label your file with its filetype. For instance, if this is an HTML file, you should label it as ‘HTML’, if it is a PDF, you should label it as ‘PDF’, etc. Janeway will attempt to provide an appropriate label if this is left blank. However, if you wish to make sure the label is correct, you can enter the filetype manually. For instructions on how to edit a label, please see the section below.
@@ -72,10 +72,10 @@ Editing typeset files and uploading additional files
 ^^^^^^^^^^^^^^^^^^^^^^^^
 If you need to make changes to the typeset files, reupload them or upload additional files, this can be done through the ‘Edit Typeset File’ page. This page can be accessed by clicking on the ‘Edit’ button.
 
-.. figure:: nstatic/typesetting_edit_button.png
+.. figure:: ../nstatic/typesetting_edit_button.png
 	:alt: The ‘Upload typeset files’ section, showing two uploaded files. It also displays the figure files’ status: ‘N/A’ for a file with no figure files and ‘Missing figures’ for a file with missing figures.
 
-.. figure:: nstatic/Typesetting_filehistory.png
+.. figure:: ../nstatic/typesetting_filehistory.png
 	:alt: The ‘Edit typeset file’ page.
 
 This page is broken into three sections.
@@ -99,12 +99,12 @@ In the first section of the page, you can view the file currently uploaded, and 
 
 This will open a page where you can download and reinstate previous versions, or delete the current file entirely (in case you have uploaded an incorrect file).
 
-.. figure:: nstatic/edit_typesetting_file.png
+.. figure:: ../nstatic/edit_typesetting_file.png
 	:alt: The File history and metadata page.
 
 Managing images and figure files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. figure:: nstatic/typesetting_image_upload
+.. figure:: ../nstatic/typesetting_image_upload.png
 	:alt: A screenshot displaying the available options for adding image files: uploading a file in a section for a dedicated image (displaying its filename), uploading images as additional files or uploading a zip file.
 
 When a file that has been typeset in HTML or XML contains image links, Janeway will detect these and prompt you to upload the image files. The file names should match the src or href used in the XML/HTML and should be relative (e.g. src="fig1.jpg").
@@ -126,7 +126,7 @@ Once you are done with the typesetting (or correction) task, you can leave a not
 
 .. note:: If you attempt to complete the typesetting task with potential issues remaining (e.g. missing image files, typeset files that have not been corrected), Janeway will warn you about this.
 
-.. figure:: nstatic/typesetting/images_missing_warning.png
+.. figure:: ../nstatic/typesetting/images_missing_warning.png
     :alt: A missing figure warning. It reads "Some of the typeset files don't have their images uploaded." Below it the file and filetype are displayed and the following text: "You can add images to the typeset file by hitting 'Edit'. A menu will show you which images are missing."
 
 Typesetting Recipes
@@ -141,13 +141,13 @@ Arabic and many other languages are written right to left, requiring special mar
 
 Here is an example in JATS XML of an isolated bit of Arabic text in a document that is otherwise left-to-right:
 
-.. figure:: nstatic/typesetting/arabic-rtl-jats-xml.png
+.. figure:: ../nstatic/typesetting/arabic-rtl-jats-xml.png
 
 Make sure you use a text editor that shows zero-width unicode characters, like U-2067. The above screenshot is an XML file opened in VS Code.
 
 Here is the rendered output:
 
-.. figure:: nstatic/typesetting/arabic-rtl-rendered.png
+.. figure:: ../nstatic/typesetting/arabic-rtl-rendered.png
 
 Notice the following about the code sample:
 
@@ -173,6 +173,6 @@ In some cases you might need to center-align text::
 
 The output is:
 
-.. figure:: nstatic/typesetting/text-align-center.png
+.. figure:: ../nstatic/typesetting/text-align-center.png
 
 This is accomplished with the the `styled-content JATS element <https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/styled-content.html>`_ and a `style attribute <https://jats.nlm.nih.gov/publishing/tag-library/1.3/attribute/style.html>`_ specifying CSS for center text alignment and block display.
