@@ -5,7 +5,7 @@ When you have been assigned a typesetting task, you will receive an email notifi
 .. note:: 
     This workflow guide assumes you are using the updated typesetting workflow (also known as the 'typsetting plugin'). If you are not, please contact us as we may need to update your install.
 
-.. figure:: nstatic/typesetting_dashboardblock.png
+.. figure:: ../nstatic/typesetting_dashboardblock.png
     :alt: The typesetter Dashboard displaying the number of typesetter tasks assigned.
 
 From here, you will be able to see the number of open typesetting assignments you have. If you click on this, it will take you to the ‘Typesettings Assignments’ page and you will be able to see both your currently open typesetting assignments (the top block) and your completed assignments (the bottom block).
