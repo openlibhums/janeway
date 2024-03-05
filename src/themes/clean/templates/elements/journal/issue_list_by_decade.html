@@ -1,0 +1,17 @@
+<p>
+    {% blocktrans %}
+        Issues are grouped by decade. Select a decade to view the issues
+        published during that decade.
+    {% endblocktrans %}
+<ul class="list-inline">
+    {% for decade, issues in issues_by_decade.items %}
+        <li class="list-inline-item">
+            <a href="#decade-{{ decade }}">{{ decade }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% for decade, issues in issues_by_decade.items %}
+    <h2 id="decade-{{ decade }}">{{ decade }}</h2>
+    {% include "elements/journal/issue_list.html" with issues=issues %}
+{% endfor %}

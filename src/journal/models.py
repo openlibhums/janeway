@@ -228,6 +228,11 @@ class Journal(AbstractSiteModel):
     )
     display_article_page_numbers = models.BooleanField(default=True)
     display_issue_doi = models.BooleanField(default=True)
+    display_issues_grouped_by_decade = models.BooleanField(
+        default=False,
+        help_text='When enabled the issue page will group and display issues '
+                  'by decade.',
+    )
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -373,6 +378,33 @@ class Journal(AbstractSiteModel):
             journal=self,
             date__lte=timezone.now(),
         )
+
+    def issues_by_decade(self, issues_to_sort=None):
+        issue_decade_dict = {}
+
+        if not issues_to_sort:
+            issues_to_sort = Issue.objects.filter(
+                journal=self,
+                date__lte=timezone.now(),
+                issue_type__code='issue',
+            )
+        for issue in issues_to_sort:
+            issue_year = issue.date_published.year
+            decade_start = issue_year - (issue_year % 10)
+            decade_end = decade_start + 9
+
+            # if the decade is greater than the current year, cap at the
+            # current year.
+            date = timezone.now().date()
+            if decade_end > date.year:
+                decade_end = date.year
+
+            decade_span = f"{decade_start} - {decade_end}"
+            if issue_decade_dict.get(decade_span):
+                issue_decade_dict[decade_span].append(issue)
+            else:
+                issue_decade_dict[decade_span] = [issue]
+        return issue_decade_dict
 
     def editors(self):
         """ Returns all users enrolled as editors for the journal

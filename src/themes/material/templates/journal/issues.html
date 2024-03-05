@@ -1,7 +1,6 @@
 {% extends "core/base.html" %}
-{% load i18n %}
-{% load roles %}
-{% load static %}
+{% load i18n roles %}
+
 
 {% block title %}{% trans "Issues" %}{% endblock %}
 
@@ -13,39 +12,12 @@
         <div class="col m12">
             <h1>{% trans issue_type.plural_name %}</h1>
         </div>
-
-        {% for issue in issues %}
-            <div class="col m12 l6 xl4">
-                <div class="card horizontal">
-                    <div class="card-image">
-                        <a href="{% url 'journal_issue' issue.id %}"><img
-                                class="issue_image" src="{% if issue.cover_image %}{{ issue.cover_image.url }}{% elif journal.default_cover_image %}{{ journal.default_cover_image.url }}{% else %}{% static "common/img/sample/issue_cover.png" %}{% endif %}"
-                                alt="{{ issue.title }}"
-                                class="img-fluid"></a>
-                    </div>
-                    <div class="card-stacked card">
-                        <div class="card-content">
-                            {% if issue.pretty_issue_identifier and issue.issue_title and journal.display_issue_title %}
-                            <p>{{ issue.pretty_issue_identifier }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
-                            {% else %}
-                            <p>{{ issue.display_title }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
-                            {% endif %}
-                        </div>
-                        <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">{% trans "close" %}</i></span>
-                            <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
-                        </div>
-                        <div class="card-action">
-                            <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
-                            {% if request.user and request.user.is_staff or user_is_editor %}
-                                <a href="{% url 'manage_issues_id' issue.pk %}"><i class="fa fa-edit">&nbsp;</i></a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-
-        {% endfor %}
+        <div class="col m12">
+            {% if request.journal.display_issues_grouped_by_decade %}
+                {% include "elements/journal/issue_list_by_decade.html" %}
+            {% else %}
+                {% include "elements/journal/issue_list.html" %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
