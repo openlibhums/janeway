@@ -341,7 +341,8 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             for key, subject in subjects.items():
                 if subject not in ['', ' ']:
                     subject_obj, c = repository_models.Subject.objects.get_or_create(
-                        name=subject
+                        name=subject,
+                        repository=preprint.repository,
                     )
                     preprint.subject.add(subject_obj)
 
