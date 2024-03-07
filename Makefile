@@ -85,6 +85,7 @@ command:	## Run Janeway in a container and pass through a django command passed 
 	docker-compose run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
+	mkdir -p db/postgres-data
 	docker-compose run --rm start_dependencies
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
