@@ -61,6 +61,7 @@ src/core/settings.py
 *.sqlite*
 *.db
 *tar.gz
+/db/postgres-data
 /src/files/articles
 /src/files/journals
 /src/files/journal
