@@ -1,4 +1,7 @@
-from rest_framework import serializers
+from rest_framework import serializers, validators
+from rest_framework.exceptions import ValidationError
+
+from django.db import transaction
 
 from core import models as core_models
 from journal import models as journal_models
@@ -9,10 +12,27 @@ from repository import models as repository_models
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = submission_models.Licence
-        fields = ("name", "short_name", "text", "url")
+        fields = ("pk", "name", "short_name", "text", "url")
 
 
 class KeywordsSerializer(serializers.HyperlinkedModelSerializer):
+
+    def get_fields(self):
+        fields = super().get_fields()
+        if "word" in fields:
+            fields["word"].validators = [
+                validator
+                for validator in fields["word"].validators
+                if not isinstance(validator, validators.UniqueValidator)
+            ]
+        return fields
+
+    def create(self, validated_data):
+        keyword, create = submission_models.Keyword.objects.get_or_create(
+            word=validated_data.get("word"),
+        )
+        return keyword
+
     class Meta:
         model = submission_models.Keyword
         fields = ("word",)
@@ -194,16 +214,32 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
+
+    def get_fields(self):
+        fields = super().get_fields()
+        if "email" in fields:
+            fields["email"].validators = [
+                validator
+                for validator in fields["email"].validators
+                if not isinstance(validator, validators.UniqueValidator)
+            ]
+        return fields
+
+    def create(self, validated_data):
+        account_email = validated_data.pop("email")
+        account, created = core_models.Account.objects.get_or_create(
+            email=account_email,
+            defaults={
+                **validated_data,
+            }
+        )
+        return account
+
     class Meta:
         model = core_models.Account
         fields = (
-            "pk",
-            "first_name",
-            "middle_name",
-            "last_name",
-            "salutation",
-            "suffix",
-            "orcid",
+            "pk", "email", "first_name", "middle_name", "last_name",
+            "salutation", "suffix", "orcid", "institution",
         )
 
 
@@ -231,11 +267,20 @@ class AccountRoleSerializer(serializers.ModelSerializer):
         return data
 
 
+class RepositoryFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.RepositoryField
+        fields = ['pk', 'name',]
+
+
 class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = repository_models.RepositoryFieldAnswer
-        fields = ["pk", "answer"]
+        fields = ["pk", "answer", "field"]
 
+    field = RepositoryFieldSerializer(
+        many=False,
+    )
 
 
 class PreprintSerializer(serializers.ModelSerializer):
@@ -245,6 +290,7 @@ class PreprintSerializer(serializers.ModelSerializer):
             "pk",
             "title",
             "abstract",
+            "stage",
             "license",
             "keywords",
             "date_submitted",
@@ -257,12 +303,13 @@ class PreprintSerializer(serializers.ModelSerializer):
             "files",
             "versions",
             "supplementary_files",
+            "additional_field_answers",
+            "owner",
         )
         depth = 2
 
     authors = PreprintAccountSerializer(
         many=True,
-        read_only=True,
     )
     license = LicenceSerializer()
     keywords = KeywordsSerializer(
@@ -282,4 +329,193 @@ class PreprintSerializer(serializers.ModelSerializer):
         source="preprintversion_set",
         many=True,
         read_only=True,
+    )
+    additional_field_answers = RepositoryFieldAnswerSerializer(
+        source="repositoryfieldanswer_set",
+        many=True,
+        read_only=True,
+    )
+
+
+class PreprintCreateSerializer(serializers.ModelSerializer):
+
+    @transaction.atomic
+    def create(self, validated_data):
+        preprint = repository_models.Preprint.objects.create(
+            repository=validated_data.get('repository'),
+            title=validated_data.get('title'),
+            abstract=validated_data.get('abstract'),
+            owner=validated_data.get('owner'),
+            stage=validated_data.get('stage'),
+            license=validated_data.get('license'),
+            date_submitted=validated_data.get('date_submitted'),
+            date_accepted=validated_data.get('date_accepted'),
+            date_published=validated_data.get('date_published'),
+            doi=validated_data.get('doi'),
+            preprint_doi=validated_data.get('preprint_doi'),
+        )
+
+        for i, author_data in enumerate(validated_data.get('authors', [])):
+            author_email = author_data.pop('email').lower()
+            author, created = core_models.Account.objects.get_or_create(
+                email=author_email,
+                defaults={
+                    **author_data,
+                }
+            )
+            repository_models.PreprintAuthor.objects.get_or_create(
+                account=author,
+                preprint=preprint,
+                defaults={
+                    'order': i,
+                    'affiliation': author.affiliation(),
+                }
+            )
+
+        for keywords in validated_data.get('keywords', []):
+            for key, word in keywords.items():
+                if word and word not in ['', ' ']:
+                    kwd, c = submission_models.Keyword.objects.get_or_create(
+                        word=word
+                    )
+                    preprint.keywords.add(kwd)
+
+        for subjects in validated_data.get('subject', []):
+            for key, subject in subjects.items():
+                if subject not in ['', ' ']:
+                    subject_obj, c = repository_models.Subject.objects.get_or_create(
+                        name=subject
+                    )
+                    preprint.subject.add(subject_obj)
+
+        for fieldanswers in validated_data.get('repositoryfieldanswer_set', []):
+            answer = fieldanswers.get('answer')
+            field = fieldanswers.get('field').get('name')
+
+            if field and answer:
+                field_obj, c = repository_models.RepositoryField.objects.get_or_create(
+                    name=field,
+                    repository=preprint.repository,
+                    defaults={
+                        'order': 0,
+                        'input_type': 'textarea',
+                        'required': False,
+                    }
+                )
+                repository_models.RepositoryFieldAnswer.objects.get_or_create(
+                    field=field_obj,
+                    answer=answer,
+                    preprint=preprint,
+                )
+
+        return preprint
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title')
+        instance.abstract = validated_data.get('abstract')
+        instance.owner = validated_data.get('owner')
+        instance.repository = validated_data.get('repository')
+        instance.stage = validated_data.get('stage')
+        instance.license = validated_data.get('license')
+        instance.date_submitted = validated_data.get('date_submitted')
+        instance.date_accepted = validated_data.get('date_accepted')
+        instance.date_published = validated_data.get('date_published')
+        instance.doi = validated_data.get('doi')
+        instance.preprint_doi = validated_data.get('preprint_doi')
+        instance.save()
+
+        authors = []
+        for i, author_data in enumerate(validated_data.get('authors', [])):
+            author_email = author_data.pop('email').lower()
+            # check if there is an existing PreprintAuthor record and update it
+            account, created = core_models.Account.objects.update_or_create(
+                email=author_email,
+                defaults={
+                    **author_data,
+                }
+            )
+            preprint_author, c = repository_models.PreprintAuthor.objects.update_or_create(
+                account=account,
+                preprint=instance,
+                defaults={
+                    'order': i,
+                    'affiliation': author_data.get('institution'),
+                }
+            )
+            authors.append(preprint_author)
+
+        # Delete any authors not present in the list of authors
+        # that were found/created above.
+        for preprint_author in instance.preprintauthor_set.all():
+            if preprint_author not in authors:
+                preprint_author.delete()
+
+        # Remove all keywords and add those present back.
+        instance.keywords.clear()
+        for keywords in validated_data.get('keywords', []):
+            for key, word in keywords.items():
+                if word and word not in ['', ' ']:
+                    kwd, c = submission_models.Keyword.objects.get_or_create(
+                        word=word
+                    )
+                    instance.keywords.add(kwd)
+        # Remove all subjects and add those present back.
+        instance.subject.clear()
+        for subjects in validated_data.get('subject', []):
+            for key, subject in subjects.items():
+                if subject not in ['', ' ']:
+                    subject_obj, c = repository_models.Subject.objects.get_or_create(
+                        name=subject,
+                        repository=instance.repository,
+                    )
+                    instance.subject.add(subject_obj)
+
+        answers = []
+        for fieldanswers in validated_data.get('repositoryfieldanswer_set', []):
+            answer = fieldanswers.get('answer')
+            field = fieldanswers.get('field').get('name')
+            if field and answer:
+                field_obj, c = repository_models.RepositoryField.objects.get_or_create(
+                    name=field,
+                    repository=instance.repository,
+                    defaults={
+                        'order': 0,
+                        'input_type': 'textarea',
+                        'required': False,
+                    }
+                )
+                answer, c = repository_models.RepositoryFieldAnswer.objects.update_or_create(
+                    field=field_obj,
+                    answer=answer,
+                    preprint=instance,
+                )
+                answers.append(answer)
+
+        # Remove answers not part of the update.
+        for answer_obj in instance.repositoryfieldanswer_set.all():
+            if answer_obj not in answers:
+                answer_obj.delete()
+
+        return instance
+
+    class Meta:
+        model = repository_models.Preprint
+        fields = ('pk', 'authors', 'title', 'abstract', 'stage', 'license', 'keywords',
+                  'date_submitted', 'date_accepted', 'date_published',
+                  'doi', 'preprint_doi', 'subject',
+                  'additional_field_answers', 'owner', 'repository')
+
+    authors = PreprintAccountSerializer(
+        many=True,
+    )
+    keywords = KeywordsSerializer(
+        many=True,
+    )
+    subject = PreprintSubjectSerializer(
+        many=True,
+    )
+    additional_field_answers = RepositoryFieldAnswerSerializer(
+        source="repositoryfieldanswer_set",
+        many=True,
     )

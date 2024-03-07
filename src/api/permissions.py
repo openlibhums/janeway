@@ -29,3 +29,20 @@ class IsSectionEditor(permissions.BasePermission):
 
         if request.user.is_section_editor(request):
             return True
+
+
+class IsRepositoryManager(permissions.BasePermission):
+    message = 'Please ensure the user is a manager of this repository.'
+
+    def has_permission(self, request, view):
+        if request.user and not request.user.is_authenticated:
+            return False
+
+        if not request.repository:
+            return False
+
+        if request.user.is_staff:
+            return True
+
+        if request.repository and request.user in request.repository.managers.all():
+            return True
