@@ -11,10 +11,14 @@ router.register(r'accountrole', views.AccountRoleViewSet, 'accountrole')
 router.register(r'journals', views.JournalViewSet, 'journal')
 router.register(r'issues', views.IssueViewSet, 'issue')
 router.register(r'articles', views.ArticleViewSet, 'article')
-router.register(r'preprints', views.PreprintViewSet, 'preprint')
+
 router.register(r'licences', views.LicenceViewSet, 'licence')
 router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 router.register(r'accounts', views.AccountViewSet, 'accounts')
+
+router.register(r'preprints', views.PreprintViewSet, 'preprint')
+router.register(r'repository_licenses', views.PreprintLicenses, 'repository_licenses')
+router.register(r'repository_fields', views.RepositoryFields, 'repository_fields')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

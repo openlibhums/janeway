@@ -1,6 +1,6 @@
 import collections
 import csv
-import io
+import operator
 import json
 import re
 
@@ -149,12 +149,90 @@ class PreprintViewSet(viewsets.ModelViewSet):
     API Endpoint for preprints.
     """
     serializer_class = serializers.PreprintSerializer
-    http_method_names = ['get']
+    http_method_names = ['get', 'post', 'delete', 'put']
+    permission_classes = [
+        api_permissions.IsRepositoryManager
+    ]
+
+    def get_serializer_class(self):
+        if self.request.method in 'GET':
+            return serializers.PreprintSerializer
+        elif self.request.method in ['POST', 'PUT']:
+            return serializers.PreprintCreateSerializer
+        return serializers.PreprintSerializer
 
     def get_queryset(self):
-        return repository_models.Preprint.objects.filter(repository=self.request.repository,
-                                                         date_published__lte=timezone.now(),
-                                                         stage=repository_models.STAGE_PREPRINT_PUBLISHED)
+        preprints = repository_models.Preprint.objects.filter(
+            repository=self.request.repository,
+            date_published__lte=timezone.now(),
+            stage=repository_models.STAGE_PREPRINT_PUBLISHED,
+        )
+        search_term = self.request.query_params.get('search')
+        if search_term:
+            split_search_term = search_term.split(' ')
+            # Initial filter on Title, Abstract and Keywords.
+            preprint_search = preprints.filter(
+                (Q(title__icontains=search_term) |
+                 Q(abstract__icontains=search_term) |
+                 Q(keywords__word__in=split_search_term))
+            )
+            from_author = repository_models.PreprintAuthor.objects.filter(
+                (
+                    Q(account__first_name__in=split_search_term) |
+                    Q(account__middle_name__in=split_search_term) |
+                    Q(account__last_name__in=split_search_term) |
+                    Q(account__institution__icontains=search_term)
+                )
+            )
+            preprints_from_author = [
+                pa.preprint for pa in
+                repository_models.PreprintAuthor.objects.filter(
+                    pk__in=from_author,
+                    preprint__date_published__lte=timezone.now(),
+                )
+            ]
+            preprint_pks = list(preprint.pk for preprint in
+                set(list(preprint_search) + preprints_from_author)
+            )
+            preprints = repository_models.Preprint.objects.filter(
+                pk__in=preprint_pks,
+            )
+        return preprints
+
+
+class PreprintLicenses(viewsets.ModelViewSet):
+    serializer_class = serializers.LicenceSerializer
+    http_method_names = ['get', 'post', 'delete']
+    permission_classes = [
+        api_permissions.IsRepositoryManager,
+        api_permissions.IsEditor,
+    ]
+
+    def get_queryset(self):
+        if self.request.repository:
+            return self.request.repository.active_licenses.all()
+        else:
+            raise NotImplementedError(
+                "This view only works with Repositories.",
+            )
+
+
+class RepositoryFields(viewsets.ModelViewSet):
+    serializer_class = serializers.RepositoryFieldSerializer
+    http_method_names = ['get']
+    permission_classes = [
+        api_permissions.IsRepositoryManager,
+    ]
+
+    def get_queryset(self):
+        if self.request.repository:
+            return repository_models.RepositoryField.objects.filter(
+                repository=self.request.repository,
+            )
+        else:
+            raise NotImplementedError(
+                "This view only works with Repositories.",
+            )
 
 
 def oai(request):
