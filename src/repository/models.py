@@ -427,7 +427,7 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    comments_editor = model_utils.JanewayBleachField(
+    comments_editor = models.TextField(
         blank=True,
         null=True,
         verbose_name="Comments to the Editor",
