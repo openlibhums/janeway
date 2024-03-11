@@ -17,9 +17,9 @@
                             <b>{{ answer.element.name }}</b>
                             <br/>
                             {% if answer.edited_answer %}
-                            {{ answer.edited_answer|linebreaksbr }}
+                            {{ answer.edited_answer|safe|linebreaksbr }}
                             {% else %}
-                            {{ answer.answer|linebreaksbr }}
+                            {{ answer.answer|safe|linebreaksbr }}
                             {% endif %}
                             <br/><br/>
                         </p>

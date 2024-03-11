@@ -338,8 +338,10 @@ class GeneratedForm(forms.Form):
                     widget=forms.TextInput(attrs={'div_class': element.width}),
                     required=element.required if fields_required else False)
             elif element.kind == 'textarea':
-                self.fields[str(element.pk)] = forms.CharField(widget=forms.Textarea,
-                                                            required=element.required if fields_required else False)
+                self.fields[str(element.pk)] = forms.CharField(
+                    widget=TinyMCE,
+                    required=element.required if fields_required else False
+                )
             elif element.kind == 'date':
                 self.fields[str(element.pk)] = forms.CharField(
                     widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
