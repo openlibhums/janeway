@@ -1865,6 +1865,7 @@ textarea, ul.tagit{
   box-sizing: border-box;
   width: 100%;
   height: 2.4375rem;
+  margin: 0 0 1rem;
   padding: 0.5rem;
   border: 1px solid #b7bac0;
   border-radius: 4px;
@@ -1958,6 +1959,7 @@ label {
     padding: 0.5625rem 0; }
 
 .help-text {
+  margin-top: -1rem;
   font-size: 0.8125rem;
   font-style: italic;
   color: #0a0a0a; }
@@ -2037,6 +2039,7 @@ legend {
 
 select {
   height: 2.4375rem;
+  margin: 0 0 1rem;
   padding: 0.5rem;
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -5177,4 +5180,9 @@ ul.actions li a {
 .padded-group-item {
   padding-top: 20px;
   padding-bottom: 20px;
+}
+
+/* workaround for TinyMCE: foudnation sets negative top margin to all form elements */
+.tox-tinymce {
+    margin-bottom: 1rem;
 }
