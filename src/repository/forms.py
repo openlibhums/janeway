@@ -489,7 +489,6 @@ class RepositorySite(RepositoryBase):
             'submission_access_contact',
             'custom_js_code',
             'review_helper',
-            # 'support_copy_paste',
         )
         widgets = {
             'about': TinyMCE,
