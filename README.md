@@ -61,7 +61,7 @@ In order to more easily associate changes to their respective github issues, ple
 # Contacts
 If you wish to get in touch about Janeway, contact information is provided below.
 
-Andy Byers, Senior Publishing Technologies Developer - a.byers@bbk.ac.uk
+Andy Byers, Director of Publishing Technology - a.byers@bbk.ac.uk
 
 # Major Releases
 Major releases are listed below. Between v1.3 & v1.4 there were a large number of minor releases. You can find more information on the [releases](https://github.com/BirkbeckCTP/janeway/releases) page.
