@@ -73,6 +73,7 @@ Major releases are listed below. Between v1.3 & v1.4 there were a large number o
 | v1.2    | 06/11/2017 | Tuvok     |
 | v1.3    | 10/08/2018 | Doctor    |
 | v1.4    | 25/10/2021 | Kes       |
+| v1.5    | 07/05/2023 | Torres    |
 
 # Geolocation
 Janeway includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com)
