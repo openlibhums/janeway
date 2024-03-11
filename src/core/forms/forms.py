@@ -317,6 +317,9 @@ class GeneratedSettingForm(forms.Form):
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
                 self.fields[field['name']] = forms.CharField(required=False)
+                self.fields[field['name']] = forms.CharField(
+                    widget=TinyMCE(), required=False,
+                )
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
