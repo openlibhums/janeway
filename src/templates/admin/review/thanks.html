@@ -39,7 +39,7 @@
                     <div class="{{ answer.element.width }}">
                         <b>{{ answer.element.name }}</b>
                         <br />
-                        {{ answer.answer|linebreaksbr }}
+                        {{ answer.answer|safe|linebreaksbr}}
                         <br /><br />
                     </div>
                 {% endfor %}
@@ -50,7 +50,7 @@
                 <h2>Comments for the Editor</h2>
             </div>
             <div class="content">
-                <p>{{ assignment.comments_for_editor|linebreaksbr }}</p>
+                <p>{{ assignment.comments_for_editor|safe|linebreaksbr }}</p>
             </div>
         {% endif %}
         {% if assignment.review_file %}
