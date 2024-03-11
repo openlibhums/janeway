@@ -2250,7 +2250,7 @@ class Field(models.Model):
         default=False,
         help_text='Whether or not display this field in the article page'
     )
-    help_text = JanewayBleachField()
+    help_text = models.TextField()
 
     class Meta:
         ordering = ('order', 'name')
