@@ -15,6 +15,8 @@ from review.logic import render_choices
 from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
+from tinymce.widgets import TinyMCE
+
 
 class PublisherNoteForm(forms.ModelForm):
 
@@ -161,8 +163,10 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             widget=forms.TextInput(attrs={'div_class': element.width}),
                             required=element.required)
                     elif element.kind == 'textarea':
-                        self.fields[element.name] = forms.CharField(widget=forms.Textarea,
-                                                                    required=element.required)
+                        self.fields[element.name] = forms.CharField(
+                                widget=TinyMCE(),
+                                required=element.required,
+                        )
                     elif element.kind == 'date':
                         self.fields[element.name] = forms.CharField(
                             widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
