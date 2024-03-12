@@ -282,7 +282,8 @@ if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
 # Django bleach settings
-# Which HTML tags are allowed
+# Base case is to allow all tags except for <script>. Individual form instances
+# can further reduce the set of allowed tags
 BLEACH_ALLOWED_TAGS = [
     "html", "head", "title", "meta", "link", "style",
     "body", "article", "section", "nav", "aside",
