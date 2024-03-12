@@ -394,10 +394,6 @@ class Preprint(models.Model):
     abstract = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        help_text=_(
-            'Copying and pasting from word processors is supported.',
-        )
-
     )
     submission_file = models.ForeignKey(
         'PreprintFile',

@@ -641,7 +641,6 @@ class Article(AbstractLastModifiedModel):
     abstract = JanewayBleachField(
         blank=True,
         null=True,
-        help_text=_('Copying and pasting from word processors is supported.'),
     )
     non_specialist_summary = JanewayBleachField(
         blank=True, null=True,
