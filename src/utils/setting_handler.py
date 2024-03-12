@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import inspect
 import json
 import os
 import codecs
@@ -92,7 +93,6 @@ def get_setting(
         value is present
     """
     if not isinstance(setting_name, str):
-        import inspect
         callee = inspect.stack()[1]
         logger.warning(
             f"utils.get_setting called by {callee.function}::{callee.lineno}"
