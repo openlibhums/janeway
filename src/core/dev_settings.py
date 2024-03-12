@@ -20,6 +20,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_nose',
 ]
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
