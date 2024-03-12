@@ -656,7 +656,7 @@ TINYMCE_CLIPBOARD_CLEANER = {
                 editor.cachedClipboardContent
                 && editor.cachedClipboardContent != args.content
             ){
-                const doClean = confirm("Formatted paste detected, Click 'OK' to paste as text or 'Cancel' to keep the formatting.");
+                const doClean = confirm("Formatted paste detected. Click 'OK' to paste as text or 'Cancel' to keep the formatting.");
                 if (!doClean){
                     args.content = editor.cachedClipboardContent;
                 }
