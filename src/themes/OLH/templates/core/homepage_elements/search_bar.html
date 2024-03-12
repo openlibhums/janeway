@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<section>
+  <div class="row" class="homepage-element" id="homepage-element-search-bar">
+      <div class="columns large-12">
+        {% if request.journal %}
+          <form method="get" action="{% journal_url 'search' %}">
+        {% else %}
+          <form method="get" action="/search">
+        {% endif %}
+            <div class="input-group" id="article_search">
+            <input id="sort" name="sort" type="hidden" value="relevance">
+            <input id="title" name="title" type="hidden" value="on">
+            <input id="abstract" name="abstract" type="hidden" value="on">
+              <span class="input-group-label"><span class="fa fa-search"></span></span>
+              <input name="article_search" class="input-group-field" type="text">
+              <div class="input-group-button">
+                <input type="submit" class="button" value="Search">
+              </div>
+            </div>
+          </form>
+      </div>
+  </div>
+</section>
+
+

@@ -16,13 +16,15 @@
     <div class="row expanded" data-equalizer>
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
-                <div class="title-area">
+							  <div class="title-area">
                     <h2>Journal Settings</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'home_settings_index' %}">Journal Home Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">Journal Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">General</a>
+                        <a class="button" href="{% url 'home_settings_index' %}">Home Page</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling</a>
                         <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
                     </div>
                 </div>
@@ -38,7 +40,7 @@
                 </div>
 
                 <div class="title-area">
-                    <h2>Submission Setup</h2>
+                    <h2>Submission</h2>
                 </div>
 
                 <div class="content">
@@ -68,25 +70,22 @@
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
-                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
+                        <a class="button" href="{% url 'cms_file_list' %}">Media Files</a>
+                        <a class="button" href="{% url 'cms_submission_items' %}">Submission Page Items</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
                         <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display Settings</a>
                     </div>
                 </div>
 
                 <div class="title-area">
-                    <h2>Articles & Issues</h2>
+                    <h2>News</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
-                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
-                        <a class="button" href="{% url 'core_manager_sections' %}">Article Sections</a>
-                        <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "news" %}">News Settings</a>
+                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -94,10 +93,23 @@
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
-                    <h2>Crossref</h2>
+                    <h2>Articles & Issues</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display</a>
+                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
+                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
+                        <a class="button" href="{% url 'core_manager_sections' %}">Sections (Article Types)</a>
+                        <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
+                    </div>
+                </div>
+                <div class="title-area">
+                    <h2>Identifiers</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'journal_identifier_manager' %}">DOI Manager (Beta)</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
                     </div>
@@ -127,6 +139,7 @@
                         <a class="button" href="{% url 'core_flush_cache' %}">Clear Cache</a>
                         <a class="button" href="{% url 'cron_reminders' %}">Scheduled Reminders</a>
                         <a class="button" href="{% url 'core_email_templates' %}">Email Templates</a>
+                        <a class="button" href="{% url 'cron_readers' %}">Publication Notifications (Readers)</a>
                     </div>
                 </div>
             </div>
@@ -153,7 +166,7 @@
                             <tbody>
                             {% for article in published_articles %}
                                 <tr>
-                                    <td>{{ article.title|safe }}</td>
+                                    <td>{{ article.safe_title }}</td>
                                     <td>{{ article.metrics.views }}</td>
                                     <td>{{ article.metrics.downloads }}</td>
                                     <td>{{ article.date_published }}</td>
@@ -171,6 +184,18 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Support</h2> 
+                </div>
+                <div class="content">
+                    {{ support_message|safe }}
                 </div>
             </div>
         </div>

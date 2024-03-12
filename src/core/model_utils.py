@@ -6,18 +6,51 @@ __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from contextlib import contextmanager
+from io import BytesIO
+import re
+import sys
 
-from django.db import models, IntegrityError, transaction
-from django.db.models import fields
+from django import forms
+from django.apps import apps
+from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
+from django.contrib.postgres.search import (
+    SearchVector as DjangoSearchVector,
+    SearchVectorField,
+)
+from django.core import validators
+from django.core.exceptions import ValidationError
+from django.db import(
+    connection,
+    IntegrityError,
+    models,
+    ProgrammingError,
+    transaction,
+)
+from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
+from django.db.models.functions import Coalesce, Greatest
+from django.core.validators import (
+    FileExtensionValidator,
+    get_available_image_extensions,
+)
 from django.db.models.fields.related_descriptors import (
     create_forward_many_to_many_manager,
     ManyToManyDescriptor,
 )
 from django.http.request import split_domain_port
 from django.utils.functional import cached_property
+from django.utils import translation, timezone
+from django.conf import settings
+from django.db.models.query import QuerySet
 
-from utils import logic
+from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
+from modeltranslation.utils import auto_populate
+from PIL import Image
+import xml.etree.cElementTree as et
+
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class AbstractSiteModel(models.Model):
@@ -28,7 +61,7 @@ class AbstractSiteModel(models.Model):
     }
 
     domain = models.CharField(
-        max_length=255, default="www.example.com", unique=True)
+        max_length=255, unique=True, blank=True, null=True)
     is_secure = models.BooleanField(
         default=False,
         help_text="If the site should redirect to HTTPS, mark this.",
@@ -39,7 +72,21 @@ class AbstractSiteModel(models.Model):
 
     @classmethod
     def get_by_request(cls, request):
+        """ Returns the site object relevant for the given request
+        :param request: A Django Request object
+        :return: The site object and the path under which the object was matched
+        """
+        path = None
         domain = request.get_host()
+        # Lookup by domain
+        try:
+            obj = cls.get_by_domain(domain)
+        except cls.DoesNotExist:
+            obj = None
+        return obj, path
+
+    @classmethod
+    def get_by_domain(cls, domain):
         # Lookup by domain with/without port
         try:
             obj = cls.objects.get(domain=domain)
@@ -50,11 +97,18 @@ class AbstractSiteModel(models.Model):
         return obj
 
     def site_url(self, path=None):
+        # This is here to avoid circular imports
+        from utils import logic
         return logic.build_url(
             netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
+            scheme=self._get_scheme(),
             path=path or "",
         )
+    def _get_scheme(self):
+        scheme = self.SCHEMES[self.is_secure]
+        if settings.DEBUG is True:
+            scheme = self.SCHEMES[False]
+        return scheme
 
 
 class PGCaseInsensitivedMixin():
@@ -114,6 +168,42 @@ def merge_models(src, dest):
     src.delete()
 
 
+class JanewayMultilingualQuerySet(MultilingualQuerySet):
+
+    def check_kwargs(self, **kwargs):
+        for k, v in kwargs.items():
+            if k.endswith('_{}'.format(settings.LANGUAGE_CODE)):
+                return False
+        return True
+
+    def check_base_language(self, **kwargs):
+        lang = translation.get_language()
+        if lang and lang != settings.LANGUAGE_CODE and self.check_kwargs(**kwargs):
+            raise Exception(
+                'When creating a new translation you must provide'
+                ' a translation for the base language, {}'.format(
+                    settings.LANGUAGE_CODE
+                )
+            )
+
+    def get_or_create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).get_or_create(**kwargs)
+
+    def create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).create(**kwargs)
+
+    def update_or_create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).update_or_create(**kwargs)
+
+
+class JanewayMultilingualManager(MultilingualManager):
+    def get_queryset(self):
+        return JanewayMultilingualQuerySet(self.model)
+
+
 class M2MOrderedThroughField(ManyToManyField):
     """ Orders m2m related objects by their 'through' Model
 
@@ -127,8 +217,6 @@ class M2MOrderedThroughField(ManyToManyField):
         super_return = super().contribute_to_class(cls, *args, **kwargs)
         setattr(cls, self.name, M2MOrderedThroughDescriptor(self.remote_field, reverse=False))
         return super_return
-
-
 
 
 class M2MOrderedThroughDescriptor(ManyToManyDescriptor):
@@ -190,3 +278,336 @@ def create_m2m_ordered_through_manager(related_manager, rel):
 
 
     return M2MOrderedThroughManager
+
+
+class SVGImageField(models.ImageField):
+    def formfield(self, **kwargs):
+        defaults = {'form_class': SVGImageFieldForm}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+
+
+def validate_image_or_svg_file_extension(value):
+    allowed_extensions = get_available_image_extensions() + ["svg"]
+    return FileExtensionValidator(allowed_extensions=allowed_extensions)(value)
+
+
+class SVGImageFieldForm(forms.ImageField):
+    default_validators = [validate_image_or_svg_file_extension]
+
+    def to_python(self, data):
+        """
+        Checks that the file-upload field data contains a valid image or SVG.
+        """
+        # We call the grand-parent and re-implement the parent checking for SVG
+        super_result = super(forms.ImageField, self).to_python(data)
+        if super_result is None:
+            return None
+
+        # Data can be a readable object, a templfile or a filepath
+        if hasattr(data, 'temporary_file_path'):
+            file_obj = data.temporary_file_path()
+        else:
+            if hasattr(data, 'read'):
+                file_obj = BytesIO(data.read())
+            else:
+                file_obj = BytesIO(data['content'])
+
+        try:
+            # load() could spot a truncated JPEG, but it loads the entire
+            # image in memory, which is a DoS vector. See #3848 and #18520.
+            image = Image.open(file_obj)
+            image.verify()
+
+            # Annotating so subclasses can reuse it for their own validation
+            super_result.image = image
+            super_result.content_type = Image.MIME[image.format]
+        except Exception as e:
+            # Handle SVG here
+            if not is_svg(file_obj):
+                raise ValidationError(
+                    self.error_messages['invalid_image'],
+                    code='invalid_image',
+                ).with_traceback(sys.exc_info()[2])
+        if hasattr(super_result, 'seek') and callable(super_result.seek):
+            super_result.seek(0)
+        return super_result
+
+
+def is_svg(f):
+    """
+    Check if provided file is svg
+    """
+    f.seek(0)
+    tag = None
+    try:
+        for event, el in et.iterparse(f, ('start',)):
+            tag = el.tag
+            break
+    except et.ParseError:
+        pass
+    return tag == '{http://www.w3.org/2000/svg}svg'
+
+
+class LastModifiedModelQuerySet(models.query.QuerySet):
+    def update(self, *args, **kwargs):
+        kwargs['last_modified'] = timezone.now()
+        super().update(*args, **kwargs)
+
+
+class LastModifiedModelManager(models.Manager):
+    def get_queryset(self):
+        # this is to use your custom queryset methods
+        return LastModifiedModelQuerySet(self.model, using=self._db)
+
+
+class AbstractLastModifiedModel(models.Model):
+    # A mapping from these models last modified field relations and their models
+    _LAST_MODIFIED_FIELDS_MAP = {}
+    _LAST_MODIFIED_ACCESSORS = {}
+
+    last_modified = models.DateTimeField(
+        auto_now=True,
+        editable=True
+    )
+    objects = LastModifiedModelManager()
+
+    class Meta:
+        abstract = True
+
+    @property
+    def model_key(self):
+        return (type(self), self.pk)
+
+    @classmethod
+    def get_last_modified_field_map(cls, visited_fields=None):
+
+        # Early return of cached calculation
+        if cls._LAST_MODIFIED_FIELDS_MAP:
+            return cls._LAST_MODIFIED_FIELDS_MAP
+
+        field_map = {}
+        if visited_fields is None:
+            visited_fields = set()
+
+        local_fields = cls._meta.get_fields()
+        for field in local_fields:
+            if (
+                (field.many_to_many
+                or field.one_to_many
+                or field.many_to_one)
+                and field not in visited_fields
+            ):
+                model = field.remote_field.model
+                if issubclass(model, AbstractLastModifiedModel):
+                    # Avoid infinite recursion when models are doubly linked
+                    visited_fields.add(field.remote_field)
+                    visited_fields.add(field)
+
+                    field_map[field.name] = model
+
+        # Workout relations of child nodes
+        for field, model in tuple(field_map.items()):
+            other_map = model.get_last_modified_field_map(visited_fields)
+            for other_field_name, other_model in other_map.items():
+                field_map[f"{field}__{other_field_name}"] = other_model
+
+        # The below caching method is not ideal, however
+        cls._LAST_MODIFIED_FIELDS_MAP = field_map
+        return field_map
+
+    @classmethod
+    def get_last_modified_accessors(cls):
+        if cls._LAST_MODIFIED_ACCESSORS:
+            return cls._LAST_MODIFIED_ACCESSORS
+
+        field_map = cls.get_last_modified_field_map()
+        accessors = set(
+            # sqlite's MAX returns NULL if any value is NULL
+            Coalesce(
+                f"{field}__last_modified",
+                timezone.make_aware(timezone.datetime.fromtimestamp(0))
+            )
+            for field in field_map.keys()
+        )
+
+        cls._LAST_MODIFIED_ACCESSORS = accessors
+        return cls.get_last_modified_accessors()
+
+
+    def best_last_modified_date(self, visited_nodes=None):
+        """ Determines the last modified date considering all related objects
+        Any relationship which is an instance of this class will have its
+        `last_modified` date considered for calculating the last_modified date
+        for the instance from which this method is called
+        :param visited_nodes: A set of visited objects to ignore. It avoids
+            infinite recursion when 2 models are circularly related.
+            encoded as set of pairs of object model and PK
+        :return: The most recent last_modified date of all related models.
+        """
+        last_modified_keys = list(self.get_last_modified_accessors())
+        annotated_query = self._meta.model.objects.filter(id=self.id).annotate(
+            best_last_mod_date=Greatest(
+                self.last_modified,
+                *last_modified_keys,
+                output_field=models.DateTimeField(),
+            ),
+        )
+        result = annotated_query.values("best_last_mod_date").first()
+        return result["best_last_mod_date"]
+
+
+class SearchLookup(PGSearchLookup):
+    """ A Search lookup that works across multiple databases.
+    Django dropped support for the search lookup when using MySQLin 1.10
+    This lookup attempts to restore some of that behaviour so that MySQL users
+    can still benefit of some form of full text search. For any other vendors,
+    the search performs a simple LIKE match. For Postgres, the behaviour from
+    contrib.postgres.lookups.SearchLookup is preserved
+    """
+    lookup_name = 'search'
+
+    def as_mysql(self, compiler, connection):
+       lhs, lhs_params = self.process_lhs(compiler, connection)
+       rhs, rhs_params = self.process_rhs(compiler, connection)
+       params = lhs_params + rhs_params
+       return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+
+    def as_postgresql(self, compiler, connection):
+        return super().as_sql(compiler, connection)
+
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+        return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+
+    def process_lhs(self, compiler, connection):
+        if connection.vendor != 'postgresql':
+            return models.Lookup.process_lhs(self, compiler, connection)
+        else:
+            return super().process_lhs(compiler, connection)
+
+    def process_rhs(self, compiler, connection):
+        if connection.vendor != 'postgresql':
+            return models.Lookup.process_rhs(self, compiler, connection)
+        else:
+            return super().process_rhs(compiler, connection)
+
+SearchVectorField.register_lookup(SearchLookup)
+models.CharField.register_lookup(SearchLookup)
+
+
+class BaseSearchManagerMixin(Manager):
+    search_lookups = set()
+
+    def search(self, search_term, search_filters, sort=None, site=None):
+        if connection.vendor == "postgresql":
+            return self.postgres_search(search_term, search_filters, sort, site)
+        elif connection.vendor == "mysql":
+            return self.mysql_search(search_term, search_filters, sort, site)
+        else:
+            return self._search(search_term, search_filters, sort, site)
+
+    def _search(self, search_term, search_filters, sort=None, site=None):
+        """ This is a copy of search from journal.views.old_search with filters
+        """
+        articles = self.get_queryset()
+        if search_term:
+            escaped = re.escape(search_term)
+            split_term = [re.escape(word) for word in search_term.split(" ")]
+            split_term.append(escaped)
+            search_regex = "^({})$".format(
+                "|".join({name for name in split_term})
+            )
+            q_object = Q()
+            if search_filters.get("title"):
+                q_object = q_object | Q(title__icontains=search_term)
+            if search_filters.get("abstract"):
+                q_object = q_object | Q(abstract__icontains=search_term)
+            if search_filters.get("keywords"):
+                q_object = q_object | Q(keywords__word=search_term)
+            if search_filters.get("authors"):
+                q_object = q_object | (
+                    Q(frozenauthor__first_name__iregex=search_regex) |
+                    Q(frozenauthor__last_name__iregex=search_regex)
+                )
+            articles = articles.filter(q_object)
+            if site:
+                # TODO: Support other site types
+                articles = articles.filter(journal=site)
+
+        return articles.distinct()
+
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
+
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
+        return self._search(search_term, search_filters, sort, site)
+
+    def get_search_lookups(self):
+        return self.search_lookups
+
+class SearchVector(DjangoSearchVector):
+    """ An Extension of SearchVector that works with SearchVectorField
+
+    Django's implementation assumes that the `to_tsvector` function needs
+    to be called with the provided column, except that when the field is already
+    a SearchVectorField, there is no need. Django's implementation in 2.2
+    (405c8363362063542e9e79beac53c8437d389520) also attempts to cast the
+    column data into a TextField, prior to casting to the tsvector, which we
+    override under `set_source_expressions`
+
+    """
+    def set_source_expressions(self, _):
+        """ Ignore Django's implementation
+        We don't require the expressions to be re-casted during the as_sql call
+        """
+        pass
+
+    # Override template to ignore function
+    function = None
+    template = '%(expressions)s'
+
+
+class AbstractBleachModelMixin(models.Model):
+
+    """
+    A mixin for models with a field that needs to be bleached
+    most of the time to support copy-paste, but not in all cases,
+    so you cannot use django_bleach.BleachField.
+    Combine this mixin with core.forms.BleachableModelForm.
+    """
+
+    support_copy_paste = models.BooleanField(
+        default=True,
+        help_text='Turn this on if copy-pasting content '
+                  'from a word processor, '
+                  'or using the toolbar to format text. '
+                  'It tells Janeway to clear out formatting '
+                  'that does not play nice. '
+                  'Turn it off and leave it off if anyone has '
+                  'added custom HTML or CSS using the code view, '
+                  'since it might remove custom code.',
+    )
+
+    class Meta:
+        abstract = True
+
+
+def default_press():
+    try:
+        Press = apps.get_model("press", "Press")
+        return Press.objects.first()
+    except ProgrammingError:
+        # Initial migration will attempt to call this,
+        # even when no EditorialGroups are created
+        return
+
+
+
+def default_press_id():
+    default_press_obj = default_press()
+    if default_press_obj:
+        return default_press_obj.pk

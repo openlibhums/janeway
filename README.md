@@ -1,13 +1,13 @@
 ![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Janeway")
 
-Janeway is a journal platform designed for publishing scholarly research material. It is developed and maintained by the Centre for Technology and Publishing at Birkbeck, University of London.
+Janeway is a web-based platform for publishing journals, preprints, conference proceedings, and books. It is developed and maintained by a team of developers at the Open Library of Humanities, part of Birkbeck, University of London.
 
 # Technology
-Janeway is written in Python (3.5+) and utilises the Django framework (1.11 LTS). 
+Janeway is written in Python (3.6+) and utilises the Django framework (3.2). 
 
 
 # Installation instructions
-Developer installation [instructions are available in our documentation site](https://janeway.readthedocs.io/en/feature-documentation/installation.html#installation-guide).
+Developer installation [instructions are available in our documentation site](https://janeway.readthedocs.io/en/latest/installation.html#installation-guide).
 
 A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
 
@@ -33,6 +33,21 @@ Uninstalling Janeway is as simple as running ``make uninstall`` which will delet
 
 4. We will never accept commits of, or ourselves write, paywall features into Janeway.
 
+# Current development
+
+What are we working on right now? For a high-level view, check out our [public roadmap](https://github.com/orgs/BirkbeckCTP/projects/21).
+
+You can get more detail by viewing our [project boards here on GitHub](https://github.com/orgs/BirkbeckCTP/projects). Open a project to see which issues it includes and what their status is. The status should be one of these:
+
+- To Do -- we plan to do this and include it in this release
+- In Progress -- someone is working on it at this very moment!
+- PR Submitted -- this means one developer has come up with a solution and is waiting for feedback from others
+- Done -- this means at least one other developer has approved the solution and it has been merged into the main codebase in preparation for the release
+
+We aim to build releases in 8-week sprints, though some development cycles have taken quite a bit longer.
+
+[More on how we develop Janeway](https://github.com/orgs/BirkbeckCTP/projects/21/views/1?pane=issue&itemId=18253226).
+
 # Licensing
 Janeway is available under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE (Version 3, 19 November 2007).
 
@@ -46,15 +61,18 @@ In order to more easily associate changes to their respective github issues, ple
 # Contacts
 If you wish to get in touch about Janeway, contact information is provided below.
 
-Project Lead - Martin Paul Eve, martin.eve@bbk.ac.uk
+Andy Byers, Senior Publishing Technologies Developer - a.byers@bbk.ac.uk
 
-Lead Developer - Andy Byers, a.byers@bbk.ac.uk
+# Major Releases
+Major releases are listed below. Between v1.3 & v1.4 there were a large number of minor releases. You can find more information on the [releases](https://github.com/BirkbeckCTP/janeway/releases) page.
 
-# Releases
-- v1.0 Kathryn released 10/08/17
-- v1.1 Chakotay released 01/09/17
-- v1.2 Tuvok released 06/11/17
-- v1.3 Doctor released 10/08/18
+| Version | Released   | Code Name |
+|---------|------------|-----------|
+| v1.0    | 10/07/2017 | Kathryn   |
+| v1.1    | 01/09/2017 | Chakotay  |
+| v1.2    | 06/11/2017 | Tuvok     |
+| v1.3    | 10/08/2018 | Doctor    |
+| v1.4    | 25/10/2021 | Kes       |
 
 # Geolocation
 Janeway includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com)

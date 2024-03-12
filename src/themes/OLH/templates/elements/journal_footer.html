@@ -1,31 +1,47 @@
 {% load i18n %}
-<div class="large-5 columns" data-equalizer-watch>
+<div class="large-5 columns">
     <p>
-    | {% if request.journal.issn %}{{ request.journal.issn }} |{% endif %}{% if journal_settings.general.publisher_name %} Published by {% if journal_settings.general.publisher_url %}<a href="{{ journal_settings.general.publisher_url}}">{% endif %}{{ journal_settings.general.publisher_name }}{% if journal_settings.general.publisher_url %}</a>{% endif %} | {% endif %}
+    | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} |{% endif %}
+    {% if request.journal.print_issn %}Print ISSN: {{ request.journal.print_issn }} |{% endif %}
+    {% if journal_settings.general.publisher_name %} {% trans 'Published by' %} {% if journal_settings.general.publisher_url %}<a href="{{ journal_settings.general.publisher_url}}">{% endif %}{{ journal_settings.general.publisher_name }}{% if journal_settings.general.publisher_url %}</a>{% endif %} | {% endif %}
     </p>
 </div>
-<div class="large-5 columns large-text-right" data-equalizer-watch>
+<div class="large-5 columns large-text-right">
     <ul class="inline-list">
+        {% for item in journal.press.navigation_items %}
+            {% if item.for_footer and item.extend_to_journals %}
+                <li>
+                    <a
+                        href="{{ item.link }}"
+                        {% if item.is_external %}
+                            target="_blank"
+                        {% endif %}>
+                        {{ item.link_name }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
       {% if journal_settings.general.privacy_policy_url %}
         <li><a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
       {% else %}
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
-        <li><a href="/sitemap">{% trans "Sitemap" %}</a></li>
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
-        {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
+        {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">{% trans 'Login' %}</a></li>{% endif %}
         {% if journal_settings.general.switch_language %}
         <li>
             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.PATH }}" />
-                <select name="language" onchange="this.form.submit()">
+                <select name="language" onchange="this.form.submit()" autocomplete="off">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% get_language_info_list for LANGUAGES as languages %}
                     {% for language in languages %}
+                        {% if language.code in request.available_languages %}
                         <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
                             {{ language.name_local }} ({{ language.code }})
                         </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </form>
@@ -33,3 +49,8 @@
         {% endif %}
     </ul>
 </div>
+{% if request.journal.press.journal_footer_text %}
+    <div id="presswide_footer_text" class="large-10 columns text-left">
+        {{ request.journal.press.journal_footer_text|safe }}
+    </div>
+{% endif %}

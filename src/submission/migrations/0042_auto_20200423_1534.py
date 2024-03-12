@@ -16,6 +16,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='article',
             name='primary_issue',
-            field=models.ForeignKey(blank=True, help_text='You can only assign an Issue that this Article is part of.You can add this article to and Issue from the Issue Manager.', null=True, on_delete=django.db.models.deletion.SET_NULL, to='journal.Issue'),
+            field=models.ForeignKey(
+                to='journal.Issue',
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                help_text='You can only assign an issue '
+                          'that this article is part of. '
+                          'You can add this article to an '
+                          'issue from the Issue Manager.',
+            ),
         ),
     ]

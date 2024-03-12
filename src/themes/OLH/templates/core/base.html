@@ -1,8 +1,10 @@
-{% load static from staticfiles %}
+{% load static %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 {% load i18n %}
 {% load roles %}
+{% load hooks %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -12,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
     {% block head %}{% endblock head %}
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
@@ -30,6 +33,7 @@
     }</script>
 
     {% block css %}{% endblock %}
+    {% hook 'base_head_css' %}
 
     {% if request.journal %}
         <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
@@ -53,9 +57,17 @@
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                        <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
+                    <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
+                        {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                    </a>
                     {% else %}
                         <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+                    {% endif %}
+                {% elif request.repository %}
+                    {% if request.repository.logo %}
+                        {% svg_or_image request.repository.logo %}
+                    {% else %}
+                        {{ request.repository.name }}
                     {% endif %}
                 {% else %}
                     {% if 'svg' in request.press_cover %}
@@ -64,6 +76,11 @@
                         <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
+            {% if request.journal  and journal_settings.styling.display_journal_title %}
+            <div class="hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="journal-title">
+                <h1 class="menu-text">{{ request.journal.name }}</h1>
+            </div>
+            {% endif %}
 
                 <div class="title-bar toggle">
                     <div data-responsive-toggle="main-menu" data-hide-for="medium">
@@ -79,22 +96,33 @@
                 </div>
             </div>
 
-            {% if request.journal %}
-            <div class="top-bar-left hide-for-medium-only" id="search-menu">
-                <ul class="menu global-search">
-                    <li>
-                        <form method="POST" action="{% url 'search' %}">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <span class="input-group-label"><i class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search">
-                                <input type="hidden" name="sort" value="title">
+            {% if journal_settings.general.switch_language %}
+                <div class="top-bar-left">
+                <ul class="menu language-menu">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
 
-                            </div><input type="submit" style="visibility: hidden;" />
-                        </form>
-                    </li>
+                    {% for language in languages %}
+                        {% if language.code in request.available_languages %}
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.PATH }}"/>
+                                {% if journal_settings.general.enable_language_text %}
+                                    <button name="language" value="{{ language.code }}" class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
+                                {% else %}
+                                <button class="flag-button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}" name="language" value="{{ language.code }}"
+                                        style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat; background-size: contain;">
+                                    &nbsp;
+                                </button>
+                                {% endif %}
+                            </form>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
                 </ul>
-            </div>
+                </div>
             {% endif %}
             <div class="top-bar-right border-left hide-for-small-only">
                 <ul class="dropdown menu" data-dropdown-menu>
@@ -103,6 +131,8 @@
                             <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ request.user.full_name }}</a>
                             {% if request.journal %}
                                 {% include "elements/right_hand_menu.html" %}
+                            {% elif request.repository %}
+                                {% include "repository/elements/right_hand_menu.html" %}
                             {% else %}
                                 {% include "press/elements/right_hand_menu.html" %}
                             {% endif %}
@@ -112,12 +142,31 @@
                     {% endif %}
                 </ul>
             </div>
+            {% if request.journal %}
+            <div class="top-bar-right hide-for-medium-only" id="search-menu">
+                <ul class="menu global-search">
+                    <li>
+                        <form method="POST" action="{% url 'search' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
+                                <input type="hidden" name="sort" value="title">
+
+                            </div><input type="submit" style="visibility: hidden;" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
         {% block navbar %}
-            {% if not request.journal %}
-                {% include "press/nav.html" %}
-            {% else %}
+            {% if request.journal %}
                 {% include "core/nav.html" %}
+            {% elif request.repository %}
+                {% include "repository/nav.html" %}
+            {% else %}
+                {% include "press/nav.html" %}
             {% endif %}
         {% endblock navbar %}
     </header>
@@ -128,13 +177,12 @@
 </div>
 
 
-<footer class="main-footer">
-    <div class="row expanded" data-equalizer data-equalize-on="medium">
-        <div class="large-2 columns very-dark-primary-color text-center" data-equalizer-watch>
+<footer class="main-footer row expanded">
+        <div class="large-2 columns very-dark-primary-color text-center logo-wrapper">
             {% if request.journal.press_image_override %}
-                {% svg request.journal_cover %}
+                {% svg_or_image request.journal.press_image_override %}
             {% elif 'svg' in request.press_cover %}
-                <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
+                <a href="{% press_url request %}">{% svg request.press_cover %}</a>
             {% else %}
                 <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
             {% endif %}
@@ -144,7 +192,6 @@
         {% else %}
         {% include "press/elements/press_footer.html" %}
         {% endif %}
-    </div>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.5.1/js/foundation.min.js"></script>
@@ -186,21 +233,7 @@
     {% endfor %}
 
 </script>
-{% if journal_settings.general.google_analytics_code %}
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', '{{ journal_settings.general.google_analytics_code }}', 'auto');
-  ga('send', 'pageview');
-
-</script>
-{% endif %}
-{% if not request.journal and request.press.tracking_code %}
-{{ request.press.tracking_code|safe }}
-{% endif %}
+{% include "common/elements/analytics.html" %}
 {% block js %}{% endblock %}
 </body>
 </html>

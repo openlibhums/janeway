@@ -29,7 +29,7 @@
                         </tr>
                         {% for assignment in user.editorassignment_set.all %}
                             <tr>
-                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.article.safe_title }}</td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.notified }}</td>
                                 <td>{{ assignment.editor_type|capfirst }}</td>
@@ -56,7 +56,7 @@
                         </tr>
                         {% for assignment in review_assignments %}
                             <tr>
-                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.article.safe_title }}</td>
                                 <td>{{ assignment.date_requested }}</td>
                                 <td>{{ assignment.date_due }}</td>
                                 <td>{{ assignment.date_complete }}</td>
@@ -85,7 +85,7 @@
                         </tr>
                         {% for assignment in copyedit_assignments %}
                             <tr>
-                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.article.safe_title }}</td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.due }}</td>
                                 <td>{{ assignment.copyeditor_completed }}</td>
@@ -112,7 +112,7 @@
                         </tr>
                         {% for assignment in user.typesettask_set.all %}
                             <tr>
-                                <td>{{ assignment.assignment.article.title }}</td>
+                                <td>{{ assignment.assignment.article.safe_title }}</td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.accepted }}</td>
                                 <td>{{ assignment.completed }}</td>
@@ -141,7 +141,7 @@
                         </tr>
                         {% for assignment in user.productionassignment_set.all %}
                             <tr>
-                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.article.safe_title }}</td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.notified }}</td>
                                 <td>{{ assignment.closed }}</td>
@@ -168,7 +168,7 @@
                         </tr>
                         {% for assignment in user.proofingtask_set.all %}
                             <tr>
-                                <td>{{ assignment.round.assignment.article.title }}</td>
+                                <td>{{ assignment.round.assignment.article.safe_title }}</td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.due }}</td>
                                 <td>{{ assignment.completed }}</td>

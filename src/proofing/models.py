@@ -8,12 +8,21 @@ from django.utils import timezone
 
 from events import logic as event_logic
 from utils import setting_handler
+from submission import models as submission_models
 
 
 class ProofingAssignment(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     proofing_manager = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    editor = models.ForeignKey('core.Account', null=True, related_name='proofing_editor')
+    editor = models.ForeignKey(
+        'core.Account',
+        null=True,
+        related_name='proofing_editor',
+        on_delete=models.SET_NULL,
+    )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     completed = models.DateTimeField(blank=True, null=True)
@@ -49,7 +58,10 @@ class ProofingAssignment(models.Model):
 
 
 class ProofingRound(models.Model):
-    assignment = models.ForeignKey(ProofingAssignment)
+    assignment = models.ForeignKey(
+        ProofingAssignment,
+        on_delete=models.CASCADE,
+    )
     number = models.PositiveIntegerField(default=1)
     date_started = models.DateTimeField(default=timezone.now)
 
@@ -134,8 +146,15 @@ class ProofingRound(models.Model):
         return True
 
 
+class ActiveProofingTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveProofingTaskManager, self).get_queryset().exclude(
+            round__assignment__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class ProofingTask(models.Model):
-    round = models.ForeignKey(ProofingRound)
+    round = models.ForeignKey(ProofingRound, on_delete=models.CASCADE,)
     proofreader = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
@@ -149,6 +168,9 @@ class ProofingTask(models.Model):
     galleys_for_proofing = models.ManyToManyField('core.Galley')
     proofed_files = models.ManyToManyField('core.File')
     notes = models.ManyToManyField('proofing.Note')
+
+    objects = models.Manager()
+    active_objects = ActiveProofingTaskManager()
 
     def __str__(self):
         return "{0} proofing {1} in round {2}".format(self.proofreader.full_name(),
@@ -196,8 +218,15 @@ class ProofingTask(models.Model):
         self.save()
 
 
+class ActiveTypesetterProofingTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTypesetterProofingTaskManager, self).get_queryset().exclude(
+            proofing_task__round__assignment__article__stage=submission_models.STAGE_ARCHIVED,
+        )
+
+
 class TypesetterProofingTask(models.Model):
-    proofing_task = models.ForeignKey(ProofingTask)
+    proofing_task = models.ForeignKey(ProofingTask, on_delete=models.CASCADE)
     typesetter = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
@@ -211,6 +240,9 @@ class TypesetterProofingTask(models.Model):
     galleys = models.ManyToManyField('core.Galley')
     files = models.ManyToManyField('core.File')
     notes = models.TextField(verbose_name="Correction Note", blank=True, null=True)
+
+    objects = models.Manager()
+    active_objects = ActiveTypesetterProofingTaskManager()
 
     class Meta:
         verbose_name = 'Correction Task'
@@ -237,7 +269,7 @@ class TypesetterProofingTask(models.Model):
 
 
 class Note(models.Model):
-    galley = models.ForeignKey('core.Galley')
+    galley = models.ForeignKey('core.Galley', on_delete=models.CASCADE)
     creator = models.ForeignKey('core.Account', related_name='proofing_note_creator',
                                 null=True, on_delete=models.SET_NULL)
     text = models.TextField()

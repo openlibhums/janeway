@@ -1,7 +1,7 @@
 {% extends "admin/core/base.html" %}}
 {% load securitytags %}
 {% load files %}
-{% load static from staticfiles %}
+{% load static %}
 {% load foundation %}
 
 {% block title %}Issue Management{% endblock title %}
@@ -35,12 +35,13 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% if not issue %}
-                        <button name="sort" value="date_sort_desc" class="button">
-                            <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
-                        </button>
-                        <button name="sort" value="date_sort_asc" class="button">
-                            <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
-                        </button>
+                             <p class="small">You can drag and drop Issues into the desired order or use the order by buttons below. Ordering Issues from this interface changes the public display order of Issues, changes will take effect immediately.</p>
+                            <button name="sort" value="date_sort_desc" class="button">
+                                <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
+                            </button>
+                            <button name="sort" value="date_sort_asc" class="button">
+                                <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
+                            </button>
                         {% endif %}
                     </form>
                     <table class="scroll">
@@ -73,11 +74,27 @@
                                     {% if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
                                 </td>
                                 <td><a href="{% url 'manage_issues_event' i.pk 'delete' %}"><i class="fa fa-trash">&nbsp;</i>Delete</a></td>
-                                <td>{% if request.journal.current_issue != i %}<form method="POST">{% csrf_token %}<button name="make_current" type="submit" class="button" value="{{ i.pk }}" style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current</button></form>{% endif %}</td>
+                                <td>
+                                    {% if request.journal.current_issue != i and i.is_published %}
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            <button name="make_current" type="submit" class="button" value="{{ i.pk }}"
+                                                    style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current
+                                            </button>
+                                        </form>
+                                    {% elif not i.is_published %}
+                                        <small>{% trans 'Issue date is in the future.' %}</small>
+                                    {% elif request.journal.current_issue == i %}
+                                        <small>{% trans 'Issue is already set as the current issue.' %}</small>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% if issue %}
+                        {% include "admin/elements/issue/sort_toc.html" %}
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 {% load i18n %}
 
 {% block title-section %}{% trans "Author Information" %}{% endblock %}
@@ -54,8 +54,7 @@
             <div class="title-area">
                 <h2>{% trans 'Current Authors' %}</h2>
             </div>
-
-            <h4>{% trans "Current Authors" %}</h4>
+            <p>{% trans 'Drag and drop an author to re-order them.' %}</p>
             <div class="row">
                 <div class="large-12 columns">
                     <table class="small scroll">

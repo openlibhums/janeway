@@ -4,12 +4,28 @@ from rest_framework import permissions
 
 
 class IsEditor(permissions.BasePermission):
-    message = 'Checks that the user is an editor for the current journal.'
+    message = 'Please ensure the user is an Editor or Staff Member.'
 
     def has_permission(self, request, view):
-
-        if request.user and not request.user.is_authenticated():
+        if request.user and not request.user.is_authenticated:
             raise PermissionDenied
 
+        if request.user.is_staff:
+            return True
+
         if request.user.is_editor(request):
+            return True
+
+
+class IsSectionEditor(permissions.BasePermission):
+    message = 'Please ensure the user is a Section Editor or Staff Member.'
+
+    def has_permission(self, request, view):
+        if request.user and not request.user.is_authenticated:
+            raise PermissionDenied
+
+        if request.user.is_staff:
+            return True
+
+        if request.user.is_section_editor(request):
             return True

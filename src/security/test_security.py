@@ -11,22 +11,26 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.test import TestCase
 from django.utils import timezone
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.core.management import call_command
 from mock import Mock
 
-from core import models as core_models
+from core import models as core_models, forms as core_forms, logic as core_logic
 from journal import models as journal_models
 from production import models as production_models
 from security import decorators
 from review import models as review_models
+from review.const import ReviewerDecisions as RD
 from submission import models as submission_models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
-from preprint import models as preprint_models
+from repository import models as repository_models
 from press import models as press_models
-from utils.install import update_xsl_files
+from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
+from utils.testing import helpers
+
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -3065,7 +3069,7 @@ class TestSecurity(TestCase):
 
         request = self.prepare_request_with_user(self.editor, self.journal_one)
         response = decorated_func(request, **kwargs)
-        expected_path = '/review/article/{0}/access_denied/'.format(
+        expected_path = '/review/article/{0}/decision/review/access_denied/'.format(
                 self.article_author_is_owner.pk)
         self.assertTrue(response.url.endswith(expected_path))
 
@@ -3100,70 +3104,6 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
-    def test_preprint_editor_or_author_required_editor(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "editor wrongly blocked from accessing preprint article")
-
-    def test_preprint_editor_or_author_required_author(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.regular_user, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
-    def test_preprint_editor_or_author_required_other_user(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None)
-
-        with self.assertRaises(PermissionDenied):
-            decorated_func(request, **kwargs)
-
-    def test_is_article_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_article_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
-    def test_is_article_preprint_editor_other_user(self):
-        func = Mock()
-        decorated_func = decorators.is_article_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None)
-
-        with self.assertRaises(PermissionDenied):
-            decorated_func(request, **kwargs)
-
-    def test_is_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_preprint_editor(func)
-        kwargs = {}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None, self.press)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
     def test_article_stage_review_required_with_review_article(self):
         func = Mock()
         decorated_func = decorators.article_stage_review_required(func)
@@ -3195,16 +3135,6 @@ class TestSecurity(TestCase):
         request = self.prepare_request_with_user(self.editor, None)
 
         with self.assertRaises(Http404):
-            decorated_func(request, **kwargs)
-
-    def test_isnt_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None, self.press)
-
-        with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
     def test_production_manager_roles(self):
@@ -3363,6 +3293,680 @@ class TestSecurity(TestCase):
             "keyword_page_enabled wrongly blocks this page from rendering.",
         )
 
+    def test_preprint_editor_or_author_required_authorised(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "preprint_editor_or_author_required wrongly blocks editor from accessing preprints"
+        )
+
+    def test_preprint_editor_or_author_required_author(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.author,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "preprint_editor_or_author_required wrongly blocks author from accessing preprints"
+        )
+
+    def test_preprint_editor_or_author_required_unauthorised(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.proofreader,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_is_article_preprint_editor_with_subject_editor(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.proofing_manager,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "is_article_preprint_editor wrongly blocks subject editor from accessing preprints"
+        )
+
+    def test_is_article_preprint_editor_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_is_repository_manager(self):
+        func = Mock()
+        decorated_func = decorators.is_repository_manager(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "is_repository_manager wrongly blocks subject editor from accessing preprints"
+        )
+
+    def test_is_repository_manager_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.is_repository_manager(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_press_only(self):
+        func = Mock()
+        decorated_func = decorators.press_only(func)
+        kwargs = {}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "press_only incorrectly redirects when there is no journal or repo present in request"
+        )
+
+    def test_press_only_with_journal(self):
+        func = Mock()
+        decorated_func = decorators.press_only(func)
+
+        request = self.prepare_request_with_user(None, self.journal_one)
+
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(func.called,
+                         "press_only decorator doesn't redirect when request.journal is found")
+
+    def test_submission_authorised_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the author role is found",
+        )
+
+    def test_submission_authorised_with_good_user(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='On',
+        )
+
+        request = self.prepare_request_with_user(
+            self.author,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author role",
+        )
+
+    def test_submission_authorised_with_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # force disable submission authorisation setting
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator blocks access when the setting is disabled",
+        )
+
+    def test_submission_authorised_with_bad_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        # this decorator should redirect us if it fails
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(
+            func.called,
+            "submission_authorised decorator doesn't redirect when a user without the repo author role is found",
+        )
+
+    def test_submission_authorised_with_good_user_repo(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        role = core_models.Role.objects.get(
+            slug='author',
+        )
+        repo_role = repository_models.RepositoryRole.objects.create(
+            user=self.user_with_no_roles,
+            repository=self.repository,
+            role=role,
+        )
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role",
+        )
+
+        # Delete the repo role once we're done with it
+        repo_role.delete()
+
+    def test_submission_authorised_with_repo_setting_off(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = False
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.user_with_no_roles,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a user with the author repo role when off",
+        )
+
+    def test_submission_authorised_staff(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.staff_member,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a staff user.",
+        )
+
+    def test_submission_authorised_repo_manager(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        # enable submission authorisation setting
+        self.repository.limit_access_to_submission = True
+        self.repository.save()
+
+        request = self.prepare_request_with_user(
+            self.repo_manager,
+            repository=self.repository,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a repo manager.",
+        )
+
+    def test_submission_authorised_journal_editor(self):
+        func = Mock()
+        decorated_func = decorators.submission_authorised(func)
+
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='limit_access_to_submission',
+            journal=self.journal_one,
+            value='',
+        )
+
+        # user user without roles to test that its not blocked
+        request = self.prepare_request_with_user(
+            self.editor,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, {})
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "submission_authorised decorator doesn't allow access to a journal editor.",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_author_role(self):
+        role = core_models.Role.objects.get(
+            slug='author',
+        )
+
+        # test the access request form
+        form = core_forms.AccessRequestForm(
+            journal=self.journal_one,
+            user=self.user_with_no_roles,
+            role=role,
+            data={
+                'text': 'Here is my access request.',
+            }
+        )
+        access_request = form.save()
+
+        # test view for approving access
+        data = {
+            'approve': access_request.pk,
+        }
+        self.client.force_login(self.staff_member)
+        self.client.post(
+            reverse('manage_access_requests'),
+            data=data,
+            SERVER_NAME="journal1.localhost",
+        )
+
+        # try to find an author role for this user
+        account_role = core_models.AccountRole.objects.filter(
+            user=self.user_with_no_roles,
+            journal=self.journal_one,
+            role=role,
+        )
+        self.assertTrue(
+            account_role.exists(),
+            'No account role was created during the post action on the manage_access_requests view',
+        )
+
+        # delete the account role once we are done with it
+        account_role.delete()
+
+    def test_article_is_not_submitted_complete(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {
+            'article_id': self.article_unassigned.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+        )
+
+        with self.assertRaises(Http404):
+            decorated_func(request, **kwargs)
+
+    def test_article_is_not_submitted_unsubmitted(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {
+            'article_id': self.article_unsubmitted.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+
+        decorated_func(request, **kwargs)
+
+        # test that the callback was called
+        self.assertTrue(
+            func.called,
+            "article_is_not_submitted incorrectly raises a 404 when article is unsubmitted.",
+        )
+
+    def test_journal_manager_can_access_manager(self):
+        self.client.force_login(self.journal_manager)
+        response = self.client.get(
+            reverse('core_manager_index'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_journal_manager_can_access_licenses(self):
+        self.client.force_login(self.journal_manager)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_editor_can_edit_licenses(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME='journal1.localhost',
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+        data = {
+            'save': True,
+            'name': 'Test License',
+            'short_name': 'TEST',
+            'url': 'https://janeway.systems',
+            'text': 'This is a test license.',
+            'order': 1,
+            'available_for_submission': True,
+        }
+        self.client.post(
+            reverse('submission_licenses'),
+            data=data,
+            SERVER_NAME='journal1.localhost',
+        )
+        self.assertTrue(
+            submission_models.Licence.objects.filter(
+                short_name='TEST',
+            ).exists()
+        )
+
+    def test_blocking_editor_from_licenses(self):
+        # exclude the editor from accessing the licenses page.
+        setting_handler.save_setting(
+            setting_group_name='permission',
+            setting_name='licenses',
+            journal=self.journal_one,
+            value='["journal-manager"]',
+        )
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse('submission_licenses'),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            403,
+        )
+
+        # reset the setting change, so it does not affect other tests
+        setting_handler.save_setting(
+            setting_group_name='permission',
+            setting_name='licenses',
+            journal=self.journal_one,
+            value='["editor", "journal-manager"]',
+        )
+
+    def test_editor_can_access_edit_setting(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_setting',
+                kwargs={
+                    'setting_group': 'general',
+                    'setting_name': 'journal_name',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            200,
+        )
+
+    def test_blocking_editor_from_editing_setting(self):
+        # set the journal_name setting to only be editable by journal managers.
+        journal_manager_role = core_models.Role.objects.get(
+            slug='journal-manager',
+        )
+        setting = core_models.Setting.objects.get(
+            group__name='general',
+            name='journal_name',
+        )
+        setting.editable_by.clear()
+        setting.editable_by.add(journal_manager_role)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_setting',
+                kwargs={
+                    'setting_group': 'general',
+                    'setting_name': 'journal_name',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertTrue(
+            response.status_code,
+            403,
+        )
+
+        # add editor back to reset this change.
+        editor_role = core_models.Role.objects.get(
+            slug='editor',
+        )
+        setting.editable_by.add(editor_role)
+
+    def test_setting_is_available_in_group(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_settings_group',
+                kwargs={
+                    'display_group': 'journal',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertContains(
+            response,
+            'Journal Name'
+        )
+
+    def test_setting_is_removed_from_group(self):
+        # set the journal_name setting to only be editable by journal managers.
+        journal_manager_role = core_models.Role.objects.get(
+            slug='journal-manager',
+        )
+        setting = core_models.Setting.objects.get(
+            group__name='general',
+            name='journal_name',
+        )
+        setting.editable_by.clear()
+        setting.editable_by.add(journal_manager_role)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                'core_edit_settings_group',
+                kwargs={
+                    'display_group': 'journal',
+                }
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+        self.assertNotContains(
+            response,
+            'Journal Name'
+        )
+
+        # add editor back to reset this change.
+        editor_role = core_models.Role.objects.get(
+            slug='editor',
+        )
+        setting.editable_by.add(editor_role)
+
+    def test_setting_is_enabled_permission_denied(self):
+        func = Mock()
+        decorator = decorators.setting_is_enabled(
+            setting_name='enable_share_reviews_decision',
+            setting_group_name='general',
+        )
+        decorated_func = decorator(func)
+        request = self.prepare_request_with_user(
+            self.editor,
+            self.journal_one
+        )
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request)
+
+    def test_setting_is_enabled_access_granted(self):
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='enable_share_reviews_decision',
+            journal=self.journal_one,
+            value='On',
+        )
+        func = Mock()
+        decorator = decorators.setting_is_enabled(
+            setting_name='enable_share_reviews_decision',
+            setting_group_name='general',
+        )
+        decorated_func = decorator(func)
+        request = self.prepare_request_with_user(
+            self.editor,
+            self.journal_one
+        )
+        decorated_func(request)
+        self.assertTrue(
+            func.called,
+            "setting_is_enabled incorrectly raises a permission denied.",
+        )
+
+    def test_user_has_completed_review_for_article_denied(self):
+        func = Mock()
+        decorated_func = decorators.user_has_completed_review_for_article(func)
+        kwargs = {
+            'article_id': self.article_review_completed.pk
+        }
+
+        request = self.prepare_request_with_user(
+            self.second_user,
+            journal=self.journal_one,
+        )
+
+        # test that the callback was called
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_user_has_completed_review_for_article_granted(self):
+        func = Mock()
+        decorated_func = decorators.user_has_completed_review_for_article(func)
+        kwargs = {
+            'article_id': self.article_review_completed.pk
+        }
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+        decorated_func(request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "user_has_completed_review_for_article incorrectly raises a "
+            "permission denied.",
+        )
+
     # General helper functions
 
     @staticmethod
@@ -3371,20 +3975,12 @@ class TestSecurity(TestCase):
         Creates a user with the specified permissions.
         :return: a user with the specified permissions
         """
-        # check this way to avoid mutable default argument
-        if roles is None:
-            roles = []
-
-        kwargs = {'username': username}
-        user = core_models.Account.objects.create_user(email=username, **kwargs)
-
-        for role in roles:
-            resolved_role = core_models.Role.objects.get(name=role)
-            core_models.AccountRole(user=user, role=resolved_role, journal=journal).save()
-
-        user.save()
-
-        return user
+        # For consistency, outsourced to newer testing helpers
+        return helpers.create_user(
+            username,
+            roles=roles,
+            journal=journal,
+        )
 
     @staticmethod
     def create_roles(roles=None):
@@ -3392,12 +3988,8 @@ class TestSecurity(TestCase):
         Creates the necessary roles for testing.
         :return: None
         """
-        # check this way to avoid mutable default argument
-        if roles is None:
-            roles = []
-
-        for role in roles:
-            core_models.Role(name=role, slug=role).save()
+        # For consistency, outsourced to newer testing helpers
+        helpers.create_roles(roles=roles)
 
     @staticmethod
     def create_journals():
@@ -3406,6 +3998,7 @@ class TestSecurity(TestCase):
         :return: a 2-tuple of two journals
         """
         update_xsl_files()
+        update_settings()
         journal_one = journal_models.Journal(code="TST", domain="journal1.localhost")
         journal_one.save()
 
@@ -3421,8 +4014,9 @@ class TestSecurity(TestCase):
         :return: None
         """
         self.journal_one, self.journal_two = self.create_journals()
-        self.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
-                           "proofing_manager", "section-editor"])
+        self.create_roles(["editor", "author", "reviewer", "proofreader",
+                           "production", "copyeditor", "typesetter",
+                           "proofing-manager", "section-editor"])
 
         self.regular_user = self.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
@@ -3475,8 +4069,11 @@ class TestSecurity(TestCase):
         self.other_typesetter.is_active = True
         self.other_typesetter.save()
 
-        self.proofing_manager = self.create_user("proofing_manager@martineve.com", ["proofing_manager"],
-                                                 journal=self.journal_one)
+        self.proofing_manager = self.create_user(
+            "proofing_manager@martineve.com",
+            ["proofing-manager"],
+            journal=self.journal_one
+        )
         self.proofing_manager.is_active = True
         self.proofing_manager.save()
 
@@ -3500,6 +4097,25 @@ class TestSecurity(TestCase):
                                                 journal=self.journal_one)
         self.second_reviewer.is_active = True
         self.second_reviewer.save()
+
+        self.user_with_no_roles = self.create_user("no_roles@janeway.systems", [], journal=self.journal_one)
+        self.user_with_no_roles.is_active = True
+        self.user_with_no_roles.save()
+
+        self.staff_member = self.create_user("staff@janeway.systems", [], journal=self.journal_one)
+        self.staff_member.is_active = True
+        self.staff_member.is_staff = True
+        self.staff_member.save()
+
+        self.repo_manager = self.create_user("repomanager@janeway.systems")
+        self.repo_manager.is_active = True
+        self.repo_manager.save()
+
+        self.journal_manager = self.create_user(
+            "journalmanager@janeway.systems",
+            ['journal-manager'],
+            journal=self.journal_one,
+        )
 
         self.public_file = core_models.File(mime_type="A/FILE",
                                             original_filename="blah.txt",
@@ -3561,7 +4177,8 @@ class TestSecurity(TestCase):
         self.article_unassigned = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                             abstract="An abstract",
                                                             stage=submission_models.STAGE_UNASSIGNED,
-                                                            journal_id=self.journal_one.id)
+                                                            journal_id=self.journal_one.id,
+                                                            date_submitted=timezone.now())
         self.article_unassigned.save()
 
         self.article_assigned = submission_models.Article(owner=self.regular_user, title="A Test Article",
@@ -3593,17 +4210,20 @@ class TestSecurity(TestCase):
         self.article_author_is_owner.authors.add(self.editor)
         self.article_author_is_owner.authors.add(self.author)
 
-        self.review_form = review_models.ReviewForm(name="A Form", slug="A Slug", intro="i", thanks="t",
+        self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)
         self.review_form.save()
 
-        self.review_assignment_complete = review_models.ReviewAssignment(article=self.article_review_completed,
-                                                                         reviewer=self.regular_user,
-                                                                         editor=self.editor,
-                                                                         date_due=datetime.datetime.now(),
-                                                                         form=self.review_form,
-                                                                         is_complete=True,
-                                                                         date_complete=timezone.now())
+        self.review_assignment_complete = review_models.ReviewAssignment(
+            article=self.article_review_completed,
+            reviewer=self.regular_user,
+            editor=self.editor,
+            date_due=datetime.datetime.now(),
+            form=self.review_form,
+            is_complete=True,
+            date_complete=timezone.now(),
+            decision=RD.DECISION_ACCEPT.value,
+        )
 
         self.review_assignment_complete.save()
 
@@ -3753,25 +4373,21 @@ class TestSecurity(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
-        self.preprint_article = submission_models.Article(owner=self.regular_user, title="A Test Preprint",
-                                                          abstract="An abstract",
-                                                          stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                                                          is_preprint=True)
-        self.preprint_article.save()
-        self.preprint_article.authors.add(self.regular_user)
-
-        self.preprint_manager = self.create_user("preprint_manager@martineve.com")
-        self.preprint_manager.is_active = True
-        self.preprint_manager.save()
-
-        self.subject = preprint_models.Subject.objects.create(name='Test', slug='test')
-        self.subject.editors.add(self.preprint_manager)
-        self.subject.preprints.add(self.preprint_article)
-        self.subject.save()
-
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
 
+        self.repository, self.repository_subject = helpers.create_repository(
+            self.press,
+            [self.admin_user, self.editor, self.repo_manager],
+            [self.proofing_manager],
+        )
+        self.preprint = helpers.create_preprint(
+            repository=self.repository,
+            author=self.author,
+            subject=self.repository_subject,
+        )
+
         call_command('load_default_settings')
+        call_command('load_permissions')
 
     @staticmethod
     def mock_messages_add(level, message, extra_tags):
@@ -3782,7 +4398,7 @@ class TestSecurity(TestCase):
         return None
 
     @staticmethod
-    def prepare_request_with_user(user, journal, press=None):
+    def prepare_request_with_user(user, journal=None, press=None, repository=None):
         """
         Build a basic request dummy object with the journal set to journal
         and the user having editor permissions.
@@ -3800,5 +4416,6 @@ class TestSecurity(TestCase):
         request.path = '/a/fake/path/'
         request.path_info = '/a/fake/path/'
         request.press = press
+        request.repository = repository
 
         return request

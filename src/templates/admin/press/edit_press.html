@@ -30,16 +30,24 @@
                             <h2>Look</h2>
                         </div>
                         {{ form.theme|foundation }}
+                        {{ form.description|foundation }}
                         {{ form.footer_description|foundation }}
+                        {{ form.journal_footer_text|foundation }}
                         {{ form.press_logo|foundation }}
+                        {{ form.secondary_image|foundation }}
+                        {{ form.secondary_image_url|foundation }}
                         {{ form.default_carousel_image|foundation }}
                         {{ form.favicon|foundation }}
 
                         <div class="title-area">
-                            <h2>Preprints</h2>
+                            <h2>Repositories</h2>
                         </div>
                         {{ form.enable_preprints|foundation }}
 
+                        <div class="title-area">
+                            <h2>Journals</h2>
+                        </div>
+                        {{ form.disable_journals|foundation }}
                         <div class="title-area">
                             <h2>Security</h2>
                         </div>
@@ -59,8 +67,4 @@
         </div>
     </div>
     </section>
-{% endblock %}
-
-{% block js %}
-    {% include "elements/jqte.html" %}
 {% endblock %}

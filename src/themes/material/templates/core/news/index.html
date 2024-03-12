@@ -2,34 +2,32 @@
 {% load truncate %}
 {% load i18n %}
 
-{% block title %}{% trans "News" %}{% endblock title %}
+{% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>News</h3>
+            <h3>{{ journal_settings.news.news_title }}</h3>
             {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
         </div>
         {% for item in news_items %}
             <div class="col m12">
                 <div class="card">
+                    {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">
-                        <img{% if item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                                {% elif request.journal and request.journal.default_large_image %}
-                                    src="{{ request.journal.default_large_image.url }}"
-                                {% elif request.press.default_carousel_image %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                    alt="{{ item.title }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
                         <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title }}
                           </div>
                         </span>
                     </div>
+                    {% endif %}
                     <div class="card-content">
-                        <h6><em>{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
+                            <h2 class="no-top-margin">{{ item.title }}</h2>
+                        {% endif %}
+                        <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>
                     <div class="card-action">
@@ -38,7 +36,7 @@
                 </div>
             </div>
             {% empty %}
-            <h4>{% trans "This journal currently has no news items to display." %}</h4>
+            <h4>{% trans "This journal currently has no items to display." %}</h4>
         {% endfor %}
     </div>
     <div class="pagination-block">{{ page }}

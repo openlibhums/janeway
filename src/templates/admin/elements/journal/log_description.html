@@ -17,12 +17,18 @@
                         {% endif %}
                     </div>
                     <div class="content">
-                        <p><strong>To: </strong>{% for email in entry.to %}{{ email }}{% if not forloop.last %}; {% endif %}{% endfor %}</p>
+                        <p><strong>To: </strong>{% for email in entry.to %}{{ email }}; {% endfor %}</p>
                         {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES  %}
                         <p><strong>Status:</strong> <i class="fa fa-circle {{ entry.message_status_class }}"
                                                        aria-hidden="true"></i> {{ entry.get_message_status_display }}
                         </p>
                         {% endif %}
+                    </div>
+                    <div class="title-area">
+                        <h2>Subject</h2>
+                    </div>
+                    <div class="content">
+                        <p>{{ entry.email_subject }}</p>
                     </div>
                 {% endif %}
                 <div class="title-area">

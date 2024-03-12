@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -73,10 +73,9 @@
             $.ajax({
                 "type": "POST",
                 "dataType": "json",
-                "url": '/api/accountrole/',
+                "url": '{% url 'accountrole-list' %}',
                 "data": data,
                 "success": function (response) {
-                    console.log(response)
                     $(button_name).remove();
                     if ($(roles_td).html() === "User has no roles on this journal.") {
                         $(roles_td).html();
@@ -88,11 +87,12 @@
                         onClick: `delete_role(${user_id}, ${role_id}, ${journal_id}, ${response.pk})`
                     }).html(`<span class=\"fa fa-minus-circle\"></span> ${old_text}`)
                     $(roles_td).append(del_button);
-                    toastr.success(`User has been granted role. ${old_text}`)
+                    toastr.success(`User has been granted a role: ${old_text}`)
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);
-                    toastr.error(xhr.responseText)
+                    var response = JSON.parse(xhr.responseText)
+                    toastr.error(response.error)
                 },
             })
 
@@ -111,7 +111,7 @@
             $.ajax({
                 "type": "DELETE",
                 "dataType": "json",
-                "url": `/api/accountrole/${account_role_id}`,
+                "url": `{% url 'accountrole-list' %}${account_role_id}`,
                 "data": data,
                 "success": function (data) {
                     $(button_name).remove();
@@ -121,8 +121,11 @@
                         value: $(button_name).attr("value"),
                         onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
                     }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)
-                    $(roles_holder).append(add_button);
-                    toastr.warning(`User has been revoked role ${old_text}`)
+                    console.log($(button_name))
+                    if ($(button_name).attr("value") != 'Reader') {
+                        $(roles_holder).append(add_button);
+                    }
+                    toastr.warning(`User has had a role revoked: ${old_text}`)
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);

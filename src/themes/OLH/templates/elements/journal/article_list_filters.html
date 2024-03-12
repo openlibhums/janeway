@@ -1,0 +1,12 @@
+{% load classname %}
+{% load foundation %}
+
+{% if facet_form.fields %}
+    <section class="section">
+        <h3>{% trans 'Filter' %}</h3>
+        <form method="GET" id={{ facet_form.id }}>
+            {{ facet_form|foundation }}
+            <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
+        </form>
+    </section>
+{% endif %}

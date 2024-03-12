@@ -47,7 +47,8 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
     # so 'img':'src' means look for elements called 'img' with an attribute 'src'
     elements = {
         'img': 'src',
-        'graphic': 'xlink:href'
+        'graphic': 'xlink:href',
+        'inline-graphic': 'xlink:href',
     }
 
     # iterate over all found elements
@@ -77,7 +78,11 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
                     extension = ""
 
                 # download the image file
-                filename, mime = fetch_file(base, url_to_use, root, extension, article, user, handle_images=False)
+                try:
+                    filename, mime = fetch_file(base, url_to_use, root, extension, article, user, handle_images=False)
+                except Exception as e:
+                    logger.error("[FIGURE IMPORT ERROR] %s" % val)
+                    continue
 
                 # determine the MIME type and slice the first open bracket and everything after the comma off
                 mime = mime.split(',')[0][1:].replace("'", "")
@@ -146,7 +151,7 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
     # If the function is not passed an extension, try to guess what it should be.
 
     if not extension:
-        extension = utils_shared.guess_extension(mime)
+        extension = utils_shared.guess_extension(mime) or '.graphic'
 
     # set the filename to a unique UUID4 identifier with the passed file extension
     filename = '{0}.{1}'.format(uuid4(), extension.lstrip("."))
@@ -543,7 +548,7 @@ def set_article_section(article, soup_object, element='h4', attributes=None, def
     if section_name and section_name != '':
         print('Adding article to section {0}'.format(section_name))
 
-        section, created = submission_models.Section.objects.language('en').get_or_create(journal=article.journal, name=section_name)
+        section, created = submission_models.Section.objects.get_or_create(journal=article.journal, name=section_name)
         article.section = section
     else:
         print('No section information found. Reverting to default of "Articles"')
@@ -576,8 +581,8 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         journal=article.journal,
         issue=issue,
         volume=volume,
+        issue_type=issue_type,
         defaults={
-            "issue_type": issue_type,
             "date": date_published,
         },
     )
@@ -617,7 +622,10 @@ def set_article_galleys(domain, galleys, article, url, user):
     :param user: the user who should own the new file
     :return: None
     """
-    article.galley_set.all().delete()
+    for galley in article.galley_set.all():
+        galley.unlink_files()
+        galley.delete()
+
     for galley_name, galley in galleys.items():
         if galley:
             if galley_name == 'PDF' or galley_name == 'XML':

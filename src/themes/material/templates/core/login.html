@@ -1,13 +1,8 @@
 {% extends "core/base.html" %}
 {% load i18n %}
-{% load recaptcha2 %}
 {% load orcid %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
-
-{% block head %}
-    {% recaptcha_init %}
-{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -17,7 +12,21 @@
                 {% include "common/elements/static-error-messages.html" with form=form %}
                     {% csrf_token %}
                     <div class="card-content">
-                        <span class="card-title">Login</span>
+                        <span class="card-title">{% trans "Login with your account" %}</span>
+                         {% if settings.ENABLE_ORCID %}
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
+                           class="btn wide-button orcid-button">{% trans "Log in with ORCiD" %}</a>
+                        {% endif %}
+                        {% if settings.ENABLE_OIDC %}
+                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
+                           class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
+                            <br />
+                        {% endif %}
+                        {% if request.repository and request.repository.login_text %}
+                            {{ request.repository.login_text|safe }}
+                        {% elif journal_settings.general.display_login_page_notice %}
+                            {{ journal_settings.general.login_page_notice|safe }}
+                        {% endif %}
                         <div class="input-field col s12">
                             {{ form.user_name }}
                             <label for="email">{% trans form.user_name.label %}</label>
@@ -29,13 +38,16 @@
                         <div class="input-field col s12">
                             {{ form.captcha }}
                         </div>
-                        <button class="waves-effect waves-light btn wide-button">{% trans "Login" %}</button>
-                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
-                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
-                        {% if settings.ENABLE_ORCID %}
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
-                           class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Log in with ORCiD" %}</a>
-                        {% endif %}
+                        <p>
+                            <button class="waves-effect waves-light btn wide-button">{% trans "Login" %}</button>
+                        </p>
+                        <p class="center-align">
+                            <a href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
+                        </p>
+                        <p class="center-align">
+                            <a href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
+                        </p>
+
                     </div>
                 </form>
             </div>

@@ -1,0 +1,98 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Preprints Dashboard{% endblock %}
+{% block title-section %}Preprints Dashboard{% endblock %}
+{% block title-sub %}Listed below are the preprints for which you are registered as the submitting author.{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">Repository Dashboard</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Submitted Preprints</h2>
+        </div>
+        <div class="content">
+            <table class="scroll">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Date Submitted</th>
+                        <th>Decision</th>
+                        <th>Date Published</th>
+                        <th>Views</th>
+                        <th>Downloads</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for preprint in preprints %}
+                    <tr>
+                        <td>{{ preprint.pk }}</td>
+                        <td><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
+                        <td>{{ preprint.date_submitted }}</td>
+                        <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Rejected{% else %}Under Consideration{% endif %}</td>
+                        <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
+                        <td>{{ preprint.views.count }}</td>
+                        <td>{{ preprint.downloads.count }}</td>
+                        <td>{{ preprint.comment_set.all|length }}</td>
+                    </tr>
+                {% empty %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Incomplete Submissions</h2>
+            <a class="button" href="{% url 'repository_submit' %}">Start New Submission</a>
+        </div>
+        <div class="content">
+            <p>Listed below are {{ request.repository.object_name_plural }} that have not yet been submitted.</p>
+            <table class="scroll">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Compete</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for preprint in incomplete_preprints %}
+                    <tr>
+                        <td>{{ preprint.pk }}</td>
+                        <td>{{ preprint.title|safe }}</td>
+                        <td><a class="small button" href="{% url 'repository_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button class="small alert button delete" name="delete" value="{{ preprint.pk }}">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+    $(document).ready(function () {
+        $(".delete").click(function () {
+            var preprint_id = $(this).val()
+            if (!confirm("Warning: Deleted data cannot be recovered. If you are sure you want to delete {{request.repository.object_name}} with ID " + preprint_id +" press OK.")) {
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock js %}

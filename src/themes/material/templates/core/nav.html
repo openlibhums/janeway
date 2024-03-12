@@ -1,5 +1,6 @@
-{% load static from staticfiles %}
+{% load static %}
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
@@ -10,7 +11,7 @@
         <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
             {% if request.journal %}
                 {% if request.journal.header_image %}
-                    <img src="{{ request.journal.header_image.url }}" class="header-override-image">
+                    {% svg_or_image request.journal.header_image css_class="header-override-image" %}
                 {% else %}
                     <img src="{% static "common/img/sample/janeway.png" %}">
                 {% endif %}
@@ -20,51 +21,66 @@
         </a>
         <ul class="right hide-on-med-and-down">
             {% if request.journal.nav_home %}
-            <li><a href="{% url 'website_index' %}">Home</a></li>
+            <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
-                <li><a href="{% url 'core_news_list' %}">News</a></li>
+                <li><a href="{% url 'core_news_list' %}">{{ journal_settings.news.news_title }}</a></li>
             {% endif %}
             {% if request.journal.nav_articles %}
-                <li><a href="{% url 'journal_articles' %}">Articles</a></li>
+                <li><a href="{% url 'journal_articles' %}">{% trans "Articles" %}</a></li>
             {% endif %}
             {% if request.journal.nav_issues %}
-                <li><a href="{% url 'journal_issues' %}">Issues</a></li>
+                <li><a href="{% url 'journal_issues' %}">{% trans "Issues" %}</a></li>
             {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
-                <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
+                <li><a href="{% url 'editorial_team' %}">{% trans "Editorial Team" %}</a></li>
             {% endif %}
             {% if request.journal.nav_sub %}
-                <li><a href="{% url 'journal_submissions' %}">Submission</a></li>
+                <li><a href="{% url 'journal_submissions' %}">{% trans "Submission" %}</a></li>
             {% endif %}
             {% if request.journal.nav_contact %}
-                <li><a href="{% url 'contact' %}">Contact</a></li>
+                <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
             {% endif %}
 
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
-                {% else %}
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}">
+                            {{ item.link_name }}
+                            <i class="material-icons right">
+                                arrow_drop_down
+                            </i>
+                        </a>
+                    </li>
+                {% elif not item.for_footer %}
                 <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if request.journal.nav_review %}
-                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>Become a Reviewer</a></li>
+                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
             {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">Account<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="account">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
-                <li><a href="{% url 'core_register' %}">Register</a></li>
+                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
+                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
 
-        <ul class="side-nav" id="nav-mobile">
+        <ul class="sidenav" id="nav-mobile">
             {% if request.journal.nav_home %}
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
@@ -89,23 +105,41 @@
 
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li><a class="dropdown-button" href="#!"
-                           data-activates="{{ item.link_name|slugify }}-mobile">{{ item.link_name }}<i
-                            class="material-icons right">arrow_drop_down</i></a></li>
+                    <li>
+                        <a
+                            class="dropdown-trigger"
+                            href="#!"
+                            data-target="{{ item.link_name|slugify }}-mobile">
+                            {{ item.link_name }}
+                            <i class="material-icons right">arrow_drop_down</i>
+                        </a>
+                    </li>
                 {% else %}
                     <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
-                        class="material-icons right">arrow_drop_down</i></a></li>
+                <li>
+                    <a
+                        class="dropdown-trigger"
+                        href="#!"
+                        data-target="dropdown1">
+                        {% trans "Account" %}
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        <a
+            href="#!"
+            data-target="nav-mobile"
+            class="sidenav-trigger">
+            <i class="material-icons">menu</i>
+        </a>
     </div>
 </nav>
 
@@ -172,7 +206,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
-            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
@@ -183,7 +217,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
-            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}

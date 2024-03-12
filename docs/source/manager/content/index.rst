@@ -2,72 +2,89 @@ Content
 =======
 The content section allows us to control the navigation menu, content pages, news and editorial team in Janeway.
 
-The nav controller and CMS system will be overhauled as part of 1.4.
-
-Content
--------
+Content Manager
+---------------
 The Content Manager is Janeway's CMS. Pages can be created an edited using our rich text editor.
 
-.. figure:: ../../nstatic/content_and_navigation.png
+.. figure:: ../../nstatic/content_manager.png
 
-    Content and Navigation manager
+    Content Manager
 
 Add a New Page
 ~~~~~~~~~~~~~~
-To add a new page to your journal select "+ Add New Page". A new page requires the following:
+To add a new page to your journal select "+ Add New Page" and fill in the fields as detailed in the text beneath each field.
 
-- Name
-    - This is the name of the page for the URL bar e.g. privacy-policy or author-guidelines. This field should not have any spaces in it.
-- Display Name
-    - The proper name for the page that will be displayed in the navigation e.g. Privacy Policy or Author Guidelines
-- Content
-    - HTML content, you should avoid pasting in from a text editor like Word as it will copy random styling across that will ignore your stylesheets
-    
-Once a new page has been created you will find it is available at https://yoururl.com/site/name e.g. https://orbit.openlibhums.org/site/privacy
+.. figure:: ../../nstatic/content-edit-page.png
+
+    Editing a page in the content management system
+
+The URL for the page will be generated with these parts:
+
+- Your journal's domain name (e.g. orbit.openlibhums.org)
+- The path element “site” (a namespace for custom pages)
+- The path you entered in the **Link** field.
+
+An example: https://orbit.openlibhums.org/site/privacy
 
 Edit a Page
 ~~~~~~~~~~~
-From the Content page you can see a list of the pages currently on your journal. To edit one, click on its title and the edit/delete buttons will appear. Select edit to make changes.
+From the Content page you can see a list of the pages currently on your journal. Select Edit to make changes.
 
 Delete a Page
 ~~~~~~~~~~~~~
-As above click on the title and then the edit/delete buttons will appear. Press Delete to remove the page.
+To delete a page use the red Delete button.
+
+.. warning::
+   Data cannot be recovered so ensure you really want to remove a page before pressing the delete button.
 
 Navigation
 ~~~~~~~~~~
-As of 1.3.2 Navigation is made up of:
+The nav bar is made up of two kinds of items:
 
-- Fixed nav elements that can be turned on/off
-- User generated navigation entries
+- Fixed nav elements that you can turn on or off
+- Custom nav items that you can create and modify
 
-The future intention is that all navigation will be handled via elements.
+Fixed nav elements include:
 
-- Fixed Nav Elements
-    - Home
-    - News
-    - Articles
-    - Issues
-    - Collections
-    - Editorial Team
-    - Submissions
-    - Contact
-    - Start Submission
-    - Become a Reviewer
-    
-To add a new Navigation element: from the Content Manager page select "Edit Nav", the following elements are presented in the form:
+- Home
+- News
+- Articles
+- Issues
+- Collections
+- Editorial Team
+- Submissions
+- Contact
+- Start Submission
+- Become a Reviewer
 
-- Link name
-    - The display name for the link
-- Link
-    - The actual link, either local `site/privacy` or remote `https://www.google.com`
-- Is External
-    - If linking outside of your janeway install, this should be checked
-- Sequence
-    - Used to order your nav elements, it should be a positive integer (number)
-- Has sub navigation
-    - If this element is the first that has a drop down, check this
-- Top level nav item
-    - A list of elements that have "Has sub navigation" checked, if you select and item from here your new nav element will appear under the selected drop down
+To add a new custom nav item, from the content manager page, select "Edit Nav" and fill in the fields as desired. Details of how each field works are displayed below the field.
+
+.. figure:: ../../nstatic/content-edit-nav.png
+
+    Editing a custom nav item in the content management system
+
+Footer Navigation
+-----------------
+With some themes, you can put a navigation link in the footer rather than the top navigation bar.
+
+Use **For footer** to switch the link to the footer. At the press level, only the path theme support this feature so far.
+
+.. figure:: ../../nstatic/footer-path-custom-links.png
+   :alt: Custom footer links in the path them
+   :class: screenshot
+
+   Custom footer links in the path theme
+
+Press managers can also create custom footer links that extend to all journal websites, such as for publisher policies.
+
+To do so, create a navigation item and check **Is external**, **For footer**, and **Extend to journals**.
+
+.. figure:: ../../nstatic/footer-olh.png
+   :alt: Custom footer links on a journal website set by a press manager
+   :class: screenshot
+
+   Custom footer links on a journal website set by a press manager
+
 
 News Manager
 ------------
@@ -80,7 +97,7 @@ To add a new news item select the *News Manager*. The interface displays exiting
 .. figure:: ../../nstatic/news_manager.png
 
     News Manager interface
-    
+
 The form fields include:
 
 - Title *
@@ -95,13 +112,15 @@ The form fields include:
     - Use for sorting when news items are posted on the same day
 - Image file
     - An image file to fit the news piece, ensure you have the rights to post it
+- Custom Byline
+    - Lets you overwrite the name displayed as the originator of the news item
 - Tags
     - A series of tags/keywords for the piece, you can filter news items by tags
 
 .. figure:: ../../nstatic/news_item.png
 
     A news item with image and tags, material theme
-    
+
 Journal Contacts
 ----------------
 You can control the contacts listing for your journal by adding and removing contacts through this interface. Only three fields are used for this:
@@ -113,7 +132,11 @@ You can control the contacts listing for your journal by adding and removing con
 - Role
     - The contact's role e.g. Editor or Publisher
     
-Each outgoing message is recorded in the database and can be viewed in the admin area by staff. 
+Each outgoing message is recorded in the database and can be viewed in the admin area by staff.
+
+.. figure:: ../../nstatic/contact_manager.png
+
+    Contact Manager interface. The sort handles indicate you can drag and drop to re-order your contacts.
 
 Editorial Team
 --------------
@@ -129,10 +152,14 @@ When you access the interface the form for making a new group is displayed on th
 - Edit the membership
 - Edit the group details
 - Delete the group
+- Drag and drop to re-order them
 
 .. figure:: ../../nstatic/editorial_team.png
 
     The Editorial Team interface
+
+.. tip::
+   As of version 1.4 the Group description field supports HTML and presents a rich-text editor. If you do not wish to add an account for each user you can simply list them in the rich text box using, for example, a bulleted list.
 
 Adding a New Group
 ~~~~~~~~~~~~~~~~~~
@@ -152,7 +179,7 @@ For an existing or newley created group you can use the Edit Members button (Gre
 .. figure:: ../../nstatic/group_membership.png
 
     An editorial team
-    
+
 On the left is a list of the current members, you can:
 
 - Delete a member from the group
@@ -160,4 +187,88 @@ On the left is a list of the current members, you can:
 
 Journal users are listed on the right and you can add a user to the group using the *Add* button. If a user account does not exist for the user you can use the *Add New User* button to add them.
 
+Submission Page Items
+---------------------
+A new addition to v1.4 the Submission Page Items system lets you totally customise the Submission page to your liking. The existing submission items have automatically been setup for you and can now be edited.
 
+.. figure:: ../../nstatic/submission_items.png
+
+    List of default submission items generated in the v1.4 upgrade process.
+
+You can manage submission items in three ways:
+
+- Link to a setting
+- Custom HTML
+- Special Display
+
+From the main screen you can add new, edit existing and delete items as well as re-order them by dragging and dropping rows of the table.
+
+
+.. figure:: ../../nstatic/submission_items_reorder.gif
+
+    List of default submission items generated in the v1.4 upgrade process.
+
+Link to a Setting
+~~~~~~~~~~~~~~~~~
+
+You can opt to link a submission item to an existing setting so it will display the same content as that setting. This is currently used for the majority of the automatically generated submission page items. Some examples of this are:
+
+- About
+- Focus and Scope
+- Submission Checklist
+
+You can tell when a submission item is linked to a setting under the 'Setting or Text' column in the main table or the 'Existing setting' field being completed when editing a submission item.
+
+
+Custom HTML
+~~~~~~~~~~~
+
+A submission item can also just have some custom HTML, you can fill out the 'Text' rich text box. When using the Text field you should not select an Existing Setting or this will take precedence when the page is rendered.
+
+Special Display
+~~~~~~~~~~~~~~~
+
+Special Display settings are used to display Licenses and Sections on the Submission page. To add these blocks you need to set the title of the item to either:
+
+- licenses
+
+or
+
+- sections
+
+You must also leave 'Text' and 'Existing setting' blank. This will render a special template that displays all publicly available sections or licenses.
+
+Media Files
+^^^^^^^^^^^
+The Media Files manager lets editors upload and host small files. Examples include:
+
+* Author Guidelines
+* Proofing Guidelines
+* Article Submission Templates
+
+Once a file is uploaded a link is provided that you can then insert into CMS pages or templates.
+
+.. note::
+    The Media Files section should not be used to upload videos unless you have sufficient storage space/bandwidth. If you use Janeway Hosting you should contact the support team.
+
+.. figure:: ../../nstatic/media_files.gif
+
+    Upload and deletion of a media file.
+
+
+Copy-Paste and Rich Text Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When working on webpages, news items, and other fields such as abstracts,
+many people copy and paste from a word processor into Janeway. As of
+version 1.5.1, Janeway handles this better than before. It keeps standard
+styling like italics, bolding, lists, and semantic HTML markup, but it
+removes custom styling and non-semantic HTML markup. This leads to better
+results in most cases.
+
+However, for edge cases, such as when you are writing custom HTML and CSS
+in your web content or news items, there is a field called "Support copy
+paste" to control whether Janeway helps with markup. With it on, Janeway
+will separate the wheat from the chaff, as described above. With it off,
+Janeway won't touch the text you enter, and you'll have full control of
+the markup and styling via the code view.

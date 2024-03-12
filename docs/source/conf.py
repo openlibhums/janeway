@@ -24,9 +24,9 @@ copyright = '2018, Andy Byers, Mauro Sanchez & Martin Paul Eve'
 author = 'Andy Byers, Mauro Sanchez & Martin Paul Eve'
 
 # The short X.Y version
-version = '1.3.10'
+version = '1.5.1'
 # The full version, including alpha/beta/rc tags
-release = '1.3.10'
+release = '1.5.1-RC-1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -92,7 +92,7 @@ html_logo = "_static/janeway.svg"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['nstatic', '_static']
+html_static_path = ['nstatic', '_static', '_static/css/']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -183,4 +183,4 @@ epub_exclude_files = ['search.html']
 # -- Extension configuration -------------------------------------------------
 
 def setup(app):
-    app.add_stylesheet('janeway.css')
+    app.add_stylesheet('_static/css/custom.css')

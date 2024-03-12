@@ -1,0 +1,19 @@
+{% load foundation %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-section">
+        {{ form | foundation }}
+    </div>
+    <div class="card-divider">
+        <div class="button-group">
+            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+            {% if skip %}
+            <button type="submit" class="button warning" name="skip" value="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip & continue</button>
+            {% endif %}
+            {% if cancel_url %}
+            <a href="{{ cancel_url }}" class="button info float-right"> <i class="fa fa-times-circle">&nbsp;</i>Cancel & go back</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+

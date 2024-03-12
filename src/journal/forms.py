@@ -5,23 +5,23 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.core.validators import validate_email, ValidationError
 
-from simplemathcaptcha.fields import MathCaptchaField
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django_summernote.widgets import SummernoteWidget
 
 from core import models as core_models
 from journal import models as journal_models, logic
+from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
-        ('title', 'Titles A-Z'),
-        ('-title', 'Titles Z-A'),
-        ('-date_published', 'Newest'),
-        ('date_published', 'Oldest'),
+        # Translators: Search order options
+        ('relevance', _('Relevance')),
+        ('title', _('Titles A-Z')),
+        ('-title', _('Titles Z-A')),
+        ('-date_published', _('Newest')),
+        ('date_published', _('Oldest')),
       ]
 
 
@@ -30,33 +30,13 @@ class JournalForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = ('code', 'domain')
-
-    def __init__(self, *args, **kwargs):
-        super(JournalForm, self).__init__(*args, **kwargs)
-        if settings.URL_CONFIG == 'path':
-            self.fields.pop('domain')
-
-    def save(self, commit=True, request=None):
-        journal = super(JournalForm, self).save(commit=False)
-
-        if settings.URL_CONFIG == 'path':
-            journal.domain = '{press_domain}/{path}'.format(press_domain=request.press.domain, path=journal.code)
-
-        if commit:
-            journal.save()
-
-        return journal
+        help_texts = {
+            'domain': 'Using a custom domain requires configuring DNS. '
+                'The journal will always be available under the /code path',
+        }
 
 
-class ContactForm(forms.ModelForm):
-
-    if settings.CAPTCHA_TYPE == 'simple_math':
-        question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-        are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
-    elif settings.CAPTCHA_TYPE == 'recaptcha':
-        are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
-    else:
-        are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
+class ContactForm(forms.ModelForm, CaptchaForm):
 
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop('subject', None)
@@ -91,33 +71,56 @@ class ResendEmailForm(forms.Form):
         self.fields['body'].initial = mark_safe(log_entry.description)
 
 
-class EmailForm(forms.Form):
-    cc = forms.CharField(
-        required=False,
-        max_length=1000,
-        help_text='Separate email addresses with ;',
-    )
-    subject = forms.CharField(max_length=1000)
-    body = forms.CharField(widget=SummernoteWidget)
-
-    def clean_cc(self):
-        cc = self.cleaned_data['cc']
-        if not cc or cc == '':
-            return []
-
-        cc_list = [x.strip() for x in cc.split(';') if x]
-        for address in cc_list:
-            try:
-                validate_email(address)
-            except ValidationError:
-                self.add_error('cc', 'Invalid email address ({}).'.format(address))
-
-        return cc_list
-
-
 class SearchForm(forms.Form):
-    article_search = forms.CharField(label='search term', min_length=3, max_length=100, required=False)
-    sort = forms.ChoiceField(label='sort by', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+    SEARCH_FILTERS = {
+        "title",
+        "abstract",
+        "authors",
+        "keywords",
+        "full_text",
+        "orcid",
+    }
+
+    def __init__(self, data=None, *args, **kwargs):
+        if data:
+            data = {k: v for k, v in data.items()}
+        super().__init__(data, *args, **kwargs)
+        if not settings.ENABLE_FULL_TEXT_SEARCH:
+            self.fields.pop('full_text', None)
+            self.fields["sort"].choices = SEARCH_SORT_OPTIONS[1:]
+
+        if self.data and not self.has_filter:
+            for search_filter in self.SEARCH_FILTERS:
+                self.data[search_filter] = "on"
+        self.label_suffix = ''
+
+    article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
+    title = forms.BooleanField(initial=True, label=_('Search Titles'), required=False)
+    abstract = forms.BooleanField(initial=True, label=_('Search Abstract'), required=False)
+    authors = forms.BooleanField(initial=True, label=_('Search Authors'), required=False)
+    keywords = forms.BooleanField(initial=True, label=_("Search Keywords"), required=False)
+    full_text = forms.BooleanField(initial=True, label=_("Search Full Text"), required=False)
+    orcid = forms.BooleanField(label=_("Search ORCIDs"), required=False)
+    sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+
+    def get_search_filters(self):
+        """ Generates a dictionary of search_filters from a search form"""
+        return {
+            "full_text": self.cleaned_data["full_text"],
+            "title": self.cleaned_data["title"],
+            "authors": self.cleaned_data["authors"],
+            "abstract": self.cleaned_data["abstract"],
+            "keywords": self.cleaned_data["keywords"],
+            "orcid": self.cleaned_data["orcid"],
+        }
+
+
+    @cached_property
+    def has_filter(self):
+        """Determines if the user has selected at least one search filter
+        :return: Boolean indicating if there are any search filters selected
+        """
+        return "on" in set(self.data.values())
 
 
 class IssueDisplayForm(forms.ModelForm):
@@ -128,4 +131,7 @@ class IssueDisplayForm(forms.ModelForm):
             'display_issue_number',
             'display_issue_year',
             'display_issue_title',
+            'display_article_number',
+            'display_article_page_numbers',
+            'display_issue_doi',
         )

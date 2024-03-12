@@ -10,9 +10,17 @@ from utils import setting_handler
 
 def get_message_content(request, context, template, plugin=False, template_is_setting=False):
     if plugin:
-        template = setting_handler.get_plugin_setting(plugin, template, None).value
+        template = setting_handler.get_plugin_setting(
+            plugin,
+            template,
+            None
+        ).value
     elif not template_is_setting:
-        template = setting_handler.get_setting('email', template, request.journal).value
+        template = setting_handler.get_setting(
+            'email',
+            template,
+            request.journal,
+        ).value
 
     template = Template(template)
     con = RequestContext(request)
@@ -23,7 +31,8 @@ def get_message_content(request, context, template, plugin=False, template_is_se
 
 
 def get_requestless_content(context, journal, template, group_name='email'):
-    template = setting_handler.get_requestless_setting(group_name, template, journal).value
+
+    template = setting_handler.get_setting(group_name, template, journal).value
 
     template = Template(template)
     html_content = template.render(Context(context))

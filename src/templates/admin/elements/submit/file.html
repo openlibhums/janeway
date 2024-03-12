@@ -8,17 +8,8 @@
         </div>
         <div class="card-section">
             <small>{% include "elements/forms/errors.html" with form=form %}</small>
-            {% if modaltype == 'data' %}
-                <p>{% trans "Please supply any original figure files or supporting information. The journal urges you to submit this document to a repository such as Figshare so that a DOI can be assigned to it, but this is not required." %}</p>
-            {% else %}
-                {% if not journal_settings.general.limit_manuscript_types %}
-                    <p>{% trans "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage." %}</p>
-                {% else %}
-                    <p>{% trans "Please upload your manuscript file, it should be in RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage." %}</p>
-                {% endif %}
-            {% endif %}
-
             {% if modaltype == 'manuscript' %}
+                {{ journal_settings.general.manuscript_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
@@ -30,25 +21,24 @@
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <label>
-                                Label <span class="red">*</span>
+                                {% trans 'Label' %} <span class="red">*</span>
                             </label>
                             <input type="text" name="label" id="id_label" required="" maxlength="200" value="{{ request.journal.submissionconfiguration.submission_file_text }}">
                         </div>
                     </div>
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <label>
-                                Description
-                            </label>
+                            <label>{% trans 'Description' %}</label>
                             <textarea name="description" id="id_description" rows="10" cols="40"></textarea>
                         </div>
                     </div>
-                    <button type="submit" name="manuscript" class="success button">Add File</button>
+                    <button type="submit" name="manuscript" class="success button">{% trans 'Add File' %}</button>
                     <button class="close-button" data-close="" aria-label="Close reveal" type="button">
                         <span aria-hidden="true">×</span>
                     </button>
                 </form>
             {% else %}
+                {{ journal_settings.general.data_figure_file_submission_instructions|safe }}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">

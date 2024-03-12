@@ -1,17 +1,22 @@
 import requests
-from pprint import pprint
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from utils import models
+from utils import models, logic
 from submission import models as submission_models
 
 
 def get_logs(message_id):
+    # try to grab the api url from settings otherwise use the default
+    try:
+        api_url = settings.MAILGUN_API_URL
+    except AttributeError:
+        api_url = 'https://api.mailgun.net/v3/'
+
     return requests.get(
-        "https://api.mailgun.net/v3/{0}/events".format(settings.MAILGUN_SERVER_NAME),
+        f"{api_url}{settings.MAILGUN_SERVER_NAME}/events",
         auth=("api", settings.MAILGUN_ACCESS_KEY),
         params={"message-id": message_id})
 
@@ -73,10 +78,11 @@ class Command(BaseCommand):
                 if 'delivered' in events:
                     log.message_status = 'delivered'
                     log.status_checks_complete = True
-                elif 'failed' in events:
+                elif 'failed' in events or 'bounced' in events:
                     if check_for_perm_failure(event_dict, log):
                         log.message_status = 'failed'
                         log.status_checks_complete = True
+                        logic.send_bounce_notification_to_event_actor(log)
                     else:
                         log.message_status = 'accepted'
 

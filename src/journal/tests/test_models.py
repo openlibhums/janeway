@@ -3,9 +3,10 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 
 from core.middleware import SiteSettingsMiddleware
+from journal import models
 from journal.tests.utils import make_test_journal
 from press.models import Press
-from utils.testing.helpers import request_context
+from utils.testing import helpers
 
 
 class TestJournalSite(TestCase):
@@ -28,7 +29,7 @@ class TestJournalSite(TestCase):
         request.journal = self.journal
         request.press = self.press
 
-        with request_context(request):
+        with helpers.request_context(request):
             result = self.journal.site_url()
 
         expected = "http://sitetestpress.org/modeltests"
@@ -80,7 +81,7 @@ class TestJournalSite(TestCase):
         path = reverse("website_index")
         result = self.journal.site_url(path)
 
-        expected = "http://" + self.journal.domain + path
+        expected = f"http://{self.journal.domain}/"
 
         self.assertEqual(expected, result)
 
@@ -97,3 +98,65 @@ class TestJournalSite(TestCase):
         expected = "http://" + self.journal.domain
 
         self.assertEqual(expected, result)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_domain_mode_site_url_while_browsing_path_mode(self):
+        journal_code = "test"
+        journal = make_test_journal(
+            code=journal_code,
+            domain="ojwithdomain.org",
+        )
+        path = f'/{journal_code}/issues/'
+        result = journal.site_url(path=path)
+
+        expected = f"http://{journal.domain}/issues/"
+
+        self.assertEqual(expected, result)
+
+
+class TestIssueModel(TestCase):
+    def setUp(self):
+        self.press = helpers.create_press()
+        self.journal, _ = helpers.create_journals()
+
+    def test_issue_display_title(self):
+        issue = helpers.create_issue(self.journal, 1, 1)
+        expected = (
+            "Volume 1 &bull; Issue 1 &bull; 2022 &bull;"
+            " Test Issue from Utils Testing Helpers"
+        )
+        self.assertEqual(issue.display_title, expected)
+
+    def test_collection_display_title(self):
+        issue = helpers.create_issue(self.journal, 1, 1)
+        issue.issue_type = models.IssueType.objects.get(
+            code="collection",
+            journal=self.journal,
+        )
+        issue.save()
+        # Reload issue
+        issue = models.Issue.objects.get(id=issue.id)
+        expected = ("Test Issue from Utils Testing Helpers")
+        self.assertEqual(issue.display_title, expected)
+
+    def test_issue_display_title_changed(self):
+        issue = helpers.create_issue(self.journal, 1, 1)
+        issue.issue = 2
+        issue.save()
+        expected = (
+            "Volume 1 &bull; Issue 2 &bull; 2022 &bull;"
+            " Test Issue from Utils Testing Helpers"
+        )
+        self.assertEqual(issue.display_title, expected)
+
+    def test_journal_settings_for_display_title_changed(self):
+        issue = helpers.create_issue(self.journal, 1, 1)
+        self.journal.display_issue_number = False
+        self.journal.save()
+        # Reload issue
+        issue = models.Issue.objects.get(id=issue.id)
+        expected = (
+            "Volume 1 &bull; 2022 &bull;"
+            " Test Issue from Utils Testing Helpers"
+        )
+        self.assertEqual(issue.display_title, expected)

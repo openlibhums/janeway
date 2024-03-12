@@ -3,7 +3,7 @@
 
 {% block title %}Add Review Files{% endblock title %}
 {% block title-section %}Add Files{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -38,7 +38,6 @@
                             <th>Download</th>
                             <th>History</th>
                             <th>Replace</th>
-
                         </tr>
                         </thead>
                         {% for file in article.manuscript_files.all %}
@@ -95,7 +94,7 @@
                     {{ journal_settings.general.review_file_help|safe }}
 
                     <input type="checkbox" id="anon" required>
-                    <label for="anon">Review files have been anonymised or this paper is not being reviewed blind or double-blind.</label>
+                    <label for="anon">Review files have been anonymised or this paper is not being reviewed in single anonymous or double-anonymous peer review.</label>
                     <br />
                     {% endif %}
 

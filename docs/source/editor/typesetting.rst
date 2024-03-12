@@ -136,12 +136,12 @@ Sending a proofreading request
 Files provided by the typesetter are usually sent to the authors, and potentially other editors, for proofreading.
 Janeway allows you to create a proofing task, where authors and/or editors can be invited to proof the typeset files.
 
-.. figure:: ../nstatic/typesetting/assign_proofreader_button.png
+.. figure:: ../nstatic/typesetting/assigning_proofreaders.gif
    :class: with-border
 
 
 Reviewing a proofreading request
--------------------------------_
+--------------------------------
 As the author/editors finish the proofing process you can review their comments.
 
 
@@ -170,3 +170,63 @@ We can also select which files the typesetter needs to apply the corrections to:
    :class: with-border
 
 After the task is sent out, we just have to wait for the typesetter to complete it, at which point we can review their work and dispatch new proofing tasks to the author if necessary, or accept their changes and complete the process.
+
+Supplementary Files
+-------------------
+Authors are able to upload supplementary files to Janeway as part of their submission. If the intention is to host the file on Janeway Editors can create a Supplementary File object and assign it a DOI within Janeway. This section is located at the bottom of the Typesetting Article page. If the file isn't already uploaded to Janeway you can opt to upload a new file.
+
+.. tip:: You should create the supplementary file object in advance of sending the article for typesetting where possible and notify the typesetter (if you use external typesetters). They will be able to see the file record and the DOI that has been assigned to it.
+
+.. figure:: ../nstatic/typesetting/supp_files.gif
+   :class: with-border
+
+Managing Typeset Files/Galleys
+------------------------------
+Once a typesetter or production manager has uploaded typeset files into Janeway they become manageable within the system. To manage a typeset file/galley press the Edit icon on the relevant table row.
+
+.. figure:: ../nstatic/typesetting/editor/typeset_files.png
+   :class: with-border
+An XML typeset file with missing figure files.
+
+
+File Detail
+^^^^^^^^^^^
+.. figure:: ../nstatic/typesetting/editor/file_details.png
+   :class: with-border
+
+The file label is displayed on the main article page and is displayed in the format "Download Label". If you set the label to XML it will read "Download XML".
+
+.. tip:: When uploading a PDF, XML or HTML file Janeway will set the label for you automatically if you leave it blank.
+
+You can also mark a typeset file as not for public consumption by unchecking the "Public" field in this section.
+
+Replacing the Typeset File
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. figure:: ../nstatic/typesetting/editor/edit_typeset_file.png
+   :class: with-border
+
+If you need to upload a new version of the typeset file you can do so from within the Edit Typeset File screen. Browse for the new file and click Upload. The old version of the file is retained. Alternatively you could mark this file as not public and upload a new typeset file if you wanted to keep two separate file records.
+
+Image/Figure Files
+^^^^^^^^^^^^^^^^^^
+HTML and XML files that are uploaded will be scanned by Janeway to detect graphic, figure or img tags. If tags are found that have no corresponding Image file will report on the main typesetting page as having missing images. (see figure at the top of this section for an example). You can load up images against a typeset file by editing it and scrolling to the Image File section.
+
+.. figure:: ../nstatic/typesetting/editor/image_files.png
+   :class: with-border
+
+For each missing image file Janeway will present you with a block where you can either upload a new image file or select an existing one from the images already linked to the article.
+
+.. tip:: For typeset files with a large number of images you can also create a zip archive and place an image (with a name matching those in the file) and upload it using the Zip Uploader. Janeway will unzip the archive and assign the images based on their name.
+
+CSS File
+^^^^^^^^
+If a given article requires special styling you can upload a CSS file alongside it and Janeway will output it on the article page.
+
+.. warning:: The CSS uploaded here should only target elements inside the <article> block otherwise it could break general styling of the site.
+
+XSL File
+^^^^^^^^
+Janeway's XSL Transformation process uses a version controlled XSL (Extensible Stylesheet Language) file. When you upload a JATS XML file to Janeway it marks the file as using the current XSL file. This means that as we make changes to the XSL file it will only affect future files uploaded and not any back content.
+
+.. warning:: Changing a XML file's XSL may cause it to render differently. It is only recommended that you do this before sending it for Proofreading.
+

@@ -20,7 +20,7 @@
 {
     "model": "submission.licence",
     "fields": {
-        "name": "Creative Commons Attribution-NoDerivs  4.0",
+        "name": "Creative Commons Attribution-NoDerivatives  4.0",
         "short_name": "CC BY-ND 4.0",
         "url": "https://creativecommons.org/licenses/by-nd/4.0",
         "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNoDerivatives \u2014 If you remix, transform, or build upon the material, you may not distribute the modified material.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
@@ -38,7 +38,7 @@
 {
     "model": "submission.licence",
     "fields": {
-        "name": "Creative Commons Attribution-NonCommercial-NoDerivs  4.0",
+        "name": "Creative Commons Attribution-NonCommercial-NoDerivatives  4.0",
         "short_name": "CC BY-NC-ND 4.0",
         "url": "https://creativecommons.org/licenses/by-nc-nd/4.0",
         "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNonCommercial \u2014 You may not use the material for commercial purposes.\r\n\r\nNoDerivatives \u2014 If you remix, transform, or build upon the material, you may not distribute the modified material.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."

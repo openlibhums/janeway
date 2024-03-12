@@ -1,9 +1,10 @@
 <ul class="collection">
     {% for license in request.journal.licence_set.all %}
         {% if license.available_for_submission %}
-            <li class="collection-item"><strong>{{ license }} - <a href="{{ license.url }}">More Information <i
+            <li class="collection-item"><strong>{{ license }} - <a href="{{ license.url }}">{% trans "More Information " %}<i
                     class="fa fa-external-link">&nbsp;</i></a></strong>
                 <br/><span class="help-text">{{ license.text }}</span></li>
         {% endif %}
     {% endfor %}
 </ul>
+<div class="divider spacer"></div>

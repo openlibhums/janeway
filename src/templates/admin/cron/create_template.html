@@ -15,22 +15,148 @@
 {% block body %}
     <div class="box">
         <div class="row expanded">
-            <div class="large-8 columns">
+            <div class="large-12 columns">
                 <form method="POST">
                     {% csrf_token %}
-                    <textarea rows="10" name="template"></textarea>
+                    <textarea rows="10" name="template">{{ text }}</textarea>
                     <button class="success button">Save Template</button>
                 </form>
             </div>
-            <div class="large-4 columns">
-                <p>A reminder email has access to two objects in the template:</p>
+            <div class="large-6 columns">
+                <h3>Template Variables for Review Assignments</h3>
+                <p>When creating a Review reminder you can use the template variables below.</p>
                 <ul>
-                    <li>object - either a reviewassignment or revision object</li>
-                    <li>journal - the journal sending the reminder</li>
+                    <li>review_assignment (this is the top level variable for a review request)
+
+                        <ul>
+                            <li>reviewer
+
+                                <ul>
+                                    <li>full_name</li>
+                                    <li>first_name</li>
+                                    <li>middle_name</li>
+                                    <li>last_name</li>
+                                    <li>email</li>
+                                    <li>username</li>
+                                    <li>affiliation</li>
+                                </ul>
+                            </li>
+                            <li>date_due</li>
+                            <li>date_requested</li>
+                            <li>editor
+
+                                <ul>
+                                    <li>full_name</li>
+                                    <li>first_name</li>
+                                    <li>middle_name</li>
+                                    <li>last_name</li>
+                                    <li>email</li>
+                                    <li>username</li>
+                                    <li>affiliation</li>
+                                </ul>
+                            </li>
+                            <li>access_code</li>
+                        </ul>
+                    </li>
+                    <li>article
+
+                        <ul>
+                            <li>title</li>
+                            <li>abstract</li>
+                            <li>language</li>
+                            <li>section
+
+                                <ul>
+                                    <li>name</li>
+                                </ul>
+                            </li>
+                            <li>license
+
+                                <ul>
+                                    <li>name</li>
+                                    <li>url</li>
+                                </ul>
+                            </li>
+                            <li>date_submitted</li>
+                            <li>projected_issue
+
+                                <ul>
+                                    <li>display_title</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
 
-                <p>You can use these objects to add context to the email. eg. <code>{% verbatim %}{{ object.article.title }}{% endverbatim %}</code>and <code>{% verbatim %}{{ object.reviewer.fullname }}{% endverbatim %}</code></p>
+                <p>So if I wanted to display the editors full name in the Review Request template I would add
+                    the following placeholder:</p>
+
+                <p>{% verbatim %}{{ review_assignment.editor.full_name }}{% endverbatim %}</p>
+
+                <p>And if I wanted to display the due date I could use:</p>
+
+                <p>{% verbatim %}{{ review_assignment.date_due }}{% endverbatim %}</p>
+                <p>If I wanted to display the title of the issue this article is projected to be in I can
+                    use:</p>
+
+                <p>{% verbatim %}{{ article.projected_issue.display_title }}{% endverbatim %}</p>
+            </div>
+            <div class="large-6 columns">
+                <h3>Template Variables for Revision Requests</h3>
+                <p>When creating a Review reminder you can use the template variables below.</p>
+                <ul>
+                    <li>revision (this is the top level variable for a review request)
+                        <ul>
+                            <li>article
+
+                                <ul>
+                                    <li>title</li>
+                                    <li>abstract</li>
+                                    <li>language</li>
+                                    <li>section
+
+                                        <ul>
+                                            <li>name</li>
+                                        </ul>
+                                    </li>
+                                    <li>license
+
+                                        <ul>
+                                            <li>name</li>
+                                            <li>url</li>
+                                        </ul>
+                                    </li>
+                                    <li>date_submitted</li>
+                                    <li>projected_issue
+
+                                        <ul>
+                                            <li>display_title</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>editor
+
+                                <ul>
+                                    <li>full_name</li>
+                                    <li>first_name</li>
+                                    <li>middle_name</li>
+                                    <li>last_name</li>
+                                    <li>email</li>
+                                    <li>username</li>
+                                    <li>affiliation</li>
+                                </ul>
+                            </li>
+                            <li>date_requested</li>
+                            <li>date_due</li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block js %}
+{% include "admin/elements/jqte.html" %}
 {% endblock %}

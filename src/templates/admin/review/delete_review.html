@@ -2,7 +2,7 @@
 
 {% block title %}Delete Review{% endblock title %}
 {% block title-section %}Delete Review{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
@@ -15,7 +15,7 @@
 <div class="large-12 columns">
     <div class="box">
         <div class="title-area">
-            <h2>You are deleting a review assigned to {{ review.reviewer.full_name }} on article {{ article.title }}</h2>
+            <h2>You are deleting a review assigned to {{ review.reviewer.full_name }} on article {{ article.safe_title }}</h2>
         </div>
         <div class="content">
             <p>You can add a note that will be logged next to this deletion: </p>

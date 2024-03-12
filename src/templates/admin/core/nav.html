@@ -1,57 +1,25 @@
-{% load static from staticfiles %}
+{% load static %}
 {% load securitytags %}
 {% load i18n %}
 {% load hooks %}
 
 {% is_editor as editor %}
+{% is_any_editor as any_editor %}
 
 <div class="off-canvas position-left reveal-for-large" id="offCanvas" data-off-canvas>
     <button class="close-button" aria-label="Close menu" type="button" data-close>
         <span aria-hidden="true">&times;</span>
     </button>
     <ul class="vertical menu">
-        <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
-        <li class="subtitle"><a href="#">Dashboards</a></li>
-        <li><a href="{% url 'core_dashboard' %}"><i class="fa fa-tachometer">&nbsp;</i>
-            Main</a></li>
-        {% if editor %}
-        <li><a href="{% url 'kanban' %}"><i class="fa fa-sticky-note">&nbsp;</i> Kanban</a>
+        <li class="title">
+            <a href="#">
+                <i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway
+            </a>
         </li>
-        <li><a href="{% url 'core_active_submissions' %}"><i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions</a>
-        </li>
-        <li class="subtitle"><a href="#">Workflow</a></li>
-            <li>
-                <a href="{% url 'review_unassigned' %}"><i class="fa fa-angle-right">&nbsp;</i>  Unassigned</a>
-            </li>
-
-            {% for element in request.journal.workflow.elements.all %}
-                <li>
-                    <a href="{% url element.handshake_url %}"><i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}</a>
-                </li>
-            {% endfor %}
-
-        <li class="subtitle"><a href="#">Back Content</a></li>
-        <li><a href="{% url 'manage_issues' %}"><i class="fa fa-folder-open">&nbsp;</i>
-            Issues</a></li>
-        <li><a href="{% url 'manage_archive' %}"><i class="fa fa-file">&nbsp;</i>
-            Articles</a></li>
-        <li><a href="{% url 'publication_schedule' %}"><i class="fa fa-calendar">&nbsp;</i>
-            Publication Schedule</a></li>
-        {% endif %}
-        {% if request.user.is_staff or editor %}
-            <li class="subtitle"><a href="#">Staff</a></li>
-            <li><a href="{% url 'core_manager_index' %}"><i class="fa fa-lock">&nbsp;</i>
-            Manager</a></li>
-            <li><a href="{% url 'core_plugin_list' %}"><i class="fa fa-plug">&nbsp;</i>
-            Plugins</a></li>
-        {% endif %}
-        {% if request.user.is_staff %}
-            <li><a href="{% url 'core_journal_workflow' %}"><i class="fa fa-code-fork">&nbsp;</i>
-            Workflow</a></li>
-            {% hook 'journal_admin_nav_block' %}
-        {% endif %}
         {% if journal_settings.general.switch_language %}
-        <li class="subtitle"><a href="#">Language</a></li>
+        <li class="subtitle">
+            <a href="#">Switch Language</a>
+        </li>
         <li>
             <div class="small-12 small-centered columns">
                  <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
@@ -61,14 +29,114 @@
                         {% get_available_languages as LANGUAGES %}
                         {% get_language_info_list for LANGUAGES as languages %}
                         {% for language in languages %}
+                            {% if language.code in request.available_languages %}
                             <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
                                 {{ language.name_local }} ({{ language.code }})
                             </option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </form>
             </div>
         </li>
+        {% endif %}
+        <li class="subtitle"><a href="#">Dashboards</a></li>
+        <li>
+            <a href="{% url 'core_dashboard' %}">
+                <i class="fa fa-tachometer">&nbsp;</i> Main
+            </a>
+        </li>
+        {% if editor %}
+            <li>
+                <a href="{% url 'kanban' %}">
+                    <i class="fa fa-sticky-note">&nbsp;</i> Kanban
+                </a>
+            </li>
+        {% endif %}
+        {% if any_editor %}
+            <li>
+                <a href="{% url 'core_active_submissions' %}">
+                    <i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions
+                </a>
+            </li>
+        {% endif %}
+        {% if editor %}
+            <li class="subtitle">
+                <a href="#">Workflow</a>
+            </li>
+            <li>
+                <a href="{% url 'review_unassigned' %}">
+                    <i class="fa fa-angle-right">&nbsp;</i> Unassigned
+                </a>
+            </li>
+
+            {% for element in request.journal.workflow.elements.all %}
+                <li>
+                    <a href="{% url element.handshake_url %}">
+                        <i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}
+                    </a>
+                </li>
+            {% endfor %}
+        {% elif any_editor %}
+            <li class="subtitle">
+                <a href="#">Workflow</a>
+            </li>
+            {% for element in request.journal.workflow.elements.all %}
+                {% if element.element_name == 'review' or element.element_name == 'copyediting' %}
+                    <li>
+                        <a href="{% url element.handshake_url %}">
+                            <i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if editor %}
+            <li class="subtitle">
+                <a href="#">Back Content</a>
+            </li>
+            <li>
+                <a href="{% url 'manage_issues' %}">
+                    <i class="fa fa-folder-open">&nbsp;</i> Issues
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manage_archive' %}">
+                    <i class="fa fa-file">&nbsp;</i> Articles
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'publication_schedule' %}">
+                    <i class="fa fa-calendar">&nbsp;</i> Publication Schedule
+                </a>
+            </li>
+        {% endif %}
+        {% if request.user.is_staff or editor %}
+            <li class="subtitle">
+                <a href="#">Staff</a>
+            </li>
+            <li>
+                <a href="{% url 'core_manager_index' %}">
+                    <i class="fa fa-lock">&nbsp;</i> Manager
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'core_plugin_list' %}">
+                    <i class="fa fa-plug">&nbsp;</i> Plugins
+                </a>
+            </li>
+            {% hook 'journal_editor_nav_block' %}
+        {% endif %}
+        {% if request.user.is_staff %}
+            <li>
+                <a href="{% url 'core_journal_workflow' %}">
+                    <i class="fa fa-code-fork">&nbsp;</i> Workflow
+                </a>
+            </li>
+            {% hook 'journal_admin_nav_block' %}
+            <li class="subtitle">
+                <a href="#">Version: {{ version }}</a>
+            </li>
         {% endif %}
     </ul>
 </div>
@@ -77,13 +145,13 @@
 
     <header class="main-header" role="banner">
         <div class="row expanded">
-            <div class="small-3 columns">
+            <div class="small-3 columns hide-for-large">
                 <button type="button" class="button hide-for-large" data-toggle="offCanvas"><img
                         src="{% static "admin/img/icons/menu-toggle.svg" %}" alt="Menu"> Menu
                 </button>
                 &nbsp;
             </div>
-            <div class="small-6 columns text-center show-for-large">
+            <div class="small-6 large-10 columns show-for-large">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.name }}</a></h1>
             </div>
             <div class="small-6 columns text-center show-for-medium-only">
@@ -92,17 +160,18 @@
             <div class="small-6 columns text-center show-for-small-only">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.code }}</a></h1>
             </div>
-            <div class="small-3 columns text-right">
+            <div class="small-3 large-2 columns text-right">
                 {% if request.user.is_authenticated %}
                 <div class="profile">
                     <a class="float-right" data-toggle="profile-dropdown">
-                        <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
                         {% include "elements/avatar.html" with user=request.user tooltip="off" %}
                     </a>
                 </div>
                 <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">
                     <ul class="menu vertical">
+                        {% if not journal_settings.general.disable_journal_submission %}
                         <li><a href="{% url 'submission_start' %}">Submit</a></li>
+                        {% endif %}
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
                         {% if request.user.is_staff or editor %}
                         <li><a href="{% url 'core_manager_index' %}">Manager</a></li>

@@ -1,6 +1,6 @@
 <li><a href="{% url 'production_list' %}">Articles in Production</a></li>
-{% if article %}<li><a href="{% url 'production_article' article.pk %}">{{ article.title }}</a></li>{% endif %}
+{% if article %}<li><a href="{% url 'production_article' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
 {% if typeset_task and not article %}
-<li><a href="{% url 'production_article' typeset_task.assignment.article.pk %}">{{ typeset_task.assignment.article.title }}</a></li>
+<li><a href="{% url 'production_article' typeset_task.assignment.article.pk %}">{{ typeset_task.assignment.article.safe_title }}</a></li>
 {% endif %}
 

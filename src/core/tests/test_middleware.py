@@ -6,19 +6,21 @@ from django.shortcuts import redirect
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.core.management import call_command
 
 from core.middleware import (
-        get_site_resources,
-        SiteSettingsMiddleware,
-        TimezoneMiddleware,
+    SiteSettingsMiddleware,
+    TimezoneMiddleware,
+    BaseMiddleware
 )
 from core.models import Account
 from journal.tests.utils import make_test_journal
-from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
 
+
 class TestSiteMiddleware(TestCase):
+
     def setUp(self):
         journal_kwargs = dict(
             code="test",
@@ -27,7 +29,7 @@ class TestSiteMiddleware(TestCase):
         press_kwargs = dict(
             domain="press.org",
         )
-        self.middleware = SiteSettingsMiddleware()
+        self.middleware = SiteSettingsMiddleware(BaseMiddleware)
         self.request_factory = RequestFactory()
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)
@@ -49,6 +51,17 @@ class TestSiteMiddleware(TestCase):
         self.assertEqual(expected_journal, request.journal)
         self.assertEqual(expected_press, request.press)
         self.assertEqual(expected_site_type, request.site_type)
+
+    @override_settings(URL_CONFIG="domain", DEBUG=False)
+    def test_journal_site_with_path_in_domain_mode(self):
+        # expect
+        expected_journal = self.journal
+        # do
+        request = self.request_factory.get("http://press.org/test/")
+        _ = self.middleware.process_request(request)
+
+        # assert
+        self.assertEqual(expected_journal, request.journal)
 
     @override_settings(URL_CONFIG="path")
     def test_press_site_in_path_mode(self):
@@ -129,7 +142,7 @@ class TestTimezoneMiddleware(TestCase):
         press_kwargs = dict(
             domain="press.org",
         )
-        self.middleware = TimezoneMiddleware()
+        self.middleware = TimezoneMiddleware(BaseMiddleware)
         self.request_factory = RequestFactory()
         self.journal = make_test_journal(**journal_kwargs)
         self.press = Press(**press_kwargs)

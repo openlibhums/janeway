@@ -54,7 +54,7 @@ This is an end all button, it will remove the files and reviewers from the curre
 Add Reviewer
 ------------------
 
-When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(visibility, form and due date\) or, if you've setup the required defaults, you can "Assign with Defaults". This will use the default type, visibility, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
+When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(anonymity, form and due date\) or, if you've setup the required defaults, you can "Assign with Defaults". This will use the default type, anonymity, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
 
 Assuming you choose to select the options yourself, when you press "Add Reviewer" you will be taken to the "Notify" page where you can edit the outgoing email to the user. There is an option available to skip sending this email if you wish.
 
@@ -62,14 +62,49 @@ Once the reviewer is assigned they will be able to access the system and let you
 
 .. figure:: ../nstatic/review_add_reviewer.gif
 
+Managing a Review
+-----------------
+
+Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
+
+1. View the review, though it doesn't tell us much
+2. Withdraw the review
+3. Delete the review
+4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
+
 
 Making Reviews Available to Authors
 -----------------------------------
-Once a reviewer has completed their review, you can mark the review as available for author consumption. When you make an Accept, Reject or Revision decision the author will gain access to view these reviews within the system.
+Once a peer review is complete, editors then have the option to make it available to the the author to read. By default the review will not be available for the author to read. When the review has a file, you will also have the option to make the file available for the author to read. Once you have opened a review you will see a details of the review assignment, a summary of the review and the review availability controls.
 
-.. figure:: ../nstatic/review_author_consumption.gif
+.. figure:: ../nstatic/review_view_page.png
 
-You can also edit review form answers to ensure they do not identify the reviewer. The author will see the edited version, the system will retain the original.
+Allow Author to Read Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can make the review form visible to the author by toggling *Author can access this review*, and the file available by toggling *Author can access review file*.
+
+.. figure:: ../nstatic/review_visibility_controls_1.png
+
+Controlling Individual Answers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to making the overall review available for authors to read, you can control the individual form answers under *Answer Visibility*. Toggling the answers on or off will determine whether the author can see them when they look at the review.
+
+.. figure:: ../nstatic/review_visibility_controls_2.png
+
+Editing Answers
+~~~~~~~~~~~~~~~
+
+You can edit individual answers to create an *edited version*. When viewing the review the author will see only your edited version and not the original version from the reviewer. You can reset the answer at any given time. Note that Janeway will retain a copy of the original and display it for other editors to see.
+
+.. figure:: ../nstatic/review_form_elements.png
+
+
+Once you have adjusted the visibility of Peer Review reports, and have clicked through to ‘Make a Decision’, you will see a summary of the Peer Reviews and what is and what is not revealed to authors before sending your Decision.
+
+.. figure:: ../nstatic/review_visibility_4.png
+
 
 Decision Helper
 -----------------
@@ -88,6 +123,8 @@ One of the options under Actions is "Make a Decision" this will take you to the 
     - Allows you to request the author revise their paper.
 - If enabled, Draft a Decision
     - Allows Section Editors to draft one of the above decisions for approval by an Editor.
+- Share Peer Reviews
+    - Allows an editor to email all of the reviewers who participated in the review of an article and share a link allowing them to read all of the review reports. Note: This must first be enabled before the option will be displayed. See the  :ref:`Sharing Peer Reviews<sharingpeerreviewsanchor>` section.
 
 
 .. figure:: ../nstatic/review_decision_helper.gif
@@ -113,7 +150,7 @@ Requesting revisions will allow you to ask the Author to make changes to the man
 
 Draft a Decision
 ----------------
-Draft Decisions is an optional workflow that requests that Section Editors submit a draft of their editorial decision for approval by an Editor before it is sent to the author via the system. When enabled, a Section Editor will only see the Draft Decision feature on the Decision Helper page.
+Draft Decisions (DD) is an optional workflow that requests that Section Editors submit a draft of their editorial decision for approval by an Editor before it is sent to the author via the system. When enabled, a Section Editor will only see the Draft Decision feature on the Decision Helper page.
 
 Section Editors:
 
@@ -131,15 +168,74 @@ Editors:
 
 .. figure:: ../nstatic/review_draft_a_decision.gif
 
-Managing a Review
------------------
+Examples of Draft Decisions are: Accept, Minor Revisions, Major Revisions or Decline. Editors are required to approve these Draft Decisions (DD) before they are sent to Authors.
 
-Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
+If the DD is Accept, an article is moved into Copyediting.
 
-1. View the review, though it doesn't tell us much
-2. Withdraw the review
-3. Delete the review
-4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
+If the DD is Minor Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers.
+
+If the DD is Major Revisions, the Section Editor should provide the Author with guidance on how to implement the feedback from the Peer Reviewers. If an article requires Major Revisions, then another round of Peer Review must be undertaken once the Major Revisions are complete.
+
+If the DD is Decline, the article will be archived and the author notified.
+
+To approve a DD:
+
+1. Click on the link in the email notifying you of the DD
+2. Click ‘Edit’ in the ‘Existing Draft Decisions’ box on the upper right hand side of the screen (NB do not start filling in the ‘Draft Decision’ form – your Section Editor will already have drafted an email to the author in ‘Existing Draft Decisions)
+3. Review the email to the Author and the Peer Review reports. Helpful Tip: You can open the ‘Reviews’ tab for the article in a separate window to compare the Peer Review Reports with the DD
+4. Click ‘Approve’ to action the DD
+
+Sharing Peer Reviews
+--------------------
+
+.. note:: This is a new feature added in v1.5.1.
+
+In Janeway, editors have the ability to share completed peer reviews among the reviewers who took part in an article review process. There are two ways to accomplish this, and both can be managed through the Review Settings interface.
+
+1. The first method involves a new decision available on the decision helper screen. With this option, editors can mark the reviews of an article as shareable. Additionally, an email will be sent to all the reviewers who participated in the peer review, providing them with a link to access and view the review content.
+2. The second option simplifies the process by automatically sharing completed reviews from previous rounds with reviewers in rounds 2 and beyond. When reviewers access the review interface, they will be given the choice to view anonymous reviews completed by their peers.
+
+Please refer to the documentation on :ref:`Sharing Peer Reviews<sharingpeerreviewsanchor>` for detailed information on how to activate these functionalities.
+
+Share Reviews Decision
+~~~~~~~~~~~~~~~~~~~~~~
+Once the setting is enabled a new decision option will show on the decision helper page.
+
+.. figure:: /nstatic/share_review_decision_list.png
+
+    New decision in the decision list.
+
+Editors then can send an email to each of the reviewers providing them with a link to access and view the review content.
+
+.. figure:: /nstatic/share_review_decision_page.png
+
+    Interface for notifying peer reviewers.
+
+Reviewers can use the link in the email to access the shared reviews interface.
+
+.. figure:: /nstatic/share_reviews_reviewer.png
+
+    Reviewer viewing completed reviews.
+
+
+Display Completed Reviews in Review Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Once this setting is activated, editors don't need to take any additional action. Reviewers in round 2 and all subsequent rounds will automatically have access to view the reviews completed in previous rounds. For instance, in round 3, reviewers will be able to see the completed reviews from rounds 1 and 2, but not the reviews completed specifically for round 3.
+
+.. figure:: /nstatic/share_reviews_during_review.png
+
+    Round 2 reviewer viewing completed round 1 reviews.
+
+Editors have the ability to modify the message that clarifies the reason why reviewers can see the reviews in the manager interface.
+
+
+Sharing Author Response Letters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the revision process, authors are encouraged to provide a written response to review comments. If editors want to share the authors' response letters along with peer reviews, they can enable the "Automatically Share Author Response Letters" option in the review settings section.
+
+.. figure:: /nstatic/share_reviews_response_letters.png
+
+    Response letter being shared with peer reviewers.
 
 
 An Example Review Round

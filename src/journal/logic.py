@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
 from django.utils.timezone import make_aware
@@ -111,6 +112,7 @@ def create_galley_from_file(file_object, article_object, owner=None):
         label=new_file.label,
     )
 
+
 def get_best_galley(article, galleys):
     """
     Attempts to get the best galley possible for an article
@@ -118,19 +120,34 @@ def get_best_galley(article, galleys):
     :param galleys: list of Galley objects
     :return: Galley object
     """
-    if article.render_galley:
+    if article.render_galley and article.render_galley.public:
         return article.render_galley
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            html_galley = galleys.get(
+                file__mime_type__in=files.HTML_MIMETYPES,
+                public=True,
+            )
             return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            xml_galley = galleys.get(
+                file__mime_type__in=files.XML_MIMETYPES,
+                public=True,
+            )
             return xml_galley
+        except core_models.Galley.DoesNotExist:
+            pass
+        try:
+
+            image_galley = galleys.get(
+                file__mime_type__in=files.IMAGE_MIMETYPES,
+                public=True,
+            )
+            return image_galley
         except core_models.Galley.DoesNotExist:
             pass
     except core_models.Galley.MultipleObjectsReturned:
@@ -186,19 +203,30 @@ def handle_new_issue(request):
     return [form, 'issue', new_issue]
 
 
-def handle_assign_issue(request, article, issues):
-    try:
-        issue_to_assign = journal_models.Issue.objects.get(pk=request.POST.get('assign_issue', None))
-
-        if issue_to_assign in issues:
-            issue_to_assign.articles.add(article)
-            issue_to_assign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article assigned to issue.')
-        else:
-
-            messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')
-    except journal_models.Issue.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Issue does no exist.')
+def handle_assign_issue(request, article, issue):
+    added = False
+    if not article.section:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _('Articles without a section cannot be added to an issue.'),
+        )
+    elif issue not in article.journal.issues:
+        messages.add_message(
+            request, messages.WARNING, 'Issue not in this journal’s issue list.')
+    else:
+        issue.articles.add(article)
+        issue.save()
+        messages.add_message(
+            request, messages.SUCCESS, 'Article assigned to issue.')
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
+            article=article,
+            issue=issue,
+            user=request.user,
+        )
+        added = True
+    return added
 
 
 def handle_unassign_issue(request, article, issues):
@@ -208,12 +236,12 @@ def handle_unassign_issue(request, article, issues):
         if issue_to_unassign in issues:
             issue_to_unassign.articles.remove(article)
             issue_to_unassign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article unassigned from Issue.')
+            messages.add_message(request, messages.SUCCESS, 'Article unassigned from issue.')
         else:
 
-            messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')
+            messages.add_message(request, messages.WARNING, 'Issue not in this journal’s issue list.')
     except journal_models.Issue.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Issue does no exist.')
+        messages.add_message(request, messages.WARNING, 'Issue does not exist.')
 
 
 def handle_set_pubdate(request, article):
@@ -278,6 +306,15 @@ def set_render_galley(request, article):
         messages.add_message(request, messages.SUCCESS, 'Render galley has been set.')
     else:
         messages.add_message(request, messages.WARNING, 'No galley id supplied.')
+
+
+def set_open_reviews(request, article):
+    # get a list of reviews
+    reviews = article.completed_reviews_with_permission
+
+    for review in reviews:
+        review.display_public = bool(request.POST.get('open-review-' + str(review.pk), False))
+        review.save()
 
 
 def set_article_image(request, article):
@@ -416,10 +453,9 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
         sort = request.GET.get('sort', 'title')
-        if keyword:
-            form = SearchForm({'article_search':'', 'sort': sort})
-        else:
-            form = SearchForm({'article_search':search_term, 'sort': sort})
+        if sort == "relevance":
+            sort = 'title'
+        form = SearchForm(request.GET or None)
 
         return search_term, keyword, sort, form, None
 
@@ -525,6 +561,8 @@ def send_email(user, form, request, article):
         message,
         log_dict=log_dict,
         cc=form.cleaned_data['cc'],
+        bcc=form.cleaned_data['bcc'],
+        attachment=form.cleaned_data['attachments'],
     )
 
 
@@ -540,6 +578,25 @@ def get_table_from_html(table_name, content):
     table_div = soup.find("div", {'id': table_name})
     table = table_div.find("table")
     return table
+
+
+def get_all_tables_from_html(content):
+    """
+    Uses BS4 to fetch all tables in html.
+    :param content: HTML content
+    """
+    soup = BeautifulSoup(str(content), 'lxml')
+    tables = []
+
+    for table in soup.findAll('div', attrs={'class': 'table-expansion'}):
+        tables.append(
+            {
+                'id': table.get('id'),
+                'content': str(table)
+            }
+        )
+
+    return tables
 
 
 def parse_html_table_to_csv(table, table_name):

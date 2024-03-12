@@ -8,28 +8,54 @@ from urllib.parse import urlparse
 import uuid
 import os
 from dateutil import parser as dateparser
+from itertools import chain
 
 from django.urls import reverse
-from django.db import models
+from django.db import (
+    connection,
+    DEFAULT_DB_ALIAS,
+    models,
+)
+from django.db.models.query import RawQuerySet
+from django.db.models.sql.query import get_order_dir
 from django.conf import settings
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    SearchVectorField,
+)
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+from django.template import Context, Template
 from django.template.loader import render_to_string
-from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
+from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django_bleach.models import BleachField
+import swapper
 
-from core import workflow
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import M2MOrderedThroughField
+from core.model_utils import(
+    AbstractLastModifiedModel,
+    BaseSearchManagerMixin,
+    M2MOrderedThroughField,
+)
+from core import workflow, model_utils, files, models as core_models
+from core.templatetags.truncate import truncatesmart
 from identifiers import logic as id_logic
+from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
-from preprint import models as preprint_models
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from journal import models as journal_models
+from review.const import (
+    ReviewerDecisions as RD,
+    VisibilityOptions as VO,
+)
 
 logger = get_logger(__name__)
 
@@ -213,14 +239,29 @@ STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+STAGE_ARCHIVED = 'Archived'
+
+NEW_ARTICLE_STAGES = {
+    STAGE_UNSUBMITTED,
+    STAGE_UNASSIGNED,
+}
 
 FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
     STAGE_PUBLISHED,
     STAGE_REJECTED,
+    STAGE_ARCHIVED,
 }
 
 REVIEW_STAGES = {
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
+    STAGE_UNDER_REVISION,
+    STAGE_ACCEPTED,
+}
+
+# Stages used to determine if a review assignment is open
+REVIEW_ACCESSIBLE_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION
@@ -258,7 +299,8 @@ STAGE_CHOICES = [
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
     (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
-    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
+    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published'),
+    (STAGE_ARCHIVED, 'Archived'),
 ]
 
 PLUGIN_WORKFLOW_STAGES = []
@@ -268,13 +310,33 @@ class Funder(models.Model):
     class Meta:
         ordering = ('name',)
 
-    name = models.CharField(max_length=500, blank=False, null=False)
-    fundref_id = models.CharField(max_length=500, blank=True, null=True)
-    funding_id = models.CharField(max_length=500, blank=True, null=True)
+    name = models.CharField(
+        max_length=500,
+        blank=False,
+        null=False,
+        help_text='Funder name',
+    )
+    fundref_id = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text='Funder DOI (optional). Enter as a full Uniform '
+                  'Resource Identifier (URI), such as '
+                  'http://dx.doi.org/10.13039/501100021082',
+    )
+    funding_id = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="The grant ID (optional). Enter the ID by itself",
+    )
 
 
 class ArticleStageLog(models.Model):
-    article = models.ForeignKey('Article')
+    article = models.ForeignKey(
+        'Article',
+        on_delete=models.CASCADE,
+    )
     stage_from = models.CharField(max_length=200, blank=False, null=False)
     stage_to = models.CharField(max_length=200, blank=False, null=False)
     date_time = models.DateTimeField(default=timezone.now)
@@ -289,10 +351,15 @@ class ArticleStageLog(models.Model):
                                                                                             date_time=self.date_time)
 
 
-class PublisherNote(models.Model):
+class PublisherNote(AbstractLastModifiedModel):
     text = models.TextField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
-    creator = models.ForeignKey('core.Account', default=None)
+    creator = models.ForeignKey(
+        'core.Account',
+        default=None,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -303,15 +370,21 @@ class PublisherNote(models.Model):
 
 
 class Keyword(models.Model):
-    word = models.CharField(max_length=200)
+    word = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
         return self.word
 
 
 class KeywordArticle(models.Model):
-    keyword = models.ForeignKey("submission.Keyword")
-    article = models.ForeignKey("submission.Article")
+    keyword = models.ForeignKey(
+        "submission.Keyword",
+        on_delete=models.CASCADE,
+    )
+    article = models.ForeignKey(
+        "submission.Article",
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -325,22 +398,11 @@ class KeywordArticle(models.Model):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
 
 
-class AllArticleManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
-
-
 class ArticleManager(models.Manager):
     use_in_migrations = True
-    def get_queryset(self):
-        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
 
-
-class PreprintManager(models.Manager):
     def get_queryset(self):
-        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+        return super(ArticleManager, self).get_queryset().all()
 
 
 class DynamicChoiceField(models.CharField):
@@ -371,20 +433,216 @@ class DynamicChoiceField(models.CharField):
                     raise
 
 
-class Article(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+class ArticleSearchManager(BaseSearchManagerMixin):
+    SORT_KEYS = {
+        "-title",
+        "title",
+        "date_published",
+        "-date_published",
+    }
+
+    def search(self, *args, **kwargs):
+        queryset = super().search(*args, **kwargs)
+        if not isinstance(queryset, RawQuerySet):
+            queryset = queryset.filter(
+                date_published__lte=timezone.now(),
+                stage=STAGE_PUBLISHED,
+            )
+        return queryset
+
+    def mysql_search(self, search_term, search_filters, sort=None, site=None):
+        queryset = self.get_queryset().none()
+        if not search_term or not any(search_filters.values()):
+            return queryset
+        querysets = []
+        if search_filters.get('title'):
+            querysets.append(
+                self.get_queryset().filter(title__search=search_term))
+        if search_filters.get('authors'):
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__first_name__search=search_term))
+            querysets.append(self.get_queryset().filter(
+                frozenauthor__last_name__search=search_term))
+        if search_filters.get("abstract"):
+            querysets.append(
+                self.get_queryset().filter(abstract__search=search_term))
+        if search_filters.get('keywords'):
+            querysets.append(self.get_queryset().filter(
+                keywords__word__search=search_term))
+        if search_filters.get("full_text"):
+            querysets.append(self.get_queryset().filter(
+                galley__file__text__contents__search=search_term))
+        for search_queryset in querysets:
+            queryset |= search_queryset
+
+
+        if sort in self.SORT_KEYS:
+            queryset = queryset.order_by(sort)
+
+        return queryset
+
+    def postgres_search(self, search_term, search_filters, sort=None, site=None):
+        queryset = self.get_queryset()
+        if not search_term or not any(search_filters.values()):
+            return queryset.none()
+        queryset = queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=STAGE_PUBLISHED,
+        )
+        if site:
+            queryset = queryset.filter(journal=site)
+        lookups, annotations = self.build_postgres_lookups(
+            search_term, search_filters)
+        if annotations:
+            queryset = queryset.annotate(**annotations)
+        if lookups:
+            queryset = queryset.filter(**lookups)
+
+
+        if not sort or sort not in self.SORT_KEYS:
+            sort = "-relevance"
+
+        # Postgresql requires adding the DISTINCT ON column to ORDER BY
+        queryset = queryset.order_by("id").distinct("id")
+
+        # Now we can order the result set based by another column
+        # We can't use the ORM for sorting because it is not possible to select
+        # a column from a subquery filter and postgres sorting requires
+        # distinct fields to match order_by fields
+        inner_sql = self.stringify_queryset(queryset)
+
+        if "relevance" in sort:
+            # Relevance is not a field but an annotation
+            return Article.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search "
+                "ORDER BY relevance DESC"
+            )
+        else:
+            order_by_sql = self.build_order_by_sql(sort)
+
+            return Article.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search "
+                f"{order_by_sql}"
+            )
+            return queryset.order_by(sort)
+
+    def build_order_by_sql(self, sort_key):
+        """ Compiles and returns the ORDER BY statement in sql for the sort_key
+        It sorts an empty queryset of this model first, delegating the
+        translation of the sort_key into the correct column name. Then it
+        invokes Django's compiler to generate equivalent ORDER BY statement
+        """
+        sorted_qs = self.none().order_by(sort_key)
+        sql = sorted_qs._query
+        sql_compiler = sorted_qs._query.get_compiler(DEFAULT_DB_ALIAS)
+        query = sql_compiler.query
+        order_by = sql_compiler.query.order_by
+        order_strings = []
+        for field in order_by:
+            order_strings.append("%s %s" % get_order_dir(field, "ASC"))
+        return 'ORDER BY %s' % ', '.join(order_strings)
+
+
+    def build_postgres_lookups(self, search_term, search_filters):
+        """ Build the necessary lookup expressions based on the provided filters
+
+        Each Filter is provided an arbitrary weight:
+            +---------------+---------+---------+
+            | column        | Weight  | Factor  |
+            +===============+=========+=========+
+            | Title         | A       | 1       |
+            | Keyword       | B       | .4      |
+            | Author names  | B       | .4      |
+            | Abstract      | C       | .2      |
+            | Galley text   | D       | .1      |
+            +---------------+---------+---------+
+        Each result is annotated with a 'relevance' value that will be factored
+        using the above weights. The results are then sorted based on relevance
+        which will have an impact only when multiple search filters are
+        combined.
+        """
+        lookups = {}
+        annotations = {"relevance": models.Value(1.0, models.FloatField())}
+        vectors = []
+        if search_filters.get('title'):
+            vectors.append(SearchVector('title', weight="A"))
+        if search_filters.get('keywords'):
+            vectors.append(SearchVector('keywords__word', weight="B"))
+        if search_filters.get('authors'):
+            vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
+            vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector('abstract', weight="C"))
+        if search_filters.get("full_text"):
+            FileTextModel = swapper.load_model("core", "FileText")
+            field_type = FileTextModel._meta.get_field("contents")
+            if isinstance(field_type, SearchVectorField):
+                vectors.append(model_utils.SearchVector(
+                    'galley__file__text__contents', weight="D"))
+            else:
+                vectors.append(SearchVector(
+                    'galley__file__text__contents', weight="D"))
+        if vectors:
+            # Combine all vectors
+            vector = vectors[0]
+            for v in vectors[1:]:
+                vector += v
+            query = SearchQuery(search_term)
+            relevance = SearchRank(vector, query)
+            annotations["relevance"] = relevance
+            # Since we weight file contents as 'D', the returned relevance
+            # values can range between .01 and .1
+            lookups["relevance__gte"] = 0.01
+
+        if search_filters.get('ORCID'):
+            lookups['frozenauthor__author__orcid'] = search_term
+            lookups['frozenauthor__frozen_orcid'] = search_term
+        return lookups, annotations
+
+    @staticmethod
+    def stringify_queryset(queryset):
+        sql, params = queryset.query.sql_with_params()
+        with connection.cursor() as cursor:
+            return cursor.mogrify(sql, params).decode()
+
+
+class ActiveArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveArticleManager, self).get_queryset().exclude(
+            stage__in=[STAGE_ARCHIVED, STAGE_REJECTED, STAGE_UNSUBMITTED],
+        )
+
+
+class Article(AbstractLastModifiedModel):
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     # Metadata
-    owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=999, help_text=_('Your article title'))
-    subtitle = models.CharField(max_length=999, blank=True, null=True,
-                                help_text=_('Subtitle of the article display format; Title: Subtitle'))
+    owner = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    # title = BleachField(
+    title = models.CharField(
+        max_length=999,
+        help_text=_('Your article title'),
+    )
+    subtitle = models.CharField(
+        # Note: subtitle is deprecated as of version 1.4.2
+        max_length=999,
+        blank=True,
+        null=True,
+        help_text=_('Do not use--deprecated in version 1.4.1 and later.')
+    )
+    # abstract = BleachField(
     abstract = models.TextField(
         blank=True,
         null=True,
-        help_text=_('Please avoid pasting content from word processors as they can add '
-                    'unwanted styling to the abstract. You can retype the abstract '
-                    'here or copy and paste it into notepad/a plain text editor before '
-                    'pasting here.')
+        help_text=_('Copying and pasting from word processors is supported.'),
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
@@ -414,6 +672,16 @@ class Article(models.Model):
     competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
                                                                             "of interests in the publication of this "
                                                                             "article please state them here.")
+    rights = models.TextField(
+        blank=True, null=True,
+        help_text="A custom statement on the usage rights for this article"
+            " and associated materials, to be rendered in the article page"
+    )
+
+    article_number = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID."
+    )
 
     # Files
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
@@ -440,7 +708,13 @@ class Article(models.Model):
     current_step = models.IntegerField(default=1)
 
     # Pages
-    page_numbers = models.CharField(max_length=20, blank=True, null=True)
+    first_page = models.PositiveIntegerField(blank=True, null=True)
+    last_page = models.PositiveIntegerField(blank=True, null=True)
+    page_numbers = models.CharField(
+        max_length=32, blank=True, null=True,
+        help_text=_("Custom page range. e.g.: 'I-VII' or 1-3,4-8"),
+    )
+    total_pages = models.PositiveIntegerField(blank=True, null=True)
 
     # Stage
     stage = DynamicChoiceField(
@@ -450,6 +724,10 @@ class Article(models.Model):
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+        help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
+             overrides Janeway's workflow. It should only be changed to a value\
+             which is know to be safe such as a stage an article has already\
+             been a part of before.",
     )
 
     # Agreements
@@ -457,7 +735,7 @@ class Article(models.Model):
     submission_requirements = models.BooleanField(default=False)
     copyright_notice = models.BooleanField(default=False)
     comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor",
-                                       help_text="Add any comments you'd like the editor to consider here.")
+                                       help_text=_("Add any comments you'd like the editor to consider here."))
 
     # an image of recommended size: 750 x 324
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='image_file',
@@ -480,8 +758,28 @@ class Article(models.Model):
 
     custom_how_to_cite = models.TextField(
         blank=True, null=True,
-        help_text="Custom 'how to cite' text. To be used only if the block"
-            " generated by Janeway is not suitable.",
+        help_text=_("Custom 'how to cite' text. To be used only if the block"
+            " generated by Janeway is not suitable."),
+    )
+
+    publisher_name = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Name of the publisher who published this article"
+            " Only relevant to migrated articles from a different publisher"
+        )
+    )
+
+    publication_title = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Name of the publisher who published this article"
+            " Only relevant to migrated articles from a different publisher"
+        )
+    )
+    ISSN_override = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Original ISSN of this article's journal when published"
+            " Only relevant for back content published under a different title"
+        )
     )
 
     # iThenticate ID
@@ -494,8 +792,10 @@ class Article(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text='You can only assign an Issue that this Article is part of.'
-                  'You can add this article to and Issue from the Issue Manager.'
+        help_text='You can only assign an issue '
+                  'that this article is part of. '
+                  'You can add this article to an '
+                  'issue from the Issue Manager.',
     )
     projected_issue = models.ForeignKey(
         'journal.Issue',
@@ -503,24 +803,43 @@ class Article(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name='projected_issue',
+        help_text='This field is for internal purposes only '
+                  'before publication. You can use it to '
+                  'track likely issue assignment before formally '
+                  'assigning an issue.',
     )
 
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
-    is_preprint = models.BooleanField(default=False)
-    preprint_decision_notification = models.BooleanField(default=False)
-    preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
-
-    allarticles = AllArticleManager()
-    objects = ArticleManager()
-    preprints = PreprintManager()
+    preprint_journal_article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
 
+    reviews_shared = models.BooleanField(
+        default=False,
+        help_text="Marked true when an editor manually shares reviews with "
+                  "other reviewers using the decision helper page.",
+    )
+
+    objects = ArticleSearchManager()
+    active_objects = ActiveArticleManager()
+
     class Meta:
         ordering = ('-date_published', 'title')
+
+    @property
+    def safe_title(self):
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "[Untitled]"
 
     @property
     def how_to_cite(self):
@@ -529,19 +848,39 @@ class Article(models.Model):
 
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
-        author_str = " & ".join(a.citation_name() for a in authors)
+        author_str = ''
+        for author in authors:
+            if author == authors.first():
+                author_str = author.citation_name()
+            elif not author == authors.last():
+                author_str = author_str + f", {author.citation_name()}"
+            else:
+                author_str = author_str + f" & {author.citation_name()}"
+        if author_str:
+            author_str += ","
         year_str = ""
         if self.date_published:
             year_str = "({:%Y})".format(self.date_published)
-        journal_str = "<i>%s</i>" % self.journal.name
+        journal_str = "<i>%s</i>" % (
+            self.publication_title or self.journal.name
+        )
         issue_str = ""
         issue = self.issue
-        if self.issue:
-            issue_str = "%s(%s)" % (issue.volume, issue.issue)
+        if issue:
+            if issue.volume:
+                if issue.issue and issue.issue != "0":
+                    issue_str = "%s(%s)" % (issue.volume, issue.issue)
+                else:
+                    issue_str = str(issue.volume)
+            elif issue.issue and issue.issue != "0":
+                    issue_str = str(issue.issue)
+            if self.article_number:
+                issue_str += ": {}".format(self.article_number)
+
         doi_str = ""
         pages_str = ""
-        if self.page_numbers:
-            pages_str = " p.{0}.".format(self.page_numbers)
+        if self.page_range:
+            pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -550,13 +889,24 @@ class Article(models.Model):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": mark_safe(self.title),
+            "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
             "pages_str": pages_str,
         }
         return render_to_string(template, context)
+
+    @property
+    def page_range(self):
+        if self.page_numbers:
+            return self.page_numbers
+        elif self.first_page and self.last_page:
+            return "{}–{}".format(self.first_page, self.last_page)
+        elif self.first_page:
+            return "{}".format(self.first_page)
+        else:
+            return ""
 
     @property
     def metrics(self):
@@ -568,6 +918,33 @@ class Article(models.Model):
     @property
     def has_galley(self):
         return self.galley_set.all().exists()
+
+    @property
+    def has_publication_details(self):
+        """Determines if an article has publication details override"""
+        return(
+            self.page_range
+            or self.article_number
+            or self.publisher_name
+            or self.publication_title
+            or self.ISSN_override
+        )
+
+    @property
+    def journal_title(self):
+        return self.publication_title or self.journal.name
+
+    @property
+    def journal_issn(self):
+        return self.ISSN_override or self.journal.issn
+
+    @property
+    def publisher(self):
+        return (
+            self.publisher_name
+            or self.journal.publisher
+            or self.journal.press.name
+        )
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
@@ -583,7 +960,7 @@ class Article(models.Model):
                 idx = 1
                 carousel_text += ', '
 
-            if author.institution != '':
+            if author.institution:
                 carousel_text += author.full_name() + " ({0})".format(author.institution)
             else:
                 carousel_text += author.full_name()
@@ -594,7 +971,7 @@ class Article(models.Model):
 
     @property
     def carousel_title(self):
-        return self.title
+        return self.safe_title
 
     @property
     def carousel_image_resolver(self):
@@ -611,7 +988,7 @@ class Article(models.Model):
             return self.render_galley
 
         ret = self.galley_set.filter(
-            file__mime_type="application/xml"
+            file__mime_type__in=files.XML_MIMETYPES,
         ).order_by(
             "sequence",
         )
@@ -623,7 +1000,7 @@ class Article(models.Model):
 
     @property
     def xml_galleys(self):
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
+        ret = self.galley_set.filter(file__mime_type__in=files.XML_MIMETYPES).order_by(
             "sequence")
 
         return ret
@@ -656,8 +1033,6 @@ class Article(models.Model):
                 'graphic': 'xlink:href'
             }
 
-            from core import models as core_models
-
             # iterate over all found elements
             for element, attribute in elements.items():
                 images = souped_xml.findAll(element)
@@ -681,6 +1056,30 @@ class Article(models.Model):
 
         return True
 
+    def index_full_text(self):
+        """ Indexes the render galley for full text search
+        :return: A boolean indicating if a file has been processed
+        """
+        indexed = False
+
+        # Delete currently indexed article files
+        FileTextModel = swapper.load_model("core", "FileText")
+        current = FileTextModel.objects.filter(file__article_id=self.pk)
+        if current.exists():
+            current.delete()
+
+        # Generate new from best possible galley
+        render_galley = self.get_render_galley
+        if render_galley:
+            indexed = render_galley.file.index_full_text()
+        elif self.galley_set.exists():
+            for galley in self.galley_set.all():
+                indexed = galley.file.index_full_text()
+                if indexed:
+                    break
+        return indexed
+
+
     @property
     @cache(300)
     def identifier(self):
@@ -693,7 +1092,6 @@ class Article(models.Model):
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
-        from identifiers import models as identifier_models
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)
@@ -716,6 +1114,15 @@ class Article(models.Model):
         return None
 
     @property
+    def get_doi_object(self):
+        return self.get_identifier('doi', object=True)
+
+    @property
+    @cache(30)
+    def doi_pattern_preview(self):
+        return id_logic.render_doi_from_pattern(self)
+
+    @property
     def identifiers(self):
         from identifiers import models as identifier_models
         return identifier_models.Identifier.objects.filter(article=self)
@@ -724,10 +1131,26 @@ class Article(models.Model):
         return self.get_identifier('pubid')
 
     def is_accepted(self):
-        # return true for all stages after accepted
-        return self.stage == "Published" or self.stage == "Accepted" or self.stage == "Editor Copyediting"\
-            or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
-            or self.stage == "Typesetting" or self.stage == "Proofing"
+        if self.date_published:
+            return True
+
+        if ArticleStageLog.objects.filter(
+            article=self,
+            stage_to=STAGE_ACCEPTED,
+        ).exists():
+            return True
+
+        if self.stage == STAGE_ACCEPTED:
+            return True
+
+        if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
+            return True
+
+        return False
+
+    @cached_property
+    def in_review_stages(self):
+        return self.stage in REVIEW_STAGES
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
@@ -735,7 +1158,7 @@ class Article(models.Model):
         )
 
     def __str__(self):
-        return u'%s - %s' % (self.pk, self.title)
+        return u'%s - %s' % (self.pk, truncatesmart(self.title))
 
     @staticmethod
     @cache(300)
@@ -746,19 +1169,18 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(
+                    id=identifier,
+                    journal=journal,
+                )[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
-                    id_type=identifier_type, identifier=identifier)[0].article
+                    id_type=identifier_type,
+                    identifier=identifier,
+                )[0].article
 
-                if article.is_published:
-                    # check that the retrieved article is listed in an issue TOC for the current journal
-                    article_journals = [issue.journal for issue in article.issues.all()]
-
-                    if journal not in article_journals:
-                        return None
-                elif not article.journal == journal:
+                if not article.journal == journal:
                     return None
 
             return article
@@ -774,7 +1196,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier)[0]
+                article = Article.objects.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -830,39 +1252,56 @@ class Article(models.Model):
         return url
 
     def step_to_url(self):
+        funding_enabled = False
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
+            funding_enabled = self.journal.submissionconfiguration.funding
+
         if self.current_step == 1:
             return reverse('submit_info', kwargs={'article_id': self.id})
         elif self.current_step == 2:
             return reverse('submit_authors', kwargs={'article_id': self.id})
         elif self.current_step == 3:
             return reverse('submit_files', kwargs={'article_id': self.id})
+        elif self.current_step == 4 and funding_enabled:
+            return reverse('submit_funding', kwargs={'article_id': self.id})
         elif self.current_step == 4:
             return reverse('submit_review', kwargs={'article_id': self.id})
         else:
-            return None
+            return reverse('submit_review', kwargs={'article_id': self.id})
 
     def step_name(self):
+        funding_enabled = False
+        if self.journal and getattr(
+            self.journal, "submissionconfiguration", None
+        ):
+            funding_enabled = self.journal.submissionconfiguration.funding
         if self.current_step == 1:
             return 'Article Information'
         elif self.current_step == 2:
             return 'Article Authors'
         elif self.current_step == 3:
             return 'Article Files'
+        elif self.current_step == 4 and funding_enabled:
+            return 'Article Funding'
         elif self.current_step == 4:
             return 'Review Article Submission'
-        elif self.current_step == 5:
+        elif self.current_step == 5 and funding_enabled:
+            return 'Review Article Submission'
+        else:
             return 'Submission Complete'
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.allarticles.get(pk=self.pk)
+            current_object = Article.objects.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)
         super(Article, self).save(*args, **kwargs)
 
     def folder_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', self.pk)
+        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.pk))
 
     def production_managers(self):
         return [assignment.production_manager for assignment in self.productionassignment_set.all()]
@@ -934,11 +1373,37 @@ class Article(models.Model):
 
         return issues
 
+    @property
+    def issue_title(self):
+        """ The issue title in the context of the article
+
+        When an article renders its issue title, it can include article
+        dependant elements such as page ranges or article numbers. For this
+        reason, we cannot render database cached issue title.
+        """
+        if not self.issue:
+            return ''
+
+        if self.issue.issue_type.code != 'issue':
+            return self.issue.issue_title
+        else:
+            template = Template(" • ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return mark_safe(template.render(Context()))
+
     def author_list(self):
         if self.is_accepted():
             return ", ".join([author.full_name() for author in self.frozen_authors()])
         else:
             return ", ".join([author.full_name() for author in self.authors.all()])
+
+    def keyword_list_str(self, separator=","):
+        if self.keywords.exists():
+            return separator.join(kw.word for kw in self.keywords.all())
+        return ''
 
     def can_edit(self, user):
         # returns True if a user can edit an article
@@ -950,7 +1415,7 @@ class Article(models.Model):
             return True
         elif user in self.section_editors():
             return True
-        elif not user.is_anonymous() and user.is_editor(
+        elif not user.is_anonymous and user.is_editor(
                 request=None,
                 journal=self.journal,
         ):
@@ -985,16 +1450,35 @@ class Article(models.Model):
         return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True)
 
     @property
+    def completed_reviews_with_permission(self):
+        return self.completed_reviews.filter(permission_to_make_public=True)
+
+    @property
+    def public_reviews(self):
+        return self.completed_reviews_with_permission.filter(display_public=True)
+
+    @property
     def completed_reviews_with_decision(self):
-        return self.reviewassignment_set.filter(is_complete=True,
-                                                date_declined__isnull=True,
-                                                review_round=self.current_review_round_object()
-                                                ).exclude(decision='withdrawn')
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_declined__isnull=True,
+            decision__isnull=False,
+        ).exclude(decision='withdrawn')
+
+    @property
+    def completed_reviews_with_decision_previous_rounds(self):
+        completed_reviews = self.completed_reviews_with_decision
+        return completed_reviews.filter(
+            review_round__round_number__lt=self.current_review_round(),
+        )
 
     def active_review_request_for_user(self, user):
         try:
-            return self.reviewassignment_set.filter(is_complete=False, date_declined__isnull=True,
-                                                    reviewer=user).first()
+            return self.reviewassignment_set.filter(
+                is_complete=False,
+                date_declined__isnull=True,
+                reviewer=user
+            ).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
@@ -1005,6 +1489,11 @@ class Article(models.Model):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
+
+        # Frozen author records should be updated at acceptance,
+        # so we fire the default force_update=True on snapshot_authors
+        self.snapshot_authors()
+
         self.date_accepted = timezone.now()
         self.date_declined = None
 
@@ -1028,11 +1517,26 @@ class Article(models.Model):
         self.stage = STAGE_REJECTED
         self.save()
 
+    def undo_review_decision(self):
+        self.date_accepted = None
+        self.date_declined = None
+
+        if review_models.EditorAssignment.objects.filter(article=self):
+            self.stage = STAGE_ASSIGNED
+        else:
+            self.stage = STAGE_UNASSIGNED
+
+        self.save()
+
     def accept_preprint(self, date, time):
         self.date_accepted = timezone.now()
         self.date_declined = None
         self.stage = STAGE_PREPRINT_PUBLISHED
         self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
+        self.save()
+
+    def mark_reviews_shared(self):
+        self.reviews_shared = True
         self.save()
 
     def user_is_author(self, user):
@@ -1065,6 +1569,10 @@ class Article(models.Model):
         else:
             return False
 
+    @property
+    def scheduled_for_publication(self):
+        return bool(self.stage == STAGE_PUBLISHED and self.date_published)
+
     def snapshot_authors(self, article=None, force_update=True):
         """ Creates/updates FrozenAuthor records for this article's authors
         :param article: (deprecated) should not pass this argument
@@ -1091,6 +1599,9 @@ class Article(models.Model):
     def active_revision_requests(self):
         return self.revisionrequest_set.filter(date_completed__isnull=True)
 
+    def completed_revision_requests(self):
+        return self.revisionrequest_set.filter(date_completed__isnull=False)
+
     def active_author_copyedits(self):
         author_copyedits = []
 
@@ -1109,18 +1620,22 @@ class Article(models.Model):
         )
 
     def get_meta_image_path(self):
+        path = None
         if self.meta_image and self.meta_image.url:
-            return self.meta_image.url
+            path = self.meta_image.url
         elif self.large_image_file and self.large_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.large_image_file.pk})
         elif self.thumbnail_image_file and self.thumbnail_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.thumbnail_image_file.pk})
         elif self.journal.default_large_image:
-            return self.journal.default_large_image.url
+            path = self.journal.default_large_image.url
+
+        if path:
+            return self.journal.site_url(path=path)
         else:
             return ''
 
@@ -1135,13 +1650,6 @@ class Article(models.Model):
             return 0
         else:
             return max(current_orders) + 1
-
-    def next_preprint_version(self):
-        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
-        if not versions:
-            return 1
-        else:
-            return max(versions) + 1
 
     def subject_editors(self):
         editors = list()
@@ -1169,12 +1677,10 @@ class Article(models.Model):
 
     @cache(600)
     def workflow_stages(self):
-        from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
 
     @property
     def current_workflow_element(self):
-        from core import models as core_models
         try:
             workflow_element_name = workflow.STAGES_ELEMENTS.get(
                 self.stage,
@@ -1191,9 +1697,9 @@ class Article(models.Model):
         kwargs = {'article_id': self.pk}
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
-            return reverse('review_unassigned_article', kwargs=kwargs)
+            path = reverse('review_unassigned_article', kwargs=kwargs)
         elif self.stage in FINAL_STAGES:
-            return reverse('manage_archive_article', kwargs=kwargs)
+            path = reverse('manage_archive_article', kwargs=kwargs)
         elif not self.stage:
             logger.error(
                 'Article #{} has no Stage.'.format(
@@ -1204,7 +1710,7 @@ class Article(models.Model):
         else:
             element = self.current_workflow_element
             if element:
-                return reverse(element.jump_url, kwargs=kwargs)
+                path = reverse(element.jump_url, kwargs=kwargs)
             else:
                 # In order to ensure the Dashboard renders we purposefully do
                 # not raise an error message here.
@@ -1214,10 +1720,24 @@ class Article(models.Model):
                     )
                 )
                 return '?workflow_element_url=no_element'
+        return self.journal.site_url(path=path)
+
+    def next_workflow_element(self):
+        try:
+            current_workflow_element = self.current_workflow_element
+            journal_elements = list(self.journal.workflow().elements.all())
+            i = journal_elements.index(current_workflow_element)
+            return journal_elements[i+1]
+        except (IndexError, ValueError):
+            return 'No next workflow stage found'
 
     @cache(600)
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
+
+    @property
+    def registration_preview(self):
+        return id_logic.preview_registration_information(self)
 
     def close_core_workflow_objects(self):
         from review import models as review_models
@@ -1307,10 +1827,71 @@ class Article(models.Model):
             decision='withdrawn',
         )
 
+    def ms_and_figure_files(self):
+        return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
-class FrozenAuthor(models.Model):
-    article = models.ForeignKey('submission.Article', blank=True, null=True)
-    author = models.ForeignKey('core.Account', blank=True, null=True)
+    def fast_last_modified_date(self):
+        """ A faster way of calculating an approximate last modified date
+        While not as accurate as `best_last_modified_date` this calculation
+        covers most of the relevant relations when determining when an article
+        has been last modified. Depending on the numner of related nodes, this
+        function can be about 6 times faster than `best_last_modified_date`
+        """
+        last_mod_date = self.last_modified
+
+        try:
+            latest = self.galley_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except core_models.Galley.DoesNotExist:
+            pass
+
+        try:
+            latest = self.frozenauthor_set.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except FrozenAuthor.DoesNotExist:
+            pass
+
+        try:
+            latest = core_models.File.objects.filter(
+                article_id=self.pk).latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except core_models.File.DoesNotExist:
+            pass
+
+        try:
+            latest = self.issues.latest("last_modified").last_modified
+            if latest > last_mod_date:
+                    last_mod_date = latest
+        except journal_models.Journal.DoesNotExist:
+            pass
+
+        return last_mod_date
+
+    @cache(600)
+    def pinned(self):
+        if journal_models.PinnedArticle.objects.filter(
+            journal=self.journal,
+            article=self,
+        ):
+            return True
+
+
+class FrozenAuthor(AbstractLastModifiedModel):
+    article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     name_prefix = models.CharField(
         max_length=300, null=True, blank=True,
@@ -1325,9 +1906,25 @@ class FrozenAuthor(models.Model):
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
 
-    institution = models.CharField(max_length=1000)
+    institution = models.CharField(max_length=1000, null=True, blank=True)
     department = models.CharField(max_length=300, null=True, blank=True)
-    country = models.ForeignKey('core.Country', null=True, blank=True)
+    frozen_biography = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Frozen Biography'),
+        help_text=_("The author's biography at the time they published"
+                    " the linked article. For this article only, it overrides"
+                    " any main biography attached to the author's account."
+                    " If Frozen Biography is left blank, any main biography"
+                    " for the account will be populated instead."
+                   ),
+    )
+    country = models.ForeignKey(
+        'core.Country',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     order = models.PositiveIntegerField(default=1)
 
@@ -1335,6 +1932,23 @@ class FrozenAuthor(models.Model):
             default=False,
             help_text="If enabled, the institution and department fields will "
                 "be used as the author full name",
+    )
+    frozen_email = models.EmailField(
+            blank=True,
+            null=True,
+            verbose_name=_("Author Email"),
+    )
+    frozen_orcid = models.CharField(
+        max_length=40, null=True, blank=True,
+        verbose_name=_('ORCiD'),
+        help_text=_("ORCiD to be displayed when no account is"
+                    " associated with this author. It should be introduced in code "
+                    "format (e.g: 0000-0000-0000-000X)"
+                    )
+    )
+    display_email = models.BooleanField(
+        default=False,
+        help_text=_("If checked, this authors email address link will be displayed on the article page.")
     )
 
     class Meta:
@@ -1346,21 +1960,64 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
+        name_elements = [
+            self.name_prefix,
+            self.first_name,
+            self.middle_name,
+            self.last_name,
+            self.name_suffix
+        ]
+        return " ".join([each for each in name_elements if each])
         full_name = u"%s %s" % (self.first_name, self.last_name)
+
+    @property
+    def dc_name_string(self):
+        name_string = ""
+
+        if self.is_corporate:
+            return self.corporate_name
+
+        if self.last_name:
+            name_string += "{}{}{} ".format(
+                self.last_name,
+                " {}".format(self.name_suffix) if self.name_suffix else '',
+                "," if self.first_name else '',
+            )
+        if self.first_name:
+            name_string += "{}".format(self.first_name)
         if self.middle_name:
-            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        if self.name_prefix:
-            full_name = "%s %s" % (_(self.name_prefix), full_name)
-        if self.name_suffix:
-            full_name = "%s %s" % (full_name, self.name_suffix)
-        return full_name
+            name_string += " {}".format(self.middle_name)
+
+        return name_string
+
+    @property
+    def email(self):
+        if self.frozen_email:
+            return self.frozen_email
+        elif self.author:
+            return self.author.email
+        return None
+
+    @property
+    def orcid(self):
+        if self.frozen_orcid:
+            return self.frozen_orcid
+        elif self.author:
+            return self.author.orcid
+        return None
 
     @property
     def corporate_name(self):
-        name = self.institution
-        if self.department:
-            name = "{}, {}".format(self.department, name)
-        return name
+        return self.affiliation()
+
+    @property
+    def biography(self):
+        if self.frozen_biography:
+            return self.frozen_biography
+        elif self.author:
+            return self.author.biography
+        return None
+
 
     def citation_name(self):
         if self.is_corporate:
@@ -1372,7 +2029,7 @@ class FrozenAuthor(models.Model):
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
 
-        citation = '{last} {first}{middle}'.format(
+        citation = '{last}, {first}{middle}'.format(
             last=self.last_name, first=first_initial, middle=middle_initial)
         if self.name_suffix:
             citation = '{}, {}'.format(citation, self.name_suffix)
@@ -1385,10 +2042,12 @@ class FrozenAuthor(models.Model):
             return self.first_name
 
     def affiliation(self):
-        if self.department:
-            return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
-        else:
+        if self.institution and self.department:
+            return "{}, {}".format(self.department, self.institution)
+        elif self.institution:
             return self.institution
+        else:
+            return ''
 
     @property
     def is_correspondence_author(self):
@@ -1410,50 +2069,82 @@ class FrozenAuthor(models.Model):
             return True
 
 
-class Section(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal')
+class Section(AbstractLastModifiedModel):
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     number_of_reviewers = models.IntegerField(default=2)
 
-    editors = models.ManyToManyField('core.Account',
+    editors = models.ManyToManyField(
+        'core.Account',
         help_text="Editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
     )
-    section_editors = models.ManyToManyField('core.Account',
+    section_editors = models.ManyToManyField(
+        'core.Account',
         help_text="Section editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
         related_name='section_editors',
     )
-    auto_assign_editors = models.BooleanField(default=False,
+    auto_assign_editors = models.BooleanField(
+        default=False,
         help_text="Articles submitted to this section will be automatically"
-            " assigned to the editors and/or section editors selected above.",
+                  " assigned to the editors and/or section editors selected above.",
     )
-
-    is_filterable = models.BooleanField(default=True,
-        help_text="Allows filtering article search results by this section.")
+    is_filterable = models.BooleanField(
+        default=True,
+        help_text="Allows filtering article search results by this section.",
+    )
     public_submissions = models.BooleanField(default=True)
-    indexing = models.BooleanField(default=True,
+    indexing = models.BooleanField(
+        default=True,
         help_text="Whether this section is put forward for indexing")
-    sequence = models.PositiveIntegerField(default=0,
+    sequence = models.PositiveIntegerField(
+        default=0,
         help_text="Determines the order in which the section is rendered"
-            " Sections can also be reorder by drag-and-drop",
+                  " Sections can also be reorder by drag-and-drop",
+    )
+    name = models.CharField(
+        max_length=200,
+        null=True,
+    )
+    plural = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Pluralised name for the section"
+                  " (e.g: Article -> Articles)",
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(max_length=200),
-        plural=models.CharField(max_length=200, null=True, blank=True,
-            help_text="Pluralised name for the section"
-                " (e.g: Article -> Articles)"
-        )
-    )
+    objects = model_utils.JanewayMultilingualManager()
 
     class Meta:
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.safe_translation_getter('name', str(self.pk))
+        if self.name:
+            return self.name
+        return f"Unnamed Section {self.pk}"
+
+    def display_name_public_submission(self):
+        """
+        Returns a display name that informs the user if the section is
+        close for submission.
+        """
+        name = f"Unnamed Section {self.pk}"
+        if self.name:
+            name = self.name
+        if not self.public_submissions:
+            name = f"{name} (Public Submission Closed)"
+
+        return name
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
+
+    def article_count(self):
+        return Article.objects.filter(section=self).count()
 
     def editor_emails(self):
         return [editor.email for editor in self.editors.all()]
@@ -1465,13 +2156,12 @@ class Section(TranslatableModel):
         return [editor.email for editor in self.section_editors.all() + self.editors.all()]
 
     def issue_display(self):
-        if self.lazy_translation_getter('plural', str(self.pk)):
-            return self.lazy_translation_getter('plural', str(self.pk))
-        else:
-            return self.lazy_translation_getter('name', str(self.pk))
+        if self.plural:
+            return self.plural
+        return self.name
 
 
-class Licence(models.Model):
+class Licence(AbstractLastModifiedModel):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True, on_delete=models.SET_NULL)
     press = models.ForeignKey('press.Press', null=True, blank=True, on_delete=models.SET_NULL)
 
@@ -1497,8 +2187,15 @@ class Licence(models.Model):
 
 
 class Note(models.Model):
-    article = models.ForeignKey(Article)
-    creator = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
+    creator = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     text = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)
 
@@ -1526,8 +2223,18 @@ def width_choices():
 
 
 class Field(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
     width = models.CharField(max_length=50, choices=width_choices(), default='full')
@@ -1557,13 +2264,22 @@ class Field(models.Model):
 
 class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
-    article = models.ForeignKey(Article)
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
     answer = models.TextField()
 
 
 class ArticleAuthorOrder(models.Model):
-    article = models.ForeignKey(Article)
-    author = models.ForeignKey('core.Account')
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -1571,7 +2287,10 @@ class ArticleAuthorOrder(models.Model):
 
 
 class SubmissionConfiguration(models.Model):
-    journal = models.OneToOneField('journal.Journal')
+    journal = models.OneToOneField(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
 
     publication_fees = models.BooleanField(default=True)
     submission_check = models.BooleanField(default=True)
@@ -1597,6 +2316,7 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         help_text=_('The default license applied when no option is presented'),
+        on_delete=models.SET_NULL,
     )
     default_language = models.CharField(
         max_length=200,
@@ -1611,6 +2331,7 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_('The default section of '
                     'articles when no option is presented'),
+        on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(
         max_length=255,
@@ -1662,6 +2383,13 @@ def remove_author_from_article(sender, instance, **kwargs):
             author=instance.author,
             article=instance.article,
         ).delete()
+    except ArticleAuthorOrder.MultipleObjectsReturned:
+        # the same account could be linked to the paper twice if the account
+        # is linked to multiple FrozenAuthor records.
+        ArticleAuthorOrder.objects.filter(
+            author=instance.author,
+            article=instance.article,
+        ).first().delete()
     except ArticleAuthorOrder.DoesNotExist:
         pass
 

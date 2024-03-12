@@ -1,0 +1,9 @@
+{% load svg from press_url %}
+<div class="row expanded">
+    <div class="col m2">
+        {% svg request.press_cover %}
+    </div>
+    <div class="col m10">
+        <p><small>{{ press.footer_description|default:""|safe }}</small></p>
+    </div>
+</div>

@@ -2,9 +2,17 @@
 
 {% if issue.large_image %}
     <div class="card">
-        <div class="card-image waves-effect waves-block waves-light">
-            <img class="activator" src="{{ issue.large_image.url }}">
-            <span class="card-title">{{ issue.display_title }}</span>
+        <div class="card-image">
+            <a href="{{ issue.url }}">
+                <img class="activator" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title }} hero image.">
+            </a>
+            <span class="card-title">
+            <div class="carousel-text-wrapper ">
+                <a href="{{ issue.url }}">
+                    {{ issue.display_title }}
+                </a>
+            </div>
+            </span>
         </div>
         {% if issue.issue_description %}
             <div class="card-content">
@@ -15,6 +23,10 @@
 {% else %}
     <h1>{{ issue.display_title }}</h1>
     {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
+{% endif %}
+
+{% if issue.journal.display_issue_doi and issue.doi_url %}
+<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
 {% endif %}
 
 {% include "common/elements/guest_editors.html" %}

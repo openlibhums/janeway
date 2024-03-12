@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 
+{% load securitytags %}
+
 {% block title %}Articles in Review{% endblock %}
 
 {% block breadcrumbs %}
@@ -8,13 +10,17 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
+{% is_editor as editor %}
+
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Articles in Review</h2>
-                {% if filter == 'me' %}
-                    <a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}
-                    <a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
+                {% if editor and filter == 'me' %}
+                    <a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>
+                {% elif editor %}
+                    <a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>
+                {% endif %}
                 <a href="#" data-open="statuskey" class="button">Review Status Key</a>
             </div>
             <div class="content">
@@ -39,11 +45,10 @@
                     {% for article in articles %}
                         <tr>
                             <td>{{ article.pk }}</td>
-                            <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
+                            <td><a href="{% url 'review_in_review' article.pk %}">{{ article.safe_title }}</a></td>
                             <td>{{ article.date_submitted }}</td>
                             <td>{{ article.correspondence_author.full_name }}</td>
-                            <td>{% for editor in article.editors %}{{ editor.editor.full_name }}
-                                {% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                             <td>{{ article.section.name }}</td>
                             <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}
                                 None{% endif %}</td>
@@ -104,7 +109,7 @@
                                                         {% endif %}
                                                         </a>
                                                     </td>
-                                                <tr>
+                                                </tr>
                                             {% endfor %}
                                         </table>
                                     {% else %}

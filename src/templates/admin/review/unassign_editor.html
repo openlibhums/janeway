@@ -3,7 +3,7 @@
 
 {% block title %}Unassign Editor Request{% endblock title %}
 {% block title-section %}Unassign Editor Request{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -16,7 +16,7 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="content">
-                <p>You are unassigning {{ assignment.editor.full_name }} from {{ article.title }}.</p>
+                <p>You are unassigning {{ assignment.editor.full_name }} from {{ article.safe_title }}.</p>
                 <p>If you select Skip, the editor will not be notified.</p>
 
                 <div class="card">
@@ -24,25 +24,8 @@
                         <h4>To {{ assignment.reviewer.full_name }}</h4>
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="card-section">
-                            {% setting_var request.journal 'subject_unassign_editor' as subject %}
-                            <p>Subject: <strong>{{ subject }}</strong></p>
-                            <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
-                        </div>
-                        <div class="card-divider">
-                            <div class="button-group">
-                                <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
-                    &nbsp;&nbsp;
-                    <button type="submit" class="button alert" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
-                    </button>
-                    <a href="{% url 'review_unassign_editor' article.pk assignment.editor.pk %}" class="button warning" type="submit">Cancel</a>
-                            </div>
-                        </div>
-                    </form>
                 </div>
+                    {% include "admin/elements/email_form.html" with form=form skip=1 %}
             </div>
         </div>
 
@@ -51,5 +34,8 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/jqte.html" %}
+    {{ block.super}}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
 {% endblock js %}

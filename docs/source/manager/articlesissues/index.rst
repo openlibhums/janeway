@@ -1,5 +1,23 @@
+.. _articles_issues_guidelines:
+
 Articles and Issues
 ===================
+
+
+Article Display Settings
+------------------------
+The Article Display Settings page has settings for controlling the way articles look and for deciding how metrics are displayed.
+
+- Disable Article Images
+- Display Guest Editors
+- Suppress How to Cite
+- View PDF Option
+- Disable Metrics Display
+- Suppress Citation Metrics
+
+How To Cite is an auto-generated citation based on a custom OLH citation style.  Note that a previous version of the citation included "p" before page ranges. To get this back, enter a custom value in Page Numbers in the Edit Metadata pane for each article.
+
+You can suppress How To Cite for all articles with Suppress How To Cite. You can also override it for individual articles by entering a custom citation in the Edit Metadata pane for each article.
 
 Article Images Manager
 ----------------------
@@ -66,6 +84,9 @@ To create an issue select *Create Issue* in the top right and in the modal that 
 
     New issue form
 
+- Issue DOI
+    - Issues can have a DOI, which will be registered with all of its articles in crossref. If you are using Janeway's autoregistration (recommended) or if you are not interested on registering DOIs for issues, you can leave this field blank.
+
 Issue Articles
 ~~~~~~~~~~~~~~
 You can manage the article associated with a given issue by selecting the *View* option, the data of the issue will be displayed along with a list of articles grouped by section.
@@ -78,11 +99,32 @@ You can reorder the Section headers using the arrows Up and Down arrows on the r
 
 In addition, if the issue has guest editors you can add them using the Guest Editor manager at the bottom of the Issue page.
 
+Projected Issues
+~~~~~~~~~~~~~~~~
+Janeway allows editors to mark articles as projected to be published within a given issue. This can be done in the Editor Assignment stage by using the "Assign Projected Issue" button.
+
+.. warning:: Assigning an article a projected issue is not the same as assigning an article directly to an issue. Projected issues are used mainly for internal tracking.
+
+.. figure:: ../../nstatic/assign_projected_issue_link.png
+
+    On the Editor Assignment screen you can see which issue an article is projected to be in.
+
+On the projected issue screen you can select, from a drop down, the issue you expect the article to be published in.
+
+.. figure:: ../../nstatic/assign_a_projected_issue.png
+
+    Select an issue and click "Save Projected Issue" to update the projected issue for your article.
+
+
+
 Article Sections
 ----------------
+.. Note::
+    Article Sections has been redesigned as part of version 1.4
+
 Sections are ways of grouping articles by their content type e.g. "Research Articles" or "Reviews". From this interface you can edit the sections that are available on your journal.
 
-.. figure:: ../../nstatic/article_sections.png
+.. figure:: ../../nstatic/sections.gif
 
     Section Manager
     
@@ -107,7 +149,7 @@ For each section you can supply:
 - Auto assign editors
     - Articles submitted to this section will be automatically assigned to any editors and/or section editors selected on the 'Editors' and/or 'Section Editors box above.
 
-You can edit and delete sections but be warned: deleting a section will orphan articles within that section.
+You can edit sections but you cannot delete a section when it would orphan an article. If you wish to remove a section first migrate all of the articles using that section to a different section then the delete button will become available.
 
 This field can also be disabled if you only have one article type, using the Submission Configurator.
 

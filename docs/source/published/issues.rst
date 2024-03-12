@@ -21,17 +21,26 @@ Display Settings
 ----------------
 In the top right of the Issue Management page there is the Edit Display Settings button. This allows you to configure how issue titles are displayed.
 
-- Volume
-- Issue Number
-- Year
-- Custom Title
+You can turn these elements on or off:
 
-These will display in the front end in this order eg. `Volume 1 Issue 1 2019 - A Custom Issue Title`.
+- Volume number
+- Issue number
+- Issue year
+- Issue title
+- Article number
+- Article page numbers
 
-If you disable issue number display it will display as: Volume 1 2019 - A Custom Issue Title.
+Here are a few example issue displays:
+
+- Volume 6 • Issue 3 • Fall 2015 • 5–17
+- Winter 2009 • 19 pages
+- Volume 35 • 2021 • Number 49
 
 .. tip::
-    If you want to display a totally custom issue title disable volume, sssue number and year and then insert whatever format you'd like the titles to be into the title field of the issue.
+    If you want to display a totally custom issue title, disable everything except issue title, and use that field to form the issue display for each issue.
+
+.. tip::
+    You can use the article number field to set an arbitrary number for each article, whether to distinguish articles within each volume or issue or to number articles across volumes and issues. Article number is an optional field separate from article ID and can be set in Edit Metadata.
 
 Creating and Editing Issue Details
 ----------------------------------
@@ -99,3 +108,21 @@ You can upload a Galley file for the whole issue, usually a PDF so that users ca
 
 .. tip::
     If you don't upload a Galley for the issue then Janeway will allow users to download a zip file of all the individual article galley files.
+
+Issue DOIs
+^^^^^^^^^^
+
+Issues can be assigned a DOI in Janeway. This can be done ad-hoc for each issue by editing the issue details and inputting
+the DOI manually, or by letting Janeway generate a DOI for you, based on a pattern (a DOI pattern can be set from the Crossref Settings page)
+
+When the Crossref integration is enabled, issue DOIs will be registered with Crossref whenever an article in that issue is registered with Crossref. This will be the
+case both for DOIs generated for Janeway as well as for those manually set.
+
+
+.. tip::
+    If you are migrating a Janeway installation from a version that did not support issue DOIs and would like to register issue DOIs for your
+    back content, this can be done by populating the DOI field on those issues and then re-registering any of the articles in the issue with Crossref.
+
+.. warning::
+    When an article is part of two or more issues, only the primary issue DOI will be registered with Crossref. In a future version,
+    it will be possible to register issue DOIs on their own, even when they have no articles or all its articles are part of multiple issues.

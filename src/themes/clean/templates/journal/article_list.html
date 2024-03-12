@@ -1,0 +1,59 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}{% trans "Articles" %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans "Articles" %}</h1>
+        </div>
+        <div class="col-md-8">
+            {% include "elements/sorting.html" with form_id=facet_form.id %}
+            {% for article in article_list %}
+                {% include "elements/article_listing.html" with article=article %}
+            {% empty %}
+                <strong>{% trans 'No articles to display.' %}</strong>
+            {% endfor %}
+            {% include "elements/pagination.html" with form_id=facet_form.id %}
+        </div>
+        <aside class="col-md-4">
+            <div class="card">
+                <div class="card-block">
+                    <h3>{% trans 'Search' %}</h3>
+                    <form method="POST" action="{% url 'search' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {% bootstrap_field search_form.article_search %}
+                            {% else %}
+                                You are currently browsing by keyword.
+                                <p>
+                                    <a href="{% url 'search' %}">
+                                        {% trans "Search for an article" %}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div
+                            hidden
+                            class="form-group">
+                            {% bootstrap_field search_form.sort %}
+                        </div>
+                        <div class="form-group">
+                            <button
+                                name="submit"
+                                class="btn btn-primary">
+                                {% trans "Search" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% include "elements/journal/article_list_filters.html" %}
+        </aside>
+    </div>
+{% endblock body %}

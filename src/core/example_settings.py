@@ -8,11 +8,17 @@ DEFAULT_HOST = 'https://www.example.org'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 LOGIN_REDIRECT_URL = '/user/profile/'
 
-# CATCHA_TYPE should be either 'simple_math' or 'recaptcha' to enable captcha
+# CATCHA_TYPE should be either 'simple_math', 'recaptcha' or 'hcaptcha' to enable captcha
 #fields, otherwise disabled
 CAPTCHA_TYPE = 'recaptcha'
+
+# If using recaptcha complete the following
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_PUBLIC_KEY = ''
+
+# If using hcaptcha complete the following:
+HCAPTCHA_SITEKEY = ''
+HCAPTCHA_SECRET = ''
 
 # ORCID Settings
 ENABLE_ORCID = True
@@ -31,8 +37,8 @@ DATABASES = {
     'default': {
         #Example ENGINEs:
         #   sqlite:     'django.db.backends.sqlite
-        #   mysql:      'django.db.backends.sqlite
-        #   postgres:   'django.db.backends.postgres
+        #   mysql:      'django.db.backends.mysql
+        #   postgres:   'django.db.backends.postgresql
         'ENGINE': 'django.db.backends.mysql',
         'NAME': '',
         'USER': '',
@@ -43,3 +49,20 @@ DATABASES = {
     }
 }
 
+
+# OIDC Settings
+ENABLE_OIDC = False
+OIDC_SERVICE_NAME = 'OIDC Service Name'
+OIDC_RP_CLIENT_ID = ''
+OIDC_RP_CLIENT_SECRET = ''
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_OP_AUTHORIZATION_ENDPOINT = ""
+OIDC_OP_TOKEN_ENDPOINT = ""
+OIDC_OP_USER_ENDPOINT = ""
+OIDC_OP_JWKS_ENDPOINT = ''
+
+
+ENABLE_FULL_TEXT_SEARCH = False # Read the docs before enabling full text
+
+# Model used for indexing full text files
+CORE_FILETEXT_MODEL = "core.FileText"  # Use "core.PGFileText" for Postgres

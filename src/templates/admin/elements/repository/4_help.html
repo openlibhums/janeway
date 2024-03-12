@@ -1,0 +1,50 @@
+<ul>
+    <li><strong>General Notes</strong></li>
+    <ul>
+        <li>
+            These emails are similar to mail merges. Text inside curly braces {% verbatim %}{{  }}{% endverbatim %} are filled with information. For example {% verbatim %}{{ preprint.owner.full_name }}{% endverbatim %} will be replaced with the name of the owner of the preprint object. Unless you know what you are changing it is recommended that you do not change the content of the curly braces. Other than that you are free to format the email however you like.
+        </li>
+    </ul>
+    <li><strong>Submission</strong></li>
+    <ul>
+        <li>
+            When a new submission is completed this email is sent to the owner.
+        </li>
+    </ul>
+    <li><strong>Publication</strong></li>
+    <ul>
+        <li>
+            When a submission is published this email is sent to the owner.
+        </li>
+    </ul>
+    <li><strong>Decline</strong></li>
+    <ul>
+        <li>
+            When a submission is declined or rejected this email is sent to the owner.
+        </li>
+    </ul>
+    <li><strong>Accept version</strong></li>
+    <ul>
+        <li>
+            When a submission revision (new version) is accepted this email is sent to the owner.
+        </li>
+    </ul>
+    <li><strong>Decline version</strong></li>
+    <ul>
+        <li>
+            When a submission revision (new version) is declined/rejected this email is sent to the owner.
+        </li>
+    </ul>
+    <li><strong>New comment</strong></li>
+    <ul>
+        <li>
+            Sent to a preprint owner when a new comment is made.
+        </li>
+    </ul>
+    <li><strong>Review invitation</strong></li>
+    <ul>
+        <li>
+            Email sent to a reviewer asking them to make an invited review comment on a {{ request.repository.object_name }}.
+        </li>
+    </ul>
+</ul>

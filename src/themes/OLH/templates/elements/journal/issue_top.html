@@ -4,7 +4,7 @@
             <ul class="orbit-container article-orbit">
                 <li class="is-active orbit-slide overlay">
                     <img class="orbit-image"
-                         src="{{ issue.large_image.url }}"
+                         src="{{ issue.hero_image_url }}"
                          alt="{{ issue.display_title }}">
                     <div class="row column">
                         <figcaption class="orbit-caption">
@@ -19,6 +19,10 @@
     {% else %}
         <h1 class="em">{{ issue.display_title }}</h1>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
+    {% endif %}
+
+    {% if issue.journal.display_issue_doi and issue.doi_url %}
+    <p><b>DOI: </b><a href="{{ issue.doi_url }}">{{ issue.doi_url }}</a></p>
     {% endif %}
 
     {% include "common/elements/guest_editors.html" %}

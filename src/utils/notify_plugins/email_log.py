@@ -26,6 +26,9 @@ def notify_hook(**kwargs):
         html = kwargs.pop('html')
         to = kwargs.pop('to')
         response = kwargs.pop('response')
+        email_subject = kwargs.pop('email_subject')
+        cc = kwargs.pop('cc')
+        bcc = kwargs.pop('bcc')
 
         if hasattr(request, 'user'):
             actor = request.user
@@ -36,10 +39,12 @@ def notify_hook(**kwargs):
             message_id = response['response'].get('id')
             models.LogEntry.add_entry(types=types, description=html, level=level,
                                       request=request, target=target, is_email=True, to=to,
-                                      message_id=message_id, subject=action_text, actor=actor)
+                                      message_id=message_id, subject=action_text, actor=actor,
+                                      email_subject=email_subject, cc=cc, bcc=bcc)
         else:
             models.LogEntry.add_entry(types=types, description=html, level=level, is_email=True,
-                                      request=request, target=target, subject=action_text, to=to, actor=actor)
+                                      request=request, target=target, subject=action_text, to=to, actor=actor,
+                                      email_subject=email_subject, cc=cc, bcc=bcc)
 
 
 def plugin_loaded():

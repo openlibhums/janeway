@@ -15,7 +15,7 @@ def is_author(context):
 @register.simple_tag(takes_context=True)
 def is_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.is_editor(request)
 
@@ -23,9 +23,17 @@ def is_editor(context):
 @register.simple_tag(takes_context=True)
 def is_section_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.is_section_editor(request)
+
+
+@register.simple_tag(takes_context=True)
+def is_any_editor(context):
+    request = context['request']
+    if request.user.is_anonymous:
+        return False
+    return request.user.has_an_editor_role(request)
 
 
 @register.simple_tag(takes_context=True)
@@ -67,6 +75,12 @@ def can_view_file(context, file_object):
 def is_author(context):
     request = context['request']
     return request.user.is_author(request)
+
+
+@register.simple_tag(takes_context=True)
+def is_repository_manager(context):
+    request = context['request']
+    return request.user.is_repository_manager(request.repository)
 
 
 @register.simple_tag(takes_context=True)

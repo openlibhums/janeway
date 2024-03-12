@@ -8,7 +8,7 @@ from submission import models as submission_models
 
 
 def can_edit_file(request, user, file_object, article):
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     # a general set of conditions that allow file editing
@@ -69,12 +69,14 @@ def can_view_file_history(request, user, file_object, article_object):
     return can_edit_file(request, user, file_object, article_object)
 
 
-def can_view_file(request, user, file_object):
+def can_view_file(request, user, file_object=None):
+    if not file_object:
+        return True
     # general conditions under which a file can be viewed
     if file_object.privacy == 'public':
         return True
 
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     if user.is_staff or user.is_editor(request) or file_object.owner == user:

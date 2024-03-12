@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 # we need this for strict type checking on the event destroyer
 from submission import models as submission_models
+from django.conf import settings
 
 
 class Events:
@@ -19,6 +20,10 @@ class Events:
     # raised when an article is submitted
     ON_ARTICLE_SUBMITTED = 'on_article_submitted'
 
+    # kwargs: editor_assignment, request, email_data, acknowledgement (true), skip (boolean)
+    # raised when an editor is manually assigned to an article(or skip the acknowledgement)
+    ON_EDITOR_MANUALLY_ASSIGNED = 'on_editor_manually_assigned'
+
     # kwargs: request, editor_assignment, user_message_content (will be blank), acknowledgement (false)
     # raised when an editor is assigned to an article
     ON_ARTICLE_ASSIGNED = 'on_article_assigned'
@@ -32,6 +37,9 @@ class Events:
     # kwargs: review_assignment, request, user_message_content (will be blank), acknowledgement (false)
     # raised when a review is requested
     ON_REVIEWER_REQUESTED = 'on_reviewer_requested'
+    # kwargs: review_assignment, request, email_data, acknowledgement (true), skip (boolean)
+    # raised when an editor decides to notify the reviewer with a custom message or skipped the email
+    ON_REVIEWER_REQUESTED_NOTIFICATION = 'on_reviewer_requested_notification'
     # kwargs: review_assignment, request, user_message_content, acknowledgement (true), skip (boolean)
     # raised when an editor decides to notify the reviewer of the request (or skip the acknowledgement)
     ON_REVIEWER_REQUESTED_ACKNOWLEDGE = 'on_reviewer_requested_acknowledge'
@@ -55,6 +63,10 @@ class Events:
     # kwargs: article, request, user_message_content, decision, skip (boolean)
     # raised when an editor accepts or declines an article
     ON_ARTICLE_DECLINED = 'on_article_declined'
+
+    # kwargs: article, request, user_message_content, decision, skip (boolean)
+    # raised when an editor undeclines an article
+    ON_ARTICLE_UNDECLINED = 'on_article_undeclined'
 
     # kwargs: article, request, user_message_content, decision, skip (boolean)
     # raised when an editor accepts or accepts an article
@@ -106,6 +118,10 @@ class Events:
     # kwargs: article, copyedit, author_review, request
     # raised when an author completes their copyedit review
     ON_COPYEDIT_AUTHOR_REVIEW_COMPLETE = 'on_copyedit_author_review_complete'
+
+    # kwargs author_review, request
+    # raised when an author review is deleted
+    ON_COPYEDIT_AUTHOR_REVIEW_DELETED = 'on_copyedit_author_review_delete'
 
     # kwargs: article, copyeditor assignment, request, skip (boolean)
     # raised when a copyedit assignment is acknowledged
@@ -199,7 +215,11 @@ class Events:
     # raised when proofing is complete
     ON_PROOFING_COMPLETE = 'on_proofing_complete'
 
-    #kwargs: request, article
+    # kwargs: article, issue, user
+    # raised when an article is assigned to an issue
+    ON_ARTICLE_ASSIGNED_TO_ISSUE = 'on_article_assigned_to_issue'
+
+    # kwargs: request, article
     # raised when an article is marked as published
     ON_ARTICLE_PUBLISHED = 'on_article_published'
 
@@ -215,17 +235,45 @@ class Events:
     # raised when a new preprint article is submitted
     ON_PREPRINT_SUBMISSION = 'on_preprint_submission'
 
-    # kwargs: request, article
+    # kwargs: request, preprint
     # raised when a preprint is published in the repo
     ON_PREPRINT_PUBLICATION = 'on_preprint_publication'
+
+    # kwargs: request, preprint, email_content
+    # raised when a preprint is published in the repo
+    ON_PREPRINT_NOTIFICATION = 'on_preprint_notification'
 
     # kwargs: request, article, comment
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = 'on_preprint_comment'
 
+    # kwargs: request, pending_update, action, reason (optional)
+    # raised when an PreprintVersion is approved or declined
+    ON_PREPRINT_VERSION_UPDATE = 'on_preprint_version_update'
+
+    # kwargs: request, preprint, review, message
+    # raised when an Review invite is sent
+    ON_PREPRINT_REVIEW_NOTIFICATION = 'on_preprint_review_notification'
+
+    # kwargs: request, review, status_change [accept, delcine, withdraw, complete]
+    # raised when a Review changes status
+    ON_PREPRINT_REVIEW_STATUS_CHANGE = 'on_preprint_review_status_change'
+
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
+
+    # kwargs: request, article, article_access
+    # raised when a view or download passes COUNTER-style compliance checks
+    ON_ARTICLE_ACCESS = 'on_article_access'
+
+    # kwargs: request, access_request
+    # raised when a user requests access to submit an article to a journal or repo.
+    ON_ACCESS_REQUEST = 'on_access_request'
+
+    # kwargs: request
+    # raised when a user access request is evaluated by staff.
+    ON_ACCESS_REQUEST_COMPLETE = 'on_access_request_complete'
 
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
@@ -237,7 +285,8 @@ class Events:
         :param kwargs: the arguments to pass to the event
         :return: None
         """
-
+        if settings.DEBUG:
+            print('Firing event {}'.format(event_name))
         # destroy/complete tasks that have registered for this event
         if event_name != "destroy_tasks" and task_object is not None and isinstance(task_object,
                                                                                     submission_models.Article):

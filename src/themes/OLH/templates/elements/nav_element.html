@@ -1,3 +1,5 @@
+{# Not used #}
+
 {% if item.has_sub_nav %}
     <li class=".is-dropdown-submenu-parent">
         <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
@@ -7,6 +9,6 @@
         {% endfor %}
         </ul>
     </li>
-{% else %}
+{% elif not item.for_footer %}
     <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
 {% endif %}

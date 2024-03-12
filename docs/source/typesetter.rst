@@ -100,13 +100,21 @@ When uploading a new Galley (now referred to as 'Typeset Files'), there is now a
 
    Screenshot of the new file upload box
 
-When uploading an XML or HTML file with image files, Janeway will detect them and prompt the typesetter to upload them.
+Image Files
+^^^^^^^^^^^
+
+When a typeset file in the XML or HTML format is uploaded that has image links Janeway will detect them and prompt the typesetter to upload them. Image filenames should match those within the XML or HTML.
 
 .. figure:: nstatic/typesetting/images_missing.png
 
-At this point, just hit the edit button and upload each image on the box matching the filename from the XML/HTML file:
+At this point, press the edit button and upload each image on the box matching the filename from the XML/HTML file:
 
 .. figure:: nstatic/typesetting/typesetter_images.png
+
+If an XML or HTML file has a large number of images it is often faster to use the zip uploader. Create a .zip archive file and within it place each of the image files. The image filename must match the link in the typeset file otherwise it will not import them.
+
+Source Files
+^^^^^^^^^^^^
 
 If any intermiadate files have been used for the production of the Files (such as Adobe In Design files), they can be uploaded under the 'Source Files' section
 
@@ -114,8 +122,59 @@ If any intermiadate files have been used for the production of the Files (such a
 
    Screenshot of the source files form
 
+Finishing Up
+^^^^^^^^^^^^
+
 Before you can complete the task, Janeway will warn you of any potential problems it detects with your files, such as potential missing images on the XML/HTML files or Typeset Files that have not yet been corrected.
 
 .. figure:: nstatic/typesetting/images_missing_warning.png
 
 Once you are done with the typesetting or correction task, you can leave a note for the editor and complete it for the editor to review.
+
+Typesetting Recipes
+-------------------
+
+Right-to-Left Text Direction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. highlight:: xml
+
+Arabic and many other languages are written right to left, requiring special markup in an XHTML environment that operates left-to-right by default.
+
+Here is an example in JATS XML of an isolated bit of Arabic text in a document that is otherwise left-to-right:
+
+.. figure:: nstatic/typesetting/arabic-rtl-jats-xml.png
+
+Make sure you use a text editor that shows zero-width unicode characters, like U-2067. The above screenshot is an XML file opened in VS Code.
+
+Here is the rendered output:
+
+.. figure:: nstatic/typesetting/arabic-rtl-rendered.png
+
+Notice the following about the code sample:
+
+1. On each line, begin with the `RLI unicode character (U+2067) <https://www.unicode.org/reports/tr9/#Explicit_Directional_Isolates>`_ at the beginning of the line to explicitly trigger  right-to-left rendering for the remainder of the line, including symbols like periods that the browser would otherwise render left-to-right. This is roughly equivalent to the HTML attribute `dir="rtl"`. If working with periods or other punctuation, note that they may appear on the right in your code editor, but render on the left in the browser.
+
+2. Wrap each line in the `styled-content JATS element <https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/styled-content.html>`_ and apply a `style attribute <https://jats.nlm.nih.gov/publishing/tag-library/1.3/attribute/style.html>`_ specifying CSS for right text alignment and block display.
+
+3. When working with long lines of text, make sure not to introduce arbitrary line breaks.
+
+Center Alignment
+^^^^^^^^^^^^^^^^
+
+.. highlight:: xml
+
+In some cases you might need to center-align text::
+
+    <p>Then came the apotheosis of modernism:</p>
+    <disp-quote>
+        <styled-content style="text-align: center; display: block;">
+            Leaves are falling
+        </styled-content>
+    </disp-quote>
+
+The output is:
+
+.. figure:: nstatic/typesetting/text-align-center.png
+
+This is accomplished with the the `styled-content JATS element <https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/styled-content.html>`_ and a `style attribute <https://jats.nlm.nih.gov/publishing/tag-library/1.3/attribute/style.html>`_ specifying CSS for center text alignment and block display.

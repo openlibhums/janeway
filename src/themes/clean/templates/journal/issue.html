@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+    {{ block.super }} |
+    {% if issue.issue_type.code == 'collection' %}
+    {% trans "Collection" %}: {{ issue.title }}
+    {% else %}
+    {% trans "Issue" %}: {{ issue }}
+    {% endif %}
+  {% endblock %}
+{% block page_title %}{{ issue.display_title }}{% endblock %}
+
+{% block body %}
+{% include "journal/issue_display.html" %}
+{% endblock body %}

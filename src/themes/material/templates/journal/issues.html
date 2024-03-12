@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
-{% load staticfiles %}
 {% load i18n %}
 {% load roles %}
+{% load static %}
 
 {% block title %}{% trans "Issues" %}{% endblock %}
 
@@ -11,7 +11,7 @@
     {% endif %}
     <div class="row">
         <div class="col m12">
-            <h1>{% trans "Issues" %}</h1>
+            <h1>{% trans issue_type.plural_name %}</h1>
         </div>
 
         {% for issue in issues %}
@@ -27,13 +27,12 @@
                         <div class="card-content">
                             {% if issue.pretty_issue_identifier and issue.issue_title and journal.display_issue_title %}
                             <p>{{ issue.pretty_issue_identifier }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
-                            <span class="activator grey-text text-darken-4 fade fade-overflow-5">{{ issue.issue_title }}</span>
                             {% else %}
                             <p>{{ issue.display_title }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
                             {% endif %}
                         </div>
                         <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">close</i></span>
+                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">{% trans "close" %}</i></span>
                             <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
                         </div>
                         <div class="card-action">

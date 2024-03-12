@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 PLUGIN_NAME = 'About'
 DESCRIPTION = 'This is a homepage element that renders About this Journal section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
-VERSION = '1.0'
+VERSION = '1.1'
 
 
 def get_self():
@@ -33,17 +33,28 @@ def install():
 
     plugin, c = models.Plugin.objects.get_or_create(
         name=PLUGIN_NAME,
-        version=VERSION,
-        enabled=True,
-        display_name='About',
+        defaults={
+            'homepage_element': True,
+            'enabled': True,
+            'version': VERSION,
+            'display_name': 'About',
+        }
     )
+
+    if not c:
+        plugin.version = VERSION
+        plugin.save()
 
     if c:
         logger.debug('Plugin installed.')
 
-    setting, c = models.PluginSetting.objects.get_or_create(
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    setting_group, c = core_models.SettingGroup.objects.get_or_create(
+        name=plugin_group_name,
+    )
+    setting, c = core_models.Setting.objects.get_or_create(
         name='about_title',
-        plugin=plugin,
+        group=setting_group,
         defaults={
             'pretty_name': 'About Block Title',
             'types': 'text',
@@ -54,6 +65,11 @@ def install():
 
     if c:
         logger.debug('Setting created')
+
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value='About this Journal',
+    )
 
     # check whether this homepage element has already
     # been installed for all journals

@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='keywords',
-            field=models.ManyToManyField(blank=True, null=True, to='submission.Keyword'),
+            field=models.ManyToManyField(blank=True, null=True, to='submission.Keyword', verbose_name='Discipline'),
         ),
     ]

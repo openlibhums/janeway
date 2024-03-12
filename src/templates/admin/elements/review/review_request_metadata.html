@@ -4,7 +4,7 @@
      data-animation-out="slide-out-down">
     <div class="card">
         <div class="card-divider">
-            <h4>Review Request for: {{ review_request.article.title|safe }}</h4>
+            <h4>Review Request for: {{ review_request.article.safe_title }}</h4>
         </div>
         <div class="card-section">
             <p>We request that this review be done by <strong>{{ review_request.date_due|date:"Y-m-d" }}</strong>.</p>

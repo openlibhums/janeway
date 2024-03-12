@@ -1,9 +1,9 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block title %}Copyediting {{ article.title }}{% endblock %}
 {% block title-section %}Copyediting{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -60,7 +60,7 @@
                                             <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
                                         {% endif %}
                                         {% if request.user.is_admin %}
-                                            <a class="button" target="_blank" href="{% url 'admin:copyediting_copyeditassignment_change' assignment.pk %}"><span class="fa fa-cogs">&nbsp;&nbsp;</span>Edit in <br />Admin</a>
+                                            <a class="button" target="_blank" href="{% url 'admin:copyediting_copyeditassignment_change' assignment.pk %}"><span class="fa fa-cogs">&nbsp;&nbsp;</span>Admin</a>
                                         {% endif %}
                                     </div>
                                     <div class="dropdown-pane right"
@@ -92,19 +92,26 @@
                                         <th>Notified</th>
                                         <th>Decision</th>
                                         <th>Decision Date</th>
+                                        <th></th>
                                     </tr>
                                     {% for review in assignment.author_reviews %}
                                         <tr>
                                         <td>{{ review.assigned|date:"Y-m-d" }}</td>
                                         <td>
                                             <i class="fa {% if review.notified %}fa-check-circle-o{% else %}fa-times-circle-o{% endif %}"></i>
+                                            {% if not review.notified %}<a href="{% url 'request_author_copyedit' article.pk assignment.pk review.pk %}"> <i class="fa fa-send-o"> </i> Send Notification</a>{% endif %}
                                         </td>
                                         <td>{% if review.decision %} {{ review.get_decision_display }} {% else %}
                                             Awaiting
                                             response{% endif %}</td>
-                                        <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }}
-                                    {% else %}--
-                                    {% endif %}
+                                        <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }}{% else %}--{% endif %}
+                                        <td>
+                                            {% if review.decision %}
+                                                 <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
+                                            {% else %}
+                                                <a href="{% url 'delete_author_review' article.id assignment.id review.pk %}" class="alert button delete">Delete Author Review</a>
+                                            {% endif %}
+                                        </td>
                                     {% endfor %}
                                 </table>
                             </div>

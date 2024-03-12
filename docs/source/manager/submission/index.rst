@@ -30,8 +30,6 @@ This section allows you to control generic submission settings that affect how s
     - This setting is deprecated in favour of the Submission Configurator version.
 - Submission Summary
     - This setting will be moved to the submission configurator. If enabled, this asks for a lay summary of the paper to be submitted.
-- Limit Manuscript Types
-    - If enabled, only Doc, Docx, RTF and ODT files will be accepted during submission.
 - Accepts Preprint Submissions
     - If preprints are enabled and this setting is enabled an author will be able to submit a preprint directly from the preprint service into the journal for evaluation.
 - Focus and Scope
@@ -40,6 +38,14 @@ This section allows you to control generic submission settings that affect how s
     - The journal's publication schedule e.g. Yearly or Continuous, displayed on the Submissions page. 
 - Peer Review Info
     - Information on how peer-review is conducted, displayed on the Submissions page.
+- File Submission Guidelines
+    - General instructions for authors when they get to the file upload stage.
+- Manuscript File Submission Instructions
+    - Specific instructions for manuscripts, appearing on the manuscript upload pop-up.
+- Limit Manuscript Types
+    - If enabled, only Doc, Docx, RTF and ODT files will be accepted as manuscript files during submission
+- Data and Figure File Submission Instructions
+    - Specific instructions for figures and data files, appearing on the figure and data upload pop-up.
 
 Submission Fields Configurator
 ------------------------------

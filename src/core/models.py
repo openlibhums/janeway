@@ -8,37 +8,53 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
-from urllib.parse import urlunparse
-
 import pytz
+from hijack.signals import hijack_started, hijack_ended
+import warnings
 
 from bs4 import BeautifulSoup
-from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import (
+    connection,
+    models,
+    transaction,
+)
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.template.defaultfilters import linebreaksbr
+import swapper
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
+from core.model_utils import (
+    AbstractLastModifiedModel,
+    AbstractSiteModel,
+    PGCaseInsensitiveEmailField,
+    SearchLookup,
+    default_press_id,
+)
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
 from utils import logic as utils_logic
+from production import logic as production_logic
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
 
+IMAGE_GALLEY_TEMPLATE = """
+    <img class="responsive-img" src={url} alt="{alt}">
+"""
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -51,12 +67,13 @@ def profile_images_upload_path(instance, filename):
 
 
 SALUTATION_CHOICES = (
-    ('Miss', 'Miss'),
-    ('Ms', 'Ms'),
-    ('Mrs', 'Mrs'),
-    ('Mr', 'Mr'),
-    ('Dr', 'Dr'),
-    ('Prof.', 'Prof.'),
+    ('Miss', _('Miss')),
+    ('Ms', _('Ms')),
+    ('Mrs', _('Mrs')),
+    ('Mr', _('Mr')),
+    ('Mx', _('Mx')),
+    ('Dr', _('Dr')),
+    ('Prof.', _('Prof.')),
 )
 
 COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
@@ -134,6 +151,8 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
 
 TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
+SUMMERNOTE_SENTINEL = '<p><br></p>'
+
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
@@ -188,8 +207,9 @@ class AccountManager(BaseUserManager):
 
 class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
-    username = models.CharField(max_length=48, unique=True, verbose_name=_('Username'))
+    username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
+    name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
     middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
     last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
@@ -197,31 +217,51 @@ class Account(AbstractBaseUser, PermissionsMixin):
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
                                   verbose_name=_('Salutation'))
+    suffix = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name=_('Name suffix'),
+    )
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(max_length=1000, verbose_name=_('Institution'))
+    institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Handle")
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
-    website = models.URLField(max_length=300, null=True, blank=True, verbose_name="Website")
-    github = models.CharField(max_length=300, null=True, blank=True, verbose_name="Github Username")
-    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs)
+    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
+    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
+    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
+    website = models.URLField(max_length=300, null=True, blank=True, verbose_name=_('Website'))
+    github = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Github Username'))
+    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
-    confirmation_code = models.CharField(max_length=200, blank=True, null=True)
-    signature = models.TextField(null=True, blank=True)
+    confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
+    signature = models.TextField(null=True, blank=True, verbose_name=_("Signature"))
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(Country, null=True, blank=True, verbose_name=_('Country'))
-    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
+    country = models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        verbose_name=_('Country'),
+        on_delete=models.SET_NULL,
+    )
+    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES, verbose_name=_("Preferred Timezone"))
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    enable_digest = models.BooleanField(default=False)
-    enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
-                                                'available to the public.')
+    enable_digest = models.BooleanField(
+        default=False,
+        verbose_name=_("Enable Digest"),
+    )
+    enable_public_profile = models.BooleanField(
+        default=False,
+        help_text=_(
+            'If enabled, your basic profile will be available to the public.'
+        ),
+        verbose_name=_("Enable public profile"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -272,8 +312,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return str(self.id)
 
     def get_full_name(self):
-        return '{0} {1}{2}{3}'.format(self.first_name, self.middle_name, ' ' if self.middle_name != "" else "",
-                                      self.last_name)
+        """Deprecated in 1.5.2"""
+        return self.full_name()
 
     def get_short_name(self):
         return self.first_name
@@ -284,10 +324,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                   self.middle_name if self.middle_name is not None else '')
 
     def full_name(self):
-        if self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        name_elements = [
+            self.name_prefix,
+            self.first_name,
+            self.middle_name,
+            self.last_name,
+            self.suffix,
+        ]
+        return " ".join([name for name in name_elements if name])
 
     def salutation_name(self):
         if self.salutation:
@@ -305,10 +349,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return 'N/A'
 
     def affiliation(self):
-        if self.department:
-            return "{0}, {1}".format(self.department, self.institution)
-
-        return self.institution
+        if self.institution and self.department:
+            return "{}, {}".format(self.department, self.institution)
+        elif self.institution:
+            return self.institution
+        else:
+            return ''
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -346,12 +392,40 @@ class Account(AbstractBaseUser, PermissionsMixin):
         role = Role.objects.get(slug=role_slug)
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
-    def check_role(self, journal, role):
-        return AccountRole.objects.filter(
+    @cached_property
+    def roles(self):
+        account_roles = AccountRole.objects.filter(
             user=self,
-            journal=journal,
-            role__slug=role
-        ).exists() or self.is_staff
+        )
+        journal_roles_map = {}
+        for account_role in account_roles:
+            journal_roles_map.setdefault(account_role.journal.code, set())
+            journal_roles_map[account_role.journal.code].add(account_role.role.slug)
+        return journal_roles_map
+
+    def roles_for_journal(self, journal):
+        return [
+            account_role.role for account_role in
+            AccountRole.objects.filter(user=self, journal=journal)
+        ]
+
+    def check_role(self, journal, role, staff_override=True):
+        if staff_override and (self.is_staff or self.is_journal_manager(journal)):
+            return True
+        else:
+            return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug=role,
+            ).exists()
+
+    def is_journal_manager(self, journal):
+        # this is an explicit check to avoid recursion in check_role.
+        return AccountRole.objects.filter(
+                user=self,
+                journal=journal,
+                role__slug='journal-manager',
+            ).exists()
 
     def is_editor(self, request, journal=None):
         if not journal:
@@ -390,7 +464,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'typesetter')
 
     def is_proofing_manager(self, request):
-        return self.check_role(request.journal, 'proofing_manager')
+        return self.check_role(request.journal, 'proofing-manager')
+
+    def is_repository_manager(self, repository):
+        if self in repository.managers.all():
+            return True
+
+        return False
 
     def is_preprint_editor(self, request):
         if self in request.press.preprint_editors():
@@ -400,11 +480,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
+            'name_prefix': self.name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
+            'name_suffix': self.suffix,
             'institution': self.institution,
             'department': self.department,
+            'display_email': True if self == article.correspondence_author else False,
         }
 
         frozen_author = self.frozen_author(article)
@@ -416,14 +499,19 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         else:
             try:
-                order = article.articleauthororder_set.get(author=self).order
+                order_object = article.articleauthororder_set.get(author=self)
             except submission_models.ArticleAuthorOrder.DoesNotExist:
-                order = article.next_author_sort()
+                order_integer = article.next_author_sort()
+                order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=self,
+                    defaults={'order': order_integer}
+                )
 
             submission_models.FrozenAuthor.objects.get_or_create(
                 author=self,
                 article=article,
-                defaults=dict(order=order, **frozen_dict)
+                defaults=dict(order=order_object.order, **frozen_dict)
             )
 
     def frozen_author(self, article):
@@ -459,8 +547,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"
-        from preprint import models as preprint_models
-        subjects = preprint_models.Subject.objects.filter(editors__exact=self)
+        from repository import models as repository_models
+        subjects = repository_models.Subject.objects.filter(
+            editors__exact=self,
+        )
         return subjects
 
     @property
@@ -478,22 +568,27 @@ def generate_expiry_date():
 class OrcidToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     orcid = models.CharField(max_length=200)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
 
     def __str__(self):
         return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
 
 
 class PasswordResetToken(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     token = models.CharField(max_length=300, default=uuid.uuid4)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
     expired = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Account: {0}, Expiry: {1}, [{2}]".format(self.account.full_name(),
-                                                         self.expiry,
-                                                         'Expired' if self.expired else 'Active')
+        return "Account: {0}, Expiry: {1}, [{2}]".format(
+            self.account.full_name(),
+            self.expiry,
+            'Expired' if self.expired else 'Active',
+        )
 
     def has_expired(self):
         if self.expired:
@@ -503,10 +598,21 @@ class PasswordResetToken(models.Model):
         else:
             return False
 
+    class Meta:
+        ordering = ['-expiry']
+
 
 class Role(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        help_text='Display name for this role '
+                  '(can include spaces and capital letters)',
+    )
+    slug = models.CharField(
+        max_length=100,
+        help_text='Normalized string representing this role '
+                  'containing only lowercase letters and hyphens.',
+    )
 
     class Meta:
         ordering = ('name', 'slug')
@@ -519,9 +625,18 @@ class Role(models.Model):
 
 
 class AccountRole(models.Model):
-    user = models.ForeignKey(Account)
-    journal = models.ForeignKey('journal.Journal')
-    role = models.ForeignKey(Role)
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = ('journal', 'user', 'role')
@@ -583,12 +698,21 @@ class SettingGroup(models.Model):
 class Setting(models.Model):
     VALIDATORS = {}
     name = models.CharField(max_length=100)
-    group = models.ForeignKey(SettingGroup)
+    group = models.ForeignKey(
+        SettingGroup,
+        on_delete=models.CASCADE,
+    )
     types = models.CharField(max_length=20, choices=setting_types)
     pretty_name = models.CharField(max_length=100, default='')
     description = models.TextField(null=True, blank=True)
 
     is_translatable = models.BooleanField(default=False)
+
+    editable_by = models.ManyToManyField(
+        Role,
+        blank=True,
+        help_text='Determines who can edit this setting based on their assigned roles.',
+    )
 
     class Meta:
         ordering = ('group', 'name')
@@ -601,7 +725,7 @@ class Setting(models.Model):
 
     @property
     def default_setting_value(self):
-        return SettingValue.objects.language("en").get(
+        return SettingValue.objects.get(
             setting=self,
             journal=None,
     )
@@ -614,13 +738,18 @@ class Setting(models.Model):
         self.group.validate(value)
 
 
-class SettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal', null=True, blank=True)
-    setting = models.ForeignKey(Setting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
+class SettingValue(models.Model):
+    journal = models.ForeignKey(
+        'journal.Journal',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
     )
+    setting = models.ForeignKey(
+        Setting,
+        models.CASCADE,
+    )
+    value = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -657,7 +786,18 @@ class SettingValue(TranslatableModel):
             except BaseException:
                 return 0
         elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
+            try:
+                return json.loads(self.value)
+            except json.JSONDecodeError as e:
+                logger.error(
+                    "Error loading JSON setting {setting_name} on {site_name} site.".format(
+                        setting_name=self.setting.name,
+                        site_name=self.journal.name if self.journal else 'press'
+                    )
+                )
+                return ''
+        elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
+            return ''
         else:
             return self.value
 
@@ -674,10 +814,10 @@ class SettingValue(TranslatableModel):
         elif self.setting.types == 'file':
             if self.journal:
                 return self.journal.site_url(
-                        reverse("journal_file",self.value))
+                    reverse("journal_file", self.value))
             else:
                 return self.press.site_url(
-                        reverse("serve_press_file", self.value))
+                    reverse("serve_press_file", self.value))
         else:
             return self.value
 
@@ -692,36 +832,57 @@ class SettingValue(TranslatableModel):
     def validate(self):
         self.setting.validate(self.value)
 
+    @cached_property
+    def editable_by(self):
+        return {role.slug for role in self.setting.editable_by.all()}
+
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
 
 
-class File(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+class File(AbstractLastModifiedModel):
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
+    label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
     description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
 
     date_uploaded = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
 
     is_galley = models.BooleanField(default=False)
 
     # Remote galley handling
     is_remote = models.BooleanField(default=False)
-    remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
+    remote_url = models.URLField(blank=True, null=True, verbose_name=_('Remote URL of file'))
 
-    history = models.ManyToManyField('FileHistory')
+    history = models.ManyToManyField(
+        'FileHistory',
+        blank=True,
+    )
+    text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
+        blank=True, null=True,
+        related_name="file",
+        on_delete=models.SET_NULL,
+    )
 
     class Meta:
         ordering = ('sequence', 'pk')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # for each galley that this file is used for, update the galley.type
+        # field to ensure it doesn't become desynced from the file type.
+        for galley in self.galley_set.all():
+            label, type_ = production_logic.get_galley_label_and_type(self)
+            galley.type = type_
+            galley.save()
 
     @property
     def article(self):
@@ -841,6 +1002,54 @@ class File(models.Model):
         else:
             return self.original_filename
 
+    def index_full_text(self, save=True):
+        """ Extracts text from the File and stores it into an indexed model
+
+        Depending on the database backend, preprocessing ahead of indexing varies;
+        As an example, for Postgresql, instead of storing the text as a LOB, a
+        tsvector of the text is generated which is used for indexing. There is no
+        such approach for MySQL, so the text is stored in full and then indexed,
+        which takes significantly more disk space.
+
+        Custom indexing routines can be provided with the swappable model under
+        settings.py `CORE_FILETEXT_MODEL`
+        :return: A bool indicating if the file has been succesfully indexed
+        """
+        indexed = False
+        try:
+            # TODO: Only aricle files are supported at the moment since File
+            # objects don't know the path to the actual file unless you also
+            # know the context (article/preprint/journal...) of the file
+            path = self.self_article_path()
+            if not path:
+                return indexed
+            text_parser = files.MIME_TO_TEXT_PARSER[self.mime_type]
+        except KeyError:
+            # We have no support for indexing files of this type yet
+            return indexed
+        parsed_text = text_parser(path)
+        FileTextModel = swapper.load_model("core", "FileText")
+        preprocessed_text = FileTextModel.preprocess_contents(parsed_text)
+        if self.text:
+            self.text.update_contents(preprocessed_text)
+            indexed = True
+        else:
+            file_text_obj = FileTextModel.objects.create(
+                contents=preprocessed_text,
+                file=self,
+            )
+            self.text = file_text_obj
+            if save:
+                self.save()
+            indexed = True
+
+        return indexed
+
+    @property
+    def date_modified(self):
+        warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
+        return self.last_modified
+
     def __str__(self):
         return u'%s' % self.original_filename
 
@@ -848,8 +1057,70 @@ class File(models.Model):
         return u'%s' % self.original_filename
 
 
+class AbstractFileText(models.Model):
+    contents = models.TextField(blank=True, null=True)
+    date_populated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        return text
+
+    def update_contents(self, text, lang=None):
+        self.contents = self.preprocess_contents(text)
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.date_populated = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class FileText(AbstractFileText):
+    class Meta:
+        swappable = swapper.swappable_setting('core', 'FileText')
+    pass
+
+
+class PGFileText(AbstractFileText):
+    contents = SearchVectorField(blank=True, null=True, editable=False)
+
+    class Meta:
+        required_db_vendor = "postgresql"
+
+
+    @staticmethod
+    def preprocess_contents(text, lang=None):
+        """ Casts the given text into a postgres TSVector
+
+        The result can be cached so that there is no need to store the original
+        text and also speed up the search queries.
+        The drawback is that the cached TSVector needs to be regenerated
+        whenever the underlying field changes.
+
+        Postgres `to_tsvector()` function normalises the input before handing it
+        over to `tsvector()`.
+        """
+        cursor = connection.cursor()
+        # Remove NULL characters before vectorising
+        text = text.replace("\x00", "\uFFFD")
+        result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
+        return cursor.fetchone()[0]
+
+
+@receiver(models.signals.pre_save, sender=File)
+def update_file_index(sender, instance, **kwargs):
+    """ Updates the indexed contents in the database """
+    if not instance.pk:
+        return False
+
+    if settings.ENABLE_FULL_TEXT_SEARCH and instance.text:
+        instance.index_full_text(save=False)
+
+
 class FileHistory(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
@@ -862,8 +1133,12 @@ class FileHistory(models.Model):
 
     history_seq = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return "Iteration {0}: {1}".format(self.history_seq, self.original_filename)
+
     class Meta:
         ordering = ('history_seq',)
+        verbose_name_plural = 'file histories'
 
 
 def galley_type_choices():
@@ -877,26 +1152,47 @@ def galley_type_choices():
         ('odt', 'OpenDocument Text Document'),
         ('tex', 'LaTeX'),
         ('rtf', 'RTF'),
-        ('other', 'Other'),
+        ('other', _('Other')),
+        ('image', _('Image')),
     )
 
 
-class Galley(models.Model):
+class Galley(AbstractLastModifiedModel):
     # Local Galley
-    article = models.ForeignKey('submission.Article', null=True)
-    file = models.ForeignKey(File)
+    article = models.ForeignKey(
+        'submission.Article',
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
+    public = models.BooleanField(
+        default=True,
+        help_text='Uncheck if the typeset file should not be publicly available after the article is published.'
+    )
 
     # Remote Galley
     is_remote = models.BooleanField(default=False)
     remote_file = models.URLField(blank=True, null=True)
 
     # All Galleys
-    label = models.CharField(max_length=400)
+    label = models.CharField(
+        max_length=400,
+        help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
+                  'you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for '
+                  'you, leave it blank.',
+    )
     type = models.CharField(max_length=100, choices=galley_type_choices())
     sequence = models.IntegerField(default=0)
+
+    def unlink_files(self):
+        if self.file and self.file.article_id:
+            self.file.unlink_file()
+        for image_file in self.images.all():
+            if  not image_file.images.exclude(galley=self).exists():
+                image_file.unlink_file()
 
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
@@ -926,7 +1222,8 @@ class Galley(models.Model):
 
         elements = {
             'img': 'src',
-            'graphic': 'xlink:href'
+            'graphic': 'xlink:href',
+            'inline-graphic': 'xlink:href',
         }
 
         missing_elements = []
@@ -963,6 +1260,16 @@ class Galley(models.Model):
             return self.file.get_file(self.article)
         elif self.file.mime_type in files.XML_MIMETYPES:
             return self.render(recover=recover)
+        elif self.file.mime_type in files.IMAGE_MIMETYPES:
+            url = reverse(
+                'article_download_galley',
+                kwargs={"article_id": self.article.id, "galley_id": self.id}
+            )
+            contents = IMAGE_GALLEY_TEMPLATE.format(
+                url=url,
+                alt=self.label,
+            )
+            return contents
 
     def path(self):
         url = reverse('article_download_galley',
@@ -991,10 +1298,12 @@ def upload_to_journal(instance, filename):
     else:
         return filename
 
+
 class XSLFile(models.Model):
     file = models.FileField(
         upload_to=upload_to_journal,
-        storage=JanewayFileSystemStorage('files/xsl'))
+        storage=JanewayFileSystemStorage('files/xsl'),
+    )
     journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
                                 blank=True, null=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
@@ -1019,7 +1328,10 @@ def default_xsl():
 
 
 class SupplementaryFile(models.Model):
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(
+        File,
+        on_delete=models.CASCADE,
+    )
     doi = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -1057,7 +1369,13 @@ class Task(models.Model):
     complete_events = models.ManyToManyField('core.TaskCompleteEvents')
     link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
     assignees = models.ManyToManyField(Account)
-    completed_by = models.ForeignKey(Account, blank=True, null=True, related_name='completed_by')
+    completed_by = models.ForeignKey(
+        Account,
+        blank=True,
+        null=True,
+        related_name='completed_by',
+        on_delete=models.SET_NULL,
+    )
 
     created = models.DateTimeField(default=timezone.now)
     due = models.DateTimeField(blank=True, null=True)
@@ -1108,11 +1426,24 @@ class TaskCompleteEvents(models.Model):
     def __str__(self):
         return self.event_name
 
+    class Meta:
+        verbose_name_plural = 'task complete events'
+
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True, null=True)
-    journal = models.ForeignKey('journal.Journal')
+    press = models.ForeignKey(
+        'press.Press',
+        on_delete=models.CASCADE,
+        default=default_press_id,
+    )
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     sequence = models.PositiveIntegerField()
 
     class Meta:
@@ -1123,16 +1454,35 @@ class EditorialGroup(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def members(self):
-        return [member for member in self.editorialgroupmember_set.all()]
+        return self.editorialgroupmember_set.all()
+
+    def __str__(self):
+        if self.journal:
+            return f'{self.name} ({self.journal.code})'
+        else:
+            return f'{self.name} ({self.press})'
 
 
 class EditorialGroupMember(models.Model):
-    group = models.ForeignKey(EditorialGroup)
-    user = models.ForeignKey(Account)
+    group = models.ForeignKey(
+        EditorialGroup,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+    )
     sequence = models.PositiveIntegerField()
+    statement = models.TextField(
+        blank=True,
+        help_text='A statement of interest or purpose',
+    )
 
     class Meta:
         ordering = ('sequence',)
+
+    def __str__(self):
+        return f'{self.user} in {self.group}'
 
 
 class Contacts(models.Model):
@@ -1147,7 +1497,10 @@ class Contacts(models.Model):
     sequence = models.PositiveIntegerField(default=999)
 
     class Meta:
-        verbose_name_plural = 'Journal Contacts'
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the below model `Contact`
+        # in the admin area.
+        verbose_name_plural = 'contacts'
         ordering = ('sequence', 'name')
 
     def __str__(self):
@@ -1155,7 +1508,7 @@ class Contacts(models.Model):
 
 
 class Contact(models.Model):
-    recipient = models.EmailField(max_length=200, verbose_name='Who would you like to contact')
+    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
     body = models.TextField(verbose_name=_('Your message'))
@@ -1167,6 +1520,12 @@ class Contact(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
+        verbose_name_plural = 'contact messages'
+
 
 class DomainAlias(AbstractSiteModel):
     redirect = models.BooleanField(
@@ -1175,8 +1534,18 @@ class DomainAlias(AbstractSiteModel):
             help_text="If enabled, the site will throw a 301 redirect to the "
                 "master domain."
     )
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     @property
     def site_object(self):
@@ -1186,11 +1555,17 @@ class DomainAlias(AbstractSiteModel):
     def redirect_url(self):
            return self.site_object.site_url()
 
+    def build_redirect_url(self, path=None):
+           return self.site_object.site_url(path=path)
+
     def save(self, *args, **kwargs):
         if not bool(self.journal) ^ bool(self.press):
             raise ValidationError(
                     " One and only one of press or journal must be set")
         return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = 'domain aliases'
 
 
 BASE_ELEMENTS = [
@@ -1221,14 +1596,24 @@ BASE_ELEMENTS = [
      'article_url': True}
 ]
 
+BASE_ELEMENT_NAMES = [
+    element.get('name') for element in BASE_ELEMENTS
+]
+
 
 class Workflow(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     elements = models.ManyToManyField('WorkflowElement')
 
 
 class WorkflowElement(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     jump_url = models.CharField(max_length=255)
@@ -1267,8 +1652,14 @@ class WorkflowElement(models.Model):
 
 
 class WorkflowLog(models.Model):
-    article = models.ForeignKey('submission.Article')
-    element = models.ForeignKey(WorkflowElement)
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    element = models.ForeignKey(
+        WorkflowElement,
+        on_delete=models.CASCADE,
+    )
     timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -1324,8 +1715,111 @@ class LoginAttempt(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
 
+class AccessRequest(models.Model):
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    repository = models.ForeignKey(
+        'repository.Repository',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    role = models.ForeignKey(
+        'core.Role',
+        on_delete=models.CASCADE,
+    )
+    requested = models.DateTimeField(
+        default=timezone.now,
+    )
+    processed = models.BooleanField(
+        default=False,
+    )
+    text = models.TextField(
+        blank=True,
+        null=True,
+    )
+    evaluation_note = models.TextField(
+        null=True,
+        help_text='This note will be sent to the requester when you approve or decline their request.',
+    )
+
+    def __str__(self):
+        return 'User {} requested {} permission for {}'.format(
+            self.user.full_name(),
+            self.journal.name if self.journal else self.repository.name,
+            self.role.name,
+        )
+
+
 @receiver(post_save, sender=Account)
 def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()
+
+
+# This model is vestigial and will be removed in v1.5
+
+class SettingValueTranslation(models.Model):
+    hvad_value = models.TextField(
+        blank=True,
+        null=True,
+    )
+    language_code = models.CharField(
+        max_length=15,
+        db_index=True,
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'core_settingvalue_translation'
+
+
+def log_hijack_started(sender, hijacker, hijacked, request, **kwargs):
+    from utils import models as utils_models
+    action = '{} ({}) has hijacked {} ({})'.format(
+        hijacker.full_name(),
+        hijacker.pk,
+        hijacked.full_name(),
+        hijacked.pk,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Hijack Start',
+        description=action,
+        level='Info',
+        actor=hijacker,
+        request=request,
+        target=hijacked
+    )
+
+
+def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
+    from utils import models as utils_models
+    action = '{} ({}) has released {} ({})'.format(
+        hijacker.full_name(),
+        hijacker.pk,
+        hijacked.full_name(),
+        hijacked.pk,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Hijack Release',
+        description=action,
+        level='Info',
+        actor=hijacker,
+        request=request,
+        target=hijacked
+    )
+
+
+hijack_started.connect(log_hijack_started)
+hijack_ended.connect(log_hijack_ended)

@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load foundation %}
 {% load i18n %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block title %}
     {% if group_id %}
@@ -23,13 +23,13 @@
                 {% if not group_id %}
                     <h4>{{ group.name }}</h4>
                 {% endif %}
-                {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+                {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
                         <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
-                            <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout"
+                            <div class="{% if journal_settings.styling.enable_editorial_images %}editorial-team{% endif %} callout"
                                  data-equalizer-watch>
-                                {% if journal_settings.general.enable_editorial_images %}
+                                {% if journal_settings.styling.enable_editorial_images %}
                                     <img class="thumbnail editorial-image" src="
                                             {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
                                          alt="Photo of Uranus.">
@@ -48,7 +48,7 @@
                         </div>
                         {% if forloop.counter|divisibleby:4 %}
                             </div>
-                            <div class="row">
+                            <div class="row" data-equalizer data-equalize-on="medium">
                         {% endif %}
                     {% endfor %}
                     </div>

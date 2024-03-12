@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -11,6 +10,9 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
+from django.utils import translation
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 
 from core import (
     files,
@@ -18,13 +20,21 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
-from core.model_utils import merge_models
-from journal import models as journal_models, views as journal_views, forms as journal_forms
-from press import models as press_models, forms
+from journal import (
+    models as journal_models,
+    views as journal_views,
+    forms as journal_forms,
+)
+from press import models as press_models, forms, decorators
 from security.decorators import press_only
 from submission import models as submission_models
-from utils import install
+from utils import install, logger, setting_handler
 from utils.logic import get_janeway_version
+from repository import views as repository_views, models
+from core.model_utils import merge_models
+from identifiers import views as identifier_views
+
+logger = logger.get_logger(__name__)
 
 
 def index(request):
@@ -36,6 +46,10 @@ def index(request):
     if request.journal is not None:
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
+
+    if request.repository is not None:
+        # if there is a repository we return the repository homepage.
+        return repository_views.repository_home(request)
 
     homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
         request,
@@ -59,20 +73,59 @@ def index(request):
     return render(request, template, context)
 
 
+def sitemap(request):
+    """
+    Serves an XML sitemap.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    try:
+        if request.journal is not None:
+            # if there's a journal, then we render the _journal_ sitemap, not the press
+            return journal_views.sitemap(request)
+
+        if request.repository is not None:
+            # if there is a repository we return the repository sitemap.
+            return repository_views.repository_sitemap(request)
+
+        return files.serve_sitemap_file(['sitemap.xml'])
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.press.name))
+        raise Http404()
+
+
+def robots(request):
+    """
+    Serves a generated robots.txt.
+    """
+    try:
+        if settings.URL_CONFIG == 'domain' and request.journal or request.repository:
+            if request.journal and request.journal.domain:
+                return files.serve_robots_file(journal=request.journal)
+            elif request.repository and request.repository.domain:
+                return files.serve_robots_file(repository=request.repository)
+            else:
+                # raising a 404 here if you browse to this url in path mode.
+                raise Http404()
+        return files.serve_robots_file()
+    except FileNotFoundError:
+        logger.warning('Robots file not found.')
+        raise Http404()
+
+
+@decorators.journals_enabled
 def journals(request):
     """
     Displays a filterable list of journals that are not marked as hidden
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+
     template = "press/press_journals.html"
 
-    journal_objects = journal_models.Journal.objects.filter(
-            hide_from_press=False,
-            is_conference=False,
-    ).order_by('sequence')
-
-    context = {'journals': journal_objects}
+    context = {
+        'journals': request.press.public_journals,
+    }
 
     return render(request, template, context)
 
@@ -102,33 +155,54 @@ def manager_index(request):
     :param request: django request
     :return: contextualised template
     """
-    form = journal_forms.JournalForm()
-    modal = None
-    version = get_janeway_version()
 
-    if request.POST:
-        form = journal_forms.JournalForm(request.POST)
-        modal = 'new_journal'
-        if form.is_valid():
-            new_journal = form.save(request=request)
-            new_journal.sequence = request.press.next_journal_order()
-            new_journal.save()
-            call_command('install_plugins')
-            install.update_license(new_journal)
-            install.update_issue_types(new_journal)
-            new_journal.setup_directory()
-            return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
-                                                     new_journal.pk))
+    with translation.override(settings.LANGUAGE_CODE):
+        form = journal_forms.JournalForm()
+        modal = None
+        version = get_janeway_version()
+
+        if request.POST:
+            form = journal_forms.JournalForm(request.POST)
+            modal = 'new_journal'
+            if form.is_valid():
+                new_journal = form.save()
+                new_journal.sequence = request.press.next_journal_order()
+                new_journal.save()
+                call_command('install_plugins')
+                install.update_issue_types(new_journal)
+                new_journal.setup_directory()
+                return redirect(
+                    new_journal.site_url(
+                        path=reverse(
+                            'core_edit_settings_group',
+                            kwargs={
+                                'display_group': 'journal',
+                            }
+                        )
+                    )
+                )
+
+    support_message = core_logic.render_nested_setting(
+        'support_contact_message_for_staff',
+        'general',
+        request,
+        nested_settings=[('support_email','general')],
+    )
+    published_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_PUBLISHED,
+        journal__isnull=False,
+    ).select_related('journal')[:50]
 
     template = 'press/press_manager_index.html'
     context = {
         'journals': journal_models.Journal.objects.all().order_by('sequence'),
         'form': form,
         'modal': modal,
-        'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED
-        ).select_related('journal')[:50],
+        'published_articles': published_articles,
         'version': version,
+        'repositories': models.Repository.objects.all(),
+        'url_config': settings.URL_CONFIG,
+        'support_message': support_message,
     }
 
     return render(request, template, context)
@@ -242,13 +316,13 @@ def journal_domain(request, journal_id):
     if request.POST:
         new_domain = request.POST.get('domain', None)
 
+        journal.domain = new_domain
+        journal.save()
+        return redirect(reverse('core_manager_index'))
         if new_domain:
-            journal.domain = new_domain
-            journal.save()
             messages.add_message(request, messages.SUCCESS, 'Domain updated')
-            return redirect(reverse('core_manager_index'))
         else:
-            messages.add_message(request, messages.WARNING, 'No new domain supplied.')
+            messages.add_message(request, messages.WARNING, 'No domain set')
 
     template = 'press/journal_domain.html'
     context = {
@@ -260,7 +334,11 @@ def journal_domain(request, journal_id):
 
 @staff_member_required
 def merge_users(request):
-    users = core_models.Account.objects.all()
+    users = core_models.Account.objects.none()
+
+    get_from = request.GET.get('from')
+    get_to = request.GET.get('to')
+
     if request.POST:
         from_id = request.POST["from"]
         to_id = request.POST["to"]
@@ -292,3 +370,67 @@ def merge_users(request):
     }
     return render(request, template, context)
 
+
+@method_decorator(staff_member_required, name='dispatch')
+class IdentifierManager(identifier_views.IdentifierManager):
+    template_name = 'core/manager/identifier_manager.html'
+
+
+@staff_member_required
+def edit_press_journal_description(request, journal_id):
+    """
+    Allows a staff member to edit the press specific description for a Journal.
+    """
+    journal = get_object_or_404(
+        journal_models.Journal,
+        pk=journal_id,
+    )
+    form = forms.PressJournalDescription(
+        journal=journal
+    )
+    if request.POST:
+        fire_redirect = False
+        if 'clear' in request.POST:
+            setting_handler.save_setting(
+                setting_group_name='general',
+                setting_name='press_journal_description',
+                journal=journal,
+                value='',
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                _('Description deleted.'),
+            )
+            fire_redirect = True
+        else:
+            form = forms.PressJournalDescription(
+                request.POST,
+                journal=journal,
+            )
+            if form.is_valid():
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    _('Description saved.'),
+                )
+                fire_redirect = True
+
+        if fire_redirect:
+            return redirect(
+                reverse(
+                    'edit_press_journal_description',
+                    kwargs={'journal_id': journal.pk},
+                )
+            )
+    context = {
+        'journal': journal,
+        'form': form,
+    }
+    template = 'press/edit_press_journal_description.html'
+    return render(
+        request,
+        template,
+        context,
+    )

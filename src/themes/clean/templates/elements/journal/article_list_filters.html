@@ -1,0 +1,14 @@
+{% load classname %}
+{% load bootstrap4 %}
+
+{% if facet_form.fields %}
+    <div class="card">
+        <div class="card-block">
+            <h3>{% trans 'Filter' %}</h3>
+            <form method="GET" id={{ facet_form.id }}>
+                {% bootstrap_form facet_form %}
+                <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
+            </form>
+        </div>
+    </div>
+{% endif %}

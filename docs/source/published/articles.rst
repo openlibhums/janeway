@@ -20,6 +20,7 @@ From this page you can:
 - Manage identifiers
 - Manage galley files
 - Manage which issues an article appears in
+- If an article is rejected, unreject the article
 
 Metadata
 --------
@@ -56,14 +57,14 @@ Publisher notes appear on the article page below the abstract and how to cite bl
 
 Identifiers
 -----------
-Any identifiers such as DOIs are listed here and a link to manage them is in the top right of the block. From that link you can manage the identifiers.
+Any identifiers such as DOIs are listed here and a link to manage them is in the top right of the block.
 
 .. figure:: /nstatic/edit_doi.png
 
-    The identifiers manager
+    The article-level identifiers manager
 
-.. warning::
-    Janeway does not currently tell you if a DOI was deposited successfully, to do so you can test the DOI or check the issue admin system.
+.. tip::
+    You can also manage DOIs at the journal level as an editor (and at the press level as a staff user) using the :ref:`DOI Manager<doimanager>`.
 
 Galleys
 -------
@@ -87,3 +88,9 @@ You can see the issues that an article is part of at the bottom of the Article A
 
     Archive issue block
 
+
+Actions
+-------
+You can unreject a previously rejected article using this button. You will have the opportunity to write an email to the author before the change takes effect.
+
+If the article was previously assigned to an editor, the article will move to the Review stage. Otherwise, it will move to the Unassigned stage.

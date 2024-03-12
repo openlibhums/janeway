@@ -3,7 +3,7 @@
 
 {% block title %}{{ decision|capfirst }} Article{% endblock title %}
 {% block title-section %}{{ decision|capfirst }} Article{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -18,7 +18,27 @@
                 <h2>Article Decision</h2>
             </div>
             <div class="content">
-                <p>Are you sure you want to {{ decision }} {{ article.title }}? You can provide some information to the Authors below: </p>
+                <p>Are you sure you want to {{ decision }} {{ article.safe_title }}?</p>
+                {% if decision == 'accept' %}
+                    {% if article.journal.use_crossref %}
+                        <div class="bs-callout">
+                        <p>
+                            This journal is set to use Crossref for DOI registration.
+                            A DOI will be minted now, without registering any metadata. Author and article metadata will
+                            be fully registered once this article is set for publication.
+                        </p>
+                        </div>
+                    {% else %}
+                        <div class="bs-callout bs-callout-danger">
+                        <p>Note: DOI registration is not configured.</p>
+                        </div>
+                    {% endif %}
+                    {% if accept_article_warning %}
+                        <div class="bs-callout">
+                        {{ accept_article_warning|safe }}
+                        </div>
+                    {% endif %}
+                {% endif %}
                 {% if article.hidden_completed_reviews %}
                     <div class="bs-callout bs-callout-danger">
                         <p>{% trans 'Note: This article has completed reviews that have not been made available to the author:' %}</p>
@@ -30,34 +50,27 @@
                     </div>
                     <br />
                 {% endif %}
-                <form method="POST">
-                    {% csrf_token %}
+                <p>You can provide some information to the authors below:</p>
                     <div class="card">
                         <div class="card-divider">
                             <h4>To {{ article.correspondence_author.full_name }}</h4>
                             <h5>From {{ request.user.full_name }}</h5>
                         </div>
-                        <div class="card-section">
-                            <textarea name="decision_rationale" rows="5">{{ email_content|linebreaksbr }}</textarea>
-                        </div>
-                        <div class="card-divider">
-                            <div class="button-group">
-                                <button name="delete" type="submit"
-                                        class="button {% if decision == 'decline' %}alert{% else %}success {% endif %}">{{ decision|capfirst }}
-                                    Article
-                                </button>
-                                <button name="skip" type="submit" class="button warning">Skip</button>
-                                <a href="{% url 'review_in_review' article.pk %}"
-                                   class="button {% if decision == 'accept' %}alert{% else %}success {% endif %}" type="submit">Cancel</a>
-                            </div>
-                        </div>
+                        {% if article.stage == 'Unassigned' %}
+                            {% url 'review_unassigned_article' article.pk as cancel_url %}
+                        {% else %}
+                            {% url 'decision_helper' article.pk as cancel_url %}
+                        {% endif %}
+                        {% include 'admin/elements/email_form.html' with form=form skip=1 cancel_url=cancel_url %}
                     </div>
-                </form>
             </div>
         </div>
     </div>
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/jqte.html" %}
+    {{ block.super}}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
 {% endblock js %}

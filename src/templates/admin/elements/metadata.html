@@ -1,6 +1,7 @@
 {% load settings %}
 {% load roles %}
-{% load static from staticfiles %}
+{% load static %}
+{% load bool_fa %}
 
 {% user_has_role request 'editor' as user_is_editor %}
 {% user_has_role request 'section-editor' as user_is_section_editor %}
@@ -8,10 +9,9 @@
 
 {% if user_is_editor or user_is_production or user_is_section_editor %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
-            class="fa fa-edit">&nbsp;</i>Edit</a>
+            class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
 {% endif %}
-<h4>{{ article.title|safe }}</h4>
-{% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
+<h4>{{ article.safe_title }}</h4>
 <table class="scroll small">
     <tr>
         <th>Section</th>
@@ -69,15 +69,52 @@
         <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No comments{% endif %}
         </td>
     </tr>
-    {% if journal_settings.general.submission_competing_interests %}
+    {% if request.journal.submissionconfiguration.competing_interests %}
         <tr>
             <th colspan="4">Competing Interests</th>
         </tr>
         <tr>
             <td colspan="4">
-                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+                {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No CI{% endif %}</td>
         </tr>
     {% endif %}
+    <tr>
+        <th colspan="4">Peer Reviewed?</th>
+    </tr>
+    <tr>
+        <td colspan="4">
+            This article has {{ article.completed_reviews_with_decision.count }} completed reviews.
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            {% if article.peer_reviewed %}
+                This article has been marked as peer reviewed.
+            {% elif not article.is_accepted and article.completed_reviews_with_decision %}
+                If this article is accepted, it will be marked as peer reviewed.
+            {% else %}
+                This article has not been marked as peer reviewed.
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>First Page</th>
+        <th>Last Page</th>
+        <th>Page Numbers</th>
+        <th>Total Pages</th>
+    </tr>
+    <tr>
+        <td>{{ article.first_page }}</td>
+        <td>{{ article.last_page }}</td>
+        <td>{{ article.page_numbers }}</td>
+        <td>{{ article.total_pages }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Rights</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ article.rights|safe }}</td>
+    </tr>
     {% for field_answer in article.fieldanswer_set.all %}
         <tr>
             <th colspan="4">{{ field_answer.field.name }}</th>
@@ -103,9 +140,9 @@
                 <tbody id="sortable">
                 {% for funder in article.funders.all %}
                     <tr id="funder-{{ funder.pk }}">
-                        <td>{{ funder.name }}</td>
-                        <td>{{ funder.fundref_id }}</td>
-                        <td>{{ funder.funding_id }}</td>
+                        <td>{{ funder.name|default_if_none:"" }}</td>
+                        <td>{{ funder.fundref_id|default_if_none:"" }}</td>
+                        <td>{{ funder.funding_id|default_if_none:"" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -127,12 +164,18 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Display Email Link?</th>
             <th>Primary?</th>
         </tr>
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
-                <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
+                <td>
+                    {% if f_author.author.email %}{{ f_author.author.email }}
+                    <span data-tooltip tabindex="1" title="Send an email to {{ f_author.author.email }}"><a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></span>
+                    <span data-tooltip tabindex="1" title="Account linked to author"><a href="{% url 'core_user_edit' f_author.author.pk %}"><i class="fa fa-user">&nbsp;</i></a></span>
+                    {% elif f_author.email %}{{ f_author.email}}{% else %}No email address recorded.{% endif %}</td>
+                <td>{{ f_author.display_email|bool_fa }}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
@@ -170,8 +213,8 @@
 <div class="content">
     <table class="scroll">
         <tr>
-            <th>Issue ID</th>
-            <th>Issue Title</th>
+            <th>ID</th>
+            <th>Title</th>
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
@@ -184,7 +227,7 @@
             <td>{{ article.projected_issue.volume }}</td>
             <td>{{ article.projected_issue.issue }}</td>
             <td>{{ article.projected_issue.date }}</td>
-            <td><a href="{% url 'manage_issues_id' article.projected_issue.pk %}">Issue Manager</a></td>
+            <td><a href="{% url 'review_projected_issue' article.pk %}">Projected Issue Assignment</a></td>
         </tr>
         {% else %}
         <tr>
@@ -195,8 +238,57 @@
 </div>
 
 <div class="title-area">
+    <h2>Issues and Collections</h2>
+</div>
+<div class="content">
+    <table class="scroll">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Volume</th>
+            <th>Number</th>
+            <th>Published</th>
+            <th>Primary</th>
+            {% if user_is_editor %}
+                <th></th>
+            {% endif %}
+        </tr>
+        {% for issue in article.issues_list %}
+        <tr>
+            <td>{{ article.issue.id }}</td>
+            <td>{{ article.issue.issue_title }}</td>
+            <td>{{ article.issue.volume }}</td>
+            <td>{{ article.issue.issue }}</td>
+            <td>{{ article.issue.date }}</td>
+            <td>
+                {% if issue == article.primary_issue %}
+                    <i class="fa fa-check"></i>
+                {% endif %}
+            </td>
+            {% if user_is_editor %}
+                <td>
+                    <a href="{% url 'manage_issues_id' article.issue.pk %}">
+                        Issue Manager
+                    </a>
+                </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">
+                <p>This article is not yet assigned to any issues or collections.</p>
+                {% if user_is_editor %}
+                    <p>You can assign one now using the <a target='_blank' href="{% url 'manage_issues' %}">issue manager</a>, or wait and assign one during the pre-publication checklist.</p>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="title-area">
     <h2>Identifiers</h2>
-    <a class="button" href="{% url 'edit_identifiers' article.pk %}" target="_blank"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+    {% if user_is_editor %}<a class="button" href="{% url 'edit_identifiers' article.pk %}" target="_blank"><i class="fa fa-cogs">&nbsp;</i>Manage Identifiers</a>{% endif %}
 </div>
 {% setting_var request.journal 'use_crossref' as use_crossref %}
 <div class="content">
@@ -221,21 +313,24 @@
                         {% for identifier in article.identifiers %}
                             {% if identifier.identifier == doi %}
                                 {% if identifier.deposit %}
-                                    <a href="{% url 'poll_doi_output' article.pk identifier.pk %}">
+                                    {% if user_is_editor %}<a href="{% url 'poll_doi_output' article.pk identifier.pk %}">{% endif %}
                                     {% if identifier.deposit.success %}
                                         <i class="fa fa-check">&nbsp;</i>
                                     {% else %}
                                         <i class="fa fa-exclamation-circle">&nbsp;</i>
                                     {% endif %}
-                                    </a>
+                                    {% if user_is_editor %}</a>{% endif %}
+                                {% else %}
+                                    <i class="fa fa-exclamation-circle">&nbsp;</i> This DOI has not been deposited.
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
                     </td>
                 {% else %}
+
                     <td>DOI</td>
                     <td><span class="fa fa-exclamation-triangle"> Article has no DOI</span></td>
-                    <td><a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a></td>
+                    <td>{% if user_is_editor %}<a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a>{% else %}---{% endif %}</td>
                 {% endif %}
                 {% endwith %}
             </tr>

@@ -1,9 +1,20 @@
 {% extends "apis/OAI_base.xml" %}
 {% block body %}
 <ListRecords>
-
 {% for article in object_list %}
-    {% include "apis/OAI_record.xml" with article=article %}
+    {% if is_preprints %}
+        {% if metadataPrefix == "jats" %}
+            {% include "apis/OAI_preprint_record_jats_stub.xml" with article=article %}
+        {% elif metadataPrefix == "oai_dc" %}
+            {% include "apis/OAI_preprint_record.xml" with article=article %}
+        {% endif %}
+    {% else %}
+        {% if metadataPrefix == "jats" %}
+            {% include "apis/OAI_record_jats_stub.xml" with article=article %}
+        {% elif metadataPrefix == "oai_dc" %}
+            {% include "apis/OAI_record.xml" with article=article %}
+        {% endif %}
+    {% endif %}
 {% endfor %}
 {% if resumption_token %}
 <resumptionToken completeListSize="{{ total }}">{{ resumption_token }}</resumptionToken>

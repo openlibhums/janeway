@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+{% load foundation %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+<section id="content">
+    {% if search_term %}
+        <h5>Searching for: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>Keyword: <i>{{ keyword }}</i></h5>
+    {% endif %}
+
+    <div class="row">
+        <div class="columns large-8">
+            <hr />
+            {% for article in articles %}
+                {% include "elements/journal/box_article.html" with article=article %}
+            {% empty %}
+                <p>{% trans 'No articles to display' %}.</p>
+            {% endfor %}
+
+        </div>
+        <div class="columns large-4">
+            <div class="card">
+                <div class="card-block">
+                    <form method="GET">
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {% include 'elements/forms/errors.html'  with form=form%}
+                                {{ form.article_search|foundation }}
+                                <div>
+                                    {{ form.title }}
+                                    {{ form.title.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.abstract }}
+                                    {{ form.abstract.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.authors }}
+                                    {{ form.authors.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.keywords }}
+                                    {{ form.keywords.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.full_text }}
+                                    {{ form.full_text.label_tag }}
+                                </div>
+                                <div>
+                                    {{ form.orcid }}
+                                    {{ form.orcid.label_tag }}
+                                </div>
+                                {{ form.sort|foundation }}
+                            {% else %}
+                                You are currently browsing by keyword. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
+                            {% endif %}
+                        </div>
+                        {% if all_keywords %}
+                        {% endif %}
+                        <div class="form-group">
+                            <button type="submit" class="button">{% trans "Search" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

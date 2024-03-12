@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load pages %}
+
+<div class="row">
+    <div class="col-md-{% if not show_sidebar %}12{% else %}8 border-right{% endif %}" id="issue_top">
+
+        {% include "elements/journal/issue_top.html" %}
+        {% include "elements/journal/issue_block.html" %}
+        {% include "elements/journal/issue_paginator.html" %}
+
+
+    </div>
+
+    {% if show_sidebar %}
+        {% include "elements/journal/issue_sidebar.html" %}
+
+    {% endif %}
+
+</div>

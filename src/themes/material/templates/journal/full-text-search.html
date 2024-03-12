@@ -1,0 +1,71 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+{% load materializecss %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+
+    {% if search_term %}
+        <h5>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h5>
+    {% endif %}
+
+	<div class="row">
+        <div class="col m8">
+		    <hr />
+		    {% for article in articles %}
+		        {% include "elements/article_listing.html" with article=article %}
+		    {% empty %}
+                <p>{% trans "No articles to display." %}</p>
+		    {% endfor %}
+
+	    </div>
+	    <div class="col m4">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row">
+                        <form method="GET">
+                            <div class="form-group">
+                                {% if not keyword %}
+                                    {{ form|materializecss }}
+                                {% else %}
+                                    You are currently browsing by keyword.
+                                    <a href="{% url 'search' %}">Search for an article.</a>
+                                {% endif %}
+                            </div>
+                            {% if all_keywords %}
+                            <div class="form-group">
+                                <label>
+                                    {% trans "Keywords" %}
+
+                                    {% for keyword in all_keywords %}
+                                        <a href="{% url 'search' %}?keyword={{ keyword.word }}">
+                                            {{ keyword.word }}
+                                        </a>{% if not forloop.last %},
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </label>
+                            </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <div class="col s12">
+                                    <button type="submit" class="btn btn-primary">
+                                        {% trans "Filter" %}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% load foundation i18n %}
+<div class="title-area">
+    <h2>Sort Table of Contents</h2>
+</div>
+<div class="content">
+    <p>{% trans 'You can automatically sort the articles in your issue by Title (Alphabetically) or by date published using the form below. Note, this will not affect the order of the Sections (Article Types)' %}.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row expanded">
+            <div class="large-5 columns">
+                {{ sort_form.sort_field|foundationinline }}
+            </div>
+            <div class="large-5 columns">
+                {{ sort_form.order|foundationinline }}
+            </div>
+            <div class="large-2 columns">
+                <button name="sort_articles" class="button">{% trans 'Sort Articles' %}</button>
+            </div>
+        </div>
+    </form>
+</div>

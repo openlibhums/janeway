@@ -1,9 +1,9 @@
 {% extends "admin/core/base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 {% load settings %}
 
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block body %}
 
@@ -27,22 +27,7 @@
                                 <h4>To {{ editor.full_name }}</h4>
                                 <h5>From {{ request.user.full_name }}</h5>
                             </div>
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="card-section">
-                                    {% setting_var request.journal 'subject_editor_assignment' as subject %}
-                                    <p>Subject: <strong>{{ subject }}</strong></p>
-                                    <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
-                                    <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
-                                    <input type="file" name="attachment" multiple>
-                                </div>
-                                <div class="card-divider">
-                                    <div class="button-group">
-                                        <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-                                        <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
-                                    </div>
-                                </div>
-                            </form>
+                            {% include "admin/elements/email_form.html" with form=form skip=1 %}
                         </div>
                     </div>
                 </div>
@@ -53,7 +38,7 @@
 {% endblock body %}
 
 {% block js %}
-	{{ block.super }}
-	<script type="text/javascript" src="{% static "common/js/jquery-te-1.4.0.min.js" %}" charset="utf-8"></script>
-	<script type="text/javascript">$("textarea").jqte();</script>
+    {{ block.super }}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
 {% endblock js %}

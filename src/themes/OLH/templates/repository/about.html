@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ request.repository.name }}{% endblock %}
+
+{% block navbar %}
+    {% include "repository/nav.html" %}
+{% endblock navbar %}
+
+{% block body %}
+
+    <section id="content">
+        <div class="row column">
+            <div class="large-12 columns">
+                <h1>{% trans "About" %} {{ request.repository.name }}</h1>
+                {{ request.repository.about|safe }}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -158,7 +158,9 @@
         {% endif %}
 
         {% for element in request.journal.workflow_plugin_elements %}
-            {% include element.settings.dashboard_template %}
+            {% if element.settings.dashboard_template %}
+                {% include element.settings.dashboard_template %}
+            {% endif %}
         {% endfor %}
 
 
@@ -173,6 +175,7 @@
                         <table class="scroll">
                             <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Title</th>
                                 <th>Authors</th>
                                 <th>Submitted</th>
@@ -181,12 +184,13 @@
                             </thead>
                             {% for assignment in section_editor_articles %}
                                 <tr>
+                                    <td>{{ assignment.article.pk }}</td>
                                     <td>
-                                        <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.title }}</a>
+                                        <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.safe_title }}</a>
                                     </td>
                                     <td>{{ assignment.article.author_list }}</td>
                                     <td>{{ assignment.article.date_submitted }}</td>
-                                    <td>{{ assignment.article.stage }}</td>
+                                    <td>{{ assignment.article.get_stage_display }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -206,3 +210,9 @@
 
     </section>
 {% endblock body %}
+
+{% block js %}
+    {% if published_submissions %}{% include "admin/elements/datatables.html" with target="#published" sort=2 order="desc" %}{% endif %}
+    {% include "admin/elements/datatables.html" with target="#active" sort=2 order="desc" %}
+    {% include "admin/elements/datatables.html" with target="#incomplete" sort=2 order="desc" %}
+{% endblock %}

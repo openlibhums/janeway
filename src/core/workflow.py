@@ -29,6 +29,7 @@ STAGES_ELEMENTS = {
     submission_models.STAGE_ASSIGNED: 'review',
     submission_models.STAGE_UNDER_REVIEW: 'review',
     submission_models.STAGE_UNDER_REVISION: 'review',
+    submission_models.STAGE_ACCEPTED: 'review',
 
     submission_models.STAGE_EDITOR_COPYEDITING: 'copyediting',
     submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',
@@ -64,9 +65,10 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     :param handshake_url: Current workflow element's handshake url
     :param request: HttpRequest object
     :param article: Article object
+    :param switch_stage: Boolean
     :return: HttpRedirect
     """
-
+    response = None
     workflow = models.Workflow.objects.get(journal=request.journal)
     workflow_elements = workflow.elements.all()
 
@@ -91,19 +93,27 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             article.stage = next_element.stage
             article.save()
 
-        try:
-            response = redirect(reverse(
-                next_element.handshake_url,
-                kwargs={'article_id': article.pk},
-            ))
-        except NoReverseMatch:
-            response = redirect(reverse(next_element.handshake_url))
+        if (
+                request.user.is_staff or
+                request.user.is_editor(request=request) or
+                request.user in article.editor_list()
+        ):
+            try:
+                response = redirect(reverse(
+                    next_element.jump_url,
+                    kwargs={'article_id': article.pk},
+                ))
+            except NoReverseMatch:
+                try:
+                    response = redirect(reverse(next_element.handshake_url))
+                except NoReverseMatch:
+                    response = redirect(reverse('core_dashboard'))
 
     except Exception as e:
         logger.exception(e)
-        response = redirect(reverse('core_dashboard'))
 
-    if response.status_code == 302:
+    # Fallback here.
+    if not response:
         response = redirect(reverse('core_dashboard'))
 
     messages.add_message(
@@ -273,8 +283,34 @@ def workflow_auto_assign_editors(**kwargs):
 
         assignment_type = "editor"
         for editor in section.editors.all():
-            assign_editor(article, editor, assignment_type, request, skip)
+            assign_editor(
+                article,
+                editor,
+                assignment_type,
+                request,
+                skip,
+                automate_email=True,
+            )
 
         assignment_type = "section-editor"
         for s_editor in section.section_editors.all():
-            assign_editor(article, s_editor, assignment_type, request, skip)
+            assign_editor(
+                article,
+                s_editor,
+                assignment_type,
+                request,
+                skip,
+                automate_email=True,
+            )
+
+
+def workflow_journal_choices(journal):
+    workflow = journal.workflow()
+    choices = []
+
+    for element in workflow.elements.all():
+        for element_stage in ELEMENT_STAGES[element.element_name]:
+            choices.append(
+                [element.stage, element_stage]
+            )
+    return choices

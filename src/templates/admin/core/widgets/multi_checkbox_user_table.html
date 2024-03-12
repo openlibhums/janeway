@@ -1,0 +1,16 @@
+<table class="scroll">
+    <tr>
+        <th></th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+    </tr>
+    {% for x in widget.optgroups %}
+        <tr>
+            <td><input type="checkbox" name="{{ x.1.0.name }}" id="{{ x.1.0.attrs.id }}" value="{{ x.1.0.value }}" {% if x.1.0.selected %}checked="checked"{% endif %} /></td>
+            <td>{{ x.1.0.value }}</td>
+            <td>{{ x.1.0.label.name }}</td>
+            <td>{{ x.1.0.label.email }}</td>
+        </tr>
+    {% endfor %}
+</table>

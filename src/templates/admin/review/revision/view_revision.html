@@ -4,7 +4,7 @@
 
 {% block title %}Revision Request{% endblock title %}
 {% block admin-header %}Revision Request{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
@@ -43,11 +43,28 @@
     </div>
 
     <div class="title-area">
-        <h2>Covering Letter from Author</h2>
+        <h2>Author Responses</h2>
     </div>
+
     <div class="content">
-        {{ revision_request.author_note|safe }}
-        <br /><br />
+        <div class="row expanded">
+            <div class="large-6 medium-12 columns no-padding">
+                {% if revision_request.author_note %}
+                    <p><strong>Covering Letter to Editor:</strong></p>
+                    {{ revision_request.author_note|safe }}
+                {% else %}
+                    <p>The author not write a covering letter.</p>
+                {% endif %}
+            </div>
+            <div class="large-6 medium-12 columns no-padding">
+                {% if revision_request.response_letter %}
+                    <p><strong>Response Letter to Reviewers:</strong></p>
+                    {{ revision_request.response_letter|safe }}
+                {% else %}
+                    <p>The author write a response letter.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
     <div class="title-area">
@@ -109,6 +126,12 @@
                 <tr>
                     <td>{{ action.logged|date:"Y-m-d Hm" }}</td>
                     <td>{{ action.text }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">
+                        No actions logged.
+                    </td>
                 </tr>
             {% endfor %}
         </table>

@@ -1,0 +1,48 @@
+<record>
+    {{ prefix }}
+    {% include "apis/OAI_preprint_record_header.xml" with article=article %}
+    <metadata>
+  <oai_dc:dc
+      xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
+      http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+      <dc:title>{{ article.title }}</dc:title>
+      {% for author in article.preprintauthor_set.all %}
+      <dc:creator>{{ author.dc_name }}</dc:creator>
+      {% endfor %}
+      {% if article.abstract %}
+      <dc:description>{{ article.abstract|striptags }}</dc:description>
+      {% endif %}
+      {% if article.date_published %}
+      <dc:date>{{ article.date_published|date:"Y-m-d\TH:i:s\Z" }}</dc:date>
+      {% endif %}
+      {% if article.current_version.date_time %}
+      <dc:date>{{ article.current_version.date_time|date:"Y-m-d\TH:i:s\Z"}}</dc:date>
+      {% endif %}
+      <dc:type>PREPRINTS</dc:type>
+      <dc:publisher>{{ article.repository.press.name }}</dc:publisher>
+      {% if article.doi %}
+      <dc:identifier>{{ article.doi }}</dc:identifier>
+      {% endif %}
+      {% if article.preprint_doi %}
+      <dc:identifier>{{ article.preprint_doi }}</dc:identifier>
+      {% endif %}
+      {% if article.current_version.file %}
+      <dc:identifier>{{ article.repository.site_url }}{{ article.current_version.file.download_url }}</dc:identifier>
+      {% endif %}
+      <dc:identifier>{{ article.id }}</dc:identifier>
+      <dc:source>{{ article.repository.name }}</dc:source>
+      {% if article.license %}
+      <dc:rights>{{ article.license.url }}</dc:rights>
+      {% endif %}
+      {% for s in article.subject.all %}
+        <dc:subject>{{ s.name }}</dc:subject>
+      {% endfor %}
+      {% for k in article.keywords.all %}
+        <dc:subject>{{ k.word }}</dc:subject>
+      {% endfor %}
+  </oai_dc:dc>
+    </metadata>
+</record>

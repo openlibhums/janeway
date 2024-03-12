@@ -3,7 +3,7 @@
 
 {% block title %}Edit Review{% endblock title %}
 {% block title-section %}Edit Review{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -24,9 +24,7 @@
                         {% csrf_token %}
                       <div class="row expanded">
                         <div class="large-4 columns">{{ form.visibility|foundation }}</div>
-                        {% if not review.date_accepted %}
-                            <div class="large-4 columns">{{ form.form|foundation }}</div>
-                        {% endif %}
+                        <div class="large-4 columns">{{ form.form|foundation }}</div>
                         <div class="large-4 columns">{{ form.date_due|foundation }}</div>
                       </div>
                       <div class="row expanded">

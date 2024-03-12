@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load hooks %}
+
+{% hook 'filter_search' %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+   
+    {% if search_term %}
+        <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
+    {% endif %}
+
+    <div class="row">
+        <div class="col m8">
+            <h2>{% trans "Articles" %}</h2>
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                <p>{% trans "No articles to display." %}</p>
+            {% endfor %}
+
+        </div>
+        <div class="col m4">
+            <h2>{% trans "Searching" %}</h2>
+            <div class="card">
+                <div class="card-content">
+                    <form method="GET">
+                        {% csrf_token %}
+                        <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
+                        <div class="input-field">
+                                {{ form.article_search.errors }}                                
+                                {{ form.article_search }}
+                        </div>
+                        <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
+                        <div class="input-field">                                
+                                {{ form.sort.errors }}
+                                {{ form.sort }}
+                        </div>
+                        <div class="input-field">
+                            <button name="submit" class="btn">{% trans "Search" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

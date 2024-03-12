@@ -5,7 +5,7 @@
 
 {% block title %}Projected Issue {{ article.title }}{% endblock %}
 {% block title-section %}Projected Issue{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block body %}
 	<div class="row expanded">
@@ -28,11 +28,12 @@
 				</div>
 				<div class="content">
 					<p><strong>{% trans "What is this for?" %}</strong></p>
-					<p>{% trans "The projected issue setting helps you track which issue an article is intended to be published with."%}</p>
-					<p><strong>{% trans "How does it work?" %}</strong></p>
-					<p>{% trans "Select an issue from the drop down on the left and press save, this articles projected issue will now be set." %}</p>
+					<p>{% trans "The projected issue field can be used internally to keep track of plans and communicate with typesetters, without affecting issue assignment or displaying anything publicly. It is helpful for journals that add articles to issues on a rolling basis and publish them individually." %}</p>
+                    <p>{% trans "You can assign articles directly to issues in the prepublication stage or through " %}<a href="{% url 'manage_issues' %}">{% trans "issue management" %}.</a></p>
+                    <p><strong>{% trans "How does it work?" %}</strong></p>
+					<p>{% trans "Select an issue from the drop down on the left and press save. This article's projected issue will now be set." %}</p>
 					<p><strong>{% trans "Can I unset a projected issue?" %}</strong></p>
-					<p>{% trans "Yes, simply select the blank option (-------) from the drop down." %}</p>
+					<p>{% trans "Yes, you can select the blank option (-------) from the dropdown." %}</p>
 				</div>
 			</div>
 		</div>

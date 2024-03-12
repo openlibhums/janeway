@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block title %}{% trans "Register" %}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="callout">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>{% trans "Register for an" %} {{ request.press.name }} {% trans "account" %}.</h5>
+                            <p>{% trans "Password Rules" %}:</p>
+                            <ul class="no-top-margin">
+                                <li>{% blocktrans with password_length=request.press.password_length %}Your password should be {{ password_length }} characters long.{% endblocktrans %}</li>
+                                {% if request.press.password_upper %}<li>{% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
+                                {% if request.press.password_number %}<li>{% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
+                            </ul>
+                            <p>{% blocktrans %}For more information read our <a href="#" data-toggle="modal" data-target="#passwordmodal">password guide</a>.{% endblocktrans %}</p>
+
+                            {% bootstrap_form form %}
+                            <p>{% trans "By registering an account you agree to our" %}
+                                {% if journal_settings.general.privacy_policy_url %}
+                                    <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                                {% else %}
+                                    <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
+                                {% endif %}
+                            </p>
+                            {% if journal_settings.general.display_register_page_notice %}
+                            {{ journal_settings.general.register_page_notice|safe }}
+                            {% endif %}
+                            <p>
+                                <button type="submit"
+                                        class="btn btn-primary float-right">{% trans "Register" %}</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="passwordmodal" tabindex="-1" role="dialog" aria-labelledby="passwordmodal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">{% trans 'Password Guide' %}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% blocktrans %}
+                    <p class="lead">When it comes to passwords, length is better than complexity.</p>
+                    <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
+                        uncomplicated password (our awesome moon base rocks).</p>
+                    <p>We recommend selecting a long, but easy to remember password such as <em>our awesome moon base
+                        rocks</em> which would take an estimated septillion years to crack as opposed to a complex one
+                        like <em>Jfjfy&65^87</em> which would take just over 600 years on a standard computer.</p>
+                    {% endblocktrans %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

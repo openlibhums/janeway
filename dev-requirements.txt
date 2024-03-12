@@ -3,3 +3,7 @@ coverage
 ipdb
 python-wordpress-xmlrpc
 Sphinx==1.8.2
+marshmallow
+freezegun
+snakeviz
+django-browser-reload

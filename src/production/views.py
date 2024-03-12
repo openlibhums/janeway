@@ -276,6 +276,7 @@ def production_article(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
+    galley_form = forms.GalleyForm()
 
     try:
         production_assignment = models.ProductionAssignment.objects.get(
@@ -293,8 +294,10 @@ def production_article(request, article_id):
 
     if request.POST:
         try:
-            if 'file' in request.FILES:
-                label = request.POST.get('label', None)
+            galley_form = forms.GalleyForm(request.POST, request.FILES)
+            if 'file' in request.FILES and galley_form.is_valid():
+                label = galley_form.cleaned_data.get('label')
+                public = galley_form.cleaned_data.get('public')
                 for uploaded_file in request.FILES.getlist('file'):
                     logic.save_galley(
                         article,
@@ -302,17 +305,26 @@ def production_article(request, article_id):
                         uploaded_file,
                         True,
                         label=label,
+                        public=public,
                     )
         except TypeError as exc:
-            messages.add_message(request, messages.ERROR, str(exc))
+            messages.add_message(
+                request,
+                messages.ERROR,
+                str(exc),
+            )
         except UnicodeDecodeError:
-            messages.add_message(request, messages.ERROR,
-                "Uploaded file is not UTF-8 encoded")
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Uploaded file is not UTF-8 encoded",
+            )
         except logic.ZippedGalleyError:
-            messages.add_message(request, messages.ERROR,
+            messages.add_message(
+                request,
+                messages.ERROR,
                 "Galleys must be uploaded individually, not zipped",
             )
-
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
@@ -342,6 +354,13 @@ def production_article(request, article_id):
                 'No files uploaded.'
             )
 
+        if not galley_form.is_valid():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'Galley form not valid.',
+            )
+
         return redirect(
             reverse(
                 'production_article',
@@ -362,7 +381,8 @@ def production_article(request, article_id):
         'copyedit_files': copyedit_files,
         'typeset_tasks': production_assignment.typesettask_set.all().order_by('-id'),
         'galleys': galleys,
-        'complete_message': logic.get_complete_template(request, article, production_assignment)
+        'complete_message': logic.get_complete_template(request, article, production_assignment),
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -633,7 +653,7 @@ def typesetter_requests(request, typeset_id=None, decision=None):
     """
     if typeset_id and decision:
         typeset_task = get_object_or_404(
-            models.TypesetTask,
+            models.TypesetTask.active_objects,
             pk=typeset_id,
             typesetter=request.user,
             assignment__article__journal=request.journal,
@@ -651,20 +671,26 @@ def typesetter_requests(request, typeset_id=None, decision=None):
         event_logic.Events.raise_event(event_logic.Events.ON_TYPESETTER_DECISION, **kwargs)
         return redirect(reverse('typesetter_requests'))
 
-    typeset_tasks = models.TypesetTask.objects.filter(accepted__isnull=True,
-                                                      completed__isnull=True,
-                                                      typesetter=request.user,
-                                                      assignment__article__journal=request.journal)
+    typeset_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=True,
+        completed__isnull=True,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
-    in_progress_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
-                                                          completed__isnull=True,
-                                                          typesetter=request.user,
-                                                          assignment__article__journal=request.journal)
+    in_progress_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=False,
+        completed__isnull=True,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
-    completed_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
-                                                        completed__isnull=False,
-                                                        typesetter=request.user,
-                                                        assignment__article__journal=request.journal)
+    completed_tasks = models.TypesetTask.active_objects.filter(
+        accepted__isnull=False,
+        completed__isnull=False,
+        typesetter=request.user,
+        assignment__article__journal=request.journal,
+    )
 
     template = 'production/typesetter_requests.html'
     context = {
@@ -685,7 +711,7 @@ def do_typeset_task(request, typeset_id):
     :return: HttpResponse or HttpRedirect
     """
     typeset_task = get_object_or_404(
-        models.TypesetTask,
+        models.TypesetTask.active_objects,
         pk=typeset_id,
         accepted__isnull=False,
         completed__isnull=True,
@@ -695,6 +721,7 @@ def do_typeset_task(request, typeset_id):
     article = typeset_task.assignment.article
     galleys = core_models.Galley.objects.filter(article=article)
     form = forms.TypesetterNote(instance=typeset_task)
+    galley_form = forms.GalleyForm()
 
     if request.POST:
 
@@ -723,23 +750,38 @@ def do_typeset_task(request, typeset_id):
 
         new_galley = None
         if 'file' in request.FILES:
-            label = request.POST.get('label')
-            for uploaded_file in request.FILES.getlist('file'):
-                try:
-                    new_galley = logic.save_galley(
-                        article,
-                        request,
-                        uploaded_file,
-                        True,
-                        label=label,
-                    )
-                except UnicodeDecodeError:
-                    messages.add_message(request, messages.ERROR,
-                        "Uploaded file is not UTF-8 encoded")
-                except logic.ZippedGalleyError:
-                    messages.add_message(request, messages.ERROR,
-                        "Galleys must be uploaded individually, not zipped",
-                    )
+            try:
+                galley_form = forms.GalleyForm(request.POST, request.FILES)
+                if 'file' in request.FILES and galley_form.is_valid():
+                    label = galley_form.cleaned_data.get('label')
+                    public = galley_form.cleaned_data.get('public')
+                    for uploaded_file in request.FILES.getlist('file'):
+                        logic.save_galley(
+                            article,
+                            request,
+                            uploaded_file,
+                            True,
+                            label=label,
+                            public=public,
+                        )
+            except TypeError as exc:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    str(exc),
+                )
+            except UnicodeDecodeError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Uploaded file is not UTF-8 encoded",
+                )
+            except logic.ZippedGalleyError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Galleys must be uploaded individually, not zipped",
+                )
 
         if 'source' in request.POST:
             for uploaded_file in request.FILES.getlist('source-file'):
@@ -775,6 +817,7 @@ def do_typeset_task(request, typeset_id):
         'copyedit_files': copyedit_files,
         'galleys': galleys,
         'form': form,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -804,7 +847,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     else:
         typeset_task = None
         article = get_object_or_404(
-            submission_models.Article.allarticles,
+            submission_models.Article,
             pk=article_id,
             journal=request.journal
         )
@@ -813,6 +856,10 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         core_models.Galley,
         pk=galley_id,
         article=article,
+    )
+    galley_form = forms.GalleyForm(
+        instance=galley,
+        include_file=False,
     )
     if galley.label == 'XML':
         xsl_files = core_models.XSLFile.objects.filter(
@@ -892,9 +939,14 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                     label,
                 )
 
-        if 'galley-label' in request.POST:
-            galley.label = request.POST.get('galley_label')
-            galley.save()
+        if 'galley-update' in request.POST:
+            galley_form = forms.GalleyForm(
+                request.POST,
+                instance=galley,
+                include_file=False,
+            )
+            if galley_form.is_valid():
+                galley_form.save()
 
         if 'replace-galley' in request.POST:
             logic.replace_galley_file(
@@ -940,6 +992,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'data_files': article.data_figure_files.all(),
         'galley_images': galley.images.all(),
         'xsl_files': xsl_files,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -961,7 +1014,7 @@ def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
     else:
         typeset_task = None
         article = get_object_or_404(
-            submission_models.Article.allarticles,
+            submission_models.Article,
             pk=article_id,
             journal=request.journal
         )
@@ -1063,25 +1116,52 @@ def supp_file_doi(request, article_id, supp_file_id):
         core_models.SupplementaryFile,
         pk=supp_file_id,
     )
-    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
+    timestamp_suffix = article.journal.get_setting(
+        'crossref',
+        'crossref_date_suffix',
+    )
+
+    test_mode = setting_handler.get_setting(
+        'Identifiers',
+        'crossref_test',
+        article.journal
+    ).processed_value
 
     if not article.get_doi():
-        messages.add_message(request, messages.INFO, 'Parent article must have a DOI before you can assign a'
-                                                     'supplementary file a DOI.')
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Parent article must have a DOI before you can assign a '
+            'supplementary file a DOI.')
 
-    xml_context = {'supp_file': supplementary_file,
-                   'article': article,
-                   'batch_id': uuid.uuid4(),
-                   'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-                   'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                                 article.journal).processed_value,
-                   'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                                  article.journal).processed_value,
-                   'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                             article.journal).processed_value,
-                   'parent_doi': article.get_doi()
-                   }
-    xml_content = render_to_string('common/identifiers/crossref_component.xml', xml_context, request)
+    xml_context = {
+        'supp_file': supplementary_file,
+        'article': article,
+        'batch_id': uuid.uuid4(),
+        'timestamp_suffix': timestamp_suffix,
+        'depositor_name': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_name',
+            article.journal
+        ).processed_value,
+        'depositor_email': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_email',
+            article.journal
+        ).processed_value,
+        'registrant': setting_handler.get_setting(
+            'Identifiers',
+            'crossref_registrant',
+            article.journal
+        ).processed_value,
+        'parent_doi': article.get_doi(),
+        'now': datetime.datetime.now(),
+    }
+    xml_content = render_to_string(
+        'common/identifiers/crossref_component.xml',
+        xml_context,
+        request
+    )
 
     if request.POST:
         from identifiers import logic

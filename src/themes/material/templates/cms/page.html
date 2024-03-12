@@ -1,5 +1,4 @@
 {% extends "core/base.html" %}
-{% load markdown_deux_tags %}
 
 {% block title %}{{ page.display_name }}{% endblock title %}
 
@@ -9,8 +8,8 @@
 	<div id="row">
 		<div class="col s12">
             <div class="card">
-                <div class="card-content">
-                  <span class="card-title">{{ page.display_name }}</span>
+                <div id="cms-title" class="card-content">
+                  <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
                   <div class="divider spacer"></div>
                     <div id="cms" class="default-li">{{ page.content|safe }}</<div>
                 </div>

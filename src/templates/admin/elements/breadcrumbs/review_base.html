@@ -1,3 +1,3 @@
 <li><a href="{% url 'review_home' %}">Articles in Review</a></li>
-{% if article %}<li><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></li>{% endif %}
+{% if article %}<li><a href="{% url 'review_in_review' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
 {% if review or assignment %} <li><a href="{% if review %}{% url 'review_view_review' review.article.id review.id %}{% elif assignment %}{% url 'review_view_review' assignment.article.id assignment.id %}{% endif %}">Review</a></li>{% endif %}

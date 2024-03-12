@@ -1,0 +1,74 @@
+{% load foundation %}
+{% load humanize %}
+
+<div class="reveal small-4" id="history_modal" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% trans "History" %}</h4>
+        </div>
+        <div class="card-section">
+            {% if obj.history.all %}
+                <table>
+                    <thead>
+                        <th>Version</th>
+                        <th>Timestamp</th>
+                        <th>ID</th>
+                    </thead>
+                    <tbody>
+                        {% for version in obj.history.all|slice:":10" %}
+                            <tr>
+                                <td>
+                                    {% if request.user.is_staff %}
+                                        <a
+                                            href="{% url view_url version.id %}{{ version.history_id }}">
+                                    {% endif %}
+                                    Saved {{ version.history_date|naturaltime }}
+                                    {% if request.user == version.history_user %}
+                                        by me
+                                    {% elif version.history_user %}
+                                        by {{ version.history_user }}
+                                    {% else %}
+                                        by administrator
+                                    {% endif %}
+                                    {% if request.user.is_staff %}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ version.history_date }}</td>
+                                <td>{{ version.history_id }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% with rest=obj.history.count|add:"-10" %}
+                            {% if rest > 0 %}
+                                <tr>
+                                    <td>
+                                        {% if request.user.is_staff %}
+                                            <a
+                                                href="{% url view_url obj.id %}">
+                                                {{ rest }} more version{{ rest|pluralize }}
+                                            </a>
+                                        {% else %}
+                                            {{ rest }} more version{{ rest|pluralize }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
+                    </tbody>
+                </table>
+                {% if not request.user.is_staff %}
+                    <div class="callout primary">
+                        <p>
+                            <i class="fa fa-info-circle"></i>
+                            If you need to revert to a previous version, please ask someone with Staff access or contact tech support.
+                        </p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

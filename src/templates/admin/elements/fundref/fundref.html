@@ -3,6 +3,8 @@
 <script language="JavaScript">
         function search_fundref(query) {
                 query_url = '//api.crossref.org/funders?query=' + query;
+                console.log('Clearing old modals.')
+                $("div.fundref_modal").remove();
                 console.log('Fetching ' + query_url);
                 fetch(query_url)
                     .then(function(response) {
@@ -63,6 +65,7 @@
                                     const modal_div = document.createElement('div');
                                     modal_div.classList.add('small');
                                     modal_div.classList.add('reveal');
+                                    modal_div.classList.add('fundref_modal')
                                     modal_div.id = 'add_funder_' + funder;
                                     modal_div.setAttribute('data-reveal', '');
                                     funder_span.append(modal_div);
@@ -86,7 +89,7 @@
                                     const add_funder_form = document.createElement('form');
                                     add_funder_form.setAttribute('method', 'POST');
                                     add_funder_card_section.appendChild(add_funder_form);
-                                    add_funder_form.innerHTML = "{% csrf_token %}";
+                                    add_funder_form.innerHTML = "<input type=\"hidden\" name=\"csrfmiddlewaretoken\" value=\"{{csrf_token}}\">"
 
 
                                     // Add the funder field to the modal
@@ -108,7 +111,7 @@
 
                                     const funder_name_label = document.createElement('p');
                                     funder_name_label.classList.add('help-text');
-                                    funder_name_label.innerText = '{% trans "Funder" %}';
+                                    funder_name_label.innerText = '{% trans funder_form.fields.name.help_text %}';
                                     funder_name_text.appendChild(funder_name_label);
 
 
@@ -131,7 +134,7 @@
 
                                     const funder_doi_label = document.createElement('p');
                                     funder_doi_label.classList.add('help-text');
-                                    funder_doi_label.innerText = '{% trans "Funder DOI (optional)" %}';
+                                    funder_doi_label.innerText = '{% trans funder_form.fields.fundref_id.help_text %}';
                                     funder_doi_text.appendChild(funder_doi_label);
 
                                     // Add the grant ID
@@ -152,7 +155,7 @@
 
                                     const funder_grant_label = document.createElement('p');
                                     funder_grant_label.classList.add('help-text');
-                                    funder_grant_label.innerText = '{% trans "Funder grant number (optional)" %}';
+                                    funder_grant_label.innerText = '{% trans funder_form.fields.funding_id.help_text %}';
                                     funder_grant_text.appendChild(funder_grant_label);
 
                                     const modal_submit = document.createElement('button');

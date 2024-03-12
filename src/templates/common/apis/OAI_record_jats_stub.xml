@@ -1,0 +1,7 @@
+<record>
+    {{ prefix }}
+    {% include "apis/OAI_record_header.xml" with article=article %}
+    <metadata>
+      {% include "encoding/article_jats_1_2.xml" with article=article %}
+    </metadata>
+</record>

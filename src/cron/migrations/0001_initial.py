@@ -34,8 +34,23 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('type', models.CharField(choices=[('review', 'Review'), ('revisions', 'Revision')], max_length=100)),
-                ('run_type', models.CharField(choices=[('before', 'Before'), ('after', 'After')], max_length=100)),
-                ('days', models.PositiveIntegerField(help_text='The number of days before or after this reminder should fire')),
+                (
+                    'run_type',
+                    models.CharField(
+                        choices=[
+                            ('before', 'before the due date'),
+                            ('after', 'after the due date')
+                        ],
+                        max_length=100
+                    )
+                ),
+                (
+                    'days',
+                    models.PositiveIntegerField(
+                        help_text='The number of days before or after '
+                                  'the due date this reminder should fire'
+                    )
+                ),
                 ('template_name', models.CharField(help_text='The name of the email template', max_length=100)),
                 ('subject', models.CharField(max_length=200)),
             ],

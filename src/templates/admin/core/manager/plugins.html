@@ -29,6 +29,16 @@
                             {% endif %}
                         {% endfor %}
                     </div>
+                    {% if failed_to_load %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p>Some installed plugins failed to load:</p>
+                        <ul>
+                        {% for failed in failed_to_load %}
+                          <li>{{ failed.name }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
 
             </div>

@@ -11,17 +11,17 @@
 {% block body %}
 	<section id="content" class="no-padding">
 		<div class="row column">
-            {% if news_item.large_image_file %}
+            {% if news_item.best_image_url %}
                 <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
-                                 src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                                 alt="{{ article.title | striptags }}">
+                                 src="{{ news_item.best_image_url }}"
+                                 alt="{{ news_item.title | striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>
-                                <p>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</p>
+                                <p>Posted by {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</p>
                             </figcaption>
                         </div>
                     </li>

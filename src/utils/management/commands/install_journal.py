@@ -5,6 +5,7 @@ from django.utils import translation
 from journal import models as journal_models
 import utils.install as install
 
+
 class Command(BaseCommand):
     """ A management command to install a new journal."""
 
@@ -47,7 +48,6 @@ class Command(BaseCommand):
 
             if not delete:
                 journal = journal_models.Journal.objects.get(code=journal_code)
-                install.update_license(journal, management_command=False)
                 install.update_issue_types(journal, management_command=False)
 
             call_command('show_configured_journals')

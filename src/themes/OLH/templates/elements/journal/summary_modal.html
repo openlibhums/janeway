@@ -1,10 +1,10 @@
 <div id="summarymodal" class="reveal" data-reveal aria-labelledby="summarymodal" aria-hidden="true"
      role="dialog">
-    <h2 id="summarutitle">Non Specialist Summary</h2>
+    <h2 id="summarutitle">{% trans 'Non Specialist Summary' %}</h2>
     {% if article.non_specialist_summary %}
         {{ article.non_specialist_summary|safe }}
     {% else %}
-        <p>This article has no summary</p>
+        <p>{% trans 'This article has no summary' %}</p>
     {% endif %}
     <button class="close-button" data-close aria-label="Close modal" type="button">
         <span aria-hidden="true">&times;</span>

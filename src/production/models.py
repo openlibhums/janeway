@@ -8,16 +8,18 @@ from datetime import date
 from django.db import models
 from django.utils import timezone
 
+from submission import models as submission_models
+
 
 class ProductionAssignment(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField('submission.Article', on_delete=models.CASCADE)
     production_manager = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     editor = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL, related_name='prod_editor')
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     closed = models.DateField(blank=True, null=True)
 
-    accepted_by_manager = models.ForeignKey('TypesetTask', null=True, blank=True)
+    accepted_by_manager = models.ForeignKey('TypesetTask', null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         unique_together = ('article', 'production_manager')
@@ -35,8 +37,18 @@ class ProductionAssignment(models.Model):
         return self.typesettask_set.filter(completed__isnull=False)
 
 
+class ActiveTypesetTaskManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTypesetTaskManager, self).get_queryset().exclude(
+            assignment__article__stage=submission_models.STAGE_ARCHIVED
+        )
+
+
 class TypesetTask(models.Model):
-    assignment = models.ForeignKey(ProductionAssignment)
+    assignment = models.ForeignKey(
+        ProductionAssignment,
+        on_delete=models.CASCADE,
+    )
     typesetter = models.ForeignKey(
         'core.Account',
         null=True,
@@ -69,6 +81,9 @@ class TypesetTask(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
 
     editor_reviewed = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    active_objects = ActiveTypesetTaskManager()
 
     @property
     def is_active(self):

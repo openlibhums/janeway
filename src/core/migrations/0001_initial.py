@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('middle_name', models.CharField(blank=True, max_length=300, null=True, verbose_name='Middle name')),
                 ('last_name', models.CharField(blank=True, max_length=300, null=True, verbose_name='Last name')),
                 ('activation_code', models.CharField(blank=True, max_length=100, null=True)),
-                ('salutation', models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation')),
+                ('salutation', models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation')),
                 ('biography', models.TextField(blank=True, null=True, verbose_name='Biography')),
                 ('orcid', models.CharField(blank=True, max_length=40, null=True, verbose_name='ORCiD')),
                 ('institution', models.CharField(max_length=1000, verbose_name='Institution')),
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
             name='Contact',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipient', models.EmailField(max_length=200, verbose_name='Who would you like to contact')),
+                ('recipient', models.EmailField(max_length=200, verbose_name='Who would you like to contact?')),
                 ('sender', models.EmailField(max_length=200, verbose_name='Your contact email address')),
                 ('subject', models.CharField(max_length=300, verbose_name='Subject')),
                 ('body', models.TextField(verbose_name='Your message')),
@@ -73,6 +73,9 @@ class Migration(migrations.Migration):
                 ('date_sent', models.DateField(auto_now_add=True)),
                 ('object_id', models.PositiveIntegerField(blank=True, null=True)),
             ],
+            options={
+                'verbose_name_plural': 'contact messages',
+            },
         ),
         migrations.CreateModel(
             name='Contacts',
@@ -85,7 +88,7 @@ class Migration(migrations.Migration):
                 ('sequence', models.PositiveIntegerField(default=999)),
             ],
             options={
-                'verbose_name_plural': 'Journal Contacts',
+                'verbose_name_plural': 'contacts',
                 'ordering': ('sequence', 'name'),
             },
         ),
@@ -109,6 +112,9 @@ class Migration(migrations.Migration):
                 ('redirect', models.BooleanField(default=True, help_text='If enabled, the site will throw a 301 redirect to the master domain.', verbose_name='301')),
                 ('site_id', models.PositiveIntegerField()),
             ],
+            options={
+                'verbose_name_plural': 'domain aliases',
+            },
         ),
         migrations.CreateModel(
             name='EditorialGroup',
@@ -170,6 +176,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('history_seq',),
+                'verbose_name_plural': 'file histories',
             },
         ),
         migrations.CreateModel(
@@ -241,13 +248,16 @@ class Migration(migrations.Migration):
                 ('expiry', models.DateTimeField(default=core.models.generate_expiry_date, verbose_name='Expires on')),
                 ('expired', models.BooleanField(default=False)),
             ],
+            options={
+                'ordering': ['-expiry'],
+            },
         ),
         migrations.CreateModel(
             name='Role',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('slug', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=100, help_text='Display name for this role (can include spaces and capital letters)')),
+                ('slug', models.CharField(max_length=100, help_text='Normalized string representing this role containing only lowercase letters and hyphens.')),
             ],
             options={
                 'ordering': ('name', 'slug'),
@@ -318,6 +328,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('event_name', models.CharField(max_length=300)),
             ],
+            options={
+                'verbose_name_plural': 'task complete events',
+            },
         ),
         migrations.CreateModel(
             name='Workflow',

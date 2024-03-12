@@ -1,0 +1,58 @@
+{% load foundation %}
+{% load i18n %}
+{% load field %}
+
+{% include "elements/forms/errors.html" with form=form %}
+<div class="large-12 columns">
+    {{ form.title|foundation }}
+</div>
+<div class="large-12 columns">
+    {{ form.abstract|foundation }}
+</div>
+<div class="large-12 columns">
+    {{ form.license|foundation }}
+</div>
+<div class="large-12 columns">
+    {{ form.doi|foundation }}
+</div>
+
+<div class="large-12 columns">
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <label for="id_subject">{{ form.subject.label }}<span class="red">*</span></label>
+            <ul class="tree">
+                {% include "admin/elements/repository/tree.html" with subjects=request.repository.top_level_subjects %}
+            </ul>
+            <p class="help-text">
+                Press the Caret (>) to view child subjects.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="large-12 columns">
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <label for="id_keywords">Keywords</label>
+            <input type="text" id="id_keywords" name="keywords" value="
+                    {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+            {% trans "Hit Enter to add a new keyword." %}
+        </div>
+    </div>
+</div>
+
+<div class="large-12 columns">
+    {{ form.comments_editor|foundation }}
+</div>
+
+{% if additional_fields %}
+    <div class="title-area padding">
+        <h2>{% trans "Additional Fields" %}</h2>
+    </div>
+    {% for additional_field in additional_fields %}
+        {% get_form_field form additional_field.name as field %}
+        <div class="{{ field.field.widget.attrs.div_class }} columns">
+            {{ field|foundation }}
+        </div>
+    {% endfor %}
+{% endif %}

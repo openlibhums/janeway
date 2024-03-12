@@ -1,3 +1,3 @@
 <li><a href="{% url 'copyediting' %}">Articles in Copyediting</a></li>
-{% if article %}<li><a href="{% url 'article_copyediting' article.pk %}">{{ article.title }}</a></li>{% endif %}
+{% if article %}<li><a href="{% url 'article_copyediting' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
 {% if assignment %} <li><a href="{% url 'review_view_review' assignment.article.id assignment.id %}">Copyeditor Assignment</a></li>{% endif %}

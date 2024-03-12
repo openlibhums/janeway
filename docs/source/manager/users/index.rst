@@ -76,11 +76,15 @@ The roles interface presents a list of Janeway's core roles:
 - Copyeditor
 - Editor
     - Handles processing of articles and assignment of tasks
+- Journal Manager
+    - Has a similar level of permission to the Editor role, but can be given extra access (see below)
 - Production Manager
     - Handles the assignment and processing of Typesetting articles
 - Proofing Manager
     - Handles assignment of proofreaders and requesting typesetting changes
 - Proofreader
+- Reader
+    - This role indicated whether a user is signed up for now article notifications
 - Reviewer
 - Section Editor
 - Typesetter
@@ -89,13 +93,41 @@ Once you have selected a role you will be presented with a list of users who cur
 
 .. figure:: ../../nstatic/roles.gif
 
-
 Authenticated Users
 -------------------
 Presents a list of users who are currently logged into your install of Janeway. Only accessible to staff.
 
 Merge Users (Press Manager only)
 --------------------------------
-From the press manager, staff memebers can now merge two accounts together, in order to remove any potential duplicates.
-All linked objects (tasks, articles, roles, files...) will be transferred from the source account onto the destination account.
-The account profile itself is left untouched, so any profile details on the source account will be lost.
+The press manager now enables staff members to merge two accounts to eliminate potential duplicates. All associated objects such as tasks, articles, roles, and files will be moved from the source account to the destination account. The account profile remains unchanged, meaning any profile information in the source account will be lost.
+
+.. warning:: When searching for users to merge, note that the user account in the left column will be merged into the user account in the right column.
+
+.. figure:: ../../nstatic/merge_users.gif
+    :alt: A press manager user is merging two accounts together. The search for one user then the other and click the merge button.
+    :class: with-border
+
+    A press manager is merging Andy Byers' account into Katheryn Janeway's account.
+
+Granular Manager Permissions
+----------------------------
+In version 1.5 we introduced more granular manager permissions. Initially these are centered around the journal manager and editor roles. We are introducing a new setting group "Permission", and within this group we will be adding new permission controllers starting with:
+
+- Licenses
+    - Controls whether a user can access the licenses control pages base on their roles, defaults to Editor and Journal Manager
+- Sections
+    - Controls whether a user can access the sections control pages base on their roles, defaults to Editor and Journal Manager
+
+Currently there is no interface for updating the roles that can access these pages and the setting is JSON stored in the database.
+
+.. warning:: You should only edit the Permission settings if you are sure about the change you are making.
+
+By default both settings read `["editor", "journal-manager"]`. If, for example, you wanted to stop editors from editing licenses you could change it to read `["journal-manager"]`. Once saved, only users with the journal manager role will be able to access the licenses pages.
+
+Granular Settings Permissions
+-----------------------------
+In version 1.5 we introduced granular settings permissions. Staff can now determine, for any given setting object, which roles are allowed to edit it. This is done via the Django Admin panel (Core > Settings), using the `editable_by` field. Staff can alter the roles that are allowed to see and edit a setting.
+
+.. Note:: If a setting is also displayed on a settings group page (for example the General or Submission settings page) and a user does not have the appropriate permission to edit that setting it will be filtered out of the form and not be visible.
+
+As with the manager permissions changes the default to settings permission maintains the status quo and by default all settings are editable by editors and journal managers.

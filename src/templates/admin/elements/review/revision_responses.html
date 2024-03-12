@@ -1,0 +1,14 @@
+<p>Author response letters submitted during the revision processes can be read below:</p>
+
+<ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+    {% for revision in article.completed_revision_requests %}
+        {% if revision.response_letter %}
+        <li class="accordion-item" data-accordion-item>
+            <a href="#" class="accordion-title">Author Response #{{ forloop.counter }}</a>
+            <div class="accordion-content" data-tab-content>
+                {{ revision.response_letter|safe }}
+            </div>
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>

@@ -138,6 +138,43 @@ When an Editor request revisions there are two ways to start this process:
 Once you have accessed the revision request you will be able to view available peer reviews and download, revise or upload new files. Once you've uploaded a revised manuscript and any additional image files you can fill in the covering letter and save the revision.
 
  .. figure:: /nstatic/review_do_revisions.gif
+ 
+
+Copyediting
+-----------
+Editors and authors are encouraged to undertake as many rounds of copyediting as is necessary to ensure that the text is ready to go into production. 
+
+It is important that all stylistic changes are made at this stage. As many errors as possible should be corrected at this point, and by the end of copyediting there should be a final manuscript which requires no further changes. The typesetters will then use this final manuscript to create the finished article, which will be sent back for checking in the form of typeset proofs. 
+
+Typeset proofs are not an opportunity to make changes to the content or style of a manuscript: the file that goes into production is final. It is expected that only a handful (less than 10) of very minor changes should be requested at the proofing stage, if any.
+
+When an Editor requests an Author Revision following a copyedit:
+
+1. Click the link in the email sent to you to access the file.
+2. Alternatively, to access this via the Journal Dashboard:
+    1. Login to the Journal 
+    2. Go to the Journal Dashboard 
+    3. Scroll down to “Submitted Articles” 
+    4. Click the “Copyediting Review” button next to the article
+
+.. figure:: /nstatic/author_copyedit_1.png
+
+Once you have accessed the Copyediting Review request you will be able to view requested copyedits and download the copyedited file. Copyedits are made as tracked changes.
+
+Please accept all tracked changes you agree with and address any queries the copyeditor has made in the comments. Check your manuscript carefully to ensure you have not introduced any new errors before uploading your revised file back into the system. 
+
+To complete a Copyediting Review: 
+
+1. Upload your revisions to the copyedited manuscript. You can do so by replacing the copyeditor's version of the file with your own updated version.
+
+ .. figure:: /nstatic/author_copyedit_2.png
+
+2. Fill in the Note to the Editor with any additional information
+3. Select a Decision (either ‘Accept’ or ‘Corrections Required’)
+4. Click ‘Complete Copyedit Task’
+
+ .. figure:: /nstatic/author_copyedit_3.png
+
 
 Proofing
 --------

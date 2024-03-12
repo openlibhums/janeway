@@ -25,6 +25,9 @@ from django.contrib import messages
 
 from core import plugin_installed_apps
 
+# X_FRAME_OPTIONS must be set to SAMEORIGIN or the embedded PDF viewer will not work
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
@@ -49,48 +52,57 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
+    'django.contrib.contenttypes',
 
     # Installed Apps
+    # Install APP is loaded first to ensure all existing models and migrations
+    # relying on installation procedures won't fail
+    'install',
     'cms',
     'core',
     'copyediting',
     'cron',
+    'discussion',
     'events',
     'identifiers',
     'journal',
     'metrics',
     'comms',
-    'preprint',
     'press',
     'production',
     'proofing',
     'review',
+    'repository',
     'reports',
     'security',
     'submission',
     'transform',
     'utils',
-    'install',
     'workflow',
 
     # 3rd Party
+    'mozilla_django_oidc',
+    'django_countries',
     'django_summernote',
-    'markdown_deux',
-    'hvad',
-    'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
     'foundationform',
-    'materialize',
-    'snowpenguin.django.recaptcha2',
+    'materializecssform',
+    'captcha',
     'simplemathcaptcha',
+    'simple_history',
+    'hijack',
+    'hcaptcha',
+    'django_bleach',
 
     # Forms
     'django.forms',
@@ -99,18 +111,16 @@ INSTALLED_APPS = [
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps(BASE_DIR)
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'core.middleware.TimezoneMiddleware',
     'core.middleware.SiteSettingsMiddleware',
-    'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
     'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
@@ -118,6 +128,9 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'journal.middleware.LanguageMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -144,6 +157,7 @@ TEMPLATES = [
                 'core.context_processors.press',
                 'core.context_processors.active',
                 'core.context_processors.navigation',
+                'core.context_processors.version',
                 'django_settings_export.settings_export',
                 'django.template.context_processors.i18n'
             ],
@@ -154,6 +168,7 @@ TEMPLATES = [
             ],
             'builtins': [
                 'core.templatetags.fqdn',
+                'django.templatetags.i18n',
             ]
         },
     },
@@ -171,6 +186,10 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'URL_CONFIG',
+    'HIJACK_USERS_ENABLED',
+    'ENABLE_OIDC',
+    'OIDC_SERVICE_NAME',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -225,15 +244,21 @@ LOCALE_PATHS = [
 ] + plugin_installed_apps.load_plugin_locales(BASE_DIR)
 
 
-def ugettext(s):
+def gettext(s):
     return s
 
 
 LANGUAGES = (
-    ('en', ugettext('English')),
-    ('fr', ugettext('French')),
-    ('de', ugettext('German')),
+    ('en', gettext('English')),
+    ('en-us', gettext('English (US)')),
+    ('fr', gettext('French')),
+    ('de', gettext('German')),
+    ('nl', gettext('Dutch')),
+    ('cy', gettext('Welsh')),
 )
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'en'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -255,12 +280,37 @@ STATIC_URL = '/static/'
 if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
+# Django bleach settings
+# Which HTML tags are allowed
+BLEACH_ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'article', 'main', 'aside',
+    'header', 'footer', 'main', 'section', 'ul', 'ol', 'li',
+    'figure', 'figcaption', 'img', 'pre', 'blockquote',
+    'p', 'b', 'i', 'u', 'em', 'strong', 'a',
+    'table', 'tr', 'th', 'td', 'thead', 'tbody', 'tfoot',
+]
+
+# Which HTML attributes are allowed
+BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target']
+
+# Which CSS properties are allowed in 'style' attributes (assuming
+# style is an allowed attribute)
+# BLEACH_ALLOWED_STYLES = []
+
+# Strip unknown tags if True, replace with HTML escaped characters if
+# False
+BLEACH_STRIP_TAGS = True
+
+# Strip comments, or leave them in.
+BLEACH_STRIP_COMMENTS = False
+
+# Which widget to use for bleached HTML fields
+BLEACH_DEFAULT_WIDGET = 'django_summernote.widgets.SummernoteWidget'
+
+# Summernote settings
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
     'iframe': True,  # or set False to use SummernoteInplaceWidget - no iframe mode
-
-    # Using Summernote Air-mode
-    'airMode': False,
 
     # Use native HTML tags (`<b>`, `<i>`, ...) instead of style attributes
     # (Firefox, Chrome only)
@@ -269,13 +319,58 @@ SUMMERNOTE_CONFIG = {
     # Set text direction : 'left to right' is default.
     'direction': 'ltr',
 
-    # Change editor size
-    'width': '100%',
-    'height': '480',
-
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
     'attachment_filesize_limit': 2056 * 2056,
+
+    'css': (
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/theme/monokai.min.css',
+    ),
+
+    # You can put custom Summernote settings
+    'summernote': {
+        # Using Summernote Air-mode
+        'airMode': False,
+
+        # Change editor size
+        'width': '100%',
+        # 'height': '480',
+
+        # Toolbar customization
+        # https://summernote.org/deep-dive/#custom-toolbar-popover
+        'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            # ['fontname', ['fontname']],
+            # ['color', ['color']],
+            ['para', ['ul', 'ol']],  # , 'paragraph'
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],   # , 'video'
+            ['misc', ['undo', 'redo', 'help']],
+            ['view', ['fullscreen', 'codeview']],
+        ],
+
+        'popover': {
+          'image': [
+            ['remove', ['removeMedia']]
+          ],
+          'link': [
+            ['link', ['linkDialogShow', 'unlink']]
+          ],
+          'table': [
+            ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
+            ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
+          ],
+        },
+
+        'codemirror': {
+            'mode': 'htmlmixed',
+            'lineNumbers': 'true',
+            'lineWrapping': 'true',
+            # You have to include theme file in 'css' or 'css_for_inplace' before using it.
+            'theme': 'monokai',
+        },
+    },
 }
 
 # 1.9 appears confused about where null and blank are required for many to
@@ -284,55 +379,6 @@ SILENCED_SYSTEM_CHECKS = (
     'fields.W340',
 )
 
-'''
-# This section should only be enabled if you intend to use Sentry for error reporting.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['sentry'],
-    },
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s '
-                      '%(process)d %(thread)d %(message)s'
-        },
-    },
-    'handlers': {
-        'sentry': {
-            'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'tags': {'custom-tag': 'x'},
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'ERROR',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'raven': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-    },
-}
-RAVEN_CONFIG = {
-    'dsn': '',
-}
-'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -398,15 +444,17 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-LOGIN_REDIRECT_URL = '/user/profile/'
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = ''
-EMAIL_PORT = ''
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = os.environ.get(
+    'JANEWAY_EMAIL_BACKEND',
+) or 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
+EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
+EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')
+EMAIL_HOST_PASSWORD = os.environ.get("JANEWAY_EMAIL_HOST_PASSWORD", '')
+EMAIL_USE_TLS = os.environ.get("JANEWAY_EMAIL_USE_TLS", True)
 DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 # Settings for use with Mailgun
@@ -432,7 +480,7 @@ ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''
 ORCID_CLIENT_ID = ''
 
-
+SESSION_ENGINE = 'utils.sessions.janeway_db'
 SESSION_COOKIE_NAME = 'JANEWAYSESSID'
 
 S3_ACCESS_KEY = ''
@@ -470,19 +518,32 @@ HTTP_TIMEOUT_SECONDS = 5
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default (latest)'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.5.1)'
 
 # Skip migrations by default on sqlite for faster execution
 if (
     IN_TEST_RUNNER
     and "--keepdb" not in COMMAND
-    and os.environ.get("DB_VENDOR") == "sqlite"
 ):
     from collections.abc import Mapping
 
 
     class SkipMigrations(Mapping):
         def __getitem__(self, key):
+            """ Ensures the install migrations run before syncing db
+
+            Django's migration executor will always pre_render database state from
+            the models of unmigrated apps before running those declared in
+            MIGRATION_MODULES. As a result, we can't run the install migrations
+            first, while skipping the remaining migrations. Instead, we run
+            the required SQL here.
+            """
+            if key == 'install':
+                from django.db import connection
+                if connection.vendor == "postgresql":
+                    cursor = connection.cursor()
+                    cursor.execute("CREATE EXTENSION IF NOT EXISTS citext;")
+
             return None
 
         def __contains__(self, key):
@@ -496,5 +557,69 @@ if (
 
     logging.info("Skipping migrations")
     logging.disable(logging.CRITICAL)
+
     MIGRATION_MODULES = SkipMigrations()
 
+# A potentially dangerous feature, this allows superusers to hijack and control a user's account.
+HIJACK_USERS_ENABLED = False
+HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+
+# OIDC
+ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
+OIDC_SERVICE_NAME = 'OIDC Service Name'
+OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
+OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
+OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
+OIDC_LOGOUT_URL = os.environ.get('OIDC_LOGOUT_URL')
+OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
+OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_SECRET')
+OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_SIGN_ALGO')
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT')
+OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
+OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
+OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
+
+
+if ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS = (
+        'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+CORE_FILETEXT_MODEL = "core.FileText"
+if os.environ.get("DB_VENDOR") == "postgres":
+    CORE_FILETEXT_MODEL = "core.PGFileText"
+
+ENABLE_FULL_TEXT_SEARCH = False
+
+# Press website search using MiniSearch
+# (does not search articles, issues, preprints, or books).
+# Expects a tuple or None. Tuple examples: (23, 'daily')
+# (12, 'hourly')  (30, 'mins')
+SITE_SEARCH_INDEXING_FREQUENCY = None
+SITE_SEARCH_DIR = 'site_search_test' if IN_TEST_RUNNER else 'site_search'
+
+# A core theme must include ALL templates.
+CORE_THEMES = [
+    'OLH',
+    'material',
+    'clean',
+]
+
+# Repository theme setting determines which themes currently
+# support repositories.
+REPOSITORY_THEMES = [
+    'OLH',
+    'material',
+]
+
+INSTALLATION_BASE_THEME = 'OLH'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# Use pagination for all of our APIs based on Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+}

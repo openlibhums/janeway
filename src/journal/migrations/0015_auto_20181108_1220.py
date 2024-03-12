@@ -17,7 +17,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journal',
             name='disable_article_images',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False,
+                help_text='This field has been deprecated in v1.4.3',
+            ),
         ),
         migrations.AlterField(
             model_name='issue',

@@ -161,7 +161,13 @@ ol.gloss-sentence {
     list-style: none !important;
 }
 
+.gloss-sentence img {
+    width: auto !important;
+    padding-top: 5px;
+}
+
 ol.gloss-word {
+    padding-left: 0px !important;
     padding-right: .5em !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -186,4 +192,109 @@ ol.gloss-word {
     margin-top: 10px;
     margin-bottom: 10px;
     padding: 0;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+.monospace {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+.list-simple li {
+    list-style-type: none !important;
+}
+
+.no-top-margin {
+    margin-top: 0;
+}
+
+.table-left {
+    text-align: left;
+}
+
+.table-right {
+    text-align: right;
+}
+
+.table-center {
+    text-align: center;
+}
+
+.table-top {
+    vertical-align: top;
+}
+
+.table-bottom {
+    vertical-align: bottom;
+}
+
+.table-middle {
+    vertical-align: middle;
+}
+
+article .list-ord {
+    list-style-type: decimal;
+}
+article .list-unord {
+    list-style-type: disc;
+}
+article .list-alphalower {
+    list-style-type: lower-alpha;
+}
+article .list-alphaupper {
+    list-style-type: upper-alpha;
+}
+article .list-romanlower {
+    list-style-type: lower-roman;
+}
+article .list-romanupper {
+    list-style-type: upper-roman;
+}
+.orcid-button {
+    background-color: rgb(166, 206, 57);
+    color: #fff;
+}
+.orcid-button:hover, .orcid-button:focus {
+  background-color: rgb(138, 178, 22);
+  color: #fff;
+}
+.no-list-type {
+    list-style-type: none !important;
+}
+.no-list-type:first-child p {
+    display: inline;
+}
+.jats-list-type {
+    margin-left: -1.20rem;
+}
+.jats-addr {
+    line-height: 18px;
+}
+.jats-addr-institution {
+    display: block;
+}
+.jats-addr-line {
+    display: block;
+}
+.jats-addr-line-other {
+    display: block;
+}
+
+.fig-caption {
+    background: #f0f0f0;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.table-caption {
+    background: #f0f0f0;
+    padding: 15px;
+    margin-top: 15px;
 }

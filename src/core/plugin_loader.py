@@ -9,11 +9,12 @@ from importlib import import_module
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
+from packaging import version
 
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
+from janeway import __version__ as janeway_version
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
-from utils.logic import get_janeway_version
 
 
 def get_dirs(directory):
@@ -23,6 +24,25 @@ def get_dirs(directory):
     dirs = [x for x in dirs if x != '__pycache__']
 
     return dirs
+
+
+def register_hooks(hooks: list):
+    """Register plugin hooks."""
+    # Hooks are dictionaries. For a description,
+    # see "Technical Configuration" (docs/source/configuration.rst)
+    if settings.PLUGIN_HOOKS:
+        super_hooks = settings.PLUGIN_HOOKS
+    else:
+        settings.PLUGIN_HOOKS = {}
+        super_hooks = {}
+
+    for _dict in hooks:
+        if _dict:
+            for k, v in _dict.items():
+                super_hooks.setdefault(k, []).append(v)
+
+    for k, v in super_hooks.items():
+        settings.PLUGIN_HOOKS[k] = v
 
 
 def load(directory="plugins", prefix="plugins", permissive=False):
@@ -61,45 +81,20 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             # Call event registry
             register_for_events(plugin_settings)
 
-    # Register plugin hooks
-    if settings.PLUGIN_HOOKS:
-        super_hooks = settings.PLUGIN_HOOKS
-    else:
-        settings.PLUGIN_HOOKS = {}
-        super_hooks = {}
-
-    for _dict in hooks:
-        if _dict:
-            for k, v in _dict.items():
-                super_hooks.setdefault(k, []).append(v)
-
-    for k, v in super_hooks.items():
-        settings.PLUGIN_HOOKS[k] = v
-
+    register_hooks(hooks)
     return plugins
 
 
 def validate_plugin_version(plugin_settings):
     valid = None
     try:
-        wants_version  = plugin_settings.JANEWAY_VERSION.split(".")
+        wants_version = version.parse(plugin_settings.JANEWAY_VERSION)
     except AttributeError:
         # No MIN version pinned by plugin
         return
 
-    current_version = get_janeway_version().split(".")
-
-    for current, wants in zip(current_version, wants_version):
-        current, wants = int(current), int(wants)
-        if current > wants:
-            valid = True
-            break
-        elif current < wants:
-            valid = False
-            break
-
-    if valid is None: #Handle exact match
-        valid = True
+    current_version = version.parse(janeway_version.base_version)
+    valid = current_version >= wants_version
 
     if not valid:
         raise ImproperlyConfigured(
@@ -107,6 +102,7 @@ def validate_plugin_version(plugin_settings):
                 plugin_settings.PLUGIN_NAME, current_version, wants_version
             )
         )
+
 
 def get_plugin(module_name, permissive):
     # Check that the module is installed.
@@ -122,7 +118,7 @@ def get_plugin(module_name, permissive):
     except (
             models.Plugin.DoesNotExist,
             models.Plugin.MultipleObjectsReturned,
-            ProgrammingError, 
+            ProgrammingError,
             OperationalError,
         ) as e:
         if settings.DEBUG:

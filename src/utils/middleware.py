@@ -13,6 +13,32 @@ logger = get_logger(__name__)
 _local = threading.local()
 
 
+class BaseMiddleware():
+    def __init__(self, callable):
+        self.get_response = callable
+
+    def __call__(self, request):
+        """ Base implementation to ease the transition to Django 3.2
+
+        Prior versions of Django used a method called 'process_request'. In
+        this base implementation we maintain that behaviour by calling the older
+        interface from the new one. The remaining implementation follows the
+        django documentation for 3.2+
+        """
+
+        if hasattr(self, 'process_request'):
+            response = self.process_request(request)
+            if response is not None:
+                return response
+
+        response = self.get_response(request)
+
+        if hasattr(self, 'process_response'):
+            self.process_response(request, response)
+
+        return response
+
+
 class ThemeEngineMiddleware(object):
     """ Handles theming through middleware
     """
@@ -26,9 +52,10 @@ class ThemeEngineMiddleware(object):
         return response
 
 
-class TimeMonitoring(object):
+class TimeMonitoring(BaseMiddleware):
     """Monitors the resource usage of a request/response cycle """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.usage_start = None
 
     def process_request(self, _request):

@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from io import StringIO
 import mimetypes as mime
 import os
 from uuid import uuid4
@@ -12,6 +13,7 @@ import shutil
 import magic
 import hashlib
 
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
@@ -20,6 +22,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.views.decorators.cache import patch_cache_control
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfparser import PDFParser
 
 from utils import models as util_models
 from utils.logger import get_logger
@@ -39,9 +47,11 @@ EDITABLE_FORMAT = (
 
 IMAGE_MIMETYPES = (
     'image/jpeg',
+    'image/jpg',
     'image/png',
     'image/gif',
     'image/tiff',
+    'image/avif',
 )
 
 XML_MIMETYPES = (
@@ -58,6 +68,7 @@ PDF_MIMETYPES = {
     'application/pdf',
     'application/x-pdf',
 }
+
 
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
 CROSSREF_XSL = "NLM.JATS2Crossref.v3.1.1.xsl"
@@ -233,6 +244,8 @@ def copy_file_to_folder(file_to_handle, filename, folder_structure):
     import shutil
     shutil.copy(file_to_handle, path)
 
+    return path
+
 
 def copy_article_file(article_to_copy_from, file_to_copy, article_to_copy_to):
     """
@@ -315,15 +328,13 @@ def render_xml(file_to_render, article, xsl_path=None, recover=False):
 
     if xsl_path is not None:
         logger.debug('Rendering engine using {}'.format(xsl_path))
-    else:
-        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
-        logger.debug('Rendering engine using {}'.format(xsl_path))
 
     if not os.path.isfile(xsl_path):
         logger.error(
             'The required XSLT file {} was not found'.format(xsl_path)
         )
-        return ""
+        xsl_path = os.path.join(settings.BASE_DIR, 'transform/xsl/default.xsl')
+        logger.debug('Rendering engine using {}'.format(xsl_path))
 
     return transform_with_xsl(path, xsl_path, recover=recover)
 
@@ -821,3 +832,130 @@ def checksum(file_path):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+
+def serve_sitemap_file(path_parts):
+    file_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'sitemaps',
+        *path_parts,
+    )
+    return StreamingHttpResponse(
+        FileWrapper(
+            open(file_path, 'rb'),
+            8192,
+        ),
+        content_type='application/xml',
+    )
+
+
+def serve_robots_file(journal=None, repository=None):
+    base_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'robots',
+    )
+    if journal:
+        file_path = os.path.join(
+            base_path,
+            'journal_{}_robots.txt'.format(journal.code),
+        )
+    elif repository:
+        file_path = os.path.join(
+            base_path,
+            'repo_{}_robots.txt'.format(repository.code),
+        )
+    else:
+        file_path = os.path.join(
+            base_path,
+            'robots.txt',
+        )
+    return StreamingHttpResponse(
+        FileWrapper(
+            open(file_path, 'rb'),
+            8192,
+        ),
+        content_type='text/plain',
+    )
+
+
+def copy_preprint_file_to_article(preprint, article, manuscript=True):
+    """
+    Copies a preprint's latest file over to Manuscript Files for an article.
+    """
+    from core import models
+
+    if preprint.current_version:
+        filename = str(uuid4()) + str(os.path.splitext(preprint.current_version.file.original_filename)[1])
+        path = copy_file_to_folder(
+            preprint.current_version.file.file.path,
+            filename,
+            article.folder_path(),
+        )
+
+        new_file = models.File.objects.create(
+            mime_type=file_path_mime(path),
+            original_filename=preprint.current_version.file.original_filename,
+            uuid_filename=filename,
+            label='Manuscript File',
+            description='File copied from preprint #{}'.format(str(preprint.pk)),
+            owner=article.owner,
+            is_galley=False,
+            article_id=article.pk
+        )
+
+        if manuscript:
+            article.manuscript_files.add(new_file)
+
+        return new_file
+    return None
+
+  
+def jats_to_text(file_path):
+    text = None
+    with open(file_path, "r") as f:
+        soup = BeautifulSoup(f.read(), "lxml")
+        article = soup.find("article")
+        if article:
+            text = article.findAll(text=True)
+        else:
+            text = soup.findAll(text=True)
+
+    return " ".join(text)
+
+
+def html_to_text(file_path):
+    text = None
+    with open(file_path, "r") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+        body = soup.find("body")
+        if body:
+            text = body.text
+        else:
+            text = soup.text
+
+    return text
+
+
+def pdf_to_text(file_path):
+    text = StringIO()
+    with open(file_path, 'rb') as file_:
+        pdf_parser = PDFParser(file_)
+        document = PDFDocument(pdf_parser)
+        resource_manager = PDFResourceManager()
+        converter = TextConverter(resource_manager, text, laparams=LAParams())
+        interpreter = PDFPageInterpreter(resource_manager, converter)
+        for page in PDFPage.create_pages(document):
+            interpreter.process_page(page)
+
+    return text.getvalue()
+
+
+MIME_TO_TEXT_PARSER = {}
+for _mime in XML_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = jats_to_text
+for _mime in HTML_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = html_to_text
+for _mime in PDF_MIMETYPES:
+    MIME_TO_TEXT_PARSER[_mime] = pdf_to_text

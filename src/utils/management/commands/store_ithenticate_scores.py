@@ -11,17 +11,15 @@ class Command(BaseCommand):
     help = "Fetches ithenticate scores for articles."
 
     def handle(self, *args, **options):
-        """Fetches and saves ithenticate scores for articles
-
-        :param args: None
-        :param options: Dictionary containing 'doi_suffix'
-        :return: None
-        """
         for journal in journal_models.Journal.objects.filter(is_remote=False):
 
             if ithenticate.ithenticate_is_enabled(journal):
                 print("Processing journal {0}...".format(journal.name))
-                articles = models.Article.objects.filter(journal=journal, ithenticate_id__isnull=False)
+                articles = models.Article.objects.filter(
+                    journal=journal,
+                    ithenticate_id__isnull=False,
+                    ithenticate_score__isnull=True,
+                )
                 ithenticate.fetch_percentage(journal, articles)
             else:
                 print('Ithenticate is not enabled for {journal}. Skipping.'.format(journal=journal.name))

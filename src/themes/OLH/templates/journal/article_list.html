@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Articles" %}{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row">
+            <div class="large-8 columns border-right">
+                <aside class="hide-for-large">
+                    <ul class="accordion" data-accordion data-allow-all-closed="true">
+                        <li class="accordion-item" data-accordion-item>
+                            <a href="#" class="accordion-title">{% trans 'Show Filter Options' %}</a>
+                             <div class="accordion-content" data-tab-content>
+                                {% include "elements/journal/article_list_filters.html" %}
+                            </div>
+                        </li>
+                    </ul>
+                </aside>
+                <h1>{% trans "Articles" %}</h1>
+                {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+                {% for article in article_list %}
+                    {% include "elements/journal/box_article.html" with article=article %}
+                {% empty %}
+                    <strong>{% trans 'No articles to display.' %}</strong>
+                {% endfor %}
+                {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+            </div>
+            <aside class="large-4 columns show-for-large">
+                {% include "elements/journal/article_list_filters.html" %}
+            </aside>
+        </div>
+    </section>
+{% endblock body %}

@@ -7,12 +7,11 @@
     <div class="small expanded button-group">
         <a class="button" href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
         {% for stage in article.workflow_stages %}
-            <a class="button"
+
+            <a class="button{% if stage.element.element_name == 'review' and article.stage == 'Unassigned' %} disabled{% endif %}"
                href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
         {% endfor %}
         <button class="button" type="button" data-toggle="more-dropdown">Logs, Documents and More</button>
-
-
 
     </div>
 {% endif %}
@@ -20,8 +19,12 @@
     <ul>
         <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
+        <li><a href="{% url 'edit_metadata' article.pk %}?return={{ request.path }}">Edit Metadata</a></li>
+        <li><a href="{% url 'article_identifiers' article.pk %}">Identifiers</a></li>
+        <li><a href="{% url 'manage_archive_article' article.pk %}">Archive Page</a></li>
+        <li><a href="{% url 'manage_article_workflow' article.pk %}" target="_blank">Manage Workflow Stage</a></li>
         {% if article.is_published %}
-            <li><a href="{{ article.url }}">Live Article</a></li>
+            <li><a href="{% if article.is_remote and article.remote_url %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}" target="_blank">Live Article</a></li>
         {% endif %}
         {% if request.user.is_superuser %}
             <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
@@ -30,3 +33,17 @@
     </ul>
 </div>
 
+{% if article.stage == 'Archived' %}
+<div class="row expanded">
+    <div class="bs-callout bs-callout-danger bg-white">
+        <p class="no-bottom-margin">
+            <small>
+                <strong>
+                    Note:
+                </strong>
+                This article has been archived.
+            </small>
+        </p>
+    </div>
+</div>
+{% endif %}

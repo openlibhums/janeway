@@ -14,6 +14,7 @@ from journal import models
 from press import models as press_models
 from utils import setting_handler
 from submission import models as submission_models
+from cms import models as cms_models
 
 
 def update_settings(journal_object=None, management_command=False,
@@ -23,7 +24,7 @@ def update_settings(journal_object=None, management_command=False,
 
     :param journal_object: the journal object to update or None to set the
         default setting value
-    :param management_command: whether or not to print output to the console
+    :param management_command: whether to print output to the console
     :return: None
     """
     with codecs.open(os.path.join(settings.BASE_DIR, file_path), encoding='utf-8') as json_data:
@@ -54,17 +55,56 @@ def update_settings(journal_object=None, management_command=False,
                         setattr(setting, k, v)
                         setting.save()
 
-            setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+            setting_value, created = core_models.SettingValue.objects.get_or_create(
                 journal=journal_object,
                 setting=setting
             )
 
             if created or overwrite_with_defaults:
-                setting_value.value = item['value'].get('default')
+                value = item['value'].get('default')
+                if setting.types == 'json' and isinstance(value, (list, dict)):
+                    value = json.dumps(value)
+
+                setting_value.value = value
                 setting_value.save()
+
+                # clear the many-to-many relationship, mainly for overwrite procedures
+                setting.editable_by.clear()
+                role_list = item.get('editable_by', None)
+
+                # if no role list is found, default to the status quo
+                # where editors and journal-managers can edit a setting
+                if not role_list:
+                    role_list = ['editor', 'journal-manager']
+
+                roles = core_models.Role.objects.filter(
+                    slug__in=role_list,
+                )
+                setting.editable_by.add(*roles)
 
             if management_command:
                 print('Parsed setting {0}'.format(item['setting'].get('name')))
+
+
+def load_permissions(file_path='utils/install/journal_defaults.json'):
+    with codecs.open(os.path.join(settings.BASE_DIR, file_path), encoding='utf-8') as json_data:
+        default_data = json.load(json_data)
+
+        for item in default_data:
+            setting_group = core_models.SettingGroup.objects.filter(
+                name=item['group'].get('name'),
+            ).first()
+            setting = core_models.Setting.objects.get(
+                name=item['setting'].get('name'),
+                group=setting_group,
+            )
+            role_list = item.get('editable_by', None)
+
+            if role_list:
+                roles = core_models.Role.objects.filter(
+                    slug__in=role_list,
+                )
+                setting.editable_by.add(*roles)
 
 
 def update_emails(journal_object=None, management_command=False):
@@ -97,7 +137,7 @@ def update_emails(journal_object=None, management_command=False):
                     defaults=setting_defaults
                 )
 
-                setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+                setting_value, created = core_models.SettingValue.objects.get_or_create(
                     journal=journal_object,
                     setting=setting
                 )
@@ -113,7 +153,7 @@ def update_license(journal_object, management_command=False):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 
     :param journal_object: the journal object to update
-    :param management_command: whether or not to print output to the console
+    :param management_command: whether to print output to the console
     :return: None
     """
     with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/licence.json'), encoding='utf-8') as json_data:
@@ -134,6 +174,33 @@ def update_license(journal_object, management_command=False):
 
             if management_command:
                 print('Parsed licence {0}'.format(item['fields'].get('short_name')))
+
+
+def setup_submission_items(journal, manage_command=False):
+    with codecs.open(
+        os.path.join(
+            settings.BASE_DIR,
+            'utils/install/submission_items.json'
+        )
+    ) as json_data:
+        submission_items = json.load(json_data)
+        for i, setting in enumerate(submission_items):
+            if not setting.get('group') == 'special':
+                setting_obj = core_models.Setting.objects.get(
+                    group__name=setting.get('group'),
+                    name=setting.get('name'),
+                )
+            else:
+                setting_obj = None
+
+            obj, c = cms_models.SubmissionItem.objects.get_or_create(
+                journal=journal,
+                order=i,
+                existing_setting=setting_obj,
+            )
+
+            setattr(obj, 'title_{}'.format(settings.LANGUAGE_CODE), setting.get('title'))
+            obj.save()
 
 
 def update_xsl_files(journal_object=None, management_command=False):

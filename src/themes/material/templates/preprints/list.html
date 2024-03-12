@@ -61,12 +61,12 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="input-group">
-                            <form class="form-horizontal" method="POST" action="{% url 'preprints_search' %}">
+                            <form class="form-horizontal" method="POST" action="{% url 'repository_search' %}">
                                 {% csrf_token %}
                                 <div class="form-group">
 
                                     <div class="input-field">
-                                        <i class="material-icons prefix">search</i>
+                                        <i class="material-icons prefix">{% trans "search" %}</i>
                                         <input id="icon_prefix" type="text" class="validate" {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
                                         <label for="icon_prefix" class="">{% trans "Search Preprints" %}</label>
                                     </div>

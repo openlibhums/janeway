@@ -1,0 +1,153 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load hooks %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title }}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <br/><br/>
+        <div class="large-12 columns">
+            <h3>{{ preprint.title|safe }}</h3>
+            <p>
+                This is a {{ request.repository.object_name }} and has not been
+                peer reviewed.
+                {% if preprint.doi %}
+                    The published version of this
+                    {{ request.repository.object_name }} is available:
+                    <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                {% elif preprint.article %}
+                    A published version of this
+                    {{ request.repository.object_name }} is available on
+                    <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
+                    .
+                {% endif %}
+                This is version {{ preprint.current_version.version }} of
+                this {{ request.repository.object_name }}.
+            </p>
+        </div>
+        <div class="large-8 columns">
+            <h5>{% trans "Authors" %}</h5>
+            <div class="truncatejs">
+                <p class="authors">
+                    {% for author in preprint.authors %}
+                        {{ author.full_name }}{% if author.orcid %}&nbsp;
+                            <a href="https://orcid.org/{{ author.orcid }}"
+                               target="_blank"><img
+                                    src="{% static 'common/img/icons/orcid.gif' %}"></a>
+                        {% endif %}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+            <h5>{% trans "Abstract" %}</h5>
+            <div class="truncatejs">
+                <p>
+                    {{ preprint.abstract|safe }}
+                </p>
+            </div>
+            <div itemprop="articleBody" id="pdf">
+                {% if preprint.current_version_file_type == 'html' %}
+                    <h5>{% trans 'Preprint Body' %}</h5>
+                    {{ html|safe }}
+                {% elif preprint.current_version_file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                            width="100%" height="100%" style="min-height: 900px;" allowfullscreen
+                            webkitallowfullscreen></iframe>
+                {% endif %}
+                <h5>{% trans 'Comments' %}</h5>
+                {% if request.user.is_authenticated %}
+                    <div>
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <button type="submit" class="success button">{% trans 'Add Comment' %}</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% for comment in comments %}
+                    <div class="callout">
+                        <div class="row" id="comment-{{ comment.pk }}">
+                            <div class="large-2 columns">
+                                {% if comment.author.profile_image %}
+                                    <img src="{{ comment.author.profile_image.url }}">
+                                {% else %}
+                                    <img src="{% static "common/img/icons/users.png" %}">
+                                {% endif %}
+                            </div>
+                            <div class="large-10 columns">
+                                {% if comment.review %}
+                                    <p>
+                                    <small>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
+                                        @ {{ comment.date_time }}</small>
+                                </p>
+                                <p>
+                                    {{ comment.body|safe }}
+                                </p>
+                                {% else %}
+                                <p>
+                                    <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                        @ {{ comment.date_time }}</small>
+                                </p>
+                                <p>
+                                    {{ comment.body|linebreaksbr }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="callout">
+                        <p>{% trans "There are no comments or no comments have been made public for this article." %}</p>
+                    </div>
+                {% endfor %}
+                {% hook 'article_footer_block' %}
+            </div>
+        </div>
+        <div class="large-3 columns">
+            <div class="article-menu">
+                <small>
+                    {% if preprint.current_version.file %}
+                        <h5>{% trans "Downloads" %}</h5>
+                        <p>
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
+                                    class="fa fa-download"></span>
+                                Download {{ request.repository.object_name }}
+                            </a>
+                        </p>
+                    {% endif %}
+                    <h5>{% trans "Metadata" %}</h5>
+                    <ul>
+                        <li>{% trans "Published" %}: {{ preprint.date_published|date:"Y-m-d" }}</li>
+                        <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date:"Y-m-d" }}</li>
+                        <li>{% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
+                                                     title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
+                        </li>
+                        <li>Subjects: {% include "common/repository/subject_display.html" %}</li>
+                        <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                        {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
+                    </ul>
+                    {% if preprint.preprintversion_set.count > 1 %}
+                    <h5>{% trans "Versions" %}</h5>
+                    <ul>
+                        {% for version in preprint.preprintversion_set.all %}
+                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
+                            {% empty %}
+                            <li>{% trans "This is the only version of the preprint." %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
+
+                </small>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'common/js/moreless.js' %}"></script>
+{% endblock %}

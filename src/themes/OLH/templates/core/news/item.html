@@ -2,7 +2,7 @@
 {% load truncate %}
 {% load i18n %}
 
-{% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
+{% block title %}{{ journal_settings.news.news_title }} - {{ news_item.title }}{% endblock title %}
 
 {% block head %}
 {% include "elements/social_meta.html" %}
@@ -11,23 +11,17 @@
 {% block body %}
 	<section id="content" class="">
 		<div class="row column">
-            {% if news_item.large_image_file or request.press.default_carousel_image.url %}
+            {% if news_item.best_image_url %}
                 <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
-                                {% if news_item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                                {% elif request.journal and request.journal.default_large_image %}
-                                     src="{{ request.journal.default_large_image.url }}"
-                                {% else %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                 alt="{{ article.title | striptags }}">
+                                src="{{ news_item.best_image_url }}"
+                                 alt="{{ news_item.title | striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>
-                                <p>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</p>
+                                <p>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</p>
                             </figcaption>
                         </div>
                     </li>
@@ -36,21 +30,21 @@
                 <br />
             {% else %}
                 <h1>{{ news_item.title }}</h1>
-			    <h6>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</h6>
+			    <h6>{{ news_item.byline }} on {{ news_item.posted|date:"Y-m-d" }}</h6>
             {% endif %}
             <div class="row">
                 <div class="large-9 columns">
                     {{ news_item.body|safe }}
                 </div>
                 <div class="large-3 columns">
-                    <h7>Tags <i class="fa fa-tags">&nbsp;</i></h7>
+                    <h7>{% trans 'Tags ' %}<i class="fa fa-tags">&nbsp;</i></h7>
                      <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
                 </div>
             </div>
 
             <br />
 
-			<a href="{% url 'core_news_list' %}" class="button success">{% trans "News" %}</a>
+			<a href="{% url 'core_news_list' %}" class="button">{% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}</a>
 		</div>
 	</section>
 {% endblock body %}

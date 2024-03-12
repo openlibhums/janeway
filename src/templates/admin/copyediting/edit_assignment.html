@@ -3,7 +3,7 @@
 
 {% block title %}Edit Assignment{% endblock %}
 {% block title-section %}Edit Assignment{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -22,6 +22,7 @@
             <div class="row expanded">
                 <form method="POST">
                     {% csrf_token %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     <div class="large-6 columns">{{ form.editor_note|foundation }}</div>
                     <div class="large-6 columns">{{ form.due|foundation }}</div>
                     <div class="large-12 columns">

@@ -1,4 +1,6 @@
-{% load i18n %}
+{% load i18n roles %}
+{% user_has_role request 'reader' staff_override=False as reader %}
+
 <div class="row">
         <div class="col m6">
             <div class="card">
@@ -9,10 +11,11 @@
                         {% trans "Changing your email address will also change your username as these are one and the same." %}</p>
                     <form method="POST">
                         {% csrf_token %}
+                        <p><strong>{% trans 'Current Email Address' %}:</strong> {{ request.user.email }}</p>
                         <div class="input-field">
                             <input type="email" name="email_address" class="form-control"
                                    placeholder="janeway@voyager.com">
-                            <label for="email_address">{% trans "Email Address" %}</label>
+                            <label for="email_address">{% trans "New Email Address" %}</label>
                         </div>
                         <button type="submit" name="email" class="btn btn-warning">{% trans "Update Email Address" %}</button>
                     </form>
@@ -22,6 +25,28 @@
     <div class="col m6">
         <div class="card">
             <div class="card-content">
+                {% if request.journal and send_reader_notifications %}
+                    <span class="card-title">{% trans "Register for Article Notifications" %}</span>
+                    <form method="POST">
+                        <p>
+                            {% blocktrans %}Use the button below to register to receive notifications of new articles
+                                published in this journal {% endblocktrans %}
+                            <br/><br/>
+
+                            {% csrf_token %}
+                            {% if reader %}
+                                <button name="unsubscribe" class="btn btn-warning">
+                                    {% trans "Unsubscribe from Article Notifications" %}
+                                </button>
+                            {% else %}
+                                <button name="subscribe" class="btn btn-warning">
+                                    {% trans "Subscribe to Article Notifications" %}
+                                </button>
+                            {% endif %}
+
+                        </p>
+                    </form>
+                {% endif %}
                 <span class="card-title">{% trans "Data Export" %}</span>
                 <p>{% trans "You may export your data into a JSON file for reuse." %}</p>
                 <form method="POST">

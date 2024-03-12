@@ -3,9 +3,9 @@
     <div class="card-divider">
         <h4>
         {% if task.assignment %}
-            {{ task.assignment.article.title|safe }}
+            {{ task.assignment.article.safe_title }}
         {% else %}
-            {{ task.proofing_task.assignment.article.title|safe }}
+            {{ task.proofing_task.assignment.article.safe_title }}
         {% endif %}
         </h4>
     </div>
