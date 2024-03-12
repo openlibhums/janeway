@@ -1091,7 +1091,13 @@ def role(request, slug):
     """
     role_obj = get_object_or_404(models.Role, slug=slug)
 
-    account_roles = models.AccountRole.objects.filter(journal=request.journal, role=role_obj)
+    account_roles = models.AccountRole.objects.filter(
+        journal=request.journal,
+        role=role_obj,
+    ).select_related(
+        'user',
+        'journal',
+    )
 
     template = 'core/manager/roles/role.html'
     context = {
