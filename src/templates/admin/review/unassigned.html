@@ -46,9 +46,9 @@
                 </div>
             </div>
         </div>
-
 {% endblock body %}
 
 {% block js %}
-    {{ block.super}}
+    {{ block.super }}
+    {% include "admin/elements/datatables.html" with target="#unassigned" sort=2 order='asc' %}
 {% endblock js %}
