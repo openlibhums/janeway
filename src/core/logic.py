@@ -317,6 +317,13 @@ def get_settings_to_edit(display_group, journal, user):
                     'general',
                     'data_figure_file_submission_instructions', journal
                 ),
+            },
+            {
+                'name': 'hide_editors_from_authors',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'hide_editors_from_authors', journal
+                ),
             }
         ]
         setting_group = 'general'
