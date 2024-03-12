@@ -185,6 +185,8 @@
     </table>
 {% endif %}
 
+
+{% if user_is_editor or not journal_settings.general.hide_editors_from_authors %}
 <div class="title-area">
     <h2>Editors</h2>
 </div>
@@ -206,6 +208,7 @@
         </tr>
     {% endfor %}
 </table>
+{% endif %}
 
 <div class="title-area">
     <h2>Projected Issue</h2>

@@ -5045,5 +5045,24 @@
         "editable_by": [
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Removes the editor section from the author's article status page. This does not stop editors from identifying themselves when, for example, rejecting an article if using an account with their name associated.",
+            "is_translatable": false,
+            "name": "hide_editors_from_authors",
+            "pretty_name": "Hide Assigned Editor Details",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
