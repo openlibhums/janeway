@@ -28,8 +28,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils import translation
-from django.db.models import Q
-from django.utils.decorators import method_decorator
+from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
@@ -1098,6 +1097,32 @@ def role(request, slug):
         'user',
         'journal',
     )
+
+    # Grab additional context for the reviewer page.
+    if slug == 'reviewer':
+        account_roles = account_roles.prefetch_related(
+            'user__interest',
+        ).annotate(
+            total_assignments=Count(
+                'user__reviewer',
+                filter=Q(user__reviewer__article__journal=request.journal),
+            ),
+            last_completed_review=Subquery(
+                review_models.ReviewAssignment.objects.filter(
+                    reviewer=OuterRef('user__pk'),
+                    is_complete=True,
+                    date_complete__isnull=False,
+                    article__journal=request.journal,
+                ).order_by('-date_complete').values('date_complete')[:1]
+            ),
+            average_score=Subquery(
+                review_models.ReviewerRating.objects.filter(
+                    assignment__reviewer=OuterRef('user__pk')
+                ).values('assignment__reviewer').annotate(
+                    avg_score=Avg('rating')
+                ).values('avg_score')[:1]
+            )
+        )
 
     template = 'core/manager/roles/role.html'
     context = {
