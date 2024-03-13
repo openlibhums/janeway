@@ -93,6 +93,11 @@ def get_setting(
         value is present
     """
     if not isinstance(setting_name, str):
+        # Temporary workaround: sometimes this function is called with
+        # a Setting instead of a setting_name. Here we simply log
+        # similar cases (i.e. when this function is called with an
+        # argument of unexpected type) so that developers can refactor
+        # when needed.
         callee = inspect.stack()[1]
         logger.warning(
             f"utils.get_setting called by {callee.function}::{callee.lineno}"
