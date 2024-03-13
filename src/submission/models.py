@@ -1682,6 +1682,17 @@ class Article(AbstractLastModifiedModel):
     def workflow_stages(self):
         return core_models.WorkflowLog.objects.filter(article=self)
 
+    def distinct_workflow_elements(self):
+        workflow_element_ids = core_models.WorkflowLog.objects.filter(
+            article=self,
+        ).values_list(
+            'element'
+        ).distinct()
+
+        return core_models.WorkflowElement.objects.filter(
+            pk__in=[element_id[0] for element_id in workflow_element_ids]
+        )
+
     @property
     def current_workflow_element(self):
         try:
