@@ -72,7 +72,7 @@
                     <div class="callout">
                         <div class="row" id="comment-{{ comment.pk }}">
                             <div class="large-2 columns">
-                                {% if comment.author.profile_image %}
+                                {% if comment.author.profile_image and not comment.review.anonymous %}
                                     <img src="{{ comment.author.profile_image.url }}">
                                 {% else %}
                                     <img src="{% static "common/img/icons/users.png" %}">
