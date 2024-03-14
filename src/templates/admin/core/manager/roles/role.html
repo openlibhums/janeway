@@ -45,10 +45,10 @@
                             <td>{{ assignment.user.last_name }}</td>
                             <td>{{ assignment.user.email }}</td>
                             {% if role.slug == 'reviewer' %}
-                                <td>{% for interest in assignment.user.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>{% if assignment.user.interest.all %}{% for interest in assignment.user.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}--{% endif %}</td>
                                 <td>{{ assignment.total_assignments }}</td>
-                                <td>{{ assignment.last_completed_review }}</td>
-                                <td>{{ assignment.average_score }}</td>
+                                <td>{{ assignment.last_completed_review|default_if_none:'--' }}</td>
+                                <td>{{ assignment.average_score|default_if_none:'--' }}</td>
                             {% endif %}
                             <td><a class="tiny success button" href="{% url 'core_user_history' assignment.user.pk %}">View History</a></td>
                             <td><a class="tiny alert button"
