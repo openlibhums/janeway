@@ -1258,6 +1258,11 @@ def user_edit(request, user_id):
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Profile updated.')
 
+            if request.GET.get('return'):
+                return redirect(
+                    request.GET.get('return')
+                )
+
             return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
