@@ -53,7 +53,7 @@
                             <td><a class="tiny success button" href="{% url 'core_user_history' assignment.user.pk %}">View History</a></td>
                             <td><a class="tiny alert button"
                                                href="{% url 'core_manager_role_action' role.slug assignment.user.id 'remove' %}">Remove Role</a></td>
-                            <td><a href="{% url 'core_user_edit' assignment.user.pk %}" class="tiny warning button">Edit User</a></td>
+                            <td><a href="{% url 'core_user_edit' assignment.user.pk %}?return={% url 'core_manager_role' 'reviewer' %}" class="tiny warning button">Edit User</a></td>
                         </tr>
                     {% endfor %}</tbody>
                 </table>
