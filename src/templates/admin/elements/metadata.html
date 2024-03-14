@@ -190,6 +190,9 @@
 <div class="title-area">
     <h2>Editors</h2>
 </div>
+{% if user_is_editor and journal_settings.general.hide_editors_from_authors %}
+    <p>The <a href="{% url 'core_edit_setting' 'general' 'hide_editors_from_authors' %}">hide editors from authors</a> setting is enabled. Whilst editors can see this section, authors cannot.</p>
+{% endif %}
 <table id="unassigned" class="scroll small">
     <tr style="text-align: left">
         <th>Name</th>
