@@ -203,8 +203,8 @@ def save_galley_image(
             messages.add_message(
                 request,
                 messages.WARNING,
-                'The file you uploaded does not match the mime of the '
-                'file expected.',
+                f'The file you uploaded does not have the expected '
+                f'type: { expected_mime }.'
             )
 
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
