@@ -932,7 +932,16 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     if not galley:
         raise Http404
 
-    figure = get_object_or_404(galley.images, original_filename=file_name)
+    # Use a filter with .first() here to avoid an error when two images with
+    # the same name are present.
+    figure = galley.images.filter(
+        original_filename=file_name
+    ).order_by(
+        '-last_modified',
+    ).first()
+
+    if not figure:
+        raise Http404
 
     return files.serve_file(request, figure, figure_article)
 
@@ -946,9 +955,25 @@ def article_figure(request, article_id, galley_id, file_name):
     :param file_name: an File object name
     :return: a streaming file response or a 404 if not found
     """
-    figure_article = get_object_or_404(submission_models.Article, pk=article_id)
-    galley = get_object_or_404(core_models.Galley, pk=galley_id, article=figure_article)
-    figure = get_object_or_404(galley.images, original_filename=file_name)
+    figure_article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=figure_article,
+    )
+    # Use a filter with .first() here to avoid an error when two images with
+    # the same name are present.
+    figure = galley.images.filter(
+        original_filename=file_name
+    ).order_by(
+        '-last_modified',
+    ).first()
+
+    if not figure:
+        raise Http404
 
     return files.serve_file(request, figure, figure_article)
 
