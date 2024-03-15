@@ -210,7 +210,6 @@ def save_galley_image(
                     image_to_overwrite,
                     ('articles', galley.article.pk),
                 )
-                galley.images.remove(image_to_overwrite)
                 messages.add_message(
                     request,
                     messages.INFO,
