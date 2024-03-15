@@ -21,6 +21,7 @@ django-recaptcha==3.0.0
 django-simple-math-captcha==1.1.0
 django-simple-history==3.3.0
 django-summernote==0.8.20.0
+django-tinymce==3.7.1
 djangorestframework==3.11.2
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib

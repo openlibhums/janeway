@@ -12,6 +12,10 @@
     <li>{{ article.safe_title }}</li>
     <li>Metadata</li>
 {% endblock breadcrumbs %}
+{% block head %}
+    {{ block.super }}
+    {{ info_form.media }}
+{% endblock %}
 
 {% block body %}
     <div class="large-12 columns box">
@@ -29,11 +33,11 @@
                         <div class="large-12 columns">
                             {{ info_form.title|foundation }}
                         </div>
-                        <div class="large-10 columns end">
+                        <div class="large-12 columns end">
                             {{ info_form.abstract|foundation }}
                         </div>
                         {% if journal_settings.general.submission_summary %}
-                        <div class="large-10 columns end">
+                        <div class="large-12 columns end">
                             {{ info_form.non_specialist_summary|foundation }}
                         </div>
                         {% endif %}
@@ -322,6 +326,5 @@
             }
         }
     </script>
-    {% include "admin/elements/jqte.html" %}
     {% include 'admin/elements/fundref/fundref.html' with funder_form=funder_form %}
 {% endblock js %}

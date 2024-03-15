@@ -2446,7 +2446,7 @@ def serve_article_xml(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object:
+    if not article_object and not article_object.is_published:
         raise Http404
 
     xml_galleys = article_object.galley_set.filter(
@@ -2514,7 +2514,7 @@ def serve_article_pdf(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object:
+    if not article_object and not article_object.is_published:
         raise Http404
 
     pdf = article_object.pdfs.first()

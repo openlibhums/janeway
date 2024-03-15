@@ -5,7 +5,12 @@
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
 {% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+{% endblock %}
 
 {% block body %}
     <article>
@@ -122,7 +127,6 @@
                 {allowSpaces: true});
         });
     </script>
-    {% include "elements/jqte.html" %}
     {% include 'elements/fundref/fundref.html' %}
 
 {% endblock %}

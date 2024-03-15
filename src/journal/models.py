@@ -29,7 +29,12 @@ from core import (
         workflow,
 )
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
+from core.model_utils import (
+    AbstractSiteModel,
+    SVGImageField,
+    AbstractLastModifiedModel,
+    JanewayBleachField,
+)
 from press import models as press_models
 from submission import models as submission_models
 from utils import setting_handler, logic, install
@@ -138,8 +143,8 @@ class Journal(AbstractSiteModel):
                            'tabs before the webpage title'),
     )
     # DEPRECATED "description" in favour of "journal_description" setting
-    description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
-    contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
+    description = JanewayBleachField(null=True, blank=True, verbose_name="Journal Description")
+    contact_info = JanewayBleachField(null=True, blank=True, verbose_name="Contact Information")
     keywords = models.ManyToManyField(
         "submission.Keyword",
         blank=True,
@@ -584,7 +589,7 @@ class Issue(AbstractLastModifiedModel):
         "journal.IssueType", blank=False, null=True, on_delete=models.SET_NULL)
     # To be deprecated in 1.3.7
     old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
-    issue_description = models.TextField(blank=True, null=True)
+    issue_description = JanewayBleachField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
     cover_image = SVGImageField(
@@ -1180,7 +1185,7 @@ class PresetPublicationCheckItem(models.Model):
     )
 
     title = models.TextField()
-    text = models.TextField()
+    text = JanewayBleachField()
     enabled = models.BooleanField(default=True)
 
 
@@ -1200,7 +1205,7 @@ class PrePublicationChecklistItem(models.Model):
     completed_on = models.DateTimeField(blank=True, null=True)
 
     title = models.TextField()
-    text = models.TextField()
+    text = JanewayBleachField()
 
     def __str__(self):
         return "{0} - {1}".format(self.pk, self.title)
