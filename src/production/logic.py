@@ -205,7 +205,7 @@ def save_galley_image(
                 image_to_overwrite = galley.images.filter(
                     original_filename=filename,
                 ).first()
-                files.overwrite_file(
+                replacement_file = files.overwrite_file(
                     uploaded_file,
                     image_to_overwrite,
                     ('articles', galley.article.pk),
@@ -217,6 +217,7 @@ def save_galley_image(
                     f'An image called {filename} already exists. It has been '
                     f'overwritten with your uploaded file.'
                 )
+                return replacement_file
             else:
                 messages.add_message(
                     request,
@@ -227,6 +228,7 @@ def save_galley_image(
                 logger.warning(
                     f"Galley {galley.pk} is not linked to an article.",
                 )
+                return
 
     if fixed:
         uploaded_file_mime = files.check_in_memory_mime(uploaded_file)
@@ -248,7 +250,6 @@ def save_galley_image(
         new_file.original_filename = filename
 
     new_file.save()
-
     galley.images.add(new_file)
 
     return new_file
