@@ -179,7 +179,7 @@ def save_galley_image(
         uploaded_file,
         label="Galley Image",
         fixed=False,
-        check_for_existing_images=False
+        check_for_existing_images=False,
 ):
     filename = uploaded_file.name
     # Check if an image with this name already exists for this galley.
