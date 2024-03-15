@@ -2721,8 +2721,6 @@ msgstr "Erlaubt die folgenden Lizenzen für die Einreichung"
 #: src/templates/admin/submission/timeline.html:44
 #: src/templates/admin/submission/timeline.html:51
 #: src/templates/admin/submission/timeline.html:52
-#, fuzzy
-#| msgid "Review Preprint Submission"
 msgid "Review your submission"
 msgstr "Überprüfen Sie Ihre Einreichung"
 
@@ -3292,7 +3290,7 @@ msgstr "Ein neues Konto eröffnen"
 #: src/themes/material/templates/preprints/editors.html:5
 #: src/themes/material/templates/preprints/editors.html:6
 msgid "Editorial Team"
-msgstr "Herausgeber*innen"
+msgstr "Redaktionsteam"
 
 #: src/themes/OLH/templates/core/nav.html:44
 #: src/themes/OLH/templates/journal/become_reviewer.html:5
