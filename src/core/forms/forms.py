@@ -190,8 +190,8 @@ class EditAccountForm(forms.ModelForm):
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
         widgets = {
-            'biography': SummernoteWidget(),
-            'signature': SummernoteWidget(),
+            'biography': TinyMCE(),
+            'signature': TinyMCE(),
         }
 
     def save(self, commit=True):

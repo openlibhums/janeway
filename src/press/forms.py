@@ -108,5 +108,5 @@ class StaffGroupMemberForm(forms.ModelForm):
         model = models.StaffGroupMember
         exclude = ('group', 'user', 'sequence')
         widgets = {
-            'publications': SummernoteWidget(),
+            'publications': TinyMCE(),
         }
