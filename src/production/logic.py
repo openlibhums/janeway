@@ -18,6 +18,9 @@ from production import models
 from core import files, models as core_models
 from copyediting import models as copyediting_models
 from utils import render_template
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_production_managers(article):
@@ -183,28 +186,58 @@ def save_galley_image(
 ):
     filename = uploaded_file.name
     # Check if an image with this name already exists for this galley.
-
-    if check_for_existing_images and galley.images.filter(
+    if galley.images.filter(
         original_filename=filename,
     ).exists():
-        messages.add_message(
-            request,
-            messages.WARNING,
-            f'An image called {filename} already exists. Use the replace '
-            f'file function to upload a new version.',
-        )
-        return
+        # First, if check_for_existing_images is set, we check and warn the
+        # user, no overwriting takes place. Currently all workflow changes set
+        # this to True.
+        if check_for_existing_images:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f'An image called {filename} already exists. Use the '
+                f'replace file function to upload a new version.',
+            )
+            return
+        else:
+            if galley.article:
+                image_to_overwrite = galley.images.filter(
+                    original_filename=filename,
+                ).first()
+                files.overwrite_file(
+                    uploaded_file,
+                    image_to_overwrite,
+                    ('articles', galley.article.pk),
+                )
+                galley.images.remove(image_to_overwrite)
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f'An image called {filename} already exists. It has been '
+                    f'overwritten with your uploaded file.'
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f"Galley {galley.pk} is not linked to an article. "
+                    f"Please contact your Janeway administrator.",
+                )
+                logger.warning(
+                    f"Galley {galley.pk} is not linked to an article.",
+                )
 
     if fixed:
         uploaded_file_mime = files.check_in_memory_mime(uploaded_file)
-        expected_mime = files.guess_mime(filename)
+        new_file_mime = files.guess_mime(filename)
 
-        if not uploaded_file_mime == expected_mime:
+        if not uploaded_file_mime == new_file_mime:
             messages.add_message(
                 request,
                 messages.WARNING,
                 f'The file you uploaded does not have the expected '
-                f'type: { expected_mime }.'
+                f'type: {new_file_mime}.'
             )
 
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
