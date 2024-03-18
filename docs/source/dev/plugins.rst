@@ -101,14 +101,14 @@ The plugin settings file tells Janeway about your plugin and is used to connect 
         )
 
 
-.. figure:: nstatic/typesetting_plugin_dashboard.png
+.. figure:: ../nstatic/typesetting_plugin_dashboard.png
    :alt: Example of a dashboard template for the typesetting plugin
    :class: with-border
 
    The typesetting plugin's dashboard template renders this block.
 
 
-.. figure:: nstatic/kanban_card_example.png
+.. figure:: ../nstatic/kanban_card_example.png
    :alt: Example of a kanban card template
    :class: with-border
 

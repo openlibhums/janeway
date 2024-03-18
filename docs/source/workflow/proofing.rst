@@ -8,7 +8,7 @@ As a proofreader you may be assigned proofing tasks for a paper. When a new assi
 
 From the dashboard you will be able to see a list of New, In Progress and Completed proofing requests. Once you have accepted a new task you can use the View button to begin proofing.
 
-.. figure:: nstatic/proofing_requests.png
+.. figure:: ../nstatic/proofing_requests.png
 
     A proofing task that has been accepted
 
@@ -24,7 +24,7 @@ The proofing task page is broken down into three sections
 - Galleys
 - File Upload
 
-.. figure:: nstatic/proofing_page.png
+.. figure:: ../nstatic/proofing_page.png
 
     A proofing task that has been accepted
 
@@ -44,7 +44,7 @@ For HTML and XML galleys Janeway has a preview button that will render the galle
 
 Each of the Galleys has an accordian-type drop down so if you click on its name you will see a new section appear with more information.
 
-.. figure:: nstatic/proofing_galleys.png
+.. figure:: ../nstatic/proofing_galleys.png
 
     An XML galley expanded
 
