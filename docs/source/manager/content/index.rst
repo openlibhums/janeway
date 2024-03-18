@@ -16,7 +16,7 @@ Add a New Page
 ~~~~~~~~~~~~~~
 To add a new page to your journal select "+ Add New Page" and fill in the fields as detailed in the text beneath each field.
 
-.. figure:: ../../nstatic/content-edit-page.pressing
+.. figure:: ../../nstatic/content-edit-page.png
     :alt: Interface for adding a new page through the CMS.
     :class: Screenshot
 

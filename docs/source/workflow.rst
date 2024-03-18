@@ -5,11 +5,11 @@ Workflow Guides
    :maxdepth: 2
    :caption: Guides:
 
-   Workflow guides/author
+   workflow/author
    editor/editor
-   Workflow guides/reviewer
-   Workflow guides/copyeditor
-   Workflow guides/typesetter
-   Workflow guides/proofing
+   workflow/reviewer
+   workflow/copyeditor
+   workflow/typesetter
+   workflow/proofing
 
 
