@@ -677,19 +677,19 @@ TINYMCE_COMPRESSOR = False
 TINYMCE_DEFAULT_CONFIG = {
     "width": "100%",
     "min-height": "300px",
-    "resize": "height",
+    "resize": "both",
     "promotion": False,
     "branding": False,
     "menubar": "edit view insert format tools table help",
     "content_css": STATIC_URL + "/admin/css/admin.css",
     "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"
-        " fullscreen insertdatetime media table code help wordcount spellchecker help",
+        " insertdatetime media table code help wordcount spellchecker help",
     "toolbar": "help removeformat | undo redo | bold italic underline strikethrough "
         "| fontsizeselect formatselect "
         "| outdent indent | formatselect | numlist bullist checklist "
         "| forecolor backcolor permanentpen formatpainter | pagebreak "
         "| charmap emoticons "
-        "| fullscreen | image media template link anchor codesample "
+        "| image media template link anchor codesample "
         "| a11ycheck ltr rtl | code",
     **TINYMCE_CLIPBOARD_CLEANER,
 }
