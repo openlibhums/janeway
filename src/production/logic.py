@@ -162,7 +162,7 @@ def remove_css_from_html(source_html):
     for tag in soup():
           del tag["style"]
 
-    return soup.prettify()
+    return str(soup)
 
 
 def replace_galley_file(article, request, galley, uploaded_file):
