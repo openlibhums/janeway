@@ -1,5 +1,6 @@
 import time
 import uuid
+import datetime
 
 from django.db import transaction
 from django.shortcuts import redirect, reverse
@@ -261,11 +262,17 @@ def mint_supp_file_doi(supp_file, doi=None):
         'registrant': setting_handler.get_setting(
             'Identifiers', 'crossref_registrant', article.journal,
         ).processed_value,
+        'timestamp_suffix': setting_handler.get_setting(
+            'crossref', 'crossref_date_suffix', article.journal,
+        ),
         'parent_doi': article_doi,
         'doi': doi,
+        'now': datetime.datetime.now(),
     }
     xml_content = render_to_string(
-        'typesetting/crossref/crossref_component.xml', xml_context)
+        'typesetting/crossref/crossref_component.xml',
+        xml_context,
+    )
     ident_logic.register_crossref_component(article, xml_content, supp_file)
 
     supp_file.doi = doi
