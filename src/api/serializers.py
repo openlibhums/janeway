@@ -1,7 +1,7 @@
 from rest_framework import serializers, validators
-from rest_framework.exceptions import ValidationError
 
 from django.db import transaction
+from django.shortcuts import reverse
 
 from core import models as core_models
 from journal import models as journal_models
@@ -103,11 +103,62 @@ class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('name',)
 
 
-class PreprintFileSerializer(serializers.ModelSerializer):
+class PreprintFileCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = repository_models.PreprintFile
-        fields = ('original_filename', 'mime_type', 'download_url',)
+        fields = (
+            'pk',
+            'original_filename',
+            'file',
+            'preprint',
+            'mime_type',
+            'public_download_url',
+            'manager_download_url',
+        )
+
+    manager_download_url = serializers.SerializerMethodField(
+        method_name='get_manager_url',
+    )
+    public_download_url = serializers.SerializerMethodField(
+        method_name='get_public_url',
+    )
+
+    def get_manager_url(self, obj):
+        return obj.preprint.repository.site_url(
+            path=reverse(
+                'repository_download_file',
+                kwargs={
+                    'preprint_id': obj.preprint.pk,
+                    'file_id': obj.pk,
+                }
+            )
+        )
+
+    def get_public_url(self, obj):
+        return obj.preprint.repository.site_url(
+            path=reverse(
+                'repository_file_download',
+                kwargs={
+                    'preprint_id': obj.preprint.pk,
+                    'file_id': obj.pk,
+                }
+            )
+        )
+
+
+class PreprintFileSerializer(PreprintFileCreateSerializer):
+
+    class Meta:
+        model = repository_models.PreprintFile
+        fields = (
+            'pk',
+            'preprint',
+            'original_filename',
+            'mime_type',
+            'public_download_url',
+            'manager_download_url',
+        )
 
 
 class PreprintVersionSerializer(serializers.ModelSerializer):
@@ -263,7 +314,7 @@ class PreprintSerializer(serializers.ModelSerializer):
         fields = ('pk', 'title', 'abstract', 'stage', 'license', 'keywords',
                   'date_submitted', 'date_accepted', 'date_published',
                   'doi', 'preprint_doi', 'authors', 'subject', 'versions',
-                  'supplementary_files', 'additional_field_answers', 'owner')
+                  'supplementary_files', 'additional_field_answers', 'owner',)
 
     authors = PreprintAccountSerializer(
         many=True,

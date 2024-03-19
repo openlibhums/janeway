@@ -235,6 +235,29 @@ class RepositoryFields(viewsets.ModelViewSet):
             )
 
 
+class PreprintFiles(viewsets.ModelViewSet):
+    serializer_class = serializers.PreprintFileSerializer
+    http_method_names = ['get', 'post', 'delete']
+    permission_classes = [
+        api_permissions.IsRepositoryManager,
+    ]
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST']:
+            return serializers.PreprintFileCreateSerializer
+        return serializers.PreprintFileSerializer
+
+    def get_queryset(self):
+        if self.request.repository:
+            return repository_models.PreprintFile.objects.filter(
+                preprint__repository=self.request.repository,
+            )
+        else:
+            raise NotImplementedError(
+                "This view only works with Repositories.",
+            )
+
+
 def oai(request):
     articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PUBLISHED)
     if request.journal:
@@ -404,6 +427,7 @@ def kbart(request, tsv=True):
 
     return response
 
+
 def swagger_ui(request):
     
     template = 'apis/swagger_ui.html'
@@ -412,6 +436,7 @@ def swagger_ui(request):
     }
 
     return render(request, template, context)
+
 
 def redoc(request):
     
