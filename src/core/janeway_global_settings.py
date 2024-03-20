@@ -677,7 +677,8 @@ TINYMCE_COMPRESSOR = False
 TINYMCE_DEFAULT_CONFIG = {
     "width": "100%",
     "min-height": "300px",
-    "resize": "height",
+    "resize": True,
+    "fullscreen_native": True,
     "promotion": False,
     "branding": False,
     "menubar": "edit view insert format tools table help",
