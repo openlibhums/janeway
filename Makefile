@@ -9,13 +9,15 @@ SNAKEVIZ_PORT ?= 8002
 
 unexport NO_DEPS
 DB_NAME ?= janeway
-DB_NAME ?= janeway
-DB_HOST=janeway-postgres
-DB_PORT=5432
-DB_USER=janeway-web
-DB_PASSWORD=janeway-web
-DB_VOLUME=db/postgres-data
-CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
+
+ifeq ($(DB_VENDOR), postgres)
+	DB_HOST=janeway-postgres
+	DB_PORT=5432
+	DB_USER=janeway-web
+	DB_PASSWORD=janeway-web
+	CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
+	DB_VOLUME=db/postgres-data
+endif
 
 ifeq ($(DB_VENDOR), mariadb)
 	DB_HOST=janeway-mariadb
@@ -61,6 +63,7 @@ export DB_PORT
 export DB_NAME
 export DB_USER
 export DB_PASSWORD
+export DB_VOLUME
 export JANEWAY_PORT
 export PGADMIN_PORT
 
@@ -85,8 +88,7 @@ janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable (e.g make command CMD="migrate -v core 0024")
 	$(COMPOSE_CMD) run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
-	touch db/janeway.sqlite3
-	mkdir -p db/postgres-data
+	touch $(DB_VOLUME)
 	$(COMPOSE_CMD) run --rm start_dependencies
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.

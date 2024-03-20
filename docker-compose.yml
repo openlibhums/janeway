@@ -5,7 +5,7 @@ services:
   janeway-postgres:
     image: postgres:15
     volumes:
-      - ./db/postgres-data:/var/lib/postgresql/data
+      - ./db/postgres-data:/var/lib/postgresql/janeway/data
     ports:
       - "${DB_PORT}"
     environment:
@@ -70,7 +70,7 @@ services:
       - ./src:/vol/janeway/src
       - ./lib:/vol/janeway/lib
       - ./logs:/vol/janeway/logs
-      - ./db/janeway.sqlite3:/db/janeway.sqlite3
+      - ./${DB_VOLUME}:/${DB_VOLUME}
     ports:
       - "${JANEWAY_PORT}:8000"
     environment:
