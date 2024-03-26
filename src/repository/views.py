@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import operator
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+from dateutil import tz
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -882,9 +883,11 @@ def repository_manager_article(request, preprint_id):
                     'You must assign at least one galley file.',
                 )
             else:
+                d = datetime.fromisoformat(request.POST.get('datetime', timezone.now().strftime("%Y-%m-%d %H:%M")))
+                t = tz.gettz(request.POST.get('timezone', str(timezone.get_current_timezone())))
+                date_published = datetime(d.year, d.month, d.day, d.hour, d.minute, tzinfo=t)
                 date_kwargs = {
-                    'date': request.POST.get('date', timezone.now().date()),
-                    'time': request.POST.get('time', timezone.now().time()),
+                    'date_published': date_published
                 }
                 if preprint.date_published:
                     preprint.update_date_published(**date_kwargs)
