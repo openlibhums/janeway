@@ -642,25 +642,15 @@ class Preprint(models.Model):
             version=self.next_version_number(),
         )
 
-    def update_date_published(self, date, time):
-        self.date_published = dateparser.parse(
-            '{date} {time}'.format(
-                date=date,
-                time=time,
-            )
-        )
+    def update_date_published(self, date_published):
+        self.date_published = date_published
         self.save()
 
-    def accept(self, date, time):
+    def accept(self, date_published):
         self.date_accepted = timezone.now()
         self.date_declined = None
         self.stage = STAGE_PREPRINT_PUBLISHED
-        self.date_published = dateparser.parse(
-            '{date} {time}'.format(
-                date=date,
-                time=time,
-            )
-        )
+        self.date_published = date_published
         self.save()
 
     def decline(self, note):
