@@ -3021,7 +3021,7 @@ msgstr "Publicaties"
 #: src/themes/OLH/templates/core/accounts/register.html:25
 #: src/themes/clean/templates/core/accounts/register.html:17
 #: src/themes/material/templates/core/accounts/register.html:15
-msgid "Register for an"
+msgid "Register for an account with"
 msgstr "Registreer voor een"
 
 #: src/themes/OLH/templates/core/accounts/register.html:25

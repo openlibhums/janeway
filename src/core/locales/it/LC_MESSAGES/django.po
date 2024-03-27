@@ -3029,7 +3029,7 @@ msgstr "Pubblicazioni"
 #: src/themes/material/templates/core/accounts/register.html:15
 #, fuzzy
 #| msgid "Register for"
-msgid "Register for an"
+msgid "Register for an account with"
 msgstr "Registrati per"
 
 #: src/themes/OLH/templates/core/accounts/register.html:25

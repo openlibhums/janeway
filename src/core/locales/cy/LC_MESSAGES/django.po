@@ -3012,8 +3012,8 @@ msgstr "Cyhoeddiadau"
 #: src/themes/material/templates/core/accounts/register.html:15
 #, fuzzy
 #| msgid "Register for"
-msgid "Register for an"
-msgstr "Cofrestru ar gyfer"
+msgid "Register for an account with"
+msgstr "Cofrestru ar gyfer cyfrif gyda"
 
 #: src/themes/OLH/templates/core/accounts/register.html:25
 #: src/themes/clean/templates/core/accounts/register.html:17
