@@ -97,13 +97,13 @@
                                     <div class="callout" style="padding-bottom:0px;">
                                         <b>{{ answer.element.name }}</b>
                                         <br/>
-                                        {{ answer.answer|linebreaksbr }}
+                                        {{ answer.answer|safe|linebreaksbr }}
                                         <br/>
                                         {% if answer.edited_answer %}
                                             <br/>
                                             <b>{% trans 'Edited Answer' %}</b>
                                             <br/>
-                                            {{ answer.edited_answer|linebreaksbr }}
+                                            {{ answer.edited_answer|safe|linebreaksbr }}
                                             <br/>
                                         {% endif %}
                                         <br/>
@@ -133,7 +133,7 @@
                                             <h2>{% trans 'Comments for the Editor' %}</h2>
                                         </div>
                                         <div class="content">
-                                            <p>{{ review.comments_for_editor|linebreaksbr }}</p>
+                                            <p>{{ review.comments_for_editor|safe|linebreaksbr }}</p>
                                         </div>
                                     </div>
                                 </div>

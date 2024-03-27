@@ -5181,3 +5181,8 @@ ul.actions li a {
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
+/* workaround for TinyMCE: foudnation sets negative top margin to all form elements */
+.tox-tinymce {
+    margin-bottom: 1rem;
+}

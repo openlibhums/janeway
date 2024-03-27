@@ -10,6 +10,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from core import model_utils
+
 from review.const import (
     EditorialDecisions as ED,
     ReviewerDecisions as RD,
@@ -184,7 +186,7 @@ class ReviewAssignment(models.Model):
         choices=all_review_decisions(),
         verbose_name='Recommendation',
     )
-    competing_interests = models.TextField(blank=True, null=True,
+    competing_interests = model_utils.JanewayBleachField(blank=True, null=True,
                                            help_text="If any of the authors or editors "
                                                      "have any competing interests please add them here. "
                                                      "EG. 'This study was paid for by corp xyz.'.")
@@ -210,7 +212,7 @@ class ReviewAssignment(models.Model):
     for_author_consumption = models.BooleanField(default=False)
 
     suggested_reviewers = models.TextField(blank=True, null=True)
-    comments_for_editor = models.TextField(blank=True, null=True,
+    comments_for_editor = model_utils.JanewayBleachField(blank=True, null=True,
                                            help_text="If you have any comments for the Editor you can add them here; \
                                            these will not be shared with the Author.",
                                            verbose_name="Comments for the Editor")
@@ -350,10 +352,10 @@ class ReviewForm(models.Model):
 
     name = models.CharField(max_length=200)
 
-    intro = models.TextField(
+    intro = model_utils.JanewayBleachField(
         help_text="Message displayed at the start of the review form.",
     )
-    thanks = models.TextField(
+    thanks = model_utils.JanewayBleachField(
         help_text="Message displayed after the reviewer is finished.",
     )
 
@@ -392,7 +394,7 @@ class BaseReviewFormElement(models.Model):
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     width = models.CharField(max_length=20, choices=element_width_choices())
-    help_text = models.TextField(blank=True, null=True)
+    help_text = model_utils.JanewayBleachField(blank=True, null=True)
 
     default_visibility = models.BooleanField(default=True, help_text='If true, this setting will be available '
                                                                      'to the author automatically, if false it will'
@@ -442,8 +444,8 @@ class ReviewAssignmentAnswer(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    answer = models.TextField(blank=True, null=True)
-    edited_answer = models.TextField(null=True, blank=True)
+    answer = model_utils.JanewayBleachField(blank=True, null=True)
+    edited_answer = model_utils.JanewayBleachField(null=True, blank=True)
     author_can_see = models.BooleanField(default=True)
 
     def __str__(self):
@@ -489,7 +491,7 @@ class ReviewFormAnswer(models.Model):
         ReviewFormElement,
         on_delete=models.CASCADE,
     )
-    answer = models.TextField()
+    answer = model_utils.JanewayBleachField()
 
 
 class ReviewerRating(models.Model):
@@ -512,7 +514,7 @@ class ReviewerRating(models.Model):
 
 
 class RevisionAction(models.Model):
-    text = models.TextField()
+    text = model_utils.JanewayBleachField()
     logged = models.DateTimeField(default=None, null=True, blank=True)
     user = models.ForeignKey(
         'core.Account',
@@ -541,7 +543,7 @@ class RevisionRequest(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    editor_note = models.TextField(
+    editor_note = model_utils.JanewayBleachField(
         blank=True,
         null=True,
         help_text="You can use this optional field to provide the author with "
@@ -550,7 +552,7 @@ class RevisionRequest(models.Model):
                   "manuscript. This text will be displayed to the author on  "
                   "the revision page, above the reviews.",
     )
-    author_note = models.TextField(
+    author_note = model_utils.JanewayBleachField(
         blank=True,
         null=True,
         verbose_name="Covering Letter to Editor",
@@ -565,7 +567,7 @@ class RevisionRequest(models.Model):
         default='minor_revisions',
     )
 
-    response_letter = models.TextField(
+    response_letter = model_utils.JanewayBleachField(
         blank=True,
         null=True,
         verbose_name="Response Letter to Reviewers",
@@ -619,14 +621,14 @@ class DecisionDraft(models.Model):
         choices=review_decision(),
         verbose_name='Draft Decision',
     )
-    message_to_editor = models.TextField(
+    message_to_editor = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text='This is the email that will be sent to the editor notifying them that you are '
                   'logging your draft decision.',
         verbose_name='Email to Editor',
     )
-    email_message = models.TextField(
+    email_message = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text='This is a draft of the email that will be sent to the author. Your editor will check this.',
@@ -645,7 +647,7 @@ class DecisionDraft(models.Model):
         null=True,
         help_text="Stores a due date for a Drafted Revision Request.",
     )
-    editor_decline_rationale = models.TextField(
+    editor_decline_rationale = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text="Provide the section editor with a rationale for declining their drafted decision.",

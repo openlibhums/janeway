@@ -15,6 +15,8 @@ from review.logic import render_choices
 from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
+from tinymce.widgets import TinyMCE
+
 
 class PublisherNoteForm(forms.ModelForm):
 
@@ -66,19 +68,16 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
-                  'language', 'section', 'license', 'primary_issue',
-                  'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
-                  'first_page', 'last_page', 'page_numbers', 'total_pages',
-                  'competing_interests', 'custom_how_to_cite', 'rights')
+        fields = (
+            'title', 'subtitle', 'abstract', 'non_specialist_summary',
+            'language', 'section', 'license', 'primary_issue',
+            'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
+            'first_page', 'last_page', 'page_numbers', 'total_pages',
+            'competing_interests', 'custom_how_to_cite', 'rights',
+        )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
-            'abstract': forms.Textarea(
-                attrs={
-                    'placeholder': _('Enter your article\'s abstract here')
-                }
-            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -164,8 +163,10 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             widget=forms.TextInput(attrs={'div_class': element.width}),
                             required=element.required)
                     elif element.kind == 'textarea':
-                        self.fields[element.name] = forms.CharField(widget=forms.Textarea,
-                                                                    required=element.required)
+                        self.fields[element.name] = forms.CharField(
+                                widget=TinyMCE(),
+                                required=element.required,
+                        )
                     elif element.kind == 'date':
                         self.fields[element.name] = forms.CharField(
                             widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),

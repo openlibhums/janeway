@@ -8,7 +8,7 @@
                     <p class="{{ answer.element.width }}">
                         <b>{{ answer.element.name }}</b>
                         <br/>
-                        {{ answer.answer|linebreaksbr }}
+                        {{ answer.answer|safe|linebreaksbr }}
                         <br/><br/>
                     </p>
                 {% endif %}

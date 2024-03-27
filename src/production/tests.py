@@ -71,7 +71,7 @@ class TestLogic(TestCase):
               </body>
             </html>
         """
-        expected_html = '<html>\n <head>\n </head>\n <body>\n  <p>\n   This is a paragraph.\n  </p>\n </body>\n</html>\n'
+        expected_html = '\n<html>\n<head>\n\n</head>\n<body>\n\n<p>This is a paragraph.</p>\n</body>\n</html>\n'
 
         result = remove_css_from_html(test_html)
         self.assertMultiLineEqual(result, expected_html)

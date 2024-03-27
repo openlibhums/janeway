@@ -18,6 +18,9 @@ from production import models
 from core import files, models as core_models
 from copyediting import models as copyediting_models
 from utils import render_template
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_production_managers(article):
@@ -159,7 +162,7 @@ def remove_css_from_html(source_html):
     for tag in soup():
           del tag["style"]
 
-    return soup.prettify()
+    return str(soup)
 
 
 def replace_galley_file(article, request, galley, uploaded_file):
@@ -173,26 +176,79 @@ def replace_galley_file(article, request, galley, uploaded_file):
         messages.add_message(request, messages.WARNING, 'No file was selected.')
 
 
-def save_galley_image(galley, request, uploaded_file, label="Galley Image", fixed=False):
+def save_galley_image(
+        galley,
+        request,
+        uploaded_file,
+        label="Galley Image",
+        fixed=False,
+        check_for_existing_images=False,
+):
+    filename = uploaded_file.name
+    # Check if an image with this name already exists for this galley.
+    if galley.images.filter(
+        original_filename=filename,
+    ).exists():
+        # First, if check_for_existing_images is set, we check and warn the
+        # user, no overwriting takes place. Currently all workflow changes set
+        # this to True.
+        if check_for_existing_images:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f'An image called {filename} already exists. Use the '
+                f'replace file function to upload a new version.',
+            )
+            return
+        else:
+            if galley.article:
+                image_to_overwrite = galley.images.filter(
+                    original_filename=filename,
+                ).first()
+                replacement_file = files.overwrite_file(
+                    uploaded_file,
+                    image_to_overwrite,
+                    ('articles', galley.article.pk),
+                )
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f'An image called {filename} already exists. It has been '
+                    f'overwritten with your uploaded file.'
+                )
+                return replacement_file
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f"Galley {galley.pk} is not linked to an article. "
+                    f"Please contact your Janeway administrator.",
+                )
+                logger.warning(
+                    f"Galley {galley.pk} is not linked to an article.",
+                )
+                return
 
     if fixed:
-        filename = request.POST.get('file_name')
         uploaded_file_mime = files.check_in_memory_mime(uploaded_file)
-        expected_mime = files.guess_mime(filename)
+        new_file_mime = files.guess_mime(filename)
 
-        if not uploaded_file_mime == expected_mime:
-            messages.add_message(request, messages.WARNING, 'The file you uploaded does not match the mime of the '
-                                                            'file expected.')
+        if not uploaded_file_mime == new_file_mime:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f'The file you uploaded does not have the expected '
+                f'type: {new_file_mime}.'
+            )
 
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
     new_file.is_galley = False
     new_file.label = label
 
     if fixed:
-        new_file.original_filename = request.POST.get('file_name')
+        new_file.original_filename = filename
 
     new_file.save()
-
     galley.images.add(new_file)
 
     return new_file

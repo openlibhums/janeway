@@ -42,6 +42,7 @@ from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django_bleach.models import BleachField
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
@@ -571,29 +572,30 @@ class SearchVector(DjangoSearchVector):
     template = '%(expressions)s'
 
 
-class AbstractBleachModelMixin(models.Model):
-
+class JanewayBleachField(BleachField):
+    """ An override of BleachField to avoid casting SafeString from db
+    Bleachfield automatically casts the default return type (string) into
+    a SafeString, which is okay when using the value for HTML rendering but
+    not when using the value elsewhere (XML encoding)
+    https://github.com/marksweb/django-bleach/blob/504b3784c525886ba1974eb9ecbff89314688491/django_bleach/models.py#L76
     """
-    A mixin for models with a field that needs to be bleached
-    most of the time to support copy-paste, but not in all cases,
-    so you cannot use django_bleach.BleachField.
-    Combine this mixin with core.forms.BleachableModelForm.
-    """
+    def from_db_value(self, value,expression, connection):
+        return value
 
-    support_copy_paste = models.BooleanField(
-        default=True,
-        help_text='Turn this on if copy-pasting content '
-                  'from a word processor, '
-                  'or using the toolbar to format text. '
-                  'It tells Janeway to clear out formatting '
-                  'that does not play nice. '
-                  'Turn it off and leave it off if anyone has '
-                  'added custom HTML or CSS using the code view, '
-                  'since it might remove custom code.',
-    )
+    def pre_save(self, model_instance, *args, **kwargs):
+        data = getattr(model_instance, self.attname)
+        try:
+            return super().pre_save(model_instance, *args, **kwargs)
+        except TypeError:
+            # Gracefully ignore typerrors on BleachField
+            return data
 
-    class Meta:
-        abstract = True
+
+class JanewayBleachCharField(JanewayBleachField):
+    """ An override of BleachField to use a TextInput but get sanitization"""
+    def formfield(self, **kwargs):
+        kwargs["widget"] = forms.TextInput()
+        return super().formfield(**kwargs)
 
 
 def default_press():
@@ -604,7 +606,6 @@ def default_press():
         # Initial migration will attempt to call this,
         # even when no EditorialGroups are created
         return
-
 
 
 def default_press_id():

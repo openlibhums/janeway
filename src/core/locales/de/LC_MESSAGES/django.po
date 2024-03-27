@@ -2721,8 +2721,6 @@ msgstr "Erlaubt die folgenden Lizenzen für die Einreichung"
 #: src/templates/admin/submission/timeline.html:44
 #: src/templates/admin/submission/timeline.html:51
 #: src/templates/admin/submission/timeline.html:52
-#, fuzzy
-#| msgid "Review Preprint Submission"
 msgid "Review your submission"
 msgstr "Überprüfen Sie Ihre Einreichung"
 
@@ -3065,7 +3063,7 @@ msgstr "Publikationen"
 #: src/themes/OLH/templates/core/accounts/register.html:25
 #: src/themes/clean/templates/core/accounts/register.html:17
 #: src/themes/material/templates/core/accounts/register.html:15
-msgid "Register for an"
+msgid "Register for an account with"
 msgstr "Accountregistrierung"
 
 #: src/themes/OLH/templates/core/accounts/register.html:25
@@ -3087,11 +3085,8 @@ msgstr "Passwortrichtlinien"
 #: src/themes/clean/templates/core/accounts/register.html:20
 #: src/themes/material/templates/core/accounts/register.html:22
 #: src/themes/material/templates/core/accounts/reset_password.html:19
-#, fuzzy, python-format
-#| msgid "Your password should be %(password_length)s characters long."
 msgid "Your password should be %(password_length)s characters long."
-msgstr ""
-"Ihr Passwort sollte %(request.press.password_length)s Zeichen lang sein."
+msgstr "Ihr Passwort sollte %(password_length)s Zeichen lang sein."
 
 #: src/themes/OLH/templates/core/accounts/register.html:29
 #: src/themes/OLH/templates/core/accounts/reset_password.html:30
@@ -3292,7 +3287,7 @@ msgstr "Ein neues Konto eröffnen"
 #: src/themes/material/templates/preprints/editors.html:5
 #: src/themes/material/templates/preprints/editors.html:6
 msgid "Editorial Team"
-msgstr "Herausgeber*innen"
+msgstr "Redaktionsteam"
 
 #: src/themes/OLH/templates/core/nav.html:44
 #: src/themes/OLH/templates/journal/become_reviewer.html:5

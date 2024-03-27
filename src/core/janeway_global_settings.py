@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     # 3rd Party
     'mozilla_django_oidc',
     'django_summernote',
+    'tinymce',
     'bootstrap4',
     'rest_framework',
     'foundationform',
@@ -280,17 +281,38 @@ if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
 # Django bleach settings
-# Which HTML tags are allowed
+# Base case is to allow all tags except for <script>. Individual form instances
+# can further reduce the set of allowed tags
 BLEACH_ALLOWED_TAGS = [
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'article', 'main', 'aside',
-    'header', 'footer', 'main', 'section', 'ul', 'ol', 'li',
-    'figure', 'figcaption', 'img', 'pre', 'blockquote',
-    'p', 'b', 'i', 'u', 'em', 'strong', 'a',
-    'table', 'tr', 'th', 'td', 'thead', 'tbody', 'tfoot',
+    "html", "head", "title", "meta", "link", "style",
+    "body", "article", "section", "nav", "aside",
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "header", "footer", "address", "main", "p", "hr", "pre",
+    "blockquote", "ol", "ul", "li", "dl", "dt", "dd",
+    "figure", "figcaption", "div", "a", "em", "strong", "small",
+    "s", "cite", "q", "dfn", "abbr", "data", "time",
+    "code", "var", "samp", "kbd", "sub", "sup", "i",
+    "b", "u", "mark", "ruby", "rt", "rp", "bdi",
+    "bdo", "span", "br", "wbr", "ins", "del", "picture",
+    "source", "img", "iframe", "embed", "object", "param", "video",
+    "audio", "track", "map", "area", "table", "caption", "colgroup",
+    "col", "tbody", "thead", "tfoot", "tr", "td", "th",
+    "form", "fieldset", "legend", "label", "input", "button", "select",
+    "datalist", "optgroup", "option", "textarea", "output", "progress", "meter",
+    "details", "summary", "menu", "menuitem", "dialog", "slot", "canvas"
 ]
 
 # Which HTML attributes are allowed
-BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'src', 'target']
+BLEACH_ALLOWED_ATTRIBUTES = [
+    "id", "class", "style",
+    "src", "href", # These are sanitized by scheme to avoid XSS
+    "alt", "title", "width", "height", "type",
+    "name", "value", "placeholder", "disabled", "readonly",
+    "required", "target", "checked", "selected"
+]
+
+BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
+
 
 # Which CSS properties are allowed in 'style' attributes (assuming
 # style is an allowed attribute)
@@ -304,7 +326,7 @@ BLEACH_STRIP_TAGS = True
 BLEACH_STRIP_COMMENTS = False
 
 # Which widget to use for bleached HTML fields
-BLEACH_DEFAULT_WIDGET = 'django_summernote.widgets.SummernoteWidget'
+BLEACH_DEFAULT_WIDGET = 'tinymce.widgets.TinyMCE'
 
 # Summernote settings
 SUMMERNOTE_CONFIG = {
@@ -621,4 +643,53 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
+}
+TINYMCE_CLIPBOARD_CLEANER = {
+    # Settings required to optionally clean formatting from a paste event
+    # Install a callback to capture the original input from clipboard
+    "setup": """
+        function (editor) {
+            editor.on('paste', function (e) {
+                editor.cachedClipboardContent = e.clipboardData.getData("text/html");
+            });
+        }
+    """,
+    # Configure TinyMCE to always clean to text
+    "paste_as_text": True,
+    # Intercept paste if the input has been cleaned and confirm with user
+    "paste_preprocess": """
+        function (editor, args) {
+            if (
+                editor.cachedClipboardContent
+                && editor.cachedClipboardContent != args.content
+            ){
+                const doClean = confirm("Formatted paste detected. Click 'OK' to paste as text or 'Cancel' to keep the formatting.");
+                if (!doClean){
+                    args.content = editor.cachedClipboardContent;
+                }
+            }
+        }
+    """,
+}
+TINYMCE_JS_URL = STATIC_URL + "/common/js/tinymce/tinymce.min.js"
+TINYMCE_COMPRESSOR = False
+TINYMCE_DEFAULT_CONFIG = {
+    "width": "100%",
+    "min-height": "300px",
+    "resize": True,
+    "fullscreen_native": True,
+    "promotion": False,
+    "branding": False,
+    "menubar": "edit view insert format tools table help",
+    "content_css": STATIC_URL + "/admin/css/admin.css",
+    "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"
+        " fullscreen insertdatetime media table code help wordcount spellchecker help",
+    "toolbar": "help removeformat | undo redo | bold italic underline strikethrough "
+        "| fontsizeselect formatselect "
+        "| outdent indent | formatselect | numlist bullist checklist "
+        "| forecolor backcolor permanentpen formatpainter | pagebreak "
+        "| charmap emoticons "
+        "| fullscreen | image media template link anchor codesample "
+        "| a11ycheck ltr rtl | code",
+    **TINYMCE_CLIPBOARD_CLEANER,
 }

@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">
-                        {% trans "Register for an" %}  {{ request.press.name }} {% trans "account" %}.
+                        {% trans "Register for an account with" %} {{ request.press.name }}.
                     </span>
                      {% if request.repository and request.repository.login_text %}
                         {{ request.repository.login_text|safe }}

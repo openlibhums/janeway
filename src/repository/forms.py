@@ -1,19 +1,17 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django_summernote.widgets import SummernoteWidget
 from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.contrib import messages
+from tinymce.widgets import TinyMCE
 
-from django_bleach.forms import BleachField
 
 from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.logic import render_choices
 from core import models as core_models, workflow
-from core.forms import BleachableModelForm
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -299,11 +297,11 @@ class SettingsForm(forms.ModelForm):
             'preprint_pdf_only',
         )
         widgets = {
-            'preprints_about': SummernoteWidget,
-            'preprint_start': SummernoteWidget,
-            'preprint_submission': SummernoteWidget,
-            'preprint_publication': SummernoteWidget,
-            'preprint_decline': SummernoteWidget,
+            'preprints_about': TinyMCE,
+            'preprint_start': TinyMCE,
+            'preprint_submission': TinyMCE,
+            'preprint_publication': TinyMCE,
+            'preprint_decline': TinyMCE,
         }
 
     def __init__(self, *args, **kwargs):
@@ -475,15 +473,7 @@ class RepositoryInitial(RepositoryBase):
         return repository
 
 
-class RepositorySite(BleachableModelForm, RepositoryBase):
-
-    BLEACHABLE_FIELDS = [
-        'about',
-        'footer',
-        'login_text',
-        'submission_access_request_text',
-        'review_helper',
-    ]
+class RepositorySite(RepositoryBase):
 
     class Meta:
         model = models.Repository
@@ -499,14 +489,13 @@ class RepositorySite(BleachableModelForm, RepositoryBase):
             'submission_access_contact',
             'custom_js_code',
             'review_helper',
-            # 'support_copy_paste',
         )
         widgets = {
-            'about': SummernoteWidget,
-            'footer': SummernoteWidget,
-            'login_text': SummernoteWidget,
-            'submission_access_request_text': SummernoteWidget,
-            'review_helper': SummernoteWidget,
+            'about': TinyMCE,
+            'footer': TinyMCE,
+            'login_text': TinyMCE,
+            'submission_access_request_text': TinyMCE,
+            'review_helper': TinyMCE,
         }
 
 
@@ -523,9 +512,9 @@ class RepositorySubmission(RepositoryBase):
         )
 
         widgets = {
-            'start': SummernoteWidget,
-            'submission_agreement': SummernoteWidget,
-            'file_upload_help': SummernoteWidget,
+            'start': TinyMCE,
+            'submission_agreement': TinyMCE,
+            'file_upload_help': TinyMCE,
             'managers': FilteredSelectMultiple(
                 "Accounts",
                 False,
@@ -551,15 +540,15 @@ class RepositoryEmails(RepositoryBase):
         )
 
         widgets = {
-            'submission': SummernoteWidget,
-            'publication': SummernoteWidget,
-            'decline': SummernoteWidget,
-            'accept_version': SummernoteWidget,
-            'decline_version': SummernoteWidget,
-            'new_comment': SummernoteWidget,
-            'review_invitation': SummernoteWidget,
-            'manager_review_status_change': SummernoteWidget,
-            'reviewer_review_status_change': SummernoteWidget,
+            'submission': TinyMCE,
+            'publication': TinyMCE,
+            'decline': TinyMCE,
+            'accept_version': TinyMCE,
+            'decline_version': TinyMCE,
+            'new_comment': TinyMCE,
+            'review_invitation': TinyMCE,
+            'manager_review_status_change': TinyMCE,
+            'reviewer_review_status_change': TinyMCE,
             'submission_notification_recipients': TableMultiSelectUser()
         }
 
@@ -671,7 +660,7 @@ class ReviewDueDateForm(forms.ModelForm):
 
 class ReviewCommentForm(forms.Form):
     body = forms.CharField(
-        widget=SummernoteWidget(),
+        widget=TinyMCE(),
         label="Comments",
     )
     recommendation = forms.ModelChoiceField(
