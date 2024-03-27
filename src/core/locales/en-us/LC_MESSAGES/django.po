@@ -2417,7 +2417,7 @@ msgstr ""
 #: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/clean/templates/core/accounts/register.html:22
 #: src/themes/material/templates/core/accounts/register.html:20
-msgid "Register for an"
+msgid "Register for an account with"
 msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/register.html:30
