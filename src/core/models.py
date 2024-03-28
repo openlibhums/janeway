@@ -1445,6 +1445,10 @@ class EditorialGroup(models.Model):
         null=True,
     )
     sequence = models.PositiveIntegerField()
+    display_profile_images = models.BooleanField(
+        default=False,
+        help_text="Enable to display profile images for this group.",
+    )
 
     class Meta:
         ordering = ('sequence',)
