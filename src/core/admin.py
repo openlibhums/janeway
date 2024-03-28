@@ -328,7 +328,8 @@ class GalleyAdmin(admin.ModelAdmin):
 
 
 class EditorialGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'journal', 'press', 'sequence')
+    list_display = ('name', 'journal', 'press', 'sequence',
+                    'display_profile_images')
     list_filter = ('journal', 'press')
     search_fields = ('name',)
 
