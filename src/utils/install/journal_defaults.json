@@ -5064,5 +5064,43 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "When enabled the date this article was submitted will be displayed along with the date accepted and date published on the article page.",
+            "is_translatable": false,
+            "name": "display_date_submitted",
+            "pretty_name": "Display Date Submitted",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "When enabled the date this article was accepted will be displayed along with the date accepted and date published on the article page.",
+            "is_translatable": false,
+            "name": "display_date_accepted",
+            "pretty_name": "Display Date Accepted",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
