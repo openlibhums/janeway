@@ -87,7 +87,6 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 class EditorialGroupForm(JanewayTranslationModelForm):
 
-
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
@@ -96,7 +95,7 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 
     class Meta:
         model = models.EditorialGroup
-        fields = ('name', 'description', 'sequence',)
+        fields = ('name', 'description', 'sequence', 'display_profile_images')
         exclude = ('journal', 'press')
 
 
@@ -370,8 +369,9 @@ class JournalImageForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-           'header_image', 'default_cover_image',
-           'default_large_image', 'favicon', 'press_image_override',
+            'header_image', 'default_cover_image',
+            'default_large_image', 'favicon', 'press_image_override',
+            'default_editorial_team_image',
         )
 
 
