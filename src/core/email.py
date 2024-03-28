@@ -26,7 +26,7 @@ def send_email(
         target = article or preprint or None
         log_dict = {
             'level': 'Info',
-            'action_type': 'Contact User',
+            'action_text': 'Contact User',
             'types': 'Email',
             'target': target
         }
