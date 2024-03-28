@@ -33,7 +33,7 @@
                 <li><a href="{% url 'journal_issues' %}">{% trans "Issues" %}</a></li>
             {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
-                <li><a href="{% url 'editorial_team' %}">{% trans "Editorial Team" %}</a></li>
+                <li><a href="{% url 'editorial_team' %}">{{ journal_settings.styling.editorial_group_page_name }}</a></li>
             {% endif %}
             {% if request.journal.nav_sub %}
                 <li><a href="{% url 'journal_submissions' %}">{% trans "Submission" %}</a></li>
@@ -94,7 +94,7 @@
                 <li><a href="{% url 'journal_issues' %}">{% trans "Issues" %}</a></li>
             {% endif %}
             {% if journal_settings.general.enable_editorial_display == 'on' %}
-                <li><a href="{% url 'editorial_team' %}">{% trans "Editorial Team" %}</a></li>
+                <li><a href="{% url 'editorial_team' %}">{{ journal_settings.styling.editorial_group_page_name }}</a></li>
             {% endif %}
             {% if request.journal.nav_sub %}
                 <li><a href="{% url 'journal_submissions' %}">{% trans "Submission" %}</a></li>
