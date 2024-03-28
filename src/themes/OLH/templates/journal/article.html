@@ -281,11 +281,8 @@
                                             {% if article.is_published or proofing %}
                                                 <h5 id="article_date_published">
                                                     {% trans "Published on" %} <br>
-                                                    {{ article.date_published|date:"d M Y" }}
+                                                    {{ article.date_published|date:"Y-m-d" }}
                                                 </h5>
-                                            {% else %}
-                                                <h5>{% trans "Accepted on" %} <br>
-                                                    {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
                                         {% endif %}
@@ -407,6 +404,12 @@
                                  {% if article.publication_title %}
                                  <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                                  {% endif %}
+                                 {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                                 <li>{% trans "Submitted on" %}: {{ article.date_submitted|date:"Y-m-d" }}</li>
+                                {% endif %}
+                                {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
+                                <li>{% trans "Accepted on" %}: {{ article.date_accepted|date:"Y-m-d" }}</li>
+                                {% endif %}
                              </ul>
                          </div>
                          {% endif %}
