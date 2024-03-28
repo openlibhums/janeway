@@ -135,6 +135,7 @@
                     <th>Name</th>
                     <th>FundRef ID</th>
                     <th>Grant Number</th>
+                    <th>{% trans "Funding Statement" %}</th>
                 </tr>
                 </thead>
                 <tbody id="sortable">
@@ -143,6 +144,7 @@
                         <td>{{ funder.name|default_if_none:"" }}</td>
                         <td>{{ funder.fundref_id|default_if_none:"" }}</td>
                         <td>{{ funder.funding_id|default_if_none:"" }}</td>
+                        <td>{{ funder.funding_statement|default_if_none:""|safe }}</td>
                     </tr>
                     {% empty %}
                     <tr>

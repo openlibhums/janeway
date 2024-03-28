@@ -323,7 +323,7 @@ class Funder(models.Model):
         null=True,
         help_text='Funder DOI (optional). Enter as a full Uniform '
                   'Resource Identifier (URI), such as '
-                  'http://dx.doi.org/10.13039/501100021082',
+                  'https://dx.doi.org/10.13039/501100021082',
     )
     funding_id = models.CharField(
         max_length=500,
@@ -331,6 +331,13 @@ class Funder(models.Model):
         null=True,
         help_text="The grant ID (optional). Enter the ID by itself",
     )
+    funding_statement = models.TextField(
+        blank=True,
+        help_text=_("Additional information regarding this funding entry")
+    )
+
+    def __str__(self):
+        return f"Funder entry {self.pk}: {self.name}"
 
 
 class ArticleStageLog(models.Model):
@@ -1419,8 +1426,8 @@ class Article(AbstractLastModifiedModel):
         elif user in self.section_editors():
             return True
         elif not user.is_anonymous and user.is_editor(
-                request=None,
-                journal=self.journal,
+            request=None,
+            journal=self.journal,
         ):
             return True
         else:
