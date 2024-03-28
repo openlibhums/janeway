@@ -549,7 +549,7 @@ def send_email(user, form, request, article):
 
     log_dict = {
         'level': 'Info',
-        'action_type': 'Contact User',
+        'action_text': 'Contact User',
         'types': 'Email',
         'target': article if article else user
     }
