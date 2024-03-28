@@ -24,12 +24,7 @@
             {% for member in group.members %}
                 <div class="col-md-4 row-eq-height">
                     <div class="card full-width-card">
-                        {% if journal_settings.styling.enable_editorial_images %}
-                            <img class="card-img-top card-img" src="
-
-                                    {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                 alt="{{ member.user.full_name }}'s profile image.">
-                        {% endif %}
+                        {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" %}
                         <div class="card-body">
                             <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
                             <p class="card-text">
