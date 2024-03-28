@@ -29,7 +29,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" id="editorial_team"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% trans 'Editorial Team' %}
+                        {{ journal_settings.styling.editorial_group_page_name }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="editorial_team">
                         {% for group in request.journal.editorial_groups %}
@@ -38,7 +38,7 @@
                     </div>
                 </li>
                 {% else %}
-                <li class="nav-item"><a href="{% url 'editorial_team' %}" class="nav-link">{% trans 'Editorial Team' %}</a>
+                <li class="nav-item"><a href="{% url 'editorial_team' %}" class="nav-link">{{ journal_settings.styling.editorial_group_page_name }}</a>
                 </li>
                 {% endif %}
             {% endif %}
