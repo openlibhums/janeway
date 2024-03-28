@@ -500,12 +500,6 @@ def get_settings_to_edit(display_group, journal, user):
     elif display_group == 'styling':
         group_of_settings = [
             {
-                'name': 'enable_editorial_images',
-                'object': setting_handler.get_setting('styling',
-                                                      'enable_editorial_images',
-                                                      journal),
-            },
-            {
                 'name': 'multi_page_editorial',
                 'object': setting_handler.get_setting('styling',
                                                       'multi_page_editorial',
