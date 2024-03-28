@@ -355,7 +355,10 @@ def repository_search(request, search_term=None):
     )
 
     if search_term:
+        search_term = search_term.strip()
         split_search_term = search_term.split(' ')
+
+        print(search_term, split_search_term)
 
         # Initial filter on Title, Abstract and Keywords.
         preprint_search = preprints.filter(
