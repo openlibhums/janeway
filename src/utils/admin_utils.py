@@ -114,6 +114,7 @@ class ArticleInline(admin.TabularInline):
 class FundersArticleInline(admin.TabularInline):
     model = submission_models.Article.funders.through
     extra = 0
+    raw_id_fields = ('article',)
 
 
 class ArticleOrderingInline(admin.TabularInline):
