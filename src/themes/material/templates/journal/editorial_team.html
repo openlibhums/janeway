@@ -21,11 +21,7 @@
             {% for member in group.members %}
                 <div class="col s12 m3">
                     <div class="card editorial-card eq-height-col">
-                        {% if journal_settings.styling.enable_editorial_images %}
-                            <div class="card-image">
-                                <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
-                            </div>
-                        {% endif %}
+                        {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" card_wrapper="True" %}
                         <div class="card-content" style="min-height: 190px;">
                             <span class="card-title small-card-title">{{ member.user.full_name }}</span>
                             <p>
