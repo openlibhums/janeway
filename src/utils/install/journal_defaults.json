@@ -1519,25 +1519,6 @@
     },
     {
         "group": {
-            "name": "styling"
-        },
-        "setting": {
-            "description": "If checked, Editorial Team images will display.",
-            "is_translatable": false,
-            "name": "enable_editorial_images",
-            "pretty_name": "Enable Editorial Team Image Display",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
             "name": "general"
         },
         "setting": {
