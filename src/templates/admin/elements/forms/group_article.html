@@ -30,4 +30,12 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.suppress_citations_metric %}
 </div>
 
+<div class="title-area">
+    <h2>Article Dates</h2>
+</div>
+<div class="content">
+    <p>{% trans "Enable the display of the dates an article was submitted and accepted." %}.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_date_submitted %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_date_accepted %}
+</div>
 

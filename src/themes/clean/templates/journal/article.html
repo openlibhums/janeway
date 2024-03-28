@@ -216,12 +216,20 @@
                 {% endif %}
                 <h2>{% trans "Information" %}</h2>
                 <ul>
+                    {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                        <li>
+                            {% trans "Submitted on" %} {{ article.date_submitted|date:"Y-m-d" }}
+                        </li>
+                    {% endif %}
+                    {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
+                        <li>
+                            {% trans "Accepted on" %} {{ article.date_accepted|date:"Y-m-d" }}
+                        </li>
+                    {% endif %}
                     {% if article.is_published or proofing %}
                         <li id="article_date_published">
-                            {% trans "Published on" %} {{ article.date_published|date:"d M Y" }}
+                            {% trans "Published on" %} {{ article.date_published|date:"Y-m-d" }}
                         </li>
-                    {% else %}
-                    <li>{% trans "Accepted on" %} {{ article.date_accepted|date:"d M Y" }}</li>
                     {% endif %}
                     {% if article.page_range %}
                     <li>{% trans "Pages" %}: {{ article.page_range }}</li>

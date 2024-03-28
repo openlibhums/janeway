@@ -492,6 +492,8 @@ def get_settings_to_edit(display_group, journal, user):
             'display_altmetric_badge',
             'altmetric_badge_type',
             'hide_author_email_links',
+            'display_date_submitted',
+            'display_date_accepted',
         ]
         group_of_settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
