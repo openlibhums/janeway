@@ -3,7 +3,7 @@
 Janeway is a web-based platform for publishing journals, preprints, conference proceedings, and books. It is developed and maintained by a team of developers at the Open Library of Humanities, part of Birkbeck, University of London.
 
 # Technology
-Janeway is written in Python (3.6+) and utilises the Django framework (3.2). 
+Janeway is written in Python (3.9+) and utilises the Django framework (3.2).
 
 
 # Installation instructions
