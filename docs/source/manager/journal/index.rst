@@ -105,6 +105,8 @@ Default thumbnail
 Favicon
     The tiny little image you often see in the browser tab before the name of a webpage. Use a very small image of equal width and height. If not set, no Favicon will appear.
 
+Default Editorial Team Image
+    The default image used when editorial team groups have "Display profile images" enabled.
 
 Styling
 -------
