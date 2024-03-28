@@ -7,7 +7,7 @@
     {% if group_id %}
         {{ editorial_groups.0.name }}
     {% else %}
-        {% trans "Editorial Team" %}
+        {{ journal_settings.styling.editorial_group_page_name }}
     {% endif %}
 {% endblock title %}
 
@@ -17,13 +17,15 @@
             {% if group_id %}
                 <h1>{{ editorial_groups.0.name }}</h1>
             {% else %}
-                <h1>{% trans "Editorial Team" %}</h1>
+                <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
             {% endif %}
             {% for group in editorial_groups %}
-                {% if not group_id %}
-                    <h4>{{ group.name }}</h4>
+                {% if not journal_settings.styling.hide_editorial_group_names %}
+                    {% if not group_id %}
+                        <h4>{{ group.name }}</h4>
+                    {% endif %}
+                    {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 {% endif %}
-                {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
                         <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
