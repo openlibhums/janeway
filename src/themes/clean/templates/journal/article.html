@@ -121,22 +121,24 @@
                 {% endif %}
                 {% if article.funders.all %}
                     <strong>{% trans "Funding" %}</strong>
-                    <ul>
-                        {% for funder in article.funders.all %}
-                            <li>
-                                {% if funder.fundref_id %}
-                                    <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
-                                {% else %}
-                                    {{ funder.name }}
-                                {% endif %}
-                                {% if funder.funding_id %}
-                                    {% blocktranslate with id=funder.funding_id %}
-                                        (grant {{ id }})
-                                    {% endblocktranslate %}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    {% for funder in article.funders.all %}
+                        <p>
+                            {% if funder.fundref_id %}
+                                <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
+                            {% else %}
+                                {{ funder.name }}
+                            {% endif %}
+                            {% if funder.funding_id %}
+                                {% blocktranslate with id=funder.funding_id %}
+                                    ({{ id }})
+                                {% endblocktranslate %}
+                            {% endif %}
+                            {% if funder.funding_statement %}
+                                <br/>
+                                {{ funder.funding_statement|safe|linebreaksbr }}
+                            {% endif %}
+                        </p>
+                    {% endfor %}
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">

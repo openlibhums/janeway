@@ -25,6 +25,7 @@ class FunderAdmin(admin.ModelAdmin):
         admin_utils.FundersArticleInline,
     ]
 
+
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
                     'frozen_email', 'frozen_orcid', 'institution', '_journal')

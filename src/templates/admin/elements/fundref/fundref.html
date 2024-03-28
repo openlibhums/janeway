@@ -6,6 +6,7 @@
                 console.log('Clearing old modals.')
                 $("div.fundref_modal").remove();
                 console.log('Fetching ' + query_url);
+                $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
                 fetch(query_url)
                     .then(function(response) {
                         response.json()
@@ -104,8 +105,8 @@
 
                                     const funder_name_textbox = document.createElement('input');
                                     funder_name_textbox.setAttribute('type', 'text');
-                                    funder_name_textbox.id = 'funder_name';
-                                    funder_name_textbox.name = 'funder_name';
+                                    funder_name_textbox.id = 'name';
+                                    funder_name_textbox.name = 'name';
                                     funder_name_textbox.setAttribute('value', current_funder['name']);
                                     funder_name_text.appendChild(funder_name_textbox);
 
@@ -127,8 +128,8 @@
 
                                     const funder_doi_textbox = document.createElement('input');
                                     funder_doi_textbox.setAttribute('type', 'text');
-                                    funder_doi_textbox.id = 'funder_doi';
-                                    funder_doi_textbox.name = 'funder_doi';
+                                    funder_doi_textbox.id = 'fundref_id';
+                                    funder_doi_textbox.name = 'fundref_id';
                                     funder_doi_textbox.setAttribute('value', current_funder['uri']);
                                     funder_doi_text.appendChild(funder_doi_textbox);
 
@@ -149,14 +150,36 @@
 
                                     const funder_grant_textbox = document.createElement('input');
                                     funder_grant_textbox.setAttribute('type', 'text');
-                                    funder_grant_textbox.id = 'grant_number';
-                                    funder_grant_textbox.name = 'grant_number';
+                                    funder_grant_textbox.id = 'funding_id';
+                                    funder_grant_textbox.name = 'funding_id';
                                     funder_grant_text.appendChild(funder_grant_textbox);
 
                                     const funder_grant_label = document.createElement('p');
                                     funder_grant_label.classList.add('help-text');
                                     funder_grant_label.innerText = '{% trans funder_form.fields.funding_id.help_text %}';
                                     funder_grant_text.appendChild(funder_grant_label);
+
+                                    // Add the funder statement ID
+                                    const funder_statement_modal_row = document.createElement('div');
+                                    funder_statement_modal_row.classList.add('row');
+                                    add_funder_form.appendChild(funder_statement_modal_row);
+
+                                    const funder_statement_text = document.createElement('div');
+                                    funder_statement_text.classList.add('large-12');
+                                    funder_statement_text.classList.add('columns');
+                                    funder_statement_modal_row.appendChild(funder_statement_text);
+
+                                    const funder_statement_textarea = document.createElement('textarea');
+                                    funder_statement_textarea.id = 'funding_statement';
+                                    funder_statement_textarea.name = 'funding_statement';
+                                    funder_statement_text.appendChild(funder_statement_textarea);
+
+                                    const funder_statement_label = document.createElement('p');
+                                    funder_statement_label.classList.add('help-text');
+                                    funder_statement_label.innerText = '{% trans funder_form.fields.funding_statement.help_text %}';
+                                    funder_statement_text.appendChild(funder_statement_label);
+
+                                    $("#funding_statement").jqte();
 
                                     const modal_submit = document.createElement('button');
                                     modal_submit.setAttribute('type', 'submit');

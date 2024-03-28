@@ -225,25 +225,27 @@
                             {% endif %}
 
                             {% if article.funders.all %}
-                                <div class="callout primary">
-                                    <h2>{% trans "Funding" %}</h2>
-                                    <ul>
-                                        {% for funder in article.funders.all %}
-                                            <li>
-                                                {% if funder.fundref_id %}
-                                                    <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
-                                                {% else %}
-                                                    {{ funder.name }}
-                                                {% endif %}
-                                                {% if funder.funding_id %}
-                                                    {% blocktranslate with id=funder.funding_id %}
-                                                        (grant {{ id }})
-                                                    {% endblocktranslate %}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
+                                <h2>{% trans "Funding" %}</h2>
+
+                                {% for funder in article.funders.all %}
+                                    <p>
+                                        {% if funder.fundref_id %}
+                                            <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
+                                        {% else %}
+                                            {{ funder.name }}
+                                        {% endif %}
+                                        {% if funder.funding_id %}
+                                            {% blocktranslate with id=funder.funding_id %}
+                                                ({{ id }})
+                                            {% endblocktranslate %}
+                                        {% endif %}
+                                        {% if funder.funding_statement %}
+                                            <br/>
+                                            {{ funder.funding_statement|safe|linebreaksbr }}
+                                        {% endif %}
+                                    </p>
+                                {% endfor %}
+
                             {% endif %}
 
                             <div class="summary">

@@ -495,7 +495,10 @@ class FunderForm(forms.ModelForm):
 
     class Meta:
         model = models.Funder
-        fields = ('name', 'fundref_id', 'funding_id')
+        fields = ('name', 'fundref_id', 'funding_id', 'funding_statement')
+        widgets = {
+            'funding_statement': forms.Textarea(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.article = kwargs.pop('article', None)
