@@ -26,7 +26,7 @@
         {% if journal_settings.general.enable_editorial_display %}
             {% if journal_settings.general.multi_page_editorial %}
             <li class=".is-dropdown-submenu-parent">
-                <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Editorial Team' %}</a>
+                <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ journal_settings.styling.editorial_group_page_name }}</a>
                 <ul class="menu vertical medium-horizontal">
                     {% for group in request.journal.editorial_groups %}
                     <li><a href="{% url 'editorial_team_group' group.pk %}">{{ group.name }}</a></li>
@@ -34,7 +34,7 @@
                 </ul>
             </li>
             {% else %}
-            <li><a href="{% url 'editorial_team' %}">{% trans 'Editorial Team' %}</a></li>
+            <li><a href="{% url 'editorial_team' %}">{{ journal_settings.styling.editorial_group_page_name }}</a></li>
             {% endif %}
         {% endif %}
         {% if request.journal.nav_sub and not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'journal_submissions' %}">{% trans 'Submission' %}</a></li>{% endif %}
