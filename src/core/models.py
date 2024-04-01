@@ -25,6 +25,8 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -177,12 +179,27 @@ class AccountQuerySet(models.query.QuerySet):
 
 
 class AccountManager(BaseUserManager):
-    def create_user(self, email, password=None, **kwargs):
-        if not email:
-            raise ValueError('Users must have a valid email address.')
+    def create_user(self, username=None, password=None, email=None, **kwargs):
+        """ Creates a user from the given username or email
+        In Janeway, users rely on email addresses to log in. For compatibility
+        with 3rd party libraries, we allow a username argument, however only a
+        email address will be accepted as the username and email.
+        """
+        if not email and username:
+            email = username
+            if "username" in kwargs:
+                del kwargs["username"]
+        try:
+            validate_email(email)
+            self.normalize_email(email)
+        except(ValidationError, TypeError, ValueError):
+            raise ValueError(f'{email} not a valid email address.')
 
         account = self.model(
-            email=self.normalize_email(email),
+            email=email,
+            # Lowercasing the email into the username gets around duplicate
+            # accounts due to case-sensitivity. We still preserve the original
+            # casing for the email field and rely on username for CI constraint
             username=email.lower(),
         )
 
@@ -192,7 +209,9 @@ class AccountManager(BaseUserManager):
         return account
 
     def create_superuser(self, email, password, **kwargs):
-        account = self.create_user(email, password, **kwargs)
+        kwargs["email"] = email
+        kwargs["password"] = password
+        account = self.create_user(**kwargs)
 
         account.is_staff = True
         account.is_admin = True
