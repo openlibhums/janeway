@@ -8,7 +8,7 @@ env_file:
 
 services:
   appserver:
-    type: python:3.6
+    type: python:3.9
     command: python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
     build_as_root:
       - grep '^deb ' /etc/apt/sources.list | perl -pe 's/deb /deb-src /' >> /etc/apt/sources.list
@@ -25,7 +25,7 @@ services:
     moreHttpPorts:
       - '8000'
   db:
-    type: postgres:10
+    type: postgres:15
     portforward: true
     creds:
       user: postgres
