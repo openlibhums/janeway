@@ -172,7 +172,7 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         blank=True,
     )
-    additional_version_help = models.TextField(
+    additional_version_help = model_utils.JanewayBleachField(
         blank=True,
         help_text='This text allows repository managers to provide additional '
                   'information to authors when they are uploading an update '
