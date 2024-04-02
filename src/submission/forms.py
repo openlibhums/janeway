@@ -491,10 +491,10 @@ class ProjectedIssueForm(forms.ModelForm):
         fields = ('projected_issue',)
 
 
-class FunderForm(forms.ModelForm):
+class ArticleFundingForm(forms.ModelForm):
 
     class Meta:
-        model = models.Funder
+        model = models.ArticleFunding
         fields = ('name', 'fundref_id', 'funding_id', 'funding_statement')
         widgets = {
             'funding_statement': forms.Textarea(),
@@ -507,8 +507,9 @@ class FunderForm(forms.ModelForm):
     def save(self, commit=True, *args, **kwargs):
         funder = super().save(commit=commit, *args, **kwargs)
         if self.article:
-            self.article.funders.add(funder)
-            self.article.save()
+            funder.article = self.article
+        if commit:
+            funder.save()
         return funder
 
 

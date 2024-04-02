@@ -114,7 +114,9 @@ def submit_funding(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
-    funder_form = forms.FunderForm()
+    funder_form = forms.ArticleFundingForm(
+        article=article,
+    )
 
     if request.POST:
         if 'next_step' in request.POST:
@@ -122,7 +124,7 @@ def submit_funding(request, article_id):
             article.save()
             return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
 
-        funder_form = forms.FunderForm(
+        funder_form = forms.ArticleFundingForm(
             request.POST,
             article=article,
         )
@@ -375,8 +377,9 @@ def edit_funder(request, article_id, funder_id):
         article.funders,
         pk=funder_id,
     )
-    form = forms.FunderForm(
+    form = forms.ArticleFundingForm(
         instance=funder,
+        article=article,
     )
     # If the user is not an editor/section editor/journal manager/staff
     # and the article is submitted we should raise PermissionDenied.
@@ -386,7 +389,7 @@ def edit_funder(request, article_id, funder_id):
         )
 
     if request.POST:
-        form = forms.FunderForm(
+        form = forms.ArticleFundingForm(
             request.POST,
             instance=funder,
         )
@@ -395,7 +398,7 @@ def edit_funder(request, article_id, funder_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Funder information saved.',
+                'Article funding information saved.',
             )
             # The incoming link _should_ have a return value set to ensure
             # the user gets back to the right place.
@@ -449,7 +452,7 @@ def delete_funder(request, article_id, funder_id):
         journal=request.journal
     )
     funding = get_object_or_404(
-        models.Funder,
+        models.ArticleFunding,
         pk=funder_id
     )
 
@@ -681,7 +684,9 @@ def edit_metadata(request, article_id):
             'submission_summary',
             request.journal,
         ).processed_value
-        funder_form = forms.FunderForm()
+        funder_form = forms.ArticleFundingForm(
+            article=article,
+        )
 
         info_form = forms.ArticleInfo(
             instance=article,
@@ -708,7 +713,7 @@ def edit_metadata(request, article_id):
 
         if request.POST:
             if 'add_funder' in request.POST:
-                funder_form = forms.FunderForm(
+                funder_form = forms.ArticleFundingForm(
                     request.POST,
                     article=article,
                 )
