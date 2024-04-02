@@ -270,8 +270,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     objects = AccountManager()
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
 
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
