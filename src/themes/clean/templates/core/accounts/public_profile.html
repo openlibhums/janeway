@@ -7,7 +7,7 @@
 	<section id="content">
 		<div class="row">
             <div class="col-md-3">
-                <img class="thumbnail img-responsive editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{{ user.full_name }}'s {% trans 'profile photo' %}.">
+                {% include "common/elements/profile_image.html" with classes="thumbnail img-fluid editorial-image" user=user %}
                 <br />
                 <h3>{{ user.full_name }}</h3>
                 <p><strong>{% trans 'Roles' %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
