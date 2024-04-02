@@ -140,6 +140,7 @@ def funder_articles(request, funder_id):
         fundref_id=funder_id,
         article__journal=request.journal,
         article__date_published__lte=timezone.now(),
+        article__stage=submission_models.STAGE_PUBLISHED,
         article__section__pk__in=filters,
     )
 
