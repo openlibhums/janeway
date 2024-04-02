@@ -1,10 +1,5 @@
-{% load static %}
 {% if group.display_profile_images %}
     {% if card_wrapper %}<div class="card-image">{% endif %}
-    <img
-        class="{{ classes }}"
-        src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% elif request.journal.default_editorial_team_image %}{{ request.journal.default_editorial_team_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-        alt="{% if member.user.profile_image %}Headshot photograph of{{ member.user.full_name }}{% else %}A generic headshot photograph of a person{% endif %}"
-    />
+        {% include "common/elements/profile_image.html" with classes=classes user=member.user %}
     {% if card_wrapper %}</div>{% endif %}
 {% endif %}
