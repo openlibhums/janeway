@@ -508,6 +508,7 @@ class RepositorySubmission(RepositoryBase):
             'submission_agreement',
             'limit_upload_to_pdf',
             'require_pdf_help',
+            'additional_version_help',
             'managers',
         )
 
@@ -515,6 +516,7 @@ class RepositorySubmission(RepositoryBase):
             'start': TinyMCE,
             'submission_agreement': TinyMCE,
             'file_upload_help': TinyMCE,
+            'additional_version_help': TinyMCE,
             'managers': FilteredSelectMultiple(
                 "Accounts",
                 False,
