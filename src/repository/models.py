@@ -172,6 +172,14 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         blank=True,
     )
+    additional_version_help = models.TextField(
+        blank=True,
+        help_text='This text allows repository managers to provide additional '
+                  'information to authors when they are uploading an update '
+                  'to their submission.',
+        default='',
+        verbose_name="Additional version upload help text"
+    )
     submission = model_utils.JanewayBleachField(blank=True, null=True)
     publication = model_utils.JanewayBleachField(blank=True, null=True)
     decline = model_utils.JanewayBleachField(blank=True, null=True)
