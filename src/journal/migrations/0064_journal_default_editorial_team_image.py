@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='journal',
-            name='default_editorial_team_image',
-            field=core.model_utils.SVGImageField(blank=True, help_text='An image that is displayed when editorial team images are enabled but a given user does not have a profile image set.', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            name='default_profile_image',
+            field=core.model_utils.SVGImageField(blank=True, help_text='A default image displayed on the profile and editorial team pages when the user has no set profile image.', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
         ),
     ]

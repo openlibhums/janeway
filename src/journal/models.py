@@ -142,14 +142,14 @@ class Journal(AbstractSiteModel):
         help_text=gettext('The tiny round or square image appearing in browser '
                            'tabs before the webpage title'),
     )
-    default_editorial_team_image = SVGImageField(
+    default_profile_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
         blank=True,
         storage=fs,
-        help_text=gettext('An image that is displayed when editorial team '
-                          'images are enabled but a given user does not have '
-                          'a profile image set.'),
+        help_text=gettext('A default image displayed on the profile and '
+                          'editorial team pages when the user has no set '
+                          'profile image.'),
     )
     # DEPRECATED "description" in favour of "journal_description" setting
     description = JanewayBleachField(null=True, blank=True, verbose_name="Journal Description")
