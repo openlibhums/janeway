@@ -5070,7 +5070,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date this article was submitted will be displayed along with the date accepted and date published on the article page.",
+            "description": "When enabled the date an article was submitted will be displayed on the article page.",
             "is_translatable": false,
             "name": "display_date_submitted",
             "pretty_name": "Display Date Submitted",
@@ -5089,7 +5089,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date this article was accepted will be displayed along with the date accepted and date published on the article page.",
+            "description": "When enabled the date an article was accepted will be displayed on the article page.",
             "is_translatable": false,
             "name": "display_date_accepted",
             "pretty_name": "Display Date Accepted",
