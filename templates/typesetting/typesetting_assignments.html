@@ -52,7 +52,7 @@
                     <th>Assigned</th>
                     <th>Completed/Cancelled</th>
                 </thead>
-                {% for assignment in completed_assignments %}
+                {% for assignment in past_assignments %}
                 <tbody>
                     <td>{{ assignment.pk }}</td>
                     <td>{{ assignment.round.article.title|safe }}</td>

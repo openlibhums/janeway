@@ -5,7 +5,6 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import ugettext as _
 from django.db.models import Q
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
@@ -725,14 +724,14 @@ def typesetting_assignments(request):
         cancelled__isnull=True,
     )
 
-    completed_assignments = assignments.filter(
+    past_assignments = assignments.filter(
         Q(completed__isnull=False) | Q(cancelled__isnull=False),
     )
 
     template = 'typesetting/typesetting_assignments.html'
     context = {
         'active_assignments': active_assignments,
-        'completed_assignments': completed_assignments,
+        'past_assignments': past_assignments,
     }
 
     return render(request, template, context)
