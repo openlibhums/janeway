@@ -55,6 +55,12 @@ class Page(models.Model):
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
+    display_toc = models.BooleanField(
+        default=False,
+        help_text='When enabled this page will display a thinner reading pane '
+                  'with a table of contents side bar.',
+        verbose_name='Display table of contents',
+    )
 
     # history = HistoricalRecords() is defined in cms.translation
     # for compatibility with django-modeltranslation

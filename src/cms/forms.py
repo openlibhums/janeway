@@ -82,7 +82,6 @@ class NavForm(JanewayTranslationModelForm):
             # Remove this at the journal level
             self.fields.pop('extend_to_journals')
 
-
     def clean_top_level_nav(self):
         top_level_nav = self.cleaned_data.get('top_level_nav')
         if (top_level_nav and self.instance) and (top_level_nav.pk == self.instance.pk):
@@ -100,8 +99,6 @@ class SubmissionItemForm(JanewayTranslationModelForm):
         model = models.SubmissionItem
         fields = ('title', 'text', 'order', 'existing_setting')
         exclude = ('journal',)
-
-
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')
