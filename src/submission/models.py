@@ -307,10 +307,15 @@ STAGE_CHOICES = [
 PLUGIN_WORKFLOW_STAGES = []
 
 
-class Funder(models.Model):
+class ArticleFunding(models.Model):
     class Meta:
         ordering = ('name',)
 
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+        null=True,
+    )
     name = models.CharField(
         max_length=500,
         blank=False,
@@ -337,7 +342,7 @@ class Funder(models.Model):
     )
 
     def __str__(self):
-        return f"Funder entry {self.pk}: {self.name}"
+        return f"Article funding entry {self.pk}: {self.name}"
 
 
 class ArticleStageLog(models.Model):
@@ -829,9 +834,6 @@ class Article(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
-    # funding
-    funders = models.ManyToManyField('Funder', blank=True)
-
     reviews_shared = models.BooleanField(
         default=False,
         help_text="Marked true when an editor manually shares reviews with "
@@ -1166,6 +1168,11 @@ class Article(AbstractLastModifiedModel):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
         )
+
+    @property
+    def funders(self):
+        """Method replaces the funders m2m model for backwards compat."""
+        return ArticleFunding.objects.filter(article=self)
 
     def __str__(self):
         return u'%s - %s' % (self.pk, truncatesmart(self.title))

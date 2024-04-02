@@ -111,12 +111,6 @@ class ArticleInline(admin.TabularInline):
     fk_name = 'primary_issue'
 
 
-class FundersArticleInline(admin.TabularInline):
-    model = submission_models.Article.funders.through
-    extra = 0
-    raw_id_fields = ('article',)
-
-
 class ArticleOrderingInline(admin.TabularInline):
     model = journal_models.ArticleOrdering
     extra = 0

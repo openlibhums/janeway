@@ -16,14 +16,11 @@ class LicenseChoiceField(forms.ModelChoiceField):
         return obj.short_name
 
 
-class FunderAdmin(admin.ModelAdmin):
-    list_display = ('name', 'fundref_id', 'funding_id')
+class ArticleFundingAdmin(admin.ModelAdmin):
+    list_display = ('name', 'article', 'fundref_id', 'funding_id')
     list_filter = ('article__journal',)
     search_fields = ('name', 'fundref_id', 'funding_id')
-
-    inlines = [
-        admin_utils.FundersArticleInline,
-    ]
+    raw_id_fields = ('article',)
 
 
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
@@ -79,7 +76,6 @@ class ArticleAdmin(admin.ModelAdmin):
         'data_figure_files',
         'supplementary_files',
         'publisher_notes',
-        'funders',
     )
     filter_horizontal = (
         'authors',
@@ -214,7 +210,7 @@ class ArticleAuthorOrderAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 admin_list = [
-    (models.Funder, FunderAdmin),
+    (models.ArticleFunding, ArticleFundingAdmin),
     (models.Article, ArticleAdmin),
     (models.Licence, LicenseAdmin),
     (models.Section, SectionAdmin),
