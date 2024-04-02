@@ -3,12 +3,16 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def migrate_relationship_to_fk(apps, schema_editor):
     Article = apps.get_model('submission', 'Article')
     for article in Article.objects.all():
         for funder in article.funders.all():
-            print(f"Adding FK to {funder.pk}")
+            logger.debug(f"Adding FK to {funder.pk}")
             funder.article = article
             funder.save()
 
