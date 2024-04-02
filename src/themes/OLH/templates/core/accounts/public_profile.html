@@ -8,7 +8,7 @@
 	<section id="content">
 		<div class="row column">
             <div class="large-3 columns">
-                <img class="thumbnail editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Profile photo.">
+                {% include "common/elements/profile_image.html" with classes="thumbnail editorial-image" user=user %}
                 <h3>{{ user.full_name }}</h3>
                 {% if roles %}
                   <p>
