@@ -451,12 +451,13 @@ def delete_funder(request, article_id, funder_id):
         pk=article_id,
         journal=request.journal
     )
-    funding = get_object_or_404(
+    article_funding = get_object_or_404(
         models.ArticleFunding,
-        pk=funder_id
+        pk=funder_id,
+        article=article,
     )
 
-    article.funders.remove(funding)
+    article_funding.delete()
 
     if request.GET.get('return'):
         return redirect(request.GET['return'])
