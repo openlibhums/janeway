@@ -137,7 +137,7 @@ def funder_articles(request, funder_id):
     if redirect:
         return redirect
 
-    artile_funding_objects = submission_models.ArticleFunding.objects.filter(
+    article_funding_objects = submission_models.ArticleFunding.objects.filter(
         fundref_id=funder_id,
         article__journal=request.journal,
         article__date_published__lte=timezone.now(),
@@ -146,7 +146,7 @@ def funder_articles(request, funder_id):
     )
 
     article_objects = []
-    for article_funding_object in artile_funding_objects:
+    for article_funding_object in article_funding_objects:
         if article_funding_object.article not in article_objects:
             article_objects.append(article_funding_object.article)
 
