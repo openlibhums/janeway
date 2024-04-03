@@ -65,13 +65,13 @@
                                     add_funder_text.innerText = '{% trans "Add funder" %}';
                                     add_funder_button.appendChild(add_funder_text);
 
-                                    var cloned_modal_id = "add_funder_" + funder;
-                                    var cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
+                                    let cloned_modal_id = "add_funder_" + funder;
+                                    let cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
                                     cloned_modal.appendTo("#modal_clones_placeholder");
 
                                     cloned_modal.find('#id_name').val(current_funder['name']);
                                     cloned_modal.find('#id_fundref_id').val(current_funder['uri']);
-                                    var funding_statement_id = "id_funding_statement_"+ funder;
+                                    let funding_statement_id = "id_funding_statement_"+ funder;
 
                                     // Change element IDs
                                     cloned_modal.find('#id_name').attr("id","id_name_"+ funder);
