@@ -73,10 +73,18 @@
                                     cloned_modal.find('#id_fundref_id').val(current_funder['uri']);
                                     var funding_statement_id = "id_funding_statement_"+ funder;
 
+                                    // Change element IDs
                                     cloned_modal.find('#id_name').attr("id","id_name_"+ funder);
-                                    cloned_modal.find('#id_fundref_id').attr("id","id_fundref_id"+ funder);
+                                    cloned_modal.find('#id_fundref_id').attr("id","id_fundref_id_"+ funder);
                                     cloned_modal.find('#id_funding_id').attr("id","id_funding_id_"+ funder);
                                     cloned_modal.find('#id_funding_statement').attr("id", funding_statement_id).removeAttr('data-mce-conf');
+
+                                    // Change label fors
+                                    cloned_modal.find('label[for="id_name"]').attr("for", "id_name_" + funder);
+                                    cloned_modal.find('label[for="id_fundref_id"]').attr("for", "id_fundref_id_" + funder);
+                                    cloned_modal.find('label[for="id_funding_id"]').attr("for", "id_funding_id_" + funder);
+                                    cloned_modal.find('label[for="id_funding_statement"]').attr("for", "id_funding_statement_" + funder);
+
                                 }
 
                                 // clear the HTML then append the element
