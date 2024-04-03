@@ -110,7 +110,12 @@
             </div>
         </div>
 
-        <div class="small reveal" id="add_funder_blank" data-reveal>
+
+        <div id="modal_clones_placeholder">
+
+        </div>
+    </article>
+    <div class="small reveal" id="add_funder_blank" data-reveal>
             <div class="card">
                 <div class="card-divider">
                     <h5>{% trans 'Add funder' %}</h5>
@@ -128,7 +133,6 @@
                 </div>
             </div>
         </div>
-    </article>
 {% endblock body %}
 
 
@@ -148,7 +152,6 @@
                 {allowSpaces: true});
         });
     </script>
-    {% include "admin/elements/jqte.html" %}
     {% include "admin/elements/fundref/fundref.html" with funder_form=funder_form %}
 
 {% endblock %}

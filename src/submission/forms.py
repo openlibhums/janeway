@@ -497,7 +497,7 @@ class ArticleFundingForm(forms.ModelForm):
         model = models.ArticleFunding
         fields = ('name', 'fundref_id', 'funding_id', 'funding_statement')
         widgets = {
-            'funding_statement': forms.Textarea(),
+            'funding_statement': TinyMCE(),
         }
 
     def __init__(self, *args, **kwargs):

@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n foundation %}
+
 <!-- Note: this is transcluded as templated HTML because we need to pass: 1. translation templates; and 2. CSRF tokens-->
 <script language="JavaScript">
         function search_fundref(query) {
@@ -28,6 +29,8 @@
 
                                 const funder_span = $('#funder_list');
                                 funder_span.html('');
+
+                                tinymce.remove();
 
                                 for(const funder in json['message']['items']) {
                                     const current_funder = json['message']['items'][funder];
@@ -62,145 +65,27 @@
                                     add_funder_text.innerText = '{% trans "Add funder" %}';
                                     add_funder_button.appendChild(add_funder_text);
 
-                                    // now create the modal
-                                    const modal_div = document.createElement('div');
-                                    modal_div.classList.add('small');
-                                    modal_div.classList.add('reveal');
-                                    modal_div.classList.add('fundref_modal')
-                                    modal_div.id = 'add_funder_' + funder;
-                                    modal_div.setAttribute('data-reveal', '');
-                                    funder_span.append(modal_div);
+                                    var cloned_modal_id = "add_funder_" + funder;
+                                    var cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
+                                    cloned_modal.appendTo("#modal_clones_placeholder");
 
-                                    const card_div = document.createElement('div');
-                                    card_div.classList.add('card');
-                                    modal_div.appendChild(card_div);
+                                    cloned_modal.find('#id_name').val(current_funder['name']);
+                                    cloned_modal.find('#id_fundref_id').val(current_funder['uri']);
+                                    var funding_statement_id = "id_funding_statement_"+ funder;
 
-                                    const card_divider_div = document.createElement('div');
-                                    card_divider_div.classList.add('card-divider');
-                                    card_div.appendChild(card_divider_div);
-
-                                    const add_funder_header = document.createElement('h5');
-                                    add_funder_header.innerText = '{% trans "Add funder" %}';
-                                    card_divider_div.appendChild(add_funder_header);
-
-                                    const add_funder_card_section = document.createElement('div');
-                                    add_funder_card_section.classList.add('card-section');
-                                    card_div.appendChild(add_funder_card_section);
-
-                                    const add_funder_form = document.createElement('form');
-                                    add_funder_form.setAttribute('method', 'POST');
-                                    add_funder_card_section.appendChild(add_funder_form);
-                                    add_funder_form.innerHTML = "<input type=\"hidden\" name=\"csrfmiddlewaretoken\" value=\"{{csrf_token}}\">"
-
-
-                                    // Add the funder field to the modal
-                                    const funder_name_modal_row = document.createElement('div');
-                                    funder_name_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_name_modal_row);
-
-                                    const funder_name_text = document.createElement('div');
-                                    funder_name_text.classList.add('large-12');
-                                    funder_name_text.classList.add('columns');
-                                    funder_name_modal_row.appendChild(funder_name_text);
-
-                                    const funder_name_textbox = document.createElement('input');
-                                    funder_name_textbox.setAttribute('type', 'text');
-                                    funder_name_textbox.id = 'name';
-                                    funder_name_textbox.name = 'name';
-                                    funder_name_textbox.setAttribute('value', current_funder['name']);
-                                    funder_name_text.appendChild(funder_name_textbox);
-
-                                    const funder_name_label = document.createElement('p');
-                                    funder_name_label.classList.add('help-text');
-                                    funder_name_label.innerText = '{% trans funder_form.fields.name.help_text %}';
-                                    funder_name_text.appendChild(funder_name_label);
-
-
-                                    // Add the funder DOI field to the modal
-                                    const funder_doi_modal_row = document.createElement('div');
-                                    funder_doi_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_doi_modal_row);
-
-                                    const funder_doi_text = document.createElement('div');
-                                    funder_doi_text.classList.add('large-12');
-                                    funder_doi_text.classList.add('columns');
-                                    funder_doi_modal_row.appendChild(funder_doi_text);
-
-                                    const funder_doi_textbox = document.createElement('input');
-                                    funder_doi_textbox.setAttribute('type', 'text');
-                                    funder_doi_textbox.id = 'fundref_id';
-                                    funder_doi_textbox.name = 'fundref_id';
-                                    funder_doi_textbox.setAttribute('value', current_funder['uri']);
-                                    funder_doi_text.appendChild(funder_doi_textbox);
-
-                                    const funder_doi_label = document.createElement('p');
-                                    funder_doi_label.classList.add('help-text');
-                                    funder_doi_label.innerText = '{% trans funder_form.fields.fundref_id.help_text %}';
-                                    funder_doi_text.appendChild(funder_doi_label);
-
-                                    // Add the grant ID
-                                    const funder_grant_modal_row = document.createElement('div');
-                                    funder_grant_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_grant_modal_row);
-
-                                    const funder_grant_text = document.createElement('div');
-                                    funder_grant_text.classList.add('large-12');
-                                    funder_grant_text.classList.add('columns');
-                                    funder_grant_modal_row.appendChild(funder_grant_text);
-
-                                    const funder_grant_textbox = document.createElement('input');
-                                    funder_grant_textbox.setAttribute('type', 'text');
-                                    funder_grant_textbox.id = 'funding_id';
-                                    funder_grant_textbox.name = 'funding_id';
-                                    funder_grant_text.appendChild(funder_grant_textbox);
-
-                                    const funder_grant_label = document.createElement('p');
-                                    funder_grant_label.classList.add('help-text');
-                                    funder_grant_label.innerText = '{% trans funder_form.fields.funding_id.help_text %}';
-                                    funder_grant_text.appendChild(funder_grant_label);
-
-                                    // Add the funder statement ID
-                                    const funder_statement_modal_row = document.createElement('div');
-                                    funder_statement_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_statement_modal_row);
-
-                                    const funder_statement_text = document.createElement('div');
-                                    funder_statement_text.classList.add('large-12');
-                                    funder_statement_text.classList.add('columns');
-                                    funder_statement_modal_row.appendChild(funder_statement_text);
-
-                                    const funder_statement_textarea = document.createElement('textarea');
-                                    funder_statement_textarea.id = 'funding_statement';
-                                    funder_statement_textarea.name = 'funding_statement';
-                                    funder_statement_text.appendChild(funder_statement_textarea);
-
-                                    const funder_statement_label = document.createElement('p');
-                                    funder_statement_label.classList.add('help-text');
-                                    funder_statement_label.innerText = '{% trans funder_form.fields.funding_statement.help_text %}';
-                                    funder_statement_text.appendChild(funder_statement_label);
-
-                                    $("#funding_statement").jqte();
-
-                                    const modal_submit = document.createElement('button');
-                                    modal_submit.setAttribute('type', 'submit');
-                                    modal_submit.name = 'add_funder';
-                                    modal_submit.classList.add('success');
-                                    modal_submit.classList.add('button');
-                                    modal_submit.innerText = '{% trans "Add funder" %}';
-                                    add_funder_form.appendChild(modal_submit);
-
-                                    const modal_close = document.createElement('button');
-                                    modal_close.setAttribute('type', 'button');
-                                    modal_close.setAttribute('data-close', '');
-                                    modal_close.classList.add('close-button');
-                                    modal_close.innerHTML = '&times;';
-                                    add_funder_form.appendChild(modal_close);
-
+                                    cloned_modal.find('#id_name').attr("id","id_name_"+ funder);
+                                    cloned_modal.find('#id_fundref_id').attr("id","id_fundref_id"+ funder);
+                                    cloned_modal.find('#id_funding_id').attr("id","id_funding_id_"+ funder);
+                                    cloned_modal.find('#id_funding_statement').attr("id", funding_statement_id).removeAttr('data-mce-conf');
                                 }
 
                                 // clear the HTML then append the element
                                 funder_span.append(table);
                                 $(document).foundation();
+                                tinyMCE.init({
+                                     selector: "textarea",
+                                });
+
                             });
                 });
             }
