@@ -3790,7 +3790,18 @@
       </xsl:template>
 
       <xsl:template match="verse-line">
-        <xsl:apply-templates/>
+        <xsl:choose>
+            <xsl:when test="@style">
+                <!-- Provide support for the verse-line/@style attribute -->
+                <xsl:element name="span">
+                    <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
+                    <xsl:apply-templates/>
+                </xsl:element>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates/>
+            </xsl:otherwise>
+        </xsl:choose>
       </xsl:template>
 
     <xsl:template match="title">
