@@ -85,6 +85,7 @@ src/media/profile_images/*
 
 # PyCharm
 .idea
+*.iml
 
 # vim
 *.swp
