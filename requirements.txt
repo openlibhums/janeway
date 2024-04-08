@@ -44,7 +44,7 @@ orcid==1.0.3
 packaging==23.2
 pdfkit==1.0.0
 pdfminer.six
-psycopg2-binary~=2.8.6
+psycopg2-binary~=2.9.8
 pyasn1==0.1.9
 pycparser==2.14
 PyJWT==2.4.0
