@@ -21,7 +21,7 @@
             {% csrf_token %}
             <div class="row">
                 <div class="large-12 columns">
-                    <label for="datetime">Date and time</label>
+                    <label for="datetime">Publication date and time</label>
                     <input type="datetime-local" name="datetime" id="datetime" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'Y-m-d\TH:i' }}{% else %}{% now 'Y-m-d\TH:i' %}{% endif %}">
                     {% get_current_timezone as TIME_ZONE %}
                     <input type="hidden" id="timezone" name="timezone" value="{{ TIME_ZONE }}" />
