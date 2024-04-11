@@ -3873,6 +3873,15 @@
        </pre>
     </xsl:template>
 
+    <!-- Add support for email links in all contexts. -->
+    <xsl:template match="email">
+        <xsl:element name="a">
+            <xsl:attribute name="href"><xsl:value-of select="concat('mailto:',.)"/></xsl:attribute>
+            <xsl:attribute name="class"><xsl:value-of select="'email'"/></xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+
     <!-- END - general format -->
 
     <xsl:template match="sub-article//title-group | sub-article/front-stub | fn-group[@content-type='competing-interest']/fn/p | //history//*[@publication-type='journal']/article-title">
