@@ -60,7 +60,7 @@
                 "url": "{% url 'review_draft_decision_text' article.pk %}",
                 "data": data,
                 "success": function (data) {
-                    $("#id_email_message").jqteVal(data.decision_text)
+                    tinymce.get('id_email_message').setContent(data.decision_text)
                     toastr.success('Draft Email to Author reloaded.')
                 },
                 "error": function (xhr, status, error) {
@@ -81,7 +81,7 @@
         date = $('#id_revision_request_due_date').val();
 
         if (decision_selector.val() === '') {
-            $("#id_email_message").jqteVal('')
+            tinymce.get('id_email_message').setContent('')
         } else if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
             $('#div_due_date').show();
             get_decision_text(decision_selector, date)
@@ -91,8 +91,8 @@
         }
     }
     function decision_change() {
-
-        if ($('#id_email_message').val()) {
+        let emailMessagecContent = tinymce.get('id_email_message').getContent()
+        if (emailMessagecContent) {
             $('#confirm_switch_email_template').foundation();
             $('#confirm_switch_email_template').foundation('open');
         } else {
