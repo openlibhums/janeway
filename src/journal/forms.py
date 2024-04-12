@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 
 from core import models as core_models
+from core.forms import SettingEmailForm
 from journal import models as journal_models, logic
 from utils.forms import CaptchaForm
 
@@ -135,3 +136,8 @@ class IssueDisplayForm(forms.ModelForm):
             'display_article_page_numbers',
             'display_issue_doi',
         )
+
+
+class PrepubNotifyAuthorForm(SettingEmailForm):
+    section_editors = forms.BooleanField(initial=False, label=_('Notify section editors'), required=False)
+    peer_reviewers = forms.BooleanField(initial=False, label=_('Notify peer reviewers'), required=False)
