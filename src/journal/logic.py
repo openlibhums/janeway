@@ -267,19 +267,11 @@ def handle_set_pubdate(request, article):
         return [date_time_str, ['Not a recognised Date/Time format. Date: 2016-12-16, Time: 20:20.']]
 
 
-def get_notify_author_text(request, article):
-    context = {
-        'article': article,
-    }
-
-    return render_template.get_message_content(request, context, 'author_publication')
-
-
 def notify_author(request, article):
     kwargs = {
         'request': request,
         'article': article,
-        'user_message': request.POST.get('notify_author_email', 'No message from Editor.'),
+        'user_message': request.POST.get('body', 'No message from Editor.'),
         'section_editors': request.POST.get('section_editors', False),
         'peer_reviewers': request.POST.get('peer_reviewers', False),
     }

@@ -1018,6 +1018,13 @@ def publish_article(request, article_id):
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
+    notify_author_form = forms.PrepubNotifyAuthorForm(
+        setting_name='author_publication',
+        email_context={
+            'article': article
+        },
+        request=request,
+    )
     modal = request.GET.get('m', None)
     pubdate_errors = []
 
@@ -1082,13 +1089,29 @@ def publish_article(request, article_id):
                 modal = 'pubdate'
 
         if 'author' in request.POST:
-            logic.notify_author(request, article)
-            return redirect(
-                reverse(
-                    'publish_article',
-                    kwargs={'article_id': article.pk},
-                )
+            notify_author_form = forms.PrepubNotifyAuthorForm(
+                request.POST,
+                request.FILES,
+                setting_name='author_publication',
+                email_context={
+                    'article': article
+                },
+                request=request,
             )
+            if notify_author_form.is_valid():
+                logic.notify_author(request, article)
+                return redirect(
+                    reverse(
+                        'publish_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('There was a problem sending the email(s). Please try again.'),
+                )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
@@ -1186,7 +1209,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pubdate_errors': pubdate_errors,
-        'notify_author_text': logic.get_notify_author_text(request, article)
+        'notify_author_form': notify_author_form,
     }
 
     return render(request, template, context)
