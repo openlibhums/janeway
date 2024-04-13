@@ -213,16 +213,17 @@ class Press(AbstractSiteModel):
         request = logic.get_current_request()
         if settings.DEBUG and request:
             port = request.get_port()
+            domain = request.get_host()
         else:
             port = None
+            domain = self.domain
         if path is not None:
             # Ignore duplicate site code if provided in code
             if path.startswith(_path):
                 path = path[len(_path):]
             _path += path
-
         return logic.build_url(
-            netloc=self.domain,
+            netloc=domain,
             scheme=self._get_scheme(),
             port=port,
             path=_path,
