@@ -19,8 +19,16 @@ class NewsItemForm(forms.ModelForm):
 
     class Meta:
         model = models.NewsItem
-        exclude = ('content_type', 'object_id', 'posted', 'posted_by', 'large_image_file', 'tags')
+        exclude = (
+            'content_type',
+            'object_id',
+            'posted',
+            'posted_by',
+            'large_image_file',
+            'tags',
+        )
         widgets = {
             'start_display': HTMLDateInput,
             'end_display': HTMLDateInput,
+            'title': forms.TextInput,
         }

@@ -32,7 +32,7 @@
                                         <i class="fa fa-trash"></i></button>
                                 </div>
 
-                                {{ item.title }}<br/>
+                                {{ item.title|safe }}<br/>
                                 <small>
                                     Posted on {{ item.posted }}{% if item.posted_by %} by {{ item.posted_by.full_name }}
                                     <br/>{% endif %}
