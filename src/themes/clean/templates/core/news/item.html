@@ -10,7 +10,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>{{ news_item.title }}</h1>
+            <h1>{{ news_item.title|safe }}</h1>
             <hr/>
         </div>
         <div class="col-md-12">
