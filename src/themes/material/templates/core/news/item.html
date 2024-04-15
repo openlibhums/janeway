@@ -2,7 +2,7 @@
 {% load truncate %}
 {% load i18n %}
 
-{% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title }}{% endblock title %}
+{% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title|striptags }}{% endblock title %}
 
 {% block head %}
 {% include "elements/social_meta.html" %}
@@ -15,17 +15,17 @@
                 {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                 <div class="card-image">
                     <img src="{{ news_item.best_image_url }}"
-                        alt="{{ news_item.title }}"/>
+                        alt="{{ news_item.title|striptags }}"/>
                     <span class="card-title">
                       <div class="carousel-text-wrapper">
-                        {{ news_item.title }}
+                        {{ news_item.title|safe }}
                       </div>
                     </span>
                 </div>
                 {% endif %}
                 <div class="card-content">
                     {% if not news_item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
-                        <h2 class="no-top-margin">{{ news_item.title }}</h2>
+                        <h2 class="no-top-margin">{{ news_item.title|safe }}</h2>
                     {% endif %}
                     <h6><em>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>
                     </h6>
