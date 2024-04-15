@@ -5083,5 +5083,43 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "Display name for the page displaying editorial groups.",
+            "is_translatable": true,
+            "name": "editorial_group_page_name",
+            "pretty_name": "Editorial Group Page Name",
+            "type": "char"
+        },
+        "value": {
+            "default": "Editorial Team"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "When enabled no group names are displayed on the editorial group page.",
+            "is_translatable": false,
+            "name": "hide_editorial_group_names",
+            "pretty_name": "Hide Editorial Group Names",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
