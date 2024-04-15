@@ -7,7 +7,7 @@
 
 {% block body %}
     <div class="row">
-        <div class="col {% if page.display_toc %}m9{% else %}m12{% endif %}">
+        <div class="col {% if page.display_toc %}m9 s12{% else %}m12{% endif %}">
             <div class="card">
                 <div id="cms-title" class="card-content">
                     <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
@@ -17,7 +17,7 @@
             </div>
         </div>
         {% if page.display_toc %}
-            <div class="col m3">
+            <div class="col m3 hide-on-small-and-down">
                 <div class="card toc-card" id="toc-card"
                      style="display: none;">
                     <div class="card-content">
