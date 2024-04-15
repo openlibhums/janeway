@@ -817,3 +817,8 @@ ul.menu {
 .summernote-div {
   margin-bottom: 16px;
 }
+
+.ui-datepicker {
+  /* Temporary hotfix for compatibility with TinyMCE */
+  z-index: 10 !important;
+}
