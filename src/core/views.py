@@ -48,8 +48,7 @@ from press import forms as press_forms
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
-from utils.shared import language_override_redirect
-from utils.logic import get_janeway_version
+from utils.shared import language_override_redirect, clear_cache
 from repository import models as rm
 from events import logic as events_logic
 
@@ -1669,6 +1668,8 @@ def editorial_team(request):
                     group=setting_group,
                     journal=request.journal,
                 )
+                # clear cache to ensure changes display immediately
+                clear_cache()
                 return language_override_redirect(
                     request,
                     'core_editorial_team',
