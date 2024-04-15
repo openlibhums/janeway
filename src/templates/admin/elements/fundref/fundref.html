@@ -1,100 +1,76 @@
 {% load i18n foundation %}
 
 <!-- Note: this is transcluded as templated HTML because we need to pass: 1. translation templates; and 2. CSRF tokens-->
-<script language="JavaScript">
-        function search_fundref(query) {
-                query_url = '//api.crossref.org/funders?query=' + query;
-                console.log('Clearing old modals.')
-                $("div.fundref_modal").remove();
-                console.log('Fetching ' + query_url);
-                $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
-                fetch(query_url)
-                    .then(function(response) {
-                        response.json()
-                            .then(function(json) {
-                                // create the table and header
-                                const table = document.createElement('table');
-                                table.classList.add('scroll');
+<script>
+    function search_fundref(query) {
+        query_url = '//api.crossref.org/funders?query=' + query;
 
-                                const thead = document.createElement('thead');
-                                table.appendChild(thead);
+        // Clear out old modals
+        console.log('Clearing old modals.')
+        $("div.fundref_modal").remove();
+        console.log('Fetching ' + query_url);
+        $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
+        fetch(query_url)
+            .then(response => response.json())
+            .then(json => {
+                const funder_span = $('#funder_list');
+                funder_span.empty();
 
-                                const thead_tr = document.createElement('tr');
-                                thead.appendChild(thead_tr);
+                // Prep the table for display
+                const table = $('<table>').addClass('scroll');
+                const thead = $('<thead>').appendTo(table);
+                const thead_tr = $('<tr>').appendTo(thead);
+                $('<th>').attr('colspan', '2').text('{% trans "Funder" %}').appendTo(thead_tr);
 
-                                const thead_th_funder = document.createElement('th');
-                                thead_th_funder.innerText = '{% trans "Funder" %}';
-                                thead_th_funder.setAttribute('colspan', '2');
-                                thead_tr.appendChild(thead_th_funder);
+                // Remove TinyMCE for the cloning process.
+                tinymce.remove();
 
-                                const funder_span = $('#funder_list');
-                                funder_span.html('');
+                // Loop across each funder in the fundref response, add them to
+                // the table and create a modal for them.
+                $.each(json.message.items, (index, funder) => {
+                    const funder_tr = $('<tr>').appendTo(table);
+                    $('<td>').text(funder.name).appendTo(funder_tr);
+                    const add_funder_td = $('<td>').appendTo(funder_tr);
+                    const add_funder_button = $('<a>')
+                        .addClass('success button pull-right')
+                        .attr({
+                            'href': '#',
+                            'data-open': 'add_funder_' + index,
+                            'name': 'add_funder_' + index
+                        })
+                        .appendTo(add_funder_td);
+                    $('<i>').addClass('fa fa-plus').html('&nbsp;').appendTo(add_funder_button);
+                    $('<span>').text('{% trans "Add funder" %}').appendTo(add_funder_button);
 
-                                tinymce.remove();
+                    const cloned_modal_id = "add_funder_" + index;
+                    const cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
+                    cloned_modal.appendTo("#modal_clones_placeholder");
 
-                                for(const funder in json['message']['items']) {
-                                    const current_funder = json['message']['items'][funder];
+                    cloned_modal.find('#id_name').val(funder.name);
+                    cloned_modal.find('#id_fundref_id').val(funder.uri);
+                    const funding_statement_id = "id_funding_statement_" + index;
 
-                                    // create a funder row
-                                    const funder_tr = document.createElement('tr');
-                                    table.appendChild(funder_tr);
+                    // Change element IDs and label fors
+                    cloned_modal.find('#id_name').attr("id", "id_name_" + index);
+                    cloned_modal.find('#id_fundref_id').attr("id", "id_fundref_id_" + index);
+                    cloned_modal.find('#id_funding_id').attr("id", "id_funding_id_" + index);
+                    cloned_modal.find('#id_funding_statement')
+                        .attr("id", funding_statement_id)
+                        .removeAttr('data-mce-conf');
 
-                                    const funder_name_td = document.createElement('td');
-                                    funder_name_td.innerText = current_funder['name'];
-                                    funder_tr.appendChild(funder_name_td);
-
-                                    const add_funder_td = document.createElement('td');
-                                    funder_tr.appendChild(add_funder_td);
-
-                                    const add_funder_button = document.createElement('a');
-                                    add_funder_button.classList.add('success');
-                                    add_funder_button.classList.add('button');
-                                    add_funder_button.classList.add('pull-right');
-                                    add_funder_button.name = 'add_funder_' + funder;
-                                    add_funder_button.setAttribute('href', '#');
-                                    add_funder_button.setAttribute('data-open', 'add_funder_' + funder);
-                                    add_funder_td.appendChild(add_funder_button);
-
-                                    const fa_plus_icon = document.createElement('i');
-                                    fa_plus_icon.classList.add('fa');
-                                    fa_plus_icon.classList.add('fa-plus');
-                                    fa_plus_icon.innerHTML = '&nbsp;';
-                                    add_funder_button.appendChild(fa_plus_icon);
-
-                                    const add_funder_text = document.createElement('span');
-                                    add_funder_text.innerText = '{% trans "Add funder" %}';
-                                    add_funder_button.appendChild(add_funder_text);
-
-                                    let cloned_modal_id = "add_funder_" + funder;
-                                    let cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
-                                    cloned_modal.appendTo("#modal_clones_placeholder");
-
-                                    cloned_modal.find('#id_name').val(current_funder['name']);
-                                    cloned_modal.find('#id_fundref_id').val(current_funder['uri']);
-                                    let funding_statement_id = "id_funding_statement_"+ funder;
-
-                                    // Change element IDs
-                                    cloned_modal.find('#id_name').attr("id","id_name_"+ funder);
-                                    cloned_modal.find('#id_fundref_id').attr("id","id_fundref_id_"+ funder);
-                                    cloned_modal.find('#id_funding_id').attr("id","id_funding_id_"+ funder);
-                                    cloned_modal.find('#id_funding_statement').attr("id", funding_statement_id).removeAttr('data-mce-conf');
-
-                                    // Change label fors
-                                    cloned_modal.find('label[for="id_name"]').attr("for", "id_name_" + funder);
-                                    cloned_modal.find('label[for="id_fundref_id"]').attr("for", "id_fundref_id_" + funder);
-                                    cloned_modal.find('label[for="id_funding_id"]').attr("for", "id_funding_id_" + funder);
-                                    cloned_modal.find('label[for="id_funding_statement"]').attr("for", "id_funding_statement_" + funder);
-
-                                }
-
-                                // clear the HTML then append the element
-                                funder_span.append(table);
-                                $(document).foundation();
-                                tinyMCE.init({
-                                     selector: "textarea",
-                                });
-
-                            });
+                    cloned_modal.find('label[for="id_name"]').attr("for", "id_name_" + index);
+                    cloned_modal.find('label[for="id_fundref_id"]').attr("for", "id_fundref_id_" + index);
+                    cloned_modal.find('label[for="id_funding_id"]').attr("for", "id_funding_id_" + index);
+                    cloned_modal.find('label[for="id_funding_statement"]').attr("for", funding_statement_id);
                 });
-            }
-    </script>
+
+                // Clear the HTML, display the table and reinitialise foundation
+                // and tinyMCE.
+                funder_span.html(table);
+                $(document).foundation();
+                tinyMCE.init({
+                    selector: "textarea",
+                });
+            });
+    }
+</script>
