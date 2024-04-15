@@ -500,19 +500,36 @@ def get_settings_to_edit(display_group, journal, user):
     elif display_group == 'styling':
         group_of_settings = [
             {
-                'name': 'multi_page_editorial',
-                'object': setting_handler.get_setting('styling',
-                                                      'multi_page_editorial',
-                                                      journal),
-            },
-            {
                 'name': 'display_journal_title',
                 'object': setting_handler.get_setting('styling',
                                                       'display_journal_title',
                                                       journal),
+            },
+        ]
+        setting_group = 'styling'
+    elif display_group == 'editorial':
+        group_of_settings = [
+            {
+                'name': 'editorial_group_page_name',
+                'object': setting_handler.get_setting('styling',
+                                                      'editorial_group_page_name',
+                                                      journal),
+            },
+            {
+                'name': 'hide_editorial_group_names',
+                'object': setting_handler.get_setting('styling',
+                                                      'hide_editorial_group_names',
+                                                      journal),
+            },
+            {
+                'name': 'multi_page_editorial',
+                'object': setting_handler.get_setting('styling',
+                                                      'multi_page_editorial',
+                                                      journal),
             }
         ]
         setting_group = 'styling'
+
     elif display_group == 'news':
         group_of_settings = [
             {
