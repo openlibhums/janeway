@@ -15,17 +15,17 @@
                 <div class="card">
                     {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">
-                        <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title|striptags }}"/>
                         <span class="card-title">
                           <div class="carousel-text-wrapper">
-                            {{ item.title }}
+                            {{ item.title|safe }}
                           </div>
                         </span>
                     </div>
                     {% endif %}
                     <div class="card-content">
                         {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
-                            <h2 class="no-top-margin">{{ item.title }}</h2>
+                            <h2 class="no-top-margin">{{ item.title|safe }}</h2>
                         {% endif %}
                         <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
                         <p>{{ item.body|truncatewords_html:50|safe }}</p>

@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
 from simple_history.models import HistoricalRecords
+from django.utils.html import mark_safe
 
 from core import files
 from core.model_utils import JanewayBleachField
@@ -151,9 +152,16 @@ class NewsItem(models.Model):
 
     def __str__(self):
         if self.posted_by:
-            return '{0} posted by {1} on {2}'.format(self.title, self.posted_by.full_name(), self.posted)
+            return '{0} posted by {1} on {2}'.format(
+                mark_safe(self.title),
+                self.posted_by.full_name(),
+                self.posted,
+            )
         else:
-            return '{0} posted on {1}'.format(self.title, self.posted)
+            return '{0} posted on {1}'.format(
+                mark_safe(self.title),
+                self.posted,
+            )
 
 
 class Tag(models.Model):

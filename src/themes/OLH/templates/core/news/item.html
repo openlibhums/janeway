@@ -2,7 +2,7 @@
 {% load truncate %}
 {% load i18n %}
 
-{% block title %}{{ journal_settings.news.news_title }} - {{ news_item.title }}{% endblock title %}
+{% block title %}{{ journal_settings.news.news_title }} - {{ news_item.title|striptags }}{% endblock title %}
 
 {% block head %}
 {% include "elements/social_meta.html" %}
@@ -17,10 +17,10 @@
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
                                 src="{{ news_item.best_image_url }}"
-                                 alt="{{ news_item.title | striptags }}">
+                                 alt="{{ news_item.title|striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
-                                <h3>{{ news_item.title }}</h3>
+                                <h3>{{ news_item.title|safe }}</h3>
                                 <p>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</p>
                             </figcaption>
                         </div>
@@ -29,7 +29,7 @@
             </div>
                 <br />
             {% else %}
-                <h1>{{ news_item.title }}</h1>
+                <h1>{{ news_item.title|safe }}</h1>
 			    <h6>{{ news_item.byline }} on {{ news_item.posted|date:"Y-m-d" }}</h6>
             {% endif %}
             <div class="row">
