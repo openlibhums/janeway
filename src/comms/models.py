@@ -30,7 +30,7 @@ class NewsItem(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    title = models.CharField(max_length=500)
+    title = JanewayBleachField()
     body = JanewayBleachField()
     posted = models.DateTimeField(default=timezone.now)
     posted_by = models.ForeignKey('core.Account', blank=True, null=True, on_delete=models.SET_NULL)
