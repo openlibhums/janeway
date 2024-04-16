@@ -12,7 +12,11 @@ from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
 from review.logic import render_choices
-from utils.forms import KeywordModelForm, JanewayTranslationModelForm
+from utils.forms import (
+    KeywordModelForm,
+    JanewayTranslationModelForm,
+    HTMLDateInput,
+)
 from utils import setting_handler
 
 from tinymce.widgets import TinyMCE
@@ -169,7 +173,9 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         )
                     elif element.kind == 'date':
                         self.fields[element.name] = forms.CharField(
-                            widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
+                            widget=HTMLDateInput(
+                                attrs={'div_class': element.width},
+                            ),
                             required=element.required)
 
                     elif element.kind == 'select':
