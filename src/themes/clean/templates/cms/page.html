@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}{{ page.display_name }}{% endblock title %}
 
@@ -7,11 +8,23 @@
 {% block body %}
     <section id="content">
         <div class="row">
-            <div class="col-md-12">
+            <div class="{% if page.display_toc %}col-md-8 col-sm-12{% else %}col-md-12{% endif %}">
                 <h1 id="cms-title">{{ page.display_name }}</h1>
                 <hr/>
-                <div id="cms">{{ page.content|safe }}</div>
+                <div id="main_article">{{ page.content|safe }}</div>
             </div>
+            {% if page.display_toc %}
+                <div class="col-md-4 d-none d-sm-none d-md-block">
+                    <div class="sticky-top">
+                        <h2>{% trans "Table of Contents" %}</h2>
+                        <ul id="toc" class="table-of-contents"></ul>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </section>
 {% endblock body %}
+
+{% block js %}
+<script src="{% static 'material/toc.js' %}"></script>
+{% endblock %}
