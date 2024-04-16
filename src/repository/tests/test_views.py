@@ -289,4 +289,23 @@ class TestModels(TestCase):
                         },
                         SERVER_NAME=self.server_name,)
         p = rm.Preprint.objects.get(pk=self.preprint_one.pk)
-        self.assertEqual(p.date_published, p.date_accepted)
+        self.assertEqual(p.date_published, FROZEN_DATETIME)
+        self.assertEqual(p.date_accepted, FROZEN_DATETIME)
+
+    @override_settings(URL_CONFIG='domain')
+    @freeze_time(FROZEN_DATETIME, tz_offset=5)
+    def test_accept_preprint_bad_date(self):
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        path = reverse('repository_manager_article',
+                       kwargs={'preprint_id': self.preprint_one.pk,})
+        self.client.force_login(self.repo_manager)
+        self.client.post(path,
+                        data={
+                            'accept': '',
+                            'datetime': "2024-35-35 10:00",
+                            'timezone': "America/Chicago"
+                        },
+                        SERVER_NAME=self.server_name,)
+        p = rm.Preprint.objects.get(pk=self.preprint_one.pk)
+        self.assertIsNone(p.date_published)
+        self.assertIsNone(p.date_accepted)
