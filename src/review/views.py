@@ -1096,7 +1096,6 @@ def add_review_assignment(request, article_id):
     reviewers = logic.get_reviewer_candidates(
         article,
         user=request.user,
-        reviewers_to_exclude=past_reviewers,
     )
 
     form = forms.ReviewAssignmentForm(
@@ -1179,7 +1178,11 @@ def add_review_assignment(request, article_id):
     context = {
         'article': article,
         'form': form,
-        'reviewers': reviewers,
+        # Exclude any past reviewers to ensure they do not show in the
+        # reviewer list twice but are valid choices.
+        'reviewers': reviewers.exclude(
+            pk__in=[reviewer.pk for reviewer in past_reviewers],
+        ),
         'new_reviewer_form': new_reviewer_form,
         'past_reviewers': past_reviewers,
     }
