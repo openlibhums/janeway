@@ -12,7 +12,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_users' %}">Users</a></li>
-    <li>{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}</li>
+    <li>{% if active == 'add' %}Add User{% else %}Edit {{user_to_edit.full_name}} {% endif %}</li>
 {% endblock %}
 
 {% block title-section %}Users{% endblock %}
@@ -23,7 +23,7 @@
 
     <div class="box">
         <div class="title-area">
-            <h2>{% if active == 'add' %}Add User{% else %}Edit {{ registration_form.email.value }}{% endif %}</h2>
+            <h2>{% if active == 'add' %}Add User{% else %}Edit {{user_to_edit.full_name}} ({{ registration_form.email.value }}) {% endif %}</h2>
         </div>
 
         <div class="content">

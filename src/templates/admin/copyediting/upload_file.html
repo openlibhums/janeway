@@ -8,7 +8,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/copyeditor_base.html" %}
+    {% include "elements/breadcrumbs/copyeditor_base.html" with subpage="yes" %}
     <li>Upload File</li>
 {% endblock breadcrumbs %}
 

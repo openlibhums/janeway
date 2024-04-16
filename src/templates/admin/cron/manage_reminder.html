@@ -10,8 +10,8 @@
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'cron_home' %}">Cron</a></li>
     <li><a href="{% url 'cron_reminders' %}">Reminders</a></li>
-    <li><a href="{% url 'cron_reminders' %}" class="active">{% if not reminder %}Add New Reminder{% else %}Edit
-        Reminder{% endif %}</a></li>
+    <li>{% if not reminder %}Add New Reminder{% else %}Edit
+        Reminder{% endif %}</li>
 {% endblock %}
 
 {% block body %}

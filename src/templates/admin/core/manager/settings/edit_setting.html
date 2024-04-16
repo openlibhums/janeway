@@ -8,24 +8,17 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     {% if request.GET.email_template %}
-        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
         <li><a href="{% url 'core_email_templates' %}">Email Templates</a></li>
-        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     {% else %}
         {% if request.journal %}
-            <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
             <li><a href="{% url 'core_settings_index' %}">Settings</a></li>
-            <li>
-                <a href="{% url 'core_edit_setting' setting.group.name setting.name %}">Edit {{ setting.pretty_name }}</a>
-            </li>
         {% else %}
             <li><a href="{% url 'core_default_settings_index' %}">Settings</a></li>
-            <li>
-                <a href="{% url 'core_edit_default_setting' setting.group.name setting.name %}">Edit {{ setting.pretty_name }}</a>
-            </li>
         {% endif %}
     {% endif %}
+    <li>Edit {{ setting.pretty_name }}</li>
 {% endblock %}
 
 {% block body %}
