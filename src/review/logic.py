@@ -86,8 +86,11 @@ def get_reviewer_candidates(article, user=None, reviewers_to_exclude=None):
     :param user: The user requesting candidates who would be filtered out
     :param reviewers_to_exclude: queryset of Account objects
     """
-    review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
-    reviewer_pks_to_exclude = [review.reviewer.pk for review in review_assignments]
+    reviewer_pks_to_exclude = [
+        review.reviewer.pk for review in article.reviewassignment_set.filter(
+            review_round=article.current_review_round_object(),
+        )
+    ]
     if user:
         reviewer_pks_to_exclude.append(user.pk)
 
