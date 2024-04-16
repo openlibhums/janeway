@@ -10,11 +10,8 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    {% if license %}
-        <li><a href="{% url 'submission_licenses' %}">Licences</a></li>
-        <li>Delete {{ license.name }}</li>
-    {% else %}
-        <li>Licences</li>
+    <li><a href="{% url 'submission_licenses' %}">Licences</a></li>
+    <li>Delete {{ license.name }}</li>
     {% endif %}
 {% endblock %}
 
