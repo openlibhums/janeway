@@ -2,75 +2,51 @@
 
 <!-- Note: this is transcluded as templated HTML because we need to pass: 1. translation templates; and 2. CSRF tokens-->
 <script>
-    function search_fundref(query) {
-        query_url = '//api.crossref.org/funders?query=' + query;
+   function search_fundref(query) {
+    var query_url = '//api.crossref.org/funders?query=' + query;
 
-        // Clear out old modals
-        console.log('Clearing old modals.')
-        $("div.fundref_modal").remove();
-        console.log('Fetching ' + query_url);
-        $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
-        fetch(query_url)
-            .then(response => response.json())
-            .then(json => {
-                const funder_span = $('#funder_list');
-                funder_span.empty();
+    // Clear out old modals
+    console.log('Clearing old modals.');
+    $("div.fundref_modal").remove();
+    console.log('Fetching ' + query_url);
+    $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
+    fetch(query_url)
+        .then(response => response.json())
+        .then(json => {
+            const funder_span = $('#funder_list');
+            funder_span.empty();
 
-                // Prep the table for display
-                const table = $('<table>').addClass('scroll');
-                const thead = $('<thead>').appendTo(table);
-                const thead_tr = $('<tr>').appendTo(thead);
-                $('<th>').attr('colspan', '2').text('{% trans "Funder" %}').appendTo(thead_tr);
+            const table = $('<table>').addClass('scroll');
+            const thead = $('<thead>').appendTo(table);
+            const thead_tr = $('<tr>').appendTo(thead);
+            $('<th>').text('{% trans "Funder" %}').appendTo(thead_tr);
+            $('<th>').text('{% trans "FundRef ID" %}').appendTo(thead_tr);
+            $('<th>').text('{% trans "Add Funder" %}').appendTo(thead_tr);
 
-                // Remove TinyMCE for the cloning process.
-                tinymce.remove();
+            $.each(json.message.items, (index, funder) => {
+                const funder_tr = $('<tr>').appendTo(table);
+                $('<td>').text(funder.name).appendTo(funder_tr);
+                $('<td>').text(funder.uri).appendTo(funder_tr);
+                const add_funder_td = $('<td>').appendTo(funder_tr);
+                const add_funder_button = $('<a>')
+                    .addClass('success button pull-right')
+                    .attr({
+                        'data-name': funder.name,
+                        'data-fundref-id': funder.uri,
+                        'data-open': 'add_funder',
+                        'name': 'add_funder_' + index
+                    })
+                    .text('{% trans "Add funder" %}')
+                    .appendTo(add_funder_td);
 
-                // Loop across each funder in the fundref response, add them to
-                // the table and create a modal for them.
-                $.each(json.message.items, (index, funder) => {
-                    const funder_tr = $('<tr>').appendTo(table);
-                    $('<td>').text(funder.name).appendTo(funder_tr);
-                    const add_funder_td = $('<td>').appendTo(funder_tr);
-                    const add_funder_button = $('<a>')
-                        .addClass('success button pull-right')
-                        .attr({
-                            'href': '#',
-                            'data-open': 'add_funder_' + index,
-                            'name': 'add_funder_' + index
-                        })
-                        .appendTo(add_funder_td);
-                    $('<i>').addClass('fa fa-plus').html('&nbsp;').appendTo(add_funder_button);
-                    $('<span>').text('{% trans "Add funder" %}').appendTo(add_funder_button);
-
-                    const cloned_modal_id = "add_funder_" + index;
-                    const cloned_modal = $("#add_funder_blank").clone().attr('id', cloned_modal_id);
-                    cloned_modal.appendTo("#modal_clones_placeholder");
-
-                    cloned_modal.find('#id_name').val(funder.name);
-                    cloned_modal.find('#id_fundref_id').val(funder.uri);
-                    const funding_statement_id = "id_funding_statement_" + index;
-
-                    // Change element IDs and label fors
-                    cloned_modal.find('#id_name').attr("id", "id_name_" + index);
-                    cloned_modal.find('#id_fundref_id').attr("id", "id_fundref_id_" + index);
-                    cloned_modal.find('#id_funding_id').attr("id", "id_funding_id_" + index);
-                    cloned_modal.find('#id_funding_statement')
-                        .attr("id", funding_statement_id)
-                        .removeAttr('data-mce-conf');
-
-                    cloned_modal.find('label[for="id_name"]').attr("for", "id_name_" + index);
-                    cloned_modal.find('label[for="id_fundref_id"]').attr("for", "id_fundref_id_" + index);
-                    cloned_modal.find('label[for="id_funding_id"]').attr("for", "id_funding_id_" + index);
-                    cloned_modal.find('label[for="id_funding_statement"]').attr("for", funding_statement_id);
-                });
-
-                // Clear the HTML, display the table and reinitialise foundation
-                // and tinyMCE.
-                funder_span.html(table);
-                $(document).foundation();
-                tinyMCE.init({
-                    selector: "textarea",
+                add_funder_button.on('click', function() {
+                    $('#id_name').val($(this).data('name'));
+                    $('#id_fundref_id').val($(this).data('fundref-id'));
                 });
             });
-    }
+
+            // Clear the HTML, display the table and reinitialize foundation
+            funder_span.html(table);
+        });
+}
 </script>
