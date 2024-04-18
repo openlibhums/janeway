@@ -135,11 +135,9 @@
             </li>
             {% hook 'journal_admin_nav_block' %}
         {% endif %}
-        {% if request.user.is_staff or any_editor %}
-            <li class="subtitle">
-                <a href="#">Version: {{ version }}</a>
-            </li>
-        {% endif %}
+        <li class="subtitle">
+            <a href="#">Version: {{ version }}</a>
+        </li>
     </ul>
 </div>
 
