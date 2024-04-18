@@ -15,7 +15,11 @@
                         <i>From: </i> {{ request.user.full_name }}({{ request.user.email }})<br />
                         <i>Subject: </i>{{ article.safe_title }} Publication
                     </p>
-                    <textarea name="notify_author_email">{{ notify_author_text|linebreaksbr }}</textarea>
+                    <textarea
+                        id="notify_author_email"
+                        name="notify_author_email">
+                        {{ notify_author_text|linebreaks }}
+                    </textarea>
 
                     <input type="checkbox" name="section_editors" id="section_editors"><label for="section_editors" class="toggle">Notify Section Editors</label>
                     <br />
@@ -33,3 +37,11 @@
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
+<script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+        tinymce.init({
+            selector: '#notify_author_email',
+        })
+    })
+</script>
+
