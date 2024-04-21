@@ -8,6 +8,7 @@
             <form method="GET" id={{ facet_form.id }}>
                 {% bootstrap_form facet_form %}
                 <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
+                <a href="{{ request.path }}" class="btn btn-secondary">{% trans 'Clear all' %}</a>
             </form>
         </div>
     </div>

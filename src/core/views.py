@@ -2442,7 +2442,7 @@ class FilteredArticlesListView(generic.ListView):
         initial = dict(params_querydict.lists())
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] in ['date_time', 'date']:
+                if facets[keyword]['type'] in ['date_time', 'date', 'integer']:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2488,7 +2488,7 @@ class FilteredArticlesListView(generic.ListView):
             if keyword in facets and value_list:
                 if value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
-                elif facets[keyword]['type'] not in ['date_time', 'date']:
+                elif facets[keyword]['type'] not in ['date_time', 'date', 'integer']:
                     if value_list[0] == '':
                         predicates = [(keyword, '')]
                     else:
@@ -2499,13 +2499,14 @@ class FilteredArticlesListView(generic.ListView):
                 for predicate in predicates:
                     query |= Q(predicate)
                 q_stack.append(query)
-        return self.order_queryset(
-            self.filter_queryset_if_journal(
-                self.queryset.filter(*q_stack)
-            )
-        ).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED,
+        self.queryset = self.filter_queryset_if_journal(
+            self.queryset.filter(*q_stack)
         )
+        if hasattr(self.model, 'stage'):
+            self.queryset = self.queryset.exclude(
+                stage=submission_models.STAGE_UNSUBMITTED
+            )
+        return self.order_queryset(self.queryset)
 
     def order_queryset(self, queryset):
         order_by = self.get_order_by()
@@ -2534,14 +2535,16 @@ class FilteredArticlesListView(generic.ListView):
     def get_facet_queryset(self):
         # The default behavior is for the facets to stay the same
         # when a filter is chosen.
-        # To make them change dynamically, return None 
+        # To make them change dynamically, return None
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
             super().get_queryset()
-        ).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED
         )
+        if hasattr(self.model, 'stage'):
+            queryset = queryset.exclude(
+                stage=submission_models.STAGE_UNSUBMITTED
+            )
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
@@ -2567,7 +2570,7 @@ class FilteredArticlesListView(generic.ListView):
 
             if request.journal:
                 querysets.extend(self.split_up_queryset_if_needed(queryset))
-            else:
+            elif hasattr(self.model, 'journal'):
                 for journal in journal_models.Journal.objects.all():
                     journal_queryset = queryset.filter(journal=journal)
                     if journal_queryset:
