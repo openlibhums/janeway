@@ -2442,7 +2442,7 @@ class FilteredArticlesListView(generic.ListView):
         initial = dict(params_querydict.lists())
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] in ['date_time', 'date', 'integer']:
+                if facets[keyword]['type'] in ['date_time', 'date', 'integer', 'search']:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2486,9 +2486,16 @@ class FilteredArticlesListView(generic.ListView):
             # The following line prevents the user from passing any parameters
             # other than those specified in the facets.
             if keyword in facets and value_list:
-                if value_list[0]:
+                if keyword == 'q':
+                    self.queryset, _duplicates = facets[keyword]['admin'].get_search_results(
+                        self.request,
+                        self.queryset,
+                        value_list[0],
+                    )
+                    predicates = []
+                elif value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
-                elif facets[keyword]['type'] not in ['date_time', 'date', 'integer']:
+                elif facets[keyword]['type'] not in ['date_time', 'date', 'integer', 'search']:
                     if value_list[0] == '':
                         predicates = [(keyword, '')]
                     else:
