@@ -649,6 +649,11 @@ class CBVFacetForm(forms.Form):
                     ),
                 )
 
+            elif facet['type'] == 'integer':
+                self.fields[facet_key] = forms.IntegerField(
+                    required=False,
+                )
+
             elif facet['type'] == 'boolean':
                 pass
 
