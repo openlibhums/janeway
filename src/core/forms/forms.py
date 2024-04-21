@@ -654,6 +654,14 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
+            elif facet['type'] == 'search':
+                self.fields[facet_key] = forms.CharField(
+                    required=False,
+                    widget=forms.TextInput(
+                        attrs={'type': 'search'}
+                    ),
+                )
+
             elif facet['type'] == 'boolean':
                 pass
 
