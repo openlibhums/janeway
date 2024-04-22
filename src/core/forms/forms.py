@@ -663,7 +663,9 @@ class CBVFacetForm(forms.Form):
                 )
 
             elif facet['type'] == 'boolean':
-                pass
+                self.fields[facet_key] = forms.BooleanField(
+                    required=False,
+                )
 
             self.fields[facet_key].label = facet['field_label']
 
