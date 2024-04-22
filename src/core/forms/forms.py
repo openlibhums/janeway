@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
-from swapper import ImproperlyConfigured
 from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
