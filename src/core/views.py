@@ -2442,7 +2442,7 @@ class FilteredArticlesListView(generic.ListView):
         initial = dict(params_querydict.lists())
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] in ['date_time', 'date', 'integer', 'search']:
+                if facets[keyword]['type'] in ['date_time', 'date', 'integer', 'search', 'boolean']:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2493,6 +2493,11 @@ class FilteredArticlesListView(generic.ListView):
                         value_list[0],
                     )
                     predicates = []
+                elif facets[keyword]['type'] == 'boolean':
+                    if value_list[0]:
+                        predicates = [(keyword, True)]
+                    else:
+                        predicates = [(keyword, False)]
                 elif value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
                 elif facets[keyword]['type'] not in ['date_time', 'date', 'integer', 'search']:
