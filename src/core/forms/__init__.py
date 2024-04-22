@@ -26,6 +26,7 @@ from core.forms.forms import (
     RegistrationForm,
     SectionForm,
     SettingEmailForm,
+    SimpleTinyMCEForm,
     UserCreationFormExtended,
     XSLFileForm,
 )

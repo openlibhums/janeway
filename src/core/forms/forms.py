@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
+from swapper import ImproperlyConfigured
 from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
@@ -816,3 +817,11 @@ class SettingEmailForm(EmailForm):
             email_context,
             setting_name,
         )
+
+class SimpleTinyMCEForm(forms.Form):
+    """ A one-field form for populating a TinyMCE textarea
+    """
+
+    def __init__(self, field_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[field_name] = forms.CharField(widget=TinyMCE)
