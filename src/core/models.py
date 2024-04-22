@@ -191,7 +191,7 @@ class AccountManager(BaseUserManager):
                 del kwargs["username"]
         try:
             validate_email(email)
-            self.normalize_email(email)
+            email = self.normalize_email(email)
         except(ValidationError, TypeError, ValueError):
             raise ValueError(f'{email} not a valid email address.')
 
