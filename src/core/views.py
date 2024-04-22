@@ -1198,9 +1198,10 @@ def add_user(request):
         if registration_form.is_valid():
             new_user = registration_form.save()
             # Every new user is given the author role
-            new_user.add_account_role('author', request.journal)
+            if request.journal:
+                new_user.add_account_role('author', request.journal)
 
-            if role:
+            if role and request.journal:
                 new_user.add_account_role(role, request.journal)
 
             form = forms.EditAccountForm(
