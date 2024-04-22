@@ -1,3 +1,5 @@
+{% load foundation %}
+
 <div class="reveal small" id="author" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
     <div class="card">
@@ -15,7 +17,7 @@
                         <i>From: </i> {{ request.user.full_name }}({{ request.user.email }})<br />
                         <i>Subject: </i>{{ article.safe_title }} Publication
                     </p>
-                    <textarea name="notify_author_email">{{ notify_author_text|linebreaksbr }}</textarea>
+                    {{ notify_author_email_form|foundation }}
 
                     <input type="checkbox" name="section_editors" id="section_editors"><label for="section_editors" class="toggle">Notify Section Editors</label>
                     <br />

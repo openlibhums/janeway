@@ -32,7 +32,6 @@ from core import (
     models as core_models,
     plugin_loader,
     logic as core_logic,
-    forms as core_forms,
     views as core_views,
 )
 from identifiers import models as id_models
@@ -1021,6 +1020,12 @@ def publish_article(request, article_id):
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
+    notify_author_email_form = core_forms.SimpleTinyMCEForm(
+        'email_to_author',
+        initial = {
+            'email_to_author': logic.get_notify_author_text(request, article)
+        }
+    )
     modal = request.GET.get('m', None)
     pubdate_errors = []
 
@@ -1189,7 +1194,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pubdate_errors': pubdate_errors,
-        'notify_author_text': logic.get_notify_author_text(request, article)
+        'notify_author_email_form': notify_author_email_form,
     }
 
     return render(request, template, context)

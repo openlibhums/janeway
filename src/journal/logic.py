@@ -279,7 +279,7 @@ def notify_author(request, article):
     kwargs = {
         'request': request,
         'article': article,
-        'user_message': request.POST.get('notify_author_email', 'No message from Editor.'),
+        'user_message': request.POST.get('email_to_author', 'No message from Editor.'),
         'section_editors': request.POST.get('section_editors', False),
         'peer_reviewers': request.POST.get('peer_reviewers', False),
     }

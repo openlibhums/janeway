@@ -1,4 +1,3 @@
-django_nose
 coverage
 ipdb
 python-wordpress-xmlrpc

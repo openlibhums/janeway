@@ -16,12 +16,8 @@ class TraceNode(template.Node):
     """
 
     def render(self, context):
-        try:
-            from nose import tools
-            tools.set_trace()         # Debugger will stop here
-        except (ModuleNotFoundError, ImportError):
-            import pdb
-            pdb.set_trace()           # Debugger will stop here
+        import pdb
+        pdb.set_trace()
         return ''
 
 

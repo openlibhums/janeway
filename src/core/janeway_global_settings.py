@@ -680,6 +680,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "fullscreen_native": True,
     "promotion": False,
     "branding": False,
+    "convert_urls": False,
     "menubar": "edit view insert format tools table help",
     "content_css": STATIC_URL + "/admin/css/admin.css",
     "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"

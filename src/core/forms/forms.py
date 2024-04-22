@@ -816,3 +816,11 @@ class SettingEmailForm(EmailForm):
             email_context,
             setting_name,
         )
+
+class SimpleTinyMCEForm(forms.Form):
+    """ A one-field form for populating a TinyMCE textarea
+    """
+
+    def __init__(self, field_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[field_name] = forms.CharField(widget=TinyMCE)
