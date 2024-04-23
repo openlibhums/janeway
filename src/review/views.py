@@ -1165,13 +1165,6 @@ def add_review_assignment(request, article_id):
                     )
                 )
 
-    display_past_reviewers = request.journal.get_setting(
-        'general',
-        'display_past_reviewers')
-    enable_suggested_reviewers = request.journal.get_setting(
-        'general',
-        'enable_suggested_reviewers',
-    )
     template = 'admin/review/add_review_assignment.html'
     context = {
         'article': article,
