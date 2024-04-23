@@ -119,6 +119,7 @@ def get_suggested_reviewers(article, reviewers):
 
     return suggested_reviewers
 
+
 def get_previous_round_reviewers(article):
     """
     Builds a queryset of candidates who have previously completed a review
