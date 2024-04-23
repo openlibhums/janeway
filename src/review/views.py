@@ -1089,7 +1089,7 @@ def add_review_assignment(request, article_id):
         article,
         user=request.user,
     )
-    suggested_reviewers = past_reviewers = list()
+    suggested_reviewers = past_reviewers = table_sort = list()
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1170,11 +1170,13 @@ def add_review_assignment(request, article_id):
         past_reviewers = logic.get_previous_round_reviewers(
             article,
         )
+        table_sort.append(7)
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):
         suggested_reviewers = logic.get_suggested_reviewers(
             article,
             reviewers,
         )
+        table_sort.append(8)
     for reviewer in reviewers:
         reviewer.is_past_reviewer = reviewer in past_reviewers
         reviewer.is_suggested_reviewer = reviewer in suggested_reviewers
@@ -1185,6 +1187,7 @@ def add_review_assignment(request, article_id):
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
+        'table_sort': table_sort,
     }
     return render(request, template, context)
 
