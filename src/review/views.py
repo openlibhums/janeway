@@ -1085,19 +1085,11 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-
-    # if setting enabled, fetch reviewers who have completed a review
-    # in a past review round.
-    past_reviewers = []
-    if request.journal.get_setting('general', 'display_past_reviewers'):
-        past_reviewers = logic.get_previous_round_reviewers(
-            article,
-        )
     reviewers = logic.get_reviewer_candidates(
         article,
         user=request.user,
     )
-
+    suggested_reviewers = past_reviewers = list()
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1174,25 +1166,26 @@ def add_review_assignment(request, article_id):
                     )
                 )
 
+    if request.journal.get_setting('general', 'display_past_reviewers'):
+        past_reviewers = logic.get_previous_round_reviewers(
+            article,
+        )
+    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
+        suggested_reviewers = logic.get_suggested_reviewers(
+            article,
+            reviewers,
+        )
+    for reviewer in reviewers:
+        reviewer.is_past_reviewer = reviewer in past_reviewers
+        reviewer.is_suggested_reviewer = reviewer in suggested_reviewers
+
     template = 'admin/review/add_review_assignment.html'
     context = {
         'article': article,
         'form': form,
-        # Exclude any past reviewers to ensure they do not show in the
-        # reviewer list twice but are valid choices.
-        'reviewers': reviewers.exclude(
-            pk__in=[reviewer.pk for reviewer in past_reviewers],
-        ),
+        'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
-        'past_reviewers': past_reviewers,
     }
-
-    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
-        context['suggested_reviewers'] = logic.get_suggested_reviewers(
-            article,
-            reviewers,
-        )
-
     return render(request, template, context)
 
 
