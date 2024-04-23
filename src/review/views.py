@@ -1089,7 +1089,6 @@ def add_review_assignment(request, article_id):
         article,
         user=request.user,
     )
-    suggested_reviewers = past_reviewers = table_sort = list()
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1173,18 +1172,12 @@ def add_review_assignment(request, article_id):
         'general',
         'enable_suggested_reviewers',
     )
-    if display_past_reviewers and enable_suggested_reviewers:
-        table_sort = [7, 8]
-    elif display_past_reviewers or enable_suggested_reviewers:
-        table_sort = [7]
-
     template = 'admin/review/add_review_assignment.html'
     context = {
         'article': article,
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
-        'table_sort': table_sort,
     }
     return render(request, template, context)
 
