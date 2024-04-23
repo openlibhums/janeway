@@ -18,6 +18,10 @@ from django.db.models import (
     OuterRef,
     Prefetch,
     Subquery,
+    Case,
+    When,
+    BooleanField,
+    Value,
 )
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
@@ -77,6 +81,31 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).annotate(
         rating_average=Subquery(rating_average, output_field=IntegerField()),
     )
+
+    if article.journal.get_setting('general', 'display_past_reviewers'):
+        completed_reviewer_pks = article.completed_reviews_with_decision.values_list(
+            'reviewer__pk',
+            flat=True,
+        )
+        reviewers = reviewers.annotate(
+            is_past_reviewer=Case(
+                When(pk__in=completed_reviewer_pks, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+        )
+
+    if article.journal.get_setting('general', 'enable_suggested_reviewers'):
+        article_keywords = [keyword.word for keyword in article.keywords.all()]
+        reviewers = reviewers.annotate(
+            is_suggested_reviewer=Case(
+                When(interest__name__in=article_keywords,
+                     then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+
     return reviewers
 
 
