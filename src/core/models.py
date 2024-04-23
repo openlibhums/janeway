@@ -196,10 +196,12 @@ class AccountManager(BaseUserManager):
             raise ValueError(f'{email} not a valid email address.')
 
         account = self.model(
+            # The original case of the email is preserved
+            # in the email field
             email=email,
-            # Lowercasing the email into the username gets around duplicate
-            # accounts due to case-sensitivity. We still preserve the original
-            # casing for the email field and rely on username for CI constraint
+            # The email is lowercased in the username field
+            # so that we can perform case-insensitive checking
+            # and avoid creating duplicate accounts
             username=email.lower(),
         )
 
