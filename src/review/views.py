@@ -1166,20 +1166,17 @@ def add_review_assignment(request, article_id):
                     )
                 )
 
-    if request.journal.get_setting('general', 'display_past_reviewers'):
-        past_reviewers = logic.get_previous_round_reviewers(
-            article,
-        )
-        table_sort.append(7)
-    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
-        suggested_reviewers = logic.get_suggested_reviewers(
-            article,
-            reviewers,
-        )
-        table_sort.append(8)
-    for reviewer in reviewers:
-        reviewer.is_past_reviewer = reviewer in past_reviewers
-        reviewer.is_suggested_reviewer = reviewer in suggested_reviewers
+    display_past_reviewers = request.journal.get_setting(
+        'general',
+        'display_past_reviewers')
+    enable_suggested_reviewers = request.journal.get_setting(
+        'general',
+        'enable_suggested_reviewers',
+    )
+    if display_past_reviewers and enable_suggested_reviewers:
+        table_sort = [7, 8]
+    elif display_past_reviewers or enable_suggested_reviewers:
+        table_sort = [7]
 
     template = 'admin/review/add_review_assignment.html'
     context = {
