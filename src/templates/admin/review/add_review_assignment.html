@@ -32,7 +32,7 @@
 
                     {% if past_reviewers %}
                         <div class="callout primary">
-                            <p><span class="fa fa-info-circle"></span> Reviewers who have compeleted a review for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Reviewed Article</strong> column.</p>
+                            <p><span class="fa fa-info-circle"></span> Reviewers who have completed a review for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Reviewed Article</strong> column.</p>
                         </div>
                     {% endif %}
 
@@ -46,35 +46,19 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
-                            {% if past_reviewers %}<th>Has Reviewed Article</th>{% endif %}
+                            {% if journal_settings.general.display_past_reviewers %}<th>Has Reviewed Article</th>{% endif %}
+                            {% if journal_settings.general.enable_suggested_reviewers %}<th>Suggested Reviewer</th>{% endif %}
                         </tr>
                         </thead>
 
                         <tbody>
-                        {% for reviewer in past_reviewers %}
-                            <tr>
-                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
-                            </tr>
-                        {% endfor %}
-                        {% for reviewer in suggested_reviewers %}
-                            <tr class="green">
-                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
-                            </tr>
-                        {% endfor %}
                         {% for reviewer in reviewers %}
-                            {% if not journal_settings.general.enable_suggested_reviewers or not reviewer in suggested_reviewers %}
                             <tr>
-                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer past_reviewers=past_reviewers %}
+                                {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
                             </tr>
-                            {% endif %}
                         {% empty %}
                             <tr>
-                                <td>No suitable reviewers.</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td colspan="10">No suitable reviewers.</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -175,7 +159,7 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#reviewers" %}
+    {% include "elements/datatables.html" with target="#reviewers" sort="8,9" order="desc" %}
     {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
