@@ -159,7 +159,14 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#reviewers" sort_list=table_sort order="desc" %}
+    {% if journal_settings.general.display_past_reviewers and journal_settings.general.enable_suggested_reviewers %}
+        {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc'], [8, 'desc']" %}
+    {% elif journal_settings.general.display_past_reviewers or journal_settings.general.enable_suggested_reviewers %}
+        {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc']" %}
+    {% else %}
+        {% include "elements/datatables.html" with target="#reviewers" %}
+    {% endif %}
+
     {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
