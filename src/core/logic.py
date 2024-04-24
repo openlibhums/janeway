@@ -389,10 +389,6 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
             {
-                'name': 'display_past_reviewers',
-                'object': setting_handler.get_setting('general', 'display_past_reviewers', journal),
-            },
-            {
                 'name': 'enable_peer_review_data_on_review_page',
                 'object': setting_handler.get_setting('general', 'enable_peer_review_data_on_review_page', journal),
             },
