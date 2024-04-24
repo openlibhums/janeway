@@ -108,50 +108,7 @@
         </div>
     </div>
     {% endif %}
-
-    <div class="reveal large" id="enroll" data-reveal data-animation-in="slide-in-up"
-     data-animation-out="slide-out-down">
-        <div class="card">
-            <div class="card-divider">
-                <h4><i class="fa fa-users">&nbsp;</i>Enroll Existing User as Reviewer</h4>
-            </div>
-            <div class="card-section">
-                <button class="close-button" data-close aria-label="Close reveal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <div class="content">
-                    <form method="POST">
-                        {% include "elements/forms/errors.html" with form=new_reviewer_form %}
-                        {% csrf_token %}
-                        <table class="small scroll" id="enrolluser">
-                            <thead>
-                            <tr>
-                                <th>Select</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email Address</th>
-                                <th>Interests</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for user in user_list %}
-                                <tr>
-                                    <td><input type="checkbox" name="user_id" value="{{ user.pk }}"></td>
-                                    <td>{{ user.first_name }}</td>
-                                    <td>{{ user.last_name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.interests.all }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                        <button type="submit" class="button success" name="enrollusers" id="enrollusers">Enroll as Reviewer</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
+AI
     {% if form.modal %}
         {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="review_assignment_form" %}
     {% endif %}
@@ -171,7 +128,6 @@
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}
-    {% include "elements/datatables.html" with target="#enrolluser" %}
 
     <script lang="javascript">
     function getQueryStrings()
