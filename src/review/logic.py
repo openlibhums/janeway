@@ -67,6 +67,11 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         rating_average=Avg("rating"),
     ).values("rating_average")
 
+    completed_reviewer_pks_subquery = article.completed_reviews_with_decision.values_list(
+        'reviewer__pk',
+        flat=True,
+    )
+
     # TODO swap the below subqueries with filtered annotations on Django 2.0+
     reviewers = candidate_queryset.exclude(
         pk__in=exclude_pks,
@@ -80,21 +85,13 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         )
     ).annotate(
         rating_average=Subquery(rating_average, output_field=IntegerField()),
+        is_past_reviewer=Case(
+            When(pk__in=Subquery(completed_reviewer_pks_subquery),
+                 then=True),
+            default=False,
+            output_field=BooleanField(),
+        ),
     )
-
-    if article.journal.get_setting('general', 'display_past_reviewers'):
-        completed_reviewer_pks_subquery = article.completed_reviews_with_decision.values_list(
-            'reviewer__pk',
-            flat=True,
-        )
-        reviewers = reviewers.annotate(
-            is_past_reviewer=Case(
-                When(pk__in=Subquery(completed_reviewer_pks_subquery),
-                     then=True),
-                default=False,
-                output_field=BooleanField(),
-            ),
-        )
 
     if article.journal.get_setting('general', 'enable_suggested_reviewers'):
         article_keywords = [keyword.word for keyword in article.keywords.all()]
