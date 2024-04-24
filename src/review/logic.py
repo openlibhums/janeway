@@ -83,13 +83,14 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     )
 
     if article.journal.get_setting('general', 'display_past_reviewers'):
-        completed_reviewer_pks = article.completed_reviews_with_decision.values_list(
+        completed_reviewer_pks_subquery = article.completed_reviews_with_decision.values_list(
             'reviewer__pk',
             flat=True,
         )
         reviewers = reviewers.annotate(
             is_past_reviewer=Case(
-                When(pk__in=completed_reviewer_pks, then=True),
+                When(pk__in=Subquery(completed_reviewer_pks_subquery),
+                     then=True),
                 default=False,
                 output_field=BooleanField(),
             ),
