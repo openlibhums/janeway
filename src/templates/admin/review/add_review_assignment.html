@@ -22,19 +22,27 @@
                         <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
                 </div>
                 <div class="content">
-
-                    <p>
-                        {% blocktrans %}
-                        You can select a reviewer using the radio buttons in the first column and complete the section under "Set Options".
-                        If you cannot find the reviewer you want in this list you can use "Enroll Existing User" to search the database and give users the Reviewer role, or "Add New Reviewer" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).
-                        {% endblocktrans %}
-                    </p>
-
-                    {% if journal_settings.general.display_past_reviewers %}
-                        <div class="callout primary">
-                            <p><span class="fa fa-info-circle"></span> Reviewers who have completed a review for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Reviewed Article</strong> column.</p>
-                        </div>
-                    {% endif %}
+                    <div class="callout primary">
+                        <p> <span class="fa fa-info-circle"></span>
+                            {% blocktrans %}
+                                You can select a reviewer using the radio
+                                buttons in the first column and complete the
+                                section under 'Set Options'.
+                                If you cannot find the reviewer you want in
+                                this list you can use 'Enroll Existing User' to
+                                search the database and give users the Reviewer
+                                role, or 'Add New Reviewer' to create a new
+                                account for a reviewer (this process is silent,
+                                they will not receive an account creation
+                                email).
+                            {% endblocktrans %}
+                        </p>
+                        <p> Reviewers who have completed a review for this
+                            article in a previous round will appear at the top
+                            of this list, they will show with 'Yes' in the
+                            'Has Reviewed Article' column.
+                        </p>
+                    </div>
 
                     <table class="small scroll" id="reviewers">
                         <thead>
@@ -46,7 +54,7 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
-                            {% if journal_settings.general.display_past_reviewers %}<th>Has Reviewed Article</th>{% endif %}
+                            <th>Has Reviewed Article</th>
                             {% if journal_settings.general.enable_suggested_reviewers %}<th>Suggested Reviewer</th>{% endif %}
                         </tr>
                         </thead>
@@ -116,12 +124,10 @@ AI
 {% endblock body %}
 
 {% block js %}
-    {% if journal_settings.general.display_past_reviewers and journal_settings.general.enable_suggested_reviewers %}
+    {% if journal_settings.general.enable_suggested_reviewers %}
         {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc'], [8, 'desc']" %}
-    {% elif journal_settings.general.display_past_reviewers or journal_settings.general.enable_suggested_reviewers %}
-        {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc']" %}
     {% else %}
-        {% include "elements/datatables.html" with target="#reviewers" %}
+        {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc']" %}
     {% endif %}
 
     {% include "elements/datepicker.html" with target="#id_date_due" %}
