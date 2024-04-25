@@ -177,7 +177,6 @@ class Command(BaseCommand):
         shared.clear_cache()
         try:
             columns = os.get_terminal_size().columns
-            print(columns)
             if columns <= 144:
                 print(JANEWAY_ASCII_SMALL)
             else:
