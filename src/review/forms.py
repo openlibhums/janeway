@@ -448,7 +448,7 @@ class ShareReviewsForm(forms.Form):
 
         for review in reviews:
             self.fields[f'{ review.pk }'] = forms.CharField(
-                widget=SummernoteWidget,
+                widget=TinyMCE,
                 label=f'Email for {review.reviewer.full_name()}',
                 initial=review.email_content,
             )
