@@ -28,7 +28,7 @@ Faker==17.6.0
 freezegun==1.2.0
 geoip2==4.8.0
 html2text==2017.10.4
-idna==2.7
+idna==3.7
 ipaddress==1.0.16
 more-itertools==10.1.0
 jsmin==3.0.1
