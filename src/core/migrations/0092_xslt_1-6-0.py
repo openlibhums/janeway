@@ -59,7 +59,7 @@ def upgrade(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0091_merge_20240425_1555.py'),
+        ('core', '0091_merge_20240425_1555'),
     ]
 
     operations = [
