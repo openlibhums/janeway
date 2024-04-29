@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('utils', '0032_upgrade_1_5_2'),
-        ('core', '0092_xslt_1-6-0.py'),
+        ('core', '0092_xslt_1-6-0'),
     ]
 
     operations = [
