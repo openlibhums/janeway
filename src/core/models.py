@@ -940,8 +940,8 @@ class File(AbstractLastModifiedModel):
                 kwargs=url_kwargs,
             )
 
-    def get_file(self, article):
-        return files.get_file(self, article)
+    def get_file(self, article, as_bytes=False):
+        return files.get_file(self, article, as_bytes=as_bytes)
 
     def get_file_path(self, article):
         return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
