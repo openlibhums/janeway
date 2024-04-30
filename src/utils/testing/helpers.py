@@ -30,7 +30,7 @@ from review.const import ReviewerDecisions as RD
 from cms import models as cms_models
 
 
-def create_user(username, roles=None, journal=None, **attrs):
+def create_user(username, roles=None, journal=None, is_staff=False, **attrs):
     """
     Creates a user with the specified permissions.
     :username: A unique username to set the user username and email
@@ -63,6 +63,8 @@ def create_user(username, roles=None, journal=None, **attrs):
 
     for attr, value in attrs.items():
         setattr(user, attr, value)
+
+    user.is_staff = is_staff
 
     user.save()
 
