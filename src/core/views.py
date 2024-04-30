@@ -1321,13 +1321,15 @@ def enrol_users(request):
     first_name = request.GET.get('first_name', '')
     last_name = request.GET.get('last_name', '')
     email = request.GET.get('email', '')
-    roles = models.Role.objects.exclude(
+    assignable_roles = models.Role.objects.exclude(
         slug__in=['reader'],
     ).order_by(('name'))
 
     # if the current user is not staff, exclude the journal-manager role.
     if not request.user.is_staff:
-        roles.exclude(slug__in='journal-manager')
+        assignable_roles = assignable_roles.exclude(
+            slug='journal-manager',
+        )
 
     if first_name or last_name or email:
         filters = {}
@@ -1343,7 +1345,7 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': roles,
+        'roles': assignable_roles,
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
