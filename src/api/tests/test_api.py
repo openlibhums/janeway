@@ -70,6 +70,7 @@ class TestAPI(TestCase):
             )
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_editor_cannot_assign_journal_manager_role(self):
         self.api_client.force_authenticate(user=self.editor)
         url = self.journal.site_url(
