@@ -18,25 +18,19 @@ class TestAPI(TestCase):
             roles=['author'],
             journal=cls.journal,
             is_staff=True,
-            atrrs={
-                'is_active': True,
-            }
+            is_active=True,
         )
         cls.editor = helpers.create_user(
             username='h.kim@voyager.com',
             roles=['editor'],
             journal=cls.journal,
-            atrrs={
-                'is_active': True,
-            }
+            is_active=True,
         )
         cls.average_user = helpers.create_user(
             'a.redshirt@voyager.com',
             roles=['author'],
             journal=cls.journal,
-            attrs={
-                'is_active': True,
-            }
+            is_active=True,
         )
         helpers.create_roles(
             ['journal-manager'],
