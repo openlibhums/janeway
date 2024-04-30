@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
+from django.core.files.base import ContentFile
 from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
@@ -1433,11 +1434,17 @@ def article_file_make_galley(request, article_id, file_id):
     """
     article_object = get_object_or_404(
         submission_models.Article, pk=article_id)
-    file_object = get_object_or_404(
+    janeway_file = get_object_or_404(
         core_models.File, pk=file_id)
 
-    journal_logic.create_galley_from_file(
-        file_object, article_object, owner=request.user)
+    blob = janeway_file.get_file(article_object, as_bytes=True)
+    content_file = ContentFile(blob)
+    content_file.name = janeway_file.original_filename
+    production_logic.save_galley(
+        article_object, request, content_file,
+        is_galley=True,
+    )
+
 
     return redirect(request.GET['return'])
 
