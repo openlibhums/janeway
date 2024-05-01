@@ -39,6 +39,7 @@ import swapper
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import(
     AbstractLastModifiedModel,
+    DynamicChoiceField,
     BaseSearchManagerMixin,
     JanewayBleachField,
     JanewayBleachCharField,
@@ -416,34 +417,6 @@ class ArticleManager(models.Manager):
 
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().all()
-
-
-class DynamicChoiceField(models.CharField):
-    def __init__(self, dynamic_choices=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.dynamic_choices = dynamic_choices
-
-    def formfield(self, *args, **kwargs):
-        form_element = super().formfield(**kwargs)
-        for choice in self.dynamic_choices:
-            form_element.choices.append(choice)
-        return form_element
-
-    def validate(self, value, model_instance):
-        """
-        Validates value and throws ValidationError.
-        """
-        try:
-            super().validate(value, model_instance)
-        except exceptions.ValidationError as e:
-            # If the raised exception is for invalid choice we check if the
-            # choice is in dynamic choices.
-            if e.code == 'invalid_choice':
-                potential_values = set(
-                    item[0] for item in self.dynamic_choices
-                )
-                if value not in potential_values:
-                    raise
 
 
 class ArticleSearchManager(BaseSearchManagerMixin):
