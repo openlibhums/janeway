@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.db.models import Q, Count
 from django.http import Http404, HttpResponse, JsonResponse
@@ -902,9 +903,19 @@ def article_file_make_galley(request, article_id, file_id):
     :return: a redirect to the URL at the GET parameter 'return'
     """
     article_object = get_object_or_404(submission_models.Article, pk=article_id)
-    file_object = get_object_or_404(core_models.File, pk=file_id)
+    janeway_file = get_object_or_404(core_models.File, pk=file_id)
+    blob = janeway_file.get_file(article_object, as_bytes=True)
+    content_file = ContentFile(blob)
+    content_file.name = janeway_file.original_filename
 
-    logic.create_galley_from_file(file_object, article_object, owner=request.user)
+
+    # Avoid circular import.
+    from production import logic as production_logic
+
+    production_logic.save_galley(
+        article_object, request, content_file,
+        is_galley=True,
+    )
 
     return redirect(request.GET['return'])
 

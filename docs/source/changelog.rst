@@ -1,5 +1,8 @@
 Changelog
 =========
+
+Release notes have moved to [Github](https://github.com/BirkbeckCTP/janeway/releases)
+
 v1.5.1 Archer
 -------------
 Upgrade Notes
