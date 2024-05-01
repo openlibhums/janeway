@@ -1906,23 +1906,24 @@ class FrozenAuthor(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
-    name_prefix = models.CharField(
-        max_length=300, null=True, blank=True,
+    name_prefix = JanewayBleachCharField(
+        max_length=300,
+        blank=True,
         help_text=_("Optional name prefix (e.g: Prof or Dr)")
 
         )
-    name_suffix = models.CharField(
-        max_length=300, null=True, blank=True,
+    name_suffix = JanewayBleachCharField(
+        max_length=300,
+        blank=True,
         help_text=_("Optional name suffix (e.g.: Jr or III)")
     )
-    first_name = models.CharField(max_length=300, null=True, blank=True)
-    middle_name = models.CharField(max_length=300, null=True, blank=True)
-    last_name = models.CharField(max_length=300, null=True, blank=True)
+    first_name = JanewayBleachCharField(max_length=300, blank=True)
+    middle_name = JanewayBleachCharField(max_length=300, blank=True)
+    last_name = JanewayBleachCharField(max_length=300, blank=True)
 
-    institution = models.CharField(max_length=1000, null=True, blank=True)
-    department = models.CharField(max_length=300, null=True, blank=True)
+    institution = JanewayBleachCharField(max_length=1000, blank=True)
+    department = JanewayBleachCharField(max_length=300, blank=True)
     frozen_biography = JanewayBleachField(
-        null=True,
         blank=True,
         verbose_name=_('Frozen Biography'),
         help_text=_("The author's biography at the time they published"
@@ -1981,7 +1982,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
             self.name_suffix
         ]
         return " ".join([each for each in name_elements if each])
-        full_name = u"%s %s" % (self.first_name, self.last_name)
 
     @property
     def dc_name_string(self):
