@@ -324,10 +324,6 @@ msgstr "Andere"
 msgid "Image"
 msgstr "Bild"
 
-#: src/core/models.py:1492
-msgid "Who would you like to contact"
-msgstr "Wen möchten Sie kontaktieren"
-
 #: src/core/models.py:1493
 msgid "Your contact email address"
 msgstr "Ihre Kontaktadresse (E-Mail)"
@@ -1639,6 +1635,7 @@ msgstr "Kontaktinformationen"
 msgid "Contact"
 msgstr "Kontakt"
 
+#: src/core/models.py:1492
 #: src/templates/admin/journal/contact.html:38
 #: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22

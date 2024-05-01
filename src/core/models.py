@@ -1533,7 +1533,7 @@ class Contacts(models.Model):
 
 
 class Contact(models.Model):
-    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact'))
+    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact?'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
     body = JanewayBleachField(verbose_name=_('Your message'))

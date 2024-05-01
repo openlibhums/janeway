@@ -339,10 +339,6 @@ msgid "Image"
 msgstr ""
 
 #: src/core/models.py:1492
-#, fuzzy
-#| msgid "Who would you like to contact?"
-msgid "Who would you like to contact"
-msgstr "Chi vorresti contattare?"
 
 #: src/core/models.py:1493
 msgid "Your contact email address"

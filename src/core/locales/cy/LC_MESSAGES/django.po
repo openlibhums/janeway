@@ -338,12 +338,6 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
-#: src/core/models.py:1492
-#, fuzzy
-#| msgid "Who would you like to contact?"
-msgid "Who would you like to contact"
-msgstr "Pwy hoffech gysylltu â nhw?"
-
 #: src/core/models.py:1493
 msgid "Your contact email address"
 msgstr "Eich cyfeiriad ebost cyswllt "
@@ -1639,6 +1633,7 @@ msgstr "Manylion Cyswllt"
 msgid "Contact"
 msgstr "Cysylltu"
 
+#: src/core/models.py:1492
 #: src/templates/admin/journal/contact.html:38
 #: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22
