@@ -30,5 +30,4 @@ class NewsItemForm(forms.ModelForm):
         widgets = {
             'start_display': HTMLDateInput,
             'end_display': HTMLDateInput,
-            'title': forms.TextInput,
         }
