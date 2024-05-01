@@ -21,8 +21,8 @@
                                 {% endif %}
                              alt="{{ carousel_item.carousel_title|striptags }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
-                             <p>{{ carousel_item.carousel_subtitle }}</p>
-                             <h2>{{ carousel_item.carousel_title|safe|truncatechars:200 }}</h2>
+                             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
+                             <h2>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
                         </div>
                     </div>
                 {% endfor %}
