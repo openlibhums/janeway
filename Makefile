@@ -137,3 +137,11 @@ basebuild:		## Builds the base docker image
 	bash -c "docker build --no-cache -t birkbeckctp/janeway-base:latest -f dockerfiles/Dockerfile.base ."
 snakeviz:
 	docker-compose run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
+ci:				## Runs Janeway's CI job in a container
+	docker build -t janeway_jenkins_build_${BUILD_TAG}_ci -f jenkins/Dockerfile.jenkins .
+	echo "Running Unit Tests and Coverage"
+	docker run \
+    -v `pwd`/jenkins:/vol/janeway/jenkins \
+    -v `pwd`/logs:/vol/janeway/logs \
+    -e JANEWAY_SETTINGS_MODULE=core.jenkins_settings \
+    --rm janeway_jenkins_build_${BUILD_TAG}_ci test
