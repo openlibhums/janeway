@@ -4,7 +4,7 @@
 <section class="dark-primary-bg">
     <div class="row" id="about_journal">
         <div class="large-12 columns">
-            <h2>{{ title_value }}</h2>
+            <h2>{{ title_value|safe }}</h2>
             <p>{{ journal_settings.general.journal_description|safe }}</p>
         </div>
     </div>

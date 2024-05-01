@@ -4,7 +4,7 @@
     <div class="col m12">
         <div class="card">
             <div class="card-content">
-                <span class="card-title">{{ title_value }}</span>
+                <span class="card-title">{{ title_value|safe }}</span>
                 <p>{{ journal_settings.general.journal_description|safe }}</p>
             </div>
         </div>
