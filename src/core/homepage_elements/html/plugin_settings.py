@@ -14,6 +14,15 @@ AUTHOR = 'Andy Byers'
 VERSION = 1.0
 
 
+def get_self():
+    try:
+        return models.Plugin.objects.get(
+            name=PLUGIN_NAME,
+        )
+    except models.Plugin.DoesNotExist:
+        return None
+
+
 def install():
     import core.models as core_models
     import journal.models as journal_models
