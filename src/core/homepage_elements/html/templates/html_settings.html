@@ -17,20 +17,10 @@
         <div class="box">
             <form method="POST">
                 {% csrf_token %}
-                <textarea rows="10" name="html_block_content">{{ html_block_content }}</textarea>
+                {{ form }}
                 <button type="submit" class="success button">Save</button>
-                <a href="{% url 'html_settings' %}?disable_rich_text=True" class="warning button float-right">Disable
-                    Rich Tech Editor</a>
                 <br/>
             </form>
         </div>
     </div>
 {% endblock body %}
-
-{% block js %}
-    {% if not disable_rich_text %}
-    {% include "elements/jqte.html" %}
-    {% endif %}
-{% endblock js %}
-
-
