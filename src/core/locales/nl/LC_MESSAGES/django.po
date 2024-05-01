@@ -334,12 +334,6 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
-#: src/core/models.py:1492
-#, fuzzy
-#| msgid "Who would you like to contact?"
-msgid "Who would you like to contact"
-msgstr "Wie wilt u contacteren?"
-
 #: src/core/models.py:1493
 msgid "Your contact email address"
 msgstr "Uw contact e-mailadres"
@@ -1653,6 +1647,7 @@ msgstr "Contact informatie"
 msgid "Contact"
 msgstr "Contacteer"
 
+#: src/core/models.py:1492
 #: src/templates/admin/journal/contact.html:38
 #: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22

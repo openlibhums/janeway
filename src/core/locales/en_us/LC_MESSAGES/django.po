@@ -323,10 +323,6 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
-#: src/core/models.py:1492
-msgid "Who would you like to contact"
-msgstr ""
-
 #: src/core/models.py:1493
 msgid "Your contact email address"
 msgstr ""

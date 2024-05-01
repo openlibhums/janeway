@@ -690,6 +690,7 @@ msgstr "Representantes de la revista"
 msgid "Press Representatives"
 msgstr "Representantes editoriales"
 
+#: src/core/models.py:1492
 #: src/templates/admin/journal/contact.html:38
 #: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22
@@ -4101,10 +4102,6 @@ msgstr ""
 
 #: src/core/models.py:857
 msgid "Remote URL of file"
-msgstr ""
-
-#: src/core/models.py:1492
-msgid "Who would you like to contact"
 msgstr ""
 
 #: src/core/views.py:78
