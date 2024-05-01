@@ -612,3 +612,31 @@ def default_press_id():
     default_press_obj = default_press()
     if default_press_obj:
         return default_press_obj.pk
+
+
+class DynamicChoiceField(models.CharField):
+    def __init__(self, dynamic_choices=(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_choices = dynamic_choices
+
+    def formfield(self, *args, **kwargs):
+        form_element = super().formfield(**kwargs)
+        for choice in self.dynamic_choices:
+            form_element.choices.append(choice)
+        return form_element
+
+    def validate(self, value, model_instance):
+        """
+        Validates value and throws ValidationError.
+        """
+        try:
+            super().validate(value, model_instance)
+        except exceptions.ValidationError as e:
+            # If the raised exception is for invalid choice we check if the
+            # choice is in dynamic choices.
+            if e.code == 'invalid_choice':
+                potential_values = set(
+                    item[0] for item in self.dynamic_choices
+                )
+                if value not in potential_values:
+                    raise
