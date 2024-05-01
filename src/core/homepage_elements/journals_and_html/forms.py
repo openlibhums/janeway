@@ -1,13 +1,13 @@
 from django import forms
+from tinymce.widgets import TinyMCE
 
 from press import models
 from journal import models as jm
-from django_summernote.widgets import SummernoteWidget
 
 
 class JournalsHTMLForm(forms.ModelForm):
     html_content = forms.CharField(
-        widget=SummernoteWidget,
+        widget=TinyMCE,
         label='HTML Content'
     )
 
