@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
+from core.homepage_elements.html import forms
 from utils import setting_handler, models
 from security.decorators import editor_user_required
 
@@ -15,7 +16,7 @@ from security.decorators import editor_user_required
 def html_settings(request):
     plugin = models.Plugin.objects.get(name='HTML')
 
-    html_block_content = setting_handler.get_plugin_setting(
+    html_content = setting_handler.get_plugin_setting(
         plugin,
         'html_block_content',
         request.journal,
@@ -23,19 +24,24 @@ def html_settings(request):
         pretty='HTML Block Content'
     ).value
 
+    form = forms.HTMLForm(
+        initial={
+            'html_content': html_content,
+        }
+    )
+
     if request.POST:
-        html_block_content = request.POST.get('html_block_content')
-        setting_handler.save_plugin_setting(plugin,
-                                            'html_block_content',
-                                            html_block_content,
-                                            request.journal)
-        messages.add_message(request, messages.INFO, 'HTML Block updated.')
+        form = forms.HTMLForm(
+            request.POST,
+        )
+        if form.is_valid():
+            form.save(request.journal)
+            messages.add_message(request, messages.INFO, 'HTML Block updated.')
         return redirect(reverse('home_settings_index'))
 
     template = 'html_settings.html'
     context = {
-        'html_block_content': html_block_content,
-        'disable_rich_text': request.GET.get('disable_rich_text', False)
+        'form': form,
     }
 
     return render(request, template, context)
