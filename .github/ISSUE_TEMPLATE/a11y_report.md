@@ -5,9 +5,6 @@ title: ''
 labels: a11y
 assignees: ''
 ---
-## Missing Alt-text
-Please do not currently report missing alt-text for images unless you are part of the alt-text audit.
-
 ## Report Issue
 **Describe the inaccessible feature**
 A clear and concise description of what cannot be accessed.
