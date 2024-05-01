@@ -9,7 +9,7 @@ from simple_history.models import HistoricalRecords
 from django.utils.html import mark_safe
 
 from core import files
-from core.model_utils import JanewayBleachField
+from core.model_utils import JanewayBleachField, JanewayBleachCharField
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -30,7 +30,7 @@ class NewsItem(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    title = JanewayBleachField()
+    title = JanewayBleachCharField()
     body = JanewayBleachField()
     posted = models.DateTimeField(default=timezone.now)
     posted_by = models.ForeignKey('core.Account', blank=True, null=True, on_delete=models.SET_NULL)

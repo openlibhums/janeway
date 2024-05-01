@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='historicalnewsitem',
             name='title',
-            field=core.model_utils.JanewayBleachField(),
+            field=core.model_utils.JanewayBleachCharField(),
         ),
         migrations.AlterField(
             model_name='newsitem',
             name='title',
-            field=core.model_utils.JanewayBleachField(),
+            field=core.model_utils.JanewayBleachCharField(),
         ),
     ]
