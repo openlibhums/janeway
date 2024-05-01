@@ -284,7 +284,7 @@ class Press(AbstractSiteModel):
 
     @property
     def active_carousel(self):
-        """ Renders a carousel for the journal homepage.
+        """ Renders a carousel for the press homepage.
         :return: a tuple containing the active carousel and list of associated articles
         """
         if self.carousel is None or not self.carousel.enabled:
