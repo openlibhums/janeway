@@ -40,6 +40,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
     AbstractSiteModel,
+    DynamicChoiceField,
     JanewayBleachField,
     PGCaseInsensitiveEmailField,
     SearchLookup,
@@ -267,7 +268,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Country'),
         on_delete=models.SET_NULL,
     )
-    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES, verbose_name=_("Preferred Timezone"))
+    preferred_timezone = DynamicChoiceField(
+            max_length=300, null=True, blank=True,
+            choices=tuple(),
+            dynamic_choices=TIMEZONE_CHOICES,
+            verbose_name=_("Preferred Timezone")
+        )
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
