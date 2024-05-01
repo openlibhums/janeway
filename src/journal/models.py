@@ -34,6 +34,7 @@ from core.model_utils import (
     SVGImageField,
     AbstractLastModifiedModel,
     JanewayBleachField,
+    JanewayBleachCharField,
 )
 from press import models as press_models
 from submission import models as submission_models
@@ -1078,8 +1079,8 @@ class IssueType(models.Model):
     )
     code = models.CharField(max_length=255)
 
-    pretty_name = models.CharField(max_length=255)
-    custom_plural = models.CharField(max_length=255, blank=True, null=True)
+    pretty_name = JanewayBleachCharField(max_length=255)
+    custom_plural = JanewayBleachCharField(max_length=255, blank=True)
 
     def __str__(self):
         return (
