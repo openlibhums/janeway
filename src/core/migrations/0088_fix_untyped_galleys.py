@@ -16,7 +16,7 @@ def fix_untyped_galleys(apps, schema_editor):
 
     Galley = apps.get_model('core', 'Galley')
     ArticleAccess = apps.get_model('metrics','ArticleAccess')
-    for galley in Galley.objects.filter(type="",file__isnull=True, article__isnull=True):
+    for galley in Galley.objects.filter(type="",file__isnull=False, article__isnull=False):
         _, galley_type = get_galley_label_and_type(galley.file)
         galley.galley_type = galley_type
         galley.save()
