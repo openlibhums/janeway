@@ -43,7 +43,7 @@
                             <span class="card-title">
                                 {{ item.title|capfirst }}
                             </span>
-                            <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                            <p>{% trans "The following licences are allowed:" %}</p>
                             {% include "elements/license_block.html" %}
                         {% elif item.title == 'sections' %}
                             <span class="card-title">
