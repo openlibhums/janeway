@@ -235,7 +235,7 @@ def get_reset_token(request):
             messages.add_message(
                 request, 
                 messages.INFO,
-                'If your account was found, an email has been sent to you.',
+                _('If your account was found, an email has been sent to you.'),
                 )
             try:
                 account = models.Account.objects.get(email__iexact=email_address)
