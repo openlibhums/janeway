@@ -21,8 +21,8 @@
                                      {% endif %}
                                      alt="{{ carousel_item.carousel_title|striptags }}">
                                 <figcaption class="orbit-caption">
-                                    <p>{{ carousel_item.carousel_subtitle }}</p>
-                                    <h3 style="">{{ carousel_item.carousel_title|striptags|truncatechars:200 }}</h3>
+                                    <p>{{ carousel_item.carousel_subtitle|safe }}</p>
+                                    <h3>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
                                     {% if request.site_type.code == 'press' and carousel_item.stage %}<p>Published in: {{ carousel_item.journal.name }}</p>{% endif %}
                                 </figcaption>
                             </li>
