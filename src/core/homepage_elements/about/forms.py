@@ -1,4 +1,5 @@
 from django import forms
+from tinymce.widgets import TinyMCE
 
 from utils import setting_handler
 from core.homepage_elements.about import plugin_settings
@@ -9,7 +10,7 @@ class AboutForm(forms.Form):
         help_text='The title of the about block eg. "About this Journal"',
     )
     description = forms.CharField(
-        widget=forms.Textarea,
+        widget=TinyMCE,
         help_text='A general description of the journal.',
     )
 
