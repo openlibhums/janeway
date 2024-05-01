@@ -37,7 +37,7 @@
                 {% for item in submission_items %}
                     {% if item.title == 'licences' %}
                         <h3>{% trans 'Licences' %}</h3>
-                        <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                        <p>{% trans "The following licences are allowed:" %}</p>
                         {% include "elements/license_block.html" %}
                         <hr />
                     {% elif item.title == 'sections' %}

@@ -24,7 +24,7 @@
                         <h2>
                             {{ item.title|capfirst }}
                         </h2>
-                        <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                        <p>{% trans "The following licences are allowed:" %}</p>
                         {% include "elements/license_block.html" %}
                     {% elif item.title == 'sections' %}
                         {% include "elements/sections_block.html" %}
