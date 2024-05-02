@@ -3111,7 +3111,7 @@
   <xsl:template match="fpage" mode="none">
     <xsl:variable name="fpgct" select="count(../fpage)"/>
     <xsl:variable name="lpgct" select="count(../lpage)"/>
-    <xsl:variable name="hermano" select="name(following-sibling::node())"/>
+    <xsl:variable name="siblingName" select="name(following-sibling::*)"/>
     <xsl:choose>
       <xsl:when test="preceding-sibling::fpage">
         <xsl:choose>
@@ -3119,7 +3119,7 @@
             <xsl:text> </xsl:text>
             <xsl:apply-templates/>
 
-            <xsl:if test="$hermano='lpage'">
+            <xsl:if test="$siblingName='lpage'">
               <xsl:text>&#8211;</xsl:text>
               <xsl:apply-templates select="following-sibling::lpage[1]" mode="none"/>
             </xsl:if>
@@ -3128,7 +3128,7 @@
           <xsl:otherwise>
             <xsl:text> </xsl:text>
             <xsl:apply-templates/>
-            <xsl:if test="$hermano='lpage'">
+            <xsl:if test="$siblingName='lpage'">
               <xsl:text>&#8211;</xsl:text>
               <xsl:apply-templates select="following-sibling::lpage[1]" mode="none"/>
             </xsl:if>
@@ -3175,7 +3175,7 @@
         </xsl:choose>
         <xsl:apply-templates/>
         <xsl:choose>
-          <xsl:when test="$hermano='lpage'">
+          <xsl:when test="$siblingName='lpage'">
             <xsl:text>&#8211;</xsl:text>
             <xsl:apply-templates select="following-sibling::lpage[1]" mode="write"/>
             <xsl:choose>
@@ -3187,7 +3187,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <xsl:when test="$hermano='fpage'">
+          <xsl:when test="$siblingName='fpage'">
             <xsl:text>,</xsl:text>
           </xsl:when>
           <xsl:otherwise>
