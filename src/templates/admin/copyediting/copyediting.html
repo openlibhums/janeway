@@ -40,7 +40,7 @@
                         <td>{{ article.section.name }}</td>
                         <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
                         <td>{{ article.stage }}</td>
-                        <td>{% for assignment in article.copyeditassignment_set.all %}<a href="{% url 'editor_review' article.pk assignment.pk %}">{{ assignment.copyeditor.full_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                        <td>{% for assignment in article.copyeditassignment_set.all %}<a href="{% url 'editor_review' article.pk assignment.pk %}">{{ assignment.copyeditor.full_name }}</a>{% if not forloop.last %}, {% endif %}{% empty %}No assignments{% endfor %}</td>
                     </tr>
                 {% empty %}
                     <tr>
