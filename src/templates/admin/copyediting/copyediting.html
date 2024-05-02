@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 
 {% block page_title %}Copyediting{% endblock %}
+{% block title %}Copyediting{% endblock %}
 {% block admin-header %}Articles in Copyediting{% endblock %}
 
 {% block breadcrumbs %}
@@ -25,21 +26,21 @@
                     <th>Section</th>
                     <th>Projected Issue</th>
                     <th>Stage</th>
-                    <th></th>
+                    <th>Assignments</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for article in articles_in_copyediting %}
                     <tr>
                         <td>{{ article.pk }}</td>
-                        <td>{{ article.safe_title }}</td>
+                        <td><a href="{% url 'article_copyediting' article.pk %}">{{ article.safe_title }}</a></td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.date_accepted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{{ article.section.name }}</td>
                         <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
                         <td>{{ article.stage }}</td>
-                        <td><a href="{% url 'article_copyediting' article.pk %}">View</a></td>
+                        <td>{% for assignment in article.copyeditassignment_set.all %}<a href="{% url 'editor_review' article.pk assignment.pk %}">{{ assignment.copyeditor.full_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                     </tr>
                 {% empty %}
                     <tr>
