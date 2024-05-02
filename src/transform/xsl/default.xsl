@@ -1584,7 +1584,8 @@
                 </div>
             </div>
 	    </xsl:for-each>
-            <xsl:apply-templates/>
+          <!-- label is handled directly rather than with a template -->
+          <xsl:apply-templates select="*[not(self::label)]" />
         </div>
     </xsl:template>
 
