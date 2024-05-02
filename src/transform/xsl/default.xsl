@@ -445,8 +445,9 @@
          -->
         <h2>Notes</h2>
       </xsl:if>
+      <xsl:apply-templates select="title" />
         <ol class="footnotes">
-            <xsl:apply-templates/>
+          <xsl:apply-templates select="*[not(self::title)]"/>
         </ol>
     </xsl:template>
 
