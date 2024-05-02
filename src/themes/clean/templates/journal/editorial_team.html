@@ -1,16 +1,17 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}{% trans 'Editorial Team' %}{% endblock title %}
+{% block title %}{{ journal_settings.styling.editorial_group_page_name }}{% endblock title %}
 
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>{% trans 'Editorial Team' %}</h1>
+            <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
         </div>
     </div>
 
     {% for group in editorial_groups %}
+        {% if not journal_settings.styling.hide_editorial_group_names %}
         <div class="row">
             <div class="col-md-12">
                 <h2>{{ group.name }}</h2>
@@ -19,17 +20,13 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
 
         <div class="row">
             {% for member in group.members %}
                 <div class="col-md-4 row-eq-height">
                     <div class="card full-width-card">
-                        {% if journal_settings.styling.enable_editorial_images %}
-                            <img class="card-img-top card-img" src="
-
-                                    {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                 alt="{{ member.user.full_name }}'s profile image.">
-                        {% endif %}
+                        {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" %}
                         <div class="card-body">
                             <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
                             <p class="card-text">
@@ -50,5 +47,4 @@
             {% endfor %}
         </div>
     {% endfor %}
-    </div>
 {% endblock %}

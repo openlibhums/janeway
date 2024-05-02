@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.core.management import call_command
 
 from core.middleware import (
     SiteSettingsMiddleware,
@@ -19,6 +20,7 @@ from utils.testing import helpers
 
 
 class TestSiteMiddleware(TestCase):
+
     def setUp(self):
         journal_kwargs = dict(
             code="test",
@@ -60,8 +62,6 @@ class TestSiteMiddleware(TestCase):
 
         # assert
         self.assertEqual(expected_journal, request.journal)
-
-    @override_settings(URL_CONFIG="path")
 
     @override_settings(URL_CONFIG="path")
     def test_press_site_in_path_mode(self):

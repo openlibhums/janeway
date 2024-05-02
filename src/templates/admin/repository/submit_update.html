@@ -54,8 +54,30 @@
                         <li>As you've selected Metadata Correction you cannot upload a new file version.</li>
                         {% endif %}
                     </ul>
+                    {% if request.repository.additional_version_help %}
+                        {{ request.repository.additional_version_help|safe }}
+                    {% endif %}
+                    <p>
+                        <button class="button" data-open="submission_requirements_modal">Review submission requirements.</button>
+                    </p>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="reveal" id="submission_requirements_modal" data-reveal>
+        <div class="card">
+            <div class="card-divider">
+                <h2>Submission Requirements</h2>
+            </div>
+            <div class="card-section">
+                {{ request.repository.start|safe }}
+            </div>
+        </div>
+
+        <button class="close-button" data-close aria-label="Close modal"
+                type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 {% endblock %}

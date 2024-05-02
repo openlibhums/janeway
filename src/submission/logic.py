@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.utils.translation import get_language, gettext_lazy as _
 
 from core import files
 from core import models as core_models
@@ -95,7 +96,7 @@ def check_file(uploaded_file, request, form):
         if mime in files.EDITABLE_FORMAT:
             return True
         else:
-            form.add_error(None, 'You must upload a file that is either a Doc, Docx, RTF or ODT.')
+            form.add_error(None, _('You must upload a file that is either a Doc, Docx, RTF or ODT.'))
             return False
     else:
         return True

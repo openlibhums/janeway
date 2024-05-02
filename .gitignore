@@ -61,6 +61,7 @@ src/core/settings.py
 *.sqlite*
 *.db
 *tar.gz
+/db/postgres-data
 /src/files/articles
 /src/files/journals
 /src/files/journal
@@ -84,27 +85,21 @@ src/media/profile_images/*
 
 # PyCharm
 .idea
+*.iml
 
 # vim
 *.swp
 .vim/
 
-# gulp
-/src/static/OLH/*
-
 src/urls\.txt
 
 src/files/styling/
-src/static/OLH
 src/utils/management/commands/import_news\.py
 src/core/settings/
 src/utils/management/commands/redirects\.py
 .vscode/**
-src/static/mater
 ial/
 src/texture/**
-/src/static/material/**
-/src/static/admin/hypothesis/**
 
 *.ipynb
 
@@ -137,5 +132,19 @@ src/utils/management/commands/test_command.py
 
 # Emacs backup files
 *~
+
 # docker env
 \.env
+
+# Themes and subthemes
+/src/themes/*
+!/src/themes/clean/
+!/src/themes/material/
+!/src/themes/OLH/
+
+# Static files
+/src/static/*
+!/src/static/common/
+!/src/static/admin/
+/src/static/admin/hypothesis/**
+jenkins/test-results

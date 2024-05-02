@@ -261,14 +261,11 @@ Copy-Paste and Rich Text Fields
 
 When working on webpages, news items, and other fields such as abstracts,
 many people copy and paste from a word processor into Janeway. As of
-version 1.5.1, Janeway handles this better than before. It keeps standard
-styling like italics, bolding, lists, and semantic HTML markup, but it
-removes custom styling and non-semantic HTML markup. This leads to better
-results in most cases.
+version 1.5.1, Janeway handles this better than before: When a user attempts
+to paste text that carries over styling from another application, Janeway
+will prompt the user to ask if they want to retain the formatting or paste as
+plain text.
 
-However, for edge cases, such as when you are writing custom HTML and CSS
-in your web content or news items, there is a field called "Support copy
-paste" to control whether Janeway helps with markup. With it on, Janeway
-will separate the wheat from the chaff, as described above. With it off,
-Janeway won't touch the text you enter, and you'll have full control of
-the markup and styling via the code view.
+Additionally, Janeway will always remove any potentially harmful markup being
+pasted in or typed using the code view across rich-text fields, such as scripts
+that could lead to `Cross Site Scripting <https://owasp.org/www-community/attacks/xss/>`_ attacks.

@@ -8,11 +8,37 @@
 	<section id="content">
 		<div class="row column">
             <div class="large-3 columns">
-                <img class="thumbnail editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Profile photo.">
+                {% include "common/elements/profile_image.html" with classes="thumbnail editorial-image" user=user %}
                 <h3>{{ user.full_name }}</h3>
-                <p><strong>{% trans "Roles" %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-                <p><strong>{% trans "Affiliation" %}: </strong><br>{{ user.affiliation }}</p>
-                <p><strong>{% trans "Country" %}:</strong><br>{{ user.country }}</p>
+                {% if roles %}
+                  <p>
+                    <strong>{% trans "Roles" %}: </strong><br>
+                    {% for role in roles %}
+                      {{ role.role.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </p>
+                {% endif %}
+                {% if editorial_groups %}
+                  <p>
+                    <strong>{% trans "Editorial groups" %}: </strong><br>
+                    {% for membership in editorial_groups %}
+                      {{ membership.group.name }}
+                    {% endfor %}
+                  </p>
+                {% endif %}
+                {% if staff_groups %}
+                  <p>
+                    <strong>{% trans "Staff roles" %}: </strong><br>
+                    {{ staff_groups.first.job_title }}
+                    {% comment %}No support yet for multiple staff groups{% endcomment %}
+                  </p>
+                {% endif %}
+                {% if user.affiliation %}
+                  <p><strong>{% trans "Affiliation" %}: </strong><br>{{ user.affiliation }}</p>
+                {% endif %}
+                {% if user.country %}
+                  <p><strong>{% trans "Country" %}:</strong><br>{{ user.country }}</p>
+                {% endif %}
             </div>
             <div class="large-9 columns">
                 {% if user.biography %}

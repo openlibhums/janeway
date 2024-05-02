@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/copyediting_base.html" %}
+    {% include "elements/breadcrumbs/copyediting_base.html" with subpage="yes" %}
     <li>Edit Assignment</li>
 {% endblock breadcrumbs %}
 

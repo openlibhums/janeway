@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'core_manager_users' %}">Users</a></li>
+    <li>Users</li>
 {% endblock %}
 
 {% block title %}Enrolled Users{% endblock %}
@@ -64,13 +64,10 @@
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
                                 {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
                                     <td>
-                                        <form action="{% url 'hijack:acquire' %}" method="POST">
-                                          {% csrf_token %}
-                                          <input type="hidden" name="user_pk" value="{{ user.pk }}">
-                                          <button type="submit" class="tiny button"> Control User </button>
-                                          <input type="hidden" name="next" value="{% url 'core_dashboard' %}">
-                                        </form>
-                                    </td>{% endif %}
+                                          <button formaction="{% url 'hijack:acquire' %}" name="user_pk" value="{{ user.pk }}" type="submit" class="tiny button"> Control User </button>
+                                          <input  type="hidden" name="next" value="{% url 'core_dashboard' %}">
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </table>

@@ -47,7 +47,6 @@ class Reveal {
     this.$anchor = $(`[data-open="${this.id}"]`).length ? $(`[data-open="${this.id}"]`) : $(`[data-toggle="${this.id}"]`);
     this.$anchor.attr({
       'aria-controls': this.id,
-      'aria-haspopup': true,
       'tabindex': 0
     });
 

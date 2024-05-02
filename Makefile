@@ -85,6 +85,7 @@ command:	## Run Janeway in a container and pass through a django command passed 
 	docker-compose run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
+	mkdir -p db/postgres-data
 	docker-compose run --rm start_dependencies
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
@@ -133,6 +134,14 @@ makemessages:
 build_assets:		## Runs Janeway's build_assets command
 	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
-	bash -c "docker build --no-cache -t janeway-base:latest -f dockerfiles/Dockerfile.base ."
+	bash -c "docker build --no-cache -t birkbeckctp/janeway-base:latest -f dockerfiles/Dockerfile.base ."
 snakeviz:
 	docker-compose run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
+ci:				## Runs Janeway's CI job in a container
+	docker build -t janeway_jenkins_build_${BUILD_TAG}_ci -f jenkins/Dockerfile.jenkins .
+	echo "Running Unit Tests and Coverage"
+	docker run \
+    -v `pwd`/jenkins:/vol/janeway/jenkins \
+    -v `pwd`/logs:/vol/janeway/logs \
+    -e JANEWAY_SETTINGS_MODULE=core.jenkins_settings \
+    --rm janeway_jenkins_build_${BUILD_TAG}_ci test

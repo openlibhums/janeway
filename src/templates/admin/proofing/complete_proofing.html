@@ -9,7 +9,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/proofing_manager_base.html" %}
+    {% include "elements/breadcrumbs/proofing_manager_base.html" with subpage="yes"  %}
+    <li>Complete Proofing</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

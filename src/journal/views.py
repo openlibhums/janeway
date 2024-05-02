@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.db.models import Q, Count
 from django.http import Http404, HttpResponse, JsonResponse
@@ -32,7 +33,6 @@ from core import (
     models as core_models,
     plugin_loader,
     logic as core_logic,
-    forms as core_forms,
     views as core_views,
 )
 from identifiers import models as id_models
@@ -137,18 +137,18 @@ def funder_articles(request, funder_id):
     if redirect:
         return redirect
 
-    pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
-        journal=request.journal)]
-    pinned_article_pks = [article.pk for article in pinned_articles]
+    article_funding_objects = submission_models.ArticleFunding.objects.filter(
+        fundref_id=funder_id,
+        article__journal=request.journal,
+        article__date_published__lte=timezone.now(),
+        article__stage=submission_models.STAGE_PUBLISHED,
+        article__section__pk__in=filters,
+    )
 
-    article_objects = submission_models.Article.objects.filter(
-        journal=request.journal,
-        funders__fundref_id=funder_id,
-        date_published__lte=timezone.now(),
-        section__pk__in=filters,
-    ).prefetch_related(
-        'frozenauthor_set').order_by(sort).exclude(
-        pk__in=pinned_article_pks)
+    article_objects = []
+    for article_funding_object in article_funding_objects:
+        if article_funding_object.article not in article_objects:
+            article_objects.append(article_funding_object.article)
 
     paginator = Paginator(article_objects, show)
 
@@ -161,7 +161,6 @@ def funder_articles(request, funder_id):
 
     template = 'journal/articles.html'
     context = {
-        'pinned_articles': pinned_articles,
         'articles': articles,
         'sections': sections,
         'filters': filters,
@@ -255,6 +254,10 @@ def issues(request):
         'issues': issue_objects,
         'issue_type': issue_type,
     }
+    if request.journal.display_issues_grouped_by_decade:
+        context['issues_by_decade'] = request.journal.issues_by_decade(
+            issues_to_sort=issue_objects,
+        )
     return render(request, template, context)
 
 
@@ -900,9 +903,19 @@ def article_file_make_galley(request, article_id, file_id):
     :return: a redirect to the URL at the GET parameter 'return'
     """
     article_object = get_object_or_404(submission_models.Article, pk=article_id)
-    file_object = get_object_or_404(core_models.File, pk=file_id)
+    janeway_file = get_object_or_404(core_models.File, pk=file_id)
+    blob = janeway_file.get_file(article_object, as_bytes=True)
+    content_file = ContentFile(blob)
+    content_file.name = janeway_file.original_filename
 
-    logic.create_galley_from_file(file_object, article_object, owner=request.user)
+
+    # Avoid circular import.
+    from production import logic as production_logic
+
+    production_logic.save_galley(
+        article_object, request, content_file,
+        is_galley=True,
+    )
 
     return redirect(request.GET['return'])
 
@@ -932,7 +945,16 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     if not galley:
         raise Http404
 
-    figure = get_object_or_404(galley.images, original_filename=file_name)
+    # Use a filter with .first() here to avoid an error when two images with
+    # the same name are present.
+    figure = galley.images.filter(
+        original_filename=file_name
+    ).order_by(
+        '-last_modified',
+    ).first()
+
+    if not figure:
+        raise Http404
 
     return files.serve_file(request, figure, figure_article)
 
@@ -946,9 +968,25 @@ def article_figure(request, article_id, galley_id, file_name):
     :param file_name: an File object name
     :return: a streaming file response or a 404 if not found
     """
-    figure_article = get_object_or_404(submission_models.Article, pk=article_id)
-    galley = get_object_or_404(core_models.Galley, pk=galley_id, article=figure_article)
-    figure = get_object_or_404(galley.images, original_filename=file_name)
+    figure_article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=figure_article,
+    )
+    # Use a filter with .first() here to avoid an error when two images with
+    # the same name are present.
+    figure = galley.images.filter(
+        original_filename=file_name
+    ).order_by(
+        '-last_modified',
+    ).first()
+
+    if not figure:
+        raise Http404
 
     return files.serve_file(request, figure, figure_article)
 
@@ -993,6 +1031,12 @@ def publish_article(request, article_id):
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
+    notify_author_email_form = core_forms.SimpleTinyMCEForm(
+        'email_to_author',
+        initial = {
+            'email_to_author': logic.get_notify_author_text(request, article)
+        }
+    )
     modal = request.GET.get('m', None)
     pubdate_errors = []
 
@@ -1161,7 +1205,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pubdate_errors': pubdate_errors,
-        'notify_author_text': logic.get_notify_author_text(request, article)
+        'notify_author_email_form': notify_author_email_form,
     }
 
     return render(request, template, context)
@@ -1882,8 +1926,10 @@ def contact(request):
 
     if request.journal and request.journal.disable_front_end:
         template = 'admin/journal/contact.html'
-    else:
+    elif request.journal:
         template = 'journal/contact.html'
+    else:
+        template = 'press/journal/contact.html'
     context = {
         'contact_form': contact_form,
         'contacts': contacts,
@@ -1895,17 +1941,26 @@ def contact(request):
 @decorators.frontend_enabled
 def editorial_team(request, group_id=None):
     """
-    Displays a list of Editorial team members, an optional ID can be supplied to limit the display to a group only.
+    Displays a list of editorial team members at the journal level,
+    or governance groups or boards at the press level.
+    An optional ID can be supplied to limit the display to a group only.
     :param request: HttpRequest object
     :param group_id: EditorailGroup object PK
     :return: HttpResponse object
     """
+    kwargs = {
+        'journal': request.journal,
+        'press': request.press,
+    }
     if group_id:
-        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal, pk=group_id)
-    else:
-        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal)
+        kwargs['pk'] = group_id
 
-    template = 'journal/editorial_team.html'
+    editorial_groups = core_models.EditorialGroup.objects.filter(**kwargs)
+
+    if request.journal:
+        template = 'journal/editorial_team.html'
+    else:
+        template = 'press/editorial_team.html'
     context = {
         'editorial_groups': editorial_groups,
         'group_id': group_id,
@@ -2170,7 +2225,10 @@ def send_user_email(request, user_id, article_id=None):
         )
 
     if request.POST and 'send' in request.POST:
-        form = core_forms.EmailForm(request.POST)
+        form = core_forms.EmailForm(
+            request.POST,
+            request.FILES,
+        )
 
         if form.is_valid():
             core_email.send_email(
@@ -2432,7 +2490,7 @@ def serve_article_xml(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object:
+    if not article_object and not article_object.is_published:
         raise Http404
 
     xml_galleys = article_object.galley_set.filter(
@@ -2500,7 +2558,7 @@ def serve_article_pdf(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object:
+    if not article_object and not article_object.is_published:
         raise Http404
 
     pdf = article_object.pdfs.first()
@@ -2584,11 +2642,9 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
     A list of published articles that can be searched,
     sorted, and filtered
     """
-
     template_name = 'journal/article_list.html'
 
     def get_queryset(self, params_querydict=None):
-
         self.queryset = super().get_queryset(params_querydict)
         return self.queryset.filter(
             date_published__lte=timezone.now(),
@@ -2596,7 +2652,6 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
         )
 
     def get_facets(self):
-
         facets = {
             'date_published__date__gte': {
                 'type': 'date',
@@ -2631,6 +2686,11 @@ class PublishedArticlesListView(core_views.FilteredArticlesListView):
             ('correspondence_author__last_name', _('Author Name')),
             ('primary_issue__volume', _('Volume')),
         ]
+
+    def get_order_by(self):
+        order_by = self.request.GET.get('order_by', '-date_published')
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ''
 
     def order_queryset(self, queryset):
         order_by = self.get_order_by()

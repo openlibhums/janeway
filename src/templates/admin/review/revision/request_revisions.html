@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/review_base.html" %}
+    {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
     <li>Request Revisions</li>
 {% endblock breadcrumbs %}
 
@@ -70,7 +70,6 @@
 
 {% block js %}
     {% include "elements/datepicker.html" with target="#id_date_due" %}
-    {% include "elements/jqte.html" %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}

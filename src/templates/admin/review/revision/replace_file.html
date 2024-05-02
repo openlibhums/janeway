@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/review_base.html" %}
+    {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
     <li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions
         for {{ revision_request.article.safe_title }}</a></li>
     <li>Replace File</li>

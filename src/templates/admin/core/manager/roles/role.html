@@ -10,7 +10,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_roles' %}">Roles</a></li>
-    <li><a href="{% url 'core_manager_role' role.slug %}">{{ role.name }}</a></li>
+    <li>{{ role.name }}</li>
 {% endblock %}
 
 {% block body %}
@@ -24,10 +24,18 @@
                 <table class="small scroll" cellspacing="0" width="100%" id='users-with'>
                     <thead>
                     <tr>
-                        <th width="25%">First Name</th>
-                        <th width="25%">Last Name</th>
-                        <th width="30%">Email</th>
-                        <th width="20%"></th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        {% if role.slug == 'reviewer' %}
+                            <th>Interests</th>
+                            <th>Number of Assignments</th>
+                            <th>Last Completed Review</th>
+                            <th>Average Score</th>
+                        {% endif %}
+                        <th>View History</th>
+                        <th>Remove Role</th>
+                        <th>Edit</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -36,9 +44,16 @@
                             <td>{{ assignment.user.first_name }}</td>
                             <td>{{ assignment.user.last_name }}</td>
                             <td>{{ assignment.user.email }}</td>
-                            <td width="20%"><a class="tiny alert button"
-                                               href="{% url 'core_manager_role_action' role.slug assignment.user.id 'remove' %}"><i
-                                    class="fa fa-times"></i> &nbsp;&nbsp;Remove Role</a></td>
+                            {% if role.slug == 'reviewer' %}
+                                <td>{% if assignment.user.interest.all %}{% for interest in assignment.user.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}--{% endif %}</td>
+                                <td>{{ assignment.total_assignments }}</td>
+                                <td>{{ assignment.last_completed_review|default_if_none:'--' }}</td>
+                                <td>{{ assignment.average_score|default_if_none:'--' }}</td>
+                            {% endif %}
+                            <td><a class="tiny success button" href="{% url 'core_user_history' assignment.user.pk %}">View History</a></td>
+                            <td><a class="tiny alert button"
+                                               href="{% url 'core_manager_role_action' role.slug assignment.user.id 'remove' %}">Remove Role</a></td>
+                            <td><a href="{% url 'core_user_edit' assignment.user.pk %}?return={% url 'core_manager_role' 'reviewer' %}" class="tiny warning button">Edit User</a></td>
                         </tr>
                     {% endfor %}</tbody>
                 </table>

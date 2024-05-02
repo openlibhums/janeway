@@ -2,7 +2,7 @@
 
     <div id="HarvardModal" class="reveal" data-reveal aria-labelledby="HarvardModalTitle" aria-hidden="true"
          role="dialog">
-        <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
+        <h2 id="HarvardModalTitle">{% trans 'Harvard-Style Citation' %}</h2>
         <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }}{% if author.name_suffix %} {{ author.name_suffix }}{% endif %},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
             ({{ article.date_published.year }}) '{{ article.title|safe }}',
@@ -24,7 +24,7 @@
 
     <div id="VancouverModal" class="reveal" data-reveal aria-labelledby="VancouverModalTitle" aria-hidden="true"
          role="dialog">
-        <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
+        <h2 id="VancouverModalTitle">{% trans 'Vancouver-Style Citation' %}</h2>
         <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }}{% if author.name_suffix %} {{ author.name_suffix }}{% endif %},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
             {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};

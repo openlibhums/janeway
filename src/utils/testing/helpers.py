@@ -7,7 +7,6 @@ from contextlib import ContextDecorator
 
 from django.utils import translation, timezone
 from django.conf import settings
-from django.utils import timezone
 import datetime
 
 from core import (
@@ -21,11 +20,14 @@ from press import models as press_models
 from submission import models as sm_models
 from review import models as review_models
 from copyediting import models as copyediting_models
+from comms import models as comms_models
+from cms import models as cms_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
 from uuid import uuid4
 from review.const import ReviewerDecisions as RD
+from cms import models as cms_models
 
 
 def create_user(username, roles=None, journal=None, **attrs):
@@ -553,6 +555,7 @@ def create_copyedit_assignment(article, copyeditor, **kwargs):
     )
     return assignment
 
+
 def create_access_request(journal, user, role, **kwargs):
     role = core_models.Role.objects.get(slug=role)
     access_request, created = core_models.AccessRequest.objects.get_or_create(
@@ -562,3 +565,56 @@ def create_access_request(journal, user, role, **kwargs):
         text='Automatic request as author added to an article.',
     )
     return access_request
+
+
+def create_news_item(content_type, object_id, **kwargs):
+    title = kwargs.get('title', 'Test title')
+    body = kwargs.get('body', 'Test body')
+    posted_by = kwargs.get(
+        'posted_by',
+        create_user(
+            'news_author@example.org',
+            attrs={'first_name': 'News', 'last_name': 'Writer'}
+        )
+    )
+    tags = kwargs.get('tags', ['test tag 1', 'test tag 2'])
+    item = comms_models.NewsItem.objects.create(
+        content_type=content_type,
+        object_id=object_id,
+        title=title,
+        body=body,
+        posted_by=posted_by,
+    )
+    for tag in tags:
+        item.tags.add(comms_models.Tag.objects.create(text=tag))
+    item.save()
+    return item
+
+
+def create_cms_page(content_type, object_id, **kwargs):
+    name = kwargs.get('name', 'test-name')
+    display_name = kwargs.get('display_name', 'Test display name')
+    content = kwargs.get('content', 'Test content')
+    is_markdown = kwargs.get('is_markdown', False)
+
+    return cms_models.Page.objects.create(
+        content_type=content_type,
+        object_id=object_id,
+        name=name,
+        display_name=display_name,
+        content=content,
+        is_markdown=is_markdown,
+    )
+
+
+def create_contact(content_type, object_id, **kwargs):
+    name = kwargs.get('name', 'Test Contact')
+    email = kwargs.get('email', 'contact@example.org')
+    role = kwargs.get('role', 'Test contact role')
+    return core_models.Contacts.objects.create(
+        content_type=content_type,
+        object_id=object_id,
+        name=name,
+        email=email,
+        role=role,
+    )

@@ -12,7 +12,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/proofing_manager_base.html" %}
+    {% include "elements/breadcrumbs/proofing_manager_base.html" with subpage="yes" %}
     <li>Request Corrections</li>
 {% endblock breadcrumbs %}
 

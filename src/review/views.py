@@ -343,10 +343,10 @@ def assignment_notification(request, article_id, editor_id):
 
     if request.POST:
         form = core_forms.SettingEmailForm(
-                request.POST, request.FILES,
-                setting_name="editor_assignment",
-                email_context=email_context,
-                request=request,
+            request.POST, request.FILES,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
         )
         if form.is_valid():
             kwargs = {
@@ -1085,20 +1085,10 @@ def add_review_assignment(request, article_id):
     :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-
-    # if setting enabled, fetch reviewers who have completed a review
-    # in a past review round.
-    past_reviewers = []
-    if request.journal.get_setting('general', 'display_past_reviewers'):
-        past_reviewers = logic.get_previous_round_reviewers(
-            article,
-        )
     reviewers = logic.get_reviewer_candidates(
         article,
         user=request.user,
-        reviewers_to_exclude=past_reviewers,
     )
-
     form = forms.ReviewAssignmentForm(
         journal=request.journal,
         article=article,
@@ -1181,15 +1171,7 @@ def add_review_assignment(request, article_id):
         'form': form,
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
-        'past_reviewers': past_reviewers,
     }
-
-    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
-        context['suggested_reviewers'] = logic.get_suggested_reviewers(
-            article,
-            reviewers,
-        )
-
     return render(request, template, context)
 
 
@@ -2598,8 +2580,15 @@ def preview_form(request, form_id):
         'disable_reviewer_recommendation',
         request.journal,
     ).processed_value
+    open_peer_review = setting_handler.get_setting(
+        'general',
+        'open_peer_review',
+        request.journal,
+    )
+
     decision_form = forms.FakeReviewerDecisionForm(
         recommendation_disabled=recommendation_disabled,
+        open_peer_review=open_peer_review,
     )
 
     template = 'review/manager/preview_form.html'
@@ -2842,7 +2831,7 @@ def editor_share_reviews(request, article_id):
         journal=request.journal,
     )
     reviews = article.completed_reviews_with_decision
-    distinct_reviewers = reviews.distinct('reviewer')
+    distinct_reviewers = logic.get_distinct_reviews(reviews)
 
     for review in distinct_reviewers:
         review.email_content = logic.get_share_review_content(

@@ -111,11 +111,6 @@ class ArticleInline(admin.TabularInline):
     fk_name = 'primary_issue'
 
 
-class FundersArticleInline(admin.TabularInline):
-    model = submission_models.Article.funders.through
-    extra = 0
-
-
 class ArticleOrderingInline(admin.TabularInline):
     model = journal_models.ArticleOrdering
     extra = 0
@@ -207,6 +202,13 @@ class FileInline(admin.TabularInline):
 class EditorialGroupMemberInline(admin.TabularInline):
     model = core_models.EditorialGroupMember
     extra = 0
+    raw_id_fields = ('user',)
+
+
+class StaffGroupMemberInline(admin.TabularInline):
+    model = press_models.StaffGroupMember
+    extra = 0
+    exclude = ('alternate_title', 'publications')
     raw_id_fields = ('user',)
 
 

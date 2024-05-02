@@ -218,18 +218,18 @@
         "hideMethod": "fadeOut"
     }
     {% for message in messages %}
-        {% ifequal message.tags "warning" %}
+        {% if message.tags == "warning" %}
             toastr.warning("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "info" %}
+        {% endif %}
+        {% if message.tags == "info" %}
             toastr.info("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "danger" %}
+        {% endif %}
+        {% if message.tags == "danger" %}
             toastr.error("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "success" %}
+        {% endif %}
+        {% if message.tags == "success" %}
             toastr.success("{{ message|linebreaksbr }}")
-        {% endifequal%}
+        {% endif %}
     {% endfor %}
 
 </script>

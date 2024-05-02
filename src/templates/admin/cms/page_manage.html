@@ -27,8 +27,9 @@
                     {% csrf_token %}
                     {{ form.display_name|foundation }}
                     {{ form.name|foundation }}
+                    {{ form.template|foundation }}
                     {{ form.content|foundation }}
-                    {{ form.support_copy_paste|foundation }}
+                    {{ form.display_toc|foundation }}
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <p>If you want to upload and link to a file, use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
@@ -50,5 +51,5 @@
         </div>
     </div>
 
-    {% include 'admin/elements/history_modal.html' with history=page.history.all view_url="admin:cms_page_history" %}
+    {% include 'admin/elements/history_modal.html' with obj=page view_url="admin:cms_page_history" %}
 {% endblock body %}

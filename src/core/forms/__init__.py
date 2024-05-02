@@ -2,8 +2,6 @@ from core.forms.forms import (
     AccessRequestForm,
     AdminUserForm,
     ArticleMetaImageForm,
-    BleachableModelForm,
-    BleachableModelForm,
     CBVFacetForm,
     ConfirmableForm,
     ConfirmableIfErrorsForm,
@@ -29,6 +27,7 @@ from core.forms.forms import (
     RegistrationForm,
     SectionForm,
     SettingEmailForm,
+    SimpleTinyMCEForm,
     UserCreationFormExtended,
     XSLFileForm,
 )

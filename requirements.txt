@@ -1,13 +1,12 @@
-asgiref==3.5.2
 beautifulsoup4==4.9.3
 boto==2.46.1
 bs4==0.0.1
 colorlog==3.1.4
 chardet==3.0.4
 crossrefapi==1.5.0
-Django==3.2.20
+Django==4.2.11
 django-bleach==3.0.1
-django-bootstrap4==22.3
+django-bootstrap4==23.2
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git@284fc5f08e58d8655c7301eddb49f920fda516d2#egg=foundationform
 django-countries[pyuca]==7.5.1
 -e git+https://github.com/kalwalkden/django-materializecss-form.git@7018fe0659ad12e74cfea80e281faa1390a3132f#egg=django-materializecss-form
@@ -15,39 +14,40 @@ django-debug-toolbar==3.7.0
 django-hCaptcha==0.2.0
 django-hijack==3.2.1
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git@8f97af5a4133934f939826c00a30f1357478b139#egg=django_mailgun
-django-modeltranslation==0.18.9
+django-modeltranslation==0.18.11
 django-settings-export==1.2.1
 django-recaptcha==3.0.0
-django-simple-math-captcha==1.1.0
+django-simple-math-captcha==2.0.1
 django-simple-history==3.3.0
 django-summernote==0.8.20.0
-djangorestframework==3.11.2
+django-tinymce==3.7.1
+djangorestframework==3.15.1
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 Faker==17.6.0
 freezegun==1.2.0
-geoip2==3.0.0 # Newer versions require python >= 3.6
+geoip2==4.8.0
 html2text==2017.10.4
 idna==2.7
 ipaddress==1.0.16
 more-itertools==10.1.0
 jsmin==3.0.1
 kitchen==1.2.4
-libsass==0.22.0
+libsass==0.23.0
 lxml==4.9.2
 markdown
-maxminddb==1.5.4
+maxminddb==2.5.1
 mock
-mozilla-django-oidc==1.2.4
+mozilla-django-oidc==4.0.1
 orcid==1.0.3
 packaging==23.2
 pdfkit==1.0.0
 pdfminer.six
-psycopg2-binary~=2.8.6
+psycopg2-binary~=2.9.8
 pyasn1==0.1.9
 pycparser==2.14
 PyJWT==2.4.0
-Pillow==10.0.1
+Pillow==10.2.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
 python-docx==0.8.11

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Count
 
 from comms import models, forms
 from core import files, logic as core_logic, models as core_models
@@ -148,29 +148,31 @@ def serve_news_file(request, identifier_type, identifier, file_id):
     return new_item.serve_news_file()
 
 
-def news_list(request, tag=None):
+def news_list(request, tag=None, presswide=False):
     """
     Lists all a press or journal news items, and allows them to be filtered by tag
     :param request: HttpRequest object
     :param tag: a string matching a Tags.text attribute
+    :param presswide: the string 'all' or False
     :return: HttpResponse object
     """
-    if not tag:
-        news_objects = models.NewsItem.objects.filter(
-            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-            (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-        ).order_by('-posted')
-    else:
-        tag = urllib.parse.unquote(tag)
-        news_objects = models.NewsItem.objects.filter(
-            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-            (Q(end_display__gte=timezone.now()) | Q(end_display=None)),
-            tags__text=tag
-        ).order_by('-posted')
 
-    paginator = Paginator(news_objects, 15)
+    news_objects = models.NewsItem.active_objects.all()
+
+    if not presswide or request.model_content_type.model != 'press':
+        news_objects = news_objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.id,
+        )
+
+    if tag:
+        unquoted_tag = urllib.parse.unquote(tag)
+        news_objects = news_objects.filter(
+            tags__text=unquoted_tag,
+        )
+        tag = get_object_or_404(models.Tag, text=unquoted_tag)
+
+    paginator = Paginator(news_objects, 12)
     page = request.GET.get('page', 1)
 
     try:
@@ -180,6 +182,10 @@ def news_list(request, tag=None):
     except EmptyPage:
         news_items = paginator.page(paginator.num_pages)
 
+    all_tags = models.Tag.objects.all().annotate(
+        Count('tags')
+    ).order_by('-tags__count', 'text')
+
     if not request.journal:
         template = 'press/core/news/index.html'
     else:
@@ -188,6 +194,7 @@ def news_list(request, tag=None):
     context = {
         'news_items': news_items,
         'tag': tag,
+        'all_tags': all_tags,
     }
 
     return render(request, template, context)

@@ -29,7 +29,12 @@ from core import (
         workflow,
 )
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel, SVGImageField, AbstractLastModifiedModel
+from core.model_utils import (
+    AbstractSiteModel,
+    SVGImageField,
+    AbstractLastModifiedModel,
+    JanewayBleachField,
+)
 from press import models as press_models
 from submission import models as submission_models
 from utils import setting_handler, logic, install
@@ -137,10 +142,24 @@ class Journal(AbstractSiteModel):
         help_text=gettext('The tiny round or square image appearing in browser '
                            'tabs before the webpage title'),
     )
+    default_profile_image = SVGImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=gettext('A default image displayed on the profile and '
+                          'editorial team pages when the user has no set '
+                          'profile image.'),
+    )
     # DEPRECATED "description" in favour of "journal_description" setting
-    description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
-    contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
-    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
+    description = JanewayBleachField(null=True, blank=True, verbose_name="Journal Description")
+    contact_info = JanewayBleachField(null=True, blank=True, verbose_name="Contact Information")
+    keywords = models.ManyToManyField(
+        "submission.Keyword",
+        blank=True,
+        null=True,
+        verbose_name="Discipline",
+    )
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(
@@ -223,6 +242,11 @@ class Journal(AbstractSiteModel):
     )
     display_article_page_numbers = models.BooleanField(default=True)
     display_issue_doi = models.BooleanField(default=True)
+    display_issues_grouped_by_decade = models.BooleanField(
+        default=False,
+        help_text='When enabled the issue page will group and display issues '
+                  'by decade.',
+    )
 
     disable_front_end = models.BooleanField(default=False)
 
@@ -368,6 +392,33 @@ class Journal(AbstractSiteModel):
             journal=self,
             date__lte=timezone.now(),
         )
+
+    def issues_by_decade(self, issues_to_sort=None):
+        issue_decade_dict = {}
+
+        if not issues_to_sort:
+            issues_to_sort = Issue.objects.filter(
+                journal=self,
+                date__lte=timezone.now(),
+                issue_type__code='issue',
+            )
+        for issue in issues_to_sort:
+            issue_year = issue.date_published.year
+            decade_start = issue_year - (issue_year % 10)
+            decade_end = decade_start + 9
+
+            # if the decade is greater than the current year, cap at the
+            # current year.
+            date = timezone.now().date()
+            if decade_end > date.year:
+                decade_end = date.year
+
+            decade_span = f"{decade_start} - {decade_end}"
+            if issue_decade_dict.get(decade_span):
+                issue_decade_dict[decade_span].append(issue)
+            else:
+                issue_decade_dict[decade_span] = [issue]
+        return issue_decade_dict
 
     def editors(self):
         """ Returns all users enrolled as editors for the journal
@@ -579,7 +630,7 @@ class Issue(AbstractLastModifiedModel):
         "journal.IssueType", blank=False, null=True, on_delete=models.SET_NULL)
     # To be deprecated in 1.3.7
     old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
-    issue_description = models.TextField(blank=True, null=True)
+    issue_description = JanewayBleachField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
     cover_image = SVGImageField(
@@ -1175,7 +1226,7 @@ class PresetPublicationCheckItem(models.Model):
     )
 
     title = models.TextField()
-    text = models.TextField()
+    text = JanewayBleachField()
     enabled = models.BooleanField(default=True)
 
 
@@ -1195,7 +1246,7 @@ class PrePublicationChecklistItem(models.Model):
     completed_on = models.DateTimeField(blank=True, null=True)
 
     title = models.TextField()
-    text = models.TextField()
+    text = JanewayBleachField()
 
     def __str__(self):
         return "{0} - {1}".format(self.pk, self.title)

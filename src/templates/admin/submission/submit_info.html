@@ -5,7 +5,17 @@
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
 {% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Submit an Article</li>
+{% endblock %}
 
 {% block body %}
     <article>
@@ -18,7 +28,7 @@
 
                 <div class="row expanded">
                     <div class="title-area">
-                        <h2>Basic Information</h2>
+                        <h2>{% trans 'Basic Information' %}</h2>
                     </div>
                     <div class="content">
                         {% include "elements/forms/errors.html" with form=form %}
@@ -122,7 +132,4 @@
                 {allowSpaces: true});
         });
     </script>
-    {% include "elements/jqte.html" %}
-    {% include 'elements/fundref/fundref.html' %}
-
 {% endblock %}

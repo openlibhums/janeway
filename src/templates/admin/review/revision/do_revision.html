@@ -8,7 +8,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/review_base.html" %}
+    {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
     <li>Revisions for {{ revision_request.article.safe_title }}</li>
 {% endblock breadcrumbs %}
 

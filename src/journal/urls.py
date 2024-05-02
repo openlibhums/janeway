@@ -74,9 +74,6 @@ urlpatterns = [
     re_path(r'^issue/(?P<issue_id>\d+)/download/(?P<galley_id>\d+)$',
         views.download_issue_galley,
         name='journal_issue_download_galley'),
-    re_path(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/download/',
-        views.download_galley,
-        name='article_download_galley'),
     re_path(r'^collections/$', views.collections, name='journal_collections_type'),
     re_path(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
 

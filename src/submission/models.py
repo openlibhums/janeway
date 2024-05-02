@@ -34,13 +34,15 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
-from django_bleach.models import BleachField
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import(
     AbstractLastModifiedModel,
+    DynamicChoiceField,
     BaseSearchManagerMixin,
+    JanewayBleachField,
+    JanewayBleachCharField,
     M2MOrderedThroughField,
 )
 from core import workflow, model_utils, files, models as core_models
@@ -306,10 +308,15 @@ STAGE_CHOICES = [
 PLUGIN_WORKFLOW_STAGES = []
 
 
-class Funder(models.Model):
+class ArticleFunding(models.Model):
     class Meta:
         ordering = ('name',)
 
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+        null=True,
+    )
     name = models.CharField(
         max_length=500,
         blank=False,
@@ -322,7 +329,7 @@ class Funder(models.Model):
         null=True,
         help_text='Funder DOI (optional). Enter as a full Uniform '
                   'Resource Identifier (URI), such as '
-                  'http://dx.doi.org/10.13039/501100021082',
+                  'https://dx.doi.org/10.13039/501100021082',
     )
     funding_id = models.CharField(
         max_length=500,
@@ -330,6 +337,13 @@ class Funder(models.Model):
         null=True,
         help_text="The grant ID (optional). Enter the ID by itself",
     )
+    funding_statement = models.TextField(
+        blank=True,
+        help_text=_("Additional information regarding this funding entry")
+    )
+
+    def __str__(self):
+        return f"Article funding entry {self.pk}: {self.name}"
 
 
 class ArticleStageLog(models.Model):
@@ -352,7 +366,7 @@ class ArticleStageLog(models.Model):
 
 
 class PublisherNote(AbstractLastModifiedModel):
-    text = models.TextField(max_length=4000, blank=False, null=False)
+    text = JanewayBleachField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
     creator = models.ForeignKey(
         'core.Account',
@@ -403,34 +417,6 @@ class ArticleManager(models.Manager):
 
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().all()
-
-
-class DynamicChoiceField(models.CharField):
-    def __init__(self, dynamic_choices=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.dynamic_choices = dynamic_choices
-
-    def formfield(self, *args, **kwargs):
-        form_element = super().formfield(**kwargs)
-        for choice in self.dynamic_choices:
-            form_element.choices.append(choice)
-        return form_element
-
-    def validate(self, value, model_instance):
-        """
-        Validates value and throws ValidationError.
-        """
-        try:
-            super().validate(value, model_instance)
-        except exceptions.ValidationError as e:
-            # If the raised exception is for invalid choice we check if the
-            # choice is in dynamic choices.
-            if e.code == 'invalid_choice':
-                potential_values = set(
-                    item[0] for item in self.dynamic_choices
-                )
-                if value not in potential_values:
-                    raise
 
 
 class ArticleSearchManager(BaseSearchManagerMixin):
@@ -626,7 +612,7 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-    title = BleachField(
+    title = JanewayBleachCharField(
         max_length=999,
         help_text=_('Your article title'),
     )
@@ -637,13 +623,14 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text=_('Do not use--deprecated in version 1.4.1 and later.')
     )
-    abstract = BleachField(
+    abstract = JanewayBleachField(
         blank=True,
         null=True,
-        help_text=_('Copying and pasting from word processors is supported.'),
     )
-    non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
-                                                                               ' non specialists.')
+    non_specialist_summary = JanewayBleachField(
+        blank=True, null=True,
+        help_text='A summary of the article for non specialists.'
+    )
     keywords = M2MOrderedThroughField(
         Keyword,
         blank=True, null=True, through='submission.KeywordArticle',
@@ -667,10 +654,13 @@ class Article(AbstractLastModifiedModel):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
-                                                                            "of interests in the publication of this "
-                                                                            "article please state them here.")
-    rights = models.TextField(
+    competing_interests = JanewayBleachField(
+        blank=True, null=True,
+        help_text="If you have any conflict "
+            "of interests in the publication of this "
+            "article please state them here.",
+    )
+    rights = JanewayBleachField(
         blank=True, null=True,
         help_text="A custom statement on the usage rights for this article"
             " and associated materials, to be rendered in the article page"
@@ -732,8 +722,8 @@ class Article(AbstractLastModifiedModel):
     publication_fees = models.BooleanField(default=False)
     submission_requirements = models.BooleanField(default=False)
     copyright_notice = models.BooleanField(default=False)
-    comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor",
-                                       help_text="Add any comments you'd like the editor to consider here.")
+    comments_editor = JanewayBleachField(blank=True, null=True, verbose_name="Comments to the Editor",
+                                       help_text=_("Add any comments you'd like the editor to consider here."))
 
     # an image of recommended size: 750 x 324
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='image_file',
@@ -752,12 +742,12 @@ class Article(AbstractLastModifiedModel):
     metric_stats = None
 
     # Agreement, this field records the submission checklist that was present when this article was submitted.
-    article_agreement = models.TextField(default='')
+    article_agreement = JanewayBleachField(default='')
 
-    custom_how_to_cite = models.TextField(
+    custom_how_to_cite = JanewayBleachField(
         blank=True, null=True,
-        help_text="Custom 'how to cite' text. To be used only if the block"
-            " generated by Janeway is not suitable.",
+        help_text=_("Custom 'how to cite' text. To be used only if the block"
+            " generated by Janeway is not suitable."),
     )
 
     publisher_name = models.CharField(
@@ -816,9 +806,6 @@ class Article(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-
-    # funding
-    funders = models.ManyToManyField('Funder', blank=True)
 
     reviews_shared = models.BooleanField(
         default=False,
@@ -1155,6 +1142,11 @@ class Article(AbstractLastModifiedModel):
             for_author_consumption=True,
         )
 
+    @property
+    def funders(self):
+        """Method replaces the funders m2m model for backwards compat."""
+        return ArticleFunding.objects.filter(article=self)
+
     def __str__(self):
         return u'%s - %s' % (self.pk, truncatesmart(self.title))
 
@@ -1414,8 +1406,8 @@ class Article(AbstractLastModifiedModel):
         elif user in self.section_editors():
             return True
         elif not user.is_anonymous and user.is_editor(
-                request=None,
-                journal=self.journal,
+            request=None,
+            journal=self.journal,
         ):
             return True
         else:
@@ -1677,6 +1669,11 @@ class Article(AbstractLastModifiedModel):
     def workflow_stages(self):
         return core_models.WorkflowLog.objects.filter(article=self)
 
+    def distinct_workflow_elements(self):
+        return core_models.WorkflowElement.objects.filter(
+            pk__in=self.workflowlog_set.values_list("element").distinct()
+        )
+
     @property
     def current_workflow_element(self):
         try:
@@ -1906,7 +1903,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     institution = models.CharField(max_length=1000, null=True, blank=True)
     department = models.CharField(max_length=300, null=True, blank=True)
-    frozen_biography = models.TextField(
+    frozen_biography = JanewayBleachField(
         null=True,
         blank=True,
         verbose_name=_('Frozen Biography'),
@@ -2166,7 +2163,7 @@ class Licence(AbstractLastModifiedModel):
     name = models.CharField(max_length=300)
     short_name = models.CharField(max_length=15)
     url = models.URLField(max_length=1000)
-    text = models.TextField(null=True, blank=True)
+    text = JanewayBleachField(null=True, blank=True)
     order = models.PositiveIntegerField(default=0)
 
     available_for_submission = models.BooleanField(default=True)
@@ -2194,7 +2191,7 @@ class Note(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    text = models.TextField()
+    text = JanewayBleachField()
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2266,7 +2263,7 @@ class FieldAnswer(models.Model):
         Article,
         on_delete=models.CASCADE,
     )
-    answer = models.TextField()
+    answer = JanewayBleachField()
 
 
 class ArticleAuthorOrder(models.Model):

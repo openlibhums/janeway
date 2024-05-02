@@ -18,8 +18,9 @@ MIDDLEWARE = (
 )
 INSTALLED_APPS = [
     'debug_toolbar',
-    'django_nose',
 ]
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
@@ -31,7 +32,6 @@ def show_toolbar(request):
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
 HIJACK_USERS_ENABLED = True

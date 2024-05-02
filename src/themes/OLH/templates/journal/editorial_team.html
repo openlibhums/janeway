@@ -7,7 +7,7 @@
     {% if group_id %}
         {{ editorial_groups.0.name }}
     {% else %}
-        {% trans "Editorial Team" %}
+        {{ journal_settings.styling.editorial_group_page_name }}
     {% endif %}
 {% endblock title %}
 
@@ -17,23 +17,21 @@
             {% if group_id %}
                 <h1>{{ editorial_groups.0.name }}</h1>
             {% else %}
-                <h1>{% trans "Editorial Team" %}</h1>
+                <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
             {% endif %}
             {% for group in editorial_groups %}
-                {% if not group_id %}
-                    <h4>{{ group.name }}</h4>
+                {% if not journal_settings.styling.hide_editorial_group_names %}
+                    {% if not group_id %}
+                        <h2>{{ group.name }}</h2>
+                    {% endif %}
+                    {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 {% endif %}
-                {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
                         <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
                             <div class="{% if journal_settings.styling.enable_editorial_images %}editorial-team{% endif %} callout"
                                  data-equalizer-watch>
-                                {% if journal_settings.styling.enable_editorial_images %}
-                                    <img class="thumbnail editorial-image" src="
-                                            {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                         alt="Photo of Uranus.">
-                                {% endif %}
+                                {% include "common/elements/journal/editorial_team_image.html" with group=group classes="thumbnail editorial-image" %}
                                 <strong>{{ member.user.full_name }}</strong><br/>
                                 <i>
                                     <small>{{ member.user.affiliation }}</small>

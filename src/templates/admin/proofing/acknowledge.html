@@ -6,9 +6,9 @@
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/proofing_manager_base.html" %}
-<li>Acknowledge Task</li>
+{{ block.super }}  
+    {% include "elements/breadcrumbs/proofing_manager_base.html" with subpage="yes" %}
+    <li>Acknowledge Task</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

@@ -9,7 +9,7 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/proofing_manager_base.html" %}
+    {% include "elements/breadcrumbs/proofing_manager_base.html" with subpage="yes" %}
     <li>#{{ proofing_task.pk }} - {{ proofing_task.proofreader.full_name }}</li>
 {% endblock breadcrumbs %}
 

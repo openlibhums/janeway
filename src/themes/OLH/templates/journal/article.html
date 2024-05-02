@@ -105,7 +105,7 @@
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
                         <button class="menu-icon" type="button" data-toggle></button>
-                        <div class="title-bar-title">Options</div>
+                        <div class="title-bar-title">{% trans 'Options' %}</div>
                     </div>
                     <div id="options-menu">
                         <div class="large-6 columns">
@@ -131,11 +131,11 @@
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
                                     <ul class="menu vertical">
-                                        <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
-                                        <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
-                                        <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
-                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> Download RIS</a></li>
-                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}"> Download BibTeX</a></li>
+                                        <li><a data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
+                                        <li><a data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
+                                        <li><a data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -205,14 +205,12 @@
                             {% if galleys %}
                                 <div class="show-for-small-only">
                                     <p>
-                                        <strong>Downloads:</strong><br/>
+                                        <strong>{% trans 'Downloads' %}:</strong><br/>
                                         {% for galley in galleys %}
                                             <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                             <br/>
                                             {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                                <a target="_blank"
-                                                   href="{% url 'article_view_galley' article.id galley.id %}">View
-                                                    PDF</a><br/>
+                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a><br/>
                                             {% endif %}
                                         {% endfor %}
                                     </p>
@@ -227,25 +225,27 @@
                             {% endif %}
 
                             {% if article.funders.all %}
-                                <div class="callout primary">
-                                    <h2>{% trans "Funding" %}</h2>
-                                    <ul>
-                                        {% for funder in article.funders.all %}
-                                            <li>
-                                                {% if funder.fundref_id %}
-                                                    <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
-                                                {% else %}
-                                                    {{ funder.name }}
-                                                {% endif %}
-                                                {% if funder.funding_id %}
-                                                    {% blocktranslate with id=funder.funding_id %}
-                                                        (grant {{ id }})
-                                                    {% endblocktranslate %}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
+                                <h2>{% trans "Funding" %}</h2>
+
+                                {% for funder in article.funders.all %}
+                                    <p>
+                                        {% if funder.fundref_id %}
+                                            <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
+                                        {% else %}
+                                            {{ funder.name }}
+                                        {% endif %}
+                                        {% if funder.funding_id %}
+                                            {% blocktranslate with id=funder.funding_id %}
+                                                ({{ id }})
+                                            {% endblocktranslate %}
+                                        {% endif %}
+                                        {% if funder.funding_statement %}
+                                            <br/>
+                                            {{ funder.funding_statement|safe|linebreaksbr }}
+                                        {% endif %}
+                                    </p>
+                                {% endfor %}
+
                             {% endif %}
 
                             <div class="summary">
@@ -283,11 +283,8 @@
                                             {% if article.is_published or proofing %}
                                                 <h5 id="article_date_published">
                                                     {% trans "Published on" %} <br>
-                                                    {{ article.date_published|date:"d M Y" }}
+                                                    {{ article.date_published|date:"Y-m-d" }}
                                                 </h5>
-                                            {% else %}
-                                                <h5>{% trans "Accepted on" %} <br>
-                                                    {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
                                         {% endif %}
@@ -360,7 +357,7 @@
                                                 {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                                     </li>
                                                     <li>
-                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">View PDF</a>
+                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
                                                     </li>
                                                 {% endif %}
                                             </li>
@@ -373,7 +370,7 @@
                                         </p>
                                     {% endif %}
                                 {% else %}
-                                    <p> Downloads are not available until this article is published </p>
+                                    <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
                             <div class="section">
@@ -409,6 +406,12 @@
                                  {% if article.publication_title %}
                                  <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                                  {% endif %}
+                                 {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                                 <li>{% trans "Submitted on" %}: {{ article.date_submitted|date:"Y-m-d" }}</li>
+                                {% endif %}
+                                {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
+                                <li>{% trans "Accepted on" %}: {{ article.date_accepted|date:"Y-m-d" }}</li>
+                                {% endif %}
                              </ul>
                          </div>
                          {% endif %}
@@ -471,7 +474,7 @@
                         {% endif %}
 
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "File Checksums (MD5)" %}</h3>
+                            <h3>{% trans "File Checksums" %} (MD5)</h3>
                             <ul>
                                 {% for galley in galleys %}
                                     <li>

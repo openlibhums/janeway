@@ -1519,25 +1519,6 @@
     },
     {
         "group": {
-            "name": "styling"
-        },
-        "setting": {
-            "description": "If checked, Editorial Team images will display.",
-            "is_translatable": false,
-            "name": "enable_editorial_images",
-            "pretty_name": "Enable Editorial Team Image Display",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
             "name": "general"
         },
         "setting": {
@@ -4030,25 +4011,6 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled the review assignment page will show a table of reviewers who have completed a review in past review rounds.",
-            "is_translatable": false,
-            "name": "display_past_reviewers",
-            "pretty_name": "Display List of Reviewers from Past Review Rounds",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
             "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on review pages.",
             "is_translatable": false,
             "name": "enable_peer_review_data_on_review_page",
@@ -5008,6 +4970,137 @@
         "editable_by": [
             "journal-manager",
             "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Action URL for an external newsletter signup form",
+            "is_translatable": false,
+            "name": "external_newsletter_signup_url",
+            "pretty_name": "External Newsletter Signup URL",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The name of a folder containing Django templates that can be used to populate Janeway CMS pages. The folder should be located in the theme's templates folder. All HTML files inside will be loaded into a dropdown in the CMS.",
+            "is_translatable": false,
+            "name": "custom_cms_templates",
+            "pretty_name": "Custom CMS Templates",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Removes the editor section from the author's article status page. This does not stop editors from identifying themselves when, for example, rejecting an article if using an account with their name associated.",
+            "is_translatable": false,
+            "name": "hide_editors_from_authors",
+            "pretty_name": "Hide Assigned Editor Details",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "When enabled the date an article was submitted will be displayed on the article page.",
+            "is_translatable": false,
+            "name": "display_date_submitted",
+            "pretty_name": "Display Date Submitted",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "When enabled the date an article was accepted will be displayed on the article page.",
+            "is_translatable": false,
+            "name": "display_date_accepted",
+            "pretty_name": "Display Date Accepted",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "Display name for the page displaying editorial groups.",
+            "is_translatable": true,
+            "name": "editorial_group_page_name",
+            "pretty_name": "Editorial Group Page Name",
+            "type": "char"
+        },
+        "value": {
+            "default": "Editorial Team"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "When enabled no group names are displayed on the editorial group page.",
+            "is_translatable": false,
+            "name": "hide_editorial_group_names",
+            "pretty_name": "Hide Editorial Group Names",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
         ]
     }
 ]

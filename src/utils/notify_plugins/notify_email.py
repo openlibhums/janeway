@@ -129,9 +129,16 @@ def notify_hook(**kwargs):
     task = kwargs.pop('task', None)
     custom_reply_to = kwargs.pop('custom_reply_to', None)
 
-    if request and request.journal:
-        subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
-        subject = "[{0}] {1}".format(request.journal.code, subject_setting if subject_setting else subject)
+    if request:
+        subject_setting_value = setting_handler.get_email_subject_setting(
+            'email_subject',
+            subject,
+            request.journal
+        )
+        if request.journal:
+            subject = f"[{request.journal.code}] {subject_setting_value}"
+        else:
+            subject = subject_setting_value
 
     # call the method
     if not task:

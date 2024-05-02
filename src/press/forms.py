@@ -5,9 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django import forms
-
-from django_summernote.widgets import SummernoteWidget
-from django_bleach.forms import BleachField
+from tinymce.widgets import TinyMCE
 
 from press import models
 from core.widgets import JanewayFileInput
@@ -51,10 +49,11 @@ class PressForm(forms.ModelForm):
             'theme': forms.Select(
                 choices=logic.get_theme_list()
             ),
-            'footer_description': SummernoteWidget(),
-            'journal_footer_text': SummernoteWidget(),
-            'password_reset_text': SummernoteWidget(),
-            'registration_text': SummernoteWidget(),
+            'footer_description': TinyMCE(),
+            'journal_footer_text': TinyMCE(),
+            'password_reset_text': TinyMCE(),
+            'registration_text': TinyMCE(),
+            'description': TinyMCE(),
         }
 
     def save(self, commit=True):
@@ -79,7 +78,8 @@ class PressForm(forms.ModelForm):
 
 
 class PressJournalDescription(forms.Form):
-    description = BleachField()
+
+    description = forms.CharField(widget=TinyMCE)
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal')
@@ -99,3 +99,14 @@ class PressJournalDescription(forms.Form):
                 self.journal,
                 description,
             )
+
+class StaffGroupMemberForm(forms.ModelForm):
+    """Lets a staff member edit a few fields related to their
+    press staff profile
+    """
+    class Meta:
+        model = models.StaffGroupMember
+        exclude = ('group', 'user', 'sequence')
+        widgets = {
+            'publications': TinyMCE(),
+        }

@@ -4,114 +4,135 @@
 {% load i18n %}
 {% load field %}
 
-{% block title-section %}{% trans "Article Info" %}{% endblock %}
+{% block title-section %}{% trans "Funding Information" %}{% endblock %}
 {% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
+    <link href="{% static 'admin/css/timeline.css' %}"
+          rel="stylesheet">{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Submit an Article</li>
+{% endblock %}
 
 {% block body %}
     <article>
         <div class="box">
-        {% include "submission/timeline.html" with data=article %}
-             <div class="title-area">
-                        <h2>{% trans "Funding" %}</h2>
-                    </div>
-                    <div class="content submission-content">
-                        <div class="title-area">
-                            <h2>{% trans "Add Funding Source" %}</h2>
-                        </div>
-                        <div class="row expanded">
-                                <div class="large-8 columns">
-                                    <input type="text" name="funder_text" id="funder_text" />
-                                </div>
-                                <div class="large-2 columns">
-                                    <button class="button pull-right" onclick="javascript:search_fundref($('#funder_text').val())">{% trans 'Search for funder' %}</button>
-                                </div>
-                                <div class="large-2 columns">
-                                    <input id="funder_name" type="hidden" value="use_raw"/><input id="funder_doi" type="hidden" value=""/>
-                                    <a class="warning button pull-right" data-open="add_funder_blank"><i class="fa fa-plus">&nbsp;</i>{% trans 'Add funder manually' %}</a>
-                                </div>
-                        </div>
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <span name="funder_list" id="funder_list"></span>
-                        </div>
-                    </div>
+            {% include "submission/timeline.html" with data=article %}
+            {% if funder_form.errors %}
+                {% include "admin/elements/forms/errors.html" with form=funder_form %}
+            {% endif %}
+            <div class="title-area">
+                <h2>{% trans "Funding" %}</h2>
 
-                    <div class="title-area">
-                        <h2>{% trans 'Current Funders' %}</h2>
+            </div>
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                         Here you can search the FundRef database to add grant IDs to your article's metadata. If you can't find a specific funder, you can manually enter the details. You can also edit or delete entries as necessary.
+                    {% endblocktrans %}
+                </p>
+            </div>
+            <div class="title-area">
+                <h2>{% trans "Add Funding Source" %}</h2>
+            </div>
+            <div class="content submission-content">
+                <div class="row expanded">
+                    <div class="large-8 columns">
+                        <label for="funder_text">Search for Funder</label>
+                        <input type="text" name="funder_text"
+                               id="funder_text"/>
                     </div>
-
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <table class="scroll">
-                                <thead>
-                                <tr>
-                                    <th>{% trans "Name" %}</th>
-                                    <th>{% trans "Grant Number" %}</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody id="sortable">
-                                {% for funder in article.funders.all %}
-                                    <tr id="funder-{{ funder.pk }}">
-                                        <td>{{ funder.name }}</td>
-                                        <td>{{ funder.funding_id }}</td>
-                                        <td><a href="{% url 'delete_funder' article.pk funder.pk %}"><i
-                                                class="fa fa-trash">
-                                            &nbsp;</i></a></td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2">{% trans "No funders added." %}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
+                    <div class="large-2 columns">
+                        <button class="button pull-right"
+                                onclick="javascript:search_fundref($('#funder_text').val())">{% trans 'Search for funder' %}</button>
                     </div>
+                    <div class="large-2 columns">
+                        <input id="funder_name" type="hidden" value="use_raw"/><input
+                            id="funder_doi" type="hidden" value=""/>
+                        <a class="warning button pull-right"
+                           data-open="add_funder"><i class="fa fa-plus">&nbsp;</i>{% trans 'Add funder manually' %}
+                        </a>
+                    </div>
+                </div>
+                <div class="row expanded">
                     <div class="large-12 columns">
+                        <span name="funder_list" id="funder_list"></span>
+                    </div>
+                </div>
+
+                <div class="title-area">
+                    <h2>{% trans 'Current Funders' %}</h2>
+                </div>
+
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <table class="scroll">
+                            <thead>
+                            <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "FundRef ID" %}</th>
+                                <th>{% trans "Grant Number" %}</th>
+                                <th>{% trans "Funding Statement" %}</th>
+                                <th>{% trans "Edit" %}</th>
+                                <th>{% trans "Delete" %}</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sortable">
+                            {% for funder in article.funders.all %}
+                                <tr id="funder-{{ funder.pk }}">
+                                     <td>{{ funder.name|default_if_none:"" }}</td>
+                                    <td>{{ funder.fundref_id|default_if_none:"" }}</td>
+                                    <td>{{ funder.funding_id|default_if_none:"" }}</td>
+                                    <td>{{ funder.funding_statement|safe }}</td>
+                                    <td>
+                                        <a href="{% url 'edit_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
+                                            <span class="fa fa-edit" aria-hidden="true">&nbsp;</span>Edit
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
+                                            <span class="fa fa-trash" aria-hidden="true">&nbsp;</span>Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2">{% trans "No funders added." %}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                <div class="large-12 columns">
                     <form method="POST">
                         {% csrf_token %}
-                        <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
+                        <button class="button success pull-right" type="submit"
+                                name="next_step"><i class="fa fa-check">
                             &nbsp;</i>{% trans "Save and Continue" %}
                         </button>
                     </form>
                 </div>
-                </div>
             </div>
-
-            <div class="small reveal" id="add_funder_blank" data-reveal>
-                <div class="card">
-                    <div class="card-divider">
-                        <h5>{% trans 'Add funder' %}</h5>
-                    </div>
-                    <div class="card-section">
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" id="funder_name" name="funder_name"/>
-                                    <p class="help-text">{% trans funder_form.fields.name.help_text %}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" id="funder_doi" name="funder_doi"/>
-                                    <p class="help-text">{% trans funder_form.fields.fundref_id.help_text %}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <input type="text" name="grant_number" id="grant_number"/>
-                                    <p class="help-text">{% trans funder_form.fields.funding_id.help_text %}</p>
-                                </div>
-                            </div>
-                            <button type="submit" name="add_funder" class="success button">{% trans 'Add funder' %}</button>
-                            <button type="button" data-close="" class="close-button">&times;</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+        </div>
     </article>
+    <div class="small reveal" id="add_funder" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h5>{% trans 'Add funder' %}</h5>
+                </div>
+                <div class="card-section">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ funder_form|foundation }}
+                        <button type="submit" name="add_funder"
+                                class="success button">{% trans 'Add funder' %}</button>
+                        <button type="button" data-close=""
+                                class="close-button">&times;
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 {% endblock body %}
 
 
@@ -119,8 +140,10 @@
 {% block js %}
     {{ block.super }}
 
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <link rel="stylesheet"
+          href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript"
+            src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>
 
     <script type="text/javascript">
@@ -129,7 +152,6 @@
                 {allowSpaces: true});
         });
     </script>
-    {% include "admin/elements/jqte.html" %}
-    {% include "admin/elements/fundref/fundref.html" with funder_form=funder_form %}
+    {% include "admin/elements/fundref/fundref.html" %}
 
 {% endblock %}

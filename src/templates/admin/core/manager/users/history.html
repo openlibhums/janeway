@@ -6,7 +6,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_users' %}">Users</a></li>
-    <li>History</li>
+    <li>History of {{user.first_name}} {{user.last_name}} </li>
 {% endblock %}
 
 {% block title-section %}User History{% endblock %}

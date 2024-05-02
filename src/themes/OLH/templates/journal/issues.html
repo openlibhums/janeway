@@ -1,7 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
-{% load svg_or_image from press_url %}
-{% load hooks %}
+
 {% load i18n %}
 
 {% block page_title %}{% trans "Issues" %}{% endblock %}
@@ -15,30 +13,11 @@
             <div class="large-12 columns">
                 <h1>{% trans issue_type.plural_name %}</h1>
             </div>
-            {% for issue in issues %}
-                <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
-                    <div class="box issue">
-                        <a href="{% url 'journal_issue' issue.id %}" class="box-link"></a>
-                        {% if issue.cover_image %}
-                            {% svg_or_image issue.cover_image alt_text=issue.title %}
-                        {% elif journal.default_cover_image %}
-                            {% svg_or_image journal.default_cover_image alt_text=issue.title %}
-                        {% else %}
-                            {% static "common/img/sample/issue_cover.png" %}
-                        {% endif %}
-
-                        <div class="info-bar">
-                            <p>{{ issue.display_title }}<br />{{ issue.get_sorted_articles.count }} {% trans "items" %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% cycle '' '' '' '</div><div class="row">' %}
-                {% empty %}
-                <div class="large-12 columns">
-                    <h3>{% trans "There are no issues published in this journal yet." %}</h3>
-                </div>
-            {% endfor %}
+            {% if request.journal.display_issues_grouped_by_decade %}
+                {% include "elements/journal/issue_list_by_decade.html" %}
+            {% else %}
+                {% include "elements/journal/issue_list.html" %}
+            {% endif %}
         </div>
     </section>
 {% endblock %}

@@ -13,10 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
-from django_summernote.widgets import SummernoteWidget
-from django_bleach.forms import BleachField
-from django_bleach.utils import get_bleach_default_options
-from bleach import clean as bleach_clean
+from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
@@ -42,7 +39,7 @@ class EditKey(forms.Form):
         super(EditKey, self).__init__(*args, **kwargs)
 
         if self.key_type == 'rich-text':
-            self.fields['value'].widget = SummernoteWidget()
+            self.fields['value'].widget = TinyMCE()
         elif self.key_type == 'boolean':
             self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
         elif self.key_type == 'integer':
@@ -90,8 +87,6 @@ class JournalContactForm(JanewayTranslationModelForm):
 
 class EditorialGroupForm(JanewayTranslationModelForm):
 
-    description = BleachField()
-
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
@@ -100,14 +95,14 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 
     class Meta:
         model = models.EditorialGroup
-        fields = ('name', 'description', 'sequence',)
-        exclude = ('journal',)
+        fields = ('name', 'description', 'sequence', 'display_profile_images')
+        exclude = ('journal', 'press')
 
 
 class PasswordResetForm(forms.Form):
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password 1'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password 2'))
+    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
+    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -139,7 +134,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
     register_as_reader = forms.BooleanField(
         label='Register for Article Notifications',
-        help_text='Check this box if you would like to receive notifications of new articles published in this journal',
+        help_text=_('Check this box if you would like to receive notifications of new articles published in this journal'),
         required=False,
     )
 
@@ -203,6 +198,10 @@ class EditAccountForm(forms.ModelForm):
                    'date_confirmed', 'confirmation_code', 'is_active',
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
+        widgets = {
+            'biography': TinyMCE(),
+            'signature': TinyMCE(),
+        }
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
@@ -241,7 +240,7 @@ class AdminUserForm(forms.ModelForm):
 
         if active == 'add':
             self.fields['password_1'] = forms.CharField(widget=forms.PasswordInput, label="Password")
-            self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat password")
+            self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat Password")
 
         if request and not request.user.is_admin:
             self.fields.pop('is_staff', None)
@@ -330,7 +329,10 @@ class GeneratedSettingForm(forms.Form):
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(widget=SummernoteWidget, required=False)
+                self.fields[field['name']] = forms.CharField(required=False)
+                self.fields[field['name']] = forms.CharField(
+                    widget=TinyMCE(), required=False,
+                )
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
@@ -377,8 +379,9 @@ class JournalImageForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-           'header_image', 'default_cover_image',
-           'default_large_image', 'favicon', 'press_image_override',
+            'header_image', 'default_cover_image',
+            'default_large_image', 'favicon', 'press_image_override',
+            'default_profile_image',
         )
 
 
@@ -683,30 +686,6 @@ class CBVFacetForm(forms.Form):
         return queryset
 
 
-class EmailForm(forms.Form):
-    cc = forms.CharField(
-        required=False,
-        max_length=1000,
-        help_text='Separate email addresses with ;',
-    )
-    subject = forms.CharField(max_length=1000)
-    body = forms.CharField(widget=SummernoteWidget)
-
-    def clean_cc(self):
-        cc = self.cleaned_data['cc']
-        if not cc or cc == '':
-            return []
-
-        cc_list = [x.strip() for x in cc.split(';') if x]
-        for address in cc_list:
-            try:
-                validate_email(address)
-            except ValidationError:
-                self.add_error('cc', 'Invalid email address ({}).'.format(address))
-
-        return cc_list
-
-
 class ConfirmableForm(forms.Form):
     """
     Adds a modal at form submission asking
@@ -792,7 +771,7 @@ class EmailForm(forms.Form):
         required=False,
         max_length=10000,
     )
-    body = forms.CharField(widget=SummernoteWidget)
+    body = forms.CharField(widget=TinyMCE)
     attachments = MultipleFileField(required=False)
 
     def clean_cc(self):
@@ -848,27 +827,10 @@ class SettingEmailForm(EmailForm):
             setting_name,
         )
 
-
-class BleachFormMixin(forms.BaseForm):
-    """
-    Allows optional bleaching of values of rich-text fields
-    during form cleaning based on a Boolean.
+class SimpleTinyMCEForm(forms.Form):
+    """ A one-field form for populating a TinyMCE textarea
     """
 
-    BLEACHABLE_FIELDS = []
-    BLEACH_BOOLEAN_FIELD = 'support_copy_paste'
-
-    def save(self, commit=True):
-        obj = super().save(commit=False)
-        if self.BLEACH_BOOLEAN_FIELD:
-            bleach_kwargs = get_bleach_default_options()
-            for field in self.BLEACHABLE_FIELDS:
-                data = getattr(obj, field)
-                setattr(obj, field, bleach_clean(data, **bleach_kwargs))
-        if commit:
-            obj.save()
-        return obj
-
-
-class BleachableModelForm(BleachFormMixin, forms.ModelForm):
-    pass
+    def __init__(self, field_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[field_name] = forms.CharField(widget=TinyMCE)

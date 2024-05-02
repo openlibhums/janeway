@@ -1,10 +1,11 @@
-db/
+db
 logs/*
 *.tar.gz
-src/files/articles/*
-src/files/journals/*
-src/files/issues/*
-src/files/press/*
-src/files/temp/*
+src/files/articles
+src/files/journals
+src/files/issues
+src/files/press
+src/files/temp
+src/files/xsl
 src/plugins/*
 

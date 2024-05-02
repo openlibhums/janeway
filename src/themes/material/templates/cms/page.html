@@ -1,19 +1,53 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}{{ page.display_name }}{% endblock title %}
 
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
 {% block body %}
-	<div id="row">
-		<div class="col s12">
+    <div class="row">
+        <div class="col {% if page.display_toc %}m9 s12{% else %}m12{% endif %}">
             <div class="card">
                 <div id="cms-title" class="card-content">
-                  <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
-                  <div class="divider spacer"></div>
-                    <div id="cms" class="default-li">{{ page.content|safe }}</<div>
+                    <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
+                    <div class="divider spacer"></div>
+                    <div id="main_article" class="default-li">{{ page.content|safe }}</div>
                 </div>
             </div>
-		</div>
-	</div>
+        </div>
+        {% if page.display_toc %}
+            <div class="col m3 hide-on-small-and-down">
+                <div class="card toc-card" id="toc-card"
+                     style="display: none;">
+                    <div class="card-content">
+                        <h4>
+                            {% trans "Table of Contents" %}
+                        </h4>
+                        <ul id="toc" class="section table-of-contents">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 {% endblock body %}
+
+{% block js %}
+    <script src="{% static 'material/toc.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.scrollspy').scrollSpy();
+        });
+        $(document).scroll(function () {
+            var infobar_y = document.querySelector('nav').offsetHeight
+                + document.querySelector('.m3').offsetHeight
+            var y = $(this).scrollTop();
+            if (y > infobar_y) {
+                $('#toc-card').fadeIn();
+            } else {
+                $('#toc-card').fadeOut();
+            }
+        });
+    </script>
+{% endblock js %}

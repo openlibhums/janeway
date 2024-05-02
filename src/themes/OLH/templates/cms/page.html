@@ -6,12 +6,27 @@
 
 {% block body %}
     <section id="content">
-      <div class="row column">
-        <h1 id="cms-title">{{ page.display_name }}</h1>
-        <hr />
-        <div id="cms">
-          {{ page.content|safe }}
+        <div class="row">
+            <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
+                <h1 id="cms-title">{{ page.display_name }}</h1>
+                <hr/>
+                <div id="main_article">
+                    {{ page.content|safe }}
+                </div>
+            </div>
+            {% if page.display_toc %}
+                <aside class="medium-4 columns sticky-container hide-for-small-only">
+                    <div class="sticky" data-sticky data-margin-top="0"
+                         data-anchor="content" data-sticky-on="large">
+                        <div class="section">
+                            <h3>{% trans "Table of Contents" %}</h3>
+                            <ul id="toc">
+
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            {% endif %}
         </div>
-      </div>
     </section>
 {% endblock body %}

@@ -10,7 +10,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/proofreader_base.html" %}
+    {% include "elements/breadcrumbs/proofreader_base.html" with subpage="yes" %}
+    <li>Proofing Corrections</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

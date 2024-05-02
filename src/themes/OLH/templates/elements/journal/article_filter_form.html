@@ -25,11 +25,12 @@
     <div class="section">
         <label>{% trans "Filter" %}</label>
         {% for section in sections %}
-            <label for="section-{{ section.id }}"><input id="section-{{ section.id }}"
-                                                         value="{{ section.id }}" type="checkbox"
-                                                         name="filter[]"
-                                                         {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
-            </label>
+            <input id="section-{{ section.id }}"
+                value="{{ section.id }}" 
+                type="checkbox"
+                name="filter[]"
+                {% if section.id in filters %} checked="checked" {% endif %}>
+            <label for="section-{{ section.id }}">{{ section.name }}</label>
         {% endfor %}
         <button type="submit" class="button">{% trans "Filter" %}</button>
         {% if active_filters %}

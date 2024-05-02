@@ -13,6 +13,7 @@ import requests
 from shutil import copyfile
 from urllib.parse import urlencode
 from uuid import uuid4
+import warnings
 
 from django.contrib import messages
 from django.conf import settings
@@ -85,6 +86,11 @@ def list_scss(journal):
 def create_galley_from_file(file_object, article_object, owner=None):
     # we copy the file here so that the user submitting has no control over the typeset files
     # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
+
+    warnings.warn(
+        "'create_galley_from_file' is deprecated and will be removed,"
+        " use production.logic.save_galley instead."
+        )
     new_filename = str(uuid4()) + str(os.path.splitext(file_object.uuid_filename)[1])
     folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article_object.id))
 
@@ -279,7 +285,7 @@ def notify_author(request, article):
     kwargs = {
         'request': request,
         'article': article,
-        'user_message': request.POST.get('notify_author_email', 'No message from Editor.'),
+        'user_message': request.POST.get('email_to_author', 'No message from Editor.'),
         'section_editors': request.POST.get('section_editors', False),
         'peer_reviewers': request.POST.get('peer_reviewers', False),
     }
@@ -549,7 +555,7 @@ def send_email(user, form, request, article):
 
     log_dict = {
         'level': 'Info',
-        'action_type': 'Contact User',
+        'action_text': 'Contact User',
         'types': 'Email',
         'target': article if article else user
     }

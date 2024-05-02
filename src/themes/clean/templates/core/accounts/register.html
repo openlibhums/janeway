@@ -14,7 +14,7 @@
                 <div class="callout">
                     <div class="row">
                         <div class="col-md-12">
-                            <h5>{% trans "Register for an" %} {{ request.press.name }} {% trans "account" %}.</h5>
+                            <h5>{% trans "Register for an account with" %} {{ request.press.name }}.</h5>
                             <p>{% trans "Password Rules" %}:</p>
                             <ul class="no-top-margin">
                                 <li>{% blocktrans with password_length=request.press.password_length %}Your password should be {{ password_length }} characters long.{% endblocktrans %}</li>
@@ -51,19 +51,20 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Password Guide</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">{% trans 'Password Guide' %}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
+                    {% blocktrans %}
                     <p class="lead">When it comes to passwords, length is better than complexity.</p>
                     <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
                         uncomplicated password (our awesome moon base rocks).</p>
                     <p>We recommend selecting a long, but easy to remember password such as <em>our awesome moon base
                         rocks</em> which would take an estimated septillion years to crack as opposed to a complex one
                         like <em>Jfjfy&65^87</em> which would take just over 600 years on a standard computer.</p>
-
+                    {% endblocktrans %}
                 </div>
             </div>
         </div>

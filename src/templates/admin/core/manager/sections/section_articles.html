@@ -10,7 +10,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
     <li><a href="{% url 'core_manager_sections' %}">{% trans 'Sections' %}</a></li>
-    <li><a href="{% url 'core_manager_section' section.pk %}">{{ section.name }} {% trans 'Articles' %}</a></li>
+    <li>{{ section.name }} {% trans 'Articles' %}</li>
 {% endblock %}
 
 {% block body %}

@@ -13,3 +13,7 @@ class SectionTranslationOptions(TranslationOptions):
 @register(models.Article)
 class ArticleTranslationOptions(TranslationOptions):
     fields = ('title', 'abstract')
+
+@register(models.SubmissionConfiguration)
+class ArticleTranslationOptions(TranslationOptions):
+    fields = ('submission_file_text',)

@@ -11,6 +11,7 @@ import re
 import sys
 
 from django import forms
+from django.apps import apps
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -22,6 +23,7 @@ from django.db import(
     connection,
     IntegrityError,
     models,
+    ProgrammingError,
     transaction,
 )
 from django.db.models import fields, Q, Manager
@@ -40,6 +42,7 @@ from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django_bleach.models import BleachField
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
@@ -569,26 +572,71 @@ class SearchVector(DjangoSearchVector):
     template = '%(expressions)s'
 
 
-class AbstractBleachModelMixin(models.Model):
-
+class JanewayBleachField(BleachField):
+    """ An override of BleachField to avoid casting SafeString from db
+    Bleachfield automatically casts the default return type (string) into
+    a SafeString, which is okay when using the value for HTML rendering but
+    not when using the value elsewhere (XML encoding)
+    https://github.com/marksweb/django-bleach/blob/504b3784c525886ba1974eb9ecbff89314688491/django_bleach/models.py#L76
     """
-    A mixin for models with a field that needs to be bleached
-    most of the time to support copy-paste, but not in all cases,
-    so you cannot use django_bleach.BleachField.
-    Combine this mixin with core.forms.BleachableModelForm.
-    """
+    def from_db_value(self, value,expression, connection):
+        return value
 
-    support_copy_paste = models.BooleanField(
-        default=True,
-        help_text='Turn this on if copy-pasting content '
-                  'from a word processor, '
-                  'or using the toolbar to format text. '
-                  'It tells Janeway to clear out formatting '
-                  'that does not play nice. '
-                  'Turn it off and leave it off if anyone has '
-                  'added custom HTML or CSS using the code view, '
-                  'since it might remove custom code.',
-    )
+    def pre_save(self, model_instance, *args, **kwargs):
+        data = getattr(model_instance, self.attname)
+        try:
+            return super().pre_save(model_instance, *args, **kwargs)
+        except TypeError:
+            # Gracefully ignore typerrors on BleachField
+            return data
 
-    class Meta:
-        abstract = True
+
+class JanewayBleachCharField(JanewayBleachField):
+    """ An override of BleachField to use a TextInput but get sanitization"""
+    def formfield(self, **kwargs):
+        kwargs["widget"] = forms.TextInput()
+        return super().formfield(**kwargs)
+
+
+def default_press():
+    try:
+        Press = apps.get_model("press", "Press")
+        return Press.objects.first()
+    except ProgrammingError:
+        # Initial migration will attempt to call this,
+        # even when no EditorialGroups are created
+        return
+
+
+def default_press_id():
+    default_press_obj = default_press()
+    if default_press_obj:
+        return default_press_obj.pk
+
+
+class DynamicChoiceField(models.CharField):
+    def __init__(self, dynamic_choices=(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_choices = dynamic_choices
+
+    def formfield(self, *args, **kwargs):
+        form_element = super().formfield(**kwargs)
+        for choice in self.dynamic_choices:
+            form_element.choices.append(choice)
+        return form_element
+
+    def validate(self, value, model_instance):
+        """
+        Validates value and throws ValidationError.
+        """
+        try:
+            super().validate(value, model_instance)
+        except exceptions.ValidationError as e:
+            # If the raised exception is for invalid choice we check if the
+            # choice is in dynamic choices.
+            if e.code == 'invalid_choice':
+                potential_values = set(
+                    item[0] for item in self.dynamic_choices
+                )
+                if value not in potential_values:
+                    raise

@@ -149,22 +149,24 @@
                     {% if article.funders.all %}
                         <div class="callout primary">
                             <h2>{% trans "Funding" %}</h2>
-                            <ul>
-                                {% for funder in article.funders.all %}
-                                    <li>
-                                        {% if funder.fundref_id %}
-                                            <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
-                                        {% else %}
-                                            {{ funder.name }}
-                                        {% endif %}
-                                        {% if funder.funding_id %}
-                                            {% blocktranslate with id=funder.funding_id %}
-                                                (grant {{ id }})
-                                            {% endblocktranslate %}
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            {% for funder in article.funders.all %}
+                                <p>
+                                    {% if funder.fundref_id %}
+                                        <a href="{% url "funder_articles" funder.fundref_id %}">{{ funder.name }}</a>
+                                    {% else %}
+                                        {{ funder.name }}
+                                    {% endif %}
+                                    {% if funder.funding_id %}
+                                        {% blocktranslate with id=funder.funding_id %}
+                                            ({{ id }})
+                                        {% endblocktranslate %}
+                                    {% endif %}
+                                    {% if funder.funding_statement %}
+                                        <br/>
+                                        {{ funder.funding_statement|safe|linebreaksbr }}
+                                    {% endif %}
+                                </p>
+                            {% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -355,6 +357,26 @@
                                 <td>{{ article.ISSN_override}}</td>
                             </tr>
                             {% endif %}
+                            {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                                <tr>
+                                    <th>{% trans "Submitted on" %}</th>
+                                    <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if journal_settings.article.display_date_accepted and article.date_accepted %}
+                                <tr>
+                                    <th>{% trans "Accepted on" %}</th>
+                                    <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if article.date_published or proofing %}
+                            <tr>
+                                <th>{% trans "Published on" %}</th>
+                                <td id="article_date_published">
+                                    {{ article.date_published|date:"Y-m-d" }}
+                                </td>
+                            </tr>
+                            {% endif %}
                         </table>
                     </div>
                     <div class="spacer">
@@ -383,32 +405,6 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-
-                    {% if article.date_accepted or article.date_published or proofing %}
-                    <h4>
-                        {% trans "Dates" %}
-                    </h4>
-                    <table class="sidebar-table">
-                        {% if article.date_accepted %}
-                            <tr>
-                                <th>{% trans "Accepted" %}</th>
-                                <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
-                            </tr>
-                        {% endif %}
-                        {% if article.date_published or proofing %}
-                        <tr>
-                            <th>{% trans "Published" %}</th>
-                            <td id="article_date_published">
-                                {{ article.date_published|date:"Y-m-d" }}
-                            </td>
-                        </tr>
-                        {% endif %}
-                    </table>
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    {% endif %}
-
                     <h4>
                         {% trans "Licence" %}
                     </h4>

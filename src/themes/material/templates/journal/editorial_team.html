@@ -2,30 +2,28 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Editorial Team{% endblock title %}
-{% block page_title %}Editorial Team{% endblock page_title %}
+{% block title %}{{ journal_settings.styling.editorial_group_page_name }}{% endblock title %}
+{% block page_title %}{{ journal_settings.styling.editorial_group_page_name }}{% endblock page_title %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h1 class="no-bottom-margin">{% trans "Editorial Team" %}</h1>
+            <h1 class="no-bottom-margin">{{ journal_settings.styling.editorial_group_page_name }}</h1>
         </div>
     </div>
 
     {% for group in editorial_groups %}
         <div class="row eq-height-row">
+            {% if not journal_settings.styling.hide_editorial_group_names %}
             <div class="col m12 default-li">
                 <h2>{{ group.name }}</h2>
                 {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
             </div>
+            {% endif %}
             {% for member in group.members %}
                 <div class="col s12 m3">
                     <div class="card editorial-card eq-height-col">
-                        {% if journal_settings.styling.enable_editorial_images %}
-                            <div class="card-image">
-                                <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
-                            </div>
-                        {% endif %}
+                        {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" card_wrapper="True" %}
                         <div class="card-content" style="min-height: 190px;">
                             <span class="card-title small-card-title">{{ member.user.full_name }}</span>
                             <p>

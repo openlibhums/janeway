@@ -9,7 +9,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'cron_home' %}">Cron</a></li>
-    <li><a href="{% url 'cron_create_template' reminder.pk template_name %}">Create Reminder Template</a></li>
+    <li>Create Reminder Template</li>
 {% endblock %}
 
 {% block body %}

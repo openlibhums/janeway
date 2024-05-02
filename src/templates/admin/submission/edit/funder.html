@@ -1,0 +1,31 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation %}
+
+{% block title %}Edit Funder #{{ funder.pk }}{% endblock title %}
+
+{% block breadcrumbs %}
+    <li>Edit Funder #{{ funder.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns box">
+        <div class="title-area">
+            <h2>Edit Funder Entry #{{ funder.pk }}</h2>
+            {% if request.GET.return %}
+                <a class="button" href="{{ request.GET.return }}">Go back</a>
+            {% endif %}
+        </div>
+        <div class="content">
+            {% include "admin/elements/forms/errors.html" with form=form %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|foundation }}
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <button class="success button">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock body %}

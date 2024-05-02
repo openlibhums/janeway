@@ -40,7 +40,7 @@ Carousel
 
     - Latest articles
     - Latest news
-    - A combonation of both
+    - A combination of both
 
     You can select the number of items to display as well as select the items you want to include or exclude.
 
@@ -105,6 +105,8 @@ Default thumbnail
 Favicon
     The tiny little image you often see in the browser tab before the name of a webpage. Use a very small image of equal width and height. If not set, no Favicon will appear.
 
+Default Profile Image
+    The default image used when editorial team groups have "Display profile images" enabled. The image is also used on the public profile page when a user has enabled it.
 
 Styling
 -------

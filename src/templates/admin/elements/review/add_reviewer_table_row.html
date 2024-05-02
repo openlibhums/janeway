@@ -5,4 +5,5 @@
 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
-{% if past_reviewers %}<td>{% if reviewer in past_reviewers %}Yes{% else %}No{% endif %}</td>{% endif %}
+<td>{% if reviewer.is_past_reviewer %}Yes{% else %}No{% endif %}</td>
+{% if journal_settings.general.enable_suggested_reviewers %}<td>{% if reviewer.is_suggested_reviewer %}Yes{% else %}No{% endif %}</td>{% endif %}

@@ -6,12 +6,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from datetime import timedelta
 from uuid import uuid4
 
-from django_summernote.widgets import SummernoteWidget
-
 from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.template.defaultfilters import linebreaksbr
+from tinymce.widgets import TinyMCE
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
@@ -132,7 +131,7 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
 
 class BulkReviewAssignmentForm(forms.ModelForm):
     template = forms.CharField(
-        widget=SummernoteWidget,
+        widget=TinyMCE,
         label='Email Template',
     )
     reviewer_csv = forms.FileField(
@@ -209,7 +208,11 @@ class FakeReviewerDecisionForm(FakeModelForm, ReviewerDecisionForm):
 
     def __init__(self, *args, **kwargs):
         kwargs["disable_fields"] = True
+        open_peer_review = kwargs.pop('open_peer_review', None)
         super().__init__(*args, **kwargs)
+
+        if not (open_peer_review and open_peer_review.value):
+            del self.fields['permission_to_make_public']
 
 
 class ReplacementFileDetails(forms.ModelForm):
@@ -282,10 +285,6 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
             'author_note',
             'response_letter',
         )
-        widgets = {
-            'author_note': SummernoteWidget(),
-            'response_letter': SummernoteWidget(),
-        }
 
     def check_for_potential_errors(self):
         # This customizes the confirmable form method
@@ -339,8 +338,10 @@ class GeneratedForm(forms.Form):
                     widget=forms.TextInput(attrs={'div_class': element.width}),
                     required=element.required if fields_required else False)
             elif element.kind == 'textarea':
-                self.fields[str(element.pk)] = forms.CharField(widget=forms.Textarea,
-                                                            required=element.required if fields_required else False)
+                self.fields[str(element.pk)] = forms.CharField(
+                    widget=TinyMCE,
+                    required=element.required if fields_required else False
+                )
             elif element.kind == 'date':
                 self.fields[str(element.pk)] = forms.CharField(
                     widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
@@ -447,7 +448,7 @@ class ShareReviewsForm(forms.Form):
 
         for review in reviews:
             self.fields[f'{ review.pk }'] = forms.CharField(
-                widget=SummernoteWidget,
+                widget=TinyMCE,
                 label=f'Email for {review.reviewer.full_name()}',
                 initial=review.email_content,
             )

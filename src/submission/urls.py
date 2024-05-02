@@ -13,11 +13,20 @@ urlpatterns = [
     re_path(r'^(?P<article_id>\d+)/info/$', views.submit_info, name='submit_info'),
     re_path(r'^(?P<article_id>\d+)/authors/$', views.submit_authors, name='submit_authors'),
     re_path(r'^(?P<article_id>\d+)/authors/(?P<author_id>\d+)/delete/$', views.delete_author, name='delete_author'),
-    re_path(r'^(?P<article_id>\d+)/funders/(?P<funder_id>\d+)/delete/$', views.delete_funder, name='delete_funder'),
     re_path(r'^(?P<article_id>\d+)/files/$', views.submit_files, name='submit_files'),
     re_path(r'^(?P<article_id>\d+)/funding/$', views.submit_funding, name='submit_funding'),
     re_path(r'^submissions/$', views.submit_submissions, name='submission_submissions'),
     re_path(r'^(?P<article_id>\d+)/review/$', views.submit_review, name='submit_review'),
+    re_path(
+        r'^(?P<article_id>\d+)/funders/(?P<funder_id>\d+)/delete/$',
+        views.delete_funder,
+        name='delete_funder',
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/funders/(?P<funder_id>\d+)/edit/$',
+        views.edit_funder,
+        name='edit_funder',
+    ),
 
     re_path(r'^manager/article/settings/article/(?P<article_id>\d+)/publishernotes/order/$', views.publisher_notes_order,
         name='submission_article_publisher_notes_order'),

@@ -15,6 +15,8 @@ from review.logic import render_choices
 from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
+from tinymce.widgets import TinyMCE
+
 
 class PublisherNoteForm(forms.ModelForm):
 
@@ -66,19 +68,16 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
-                  'language', 'section', 'license', 'primary_issue',
-                  'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
-                  'first_page', 'last_page', 'page_numbers', 'total_pages',
-                  'competing_interests', 'custom_how_to_cite', 'rights')
+        fields = (
+            'title', 'subtitle', 'abstract', 'non_specialist_summary',
+            'language', 'section', 'license', 'primary_issue',
+            'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
+            'first_page', 'last_page', 'page_numbers', 'total_pages',
+            'competing_interests', 'custom_how_to_cite', 'rights',
+        )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
-            'abstract': forms.Textarea(
-                attrs={
-                    'placeholder': _('Enter your article\'s abstract here')
-                }
-            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -97,8 +96,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         journal = kwargs.pop('journal', None)
         self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
         editor_view = kwargs.pop('editor_view', False)
-
         super(ArticleInfo, self).__init__(*args, **kwargs)
+
+        # Flag labels for translation
+        for field in self.fields.values():
+            field.label = _(field.label)
+
         if 'instance' in kwargs:
             article = kwargs['instance']
             section_queryset = models.Section.objects.filter(
@@ -160,8 +163,10 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             widget=forms.TextInput(attrs={'div_class': element.width}),
                             required=element.required)
                     elif element.kind == 'textarea':
-                        self.fields[element.name] = forms.CharField(widget=forms.Textarea,
-                                                                    required=element.required)
+                        self.fields[element.name] = forms.CharField(
+                                widget=TinyMCE(),
+                                required=element.required,
+                        )
                     elif element.kind == 'date':
                         self.fields[element.name] = forms.CharField(
                             widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
@@ -264,17 +269,17 @@ class AuthorForm(forms.ModelForm):
 
         widgets = {
             'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
-            'middle_name': forms.TextInput(attrs={'placeholder': 'Middle name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'Last name'}),
+            'middle_name': forms.TextInput(attrs={'placeholder': _('Middle name')}),
+            'last_name': forms.TextInput(attrs={'placeholder': _('Last name')}),
             'biography': forms.Textarea(
-                attrs={'placeholder': 'Enter biography here'}),
-            'institution': forms.TextInput(attrs={'placeholder': 'Institution'}),
-            'department': forms.TextInput(attrs={'placeholder': 'Department'}),
-            'twitter': forms.TextInput(attrs={'placeholder': 'Twitter handle'}),
-            'linkedin': forms.TextInput(attrs={'placeholder': 'LinkedIn profile'}),
-            'impactstory': forms.TextInput(attrs={'placeholder': 'ImpactStory profile'}),
-            'orcid': forms.TextInput(attrs={'placeholder': 'ORCID ID'}),
-            'email': forms.TextInput(attrs={'placeholder': 'Email address'}),
+                attrs={'placeholder': _('Enter biography here')}),
+            'institution': forms.TextInput(attrs={'placeholder': _('Institution')}),
+            'department': forms.TextInput(attrs={'placeholder': _('Department')}),
+            'twitter': forms.TextInput(attrs={'placeholder': _('Twitter handle')}),
+            'linkedin': forms.TextInput(attrs={'placeholder': _('LinkedIn profile')}),
+            'impactstory': forms.TextInput(attrs={'placeholder': _('ImpactStory profile')}),
+            'orcid': forms.TextInput(attrs={'placeholder': _('ORCID ID')}),
+            'email': forms.TextInput(attrs={'placeholder': _('Email address')}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -486,11 +491,14 @@ class ProjectedIssueForm(forms.ModelForm):
         fields = ('projected_issue',)
 
 
-class FunderForm(forms.ModelForm):
+class ArticleFundingForm(forms.ModelForm):
 
     class Meta:
-        model = models.Funder
-        fields = ('name', 'fundref_id', 'funding_id')
+        model = models.ArticleFunding
+        fields = ('name', 'fundref_id', 'funding_id', 'funding_statement')
+        widgets = {
+            'funding_statement': TinyMCE(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.article = kwargs.pop('article', None)
@@ -499,8 +507,9 @@ class FunderForm(forms.ModelForm):
     def save(self, commit=True, *args, **kwargs):
         funder = super().save(commit=commit, *args, **kwargs)
         if self.article:
-            self.article.funders.add(funder)
-            self.article.save()
+            funder.article = self.article
+        if commit:
+            funder.save()
         return funder
 
 

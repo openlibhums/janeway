@@ -1,4 +1,4 @@
-{% for review in article.public_reviews %}
+    {% for review in article.public_reviews %}
     <div class="modal fade" id="reviewmodal-{{ review.pk }}" tabindex="-1" role="dialog"
          aria-labelledby="Peer Review {{ review.pk }}" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -17,20 +17,22 @@
                             <b>{{ answer.element.name }}</b>
                             <br/>
                             {% if answer.edited_answer %}
-                            {{ answer.edited_answer|linebreaksbr }}
+                            {{ answer.edited_answer|safe|linebreaksbr }}
                             {% else %}
-                            {{ answer.answer|linebreaksbr }}
+                            {{ answer.answer|safe|linebreaksbr }}
                             {% endif %}
                             <br/><br/>
                         </p>
                         {% endif %}
                     {% endfor %}
-                    <p><b>Note:</b><br/>This review refers to round {{ review.review_round.round_number }} of peer
+                    {% blocktrans %}
+                    <p><b>Note:<br/>This review refers to round {{ review.review_round.round_number }} of peer
                         review and may pertain to an earlier version of the document.</p>
+                    {% endblocktrans %}
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
                 </div>
             </div>
         </div>

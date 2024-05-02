@@ -286,7 +286,7 @@ def save_file_to_disk(file_to_handle, filename, folder_structure, chunk=True):
             fd.write(file_to_handle)
 
 
-def get_file(file_to_get, article):
+def get_file(file_to_get, article, as_bytes=False):
     """Returns the content of a file using standard python open procedures (no encoding).
 
     :param file_to_get: the file object to retrieve
@@ -297,6 +297,10 @@ def get_file(file_to_get, article):
 
     if not os.path.isfile(path):
         return ""
+
+    if as_bytes:
+        with open(path, 'rb') as contents:
+            return contents.read()
 
     try:
         with open(path, 'r') as content_file:

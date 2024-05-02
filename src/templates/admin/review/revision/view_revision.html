@@ -7,9 +7,9 @@
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/review_base.html" %}
-<li>Revision Request</li>
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
+    <li>Revision Request</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

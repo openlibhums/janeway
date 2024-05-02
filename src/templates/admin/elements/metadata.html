@@ -135,6 +135,7 @@
                     <th>Name</th>
                     <th>FundRef ID</th>
                     <th>Grant Number</th>
+                    <th>{% trans "Funding Statement" %}</th>
                 </tr>
                 </thead>
                 <tbody id="sortable">
@@ -143,6 +144,7 @@
                         <td>{{ funder.name|default_if_none:"" }}</td>
                         <td>{{ funder.fundref_id|default_if_none:"" }}</td>
                         <td>{{ funder.funding_id|default_if_none:"" }}</td>
+                        <td>{{ funder.funding_statement|default_if_none:""|safe }}</td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -185,9 +187,14 @@
     </table>
 {% endif %}
 
+
+{% if user_is_editor or not journal_settings.general.hide_editors_from_authors %}
 <div class="title-area">
     <h2>Editors</h2>
 </div>
+{% if user_is_editor and journal_settings.general.hide_editors_from_authors %}
+    <p>The setting to <a href="{% url 'core_edit_setting' 'general' 'hide_editors_from_authors' %}">hide editor details from authors</a> is turned on. Editors can view this section, but authors cannot.</p>
+{% endif %}
 <table id="unassigned" class="scroll small">
     <tr style="text-align: left">
         <th>Name</th>
@@ -206,6 +213,7 @@
         </tr>
     {% endfor %}
 </table>
+{% endif %}
 
 <div class="title-area">
     <h2>Projected Issue</h2>

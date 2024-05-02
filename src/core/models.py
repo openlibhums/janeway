@@ -25,6 +25,8 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -38,8 +40,11 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
     AbstractSiteModel,
+    DynamicChoiceField,
+    JanewayBleachField,
     PGCaseInsensitiveEmailField,
     SearchLookup,
+    default_press_id,
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
@@ -66,13 +71,13 @@ def profile_images_upload_path(instance, filename):
 
 
 SALUTATION_CHOICES = (
-    ('Miss', 'Miss'),
-    ('Ms', 'Ms'),
-    ('Mrs', 'Mrs'),
-    ('Mr', 'Mr'),
-    ('Mx', 'Mx'),
-    ('Dr', 'Dr'),
-    ('Prof.', 'Prof.'),
+    ('Miss', _('Miss')),
+    ('Ms', _('Ms')),
+    ('Mrs', _('Mrs')),
+    ('Mr', _('Mr')),
+    ('Mx', _('Mx')),
+    ('Dr', _('Dr')),
+    ('Prof.', _('Prof.')),
 )
 
 COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
@@ -175,12 +180,29 @@ class AccountQuerySet(models.query.QuerySet):
 
 
 class AccountManager(BaseUserManager):
-    def create_user(self, email, password=None, **kwargs):
-        if not email:
-            raise ValueError('Users must have a valid email address.')
+    def create_user(self, username=None, password=None, email=None, **kwargs):
+        """ Creates a user from the given username or email
+        In Janeway, users rely on email addresses to log in. For compatibility
+        with 3rd party libraries, we allow a username argument, however only a
+        email address will be accepted as the username and email.
+        """
+        if not email and username:
+            email = username
+            if "username" in kwargs:
+                del kwargs["username"]
+        try:
+            validate_email(email)
+            email = self.normalize_email(email)
+        except(ValidationError, TypeError, ValueError):
+            raise ValueError(f'{email} not a valid email address.')
 
         account = self.model(
-            email=self.normalize_email(email),
+            # The original case of the email is preserved
+            # in the email field
+            email=email,
+            # The email is lowercased in the username field
+            # so that we can perform case-insensitive checking
+            # and avoid creating duplicate accounts
             username=email.lower(),
         )
 
@@ -190,7 +212,9 @@ class AccountManager(BaseUserManager):
         return account
 
     def create_superuser(self, email, password, **kwargs):
-        account = self.create_user(email, password, **kwargs)
+        kwargs["email"] = email
+        kwargs["password"] = password
+        account = self.create_user(**kwargs)
 
         account.is_staff = True
         account.is_admin = True
@@ -208,6 +232,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
+    name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
     middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
     last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
@@ -219,22 +244,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=300,
         null=True,
         blank=True,
-        help_text=_('Name suffix eg. jr'),
+        verbose_name=_('Name suffix'),
     )
-    biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
+    biography = JanewayBleachField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
     institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Handle")
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
-    website = models.URLField(max_length=300, null=True, blank=True, verbose_name="Website")
-    github = models.CharField(max_length=300, null=True, blank=True, verbose_name="Github Username")
-    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs)
+    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
+    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
+    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
+    website = models.URLField(max_length=300, null=True, blank=True, verbose_name=_('Website'))
+    github = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Github Username'))
+    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
-    confirmation_code = models.CharField(max_length=200, blank=True, null=True)
-    signature = models.TextField(null=True, blank=True)
+    confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
+    signature = JanewayBleachField(null=True, blank=True, verbose_name=_("Signature"))
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(
         Country,
@@ -243,15 +268,28 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Country'),
         on_delete=models.SET_NULL,
     )
-    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
+    preferred_timezone = DynamicChoiceField(
+            max_length=300, null=True, blank=True,
+            choices=tuple(),
+            dynamic_choices=TIMEZONE_CHOICES,
+            verbose_name=_("Preferred Timezone")
+        )
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    enable_digest = models.BooleanField(default=False)
-    enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
-                                                'available to the public.')
+    enable_digest = models.BooleanField(
+        default=False,
+        verbose_name=_("Enable Digest"),
+    )
+    enable_public_profile = models.BooleanField(
+        default=False,
+        help_text=_(
+            'If enabled, your basic profile will be available to the public.'
+        ),
+        verbose_name=_("Enable public profile"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -259,8 +297,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     objects = AccountManager()
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
 
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
@@ -302,8 +339,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return str(self.id)
 
     def get_full_name(self):
-        return '{0} {1}{2}{3}'.format(self.first_name, self.middle_name, ' ' if self.middle_name != "" else "",
-                                      self.last_name)
+        """Deprecated in 1.5.2"""
+        return self.full_name()
 
     def get_short_name(self):
         return self.first_name
@@ -315,9 +352,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def full_name(self):
         name_elements = [
+            self.name_prefix,
             self.first_name,
             self.middle_name,
-            self.last_name
+            self.last_name,
+            self.suffix,
         ]
         return " ".join([name for name in name_elements if name])
 
@@ -468,13 +507,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
+            'name_prefix': self.name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
+            'name_suffix': self.suffix,
             'institution': self.institution,
             'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
-            'name_suffix': self.suffix,
         }
 
         frozen_author = self.frozen_author(article)
@@ -555,7 +595,7 @@ def generate_expiry_date():
 class OrcidToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     orcid = models.CharField(max_length=200)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
 
     def __str__(self):
         return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
@@ -567,7 +607,7 @@ class PasswordResetToken(models.Model):
         on_delete=models.CASCADE,
     )
     token = models.CharField(max_length=300, default=uuid.uuid4)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name='Expires on')
+    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
     expired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -736,7 +776,7 @@ class SettingValue(models.Model):
         Setting,
         models.CASCADE,
     )
-    value = models.TextField(null=True, blank=True)
+    value = JanewayBleachField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -829,13 +869,13 @@ class SettingValue(models.Model):
 
 
 class File(AbstractLastModifiedModel):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
     label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
-    description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
+    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -846,7 +886,7 @@ class File(AbstractLastModifiedModel):
 
     # Remote galley handling
     is_remote = models.BooleanField(default=False)
-    remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
+    remote_url = models.URLField(blank=True, null=True, verbose_name=_('Remote URL of file'))
 
     history = models.ManyToManyField(
         'FileHistory',
@@ -926,8 +966,8 @@ class File(AbstractLastModifiedModel):
                 kwargs=url_kwargs,
             )
 
-    def get_file(self, article):
-        return files.get_file(self, article)
+    def get_file(self, article, as_bytes=False):
+        return files.get_file(self, article, as_bytes=as_bytes)
 
     def get_file_path(self, article):
         return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
@@ -1107,13 +1147,13 @@ def update_file_index(sender, instance, **kwargs):
 
 
 class FileHistory(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
     label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
-    description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
+    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -1298,7 +1338,7 @@ class XSLFile(models.Model):
         help_text="A label to help recognise this stylesheet",
         unique=True,
     )
-    comments = models.TextField(blank=True, null=True)
+    comments = JanewayBleachField(blank=True, null=True)
     original_filename = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
@@ -1352,7 +1392,7 @@ class Task(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
     title = models.CharField(max_length=300)
-    description = models.TextField()
+    description = JanewayBleachField()
     complete_events = models.ManyToManyField('core.TaskCompleteEvents')
     link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
     assignees = models.ManyToManyField(Account)
@@ -1419,12 +1459,23 @@ class TaskCompleteEvents(models.Model):
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
-    description = models.TextField(blank=True, null=True)
+    press = models.ForeignKey(
+        'press.Press',
+        on_delete=models.CASCADE,
+        default=default_press_id,
+    )
+    description = JanewayBleachField(blank=True, null=True)
     journal = models.ForeignKey(
         'journal.Journal',
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     sequence = models.PositiveIntegerField()
+    display_profile_images = models.BooleanField(
+        default=False,
+        help_text="Enable to display profile images for this group.",
+    )
 
     class Meta:
         ordering = ('sequence',)
@@ -1434,10 +1485,13 @@ class EditorialGroup(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def members(self):
-        return [member for member in self.editorialgroupmember_set.all()]
+        return self.editorialgroupmember_set.all()
 
     def __str__(self):
-        return f'{self.name} ({self.journal.code})'
+        if self.journal:
+            return f'{self.name} ({self.journal.code})'
+        else:
+            return f'{self.name} ({self.press})'
 
 
 class EditorialGroupMember(models.Model):
@@ -1450,6 +1504,10 @@ class EditorialGroupMember(models.Model):
         on_delete=models.CASCADE,
     )
     sequence = models.PositiveIntegerField()
+    statement = models.TextField(
+        blank=True,
+        help_text='A statement of interest or purpose',
+    )
 
     class Meta:
         ordering = ('sequence',)
@@ -1481,10 +1539,10 @@ class Contacts(models.Model):
 
 
 class Contact(models.Model):
-    recipient = models.EmailField(max_length=200, verbose_name='Who would you like to contact')
+    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact?'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
-    body = models.TextField(verbose_name=_('Your message'))
+    body = JanewayBleachField(verbose_name=_('Your message'))
     client_ip = models.GenericIPAddressField()
     date_sent = models.DateField(auto_now_add=True)
 
@@ -1715,11 +1773,11 @@ class AccessRequest(models.Model):
     processed = models.BooleanField(
         default=False,
     )
-    text = models.TextField(
+    text = JanewayBleachField(
         blank=True,
         null=True,
     )
-    evaluation_note = models.TextField(
+    evaluation_note = JanewayBleachField(
         null=True,
         help_text='This note will be sent to the requester when you approve or decline their request.',
     )

@@ -1,0 +1,5 @@
+{% if group.display_profile_images %}
+    {% if card_wrapper %}<div class="card-image">{% endif %}
+        {% include "common/elements/profile_image.html" with classes=classes user=member.user %}
+    {% if card_wrapper %}</div>{% endif %}
+{% endif %}

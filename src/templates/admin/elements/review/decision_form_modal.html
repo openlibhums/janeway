@@ -20,7 +20,7 @@
                     {% if not answer.author_can_see %} (Won't be shown to the authors){% endif %}
                 </strong>
                     <br/>
-                    {{ answer.answer|linebreaksbr }}
+                    {{ answer.answer|safe|linebreaksbr }}
                     <br/><br/>
                 {% endfor %}
             </div>

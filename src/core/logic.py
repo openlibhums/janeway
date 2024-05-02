@@ -54,14 +54,14 @@ def send_reset_token(request, reset_token):
             request.press.password_reset_text,
             template_is_setting=True,
         )
-        subject = 'Password Reset'
     else:
         message = render_template.get_message_content(
             request,
             context,
             'password_reset',
         )
-        subject = 'subject_password_reset'
+
+    subject = 'subject_password_reset'
 
     notify_helpers.send_email_with_body_from_user(
         request,
@@ -90,14 +90,14 @@ def send_confirmation_link(request, new_user):
             request.press.registration_text,
             template_is_setting=True,
         )
-        subject = 'Registration Confirmation'
     else:
         message = render_template.get_message_content(
             request,
             context,
             'new_user_registration',
         )
-        subject = 'subject_new_user_registration'
+
+    subject = 'subject_new_user_registration'
 
     notify_helpers.send_slack(
         request,
@@ -317,6 +317,13 @@ def get_settings_to_edit(display_group, journal, user):
                     'general',
                     'data_figure_file_submission_instructions', journal
                 ),
+            },
+            {
+                'name': 'hide_editors_from_authors',
+                'object': setting_handler.get_setting(
+                    'general',
+                    'hide_editors_from_authors', journal
+                ),
             }
         ]
         setting_group = 'general'
@@ -380,10 +387,6 @@ def get_settings_to_edit(display_group, journal, user):
             {
                 'name': 'enable_suggested_reviewers',
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
-            },
-            {
-                'name': 'display_past_reviewers',
-                'object': setting_handler.get_setting('general', 'display_past_reviewers', journal),
             },
             {
                 'name': 'enable_peer_review_data_on_review_page',
@@ -485,15 +488,33 @@ def get_settings_to_edit(display_group, journal, user):
             'display_altmetric_badge',
             'altmetric_badge_type',
             'hide_author_email_links',
+            'display_date_submitted',
+            'display_date_accepted',
         ]
         group_of_settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
     elif display_group == 'styling':
         group_of_settings = [
             {
-                'name': 'enable_editorial_images',
+                'name': 'display_journal_title',
                 'object': setting_handler.get_setting('styling',
-                                                      'enable_editorial_images',
+                                                      'display_journal_title',
+                                                      journal),
+            },
+        ]
+        setting_group = 'styling'
+    elif display_group == 'editorial':
+        group_of_settings = [
+            {
+                'name': 'editorial_group_page_name',
+                'object': setting_handler.get_setting('styling',
+                                                      'editorial_group_page_name',
+                                                      journal),
+            },
+            {
+                'name': 'hide_editorial_group_names',
+                'object': setting_handler.get_setting('styling',
+                                                      'hide_editorial_group_names',
                                                       journal),
             },
             {
@@ -501,15 +522,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('styling',
                                                       'multi_page_editorial',
                                                       journal),
-            },
-            {
-                'name': 'display_journal_title',
-                'object': setting_handler.get_setting('styling',
-                                                      'display_journal_title',
-                                                      journal),
             }
         ]
         setting_group = 'styling'
+
     elif display_group == 'news':
         group_of_settings = [
             {

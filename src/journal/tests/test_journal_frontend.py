@@ -85,6 +85,7 @@ class TestJournalSite(TestCase):
         self.editorial_group, c = core_models.EditorialGroup.objects.get_or_create(
             name='Test Editor Group',
             journal=self.journal,
+            press=self.press,
             sequence=1,
         )
         core_models.EditorialGroupMember.objects.create(

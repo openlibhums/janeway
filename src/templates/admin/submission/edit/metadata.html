@@ -12,6 +12,10 @@
     <li>{{ article.safe_title }}</li>
     <li>Metadata</li>
 {% endblock breadcrumbs %}
+{% block head %}
+    {{ block.super }}
+    {{ info_form.media }}
+{% endblock %}
 
 {% block body %}
     <div class="large-12 columns box">
@@ -29,11 +33,11 @@
                         <div class="large-12 columns">
                             {{ info_form.title|foundation }}
                         </div>
-                        <div class="large-10 columns end">
+                        <div class="large-12 columns end">
                             {{ info_form.abstract|foundation }}
                         </div>
                         {% if journal_settings.general.submission_summary %}
-                        <div class="large-10 columns end">
+                        <div class="large-12 columns end">
                             {{ info_form.non_specialist_summary|foundation }}
                         </div>
                         {% endif %}
@@ -200,7 +204,7 @@
                         <button
                             type="button"
                             class="warning button pull-right"
-                            data-open="add_funder_blank"
+                            data-open="add_funder"
                         ><i class="fa fa-plus">&nbsp;</i>Add funder manually</button>
                     </div>
                 </form>
@@ -224,7 +228,9 @@
                         <th>Name</th>
                         <th>FundRef ID</th>
                         <th>Grant Number</th>
-                        <th></th>
+                        <th>{% trans "Funding Statement" %}</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                     </thead>
                     <tbody id="sortable">
@@ -233,9 +239,17 @@
                             <td>{{ funder.name|default_if_none:"" }}</td>
                             <td>{{ funder.fundref_id|default_if_none:"" }}</td>
                             <td>{{ funder.funding_id|default_if_none:"" }}</td>
-                            <td><a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}"><i
-                                    class="fa fa-trash">
-                                &nbsp;</i></a></td>
+                            <td>{{ funder.funding_statement|safe }}</td>
+                            <td>
+                                <a href="{% url 'edit_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
+                                    <span class="fa fa-edit" aria-hidden="true">&nbsp;</span>Edit
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
+                                    <span class="fa fa-trash" aria-hidden="true">&nbsp;</span>Delete
+                                </a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -246,7 +260,7 @@
             </div>
         </div>
 
-        <div class="small reveal" id="add_funder_blank" data-reveal>
+        <div class="small reveal" id="add_funder" data-reveal>
             <div class="card">
                 <div class="card-divider">
                     <h5>Add funder</h5>
@@ -254,24 +268,7 @@
                 <div class="card-section">
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="large-12 columns">
-                                <input type="text" id="funder_name" name="funder_name"/>
-                                <p class="help-text">{% trans funder_form.fields.name.help_text %}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="large-12 columns">
-                                <input type="text" id="funder_doi" name="funder_doi"/>
-                                <p class="help-text">{% trans funder_form.fields.fundref_id.help_text %}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="large-12 columns">
-                                <input type="text" name="grant_number" id="grant_number"/>
-                                <p class="help-text">{% trans funder_form.fields.funding_id.help_text %}</p>
-                            </div>
-                        </div>
+                        {{ funder_form|foundation }}
                         <button type="submit" name="add_funder" class="success button">Add funder</button>
                         <button type="button" data-close="" class="close-button">&times;</button>
                     </form>
@@ -322,6 +319,5 @@
             }
         }
     </script>
-    {% include "admin/elements/jqte.html" %}
-    {% include 'admin/elements/fundref/fundref.html' with funder_form=funder_form %}
+    {% include 'admin/elements/fundref/fundref.html' %}
 {% endblock js %}

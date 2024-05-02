@@ -3,7 +3,7 @@ version: "3"
 services:
 
   janeway-postgres:
-    image: postgres:11
+    image: postgres:15
     volumes:
       - ./db/postgres-data:/var/lib/postgresql/data
     ports:
@@ -32,7 +32,7 @@ services:
             - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
 
   janeway-mysql:
-    image: mysql:5.7
+    image: mysql:8.3
     volumes:
       - ./db/mysql-data:/var/lib/mysql
     ports:

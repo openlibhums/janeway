@@ -2,13 +2,19 @@
 
 
 {% block title %}Unassigned Articles{% endblock %}
-{% block title-section %}Unassigned Articles{% endblock %}
-{% block title-sub %}List of Unassigned Articles{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Unassigned Articles</li>
+{% endblock breadcrumbs %}
 
 {% block body %}
 
         <div class="large-12 columns">
             <div class="box">
+                <div class="title-area">
+                    <h2>Unassigned Articles</h2>
+                </div>
                 <div class="content">
                     <table class="table scroll" id="unassigned">
                         <thead>
@@ -41,9 +47,9 @@
                 </div>
             </div>
         </div>
-
 {% endblock body %}
 
 {% block js %}
-    {{ block.super}}
+    {{ block.super }}
+    {% include "admin/elements/datatables.html" with target="#unassigned" sort=2 order='asc' %}
 {% endblock js %}

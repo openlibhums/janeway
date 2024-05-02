@@ -9,7 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from django_summernote.widgets import SummernoteWidget
+from tinymce.widgets import TinyMCE
 
 from core import models as core_models
 from journal import models as journal_models, logic
@@ -60,7 +60,7 @@ class ContactForm(forms.ModelForm, CaptchaForm):
 class ResendEmailForm(forms.Form):
     to = forms.CharField(max_length=1000, help_text='Seperate email addresses with ;')
     subject = forms.CharField(max_length=1000)
-    body = forms.CharField(widget=SummernoteWidget)
+    body = forms.CharField(widget=TinyMCE)
 
     def __init__(self, *args, **kwargs):
         log_entry = kwargs.pop('log_entry')
@@ -134,4 +134,5 @@ class IssueDisplayForm(forms.ModelForm):
             'display_article_number',
             'display_article_page_numbers',
             'display_issue_doi',
+            'display_issues_grouped_by_decade',
         )

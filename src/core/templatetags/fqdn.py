@@ -57,3 +57,9 @@ def external_journal_url(journal, url_name=None, *args):
         path = None
 
     return journal.site_url(path=path)
+
+
+@register.simple_tag(takes_context=True)
+def build_absolute_uri(context, relative_url, *args):
+    request = context.get('request')
+    return request.build_absolute_uri(relative_url)

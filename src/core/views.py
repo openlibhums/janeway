@@ -28,8 +28,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils import translation
-from django.db.models import Q
-from django.utils.decorators import method_decorator
+from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
@@ -45,11 +44,11 @@ from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
+from press import forms as press_forms
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
-from utils.shared import language_override_redirect
-from utils.logic import get_janeway_version
+from utils.shared import language_override_redirect, clear_cache
 from repository import models as rm
 from events import logic as events_logic
 
@@ -74,8 +73,8 @@ def user_login(request):
 
     if bad_logins >= 10:
         messages.info(
-                request,
-                'You have been banned from logging in due to failed attempts.'
+            request,
+            _('You have been banned from logging in due to failed attempts.'),
         )
         logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
@@ -118,15 +117,19 @@ def user_login(request):
 
                 if empty_password_check:
                     messages.add_message(request, messages.INFO,
-                                         'Password reset process has been initiated, please check your inbox for a'
-                                         ' reset request link.')
+                        _(
+                            'Password reset process has been initiated,'
+                            ' please check your inbox for a'
+                            ' reset request link.'
+                        ),
+                    )
                     logic.start_reset_process(request, empty_password_check)
                 else:
 
                     messages.add_message(
                         request, messages.ERROR,
-                        'Wrong email/password combination or your'
-                        ' email address has not been confirmed yet.',
+                        _('Wrong email/password combination or your'
+                        ' email address has not been confirmed yet.'),
                     )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
@@ -212,7 +215,7 @@ def user_logout(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    messages.info(request, 'You have been logged out.')
+    messages.info(request, _('You have been logged out.'))
     logout(request)
     return redirect(reverse('website_index'))
 
@@ -353,8 +356,11 @@ def register(request):
                 new_user.add_account_role('author', request.journal)
             logic.send_confirmation_link(request, new_user)
 
-            messages.add_message(request, messages.SUCCESS, 'Your account has been created, please follow the'
-                                                            'instructions in the email that has been sent to you.')
+            messages.add_message(
+                request, messages.SUCCESS,
+                _('Your account has been created, please follow the'
+                'instructions in the email that has been sent to you.'),
+            )
             return redirect(reverse('core_login'))
 
     template = 'core/accounts/register.html'
@@ -397,7 +403,7 @@ def activate_account(request, token):
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Account activated',
+            _('Account activated'),
         )
 
         return redirect(reverse('core_login'))
@@ -427,6 +433,13 @@ def edit_profile(request):
             request.journal
         ).value
 
+    if user.staffgroupmember_set.first():
+        staff_group_membership_form = press_forms.StaffGroupMemberForm(
+            instance=user.staffgroupmember_set.first()
+        )
+    else:
+        staff_group_membership_form = None
+
     if request.POST:
         if 'email' in request.POST:
             email_address = request.POST.get('email_address')
@@ -439,13 +452,13 @@ def edit_profile(request):
                     messages.add_message(
                         request,
                         messages.WARNING,
-                        'An account with that email address already exists.',
+                        _('An account with that email address already exists.'),
                     )
             except ValidationError:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'Email address is not valid.',
+                    _('Email address is not valid.'),
                 )
 
         elif 'change_password' in request.POST:
@@ -460,14 +473,14 @@ def edit_profile(request):
                     if not problems:
                         request.user.set_password(new_pass_one)
                         request.user.save()
-                        messages.add_message(request, messages.SUCCESS, 'Password updated.')
+                        messages.add_message(request, messages.SUCCESS, _('Password updated.'))
                     else:
                         [messages.add_message(request, messages.INFO, problem) for problem in problems]
                 else:
-                    messages.add_message(request, messages.WARNING, 'Passwords do not match')
+                    messages.add_message(request, messages.WARNING, _('Passwords do not match'))
 
             else:
-                messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+                messages.add_message(request, messages.WARNING, _('Old password is not correct.'))
 
         elif 'subscribe' in request.POST and send_reader_notifications:
             request.user.add_account_role(
@@ -477,7 +490,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully subscribed to article notifications.',
+                _('Successfully subscribed to article notifications.'),
             )
 
         elif 'unsubscribe' in request.POST and send_reader_notifications:
@@ -488,7 +501,7 @@ def edit_profile(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Successfully unsubscribed from article notifications.',
+                _('Successfully unsubscribed from article notifications.'),
             )
 
         elif 'edit_profile' in request.POST:
@@ -499,12 +512,24 @@ def edit_profile(request):
                 messages.add_message(request, messages.SUCCESS, 'Profile updated.')
                 return redirect(reverse('core_edit_profile'))
 
+        elif 'edit_staff_member_info' in request.POST:
+            form = press_forms.StaffGroupMemberForm(
+                request.POST,
+                instance=user.staffgroupmember_set.first()
+            )
+
+            if form.is_valid():
+                form.save()
+                messages.add_message(request, messages.SUCCESS, 'Staff member info updated.')
+                return redirect(reverse('core_edit_profile'))
+
         elif 'export' in request.POST:
             return logic.export_gdpr_user_profile(user)
 
     template = 'core/accounts/edit_profile.html'
     context = {
         'form': form,
+        'staff_group_membership_form': staff_group_membership_form,
         'user_to_edit': user,
         'send_reader_notifications': send_reader_notifications,
     }
@@ -526,16 +551,28 @@ def public_profile(request, uuid):
         is_active=True,
         enable_public_profile=True,
     )
-    roles = models.AccountRole.objects.filter(
-        user=user,
-        journal=request.journal,
-    )
-
     template = 'core/accounts/public_profile.html'
     context = {
         'user': user,
-        'roles': roles,
     }
+
+    if request.journal:
+        context['editorial_groups'] = user.editorialgroupmember_set.filter(
+            group__journal=request.journal
+        )
+        context['roles'] = models.AccountRole.objects.filter(
+            user=user,
+            journal=request.journal,
+        )
+        if not context['roles']:
+            raise Http404()
+
+    elif request.press:
+        context['editorial_groups'] = user.editorialgroupmember_set.filter(
+            group__press=request.press,
+            group__journal__isnull=True,
+        )
+        context['staff_groups'] = user.staffgroupmember_set.all()
 
     return render(request, template, context)
 
@@ -1059,7 +1096,39 @@ def role(request, slug):
     """
     role_obj = get_object_or_404(models.Role, slug=slug)
 
-    account_roles = models.AccountRole.objects.filter(journal=request.journal, role=role_obj)
+    account_roles = models.AccountRole.objects.filter(
+        journal=request.journal,
+        role=role_obj,
+    ).select_related(
+        'user',
+        'journal',
+    )
+
+    # Grab additional context for the reviewer page.
+    if slug == 'reviewer':
+        account_roles = account_roles.prefetch_related(
+            'user__interest',
+        ).annotate(
+            total_assignments=Count(
+                'user__reviewer',
+                filter=Q(user__reviewer__article__journal=request.journal),
+            ),
+            last_completed_review=Subquery(
+                review_models.ReviewAssignment.objects.filter(
+                    reviewer=OuterRef('user__pk'),
+                    is_complete=True,
+                    date_complete__isnull=False,
+                    article__journal=request.journal,
+                ).order_by('-date_complete').values('date_complete')[:1]
+            ),
+            average_score=Subquery(
+                review_models.ReviewerRating.objects.filter(
+                    assignment__reviewer=OuterRef('user__pk')
+                ).values('assignment__reviewer').annotate(
+                    avg_score=Avg('rating')
+                ).values('avg_score')[:1]
+            )
+        )
 
     template = 'core/manager/roles/role.html'
     context = {
@@ -1195,6 +1264,11 @@ def user_edit(request, user_id):
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Profile updated.')
 
+            if request.GET.get('return'):
+                return redirect(
+                    request.GET.get('return')
+                )
+
             return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
@@ -1289,13 +1363,15 @@ def enrol_users(request):
     first_name = request.GET.get('first_name', '')
     last_name = request.GET.get('last_name', '')
     email = request.GET.get('email', '')
-    roles = models.Role.objects.exclude(
+    assignable_roles = models.Role.objects.exclude(
         slug__in=['reader'],
     ).order_by(('name'))
 
     # if the current user is not staff, exclude the journal-manager role.
     if not request.user.is_staff:
-        roles.exclude(slug__in='journal-manager')
+        assignable_roles = assignable_roles.exclude(
+            slug='journal-manager',
+        )
 
     if first_name or last_name or email:
         filters = {}
@@ -1311,7 +1387,7 @@ def enrol_users(request):
     template = 'core/manager/users/enrol_users.html'
     context = {
         'user_search': user_search,
-        'roles': roles,
+        'roles': assignable_roles,
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
@@ -1571,26 +1647,55 @@ def contacts_order(request):
 
 
 @editor_user_required
+@GET_language_override
 def editorial_team(request):
     """
     Displays a list of EditorialGroup objects, allows them to be deleted and created,
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
+    with translation.override(request.override_language):
+        editorial_groups = models.EditorialGroup.objects.filter(
+            journal=request.journal,
+        )
+        settings, setting_group = logic.get_settings_to_edit(
+            'editorial',
+            request.journal,
+            request.user,
+        )
+        edit_form = forms.GeneratedSettingForm(settings=settings)
+        if request.POST:
+            edit_form = forms.GeneratedSettingForm(
+                request.POST,
+                settings=settings,
+            )
 
-    if 'delete' in request.POST:
-        delete_id = request.POST.get('delete')
-        group = get_object_or_404(models.EditorialGroup, pk=delete_id, journal=request.journal)
-        group.delete()
-        return redirect(reverse('core_editorial_team'))
+            if edit_form.is_valid():
+                edit_form.save(
+                    group=setting_group,
+                    journal=request.journal,
+                )
+                # clear cache to ensure changes display immediately
+                clear_cache()
+                return language_override_redirect(
+                    request,
+                    'core_editorial_team',
+                    kwargs={},
+                )
 
-    template = 'core/manager/editorial/index.html'
-    context = {
-        'editorial_groups': editorial_groups,
-    }
+        if 'delete' in request.POST:
+            delete_id = request.POST.get('delete')
+            group = get_object_or_404(models.EditorialGroup, pk=delete_id, journal=request.journal)
+            group.delete()
+            return redirect(reverse('core_editorial_team'))
 
-    return render(request, template, context)
+        template = 'core/manager/editorial/index.html'
+        context = {
+            'editorial_groups': editorial_groups,
+            'edit_form': edit_form,
+        }
+
+        return render(request, template, context)
 
 
 @editor_user_required
@@ -1604,14 +1709,23 @@ def edit_editorial_group(request, group_id=None):
     """
     with translation.override(request.override_language):
         if group_id:
-            group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
+            group = get_object_or_404(
+                models.EditorialGroup,
+                pk=group_id,
+                journal=request.journal,
+                press=request.press,
+            )
             form = forms.EditorialGroupForm(
                 instance=group,
             )
         else:
             group = None
+            try:
+                next_sequence = request.journal.next_group_order()
+            except AttributeError:
+                next_sequence = request.press.next_group_order()
             form = forms.EditorialGroupForm(
-                next_sequence=request.journal.next_group_order(),
+                next_sequence=next_sequence
             )
 
         if request.POST:
@@ -1622,6 +1736,7 @@ def edit_editorial_group(request, group_id=None):
                 else:
                     group = form.save(commit=False)
                     group.journal = request.journal
+                    group.press = request.press
                     group.save()
 
                 return language_override_redirect(
@@ -1642,7 +1757,8 @@ def edit_editorial_group(request, group_id=None):
 @editor_user_required
 def add_member_to_group(request, group_id, user_id=None):
     """
-    Displays a list of users that are eligible to be added to an Editorial Group and displays those already in said
+    Displays a list of users that are eligible to be added to an Editorial
+    Group and displays those already in said
     group. Members can also be removed from Groups.
     :param request: HttpRequest object
     :param group_id: EditorialGroup object PK

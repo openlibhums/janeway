@@ -21,20 +21,18 @@
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <label>
-                                Label <span class="red">*</span>
+                                {% trans 'Label' %} <span class="red">*</span>
                             </label>
                             <input type="text" name="label" id="id_label" required="" maxlength="200" value="{{ request.journal.submissionconfiguration.submission_file_text }}">
                         </div>
                     </div>
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <label>
-                                Description
-                            </label>
+                            <label>{% trans 'Description' %}</label>
                             <textarea name="description" id="id_description" rows="10" cols="40"></textarea>
                         </div>
                     </div>
-                    <button type="submit" name="manuscript" class="success button">Add File</button>
+                    <button type="submit" name="manuscript" class="success button">{% trans 'Add File' %}</button>
                     <button class="close-button" data-close="" aria-label="Close reveal" type="button">
                         <span aria-hidden="true">×</span>
                     </button>

@@ -1,0 +1,6 @@
+{% load static %}
+<img
+    class="{{ classes }}"
+    src="{% if user.profile_image %}{{ user.profile_image.url }}{% elif request.journal.default_profile_image %}{{ request.journal.default_profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
+    alt="{% if user.profile_image %}Profile picture for {{ user.full_name }}{% else %}A generic headshot photograph of a person{% endif %}"
+/>

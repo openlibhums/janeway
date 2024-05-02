@@ -9,18 +9,19 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'core_editorial_team' %}">Editorial Group Manager</a></li>
+    <li>Editorial Group Manager</li>
 {% endblock %}
 
 {% block body %}
     <div class="large-12 columns">
         <div class="box">
+            {% include "admin/elements/translations/form_tabs.html" with object=request.journal %}
             <div class="title-area">
                 <h2>Editorial Groups</h2>
                 <a class="button" href="{% url 'core_add_editorial_team' %}"><i class="fa fa-plus">&nbsp;</i>Add New Group</a>
                  <a class="button" href="{% url 'editorial_team' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Editorial Team Page</a>
             </div>
-            <div class="box">
+            <div class="content">
                 <p>
                     Editorial team groups are listed below. You can change the order by dragging and dropping table rows into the order you want them to appear.
                 </p>
@@ -48,6 +49,16 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </form>
+            </div>
+            <div class="title-area">
+                <h2>Display Settings</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% include "admin/elements/forms/group_editorial.html" with edit_form=edit_form %}
+                    <button name="save" class="success button">Save Settings</button>
                 </form>
             </div>
         </div>

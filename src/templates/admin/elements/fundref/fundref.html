@@ -1,184 +1,51 @@
-{% load i18n %}
+{% load i18n foundation %}
+
 <!-- Note: this is transcluded as templated HTML because we need to pass: 1. translation templates; and 2. CSRF tokens-->
-<script language="JavaScript">
-        function search_fundref(query) {
-                query_url = '//api.crossref.org/funders?query=' + query;
-                console.log('Clearing old modals.')
-                $("div.fundref_modal").remove();
-                console.log('Fetching ' + query_url);
-                fetch(query_url)
-                    .then(function(response) {
-                        response.json()
-                            .then(function(json) {
-                                // create the table and header
-                                const table = document.createElement('table');
-                                table.classList.add('scroll');
+<script>
+   function search_fundref(query) {
+    var query_url = '//api.crossref.org/funders?query=' + query;
 
-                                const thead = document.createElement('thead');
-                                table.appendChild(thead);
+    // Clear out old modals
+    console.log('Clearing old modals.');
+    $("div.fundref_modal").remove();
+    console.log('Fetching ' + query_url);
+    $("#funder_list").html('<p class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i><br />Searching Fundref...</p>');
+    fetch(query_url)
+        .then(response => response.json())
+        .then(json => {
+            const funder_span = $('#funder_list');
+            funder_span.empty();
 
-                                const thead_tr = document.createElement('tr');
-                                thead.appendChild(thead_tr);
+            const table = $('<table>').addClass('scroll');
+            const thead = $('<thead>').appendTo(table);
+            const thead_tr = $('<tr>').appendTo(thead);
+            $('<th>').text('{% trans "Funder" %}').appendTo(thead_tr);
+            $('<th>').text('{% trans "FundRef ID" %}').appendTo(thead_tr);
+            $('<th>').text('{% trans "Add Funder" %}').appendTo(thead_tr);
 
-                                const thead_th_funder = document.createElement('th');
-                                thead_th_funder.innerText = '{% trans "Funder" %}';
-                                thead_th_funder.setAttribute('colspan', '2');
-                                thead_tr.appendChild(thead_th_funder);
+            $.each(json.message.items, (index, funder) => {
+                const funder_tr = $('<tr>').appendTo(table);
+                $('<td>').text(funder.name).appendTo(funder_tr);
+                $('<td>').text(funder.uri).appendTo(funder_tr);
+                const add_funder_td = $('<td>').appendTo(funder_tr);
+                const add_funder_button = $('<a>')
+                    .addClass('success button pull-right')
+                    .attr({
+                        'data-name': funder.name,
+                        'data-fundref-id': funder.uri,
+                        'data-open': 'add_funder',
+                        'name': 'add_funder_' + index
+                    })
+                    .text('{% trans "Add funder" %}')
+                    .appendTo(add_funder_td);
 
-                                const funder_span = $('#funder_list');
-                                funder_span.html('');
-
-                                for(const funder in json['message']['items']) {
-                                    const current_funder = json['message']['items'][funder];
-
-                                    // create a funder row
-                                    const funder_tr = document.createElement('tr');
-                                    table.appendChild(funder_tr);
-
-                                    const funder_name_td = document.createElement('td');
-                                    funder_name_td.innerText = current_funder['name'];
-                                    funder_tr.appendChild(funder_name_td);
-
-                                    const add_funder_td = document.createElement('td');
-                                    funder_tr.appendChild(add_funder_td);
-
-                                    const add_funder_button = document.createElement('a');
-                                    add_funder_button.classList.add('success');
-                                    add_funder_button.classList.add('button');
-                                    add_funder_button.classList.add('pull-right');
-                                    add_funder_button.name = 'add_funder_' + funder;
-                                    add_funder_button.setAttribute('href', '#');
-                                    add_funder_button.setAttribute('data-open', 'add_funder_' + funder);
-                                    add_funder_td.appendChild(add_funder_button);
-
-                                    const fa_plus_icon = document.createElement('i');
-                                    fa_plus_icon.classList.add('fa');
-                                    fa_plus_icon.classList.add('fa-plus');
-                                    fa_plus_icon.innerHTML = '&nbsp;';
-                                    add_funder_button.appendChild(fa_plus_icon);
-
-                                    const add_funder_text = document.createElement('span');
-                                    add_funder_text.innerText = '{% trans "Add funder" %}';
-                                    add_funder_button.appendChild(add_funder_text);
-
-                                    // now create the modal
-                                    const modal_div = document.createElement('div');
-                                    modal_div.classList.add('small');
-                                    modal_div.classList.add('reveal');
-                                    modal_div.classList.add('fundref_modal')
-                                    modal_div.id = 'add_funder_' + funder;
-                                    modal_div.setAttribute('data-reveal', '');
-                                    funder_span.append(modal_div);
-
-                                    const card_div = document.createElement('div');
-                                    card_div.classList.add('card');
-                                    modal_div.appendChild(card_div);
-
-                                    const card_divider_div = document.createElement('div');
-                                    card_divider_div.classList.add('card-divider');
-                                    card_div.appendChild(card_divider_div);
-
-                                    const add_funder_header = document.createElement('h5');
-                                    add_funder_header.innerText = '{% trans "Add funder" %}';
-                                    card_divider_div.appendChild(add_funder_header);
-
-                                    const add_funder_card_section = document.createElement('div');
-                                    add_funder_card_section.classList.add('card-section');
-                                    card_div.appendChild(add_funder_card_section);
-
-                                    const add_funder_form = document.createElement('form');
-                                    add_funder_form.setAttribute('method', 'POST');
-                                    add_funder_card_section.appendChild(add_funder_form);
-                                    add_funder_form.innerHTML = "<input type=\"hidden\" name=\"csrfmiddlewaretoken\" value=\"{{csrf_token}}\">"
-
-
-                                    // Add the funder field to the modal
-                                    const funder_name_modal_row = document.createElement('div');
-                                    funder_name_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_name_modal_row);
-
-                                    const funder_name_text = document.createElement('div');
-                                    funder_name_text.classList.add('large-12');
-                                    funder_name_text.classList.add('columns');
-                                    funder_name_modal_row.appendChild(funder_name_text);
-
-                                    const funder_name_textbox = document.createElement('input');
-                                    funder_name_textbox.setAttribute('type', 'text');
-                                    funder_name_textbox.id = 'funder_name';
-                                    funder_name_textbox.name = 'funder_name';
-                                    funder_name_textbox.setAttribute('value', current_funder['name']);
-                                    funder_name_text.appendChild(funder_name_textbox);
-
-                                    const funder_name_label = document.createElement('p');
-                                    funder_name_label.classList.add('help-text');
-                                    funder_name_label.innerText = '{% trans funder_form.fields.name.help_text %}';
-                                    funder_name_text.appendChild(funder_name_label);
-
-
-                                    // Add the funder DOI field to the modal
-                                    const funder_doi_modal_row = document.createElement('div');
-                                    funder_doi_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_doi_modal_row);
-
-                                    const funder_doi_text = document.createElement('div');
-                                    funder_doi_text.classList.add('large-12');
-                                    funder_doi_text.classList.add('columns');
-                                    funder_doi_modal_row.appendChild(funder_doi_text);
-
-                                    const funder_doi_textbox = document.createElement('input');
-                                    funder_doi_textbox.setAttribute('type', 'text');
-                                    funder_doi_textbox.id = 'funder_doi';
-                                    funder_doi_textbox.name = 'funder_doi';
-                                    funder_doi_textbox.setAttribute('value', current_funder['uri']);
-                                    funder_doi_text.appendChild(funder_doi_textbox);
-
-                                    const funder_doi_label = document.createElement('p');
-                                    funder_doi_label.classList.add('help-text');
-                                    funder_doi_label.innerText = '{% trans funder_form.fields.fundref_id.help_text %}';
-                                    funder_doi_text.appendChild(funder_doi_label);
-
-                                    // Add the grant ID
-                                    const funder_grant_modal_row = document.createElement('div');
-                                    funder_grant_modal_row.classList.add('row');
-                                    add_funder_form.appendChild(funder_grant_modal_row);
-
-                                    const funder_grant_text = document.createElement('div');
-                                    funder_grant_text.classList.add('large-12');
-                                    funder_grant_text.classList.add('columns');
-                                    funder_grant_modal_row.appendChild(funder_grant_text);
-
-                                    const funder_grant_textbox = document.createElement('input');
-                                    funder_grant_textbox.setAttribute('type', 'text');
-                                    funder_grant_textbox.id = 'grant_number';
-                                    funder_grant_textbox.name = 'grant_number';
-                                    funder_grant_text.appendChild(funder_grant_textbox);
-
-                                    const funder_grant_label = document.createElement('p');
-                                    funder_grant_label.classList.add('help-text');
-                                    funder_grant_label.innerText = '{% trans funder_form.fields.funding_id.help_text %}';
-                                    funder_grant_text.appendChild(funder_grant_label);
-
-                                    const modal_submit = document.createElement('button');
-                                    modal_submit.setAttribute('type', 'submit');
-                                    modal_submit.name = 'add_funder';
-                                    modal_submit.classList.add('success');
-                                    modal_submit.classList.add('button');
-                                    modal_submit.innerText = '{% trans "Add funder" %}';
-                                    add_funder_form.appendChild(modal_submit);
-
-                                    const modal_close = document.createElement('button');
-                                    modal_close.setAttribute('type', 'button');
-                                    modal_close.setAttribute('data-close', '');
-                                    modal_close.classList.add('close-button');
-                                    modal_close.innerHTML = '&times;';
-                                    add_funder_form.appendChild(modal_close);
-
-                                }
-
-                                // clear the HTML then append the element
-                                funder_span.append(table);
-                                $(document).foundation();
-                            });
+                add_funder_button.on('click', function() {
+                    $('#id_name').val($(this).data('name'));
+                    $('#id_fundref_id').val($(this).data('fundref-id'));
                 });
-            }
-    </script>
+            });
+
+            funder_span.html(table);
+        });
+}
+</script>
