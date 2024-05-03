@@ -539,7 +539,7 @@ HTTP_TIMEOUT_SECONDS = 5
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.5.1)'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.6.0)'
 
 # Skip migrations by default on sqlite for faster execution
 if (
