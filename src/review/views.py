@@ -250,7 +250,7 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
 
     _, created = logic.assign_editor(article, editor, assignment_type, request)
     messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
-    if created and should_redirect:
+    if created and should_redirect and editor != request.user:
         return redirect('{0}?return={1}'.format(
             reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
             request.GET.get('return')))
@@ -276,6 +276,22 @@ def unassign_editor(request, article_id, editor_id):
             email_context=email_context,
             request=request,
     )
+
+    if editor == request.user:
+        assignment.delete()
+
+        util_models.LogEntry.add_entry(
+            types='EditorialAction',
+            description='Editor {0} unassigned from article {1}'
+                ''.format(editor.full_name(), article.id),
+            level='Info',
+            request=request,
+            target=article,
+        )
+
+        return redirect(reverse(
+            'review_unassigned_article', kwargs={'article_id': article_id}
+        ))
 
     if request.method == "POST":
         form = core_forms.SettingEmailForm(
