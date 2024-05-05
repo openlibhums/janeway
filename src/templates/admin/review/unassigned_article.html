@@ -16,6 +16,7 @@
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
     {% user_has_role request 'section-editor' as is_section_editor %}
+    {% editor_can_access request article as editor_can_access %}
     <div class="large-7 columns">
         <div class="box">
             <div class="title-area">
@@ -216,7 +217,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Type</th>
-                        {% if is_editor %}
+                        {% if editor_can_access %}
                             <th></th>
                         {% endif %}
                     </tr>
@@ -225,7 +226,7 @@
                             <td>{{ assignment.editor.full_name }}</td>
                             <td>{{ assignment.editor.email }}</td>
                             <td>{{ assignment.editor_type|capfirst }}</td>
-                            {% if is_editor %}
+                            {% if editor_can_access %}
                                 <td><a href="{% url 'review_unassign_editor' article.id assignment.editor.id %}">Remove</a>
                             {% endif %}
                             </td>
@@ -240,6 +241,78 @@
         </div>
 
         {% if is_editor %}
+        {% if journal_settings.general.required_senior_editor %}
+        <div class="box">
+            <div class="title-area">
+                <h2>Add Senior Editors</h2>
+            </div>
+            <div class="content">
+                <table class="scroll small" id="editors">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for account_role in editors %}
+                        <tr>
+                            <td>{{ account_role.user.full_name }}</td>
+                            <td>{{ account_role.user.email }}</td>
+                            <td>Editor</td>
+                            <td>
+                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'editor' %}?return={% url 'review_unassigned_article' article.pk %}">
+                                    Add{% if account_role.user == request.user %} Self{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% if editor_can_access %}
+        <div class="box">
+            <div class="title-area">
+                <h2>Add Section Editors</h2>
+            </div>
+            <div class="content">
+                <table class="scroll small" id="editors">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for account_role in section_editors %}
+                        <tr>
+                            <td>{{ account_role.user.full_name }}</td>
+                            <td>{{ account_role.user.email }}</td>
+                            <td>Section Editor</td>
+                            <td>
+                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'section-editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% if not section_editors and not editors %}
+                        <tr>
+                            <td colspan="4">No matches</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
         <div class="box">
             <div class="title-area">
                 <h2>Add Editors</h2>
@@ -291,6 +364,7 @@
         </div>
         {% endif %}
         {% endif %}
+        {% endif %}
         <div class="box">
             <div class="title-area">
                 <h2>Actions</h2>
@@ -302,7 +376,7 @@
                             {% trans 'This paper has not had an automatic plagiarism check. If you wish to do so you can run a' %} <a href="{% url 'review_unassigned_article' article.pk %}#files-block">{% trans 'Similarity Check via iThenticate' %}</a> .</small></p>
                         </div>
                     {% endif %}
-                    {% if article.editors %}
+                    {% if editor_can_access or is_section_editor and request.user in article.editor_list %}
                         <ul class="menu vertical actions">
                             <li>
                                 <a href="{% url 'review_move_to_review' article.pk %}?return={% url 'review_in_review' article.pk %}"><i
@@ -316,7 +390,7 @@
                         </ul>
                     {% else %}
                         <div class="bs-callout bs-callout-info">
-                            <small>Before you can perform actions on an article you must assign an Editor.</small>
+                            <small>Before you can perform actions on an article you must be assigned as a Senior Editor.</small>
                         </div>
                     {% endif %}
                 {% else %}

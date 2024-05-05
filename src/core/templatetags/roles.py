@@ -1,6 +1,7 @@
 from django import template
 
 from core import models
+from review import models as review_models
 
 register = template.Library()
 
@@ -47,3 +48,12 @@ def role_id(request, role_slug):
         return role.pk
     except models.Role.DoesNotExist:
         return 0
+
+
+@register.simple_tag
+def editor_can_access(request, article):
+    required_senior_editor = models.Setting.objects.get(
+        name='required_senior_editor'
+    ).journal_current_setting_value(journal=request.journal).value
+    is_editor = user_has_role(request, 'editor')
+    return is_editor and request.user in article.editor_list() if required_senior_editor else is_editor
