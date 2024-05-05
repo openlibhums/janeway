@@ -364,6 +364,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'draft_decisions', journal),
             },
             {
+                'name': 'required_senior_editor',
+                'object': setting_handler.get_setting('general', 'required_senior_editor', journal),
+            },
+            {
                 'name': 'default_review_form',
                 'object': setting_handler.get_setting('general', 'default_review_form', journal),
                 'choices': review_form_choices

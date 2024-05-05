@@ -1674,6 +1674,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "If enabled, Articles must be assigned at least one Senior Editor to review.",
+            "is_translatable": false,
+            "name": "required_senior_editor",
+            "pretty_name": "Required Senior Editor",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it (Only recommended journals using custom review forms that are particularly long)",
             "is_translatable": false,
             "name": "enable_save_review_progress",
