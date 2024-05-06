@@ -132,6 +132,42 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         return potential_errors
 
 
+class EditorAssignmentRequestForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+    class Meta:
+        model = models.EditorAssignmentRequest
+        fields = ('date_due', 'editor')
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        self.article = kwargs.pop('article')
+        self.editors = kwargs.pop('editors')
+
+        super(EditorAssignmentRequestForm, self).__init__(*args, **kwargs)
+
+        default_due = setting_handler.get_setting(
+            'general',
+            'default_review_days',
+            self.journal,
+            create=True,
+        ).value
+
+        if default_due:
+            due_date = timezone.now() + timedelta(days=int(default_due))
+            self.fields['date_due'].initial = due_date
+
+        if self.editors:
+            self.fields['editor'].queryset = self.editors
+
+    def save(self, commit=True):
+        editor_assignment = super().save(commit=False)
+        editor_assignment.article = self.article
+
+        if commit:
+            editor_assignment.save()
+
+        return editor_assignment
+
+
 class BulkReviewAssignmentForm(forms.ModelForm):
     template = forms.CharField(
         widget=TinyMCE,

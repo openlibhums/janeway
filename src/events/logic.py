@@ -23,6 +23,9 @@ class Events:
     # kwargs: editor_assignment, request, email_data, acknowledgement (true), skip (boolean)
     # raised when an editor is manually assigned to an article(or skip the acknowledgement)
     ON_EDITOR_MANUALLY_ASSIGNED = 'on_editor_manually_assigned'
+    # kwargs: editor_assignment, request, email_data, acknowledgement (true), skip (boolean)
+    # raised when an editor decides to notify to another editor with a custom message or skipped the email
+    ON_EDITOR_REQUESTED_NOTIFICATION = 'on_editor_requested_notification'
 
     # kwargs: request, editor_assignment, user_message_content (will be blank), acknowledgement (false)
     # raised when an editor is assigned to an article

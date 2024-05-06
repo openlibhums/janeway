@@ -95,6 +95,39 @@ class EditorAssignment(models.Model):
         unique_together = ('article', 'editor')
 
 
+class EditorAssignmentRequest(models.Model):
+
+    article = models.ForeignKey(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    editor_assignment = models.ForeignKey(
+        EditorAssignment,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+
+    editor_type = models.CharField(max_length=20, choices=assignment_choices)
+    notified = models.BooleanField(default=False)
+
+    # Dates
+    date_requested = models.DateTimeField(auto_now_add=True, null=True)
+    date_due = models.DateField(null=True)
+    date_accepted = models.DateTimeField(blank=True, null=True)
+    date_declined = models.DateTimeField(blank=True, null=True)
+    date_complete = models.DateTimeField(blank=True, null=True)
+    date_reminded = models.DateField(blank=True, null=True)
+
+    is_complete = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('article', 'editor')
+
+
 class ReviewRound(models.Model):
     article = models.ForeignKey(
         'submission.Article',

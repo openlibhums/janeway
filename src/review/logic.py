@@ -41,6 +41,40 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
+def get_editors(candidate_queryset, exclude_pks):
+    editors = candidate_queryset.exclude(
+        pk__in=exclude_pks,
+    )
+    return editors
+
+
+def get_editors_candidates(article, user=None, editors_to_exclude=None):
+    """ Builds a queryset of candidates for editor assignment requests for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    :param editors_to_exclude: queryset of Account objects
+    """
+    editor_assignment_requests = article.editorassignmentrequest_set.all()
+    editor_pks_to_exclude = [assignment.editor.pk for assignment in editor_assignment_requests]
+
+    if user:
+        editor_pks_to_exclude.append(user.pk)
+
+    if editors_to_exclude:
+        for editor in editors_to_exclude:
+            editor_pks_to_exclude.append(
+                editor.pk,
+            )
+
+    queryset_editor = article.journal.users_with_role('editor')
+    queryset_section_editor = article.journal.users_with_role('section-editor')
+
+    return get_editors(
+        queryset_editor | queryset_section_editor,
+        editor_pks_to_exclude
+    )
+
+
 def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
         'reviewer',
@@ -223,6 +257,27 @@ def get_article_details_for_review(article):
         keywords=", ".join(kw.word for kw in article.keywords.all()),
     )
     return mark_safe(detail_string)
+
+
+def get_editor_notification_context(
+    request, article, editor,
+    editor_assignment,
+):
+    review_unassigned_url = request.journal.site_url(path=reverse(
+        'review_unassigned_article', kwargs={'article_id': article.id}
+    ))
+
+    article_details = get_article_details_for_review(article)
+
+    email_context = {
+        'article': article,
+        'editor': editor,
+        'editor_assignment': editor_assignment,
+        'review_unassigned_url': review_unassigned_url,
+        'article_details': article_details,
+    }
+
+    return email_context
 
 
 def get_reviewer_notification_context(
@@ -624,6 +679,15 @@ def quick_assign(request, article, reviewer_user=None):
     else:
         for error in errors:
             messages.add_message(request, messages.WARNING, error)
+
+
+def handle_editor_form(request, new_editor_form, editor_type):
+    account = new_editor_form.save(commit=False)
+    account.is_active = True
+    account.save()
+    account.add_account_role(editor_type, request.journal)
+    messages.add_message(request, messages.INFO, 'A new account has been created.')
+    return account
 
 
 def handle_reviewer_form(request, new_reviewer_form):

@@ -1,0 +1,211 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% block title %}Invite Editor to Assignment{% endblock title %}
+{% block title-section %}Invite Editor to Assignment{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Invite Editor to Assignment</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <form id="editor_assignment_form" method="POST">
+            {% include "elements/forms/errors.html" with form=form %}
+            {% csrf_token %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>1. Select Editor</h2>
+                        <a href="{% if journal_settings.general.enable_one_click_access %}#{% else %}{% url 'core_add_user' %}?role=section-editor&return={{ request.path }}{% endif %}" class="button" data-open="editor"><i class="fa fa-plus">&nbsp;</i>Add New Editor</a>
+                        <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
+                </div>
+                <div class="content">
+
+                    <p>
+                        {% blocktrans %}
+                        You can select an editor using the radio buttons in the first column and complete the section under "Set Options".
+                        If you cannot find the editor you want in this list you can use "Enroll Existing User" to search the database and give users the Editor role, or "Add New Editor" to create a new account for an editor (this process is silent, they will not receive an account creation email).
+                        {% endblocktrans %}
+                    </p>
+
+                    {% if past_editors %}
+                        <div class="callout primary">
+                            <p><span class="fa fa-info-circle"></span> Editors who have compeleted an editor decision for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Editor Decided Article</strong> column.</p>
+                        </div>
+                    {% endif %}
+
+                    <table class="small scroll" id="editors">
+                        <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Name</th>
+                            <th>Email Address</th>
+                            <th>Type</th>
+                            {% if past_editors %}<th>Has Editor Decided Article</th>{% endif %}
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for editor in editors %}
+                            {% if not journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
+                            <tr>
+                                <td><input type="radio" name="editor" value="{{ editor.id }}" {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}></td>
+                                <td>{{ editor.full_name }}</td>
+                                <td>{{ editor.email }}</td>
+                                <td>Editor</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        {% for editor in section_editors %}
+                            {% if not journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
+                            <tr>
+                                <td><input type="radio" name="editor" value="{{ editor.id }}" {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}></td>
+                                <td>{{ editor.full_name }}</td>
+                                <td>{{ editor.email }}</td>
+                                <td>Section Editor</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not editors and not section_editors %}
+                            <tr>
+                                <td>No suitable editors.</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>2. Set Options</h2>
+                </div>
+                <div class="content">
+                    <div class="row expanded">
+                        <div class="large-4 columns">{{ form.date_due|foundation }}</div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}" type="submit">Invite Editor</button>
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>        &nbsp;&nbsp;
+        </form>
+    </div>
+
+    {% if journal_settings.general.enable_one_click_access %}
+    <div class="reveal large" id="editor" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>Add New Editor</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="content">
+                    <p>This form allows you to quickly create a new editor without having to input a full user's data.</p>
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=new_editor_form %}
+                        {% csrf_token %}
+                        {{ new_editor_form|foundation }}
+                        <button type="submit" class="button success" name="assign" id="assign">Add Editor</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="reveal large" id="enroll" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-users">&nbsp;</i>Enroll Existing User as Editor</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="content">
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=new_editor_form %}
+                        {% csrf_token %}
+                        <table class="small scroll" id="enrolluser">
+                            <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email Address</th>
+                                <th>Interests</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in user_list %}
+                                <tr>
+                                    <td><input type="checkbox" name="user_id" value="{{ user.pk }}"></td>
+                                    <td>{{ user.first_name }}</td>
+                                    <td>{{ user.last_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.interests.all }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="button success" name="enrollusers" id="enrollusers">Enroll as Editor</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="editor_assignment_form" %}
+    {% endif %}
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#editors" %}
+    {% include "elements/datepicker.html" with target="#id_date_due" %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+    {% include "elements/datatables.html" with target="#enrolluser" %}
+
+    <script lang="javascript">
+    function getQueryStrings()
+    {
+        let vars = [], hash;
+        let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(let i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1].split('#')[0];
+        }
+        return vars;
+    }
+
+    // populate the query box when ready
+    $( document ).ready(function() {
+        let urls = getQueryStrings();
+        let user = urls["user"];
+        let user_id = urls["id"];
+
+        if (user !== '') {
+            $('#editors').DataTable().search(decodeURIComponent(user)).draw();
+
+            if (user_id !== '') {
+                $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
+            }
+        }
+    });
+    </script>
+{% endblock js %}

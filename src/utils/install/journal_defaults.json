@@ -230,6 +230,25 @@
             "name": "email"
         },
         "setting": {
+            "description": "Email sent to editors to request an editor assignment.",
+            "is_translatable": true,
+            "name": "editor_assignment_request",
+            "pretty_name": "Editor Assignment Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ editor_assignment.editor.full_name }},<br/><br/>We are requesting that you undertake an editor assignment of \"{{ article.safe_title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our editors is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the assignment: {{ review_unassigned_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
             "description": "Email sent to authors when they have submitted an article.",
             "is_translatable": true,
             "name": "submission_acknowledgement",
@@ -1693,6 +1712,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "If enabled, Editors can invite other Editors or Section Editors to be assigned to an article.",
+            "is_translatable": false,
+            "name": "enable_invite_editor",
+            "pretty_name": "Enable Invite Editor",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it (Only recommended journals using custom review forms that are particularly long)",
             "is_translatable": false,
             "name": "enable_save_review_progress",
@@ -2062,6 +2100,25 @@
         },
         "value": {
             "default": "double-blind"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The default number of days before an editor assignment is due.",
+            "is_translatable": false,
+            "name": "default_editor_assignment_request_days",
+            "pretty_name": "Default Number of Days for Editor Assignment",
+            "type": "number"
+        },
+        "value": {
+            "default": "56"
         },
         "editable_by": [
             "editor",
@@ -2705,6 +2762,25 @@
             "is_translatable": true,
             "description": "Subject for Email sent to editors when they are assigned to a submission.",
             "name": "subject_editor_assignment"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "Editor Assignment Request"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Subject Editor Assignment Request",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors to request an editor assignment.",
+            "name": "subject_editor_assignment_request"
         },
         "group": {
             "name": "email_subject"
