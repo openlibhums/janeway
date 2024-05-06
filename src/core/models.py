@@ -757,12 +757,6 @@ class Setting(models.Model):
             journal=None,
     )
 
-    def journal_current_setting_value(self, journal):
-        return SettingValue.objects.get(
-            setting=self,
-            journal=journal
-        )
-
     def validate(self, value):
         if self.types in self.VALIDATORS:
             for validator in self.VALIDATORS[self.name]:

@@ -1,7 +1,7 @@
 from django import template
 
 from core import models
-from review import models as review_models
+from utils import setting_handler
 
 register = template.Library()
 
@@ -52,8 +52,6 @@ def role_id(request, role_slug):
 
 @register.simple_tag
 def editor_can_access(request, article):
-    required_senior_editor = models.Setting.objects.get(
-        name='required_senior_editor'
-    ).journal_current_setting_value(journal=request.journal).value
+    required_senior_editor = setting_handler.get_setting('general', 'required_senior_editor', request.journal).value
     is_editor = user_has_role(request, 'editor')
     return is_editor and request.user in article.editor_list() if required_senior_editor else is_editor
