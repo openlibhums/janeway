@@ -167,6 +167,48 @@
             {% endif %}
         {% endfor %}
 
+        {% if journal_settings.general.draft_decisions and is_editor %}
+            <div class="large-12 columns end">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Draft Decisions Pending</h2>
+                    </div>
+                    <div class="content">
+                        <table class="scroll">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Article</th>
+                                <th>Section Editor</th>
+                                <th>Drafted Date</th>
+                                <th>Draft Decision</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            {% for draft in editor_draft_decisions %}
+                                <tr>
+                                    <td>{{ draft.article.pk }}</td>
+                                    <td>
+                                        <a href="{{ draft.article.current_workflow_element_url }}">{{ draft.article.safe_title }}</a>
+                                    </td>
+                                    <td>{{ draft.section_editor }}</td>
+                                    <td>{{ draft.drafted }}</td>
+                                    <td>{{ draft.decision|capfirst }}</td>
+                                    <td>
+                                        <a class="small button" href="{% url 'review_edit_draft_decision' draft.article.pk draft.id %}">Draft Decisions</a>
+                                    </td>
+                                    
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">No Draft Decision Requested</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
         {% user_has_role request 'section-editor' as sectioneditor %}
         {% if sectioneditor %}

@@ -585,6 +585,7 @@ def dashboard(request):
     section_editor_articles = review_models.EditorAssignment.objects.filter(editor=request.user,
                                                                             editor_type='section-editor',
                                                                             article__journal=request.journal)
+    editor_draft_decisions = review_models.DecisionDraft.objects.filter(editor=request.user, editor_decision__isnull=True)
 
     # TODO: Move most of this to model logic.
     context = {
@@ -613,6 +614,7 @@ def dashboard(request):
         'is_author': request.user.is_author(request),
         'is_reviewer': request.user.is_reviewer(request),
         'section_editor_articles': section_editor_articles,
+        'editor_draft_decisions': editor_draft_decisions,
         'active_submission_count': submission_models.Article.objects.filter(
             owner=request.user,
             journal=request.journal).exclude(
