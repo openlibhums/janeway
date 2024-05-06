@@ -178,48 +178,48 @@
                         <div class="card">
                             <div class="card-content center">
                                 <div class="alm">
-                                    <h5>
+                                    <p class="alm_numbers">
                                         {{ article.metrics.views }}
-                                    </h5>
-                                    <p><i class="fa fa-eye"></i>{% trans "Views" %}</p>
+                                    </p>
+                                    <p><i class="fa fa-eye"></i> {% trans "Views" %}</p>
                                 </div>
                                 <div class="alm">
-                                    <h5>
+                                    <p class="alm_numbers">
                                         {{ article.metrics.downloads }}
-                                    </h5>
-                                    <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
+                                    </p>
+                                    <p><i class="fa fa-download"></i> {% trans "Downloads" %}</p>
                                 </div>
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="alm_numbers">
                                             {{ article.metrics.alm.twitter }}
-                                        </h5>
-                                        <p><i class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
+                                        </p>
+                                        <p><i class="fa fa-twitter"></i> {% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="alm_numbers">
                                             {{ article.metrics.alm.wikipedia }}
-                                        </h5>
-                                        <p><i class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
+                                        </p>
+                                        <p><i class="fa fa-wikipedia-w"></i> {% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="alm_numbers">
                                             {{ article.metrics.alm.reddit }}
-                                        </h5>
-                                        <p><i class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
+                                        </p>
+                                        <p><i class="fa fa-reddit"></i> {% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
 
                                 {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="alm_numbers">
                                             {{ article.citation_count }}
-                                        </h5>
-                                        <p><i class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
+                                        </p>
+                                        <p><i class="fa fa-quote-left"></i> {% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
                             </div>
