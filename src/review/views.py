@@ -2274,6 +2274,12 @@ def draft_decision(request, article_id):
     message_to_editor = logic.get_draft_email_message(request, article)
     editors = request.journal.editors()
 
+    required_senior_editor = setting_handler.get_setting(
+        'general', 'required_senior_editor', request.journal
+    ).value
+    if required_senior_editor:
+        editors = editors.filter(id__in=[editor.pk for editor in article.editor_list()])
+
     form = forms.DraftDecisionForm(
         message_to_editor=message_to_editor,
         editors=editors,
