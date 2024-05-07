@@ -1318,6 +1318,10 @@ class Article(AbstractLastModifiedModel):
 
         else:
             return editors
+    
+    def requested_editors(self):
+        return [{'editor': assignment.editor, 'editor_type': assignment.editor_type, 'assignment': assignment} for
+                assignment in self.editorassignmentrequest_set.exclude(date_accepted__isnull=False, is_complete=False)]
 
     def editor_emails(self):
         return [assignment.editor.email for assignment in self.editorassignment_set.all()]

@@ -220,6 +220,9 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Type</th>
+                        {% if journal_settings.general.enable_invite_editor %}
+                        <th>Status</th>
+                        {% endif %}
                         {% if editor_can_access %}
                             <th></th>
                         {% endif %}
@@ -229,16 +232,41 @@
                             <td>{{ assignment.editor.full_name }}</td>
                             <td>{{ assignment.editor.email }}</td>
                             <td>{{ assignment.editor_type|capfirst }}</td>
+                            {% if journal_settings.general.enable_invite_editor %}
+                            <td>Assigned</td>
+                            {% endif %}
                             {% if editor_can_access %}
                                 <td><a href="{% url 'review_unassign_editor' article.id assignment.editor.id %}">Remove</a>
                             {% endif %}
                             </td>
                         </tr>
-                        {% empty %}
+                    {% endfor %}
+                    {% if journal_settings.general.enable_invite_editor and editor_can_access %}
+                    {% for assignment in article.requested_editors %}
+                    <tr style="color: #b9b9b9;">
+                        <td>{{ assignment.editor.full_name }}</td>
+                        <td>{{ assignment.editor.email }}</td>
+                        <td>
+                            {{ assignment.editor_type|capfirst }}
+                        </td>
+                        <td>
+                            <span data-tooltip class="top" tabindex="2" title="Date due: {{ assignment.assignment.date_due|date:"Y-m-d" }}">
+                                Requested
+                            </span>
+                        </td>
+                        {% if editor_can_access %}
+                        <td>
+                            <a>Cancel</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    {% if not article.editors and not article.requested_editors %}
                         <tr>
                             <td colspan="4">No users assigned</td>
                         </tr>
-                    {% endfor %}
+                    {% endif %}
                 </table>
             </div>
         </div>
@@ -250,7 +278,7 @@
                 <h2>Add Senior Editors</h2>
             </div>
             <div class="content">
-                <table class="scroll small" id="editors">
+                <table class="scroll small" id="senior-editors">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -282,7 +310,7 @@
                 <h2>Add Section Editors</h2>
             </div>
             <div class="content">
-                <table class="scroll small" id="editors">
+                <table class="scroll small" id="section-editors">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -410,4 +438,6 @@
 
 {% block js %}
     {% include "admin/elements/datatables.html" with target="#editors" page_length=5 %}
+    {% include "admin/elements/datatables.html" with target="#senior-editors" page_length=5 %}
+    {% include "admin/elements/datatables.html" with target="#section-editors" page_length=5 %}
 {% endblock js %}

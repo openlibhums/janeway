@@ -134,15 +134,21 @@ def unassigned_article(request, article_id):
             )
         )
 
-    current_editors = [assignment.editor.pk for assignment in
+    exclude_editors = [assignment.editor.pk for assignment in
                        models.EditorAssignment.objects.filter(article=article)]
+
+    if setting_handler.get_setting('general', 'enable_invite_editor', request.journal).value:
+        exclude_editors = exclude_editors + [request.editor.pk for request in
+                            models.EditorAssignmentRequest.objects.filter(article=article, is_complete=False)]
+
     editors = core_models.AccountRole.objects.filter(
         role__slug='editor',
-        journal=request.journal).exclude(user__id__in=current_editors)
+        journal=request.journal
+    ).exclude(user__id__in=exclude_editors)
     section_editors = core_models.AccountRole.objects.filter(
         role__slug='section-editor',
         journal=request.journal
-    ).exclude(user__id__in=current_editors)
+    ).exclude(user__id__in=exclude_editors)
 
     template = 'review/unassigned_article.html'
     context = {
