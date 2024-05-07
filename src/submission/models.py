@@ -1949,11 +1949,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
     )
     frozen_email = models.EmailField(
             blank=True,
-            null=True,
             verbose_name=_("Author Email"),
     )
     frozen_orcid = models.CharField(
-        max_length=40, null=True, blank=True,
+        max_length=40,
+        blank=True,
         verbose_name=_('ORCiD'),
         help_text=_("ORCiD to be displayed when no account is"
                     " associated with this author. It should be introduced in code "
