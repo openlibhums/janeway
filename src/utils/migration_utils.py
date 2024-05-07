@@ -1,7 +1,7 @@
 __copyright__ = "Copyright 2021 Birkbeck, University of London"
-__author__ = "Martin Paul Eve, Mauro Sanchez & Andy Byers"
+__author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
-__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+__maintainer__ = "Open Library of Humanities"
 
 
 from django.conf import settings
@@ -133,3 +133,18 @@ def delete_setting(apps, setting_group_name, setting_name):
         name=setting_name,
     )
     setting.delete()
+
+
+def store_empty_strings(model, fields):
+    """
+    A helper for preparing to remove null=True
+    from string-based fields like CharField,
+    where blank=True is also set.
+    Sets all null values in the specified fields to empty strings.
+    :param model: The model class produced from apps.get_model()
+    :param fields: A list of fields that were null=True and are soon to be
+    null=False
+    """
+    for field in fields:
+        query = Q((f'{field}__isnull', True))
+        model.objects.filter(query).update(**{field: ''})
