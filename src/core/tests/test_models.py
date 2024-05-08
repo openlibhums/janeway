@@ -2,13 +2,18 @@ from datetime import timedelta
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
+from django.http import HttpRequest, QueryDict
 from django.forms import Form
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
 
 from core import forms, models
-from core.model_utils import merge_models, SVGImageFieldForm
+from core.model_utils import (
+    merge_models,
+    SVGImageFieldForm,
+    search_model_admin,
+)
 from journal import models as journal_models
 from utils.testing import helpers
 from submission import models as submission_models
@@ -371,3 +376,24 @@ class TestLastModifiedModel(TestCase):
 
         # Test
         self.assertEqual(self.article.best_last_modified_date(), file_date)
+
+
+class TestModelUtils(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.account = helpers.create_user(
+            'Ab6CrWPPxQ7FoLj5dgdH@example.org',
+        )
+
+    def test_search_model_admin(self):
+        request = HttpRequest()
+        request.GET = QueryDict('q=Ab6CrWPPxQ7FoLj5dgdH')
+        results, _duplicates = search_model_admin(
+            request,
+            models.Account,
+        )
+        self.assertIn(
+            self.account,
+            results,
+        )

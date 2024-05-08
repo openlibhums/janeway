@@ -32,6 +32,7 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
+from core.model_utils import search_model_admin
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -2412,6 +2413,7 @@ class FilteredArticlesListView(generic.ListView):
     It does not have access controls applied because some public views use it.
     For staff views, be sure to filter to published articles in get_queryset.
     Do not use this view directly.
+    This view can also be subclassed and modified for use with other models.
     """
 
     model = submission_models.Article
@@ -2487,11 +2489,12 @@ class FilteredArticlesListView(generic.ListView):
             # The following line prevents the user from passing any parameters
             # other than those specified in the facets.
             if keyword in facets and value_list:
-                if keyword == 'q':
-                    self.queryset, _duplicates = facets[keyword]['admin'].get_search_results(
+                if facets[keyword]['type'] == 'search':
+                    self.queryset, _duplicates = search_model_admin(
                         self.request,
-                        self.queryset,
-                        value_list[0],
+                        self.model,
+                        q=value_list[0],
+                        queryset=self.queryset,
                     )
                     predicates = []
                 elif facets[keyword]['type'] == 'boolean':
