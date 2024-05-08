@@ -242,7 +242,7 @@
                         </tr>
                     {% endfor %}
                     {% if journal_settings.general.enable_invite_editor and editor_can_access %}
-                    {% for assignment in article.requested_editors %}
+                    {% for assignment in requested_editors %}
                     <tr style="color: #b9b9b9;">
                         <td>{{ assignment.editor.full_name }}</td>
                         <td>{{ assignment.editor.email }}</td>
@@ -250,19 +250,19 @@
                             {{ assignment.editor_type|capfirst }}
                         </td>
                         <td>
-                            <span data-tooltip class="top" tabindex="2" title="Date due: {{ assignment.assignment.date_due|date:"Y-m-d" }}">
+                            <span data-tooltip class="top" tabindex="2" title="Date due: {{ assignment.date_due|date:"Y-m-d" }}">
                                 Requested
                             </span>
                         </td>
                         {% if editor_can_access %}
                         <td>
-                            <a>Cancel</a>
+                            <a href="{% url 'delete_editor_assignment' assignment.id %}">Cancel</a>
                         </td>
                         {% endif %}
                     </tr>
                     {% endfor %}
                     {% endif %}
-                    {% if not article.editors and not article.requested_editors %}
+                    {% if not article.editors and not requested_editors %}
                         <tr>
                             <td colspan="4">No users assigned</td>
                         </tr>

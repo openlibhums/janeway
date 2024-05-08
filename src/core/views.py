@@ -623,6 +623,14 @@ def dashboard(request):
                                                                                  journal=request.journal,
                                                                                  stage=submission_models.
                                                                                  STAGE_UNSUBMITTED).count(),
+        
+
+        'assigned_articles_for_user_editor_request_count': review_models.EditorAssignmentRequest.objects.filter(
+            Q(is_complete=False) &
+            Q(editor=request.user) &
+            Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+            Q(date_accepted__isnull=True), article__journal=request.journal).count(),
+
         'assigned_articles_for_user_review_count': review_models.ReviewAssignment.objects.filter(
             Q(is_complete=False) &
             Q(reviewer=request.user) &

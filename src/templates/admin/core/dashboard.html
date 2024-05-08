@@ -110,7 +110,7 @@
         {% endif %}
         {% user_has_role request 'proofreader' as proofreader %}
         {% if 'proofing' in workflow_elements %}
-        {% if proofreader or is_author  %}
+        {% if proofreader %}
             <div class="large-4 columns end" data-equalizer-watch>
                 <div class="box">
                     <div class="title-area">
@@ -215,7 +215,10 @@
             <div class="large-12 columns end">
                 <div class="box">
                     <div class="title-area">
-                        <h2>Section Editor</h2>
+                        <h2>Section Editor</h2>                            
+                        {% if journal_settings.general.enable_invite_editor %}
+                        {% include "admin/elements/core/editor_assign_request_alert.html" %}
+                        {% endif %}
                     </div>
                     <div class="content">
                         <table class="scroll">

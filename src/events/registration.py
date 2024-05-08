@@ -24,7 +24,11 @@ event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_MANUALLY_ASSI
 event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_REQUESTED_NOTIFICATION,
                                       transactional_emails.send_editor_assignment_requested)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
-        transactional_emails.send_editor_unassigned_notice)
+                                      transactional_emails.send_editor_unassigned_notice)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_ASSIGNMENT_ACCEPTED,
+                                      transactional_emails.send_editor_assign_accepted_or_decline_acknowledgements)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_ASSIGNMENT_DECLINED,
+                                      transactional_emails.send_editor_assign_accepted_or_decline_acknowledgements)
 
 # Review
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_REQUESTED_NOTIFICATION,

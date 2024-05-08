@@ -38,7 +38,8 @@ from security.decorators import (
     editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required,
     any_editor_user_required, setting_is_enabled,
-    user_has_completed_review_for_article
+    user_has_completed_review_for_article,
+    editor_user_for_assignment_request_required
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
@@ -134,12 +135,21 @@ def unassigned_article(request, article_id):
             )
         )
 
-    exclude_editors = [assignment.editor.pk for assignment in
-                       models.EditorAssignment.objects.filter(article=article)]
+    requested_editors = models.EditorAssignmentRequest.objects.filter(
+        Q(is_complete=False) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(date_accepted__isnull=True) &
+        Q(date_declined__isnull=True)
+    )
 
-    if setting_handler.get_setting('general', 'enable_invite_editor', request.journal).value:
-        exclude_editors = exclude_editors + [request.editor.pk for request in
-                            models.EditorAssignmentRequest.objects.filter(article=article, is_complete=False)]
+    exclude_editors = [
+        assignment.editor.pk 
+        for assignment in models.EditorAssignment.objects.filter(article=article)
+    ]
+
+    enable_invite_editor = setting_handler.get_setting('general', 'enable_invite_editor', request.journal).value
+    if enable_invite_editor:
+        exclude_editors = exclude_editors + [request.editor.pk for request in requested_editors]
 
     editors = core_models.AccountRole.objects.filter(
         role__slug='editor',
@@ -150,11 +160,13 @@ def unassigned_article(request, article_id):
         journal=request.journal
     ).exclude(user__id__in=exclude_editors)
 
+
     template = 'review/unassigned_article.html'
     context = {
         'article': article,
         'editors': editors,
         'section_editors': section_editors,
+        'requested_editors': requested_editors,
     }
 
     return render(request, template, context)
@@ -297,6 +309,7 @@ def invite_editor_assignment(request, article_id):
                     editor_assignment.editor_type = 'editor'
                 elif editor_assignment.editor.is_section_editor(request):
                     editor_assignment.editor_type = 'section-editor'
+                editor_assignment.requesting_editor = request.user
                 editor_assignment.save()
 
                 article.save()
@@ -855,6 +868,118 @@ def decline_review_request(request, assignment_id):
     return render(request, template, context)
 
 
+@editor_user_for_assignment_request_required
+def accept_editor_assignment_request(request, assignment_id):
+    """
+    Accept an editor assignment request
+    :param request: the request object
+    :param assignment_id: the assignment ID to handle
+    :return: a context for a Django template
+    """
+
+    # update the EditorAssignmentRequest object
+    assignment = models.EditorAssignmentRequest.objects.get(
+        Q(pk=assignment_id) &
+        Q(is_complete=False) &
+        Q(editor=request.user) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(date_accepted__isnull=True)
+    )
+
+    editor_assignment = models.EditorAssignment(
+        article=assignment.article,
+        editor=assignment.editor,
+        editor_type=assignment.editor_type,
+        notified=True
+    )
+    editor_assignment.save()
+
+    assignment.date_accepted = timezone.now()
+    assignment.editor_assignment = editor_assignment
+    assignment.save()
+
+    kwargs = {'editor_assignment': assignment,
+              'request': request,
+              'accepted': True}
+    
+    event_logic.Events.raise_event(event_logic.Events.ON_EDITOR_ASSIGNMENT_ACCEPTED,
+                                   task_object=assignment.article,
+                                   **kwargs)
+
+    return redirect(
+        reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': assignment.article.pk},
+        )
+    )
+
+
+@editor_user_for_assignment_request_required
+def decline_editor_assignment_request(request, assignment_id):
+    """
+    Decline an editor assignment request
+    :param request: the request object
+    :param assignment_id: the assignment ID to handle
+    :return: a context for a Django template
+    """
+
+    assignment = models.EditorAssignmentRequest.objects.get(
+        Q(pk=assignment_id) &
+        Q(is_complete=False) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(editor=request.user)
+    )
+
+    assignment.date_declined = timezone.now()
+    assignment.date_accepted = None
+    assignment.is_complete = True
+    assignment.save()
+
+    template = 'review/editor_assignment_decline.html'
+    context = {
+        'assigned_articles_for_user_editor_review': assignment,
+        'access_code': ''
+    }
+
+    kwargs = {'editor_assignment': assignment,
+              'request': request,
+              'accepted': False}
+    event_logic.Events.raise_event(event_logic.Events.ON_EDITOR_ASSIGNMENT_ACCEPTED,
+                                   task_object=assignment.article,
+                                   **kwargs)
+
+    return render(request, template, context)
+
+
+@senior_editor_user_required
+def delete_editor_assignment_request(request, assignment_id):
+    """
+    Delete an editor assignment request
+    :param request: the request object
+    :param assignment_id: the assignment ID to handle
+    :return: a context for a Django template
+    """
+
+    assignment = get_object_or_404(
+        models.EditorAssignmentRequest, id=assignment_id
+    )
+
+    assignment.delete()
+
+    util_models.LogEntry.add_entry(
+        types='EditorialAction',
+        description='Editor {0} unrequested from article {1}'
+            ''.format(assignment.editor.full_name(), assignment.article.id),
+        level='Info',
+        request=request,
+        target=assignment.article,
+    )
+
+    return redirect(reverse(
+        'review_unassigned_article', kwargs={'article_id': assignment.article.id}
+    ))
+
+
 @reviewer_user_for_assignment_required
 def suggest_reviewers(request, assignment_id):
     """
@@ -936,6 +1061,29 @@ def review_requests(request):
         'new_requests': new_requests,
         'active_requests': active_requests,
         'completed_requests': completed_requests,
+    }
+
+    return render(request, template, context)
+
+
+@any_editor_user_required
+def editor_assignment_requests(request):
+    """
+    A list of editor assignment requests for the current user
+    :param request: the request object
+    :return: a context for a Django template
+    """
+    new_requests = models.EditorAssignmentRequest.objects.filter(
+        Q(is_complete=False) &
+        Q(editor=request.user) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(date_accepted__isnull=True),
+        article__journal=request.journal
+    ).select_related('article')
+
+    template = 'review/editor_assignment_requests.html'
+    context = {
+        'new_requests': new_requests,
     }
 
     return render(request, template, context)

@@ -104,6 +104,10 @@ urlpatterns = [
         views.upload_review_file,
         name='upload_review_file'),
 
+    re_path(r'^requests/editor/$', views.editor_assignment_requests, name='editor_assignment_requests'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/accept/$', views.accept_editor_assignment_request, name='accept_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/decline/$', views.decline_editor_assignment_request, name='decline_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/delete/$', views.delete_editor_assignment_request, name='delete_editor_assignment'),
 
     re_path(r'^author/(?P<article_id>\d+)/$', views.author_view_reviews, name='review_author_view'),
 

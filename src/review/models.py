@@ -105,6 +105,13 @@ class EditorAssignmentRequest(models.Model):
         'core.Account',
         on_delete=models.CASCADE,
     )
+    requesting_editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+        related_name='requesting_editor',
+        null=True,
+    )
+    
     editor_assignment = models.ForeignKey(
         EditorAssignment,
         on_delete=models.CASCADE,
@@ -123,9 +130,6 @@ class EditorAssignmentRequest(models.Model):
     date_reminded = models.DateField(blank=True, null=True)
 
     is_complete = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ('article', 'editor')
 
 
 class ReviewRound(models.Model):

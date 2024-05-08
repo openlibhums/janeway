@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
@@ -558,6 +559,36 @@ def reviewer_user_for_assignment_required(func):
             else:
                 deny_access(request)
         except review_models.ReviewAssignment.DoesNotExist:
+            deny_access(request)
+
+    return wrapper
+
+
+def editor_user_for_assignment_request_required(func):
+    """ This decorator checks that a user is an editor, or
+    that the user is a section editor assigned to the article in the url.
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+
+        assignment_id = kwargs.get('assignment_id', None)
+
+        if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
+            return func(request, *args, **kwargs)
+
+        elif request.user.is_section_editor(request) and assignment_id:
+            assignment = get_object_or_404(review_models.EditorAssignmentRequest, pk=assignment_id)
+            editor_assignment_requests = [assign['editor'] for assign in assignment.article.requested_editors()]
+            if request.user in editor_assignment_requests:
+                return func(request, *args, **kwargs)
+            else:
+                deny_access(request, "You are not a section editor for this article")
+
+        else:
             deny_access(request)
 
     return wrapper

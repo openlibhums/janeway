@@ -24,6 +24,7 @@ from django.db.models import (
     Value,
 )
 from django.shortcuts import redirect, reverse
+from django.db.models import Q
 from django.utils import timezone
 from django.db import IntegrityError
 from django.utils.safestring import mark_safe
@@ -54,8 +55,15 @@ def get_editors_candidates(article, user=None, editors_to_exclude=None):
     :param user: The user requesting candidates who would be filtered out
     :param editors_to_exclude: queryset of Account objects
     """
-    editor_assignment_requests = article.editorassignmentrequest_set.all()
+    editor_assignment_requests = article.editorassignmentrequest_set.filter(
+        Q(is_complete=False) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(date_accepted__isnull=True) &
+        Q(date_declined__isnull=True)
+    )
+    editors = article.editorassignment_set.all()
     editor_pks_to_exclude = [assignment.editor.pk for assignment in editor_assignment_requests]
+    editor_pks_to_exclude = editor_pks_to_exclude + [assignment.editor.pk for assignment in editors]
 
     if user:
         editor_pks_to_exclude.append(user.pk)

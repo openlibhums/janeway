@@ -3,6 +3,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editor</h2>
+                {% if journal_settings.general.enable_invite_editor %}
+                {% include "admin/elements/core/editor_assign_request_alert.html" %}
+                {% endif %}
             </div>
 
             <div class="row expanded">

@@ -433,6 +433,84 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
 
+def send_editor_assign_accepted_or_decline_acknowledgements(**kwargs):
+    """
+    This function is called via the event handling framework and it notifies that an editor has either accepted or
+    declined to assign request. It is wired up in core/urls.py.
+    :param kwargs: a list of kwargs that includes editor_assignment, accepted and request
+    :return: None
+    """
+    editor_assignment = kwargs['editor_assignment']
+    article = editor_assignment.article
+    request = kwargs['request']
+    accepted = kwargs['accepted']
+
+    description = '{0} {1} to editor request {2}'.format(
+        editor_assignment.editor.full_name(),
+        ('accepted' if accepted else 'declined'),
+        article.title,
+    )
+
+    util_models.LogEntry.add_entry(
+        types='Editor assignment request {0}'.format(('accepted' if accepted else 'declined')),
+        description=description,
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
+
+    review_unassigned_url = request.journal.site_url(path=reverse(
+        'review_unassigned_article', kwargs={'article_id': article.id}
+    ))
+
+    context = {
+        'article': article,
+        'request': request,
+        'editor_assignment': editor_assignment,
+    }
+
+    requested_editor_context = context
+    requested_editor_context['review_unassigned_url'] = review_unassigned_url
+    requesting_editor_context = context
+    requesting_editor_context['review_unassigned_url'] = review_unassigned_url
+
+    # send to slack
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+    # send to requested editor
+    if accepted:
+        context["editor_assignment_decision"] = _("accepted")
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'editor_assignment_accept_acknowledgement',
+            'subject_editor_assignment_accept_acknowledgement',
+            editor_assignment.editor.email,
+            requested_editor_context,
+        )
+
+    else:
+        context["editor_assignment_decision"] = _("declined")
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'editor_assignment_decline_acknowledgement',
+            'subject_editor_assignment_decline_acknowledgement',
+            editor_assignment.editor.email,
+            requested_editor_context,
+        )
+
+    # send to requesting editor
+    requesting_editors = get_assignment_request_editors(editor_assignment)
+    for editor in requesting_editors:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'editor_assignment_acknowledgement',
+            'subject_editor_assignment_acknowledgement',
+            editor.email,
+            requesting_editor_context,
+        )
+
+
 def send_submission_acknowledgement(**kwargs):
     """
     This function is called via the event handling framework and it
@@ -1721,6 +1799,28 @@ def get_assignment_editors(assignment):
         # Fallback to all editors
         editors = [e for e in assignment.article.journal.editors()]
     return editors
+
+
+def get_assignment_request_editors(assignment_request):
+    """ Get requesting editors relevant to a editor assignment
+
+    This is a helper function to retrieve the editors that should be
+    notified of changes in a editor assignment request.
+    It exists to handle edge-cases where anassignment might not have an editor
+    assigned (e.g.: migrated submissions from another system)
+    :param assignment: an instance of ReviewAssignment or RevisionRequest
+    :return: A list of Account objects
+    """
+    article = assignment_request.article
+    if assignment_request.requesting_editor:
+        requesting_editors = [assignment_request.editor]
+    elif article.editorassignmentrequest_set.exists():
+        # Try article assignment
+        requesting_editors = [ass.requesting_editor for ass in article.editorassignmentrequest_set.all()]
+    else:
+        # Fallback to all editors
+        requesting_editors = [e for e in assignment_request.article.journal.editors()]
+    return requesting_editors
 
 
 def send_draft_decision_declined(**kwargs):
