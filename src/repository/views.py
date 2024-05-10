@@ -245,17 +245,23 @@ def repository_author_article(request, preprint_id):
         stage__in=models.SUBMITTED_STAGES,
         repository=request.repository,
     )
-    metrics_summary = repository_logic.metrics_summary([preprint])
 
     template = 'admin/repository/author_article.html'
     context = {
         'preprint': preprint,
-        'metrics_summary': metrics_summary,
         'preprint_journals': repository_logic.get_list_of_preprint_journals(),
         'pending_updates': models.VersionQueue.objects.filter(
             preprint=preprint,
             date_decision__isnull=True,
         ),
+        'views': models.PreprintAccess.objects.filter(
+            preprint=preprint,
+            file__isnull=True,
+        ).count(),
+        'downloads': models.PreprintAccess.objects.filter(
+            preprint=preprint,
+            file__isnull=False,
+        ).count(),
     }
 
     return render(request, template, context)
