@@ -123,13 +123,13 @@
                             <ul class="menu vertical medium-horizontal align-right"
                                 data-responsive-menu="dropdown">
                                 {% hook 'article_buttons' %}
-                                <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
-                                <li><a href="javascript:resizeText(-1)">A-</a></li>
-                                <li><a href="javascript:resizeText(1)">A+</a></li>
+                                <li><a href="{{ article.local_url }}print/" aria-label="print article"><i class="fa fa-print">&nbsp;</i></a></li>
+                                <li><a href="javascript:resizeText(-1)" aria-label="decrease text size">A-</a></li>
+                                <li><a href="javascript:resizeText(1)" aria-label="increase text size">A+</a></li>
                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
-                                <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
+                                <li><a href="#" id="dyslexia-mode" aria-label="Dyslexia mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
-                                    <a><i class="fa fa-comments"></i></a>
+                                    <a aria-label="Cite article"><i class="fa fa-comments"></i></a>
                                     <ul class="menu vertical">
                                         <li><a data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
                                         <li><a data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
