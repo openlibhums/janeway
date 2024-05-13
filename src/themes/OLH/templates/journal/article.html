@@ -108,7 +108,7 @@
                         <div class="title-bar-title">{% trans 'Options' %}</div>
                     </div>
                     <div id="options-menu">
-                        <div class="large-6 columns">
+                        <div class="large-3 medium-4 columns">
                             <ul class="menu vertical medium-horizontal pad-left-15"
                                 data-responsive-menu="drilldown medium-dropdown">
                               {% with article.get_doi_url as doi_url %}
@@ -119,8 +119,8 @@
                               {% endwith %}
                             </ul>
                         </div>
-                        <div class="large-6 columns">
-                            <ul class="menu vertical medium-horizontal align-right"
+                        <div class="large-4 medium-5 columns">
+                            <ul class="menu vertical medium-horizontal"
                                 data-responsive-menu="dropdown">
                                 {% hook 'article_buttons' %}
                                 <li><a href="{{ article.local_url }}print/" aria-label="print article"><i class="fa fa-print">&nbsp;</i></a></li>
