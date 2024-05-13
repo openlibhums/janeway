@@ -129,7 +129,7 @@
                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
                                 <li><a href="#" id="dyslexia-mode" aria-label="Dyslexia mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
-                                    <a aria-label="Cite article"><i class="fa fa-comments"></i></a>
+                                    <a href="#" aria-label="Cite article"><i class="fa fa-comments">&nbsp;</i></a>
                                     <ul class="menu vertical">
                                         <li><a data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
                                         <li><a data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
