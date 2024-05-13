@@ -131,9 +131,9 @@
                                 <li>
                                     <a href="#" aria-label="Cite article"><i class="fa fa-comments">&nbsp;</i></a>
                                     <ul class="menu vertical">
-                                        <li><a data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
-                                        <li><a data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
-                                        <li><a data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
+                                        <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
+                                        <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
+                                        <li><a href="#" data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
                                         <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
                                         <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
                                     </ul>
