@@ -595,9 +595,19 @@ def get_all_tables_from_html(content):
     tables = []
 
     for table in soup.findAll('div', attrs={'class': 'table-expansion'}):
+        original_id = table.get("id")
+        if original_id:
+            table["id"] = "copy-of-" + original_id
+        for child in table.descendants:
+            # try / except because .decendants sometimes returns a string, sometimes an object
+            try:
+                if child.get("id"):
+                    child["id"] = "copy-of-" + child["id"]
+            except AttributeError:
+                pass
         tables.append(
             {
-                'id': table.get('id'),
+                'id': original_id,
                 'content': str(table)
             }
         )
