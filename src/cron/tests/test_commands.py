@@ -1,8 +1,7 @@
 from django.test import TestCase
 from django.core.management import call_command
 from utils.testing import helpers
-from cron.management.commands import send_reminders
-from cron import forms, models
+from cron import models
 from django.utils import timezone
 
 class SendRemindersCommandTests(TestCase):

@@ -11,12 +11,10 @@ import requests
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.core.exceptions import ObjectDoesNotExist
 
 from identifiers import logic
 from utils import shared
 from utils.logger import get_logger
-from utils import setting_handler
 from utils.function_cache import cache
 
 from django.conf import settings

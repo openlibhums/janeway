@@ -1,8 +1,5 @@
-import datetime
-from io import BytesIO, StringIO
-import json
+from io import BytesIO
 import mock
-import pytz
 import os
 
 
@@ -11,7 +8,6 @@ from django.conf import settings
 from django.utils import timezone
 
 from identifiers import logic, models
-from core.models import SettingGroup
 from journal import logic as journal_logic
 from submission import models as submission_models
 from utils.testing import helpers
@@ -19,7 +15,6 @@ from utils.setting_handler import save_setting
 from utils.shared import clear_cache
 from lxml import etree
 from bs4 import BeautifulSoup
-import requests
 class TestLogic(TestCase):
 
     @classmethod
@@ -416,7 +411,6 @@ class TestLogic(TestCase):
         mock_messages = mock.patch('journal.logic.messages').start()
         mock_messages.messages = mock.MagicMock()
         save_setting('Identifiers', 'register_issue_dois', self.journal_one, 'on')
-        from events import registration # Forces events to load into memory
         journal_logic.handle_assign_issue(self.request, self.article_one, issue)
         issue.refresh_from_db()
         self.assertTrue(issue.doi)
@@ -427,7 +421,6 @@ class TestLogic(TestCase):
         mock_messages = mock.patch('journal.logic.messages').start()
         mock_messages.messages = mock.MagicMock()
         save_setting('Identifiers', 'register_issue_dois', self.journal_one, '')
-        from events import registration # Forces events to load into memory
         journal_logic.handle_assign_issue(self.request, self.article_one, issue)
         issue.refresh_from_db()
         self.assertEqual(issue.doi, None)

@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from uuid import uuid4
 from collections import Counter
 from datetime import timedelta
 

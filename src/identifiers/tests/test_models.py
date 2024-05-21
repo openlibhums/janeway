@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from identifiers import logic, models
 from utils.testing import helpers
-from utils.shared import clear_cache
 from uuid import uuid4
 
 

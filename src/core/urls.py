@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import include, re_path, path
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.conf import settings
 from django.views.static import serve
 
@@ -27,7 +26,6 @@ urlpatterns = [
 
 try:
     if settings.DEBUG or settings.IN_TEST_RUNNER:
-        import debug_toolbar
 
         urlpatterns += [
             re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

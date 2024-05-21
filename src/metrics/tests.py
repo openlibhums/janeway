@@ -2,9 +2,6 @@ import datetime
 import pytz
 
 from django.test import TestCase, override_settings
-from django.urls import reverse
-from django.utils import timezone
-from freezegun import freeze_time
 
 from metrics.models import ArticleAccess
 from utils import install

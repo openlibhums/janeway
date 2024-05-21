@@ -17,7 +17,6 @@ from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
     SearchVectorField,
 )
-from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import(
     connection,
@@ -26,8 +25,8 @@ from django.db import(
     ProgrammingError,
     transaction,
 )
-from django.db.models import fields, Q, Manager
-from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
+from django.db.models import Q, Manager
+from django.db.models.fields.related import ManyToManyField
 from django.db.models.functions import Coalesce, Greatest
 from django.core.validators import (
     FileExtensionValidator,
@@ -41,11 +40,9 @@ from django.http.request import split_domain_port
 from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
-from django.db.models.query import QuerySet
 from django_bleach.models import BleachField
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
-from modeltranslation.utils import auto_populate
 from PIL import Image
 import xml.etree.cElementTree as et
 

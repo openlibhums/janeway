@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from dateutil import tz
 
@@ -29,7 +28,6 @@ from core import (
     models as core_models,
 )
 from journal import models as journal_models
-from submission import models as submission_models
 
 
 from utils import (

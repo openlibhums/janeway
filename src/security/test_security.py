@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.core.management import call_command
 from mock import Mock
 
-from core import models as core_models, forms as core_forms, logic as core_logic
+from core import models as core_models, forms as core_forms
 from journal import models as journal_models
 from production import models as production_models
 from security import decorators

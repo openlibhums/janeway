@@ -17,9 +17,6 @@ Options:
 
 
 import os
-from os import listdir
-from os.path import isfile, join
-import re
 from debug import Debug, Debuggable
 from docopt import docopt
 from interactive import Interactive

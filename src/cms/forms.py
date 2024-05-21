@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django import forms
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from cms import logic, models

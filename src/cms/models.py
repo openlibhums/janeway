@@ -10,7 +10,6 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
 
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import JanewayBleachField

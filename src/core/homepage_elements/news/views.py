@@ -2,7 +2,6 @@ from django.urls import reverse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
-from utils import setting_handler, models
 from security.decorators import editor_user_required
 from core.homepage_elements.news import forms
 

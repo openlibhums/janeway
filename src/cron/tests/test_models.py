@@ -1,7 +1,5 @@
 from django.test import TestCase
-from django.core.management import call_command
 from utils.testing import helpers
-from cron import forms, models
 
 class ModelTests(TestCase):
     """

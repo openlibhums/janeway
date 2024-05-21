@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import os
 import uuid
 import json
-from dateutil import parser as dateparser
 
 from django.db import models
 from django.db.models import Q
@@ -16,7 +15,6 @@ from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from django.http.request import split_domain_port
 from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage

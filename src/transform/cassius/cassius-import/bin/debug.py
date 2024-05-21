@@ -4,7 +4,6 @@ __author__ = 'Martin Paul Eve'
 __email__ = "martin@martineve.com"
 
 import sys
-import os
 
 
 class Debug(object):

@@ -1,5 +1,4 @@
 import jwt
-import base64
 from datetime import timedelta, datetime
 import requests
 from requests.auth import HTTPBasicAuth

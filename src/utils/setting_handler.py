@@ -13,7 +13,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import translation
 
 from core import models as core_models
-from utils import models
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

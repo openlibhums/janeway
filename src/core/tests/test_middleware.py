@@ -6,7 +6,6 @@ from django.shortcuts import redirect
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
-from django.core.management import call_command
 
 from core.middleware import (
     SiteSettingsMiddleware,

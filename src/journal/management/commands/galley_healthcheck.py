@@ -5,7 +5,6 @@ from django.core.management.base import BaseCommand
 
 from journal import models as journal_models
 from submission import models
-from core.templatetags.files import has_missing_supplements
 
 
 class Command(BaseCommand):

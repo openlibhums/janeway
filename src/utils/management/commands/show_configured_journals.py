@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from core.models import DomainAlias
 from journal import models as journal_models
 from press import models as press_models
 

@@ -4,12 +4,11 @@ from urllib.parse import (
     urlencode,
     parse_qsl,
 )
-from datetime import datetime
 
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
 from django.views.generic.base import View, TemplateResponseMixin
-from django.utils.timezone import make_aware, utc
+from django.utils.timezone import utc
 
 from api.oai import exceptions
 from utils.http import allow_mutating_GET

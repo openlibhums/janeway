@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from core import logic
-from core.models import SettingGroup
 from utils.testing import helpers
 
 class TestLogic(TestCase):

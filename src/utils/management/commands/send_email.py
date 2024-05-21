@@ -1,6 +1,4 @@
-from django.contrib.auth.models import ContentType
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
 import time
 import json

@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import random
 
 from journal import models as journal_models
-from utils.function_cache import cache
 
 
 def get_random_journals():

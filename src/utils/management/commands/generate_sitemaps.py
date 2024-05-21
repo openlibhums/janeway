@@ -1,13 +1,10 @@
-import os
 from tqdm import tqdm
 
-from django.core.management.base import BaseCommand
 
 from utils import logic
 from utils.management.base import ProfiledCommand
 from journal import models as journal_models
 from repository import models as repository_models
-from press import models as press_models
 
 
 class Command(ProfiledCommand):

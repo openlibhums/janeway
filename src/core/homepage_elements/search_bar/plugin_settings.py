@@ -2,7 +2,7 @@ from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models, setting_handler
+from utils import models
 
 PLUGIN_NAME = 'Search Bar'
 SHORT_NAME = 'search_bar'

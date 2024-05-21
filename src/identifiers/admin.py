@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from utils import admin_utils
 from identifiers import models
-from journal import models as journal_models
 
 
 class BrokenDOIAdmin(admin.ModelAdmin):

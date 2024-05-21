@@ -54,10 +54,6 @@ from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from journal import models as journal_models
-from review.const import (
-    ReviewerDecisions as RD,
-    VisibilityOptions as VO,
-)
 
 logger = get_logger(__name__)
 

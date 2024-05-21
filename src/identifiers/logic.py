@@ -9,17 +9,13 @@ from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
 import time
-import itertools
 
 from django.urls import reverse
 from django.template.loader import render_to_string
-from django.utils.http import urlencode
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib import messages
-from django.utils import timezone
 
-import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -27,7 +23,6 @@ from utils.shared import clear_cache
 from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
-from submission import models as submission_models
 
 logger = get_logger(__name__)
 

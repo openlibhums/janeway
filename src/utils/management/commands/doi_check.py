@@ -7,7 +7,6 @@ from journal import models as journal_models
 from cron import models as cron_models
 from submission import models as submission_models
 from identifiers import models as ident_models
-from utils import setting_handler
 
 
 class Command(BaseCommand):

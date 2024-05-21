@@ -18,7 +18,6 @@ from core import (
     models as core_models,
 )
 from review import logic as review_logic
-from review.const import EditorialDecisions as ED
 
 
 def send_reviewer_withdrawl_notice(**kwargs):

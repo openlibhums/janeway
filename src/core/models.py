@@ -19,12 +19,11 @@ from django.core.exceptions import ValidationError
 from django.db import (
     connection,
     models,
-    transaction,
 )
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
@@ -32,7 +31,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.template.defaultfilters import linebreaksbr
 import swapper
 
 from core import files, validators
@@ -43,7 +41,6 @@ from core.model_utils import (
     DynamicChoiceField,
     JanewayBleachField,
     PGCaseInsensitiveEmailField,
-    SearchLookup,
     default_press_id,
 )
 from review import models as review_models

@@ -1,10 +1,9 @@
 import os
-import shutil
 from tempfile import NamedTemporaryFile
 
 from django.urls import reverse
 from django.urls.base import clear_script_prefix
-from django.test import TestCase, Client, override_settings
+from django.test import TestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.utils import timezone

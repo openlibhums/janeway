@@ -14,7 +14,6 @@ from tinymce.widgets import TinyMCE
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
-from core.widgets import JanewayFileInput
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 

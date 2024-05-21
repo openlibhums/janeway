@@ -1,4 +1,3 @@
-from datetime import timedelta
 
 from django.contrib.sessions.backends import db
 from django.utils import timezone

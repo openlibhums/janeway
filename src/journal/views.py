@@ -37,7 +37,7 @@ from core import (
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_best_galley, get_galley_content
+from journal.logic import get_best_galley
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -2074,7 +2074,6 @@ def old_search(request):
 
     if redir:
         return redir
-    from itertools import chain
     if search_term:
         escaped = re.escape(search_term)
         # checks titles, keywords and subtitles first,

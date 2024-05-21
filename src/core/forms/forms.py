@@ -7,7 +7,6 @@ import uuid
 import json
 
 from django import forms
-from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
@@ -24,7 +23,6 @@ from utils.forms import (
     KeywordModelForm,
     JanewayTranslationModelForm,
     CaptchaForm,
-    HTMLDateInput,
 )
 from utils.logger import get_logger
 from submission import models as submission_models

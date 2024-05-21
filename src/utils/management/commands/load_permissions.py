@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.utils import translation
 
 from utils import install
 

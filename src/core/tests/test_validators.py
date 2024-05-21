@@ -1,7 +1,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from core import models, validators
+from core import validators
 
 class TestValidators(TestCase):
 

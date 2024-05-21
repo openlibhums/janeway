@@ -17,12 +17,9 @@ from journal import models as journal_models
 from security.decorators import production_user_or_editor_required, editor_user_required
 from identifiers import logic
 
-import datetime
-from uuid import uuid4
 
 from django.urls import reverse
 from django.contrib import messages
-from django.utils import timezone
 
 
 from utils import models as util_models
@@ -135,7 +132,6 @@ def show_doi(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -168,7 +164,6 @@ def poll_doi(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -221,7 +216,6 @@ def poll_doi_output(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,

@@ -27,7 +27,6 @@ from django.utils.timezone import make_aware
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
 from journal.forms import SearchForm
-from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.logger import get_logger

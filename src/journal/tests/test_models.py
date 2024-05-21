@@ -2,7 +2,6 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 
-from core.middleware import SiteSettingsMiddleware
 from journal import models
 from journal.tests.utils import make_test_journal
 from press.models import Press

@@ -2,7 +2,6 @@ import os
 import shutil
 import boto
 from boto.s3.key import Key
-import subprocess
 from io import StringIO
 
 from django.core.management.base import BaseCommand

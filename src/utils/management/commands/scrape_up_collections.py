@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 
 from core.models import Account
 from journal.models import Journal
-from utils import importer
 from utils.importers import up
 
 

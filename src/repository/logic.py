@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from user_agents import parse as parse_ua_string
-from datetime import datetime, timedelta
+from datetime import timedelta
 from collections import Counter
 
 from django.utils import timezone
@@ -13,7 +13,6 @@ from django.db.models import (
     OuterRef,
     Subquery,
     Value,
-    Count,
 )
 from django.db.models.functions import Concat
 

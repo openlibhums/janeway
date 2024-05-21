@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.shortcuts import reverse
-from django.utils import timezone
 
 from copyediting import models
 from utils.testing import helpers

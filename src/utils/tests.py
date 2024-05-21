@@ -37,8 +37,7 @@ from review import models as review_models
 from submission import models as submission_models
 from core import (
     email as core_email,
-    models as core_models,
-    forms as core_forms
+    models as core_models
 )
 from copyediting import models as copyediting_models
 

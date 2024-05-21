@@ -1,7 +1,6 @@
 from django import forms
 
 from utils import setting_handler
-from core.homepage_elements.popular import plugin_settings, logic
 
 
 class NewsForm(forms.Form):

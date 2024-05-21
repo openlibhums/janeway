@@ -3,10 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import errno
-import io
 import os
-import warnings
 
 from django.conf import settings
 from django.template.loaders.filesystem import Loader as FileSystemLoader

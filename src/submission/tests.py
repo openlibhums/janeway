@@ -2,8 +2,6 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-from datetime import datetime
-from dateutil import parser as dateparser
 from mock import Mock
 import os
 
@@ -18,7 +16,7 @@ from django.test.utils import override_settings
 
 import swapper
 
-from core.models import Account, File, Galley
+from core.models import Account, File
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -31,7 +29,7 @@ from submission import (
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.shared import clear_cache
 from utils.testing import helpers
-from utils.testing.helpers import create_galley, request_context
+from utils.testing.helpers import create_galley
 
 FROZEN_DATETIME_2020 = timezone.make_aware(timezone.datetime(2020, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 0))

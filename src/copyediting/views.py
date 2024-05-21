@@ -10,7 +10,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from copyediting import models, logic, forms
 from core import (
@@ -21,10 +20,9 @@ from core import (
 )
 from events import logic as event_logic
 from security.decorators import (
-    production_user_or_editor_required, copyeditor_user_required,
+    copyeditor_user_required,
     copyeditor_for_copyedit_required, article_author_required,
-    editor_user_required, senior_editor_user_required,
-    any_editor_user_required
+    editor_user_required, any_editor_user_required
 )
 
 from submission import models as submission_models

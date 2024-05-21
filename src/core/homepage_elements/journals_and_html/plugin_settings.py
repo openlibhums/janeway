@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
 
 PLUGIN_NAME = 'Journals and HTML'
 DESCRIPTION = 'This plugin displays featured journals.'

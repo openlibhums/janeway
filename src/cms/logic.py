@@ -18,7 +18,6 @@ from django.core.files.base import ContentFile
 
 from cms import models as models
 from journal import models as journal_models
-from press import models as press_models
 from repository import models as repository_models
 from utils import setting_handler
 from utils.function_cache import cache
