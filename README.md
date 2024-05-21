@@ -12,7 +12,7 @@ Developer installation [instructions are available in our documentation site](ht
 A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
 
 ## Running Janeway with docker
-Janeway's development server can be run within a docker container, avoiding the need to install and run its dependencies from your machine. A docker-compose file as well as a Makefile can be found at the root of the project wrapping the most common operations.
+Janeway's development server can be run within a docker container, avoiding the need to install and run its dependencies from your machine. A docker compose file as well as a Makefile can be found at the root of the project wrapping the most common operations.
 Docker is compatible with multiple architectures and Operating systems, if you need help installing docker, have a look at the [docker documentation](https://docs.docker.com/install/).
 
 Simarly to the native installation, Janeway can be installed in a docker environment by running ``make install`` and following the installation steps described [above](https://github.com/BirkbeckCTP/janeway/wiki/Installation). As a result, a database volume will be populated under janeway/db/postgres-data
