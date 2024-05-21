@@ -69,6 +69,7 @@ export JANEWAY_EMAIL_HOST
 export JANEWAY_EMAIL_PORT
 export JANEWAY_EMAIL_USE_TLS
 
+COMPOSE_CMD ?= docker compose
 SUFFIX ?= $(shell date +%s)
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
@@ -79,20 +80,20 @@ run: janeway
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
-	docker-compose run --rm start_dependencies
-	docker-compose $(_VERBOSE) run $(NO_DEPS) --rm --service-ports janeway-web $(entrypoint)
+	$(COMPOSE_CMD) run --rm start_dependencies
+	$(COMPOSE_CMD) $(_VERBOSE) run $(NO_DEPS) --rm --service-ports janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable (e.g make command CMD="migrate -v core 0024")
-	docker-compose run $(NO_DEPS) --rm janeway-web $(CMD)
+	$(COMPOSE_CMD) run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
 	mkdir -p db/postgres-data
-	docker-compose run --rm start_dependencies
+	$(COMPOSE_CMD) run --rm start_dependencies
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
 	docker pull birkbeckctp/janeway-base:latest
-	docker-compose build --no-cache janeway-web
+	$(COMPOSE_CMD) build --no-cache janeway-web
 shell:		## Runs the janeway-web service and starts an interactive bash process instead of the webserver
-	docker-compose run --service-ports --entrypoint=/bin/bash --rm janeway-web
+	$(COMPOSE_CMD) run --service-ports --entrypoint=/bin/bash --rm janeway-web
 attach:		## Runs an interactive shell within the currently running janeway-web container.
 	docker exec -ti `docker ps -q --filter 'name=janeway-web'` /bin/bash
 db-client:	## runs the database CLI client interactively within the database container as per the value of DB_VENDOR
@@ -136,7 +137,7 @@ build_assets:		## Runs Janeway's build_assets command
 basebuild:		## Builds the base docker image
 	bash -c "docker build --no-cache -t birkbeckctp/janeway-base:latest -f dockerfiles/Dockerfile.base ."
 snakeviz:
-	docker-compose run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
+	$(COMPOSE_CMD) run --publish $(SNAKEVIZ_PORT):$(SNAKEVIZ_PORT) $(NO_DEPS) --rm --entrypoint=snakeviz janeway-web $(FILE) --server -H 0.0.0.0 -p $(SNAKEVIZ_PORT)
 ci:				## Runs Janeway's CI job in a container
 	docker build -t janeway_jenkins_build_${BUILD_TAG}_ci -f jenkins/Dockerfile.jenkins .
 	echo "Running Unit Tests and Coverage"
