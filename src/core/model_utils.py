@@ -42,7 +42,7 @@ from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
-from django_bleach.models import BleachField
+from django_bleach.models import BleachField, CSSSanitizer
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
@@ -579,6 +579,11 @@ class JanewayBleachField(BleachField):
     not when using the value elsewhere (XML encoding)
     https://github.com/marksweb/django-bleach/blob/504b3784c525886ba1974eb9ecbff89314688491/django_bleach/models.py#L76
     """
+
+    def __init__(self, *args, **kwargs):
+        kwargs['css_sanitizer'] = CSSSanitizer()
+        super().__init__(*args, **kwargs)
+
     def from_db_value(self, value,expression, connection):
         return value
 
