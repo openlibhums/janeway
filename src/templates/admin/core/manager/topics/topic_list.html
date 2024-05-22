@@ -1,0 +1,150 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Topics{% endblock title %}
+{% block title-section %}Topics{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_topics' %}">Topics</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Topics</h2>
+                <a href="{% url 'core_manager_topic_add' %}" class="button">Add New Topic</a>
+            </div>
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Here you can create and edit the journal study topics that classifiable an article. They allow you to give better recommendations for assigning users to the article
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    <strong>NB.</strong> {% blocktrans %}You cannot remove a topic related to existing articles or accounts. Remove articles and accounts from the topic if you want to delete it.{% endblocktrans %}
+                </p>
+                <form method="GET" action="">
+                    <label for="group_filter">Filter by Topic Group:</label>
+                    <select name="group_filter" id="group_filter" onchange="this.form.submit()">
+                        <option value="">All Groups</option>
+                        {% for group in topic_group_objects %}
+                            <option value="{{ group.pk }}" {% if request.GET.group_filter == group.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ group.pretty_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="table scroll">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Topic Group</th>
+                            <th># Accounts</th>
+                            <th># Articles</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for topic in topic_objects %}
+                            <tr id="topic-{{ topic.pk }}">
+                                <td>{{ topic.pk }}</td>
+                                <td>{{ topic.pretty_name }}</td>
+                                <td>{{ topic.group.pretty_name }}</td>
+                                <td><a href="{% url 'core_manager_topic_accounts' topic.pk %}">{{ topic.account_count }}</a></td>
+                                <td><a href="{% url 'core_manager_topic_articles' topic.pk %}">{{ topic.article_count }}</a></td>
+                                <td>
+                                    <a href="{% url 'core_manager_topic' topic.pk %}" class="tiny warning button">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <button {% if topic.article_count %}disabled{% endif %} type="submit" class="tiny alert button delete {% if topic.article_count %}disabled{% endif %}" name="delete"
+                                            value="{{ topic.pk }}">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+        <div class="box">
+            <div class="title-area">
+                <h2>Topic Groups</h2>
+                <a href="{% url 'core_manager_topic_group_add' %}" class="button">Add New Group</a>
+            </div>
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Here you can create and edit the journal study topic groups.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    <strong>NB.</strong> {% blocktrans %}You cannot remove a group related to existing topic. Remove the topics from the group if you want to delete it.{% endblocktrans %}
+                </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="table scroll">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for topic_group in topic_group_objects %}
+                            <tr id="topic-{{ topic.pk }}">
+                                <td>{{ topic_group.pk }}</td>
+                                <td>{{ topic_group.pretty_name }}</td>
+                                <td>
+                                    <a href="{% url 'core_manager_topic_group' topic_group.pk %}" class="tiny warning button">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <button {% if topic_group.article_count %}disabled{% endif %} type="submit" class="tiny alert button delete {% if topic_group.topic_count %}disabled{% endif %}" name="delete_group"
+                                            value="{{ topic_group.pk }}">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+            $(document).ready(function () {
+                $(".delete").click(function () {
+                    if (!confirm("Are you sure you want to delete this topic?")) {
+                        return false;
+                    }
+                });
+            });
+    </script>
+{% endblock js %}

@@ -584,6 +584,12 @@ class Journal(AbstractSiteModel):
             )
 
             default_review_form.elements.add(main_element)
+    
+    def topic_groups(self):
+        return self.topicgroup_set.all()
+
+    def topics(self):
+        return self.topics_set.all()
 
 
 class PinnedArticle(models.Model):

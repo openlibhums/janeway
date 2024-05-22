@@ -170,6 +170,22 @@ urlpatterns = [
         core_views.manage_section, name='core_manager_section'),
     re_path(r'^manager/sections/(?P<section_id>\d+)/articles/$',
         core_views.section_articles, name='core_manager_section_articles'),
+    
+    # Journal Topics
+    re_path(r'^manager/topics/$',
+        core_views.topic_list, name='core_manager_topics'),
+    re_path(r'^manager/topics/add/$',
+        core_views.manage_topic, name='core_manager_topic_add'),
+    re_path(r'^manager/topics/group/add/$',
+        core_views.manage_topic_group, name='core_manager_topic_group_add'),
+    re_path(r'^manager/topics/(?P<topic_id>\d+)/$',
+        core_views.manage_topic, name='core_manager_topic'),
+   re_path(r'^manager/topics/group/(?P<topic_group_id>\d+)/$',
+        core_views.manage_topic_group, name='core_manager_topic_group'),
+    re_path(r'^manager/topics/(?P<topic_id>\d+)/accounts/$',
+        core_views.topic_accounts, name='core_manager_topic_accounts'),
+    re_path(r'^manager/topics/(?P<topic_id>\d+)/articles/$',
+        core_views.topic_articles, name='core_manager_topic_articles'),
 
     # Pinned Articles
     re_path(r'^manager/articles/pinned/$',

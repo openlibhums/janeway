@@ -456,6 +456,35 @@ class SectionForm(JanewayTranslationModelForm):
             self.fields['editors'].required = False
 
 
+class TopicForm(forms.ModelForm):
+    class Meta:
+        model = models.Topics
+        fields = ['pretty_name', 'description', 'group']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+            'group': 'Topic Group',
+        }
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(TopicForm, self).__init__(*args, **kwargs)
+        if request:
+            self.fields['group'].queryset = request.journal.topic_groups()
+            self.fields['group'].label_from_instance = lambda obj: "%s" % obj.pretty_name
+
+class TopicGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.TopicGroup
+        fields = ['pretty_name', 'description']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TopicGroupForm, self).__init__(*args, **kwargs)
+
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
