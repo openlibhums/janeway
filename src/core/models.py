@@ -261,6 +261,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
     signature = JanewayBleachField(null=True, blank=True, verbose_name=_("Signature"))
     interest = models.ManyToManyField('Interest', null=True, blank=True)
+    study_topic = models.ManyToManyField('Topics', through='AccountTopic', null=True, blank=True)
     country = models.ForeignKey(
         Country,
         null=True,
@@ -1455,6 +1456,74 @@ class TaskCompleteEvents(models.Model):
 
     class Meta:
         verbose_name_plural = 'task complete events'
+
+
+class TopicGroup(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'study topic groups for articles and accounts'
+
+    def __str__(self):
+        return self.name
+
+class Topics(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    group = models.ForeignKey(
+        TopicGroup,
+        on_delete=models.CASCADE,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'study topics for articles and accounts'
+
+    def __str__(self):
+        return self.name
+    
+    def article_count(self):
+        return self.articletopic_set.all().count()
+
+    def account_count(self):
+        return self.accounttopic_set.all().count()
+
+
+class AccountTopic(models.Model):
+    PRIMARY = 'PR'
+    SECONDARY = 'SE'
+    TOPIC_TYPE_CHOICES = [
+        (PRIMARY, 'Primary'),
+        (SECONDARY, 'Secondary'),
+    ]
+    
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topics, on_delete=models.CASCADE)
+    topic_type = models.CharField(
+        max_length=2,
+        choices=TOPIC_TYPE_CHOICES,
+        default=PRIMARY,
+    )
+
+    class Meta:
+        unique_together = ('account', 'topic')
+
+    def __str__(self):
+        return f"{self.account} - {self.topic} ({self.topic_type()})"
 
 
 class EditorialGroup(models.Model):
