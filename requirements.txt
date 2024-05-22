@@ -7,6 +7,7 @@ chardet==3.0.4
 crossrefapi==1.5.0
 Django==3.2.20
 django-bleach==3.0.1
+bleach-allowlist==1.0.3
 django-bootstrap4==22.3
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git@284fc5f08e58d8655c7301eddb49f920fda516d2#egg=foundationform
 django-countries[pyuca]==7.5.1

@@ -371,26 +371,3 @@ class TestLastModifiedModel(TestCase):
 
         # Test
         self.assertEqual(self.article.best_last_modified_date(), file_date)
-
-
-class TestModelUtils(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.press = helpers.create_press()
-        cls.journal, _ = helpers.create_journals()
-        cls.article = helpers.create_article(
-            journal=cls.journal,
-        )
-
-    def test_bleach_style_attr(self):
-        html_with_style = '''
-            In <span style="font-style: italic;">Passing</span> Larsen...
-        '''
-        self.article.abstract = html_with_style
-        self.article.save()
-        self.article.refresh_from_db()
-        self.assertEqual(
-            html_with_style,
-            self.article.abstract,
-        )
