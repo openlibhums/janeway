@@ -24,6 +24,7 @@ import logging
 from django.contrib import messages
 
 from core import plugin_installed_apps
+from utils.const import get_allowed_html_tags, get_allowed_css_styles
 
 # X_FRAME_OPTIONS must be set to SAMEORIGIN or the embedded PDF viewer will not work
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -282,26 +283,7 @@ if ENABLE_TEXTURE:
     STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
 # Django bleach settings
-# Base case is to allow all tags except for <script>. Individual form instances
-# can further reduce the set of allowed tags
-BLEACH_ALLOWED_TAGS = [
-    "html", "head", "title", "meta", "link", "style",
-    "body", "article", "section", "nav", "aside",
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    "header", "footer", "address", "main", "p", "hr", "pre",
-    "blockquote", "ol", "ul", "li", "dl", "dt", "dd",
-    "figure", "figcaption", "div", "a", "em", "strong", "small",
-    "s", "cite", "q", "dfn", "abbr", "data", "time",
-    "code", "var", "samp", "kbd", "sub", "sup", "i",
-    "b", "u", "mark", "ruby", "rt", "rp", "bdi",
-    "bdo", "span", "br", "wbr", "ins", "del", "picture",
-    "source", "img", "iframe", "embed", "object", "param", "video",
-    "audio", "track", "map", "area", "table", "caption", "colgroup",
-    "col", "tbody", "thead", "tfoot", "tr", "td", "th",
-    "form", "fieldset", "legend", "label", "input", "button", "select",
-    "datalist", "optgroup", "option", "textarea", "output", "progress", "meter",
-    "details", "summary", "menu", "menuitem", "dialog", "slot", "canvas"
-]
+BLEACH_ALLOWED_TAGS = get_allowed_html_tags()
 
 # Which HTML attributes are allowed
 BLEACH_ALLOWED_ATTRIBUTES = [
@@ -317,7 +299,7 @@ BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
 
 # Which CSS properties are allowed in 'style' attributes (assuming
 # style is an allowed attribute)
-# BLEACH_ALLOWED_STYLES = []
+BLEACH_ALLOWED_STYLES = get_allowed_css_styles()
 
 # Strip unknown tags if True, replace with HTML escaped characters if
 # False
