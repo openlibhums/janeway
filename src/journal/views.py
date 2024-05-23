@@ -2229,13 +2229,19 @@ def send_user_email(request, user_id, article_id=None):
             request.POST,
             request.FILES,
         )
-
+        log_dict = {
+            'level': 'Info',
+            'action_text': f'{request.user} sent an email to {user.full_name}',
+            'types': 'Email',
+            'target': article if article else user,
+        }
         if form.is_valid():
             core_email.send_email(
                 user,
                 form.as_dataclass(),
                 request,
                 article=article,
+                log_dict=log_dict,
             )
             close = True
 
