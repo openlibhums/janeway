@@ -27,27 +27,23 @@
                 <table class="small">
                     <thead>
                         <tr>
-                            <th>{% trans 'Title' %}</th>
-                            <th>{% trans 'D/T Submitted' %}</th>
-                            <th>{% trans 'Stage' %}</th>
-                            <th>{% trans 'Main Author' %}</th>
-                            <th>{% trans 'Editors' %}</th>
-                            <th>{% trans 'Article Archive' %}</th>
+                            <th>{% trans 'Username' %}</th>
+                            <th>{% trans 'First Name' %}</th>
+                            <th>{% trans 'Last Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for account in topic.accounttopic_set.all %}
                             <tr>
-                                <td>{{ article.username }}</td>
-                                <td>{{ article.date_submitted }}</td>
-                                <td>{{ article.stage }}</td>
-                                <td>{{ article.correspondence_author.full_name }}</td>
-                                <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td><a href="{% url 'manage_archive_article' article.pk %}">Article Archive</a></td>
+                                <td>{{ account.account.username }}</td>
+                                <td>{{ account.account.first_name }}</td>
+                                <td>{{ account.account.last_name }}</td>
+                                <td>{{ account.account.email }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="5">{% trans 'This topic has no articles.' %}</td>
+                                <td colspan="5">{% trans 'This topic has no accounts.' %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

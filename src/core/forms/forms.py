@@ -7,6 +7,7 @@ import uuid
 import json
 
 from django import forms
+from django_select2.forms import Select2MultipleWidget
 from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -191,7 +192,21 @@ class EditAccountForm(forms.ModelForm):
         widgets = {
             'biography': TinyMCE(),
             'signature': TinyMCE(),
+            'study_topic': Select2MultipleWidget,
         }
+
+    def __init__(self, *args, **kwargs):
+        super(EditAccountForm, self).__init__(*args, **kwargs)
+        self.fields['study_topic'].choices = [
+            (
+                group.pretty_name,
+                [
+                    (topic.id, topic.pretty_name)
+                    for topic in models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                ]
+            )
+            for group in models.TopicGroup.objects.all()
+        ]
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
@@ -210,6 +225,8 @@ class EditAccountForm(forms.ModelForm):
 
         if commit:
             user.save()
+            study_topics = self.cleaned_data.get('study_topic', [])
+            user.study_topic.set(study_topics)
 
         return user
 

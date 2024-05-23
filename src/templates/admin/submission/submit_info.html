@@ -68,7 +68,16 @@
                                 <p class="help-text"><a href="#" data-open="license">{% trans 'View license information' %}</a></p>
                             </div>
                         {% endif %}
-
+                        
+                        <div class="large-12 columns" style="margin-bottom: 16px;">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="id_topics">{% trans 'Study Topics' %}</label>
+                                    {{ form.study_topic }}
+                                </div>
+                                <p class="help-text" style="padding: 0 16px;">{{ form.study_topic.help_text}}</p>
+                            </div>
+                        </div>
 
                         {% if request.journal.submissionconfiguration.keywords %}
                             <div class="large-12 columns">
@@ -123,9 +132,10 @@
     {{ block.super }}
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.css }}
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>
-
+    {{ form.media.js }}
     <script type="text/javascript">
         $(document).ready(function () {
             $("#id_keywords").tagit(

@@ -1363,6 +1363,9 @@ class Article(AbstractLastModifiedModel):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
 
+    def topics(self):
+        return core_models.Topics.objects.filter(articletopic__article=self)
+
     @cache(7200)
     def altmetrics(self):
         alm = self.altmetric_set.all()

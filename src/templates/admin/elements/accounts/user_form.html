@@ -33,6 +33,17 @@
         {{ form.country|foundation }}
     </div>
 </div>
+<div class="row">
+    <div class="large-12 columns" style="margin-bottom: 16px;">
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <label for="id_topics">{% trans 'Study Topics' %}</label>
+                {{ form.study_topic }}
+            </div>
+            <p class="help-text" style="padding: 0 16px;">{{ form.study_topic.help_text}}</p>
+        </div>
+    </div>
+</div>
 <hr />
 <h5>Social Media and Accounts</h5>
 <div class="row">

@@ -1474,7 +1474,7 @@ class TopicGroup(models.Model):
         verbose_name_plural = 'study topic groups for articles and accounts'
 
     def __str__(self):
-        return self.name
+        return self.pretty_name
 
     def topic_count(self):
         return self.topics_set.all()
@@ -1500,7 +1500,7 @@ class Topics(models.Model):
         verbose_name_plural = 'study topics for articles and accounts'
 
     def __str__(self):
-        return self.name
+        return self.pretty_name
     
     def article_count(self):
         return self.articletopic_set.all().count()

@@ -77,7 +77,9 @@
 
 {% block js %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+{{ form.media.css }}
 <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+{{ form.media.js }}
 <script src="{% static "common/js/tagit.js" %}"></script>
 
 <script type="text/javascript">

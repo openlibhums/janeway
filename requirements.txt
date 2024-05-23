@@ -20,6 +20,7 @@ django-settings-export==1.2.1
 django-recaptcha==3.0.0
 django-simple-math-captcha==2.0.1
 django-simple-history==3.3.0
+django-select2==8.1.2
 django-summernote==0.8.20.0
 django-tinymce==3.7.1
 djangorestframework==3.15.1

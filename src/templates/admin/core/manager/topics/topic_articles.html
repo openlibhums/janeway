@@ -38,11 +38,11 @@
                     <tbody>
                         {% for article in topic.articletopic_set.all %}
                             <tr>
-                                <td>{{ article.safe_title }}</td>
-                                <td>{{ article.date_submitted }}</td>
-                                <td>{{ article.stage }}</td>
-                                <td>{{ article.correspondence_author.full_name }}</td>
-                                <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>{{ article.article.safe_title }}</td>
+                                <td>{{ article.article.date_submitted }}</td>
+                                <td>{{ article.article.stage }}</td>
+                                <td>{{ article.article.correspondence_author.full_name }}</td>
+                                <td>{% for editor in article.article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td><a href="{% url 'manage_archive_article' article.pk %}">Article Archive</a></td>
                             </tr>
                         {% empty %}
