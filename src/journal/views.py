@@ -1038,7 +1038,6 @@ def publish_article(request, article_id):
         }
     )
     modal = request.GET.get('m', None)
-    pubdate_errors = []
 
     if request.POST:
         if 'assign_issue' in request.POST:
@@ -1213,7 +1212,6 @@ def publish_article(request, article_id):
         'issues': issues,
         'new_issue_form': new_issue_form,
         'modal': modal,
-        'pubdate_errors': pubdate_errors,
         'pub_date_form': pub_date_form,
         'notify_author_email_form': notify_author_email_form,
     }
