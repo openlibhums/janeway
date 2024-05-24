@@ -1,12 +1,10 @@
 from django import forms
 
-from django_summernote.widgets import SummernoteWidget
-
 from comms import models
+from utils.forms import HTMLDateInput
 
 
 class NewsItemForm(forms.ModelForm):
-
 
     image_file = forms.FileField(required=False)
     tags = forms.CharField(required=False)
@@ -22,3 +20,7 @@ class NewsItemForm(forms.ModelForm):
     class Meta:
         model = models.NewsItem
         exclude = ('content_type', 'object_id', 'posted', 'posted_by', 'large_image_file', 'tags')
+        widgets = {
+            'start_display': HTMLDateInput,
+            'end_display': HTMLDateInput,
+        }
