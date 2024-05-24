@@ -35,7 +35,7 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article', 'author',)
 
 
-class ArticleAdmin(admin.ModelAdmin):
+class ArticleAdmin(admin_utils.JanewayModelAdmin):
     list_display = ('pk', 'title', 'correspondence_author',
                     'journal', 'date_submitted', 'stage',
                     'owner', 'is_import')

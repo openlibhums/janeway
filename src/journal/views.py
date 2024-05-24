@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.files.base import ContentFile
@@ -1016,6 +1017,7 @@ def publish_article(request, article_id):
     :param article_id: Article PK
     :return: contextualised django template
     """
+    from submission import forms as submission_forms
     article = get_object_or_404(
         submission_models.Article,
         Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
@@ -1028,6 +1030,7 @@ def publish_article(request, article_id):
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
+    pub_date_form = submission_forms.PubDateForm(instance=article)
     notify_author_email_form = core_forms.SimpleTinyMCEForm(
         'email_to_author',
         initial = {
@@ -1083,19 +1086,28 @@ def publish_article(request, article_id):
                 )
 
         if 'pubdate' in request.POST:
-            date_set, pubdate_errors = logic.handle_set_pubdate(
-                request,
-                article,
+            pub_date_form = submission_forms.PubDateForm(
+                request.POST,
+                instance=article,
             )
-            if not pubdate_errors:
-                return redirect(
-                    reverse(
-                        'publish_article',
-                        kwargs={'article_id': article.pk},
+            if pub_date_form.is_valid():
+                pub_date_form.save()
+                messages.add_message(
+                    request, messages.SUCCESS,
+                    _(
+                        f'Publication date set to { article.date_published.strftime("%Y-%m-%d %H:%M %Z") } '
+                        f'({ naturaltime(article.date_published) })'
                     )
                 )
+
             else:
-                modal = 'pubdate'
+                messages.add_message(
+                    request, messages.WARNING,
+                    _(
+                        f'Something went wrong when trying to save the form. '
+                        f'Please try again.'
+                    )
+                )
 
         if 'author' in request.POST:
             logic.notify_author(request, article)
@@ -1202,6 +1214,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pubdate_errors': pubdate_errors,
+        'pub_date_form': pub_date_form,
         'notify_author_email_form': notify_author_email_form,
     }
 

@@ -43,6 +43,7 @@ from core.model_utils import(
     JanewayBleachField,
     JanewayBleachCharField,
     M2MOrderedThroughField,
+    DateTimePickerModelField,
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
@@ -706,7 +707,7 @@ class Article(AbstractLastModifiedModel):
     date_accepted = models.DateTimeField(blank=True, null=True)
     date_declined = models.DateTimeField(blank=True, null=True)
     date_submitted = models.DateTimeField(blank=True, null=True)
-    date_published = models.DateTimeField(blank=True, null=True)
+    date_published = DateTimePickerModelField(blank=True, null=True)
     date_updated = models.DateTimeField(blank=True, null=True)
     current_step = models.IntegerField(default=1)
 
