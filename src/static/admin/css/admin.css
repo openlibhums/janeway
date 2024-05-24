@@ -820,5 +820,5 @@ ul.menu {
 
 .ui-datepicker {
   /* Temporary hotfix for compatibility with TinyMCE */
-  z-index: 10 !important;
+  z-index: 9999 !important;
 }
