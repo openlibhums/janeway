@@ -613,3 +613,18 @@ def default_press_id():
     default_press_obj = default_press()
     if default_press_obj:
         return default_press_obj.pk
+
+
+class DateTimePickerInput(forms.DateTimeInput):
+    format_key = 'DATETIME_INPUT_FORMATS'
+    template_name = 'admin/core/widgets/datetimepicker.html'
+
+
+class DateTimePickerFormField(forms.DateTimeField):
+    widget = DateTimePickerInput
+
+
+class DateTimePickerModelField(models.DateTimeField):
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = DateTimePickerFormField
+        return super().formfield(**kwargs)
