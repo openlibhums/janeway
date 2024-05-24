@@ -1,0 +1,46 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Galley #{{ galley.pk }}{% endblock %}
+{% block title-section %}Edit Galley #{{ galley.pk }}{% endblock %}
+
+{% block css %}
+    {{ form.media }}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="box">
+            <div class="content">
+                <div class="bs-callout bs-callout-danger">
+                    <p><span class="fa fa-exclamation-triangle"></span>
+                        Warning: You are directly editing a galley file. Once saved, changed cannot be undone. Galley images should not be edited from this interface.</p>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    {% include "admin/elements/forms/foundation_submit_button.html" with classes="success" button_text="Save Galley Content" %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#galley-table" sort=0 order='desc' page_length=50 %}
+    <script>
+        (function () {
+            let matched = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            $(document).ready(function () {
+                $('textarea.code-editor').each(function (idx, el) {
+                    CodeMirror.fromTextArea(el, {
+                        lineNumbers: true,
+                        mode: 'css',
+                        theme: (matched) ? 'nord' : 'solarized'
+                    });
+                });
+            });
+        })();
+    </script>
+{% endblock js %}

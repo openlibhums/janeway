@@ -46,6 +46,7 @@ urlpatterns = [
     path('workflow/', include('workflow.urls')),
     path('discussion/', include('discussion.urls')),
     path('oidc/', include('mozilla_django_oidc.urls')),
+    path('file-editor/', include('file_editor.urls')),
 
     # Root Site URLS
     re_path(r'^$', press_views.index, name='website_index'),

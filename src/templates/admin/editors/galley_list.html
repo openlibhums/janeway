@@ -1,0 +1,52 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}{{ request.journal.name }}'s Galleys{% endblock %}
+{% block title-section %}{{ request.journal.name }}'s Galleys{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="box">
+            <div class="title-area">
+                <h2>Galley List</h2>
+            </div>
+            <div class="content">
+                <p>This table displays a list of browser editable HTML and XML
+                    galley files. HTML galleys can be edited using a rich text
+                    editor or a plain text editor. XML galleys can be edited
+                    using a plain text editor.
+                </p>
+                <table class="table" id="galley-table">
+                    <thead>
+                    <tr>
+                        <th>Article ID</th>
+                        <th>Article Title</th>
+                        <th>Galley ID</th>
+                        <th>Galley Label</th>
+                        <th>Edit Galley</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for galley in galleys %}
+                        <tr>
+                            <td>{{ galley.article.pk }}</td>
+                            <td><a href="{% url 'manage_archive_article' galley.article.pk %}">{{ galley.article.safe_title }}</a></td>
+                            <td>{{ galley.pk }}</td>
+                            <td>{{ galley.label }}</td>
+                            <td><a href="{% url 'editors_edit_galley_file' galley.article.pk galley.pk %}" class="success button">Edit</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No galleys to display.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#galley-table" sort=0 order='desc' page_length=50 %}
+{% endblock js %}
