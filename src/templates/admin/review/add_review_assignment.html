@@ -130,8 +130,6 @@
     {% else %}
         {% include "elements/datatables.html" with target="#reviewers" sort_list="[7, 'desc']" %}
     {% endif %}
-
-    {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}

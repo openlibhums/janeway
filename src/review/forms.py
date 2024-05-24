@@ -50,6 +50,9 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
     class Meta:
         model = models.ReviewAssignment
         fields = ('visibility', 'form', 'date_due', 'reviewer')
+        widgets = {
+            'date_due': HTMLDateInput,
+        }
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal', None)
@@ -164,6 +167,9 @@ class EditReviewAssignmentForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
         fields = ('visibility', 'form', 'date_due')
+        widgets = {
+            'date_due': HTMLDateInput,
+        }
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal', None)
@@ -240,6 +246,9 @@ class RevisionRequest(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         fields = (
             'date_due', 'type', 'editor_note',
         )
+        widgets = {
+            'date_due': HTMLDateInput,
+        }
 
     def __init__(self, *args, **kwargs):
         self.editor = kwargs.pop('editor', None)
@@ -272,6 +281,9 @@ class EditRevisionDue(forms.ModelForm):
         fields = (
             'date_due',
         )
+        widgets = {
+            'date_due': HTMLDateInput,
+        }
 
 
 class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
