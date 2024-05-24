@@ -539,3 +539,4 @@ class PubDateForm(forms.ModelForm):
             )
             article.fixedpubcheckitems.save()
             article.save()
+        return article

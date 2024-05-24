@@ -1090,15 +1090,20 @@ def publish_article(request, article_id):
                 instance=article,
             )
             if pub_date_form.is_valid():
-                pub_date_form.save()
-                messages.add_message(
-                    request, messages.SUCCESS,
-                    _(
-                        f'Publication date set to { article.date_published.strftime("%Y-%m-%d %H:%M %Z") } '
-                        f'({ naturaltime(article.date_published) })'
+                article = pub_date_form.save()
+                if article.date_published:
+                    messages.add_message(
+                        request, messages.SUCCESS,
+                        _(
+                            f'Publication date set to { article.date_published.strftime("%Y-%m-%d %H:%M %Z") } '
+                            f'({ naturaltime(article.date_published) })'
+                        )
                     )
-                )
-
+                else:
+                    messages.add_message(
+                        request, messages.SUCCESS,
+                        _('Publication date unset')
+                    )
             else:
                 messages.add_message(
                     request, messages.WARNING,
