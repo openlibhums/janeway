@@ -209,7 +209,7 @@
 {% include "admin/elements/summary_modal.html" %}
 {% include "elements/publish/doi_data.html" %}
 {% include "elements/publish/issues.html" %}
-{% include "elements/publish/pubdate.html" %}
+{% include "elements/publish/pubdate.html" with pub_date_form=pub_date_form %}
 {% include "elements/publish/author.html" %}
 {% include "elements/publish/galley.html" %}
 {% include "elements/publish/images.html" %}
@@ -259,6 +259,4 @@
     {% if modal %}
     {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
-    {% include "elements/datepicker.html" with target="#date" %}
-    {% include "elements/timepicker.html" with target="#time" %}
 {% endblock js %}

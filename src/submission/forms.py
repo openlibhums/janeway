@@ -524,3 +524,18 @@ def utility_clean_orcid(orcid):
 
     # ORCID is None.
     return orcid
+
+
+class PubDateForm(forms.ModelForm):
+    class Meta:
+        model = models.Article
+        fields = ('date_published',)
+
+    def save(self, commit=True):
+        article = super().save(commit=commit)
+        if commit:
+            article.fixedpubcheckitems.set_pub_date = bool(
+                article.date_published
+            )
+            article.fixedpubcheckitems.save()
+            article.save()

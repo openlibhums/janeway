@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from bs4 import BeautifulSoup
 import csv
-from dateutil import parser as dateparser
 import os
 from os import listdir, makedirs
 from os.path import isfile, join
@@ -22,7 +21,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
-from django.utils.timezone import make_aware
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -248,29 +246,6 @@ def handle_unassign_issue(request, article, issues):
             messages.add_message(request, messages.WARNING, 'Issue not in this journal’s issue list.')
     except journal_models.Issue.DoesNotExist:
         messages.add_message(request, messages.WARNING, 'Issue does not exist.')
-
-
-def handle_set_pubdate(request, article):
-    date = request.POST.get('date')
-    time = request.POST.get('time')
-
-    date_time_str = "{0} {1}".format(date, time)
-
-    try:
-        date_time = dateparser.parse(date_time_str)
-        article.date_published = make_aware(date_time)
-        article.fixedpubcheckitems.set_pub_date = True
-        article.fixedpubcheckitems.save()
-        article.save()
-
-        messages.add_message(
-            request, messages.SUCCESS,
-            'Publication Date set to {0}'.format(article.date_published)
-        )
-
-        return [date_time, []]
-    except ValueError:
-        return [date_time_str, ['Not a recognised Date/Time format. Date: 2016-12-16, Time: 20:20.']]
 
 
 def get_notify_author_text(request, article):
