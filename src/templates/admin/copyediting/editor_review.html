@@ -238,7 +238,7 @@
                     {% csrf_token %}
                     <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
                     <label for="due">Due Date</label>
-                    <input type="text" name="due" id="due" required="required">
+                    <input type="date" name="due" id="due" required="required">
                     <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
                     </button>
                 </form>
@@ -260,5 +260,4 @@
         {% include "admin/elements/open_modal.html" with target=author_review_form.modal.id %}
     {% endif %}
     {% include "elements/jqte.html" %}
-    {% include "elements/datepicker.html" with target='#due' %}
 {% endblock js %}
