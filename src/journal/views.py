@@ -2071,7 +2071,6 @@ def sitemap(request, issue_id=None):
             request.journal.code,
             'sitemap.xml',
         ]
-
     return core_views.sitemap(
         request,
         path_parts,
