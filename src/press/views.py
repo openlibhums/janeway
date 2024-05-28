@@ -86,7 +86,7 @@ def sitemap(request):
 
         if request.repository is not None:
             # if there is a repository we return the repository sitemap.
-            return repository_views.repository_sitemap(request)
+            return repository_views.sitemap(request)
 
         return files.serve_sitemap_file(['sitemap.xml'])
     except FileNotFoundError:

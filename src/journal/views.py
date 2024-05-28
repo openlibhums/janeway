@@ -1987,54 +1987,33 @@ def author_list(request):
     return render(request, template, context)
 
 
-def sitemap(request, issue_or_subject_id=None):
+@has_journal
+def sitemap(request, issue_id=None):
     """
     Renders an XML sitemap based on articles and pages available to the journal.
     :param request: HttpRequest object
+    :param issue_id: Int, primary key of an Issue object
     :return: HttpResponse object
     """
-    try:
-        path_parts = None
-        if request.journal:
-            path_parts = [
-                request.journal.code,
-                'sitemap.xml',
-            ]
-            if issue_or_subject_id:
-                try:
-                    issue = models.Issue.objects.get(
-                        pk=issue_or_subject_id,
-                        journal=request.journal,
-                    )
-                    path_parts = [
-                        request.journal.code,
-                        '{}_sitemap.xml'.format(issue.pk),
-                    ]
-                except models.Issue.DoesNotExist:
-                    pass
-        elif request.repository:
-            path_parts = [
-                request.repository.short_name,
-                'sitemap.xml',
-            ]
-            if issue_or_subject_id:
-                try:
-                    subject = repo_models.Subject.objects.get(
-                        pk=issue_or_subject_id,
-                        repository=request.repository,
-                    )
-                    path_parts = [
-                        request.repository.code,
-                        '{}_sitemap.xml'.format(subject.pk),
-                    ]
-                except repo_models.Subject.DoesNotExist:
-                    pass
-        if path_parts:
-            return files.serve_sitemap_file(path_parts)
-    except FileNotFoundError:
-        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
+    if issue_id:
+        issue = models.Issue.objects.get(
+            pk=issue_id,
+            journal=request.journal,
+        )
+        path_parts = [
+            request.journal.code,
+            '{}_sitemap.xml'.format(issue.pk),
+        ]
+    else:
+        path_parts = [
+            request.journal.code,
+            'sitemap.xml',
+        ]
 
-    raise Http404()
+    return core_views.sitemap(
+        request,
+        path_parts,
+    )
 
 
 @decorators.frontend_enabled
