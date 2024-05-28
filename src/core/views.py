@@ -32,8 +32,12 @@ from django.utils import translation
 from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
+<<<<<<< HEAD
 from core import models, forms, logic, workflow, models as core_models
 from core.model_utils import NotImplementedField, search_model_admin
+=======
+from core import models, forms, logic, workflow, files, models as core_models
+>>>>>>> c2077d63e (Rework of sitemap views.)
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -2428,6 +2432,21 @@ def manage_access_requests(request):
         template,
         context,
     )
+
+
+def sitemap(request, path_parts):
+    """
+    Renders an XML sitemap based on articles and pages available to the journal.
+    :param request: HttpRequest object
+    :param path_parts: List making up the sitemap path. ['journal', 'code', 'sitemap.xml']
+    :return: HttpResponse object
+    """
+    try:
+        return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
+
+    raise Http404()
 
 
 class GenericFacetedListView(generic.ListView):

@@ -25,11 +25,11 @@ from repository import forms, logic as repository_logic, models
 from core import (
     email as core_email,
     files,
-    forms as core_forms,
     models as core_models,
+    forms as core_forms,
+    views as core_views,
 )
 from journal import models as journal_models
-from submission import models as submission_models
 
 
 from utils import (
@@ -77,34 +77,32 @@ def repository_home(request):
     return render(request, template, context)
 
 
-def repository_sitemap(request, subject_id=None):
+def sitemap(request, subject_id=None):
     """
     :param request: HttpRequest object
+    :param subject_id: Int, primary key of a Subject object
     :return: HttpResponse
     """
-    try:
-        if subject_id:
-            subject = get_object_or_404(
-                models.Subject,
-                pk=subject_id,
-                repository=request.repository,
-            )
-            path_parts = [
-                request.repository.code,
-                '{}_sitemap.xml'.format(subject.pk),
-            ]
-        else:
-            path_parts = [
-                request.repository.code,
-                'sitemap.xml',
-            ]
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
+        path_parts = [
+            request.repository.code,
+            '{}_sitemap.xml'.format(subject.pk),
+        ]
+    else:
+        path_parts = [
+            request.repository.code,
+            'sitemap.xml',
+        ]
 
-        if path_parts:
-            return files.serve_sitemap_file(path_parts)
-    except FileNotFoundError:
-        logger.warning('Sitemap for {} not found.'.format(request.repository.name))
-
-    raise Http404()
+    return core_views.sitemap(
+        request,
+        path_parts,
+    )
 
 
 @login_required
