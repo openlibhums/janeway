@@ -1,0 +1,8 @@
+{% regroup entry.addressees by get_field_display as email_fields %}
+{% for field, addressees in email_fields %}
+    {% if field %}<strong>{{ field }}: </strong>{% endif %}
+    {% for addressee in addressees %}
+        {{ addressee.email }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    {% if not forloop.last %}<br>{% endif %}
+{% endfor %}

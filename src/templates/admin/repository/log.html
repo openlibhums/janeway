@@ -28,7 +28,7 @@
                 <thead>
                     <tr>
                         <th>Entry Type</th>
-                        <td>To</td>
+                        <td>Addressees</td>
                         <th>Information</th>
                         <th>Date</th>
                         <th>Actor</th>
@@ -40,7 +40,11 @@
                         <tr>
                             <td>{{ entry.types }}</td>
                             <td>
-                                {% if entry.is_email %}{{ entry.to }}{% else %}N/a{% endif %}
+                                {% if entry.is_email %}
+                                    {% include 'admin/elements/core/addressee_display.html' with entry=entry %}
+                                {% else %}
+                                    N/a
+                                {% endif %}
                             </td>
                             <td>
                                 {{ entry.description|safe }}

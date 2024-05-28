@@ -38,7 +38,7 @@ class LogAdmin(admin.ModelAdmin):
     raw_id_fields = ('actor',)
 
     inlines = [
-        admin_utils.ToAddressInline,
+        admin_utils.AddresseeInline,
     ]
 
     def _to(self, obj):
