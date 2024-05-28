@@ -3,7 +3,7 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     {% for subject in repo.subject_set.all %}
     <sitemap>
-        <loc>{{ repo.site_url }}/{{ subject.pk }}_sitemap.xml</loc>
+        <loc>{{ repo.site_url }}{% url 'repository_sitemap' subject.pk %}</loc>
     </sitemap>
     {% endfor %}
 </sitemapindex>

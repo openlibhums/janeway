@@ -19,6 +19,7 @@ from core import (
     models as core_models,
     plugin_loader,
     logic as core_logic,
+    views as core_views,
 )
 from journal import (
     models as journal_models,
@@ -79,19 +80,19 @@ def sitemap(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    try:
-        if request.journal is not None:
-            # if there's a journal, then we render the _journal_ sitemap, not the press
-            return journal_views.sitemap(request)
+    if request.journal is not None:
+        # if there's a journal, then we render the _journal_ sitemap, not the press
+        return journal_views.sitemap(request)
 
-        if request.repository is not None:
-            # if there is a repository we return the repository sitemap.
-            return repository_views.sitemap(request)
+    if request.repository is not None:
+        # if there is a repository we return the repository sitemap.
+        return repository_views.sitemap(request)
 
-        return files.serve_sitemap_file(['sitemap.xml'])
-    except FileNotFoundError:
-        logger.warning('Sitemap for {} not found.'.format(request.press.name))
-        raise Http404()
+
+    return core_views.sitemap(
+        request,
+        ['sitemap.xml'],
+    )
 
 
 def robots(request):
