@@ -10,6 +10,8 @@ from core.forms.forms import (
     EditorialGroupForm,
     EmailForm,
     FileUploadForm,
+    FullEmailForm,
+    FullSettingEmailForm,
     GeneratedPluginSettingForm,
     GeneratedSettingForm,
     JournalArticleForm,

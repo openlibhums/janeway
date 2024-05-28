@@ -752,7 +752,6 @@ class ConfirmableIfErrorsForm(ConfirmableForm):
 
 
 class EmailForm(forms.Form):
-    subject = forms.CharField(max_length=1000)
     cc = TagitField(
         required=False,
         max_length=10000,
@@ -761,6 +760,7 @@ class EmailForm(forms.Form):
         required=False,
         max_length=10000,
     )
+    subject = forms.CharField(max_length=1000)
     body = forms.CharField(widget=TinyMCE)
     attachments = MultipleFileField(required=False)
 
@@ -786,6 +786,21 @@ class EmailForm(forms.Form):
 
     def as_dataclass(self):
         return email.EmailData(**self.cleaned_data)
+
+
+class FullEmailForm(EmailForm):
+    """ An email form that includes the To field
+    """
+    to = TagitField(
+        required=True,
+        max_length=10000,
+    )
+
+    field_order = ['to', 'cc', 'bcc', 'subject', 'body', 'attachments']
+
+    def clean_to(self):
+        to = self.cleaned_data['to']
+        return self.email_sequence_cleaner("to", to)
 
 
 class SettingEmailForm(EmailForm):
@@ -816,6 +831,13 @@ class SettingEmailForm(EmailForm):
             email_context,
             setting_name,
         )
+
+
+class FullSettingEmailForm(SettingEmailForm, FullEmailForm):
+    """ A setting-based email form that includes the To field
+    """
+    pass
+
 
 class SimpleTinyMCEForm(forms.Form):
     """ A one-field form for populating a TinyMCE textarea
