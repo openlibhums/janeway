@@ -96,6 +96,25 @@
 
                     </table>
 
+                    <table class="table small">
+                        <tr>
+                            <th>Study Topics</th>
+                            <th>Type</th>
+                        </tr>
+                        {% for topic in article.topics_by_type.primary %}
+                            <tr>
+                                <td>{{ topic }}</td>
+                                <td>Primary</td>
+                            </tr>
+                        {% endfor %}
+                        {% for topic in article.topics_by_type.secondary %}
+                            <tr>
+                                <td>{{ topic }}</td>
+                                <td>Secondary</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
                     <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
                     <table class="table small">
                         <tr>
