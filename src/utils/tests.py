@@ -6,8 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import io
 import os
 
+from django.apps import apps
 from django.test import TestCase, override_settings
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.core import mail
 from django.core.management import call_command
 from django.contrib.admin.sites import site
@@ -22,6 +23,7 @@ from utils import (
     oidc,
     template_override_middleware,
     logic,
+    migration_utils,
 )
 
 from utils import install
@@ -1103,3 +1105,32 @@ class TestBounceEmailRoutes(UtilsTests):
         }
         logic.parse_mailgun_webhook(fake_mailgun_post)
         self.assertEqual(self.editor.email, mail.outbox[0].to[0])
+
+
+class TestMigrationUtils(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.setting = helpers.create_setting()
+        cls.setting_value = cls.setting.settingvalue_set.first()
+
+    def test_update_default_setting_values(self):
+        with translation.override('en'):
+            new_value = 'Updated default setting value'
+            migration_utils.update_default_setting_values(
+                apps,
+                self.setting.name,
+                self.setting.group.name,
+                values_to_replace=['Default setting value'],
+                replacement_value=new_value,
+            )
+            saved_value = setting_handler.get_setting(
+                self.setting.group.name,
+                self.setting.name,
+                None,
+            ).processed_value
+            self.assertEqual(
+                new_value,
+                saved_value,
+            )
