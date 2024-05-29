@@ -2,7 +2,14 @@
 <td>{{ reviewer.full_name }}</td>
 <td>{{ reviewer.email }}</td>
 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
-<td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+<!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
+<td>
+    {% for topic in reviewer.topics %}
+    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
+    {% empty %}
+    No Topics
+    {% endfor %}
+</td>
 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
 <td>{% if reviewer.is_past_reviewer %}Yes{% else %}No{% endif %}</td>
