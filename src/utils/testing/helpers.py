@@ -22,6 +22,7 @@ from review import models as review_models
 from copyediting import models as copyediting_models
 from comms import models as comms_models
 from cms import models as cms_models
+from utils import setting_handler
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -617,4 +618,23 @@ def create_contact(content_type, object_id, **kwargs):
         name=name,
         email=email,
         role=role,
+    )
+
+def create_setting(
+        setting_group_name='test_group',
+        setting_name='test_setting',
+        setting_type='rich-text',
+        pretty_name='Test Setting',
+        description='A test setting.',
+        is_translatable=True,
+        default_value='Default setting value',
+    ):
+    return setting_handler.create_setting(
+        setting_group_name,
+        setting_name,
+        setting_type,
+        pretty_name,
+        description,
+        is_translatable=is_translatable,
+        default_value=default_value,
     )
