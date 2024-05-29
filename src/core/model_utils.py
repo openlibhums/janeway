@@ -675,3 +675,7 @@ class DateTimePickerModelField(models.DateTimeField):
     def formfield(self, **kwargs):
         kwargs['form_class'] = DateTimePickerFormField
         return super().formfield(**kwargs)
+
+@property
+def NotImplementedField(self):
+    raise NotImplementedError

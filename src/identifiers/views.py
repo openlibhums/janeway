@@ -11,8 +11,7 @@ from django.db.models import OuterRef, Subquery
 
 from identifiers import models, forms
 from submission import models as submission_models
-from core import views as core_views
-from journal import models as journal_models
+from journal import models as journal_models, views as journal_views
 
 from security.decorators import production_user_or_editor_required, editor_user_required
 from identifiers import logic
@@ -321,7 +320,7 @@ def delete_identifier(request, article_id, identifier_id):
 
 
 @method_decorator(editor_user_required, name='dispatch')
-class IdentifierManager(core_views.FilteredArticlesListView):
+class IdentifierManager(journal_views.FacetedArticlesListView):
     template_name = 'core/manager/identifier_manager.html'
 
     # None or integer

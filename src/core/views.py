@@ -32,7 +32,7 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, models as core_models
-from core.model_utils import search_model_admin
+from core.model_utils import NotImplementedField, search_model_admin
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -2407,19 +2407,19 @@ def manage_access_requests(request):
     )
 
 
-class FilteredArticlesListView(generic.ListView):
+class GenericFacetedListView(generic.ListView):
     """
-    This is a base class for article list views.
-    It does not have access controls applied because some public views use it.
-    For staff views, be sure to filter to published articles in get_queryset.
-    Do not use this view directly.
-    This view can also be subclassed and modified for use with other models.
+    This is a generic base class for creating filterable list views
+    with Janeway models.
     """
+    model = NotImplementedField
+    template_name = NotImplementedField
 
-    model = submission_models.Article
-    template_name = 'core/manager/article_list.html'
     paginate_by = '25'
     facets = {}
+
+    # These fields will receive a single initial value, not a list
+    single_value_fields = ['date_time', 'date', 'integer', 'search', 'boolean']
 
     # None or integer
     action_queryset_chunk_size = None
@@ -2440,12 +2440,11 @@ class FilteredArticlesListView(generic.ListView):
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
         facets = self.get_facets()
 
-        # Most initial values are in list form
-        # The exception is date_time facets
         initial = dict(params_querydict.lists())
+
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] in ['date_time', 'date', 'integer', 'search', 'boolean']:
+                if facets[keyword]['type'] in self.single_value_fields:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2489,7 +2488,7 @@ class FilteredArticlesListView(generic.ListView):
             # The following line prevents the user from passing any parameters
             # other than those specified in the facets.
             if keyword in facets and value_list:
-                if facets[keyword]['type'] == 'search':
+                if facets[keyword]['type'] == 'search' and value_list[0]:
                     self.queryset, _duplicates = search_model_admin(
                         self.request,
                         self.model,
@@ -2518,10 +2517,6 @@ class FilteredArticlesListView(generic.ListView):
         self.queryset = self.filter_queryset_if_journal(
             self.queryset.filter(*q_stack)
         )
-        if hasattr(self.model, 'stage'):
-            self.queryset = self.queryset.exclude(
-                stage=submission_models.STAGE_UNSUBMITTED
-            )
         return self.order_queryset(self.queryset)
 
     def order_queryset(self, queryset):
@@ -2557,10 +2552,6 @@ class FilteredArticlesListView(generic.ListView):
         queryset = self.filter_queryset_if_journal(
             super().get_queryset()
         )
-        if hasattr(self.model, 'stage'):
-            queryset = queryset.exclude(
-                stage=submission_models.STAGE_UNSUBMITTED
-            )
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
@@ -2617,7 +2608,7 @@ class FilteredArticlesListView(generic.ListView):
             return [queryset]
 
     def filter_queryset_if_journal(self, queryset):
-        if self.request.journal:
+        if self.request.journal and hasattr(self.model, 'journal'):
             return queryset.filter(journal=self.request.journal)
         else:
             return queryset

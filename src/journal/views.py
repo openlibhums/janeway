@@ -2650,9 +2650,33 @@ def manage_languages(request):
     )
 
 
+class FacetedArticlesListView(core_views.GenericFacetedListView):
+    """
+    This is a base class for article list views.
+    It does not have access controls applied because some public views use it.
+    For staff views, be sure to filter to published articles in get_queryset.
+    Do not use this view directly.
+    This view can also be subclassed and modified for use with other models.
+    """
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+
+    def get_queryset(self, params_querydict=None):
+        self.queryset = super().get_queryset(params_querydict=params_querydict)
+        return self.queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+    def get_facet_queryset(self, **kwargs):
+        queryset = super().get_facet_queryset(**kwargs)
+        return queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(decorators.frontend_enabled, name='dispatch')
-class PublishedArticlesListView(core_views.FilteredArticlesListView):
+class PublishedArticlesListView(FacetedArticlesListView):
 
     """
     A list of published articles that can be searched,
