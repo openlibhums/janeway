@@ -1116,6 +1116,12 @@ class Article(AbstractLastModifiedModel):
     def get_pubid(self):
         return self.get_identifier('pubid')
 
+    def non_correspondence_authors(self):
+        if self.correspondence_author:
+            return self.authors.exclude(pk=self.correspondence_author.pk)
+        else:
+            return self.authors
+
     def is_accepted(self):
         if self.date_published:
             return True
@@ -1321,13 +1327,15 @@ class Article(AbstractLastModifiedModel):
         emails.append(self.owner.email)
         return set(emails)
 
-    def peer_reviewers(self, emails=False):
-        reviewers = [assignment.reviewer for assignment in self.reviewassignment_set.all()]
-
+    def peer_reviewers(self, emails=False, completed=False):
+        if completed:
+            assignments = self.completed_reviews_with_decision
+        else:
+            assignments = self.reviewassignment_set.all()
         if emails:
-            return set([reviewer.email for reviewer in reviewers])
-
-        return set(reviewers)
+            return set(assignment.reviewer.email for assignment in assignments)
+        else:
+            return set(assignment.reviewer for assignment in assignments)
 
     def issues_list(self):
         from journal import models as journal_models
