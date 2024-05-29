@@ -37,7 +37,7 @@ def html_settings(request):
         if form.is_valid():
             form.save(request.journal)
             messages.add_message(request, messages.INFO, 'HTML Block updated.')
-        return redirect(reverse('home_settings_index'))
+            return redirect(reverse('home_settings_index'))
 
     template = 'html_settings.html'
     context = {
