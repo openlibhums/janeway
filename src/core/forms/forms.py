@@ -195,7 +195,7 @@ class EditAccountForm(forms.ModelForm):
         queryset=models.Topics.objects.none(),
         widget=Select2MultipleWidget,
         required=False,
-        label=_('Study Topics')
+        label=_('Another Study Topics')
     )
 
     class Meta:
