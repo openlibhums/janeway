@@ -224,8 +224,9 @@ class Events:
     ON_ARTICLE_PUBLISHED = 'on_article_published'
 
     # kwargs: request, article
-    # raised when an Editor notifies an author that publication is set
-    ON_AUTHOR_PUBLICATION = 'on_author_publication'
+    # raised when an editor notifies author, editors,
+    # and/or reviewers that publication is set
+    ON_PREPUB_NOTIFICATIONS = 'on_prepub_notifications'
 
     # kwargs: request, override
     # raised when an Editor overrides review security

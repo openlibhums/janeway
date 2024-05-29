@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 
 from core import models as core_models
+from core.forms import FullSettingEmailForm
 from journal import models as journal_models, logic
 from utils.forms import CaptchaForm
 
@@ -136,3 +137,22 @@ class IssueDisplayForm(forms.ModelForm):
             'display_issue_doi',
             'display_issues_grouped_by_decade',
         )
+
+
+class BasePrepubNotificationFormSet(forms.BaseFormSet):
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        if index == 0:
+            kwargs['setting_name'] = 'author_publication'
+        elif index == 1:
+            kwargs['setting_name'] = 'peer_reviewer_pub_notification'
+        return kwargs
+
+
+PrepubNotificationFormSet = forms.formset_factory(
+    FullSettingEmailForm,
+    formset=BasePrepubNotificationFormSet,
+    extra=0,
+    max_num=2,
+)

@@ -1034,11 +1034,19 @@ def publish_article(request, article_id):
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
     pub_date_form = submission_forms.PubDateForm(instance=article)
-    notify_author_email_form = core_forms.SimpleTinyMCEForm(
-        'email_to_author',
-        initial = {
-            'email_to_author': logic.get_notify_author_text(request, article)
-        }
+    notification_form_kwargs = {
+        'email_context': {
+            'article': article,
+        },
+        'request': request,
+    }
+    notification_initial = logic.get_initial_for_prepub_notifications(
+        request,
+        article,
+    )
+    notification_formset = forms.PrepubNotificationFormSet(
+        form_kwargs=notification_form_kwargs,
+        initial=notification_initial,
     )
     modal = request.GET.get('m', None)
 
@@ -1116,14 +1124,24 @@ def publish_article(request, article_id):
                     )
                 )
 
-        if 'author' in request.POST:
-            logic.notify_author(request, article)
-            return redirect(
-                reverse(
-                    'publish_article',
-                    kwargs={'article_id': article.pk},
-                )
+        if 'notifications' in request.POST:
+            notification_formset = forms.PrepubNotificationFormSet(
+                request.POST,
+                form_kwargs=notification_form_kwargs,
+                initial=notification_initial,
             )
+            if notification_formset.is_valid():
+                logic.handle_prepub_notifications(
+                    request,
+                    article,
+                    notification_formset,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Something went wrong. Please try again.',
+                )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
@@ -1221,7 +1239,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pub_date_form': pub_date_form,
-        'notify_author_email_form': notify_author_email_form,
+        'notification_formset': notification_formset,
     }
 
     return render(request, template, context)
