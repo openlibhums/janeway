@@ -2503,11 +2503,6 @@ class GenericFacetedListView(generic.ListView):
                         predicates = [(keyword, False)]
                 elif value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
-                elif facets[keyword]['type'] not in ['date_time', 'date', 'integer', 'search']:
-                    if value_list[0] == '':
-                        predicates = [(keyword, '')]
-                    else:
-                        predicates = [(keyword+'__isnull', True)]
                 else:
                     predicates = []
                 query = Q()
