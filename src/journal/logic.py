@@ -248,30 +248,56 @@ def handle_unassign_issue(request, article, issues):
         messages.add_message(request, messages.WARNING, 'Issue does not exist.')
 
 
-def get_notify_author_text(request, article):
-    context = {
-        'article': article,
-    }
+def get_initial_for_prepub_notifications(request, article):
+    author_initial = {}
+    author_initial['to'] = article.correspondence_author.email
+    cc = [au.email for au in article.non_correspondence_authors()]
+    notify_section_editors = request.journal.get_setting(
+        'general',
+        'notify_section_editors_of_publication',
+    )
+    if notify_section_editors:
+        cc.extend([ed.email for ed in article.section_editors()])
+    author_initial['cc'] = ', '.join(cc)
 
-    return render_template.get_message_content(request, context, 'author_publication')
+    notify_peer_reviewers = request.journal.get_setting(
+        'general',
+        'notify_peer_reviewers_of_publication',
+    )
+
+    if not notify_peer_reviewers:
+        return [author_initial]
+    else:
+        peer_reviewer_initial = {}
+        custom_reply_to = request.journal.get_setting(
+            'general',
+            'replyto_address'
+        )
+        peer_reviewer_initial['to'] = custom_reply_to or request.user.email
+        reviewer_emails = article.peer_reviewers(emails=True, completed=True)
+        peer_reviewer_initial['bcc'] = ', '.join(reviewer_emails)
+        return [author_initial, peer_reviewer_initial]
 
 
-def notify_author(request, article):
+def handle_prepub_notifications(request, article, formset):
     kwargs = {
         'request': request,
         'article': article,
-        'user_message': request.POST.get('email_to_author', 'No message from Editor.'),
-        'section_editors': request.POST.get('section_editors', False),
-        'peer_reviewers': request.POST.get('peer_reviewers', False),
+        'formset': formset,
     }
 
-    event_logic.Events.raise_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
-                                   task_object=article,
-                                   **kwargs)
-
-    article.fixedpubcheckitems.notify_the_author = True
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_PREPUB_NOTIFICATIONS,
+        task_object=article,
+        **kwargs,
+    )
+    article.fixedpubcheckitems.send_notifications = True
     article.fixedpubcheckitems.save()
-    messages.add_message(request, messages.INFO, 'Author notified.')
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Notifications sent.'
+    )
 
 
 def set_render_galley(request, article):

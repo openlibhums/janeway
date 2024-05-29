@@ -1377,7 +1377,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.safe_title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.safe_title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }} {{ article.date_published.tzinfo.zone }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1769,7 +1769,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Section Editor when article is published.",
+            "description": "NOTE: This setting is deprecated--please use Notify Section Editors of Publication instead. Email sent to the Section Editor when article is published.",
             "is_translatable": true,
             "name": "section_editor_pub_notification",
             "pretty_name": "Section Editor Publication Notification",
@@ -1795,7 +1795,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{reviewer.full_name}}</p><p>An article that you served as peer reviewer for, \"{{ article.safe_title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
+            "default": "<p>Dear reviewers,</p><p>An article that you served as peer reviewer for, \"{{ article.safe_title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
         },
         "editable_by": [
             "editor",
@@ -2948,7 +2948,7 @@
         },
         "setting": {
             "type": "text",
-            "pretty_name": "Peer Reviewer Publication Notification",
+            "pretty_name": "Peer Reviewer Publication Notification Subject",
             "is_translatable": true,
             "description": "Subject for Email sent to the Peer Reviewer when article is published.",
             "name": "subject_peer_reviewer_pub_notification"
@@ -5097,6 +5097,44 @@
         },
         "value": {
             "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "name": "notify_section_editors_of_publication",
+            "pretty_name": "Notify Section Editors of Publication",
+            "type": "boolean",
+            "description": "When this setting is enabled, section editors will be copied on publication notification emails sent to authors.",
+            "is_translatable": false
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "name": "notify_peer_reviewers_of_publication",
+            "pretty_name": "Notify Peer Reviewers of Publication",
+            "type": "boolean",
+            "description": "When enabled this will populate an email from the Peer Reviewer Publication Notification setting to be edited and sent out during the prepublication process.",
+            "is_translatable": false
+        },
+        "value": {
+            "default": "on"
         },
         "editable_by": [
             "editor",

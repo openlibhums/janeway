@@ -4,6 +4,10 @@
 {% load static %}
 {% load foundation %}
 
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">
+{% endblock css %}
 {% block title %}Pre Publication - {{ article.pk }}{% endblock title %}
 {% block title-section %}Pre Publication Checklist{% endblock %}
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
@@ -133,20 +137,47 @@
         </div>
     </div>
 
-    <div id="notify_the_authorbox" class="box {% if article.fixedpubcheckitems.notify_the_author %}success{% else %}warning{% endif %} checklist">
+    <div
+        id="send_notificationsbox"
+        class="box {% if article.fixedpubcheckitems.send_notifications %}success{% else %}warning{% endif %} checklist">
         <div class="row">
             <div class="large-3 columns">
                 <i class="fa fa-envelope-o pub-icon">&nbsp;</i>
             </div>
             <div class="large-9 columns">
-                <h2>Notify the Author of Publication</h2>
-                <p>You can notify the Author(s) of publication so they can publicise their work. <i>NB. This requires that the publication date is already set.</i></p>
+                <h2>Send Notifications</h2>
+                <p>You can notify authors and others of
+                publication by email. <i>Note: This requires that the publication
+                date is already set.</i></p>
                 <div class="button-group">
-                    <input onclick="submit_check_item('fixed', 'notify_the_author', this)" type="checkbox" id="notify_the_author" {% if article.fixedpubcheckitems.notify_the_author %}checked="checked"{% endif %}><label class="toggle" for="notify_the_author">{% if article.fixedpubcheckitems.notify_the_author %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <input
+                        onclick="submit_check_item('fixed', 'send_notifications', this)"
+                        type="checkbox"
+                        id="notify_the_author"
+                        {% if article.fixedpubcheckitems.send_notifications %}
+                            checked="checked"
+                        {% endif %}>
+                    <label
+                        class="toggle"
+                        for="notify_the_author">
+                        {% if article.fixedpubcheckitems.send_notifications %}
+                            <s>Mark as Complete</s>
+                        {% else %}
+                            Mark as Complete
+                        {% endif %}
+                    </label>
                     {% if article.date_published %}
-                    <a href="#" data-open="author" class="button small success pub-button">Notify Author</a>
+                        <a
+                            href="#"
+                            data-open="notifications"
+                            class="button small success pub-button">
+                            Set Notifications
+                        </a>
                     {% else %}
-                        <button class="button small disabled pub-button">Set a Publication Date to Enable</button>
+                        <button
+                            class="button small disabled pub-button">
+                            Set a Publication Date to Enable
+                        </button>
                     {% endif %}
                 </div>
             </div>
@@ -210,7 +241,7 @@
 {% include "elements/publish/doi_data.html" %}
 {% include "elements/publish/issues.html" %}
 {% include "elements/publish/pubdate.html" with pub_date_form=pub_date_form %}
-{% include "elements/publish/author.html" %}
+{% include "elements/publish/notifications.html" %}
 {% include "elements/publish/galley.html" %}
 {% include "elements/publish/images.html" %}
 {% include "elements/publish/open_reviews.html" %}
@@ -218,6 +249,9 @@
 {% endblock body %}
 
 {% block js %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ notification_formset.0.media.js }}
     <script src="{% static "admin/js/modal.js" %}"></script>
     <script src="{% static "admin/js/csrf.js" %}"></script>
     {% include "elements/notes/note_script.html" %}
