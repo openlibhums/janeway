@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from importlib import import_module
+import re
 import json
 import pytz
 import time
@@ -2280,7 +2281,7 @@ def manage_topic_group(request, topic_group_id=None):
             form = forms.TopicGroupForm(request.POST)
 
         if form.is_valid():
-            form_topic_group = form.save(commit=False)
+            form_topic_group = form.save(commit=False, request=request)
             topic_group_exists = core_models.TopicGroup.objects.filter(
                 journal=request.journal,
                 pretty_name=form_topic_group.pretty_name,
@@ -2290,11 +2291,10 @@ def manage_topic_group(request, topic_group_id=None):
                 messages.add_message(request, messages.ERROR,
                             '{0} is already exists in this journal'.format(form_topic_group.pretty_name))
                 return redirect(reverse('core_manager_topic_group_add'))
-
-            form_topic_group.journal = request.journal
-            form_topic_group.name = form_topic_group.pretty_name.lower().replace(" ", "_")
-            form_topic_group.save()
+            
+            form.save(request=request)
             form.save_m2m()
+
             messages.add_message(request, messages.SUCCESS,
                     '{0} topic group saved'.format(form_topic_group.pretty_name))
 

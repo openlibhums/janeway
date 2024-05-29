@@ -70,7 +70,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button {% if topic.article_count %}disabled{% endif %} type="submit" class="tiny alert button delete {% if topic.article_count %}disabled{% endif %}" name="delete"
+                                    <button {% if topic.article_count %}disabled{% endif %} type="submit" class="tiny alert button delete {% if topic.article_count or topic.account_count %}disabled{% endif %}" name="delete"
                                             value="{{ topic.pk }}">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
@@ -104,6 +104,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
+                            <th># Topics</th>
                             <th>Edit</th>
                             <th>Delete</th>
                         </tr>
@@ -113,6 +114,7 @@
                             <tr id="topic-{{ topic.pk }}">
                                 <td>{{ topic_group.pk }}</td>
                                 <td>{{ topic_group.pretty_name }}</td>
+                                <td>{{ topic_group.topic_count }}</td>
                                 <td>
                                     <a href="{% url 'core_manager_topic_group' topic_group.pk %}" class="tiny warning button">
                                         <i class="fa fa-edit"></i> Edit
