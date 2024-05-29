@@ -1363,7 +1363,9 @@ class Article(AbstractLastModifiedModel):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
 
-    def topics(self):
+    def topics(self, topic_type=None):
+        if topic_type:
+            return core_models.Topics.objects.filter(articletopic__article=self, articletopic__topic_type=topic_type)
         return core_models.Topics.objects.filter(articletopic__article=self)
 
     @cache(7200)
@@ -2461,7 +2463,7 @@ class ArticleTopic(models.Model):
     )
 
     class Meta:
-        unique_together = ('article', 'topic')
+        unique_together = ('article', 'topic', 'topic_type')
 
     def __str__(self):
         return f"{self.article} - {self.topic} ({self.topic_type()})"

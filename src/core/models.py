@@ -588,6 +588,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                                         last_name=self.last_name)[:30]
         return username.lower()
 
+    def topics(self, topic_type=None):
+        if topic_type:
+            return Topics.objects.filter(accounttopic__account=self, accounttopic__topic_type=topic_type)
+        return Topics.objects.filter(accounttopic__account=self)
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
@@ -1526,7 +1531,7 @@ class AccountTopic(models.Model):
     )
 
     class Meta:
-        unique_together = ('account', 'topic')
+        unique_together = ('account', 'topic', 'topic_type')
 
     def __str__(self):
         return f"{self.account} - {self.topic} ({self.topic_type()})"

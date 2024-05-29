@@ -589,7 +589,7 @@ class Journal(AbstractSiteModel):
         return self.topicgroup_set.all()
 
     def topics(self):
-        return self.topics_set.all()
+        return self.study_topic.all()
 
 
 class PinnedArticle(models.Model):

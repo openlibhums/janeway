@@ -183,6 +183,20 @@ class EditAccountForm(forms.ModelForm):
 
     interests = forms.CharField(required=False)
 
+    primary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Preferred Study Topics')
+    )
+    
+    secondary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Study Topics')
+    )
+
     class Meta:
         model = models.Account
         exclude = ('email', 'username', 'activation_code', 'email_sent',
@@ -196,17 +210,34 @@ class EditAccountForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        journal = kwargs.pop('journal', None)
         super(EditAccountForm, self).__init__(*args, **kwargs)
-        self.fields['study_topic'].choices = [
-            (
-                group.pretty_name,
-                [
-                    (topic.id, topic.pretty_name)
-                    for topic in models.Topics.objects.filter(group=group).order_by('pretty_name') 
-                ]
-            )
-            for group in models.TopicGroup.objects.all()
-        ]
+        if journal:
+            topics_queryset = models.Topics.objects.filter(
+                journal=journal,
+            ).order_by('group__pretty_name', 'pretty_name')
+            
+            self.fields['primary_study_topic'].queryset = topics_queryset
+            self.fields['secondary_study_topic'].queryset = topics_queryset
+
+            if 'instance' in kwargs:
+                account = kwargs['instance']
+
+                self.fields['primary_study_topic'].initial = account.topics('PR')
+                self.fields['secondary_study_topic'].initial = account.topics('SE')
+
+            study_topic_choices = [
+                (
+                    group.pretty_name,
+                    [
+                        (topic.id, topic.pretty_name)
+                        for topic in models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                    ]
+                )
+                for group in models.TopicGroup.objects.all()
+            ]
+            self.fields['primary_study_topic'].choices = study_topic_choices
+            self.fields['secondary_study_topic'].choices = study_topic_choices
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
@@ -225,8 +256,28 @@ class EditAccountForm(forms.ModelForm):
 
         if commit:
             user.save()
-            study_topics = self.cleaned_data.get('study_topic', [])
-            user.study_topic.set(study_topics)
+
+            selected_primary_topic = self.cleaned_data['primary_study_topic']
+            for topic in selected_primary_topic:
+                topic_type = models.AccountTopic.PRIMARY
+                if not models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=topic_type).exists():
+                    models.AccountTopic.objects.create(account=user, topic=topic, topic_type=topic_type)
+
+            selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
+            for topic in selected_secondary_topics:
+                topic_type = models.AccountTopic.SECONDARY
+                if not models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=topic_type).exists():
+                    models.AccountTopic.objects.create(account=user, topic=topic, topic_type=topic_type)
+
+            existing_primary_topics = user.topics('PR')
+            for topic in existing_primary_topics:
+                if topic not in selected_primary_topic:
+                    models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=models.AccountTopic.PRIMARY).delete()
+
+            existing_secondary_topics = user.topics('SE')
+            for topic in existing_secondary_topics:
+                if topic not in selected_secondary_topics:
+                    models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=models.AccountTopic.SECONDARY).delete()
 
         return user
 
