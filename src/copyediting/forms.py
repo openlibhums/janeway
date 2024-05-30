@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from core.models import Account
 from core import forms as core_forms
 from copyediting import models
+from utils.forms import HTMLDateInput
 
 
 class CopyeditAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
@@ -29,6 +30,7 @@ class CopyeditAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm
         widgets = {
             'files_for_copyediting': forms.CheckboxSelectMultiple(attrs=attrs),
             'copyeditor': forms.RadioSelect(attrs=attrs),
+            'due': HTMLDateInput,
         }
 
     def __init__(self, *args, **kwargs):
@@ -81,6 +83,9 @@ class EditCopyeditAssignment(forms.ModelForm):
             'editor_note',
             'due',
         )
+        widgets = {
+            'due': HTMLDateInput,
+        }
 
 
 class CopyEditForm(forms.ModelForm):

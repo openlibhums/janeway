@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck, University of London"
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
+from core.model_utils import DateTimePickerInput, DateTimePickerModelField
 from utils import models as utils_models
 from discussion import models as discussion_models
 from review import models as review_models
@@ -20,7 +21,15 @@ from press import models as press_models
 from comms import models as comms_models
 
 
-class ArticleFKModelAdmin(admin.ModelAdmin):
+class JanewayModelAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        DateTimePickerModelField: {
+            "widget": DateTimePickerInput
+        },
+    }
+
+
+class ArticleFKModelAdmin(JanewayModelAdmin):
     """
     An abstract ModelAdmin base class for objects
     that relate to Article with a foreign key `article`.
@@ -39,7 +48,7 @@ class ArticleFKModelAdmin(admin.ModelAdmin):
         return obj.article.correspondence_author if obj else ''
 
 
-class PreprintFKModelAdmin(admin.ModelAdmin):
+class PreprintFKModelAdmin(JanewayModelAdmin):
     """
     An abstract ModelAdmin base class for objects
     that relate to Preprint with a foreign key `preprint`.
