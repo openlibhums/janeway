@@ -275,7 +275,7 @@ class TestModels(TestCase):
         )
 
     @override_settings(URL_CONFIG='domain')
-    @freeze_time(FROZEN_DATETIME, tz_offset=5)
+    @freeze_time(FROZEN_DATETIME)
     def test_accept_preprint(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
         path = reverse('repository_manager_article',
@@ -288,9 +288,15 @@ class TestModels(TestCase):
                             'timezone': "America/Chicago"
                         },
                         SERVER_NAME=self.server_name,)
-        p = rm.Preprint.objects.get(pk=self.preprint_one.pk)
-        self.assertEqual(p.date_published, FROZEN_DATETIME)
-        self.assertEqual(p.date_accepted, FROZEN_DATETIME)
+        preprint = rm.Preprint.objects.get(pk=self.preprint_one.pk)
+        self.assertEqual(
+            preprint.date_published.timestamp(),
+            FROZEN_DATETIME.timestamp(),
+        )
+        self.assertEqual(
+            preprint.date_accepted.timestamp(),
+            FROZEN_DATETIME.timestamp(),
+        )
 
     @override_settings(URL_CONFIG='domain')
     @freeze_time(FROZEN_DATETIME, tz_offset=5)
