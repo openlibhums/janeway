@@ -210,7 +210,7 @@ LIST_RECORDS_DATA_DC = """
                     <dc:date>2022-08-31T00:00:00Z</dc:date>
                     <dc:type>PREPRINTS</dc:type>
                     <dc:publisher>Press</dc:publisher>
-                    <dc:identifier>http://repo.domain.com/repository/manager/3/download/3/</dc:identifier>
+                    <dc:identifier>http://repo.domain.com/repository/object/3/download/3/</dc:identifier>
                     <dc:identifier>3</dc:identifier>
                     <dc:source>Test Repository</dc:source>
                     <dc:subject>Repo Subject</dc:subject>
@@ -237,7 +237,7 @@ LIST_RECORDS_DATA_DC = """
                     <dc:date>2022-08-31T00:00:00Z</dc:date>
                     <dc:type>PREPRINTS</dc:type>
                     <dc:publisher>Press</dc:publisher>
-                    <dc:identifier>http://repo.domain.com/repository/manager/1/download/1/</dc:identifier>
+                    <dc:identifier>http://repo.domain.com/repository/object/1/download/1/</dc:identifier>
                     <dc:identifier>1</dc:identifier>
                     <dc:source>Test Repository</dc:source>
                     <dc:subject>Repo Subject</dc:subject>
@@ -309,7 +309,7 @@ LIST_RECORDS_DATA_JATS = """
                                     <year>2022</year>
                                 </pub-date>
                                 <self-uri content-type="text/html" xlink:href="http://repo.domain.com/repository/view/3/"/>
-                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/manager/3/download/3/"/>
+                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/object/3/download/3/"/>
                                 <abstract>This is a fake abstract.</abstract>
                                 <pub-history>
                                     <event event-type="pub">
@@ -320,7 +320,7 @@ LIST_RECORDS_DATA_JATS = """
                                                 <year>2022</year>
                                             </string-date>
                                             (version 1)
-                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/3/download/3/"/>
+                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/object/3/download/3/"/>
                                         </event-desc>
                                     </event>
                                 </pub-history>
@@ -380,7 +380,7 @@ LIST_RECORDS_DATA_JATS = """
                                     <year>2022</year>
                                 </pub-date>
                                 <self-uri content-type="text/html" xlink:href="http://repo.domain.com/repository/view/1/"/>
-                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
+                                <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/object/1/download/1/"/>
                                 <abstract>This is a fake abstract.</abstract>
                                 <pub-history>
                                     <event event-type="pub">
@@ -391,7 +391,7 @@ LIST_RECORDS_DATA_JATS = """
                                                 <year>2022</year>
                                             </string-date>
                                             (version 1)
-                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
+                                            <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/object/1/download/1/"/>
                                         </event-desc>
                                     </event>
                                 </pub-history>
@@ -432,7 +432,7 @@ GET_RECORD_DATA_DC = """
                     <dc:date>2022-08-31T00:00:00Z</dc:date>
                     <dc:type>PREPRINTS</dc:type>
                     <dc:publisher>Press</dc:publisher>
-                    <dc:identifier>http://repo.domain.com/repository/manager/1/download/1/</dc:identifier>
+                    <dc:identifier>http://repo.domain.com/repository/object/1/download/1/</dc:identifier>
                     <dc:identifier>1</dc:identifier>
                     <dc:source>Test Repository</dc:source>
                     <dc:subject>Repo Subject</dc:subject>
@@ -472,7 +472,7 @@ GET_RECORD_DATA_UNTIL = """
                     <dc:date>2022-08-31T00:00:00Z</dc:date>
                     <dc:type>PREPRINTS</dc:type>
                     <dc:publisher>Press</dc:publisher>
-                    <dc:identifier>http://repo.domain.com/repository/manager/3/download/3/</dc:identifier>
+                    <dc:identifier>http://repo.domain.com/repository/object/3/download/3/</dc:identifier>
                     <dc:identifier>3</dc:identifier>
                     <dc:source>Test Repository</dc:source>
                     <dc:subject>Repo Subject</dc:subject>
@@ -544,7 +544,7 @@ GET_RECORD_DATA_JATS = """
                                 <year>2022</year>
                             </pub-date>
                             <self-uri content-type="text/html" xlink:href="http://repo.domain.com/repository/view/1/"/>
-                            <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
+                            <self-uri content-type="pdf" xlink:href="http://repo.domain.com/repository/object/1/download/1/"/>
                             <abstract>This is a fake abstract.</abstract>
                             <pub-history>
                                 <event event-type="pub">
@@ -555,7 +555,7 @@ GET_RECORD_DATA_JATS = """
                                             <year>2022</year>
                                         </string-date>
                                         (version 1)
-                                        <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/manager/1/download/1/"/>
+                                        <self-uri content-type="application/pdf" xlink:href="http://repo.domain.com/repository/object/1/download/1/"/>
                                     </event-desc>
                                 </event>
                             </pub-history>
