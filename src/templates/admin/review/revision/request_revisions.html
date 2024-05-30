@@ -40,7 +40,7 @@
 
                 <div class="content">
                     <div class="row expanded">
-                        <div class="large-6 columns">
+                        <div class="large-12 columns">
                             <p>You can request that an author make revisions to
                                 their article by selecting a due date and
                                 supplying them with feedback below in the
@@ -60,7 +60,7 @@
                 </div>
             </div>
         </form>
-    </div><!--/col-lg-12 -->
+    </div>
 
     {% if form.modal %}
         {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="revision_request" %}
@@ -69,7 +69,6 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}

@@ -1,0 +1,7 @@
+<input
+  type="datetime-local"
+  name="{{ widget.name }}"
+  {% if widget.value != None %}
+    value="{{ widget.value|slice:'0:10'}}T{{widget.value|slice:'11:'}}"
+  {% endif %}
+  {% include "django/forms/widgets/attrs.html" %}>
