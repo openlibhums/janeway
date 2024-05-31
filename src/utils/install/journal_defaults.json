@@ -2494,7 +2494,7 @@
             "type": "text",
             "pretty_name": "Article Publication",
             "is_translatable": true,
-            "description": "Subject for Notify the proofing manager that corrections are complete.",
+            "description": "Subject for notifying the author that the article is published.",
             "name": "subject_author_publication"
         },
         "group": {
