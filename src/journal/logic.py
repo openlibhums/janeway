@@ -258,7 +258,7 @@ def get_initial_for_prepub_notifications(request, article):
     )
     if notify_section_editors:
         cc.extend([ed.email for ed in article.section_editors()])
-    author_initial['cc'] = ', '.join(cc)
+    author_initial['cc'] = ','.join(cc)
 
     notify_peer_reviewers = request.journal.get_setting(
         'general',
@@ -275,7 +275,7 @@ def get_initial_for_prepub_notifications(request, article):
         )
         peer_reviewer_initial['to'] = custom_reply_to or request.user.email
         reviewer_emails = article.peer_reviewers(emails=True, completed=True)
-        peer_reviewer_initial['bcc'] = ', '.join(reviewer_emails)
+        peer_reviewer_initial['bcc'] = ','.join(reviewer_emails)
         return [author_initial, peer_reviewer_initial]
 
 
