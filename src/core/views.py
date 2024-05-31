@@ -2419,7 +2419,7 @@ class GenericFacetedListView(generic.ListView):
     facets = {}
 
     # These fields will receive a single initial value, not a list
-    single_value_fields = ['date_time', 'date', 'integer', 'search', 'boolean']
+    single_value_fields = {'date_time', 'date', 'integer', 'search', 'boolean'}
 
     # None or integer
     action_queryset_chunk_size = None
