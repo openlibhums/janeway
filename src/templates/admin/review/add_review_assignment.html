@@ -45,6 +45,20 @@
                         </p>
                     </div>
 
+                    {% if journal_settings.general.enable_study_topics %}
+                    <div>
+                        <div class="medium-1 columns">
+                            <div class="switch tiny">
+                                <input class="autoSubmit switch-input" id="tinySwitch" type="checkbox" name="view-study-topics" checked>
+                                <label class="switch-paddle" for="tinySwitch">
+                                    <span class="show-for-sr">View Study Topics</span>
+                                </label>
+                            </div>
+                        </div>
+                        <p>View Study Topics</p>
+                    </div>
+                    {% endif %}
+
                     <table class="small scroll" id="reviewers">
                         <thead>
                         <tr>
@@ -52,7 +66,8 @@
                             <th>Name</th>
                             <th>Email Address</th>
                             <th>Active Reviews</th>
-                            <th width="30%">Interests</th>
+                            <th width="30%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
+                            <th width="30%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Study Topics</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
                             <th>Has Reviewed Article</th>
@@ -161,6 +176,16 @@
                 $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
             }
         }
+    });
+
+    function study_topic_checked() {
+        let isChecked = $('#tinySwitch').is(':checked');
+        $(".list-interests").toggle(!isChecked);
+        $(".list-study-topics").toggle(isChecked);
+    };
+
+    $('.autoSubmit, .autoSubmit select, .autoSubmit input, .autoSubmit textarea').change(function () {
+        study_topic_checked()
     });
     </script>
 {% endblock js %}

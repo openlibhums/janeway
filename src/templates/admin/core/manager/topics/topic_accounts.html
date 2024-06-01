@@ -22,7 +22,7 @@
             </div>
             <div class="content">
                 <p>
-                    {% trans 'Accounts that belong to the' %} "{{ topic.pretty_name }}" {% trans 'topic are listed below.' %}
+                    {% trans 'Accounts that belong to the' %} <b>{{ topic.pretty_name }}</b> {% trans 'topic are listed below.' %}
                 </p>
                 <table class="small">
                     <thead>
@@ -31,6 +31,7 @@
                             <th>{% trans 'First Name' %}</th>
                             <th>{% trans 'Last Name' %}</th>
                             <th>{% trans 'Email' %}</th>
+                            <th width="40%">{% trans 'Topics' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +41,9 @@
                                 <td>{{ account.account.first_name }}</td>
                                 <td>{{ account.account.last_name }}</td>
                                 <td>{{ account.account.email }}</td>
+                                <td>
+                                    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=account.account.topics_by_type %}
+                                </td>
                             </tr>
                         {% empty %}
                             <tr>

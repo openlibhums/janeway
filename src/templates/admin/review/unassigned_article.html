@@ -21,7 +21,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Summary of Article</h2>
+                {% if editor_can_access %}
                 <a class="button" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
+                {% endif %}
             </div>
             <div class="content">
                 <table class="hover scroll">
@@ -93,6 +95,7 @@
             </div>
         </div>
         
+        {% if journal_settings.general.enable_study_topics %}
         <div class="box">
             <div class="title-area">
                 <h2>Study Topics</h2>
@@ -115,9 +118,15 @@
                             <td>Secondary</td>
                         </tr>
                     {% endfor %}
+                    {% if not article.topics %}
+                        <tr>
+                            <td colspan="4">No topics</td>
+                        </tr>
+                    {% endif %}
                 </table>
             </div>
         </div>
+        {% endif %}
 
         <div class="box">
             <div class="title-area">
@@ -236,7 +245,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
-                {% if editor_can_access %}
+                {% if journal_settings.general.enable_custom_editor_assignment and editor_can_access %}
                 <a href="{% url 'add_editor_assignment' article.id %}" class="button">Add Editor</a>
                 {% endif %}
             </div>
@@ -316,21 +325,15 @@
                     <tbody>
                     {% for account_role in editors %}
                         <tr>
-                            <td>{{ account_role.user.full_name }}</td>
-                            <td>{{ account_role.user.email }}</td>
-                            <td>Editor</td>
-                            <td>
-                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'editor' %}?return={% url 'review_unassigned_article' article.pk %}">
-                                    Add{% if account_role.user == request.user %} Self{% endif %}
-                                </a>
-                            </td>
+                            {% include "admin/elements/review/add_editor_table_row.html" with account_role=account_role editor_type_label='Editor' editor_type='editor' %}
                         </tr>
+                    {% empty %}
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        {% if editor_can_access %}
+        {% if not journal_settings.general.enable_custom_editor_assignment and editor_can_access %}
         <div class="box">
             <div class="title-area">
                 <h2>Add Section Editors</h2>
@@ -348,28 +351,16 @@
                     <tbody>
                     {% for account_role in section_editors %}
                         <tr>
-                            <td>{{ account_role.user.full_name }}</td>
-                            <td>{{ account_role.user.email }}</td>
-                            <td>Section Editor</td>
-                            <td>
-                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'section-editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a>
-                            </td>
+                            {% include "admin/elements/review/add_editor_table_row.html" with account_role=account_role editor_type_label='Section Editor' editor_type='section-editor' %}
                         </tr>
+                    {% empty %}
                     {% endfor %}
-                    {% if not section_editors and not editors %}
-                        <tr>
-                            <td colspan="4">No matches</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
         {% endif %}
-        {% else %}
+        {% elif not journal_settings.general.enable_custom_editor_assignment %}
         <div class="box">
             <div class="title-area">
                 <h2>Add Editors</h2>
@@ -387,24 +378,12 @@
                     <tbody>
                     {% for account_role in editors %}
                         <tr>
-                            <td>{{ account_role.user.full_name }}</td>
-                            <td>{{ account_role.user.email }}</td>
-                            <td>Editor</td>
-                            <td>
-                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'editor' %}?return={% url 'review_unassigned_article' article.pk %}">
-                                    Add{% if account_role.user == request.user %} Self{% endif %}
-                                </a>
-                            </td>
+                            {% include "admin/elements/review/add_editor_table_row.html" with account_role=account_role editor_type_label='Editor' editor_type='editor' %}
                         </tr>
                     {% endfor %}
                     {% for account_role in section_editors %}
                         <tr>
-                            <td>{{ account_role.user.full_name }}</td>
-                            <td>{{ account_role.user.email }}</td>
-                            <td>Section Editor</td>
-                            <td>
-                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'section-editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a>
-                            </td>
+                            {% include "admin/elements/review/add_editor_table_row.html" with account_role=account_role editor_type_label='Section Editor' editor_type='section-editor' %}
                         </tr>
                     {% endfor %}
                     {% if not section_editors and not editors %}

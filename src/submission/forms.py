@@ -71,20 +71,6 @@ class ArticleStart(forms.ModelForm):
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
     FILTER_PUBLIC_FIELDS = False
 
-    primary_study_topic = forms.ModelChoiceField(
-        queryset=core_models.Topics.objects.none(),
-        widget=forms.Select,
-        required=True,
-        label=_('Primary Study Topic')
-    )
-    
-    secondary_study_topic = forms.ModelMultipleChoiceField(
-        queryset=core_models.Topics.objects.none(),
-        widget=Select2MultipleWidget,
-        required=False,
-        label=_('Secondary Study Topic')
-    )
-
     class Meta:
         model = models.Article
         fields = (
@@ -125,18 +111,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         if 'instance' in kwargs:
             article = kwargs['instance']
 
-            self.fields['primary_study_topic'].initial = article.topics('PR').first()
-            self.fields['secondary_study_topic'].initial = article.topics('SE')
-
             section_queryset = models.Section.objects.filter(
                 journal=article.journal,
             )
             license_queryset = models.Licence.objects.filter(
                 journal=article.journal,
             )
-            topics_queryset = core_models.Topics.objects.filter(
-                journal=article.journal,
-            ).order_by('group__pretty_name', 'pretty_name')
 
             if self.FILTER_PUBLIC_FIELDS:
                 section_queryset = section_queryset.filter(
@@ -147,32 +127,19 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 )
             self.fields['section'].queryset = section_queryset
             self.fields['license'].queryset = license_queryset
-            self.fields['primary_study_topic'].queryset = topics_queryset
-            self.fields['secondary_study_topic'].queryset = topics_queryset
 
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
 
-            self.fields['primary_study_topic'].help_text = 'Main study topic of the article'
-            self.fields['secondary_study_topic'].help_text = 'Anothers study topics related to the article'
-
-            study_topic_choices = [('', '---------')] + [
-                (
-                    group.pretty_name,
-                    [
-                        (topic.id, topic.pretty_name)
-                        for topic in core_models.Topics.objects.filter(group=group).order_by('pretty_name') 
-                    ]
-                )
-                for group in core_models.TopicGroup.objects.all()
-            ]
-            self.fields['primary_study_topic'].choices = study_topic_choices
-            self.fields['secondary_study_topic'].choices = study_topic_choices
-
             abstracts_required = article.journal.get_setting(
                 'general',
                 'abstract_required',
+            )
+
+            enable_study_topics = article.journal.get_setting(
+                'general',
+                'enable_study_topics',
             )
 
             if abstracts_required:
@@ -180,6 +147,43 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
+
+            if enable_study_topics:
+                topics_queryset = core_models.Topics.objects.filter(
+                    journal=article.journal,
+                ).order_by('group__pretty_name', 'pretty_name')
+
+                self.fields['primary_study_topic'] = forms.ModelChoiceField(
+                    queryset=topics_queryset,
+                    widget=forms.Select,
+                    required=True,
+                    label=_('Primary Study Topic'),
+                    initial=article.topics('PR').first(),
+                    help_text='Main study topic of the article',
+                )
+    
+                self.fields['secondary_study_topic'] = forms.ModelMultipleChoiceField(
+                    queryset=topics_queryset,
+                    widget=Select2MultipleWidget,
+                    required=False,
+                    label=_('Secondary Study Topic'),
+                    initial=article.topics('SE'),
+                    help_text='Anothers study topics related to the article',
+                )
+
+                study_topic_choices = [('', '---------')] + [
+                    (
+                        group.pretty_name,
+                        [
+                            (topic.id, topic.pretty_name)
+                            for topic in core_models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                        ]
+                    )
+                    for group in core_models.TopicGroup.objects.all()
+                ]
+
+                self.fields['primary_study_topic'].choices = study_topic_choices
+                self.fields['secondary_study_topic'].choices = study_topic_choices
 
             # Pop fields based on journal.submissionconfiguration
             if journal and self.pop_disabled_fields:
@@ -273,26 +277,27 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         if commit:
             article.save()
 
-            selected_primary_topic = self.cleaned_data['primary_study_topic']
-            topic_type = models.ArticleTopic.PRIMARY
-            if not models.ArticleTopic.objects.filter(article=article, topic=selected_primary_topic, topic_type=topic_type).exists():
-                models.ArticleTopic.objects.create(article=article, topic=selected_primary_topic, topic_type=topic_type)
+            if article.journal.get_setting('general','enable_study_topics'):
+                selected_primary_topic = self.cleaned_data['primary_study_topic']
+                topic_type = models.ArticleTopic.PRIMARY
+                if not models.ArticleTopic.objects.filter(article=article, topic=selected_primary_topic, topic_type=topic_type).exists():
+                    models.ArticleTopic.objects.create(article=article, topic=selected_primary_topic, topic_type=topic_type)
 
-            selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
-            for topic in selected_secondary_topics:
-                topic_type = models.ArticleTopic.SECONDARY
-                if not models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=topic_type).exists():
-                    models.ArticleTopic.objects.create(article=article, topic=topic, topic_type=topic_type)
+                selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
+                for topic in selected_secondary_topics:
+                    topic_type = models.ArticleTopic.SECONDARY
+                    if not models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=topic_type).exists():
+                        models.ArticleTopic.objects.create(article=article, topic=topic, topic_type=topic_type)
 
-            existing_primary_topics = article.topics('PR')
-            for topic in existing_primary_topics:
-                if topic != selected_primary_topic:
-                    models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.PRIMARY).delete()
+                existing_primary_topics = article.topics('PR')
+                for topic in existing_primary_topics:
+                    if topic != selected_primary_topic:
+                        models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.PRIMARY).delete()
 
-            existing_secondary_topics = article.topics('SE')
-            for topic in existing_secondary_topics:
-                if topic not in selected_secondary_topics:
-                    models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.SECONDARY).delete()
+                existing_secondary_topics = article.topics('SE')
+                for topic in existing_secondary_topics:
+                    if topic not in selected_secondary_topics:
+                        models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.SECONDARY).delete()
 
         return article
 

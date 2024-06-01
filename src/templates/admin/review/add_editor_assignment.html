@@ -35,6 +35,20 @@
                             <p><span class="fa fa-info-circle"></span> Editors who have compeleted an editor decision for this article in a previous round will appear at the top of this list, they will show with a <strong>Yes</strong> in the <strong>Has Editor Decided Article</strong> column.</p>
                         </div>
                     {% endif %}
+                    
+                    {% if journal_settings.general.enable_study_topics %}
+                    <div>
+                        <div class="medium-1 columns">
+                            <div class="switch tiny">
+                                <input class="autoSubmit switch-input" id="tinySwitch" type="checkbox" name="view-study-topics" checked>
+                                <label class="switch-paddle" for="tinySwitch">
+                                    <span class="show-for-sr">View Study Topics</span>
+                                </label>
+                            </div>
+                        </div>
+                        <p>View Study Topics</p>
+                    </div>
+                    {% endif %}
 
                     <table class="small scroll" id="editors">
                         <thead>
@@ -44,27 +58,26 @@
                             <th>Email Address</th>
                             <th>Type</th>
                             <th>Active Assignments</th>
-                            <th width="40%">Interests</th>
+                            <th width="40%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
+                            <th width="40%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Study Topics</th>
                             {% if past_editors %}<th>Has Editor Decided Article</th>{% endif %}
                         </tr>
                         </thead>
 
                         <tbody>
                         {% for editor in editors %}
-                            {% if not journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
+                            {% if journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
                             <tr>
                                 <td><input type="radio" name="editor" value="{{ editor.id }}" {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}></td>
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Editor</td>
                                 <td>{{ editor.active_assignments_count|default_if_none:0 }}</td>
-                                <!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
-                                <td>
-                                    {% for topic in editor.topics %}
-                                    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
-                                    {% empty %}
-                                    No Topics
-                                    {% endfor %}
+                                <td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
+                                    {% for interest in editor.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                </td>
+                                <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=editor.topics_by_type %}
                                 </td>
                             </tr>
                             {% endif %}
@@ -77,13 +90,11 @@
                                 <td>{{ editor.email }}</td>
                                 <td>Section Editor</td>
                                 <td>{{ editor.active_reviews_count|default_if_none:0 }}</td>
-                                <!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
-                                <td>
-                                    {% for topic in editor.topics %}
-                                    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
-                                    {% empty %}
-                                    No Topics
-                                    {% endfor %}
+                                <td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
+                                    {% for interest in editor.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                </td>
+                                <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=editor.topics_by_type %}
                                 </td>
                             </tr>
                             {% endif %}
@@ -100,7 +111,7 @@
                     </table>
                 </div>
                 <div class="content">
-                    {% if journal_settings.enable_invite_editor %}
+                    {% if journal_settings.general.enable_invite_editor %}
                     <div class="title-area">
                         <h2>2. Set Options</h2>
                     </div>
@@ -112,8 +123,8 @@
                         <div class="large-12 columns">
                             <button type="submit" class="button success" name="add" id="add">Add Editor</button>
                             &nbsp;
-                            {% if journal_settings.enable_invite_editor %}
-                            <button class="button success" style="background-color: transparent;border: 1px solid;" name="{{ form.CONFIRMABLE_BUTTON_NAME }}" type="submit" id="invite">Invite Editor</button>
+                            {% if journal_settings.general.enable_invite_editor %}
+                            <button class="button success" style="background-color: transparent;border: 1px solid;" name="invite" type="submit" id="invite">Invite Editor</button>
                             &nbsp;
                             {% endif %}
                         </div>
@@ -190,6 +201,16 @@
                 $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
             }
         }
+    });
+
+    function study_topic_checked() {
+        let isChecked = $('#tinySwitch').is(':checked');
+        $(".list-interests").toggle(!isChecked);
+        $(".list-study-topics").toggle(isChecked);
+    };
+
+    $('.autoSubmit, .autoSubmit select, .autoSubmit input, .autoSubmit textarea').change(function () {
+        study_topic_checked()
     });
     </script>
 {% endblock js %}

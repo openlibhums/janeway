@@ -245,7 +245,7 @@ def view_ithenticate_report(request, article_id):
 @editor_user_required
 def add_editor_assignment(request, article_id):
     """
-    Allow an editor to add a new editor assignment request
+    Allow an editor to add a new editor assignment
     :param request: HttpRequest object
     :param article_id: Article PK
     :return: HttpResponse
@@ -257,7 +257,7 @@ def add_editor_assignment(request, article_id):
         user=request.user,
     )
 
-    form = forms.EditorAssignmentRequestForm(
+    form = forms.EditorAssignmentForm(
         journal=request.journal,
         article=article,
         editors=editors
@@ -297,25 +297,16 @@ def add_editor_assignment(request, article_id):
                 form.modal = {'id': 'editor'}
 
         elif 'invite' in request.POST:
-            form = forms.EditorAssignmentRequestForm(
+            form = forms.EditorAssignmentForm(
                 request.POST,
                 journal=request.journal,
                 article=article,
                 editors=editors,
+                invite_editor=True
             )
-
             if form.is_valid() and form.is_confirmed():
-                editor_assignment = form.save()
-
-                if editor_assignment.editor.is_editor(request):
-                    editor_assignment.editor_type = 'editor'
-                elif editor_assignment.editor.is_section_editor(request):
-                    editor_assignment.editor_type = 'section-editor'
-                editor_assignment.requesting_editor = request.user
-                editor_assignment.save()
-
+                editor_assignment = form.save(request=request)
                 article.save()
-
                 return redirect(
                     reverse(
                         'notify_invite_editor_asignment',
@@ -323,22 +314,14 @@ def add_editor_assignment(request, article_id):
                     )
                 )
         else:
-            form = forms.EditorAssignmentRequestForm(
+            form = forms.EditorAssignmentForm(
                 request.POST,
                 journal=request.journal,
                 article=article,
                 editors=editors,
             )
-
             if form.is_valid() and form.is_confirmed():
-                editor_assignment = form.save(commit=False)
-
-                if editor_assignment.editor.is_editor(request):
-                    editor_assignment.editor_type = 'editor'
-                elif editor_assignment.editor.is_section_editor(request):
-                    editor_assignment.editor_type = 'section-editor'
-                editor_assignment.requesting_editor = request.user
-
+                editor_assignment = form.save(request=request, commit=False)
                 editor = editor_assignment.editor
                 assignment_type = editor_assignment.editor_type
 
@@ -349,9 +332,12 @@ def add_editor_assignment(request, article_id):
                 _, created = logic.assign_editor(article, editor, assignment_type, request)
                 messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
                 if created and editor != request.user:
-                    return redirect('{0}?return={1}'.format(
-                        reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
-                        f'/tgdk/review/unassigned/article/{article_id}/'))
+                    return redirect(
+                        reverse(
+                            'review_assignment_notification',
+                            kwargs={'article_id': article_id, 'editor_id': editor.pk}
+                        ),
+                    )
                 elif not created:
                     messages.add_message(request, messages.WARNING,
                                         '{0} is already an Editor on this article.'.format(editor.full_name()))

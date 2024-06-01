@@ -2,13 +2,11 @@
 <td>{{ reviewer.full_name }}</td>
 <td>{{ reviewer.email }}</td>
 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
-<!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
-<td>
-    {% for topic in reviewer.topics %}
-    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
-    {% empty %}
-    No Topics
-    {% endfor %}
+<td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
+    {% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+</td>
+<td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=reviewer.topics_by_type %}
 </td>
 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>

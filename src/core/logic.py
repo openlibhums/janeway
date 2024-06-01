@@ -375,6 +375,14 @@ def get_settings_to_edit(display_group, journal, user):
                 'name': 'enable_invite_editor',
                 'object': setting_handler.get_setting('general', 'enable_invite_editor', journal),
             },
+             {
+                'name': 'enable_study_topics',
+                'object': setting_handler.get_setting('general', 'enable_study_topics', journal),
+            },
+            {
+                'name': 'enable_custom_editor_assignment',
+                'object': setting_handler.get_setting('general', 'enable_custom_editor_assignment', journal),
+            },
             {
                 'name': 'default_review_form',
                 'object': setting_handler.get_setting('general', 'default_review_form', journal),

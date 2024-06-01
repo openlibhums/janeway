@@ -1,0 +1,8 @@
+<td>{{ account_role.user.full_name }}</td>
+<td>{{ account_role.user.email }}</td>
+<td>{{ editor_type_label }}</td>
+<td>
+    <a href="{% url 'review_assign_editor' article.pk account_role.user.id editor_type %}?return={% url 'review_unassigned_article' article.pk %}">
+        Add{% if account_role.user == request.user %} Self{% endif %}
+    </a>
+</td>

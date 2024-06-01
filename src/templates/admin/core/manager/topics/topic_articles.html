@@ -22,7 +22,7 @@
             </div>
             <div class="content">
                 <p>
-                    {% trans 'Articles that belong to the' %} "{{ topic.pretty_name }}" {% trans 'topic are listed below.' %}
+                    {% trans 'Articles that belong to the' %} <b>{{ topic.pretty_name }}</b> {% trans 'topic are listed below.' %}
                 </p>
                 <table class="small">
                     <thead>
@@ -32,7 +32,8 @@
                             <th>{% trans 'Stage' %}</th>
                             <th>{% trans 'Main Author' %}</th>
                             <th>{% trans 'Editors' %}</th>
-                            <th>{% trans 'Article Archive' %}</th>
+                            <th width="40%">{% trans 'Topics' %}</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,7 +44,10 @@
                                 <td>{{ article.article.stage }}</td>
                                 <td>{{ article.article.correspondence_author.full_name }}</td>
                                 <td>{% for editor in article.article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td><a href="{% url 'manage_archive_article' article.pk %}">Article Archive</a></td>
+                                <td>
+                                    {% include "elements/review/assigned_topics_table.html" with topics_by_type=article.article.topics_by_type %}
+                                </td>
+                                <td><a href="{% url 'review_unassigned_article' article.article.pk %}">View</a></td>
                             </tr>
                         {% empty %}
                             <tr>

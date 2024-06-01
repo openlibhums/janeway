@@ -132,17 +132,17 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         return potential_errors
 
 
-class EditorAssignmentRequestForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
-    class Meta:
-        model = models.EditorAssignmentRequest
-        fields = ('date_due', 'editor')
+class EditorAssignmentForm(core_forms.ConfirmableIfErrorsForm):
+    editor = forms.ModelChoiceField(queryset=None)
+    date_due = forms.DateField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.journal = kwargs.pop('journal', None)
         self.article = kwargs.pop('article')
         self.editors = kwargs.pop('editors')
+        self.invite_editor = kwargs.pop('invite_editor', False)
 
-        super(EditorAssignmentRequestForm, self).__init__(*args, **kwargs)
+        super(EditorAssignmentForm, self).__init__(*args, **kwargs)
 
         default_due = setting_handler.get_setting(
             'general',
@@ -159,9 +159,34 @@ class EditorAssignmentRequestForm(forms.ModelForm, core_forms.ConfirmableIfError
         if self.editors:
             self.fields['editor'].queryset = self.editors
 
-    def save(self, commit=True):
-        editor_assignment = super().save(commit=False)
-        editor_assignment.article = self.article
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.invite_editor and not cleaned_data.get('date_due'):
+            self.add_error('date_due', 'This field is required for inviting an editor.')
+        return cleaned_data
+
+    def save(self, commit=True, request=None):
+        editor = self.cleaned_data['editor']
+        date_due = self.cleaned_data['date_due']
+
+        if request:
+            if self.invite_editor:
+                editor_assignment = models.EditorAssignmentRequest(
+                    article=self.article,
+                    editor=editor,
+                    date_due=date_due,
+                )
+                editor_assignment.requesting_editor = request.user
+            else:
+                editor_assignment = models.EditorAssignment(
+                    article=self.article,
+                    editor=editor,
+                )
+
+            if editor_assignment.editor.is_editor(request):
+                editor_assignment.editor_type = 'editor'
+            elif editor_assignment.editor.is_section_editor(request):
+                editor_assignment.editor_type = 'section-editor'
 
         if commit:
             editor_assignment.save()

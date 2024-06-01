@@ -96,6 +96,7 @@
 
                     </table>
 
+                    {% if journal_settings.general.enable_study_topics %}
                     <table class="table small">
                         <tr>
                             <th>Study Topics</th>
@@ -113,7 +114,13 @@
                                 <td>Secondary</td>
                             </tr>
                         {% endfor %}
+                        {% if not article.topics %}
+                        <tr>
+                            <td colspan="4">No topics</td>
+                        </tr>
+                        {% endif %}
                     </table>
+                    {% endif %}
 
                     <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
                     <table class="table small">

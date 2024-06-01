@@ -1,0 +1,9 @@
+{% for topic in topics_by_type.primary %}
+<span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #bebebe;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
+{% endfor %}
+{% for topic in topics_by_type.secondary %}
+<span style="display: inline-block;background-color: #f9f9f9;border: 1px dashed #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
+{% endfor %}
+{% if not topics_by_type.primary and not topics_by_type.secondary %}
+No Topics
+{% endif %}

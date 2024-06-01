@@ -1750,6 +1750,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "If enabled, Editors can be assigned to an article in a custom way.",
+            "is_translatable": false,
+            "name": "enable_custom_editor_assignment",
+            "pretty_name": "Enable Custom Editor Assignment",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "If enabled, Articles must be assigned at least one Senior Editor to review.",
             "is_translatable": false,
             "name": "required_senior_editor",
@@ -1773,6 +1792,25 @@
             "is_translatable": false,
             "name": "enable_invite_editor",
             "pretty_name": "Enable Invite Editor",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Articles can be related to preconfigured study topics from the journal, with the purpose of improving review assignments based on account matches.",
+            "is_translatable": false,
+            "name": "enable_study_topics",
+            "pretty_name": "Enable Study Topics",
             "type": "boolean"
         },
         "value": {

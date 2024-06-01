@@ -593,6 +593,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return Topics.objects.filter(accounttopic__account=self, accounttopic__topic_type=topic_type)
         return Topics.objects.filter(accounttopic__account=self)
 
+    def topics_by_type(self):
+        primary_topics = Topics.objects.filter(
+            accounttopic__account=self, accounttopic__topic_type=AccountTopic.PRIMARY
+        )
+        secondary_topics = Topics.objects.filter(
+            accounttopic__account=self, accounttopic__topic_type=AccountTopic.SECONDARY
+        )
+        return {
+            'primary': primary_topics,
+            'secondary': secondary_topics,
+        }
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)

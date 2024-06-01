@@ -11,9 +11,13 @@
     {% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.default_review_visibility %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_study_topics %}
     {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_custom_editor_assignment %}
     {% include "admin/elements/forms/field.html" with field=edit_form.required_senior_editor %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.enable_invite_editor %}
+    {% if journal_settings.general.enable_custom_editor_assignment %}
+        {% include "admin/elements/forms/field.html" with field=edit_form.enable_invite_editor %}
+    {% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_suggested_reviewers %}
 </div>
 
