@@ -46,15 +46,15 @@
                     </div>
 
                     {% if journal_settings.general.enable_study_topics %}
-                    <div>
-                        <div class="medium-1 columns">
+                    <div style="display: flex; gap:10px;">
+                        <span>
                             <div class="switch tiny">
                                 <input class="autoSubmit switch-input" id="tinySwitch" type="checkbox" name="view-study-topics" checked>
                                 <label class="switch-paddle" for="tinySwitch">
                                     <span class="show-for-sr">View Study Topics</span>
                                 </label>
                             </div>
-                        </div>
+                        </span>
                         <p>View Study Topics</p>
                     </div>
                     {% endif %}
@@ -68,6 +68,7 @@
                             <th>Active Reviews</th>
                             <th width="30%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
                             <th width="30%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Study Topics</th>
+                            <th class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Match Score</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
                             <th>Has Reviewed Article</th>

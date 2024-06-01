@@ -37,15 +37,15 @@
                     {% endif %}
                     
                     {% if journal_settings.general.enable_study_topics %}
-                    <div>
-                        <div class="medium-1 columns">
+                    <div style="display: flex; gap:10px;">
+                        <span>
                             <div class="switch tiny">
                                 <input class="autoSubmit switch-input" id="tinySwitch" type="checkbox" name="view-study-topics" checked>
                                 <label class="switch-paddle" for="tinySwitch">
                                     <span class="show-for-sr">View Study Topics</span>
                                 </label>
                             </div>
-                        </div>
+                        </span>
                         <p>View Study Topics</p>
                     </div>
                     {% endif %}
@@ -60,6 +60,7 @@
                             <th>Active Assignments</th>
                             <th width="40%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
                             <th width="40%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Study Topics</th>
+                            <th class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Match Score</th>
                             {% if past_editors %}<th>Has Editor Decided Article</th>{% endif %}
                         </tr>
                         </thead>
@@ -79,6 +80,9 @@
                                 <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
                                     {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=editor.topics_by_type %}
                                 </td>
+                                <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                    {{ editor.total_topic_matches}}
+                                </td>
                             </tr>
                             {% endif %}
                         {% endfor %}
@@ -89,12 +93,15 @@
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Section Editor</td>
-                                <td>{{ editor.active_reviews_count|default_if_none:0 }}</td>
+                                <td>{{ editor.active_assignments_count|default_if_none:0 }}</td>
                                 <td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
                                     {% for interest in editor.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
                                 </td>
                                 <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
                                     {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=editor.topics_by_type %}
+                                </td>
+                                <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                    {{ editor.total_topic_matches}}
                                 </td>
                             </tr>
                             {% endif %}

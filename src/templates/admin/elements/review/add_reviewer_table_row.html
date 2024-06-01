@@ -8,6 +8,9 @@
 <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
     {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=reviewer.topics_by_type %}
 </td>
+<td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+    {{ reviewer.total_topic_matches}}
+</td>
 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
 <td>{% if reviewer.is_past_reviewer %}Yes{% else %}No{% endif %}</td>
