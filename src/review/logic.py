@@ -45,10 +45,67 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_editors(candidate_queryset, exclude_pks):
+def get_editors(article, candidate_queryset, exclude_pks):
+
+    prefetch_editor_assignment = Prefetch(
+        'editor',
+        queryset=models.EditorAssignment.objects.filter(
+            article__journal=article.journal
+        )
+    )
+    active_assignments_count = models.EditorAssignment.objects.filter(
+        editor=OuterRef("id"),
+    ).values(
+        "editor_id",
+    ).annotate(
+        rev_count=Count("editor_id"),
+    ).values("rev_count")
+
+    primary_topic_matches = core_models.AccountTopic.objects.filter(
+        account=OuterRef("id"),
+        topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+    ).values(
+        "account_id",
+    ).annotate(
+        match_count=Count("account_id"),
+    ).values("match_count")
+
+    secondary_topic_matches = core_models.AccountTopic.objects.filter(
+        account=OuterRef("id"),
+        topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+    ).values(
+        "account_id",
+    ).annotate(
+        match_count=Count("account_id"),
+    ).values("match_count")
+
+    # TODO swap the below subqueries with filtered annotations on Django 2.0+
     editors = candidate_queryset.exclude(
         pk__in=exclude_pks,
-    )
+    ).prefetch_related(
+        prefetch_editor_assignment,
+        'interest',
+    ).annotate(
+        active_assignments_count=Subquery(
+            active_assignments_count,
+            output_field=IntegerField(),
+        )
+    ).annotate(
+        primary_topic_matches=Subquery(
+            primary_topic_matches,
+            output_field=IntegerField(),
+        )
+    ).annotate(
+        secondary_topic_matches=Subquery(
+            secondary_topic_matches,
+            output_field=IntegerField(),
+        )
+    ).annotate(
+        primary_topic_matches_weighted=F('primary_topic_matches') * 2,
+        total_topic_matches=Coalesce(F('primary_topic_matches_weighted'), Value(0)) + Coalesce(F('secondary_topic_matches'), Value(0)),
+        active_assignments_count=Coalesce(F('active_assignments_count'), Value(0)),
+    ).order_by('active_assignments_count', '-total_topic_matches')
+
     return editors
 
 
@@ -81,6 +138,7 @@ def get_editors_candidates(article, user=None, editors_to_exclude=None):
     queryset_section_editor = article.journal.users_with_role('section-editor')
 
     return get_editors(
+        article,
         queryset_editor | queryset_section_editor,
         editor_pks_to_exclude
     )

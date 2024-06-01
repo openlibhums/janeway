@@ -236,8 +236,8 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
-                {% if journal_settings.general.enable_invite_editor and editor_can_access %}
-                <a href="{% url 'invite_editor_assignment' article.id %}" class="button">Invite Editors</a>
+                {% if editor_can_access %}
+                <a href="{% url 'add_editor_assignment' article.id %}" class="button">Add Editor</a>
                 {% endif %}
             </div>
             <div class="content">

@@ -243,7 +243,7 @@ def view_ithenticate_report(request, article_id):
 
 @editor_is_not_author
 @editor_user_required
-def invite_editor_assignment(request, article_id):
+def add_editor_assignment(request, article_id):
     """
     Allow an editor to add a new editor assignment request
     :param request: HttpRequest object
@@ -266,6 +266,7 @@ def invite_editor_assignment(request, article_id):
     new_editor_form = core_forms.QuickUserForm()
 
     if request.POST:
+
         if 'assign' in request.POST:
             # first check whether the user exists
             new_editor_form = core_forms.QuickUserForm(request.POST)
@@ -278,7 +279,7 @@ def invite_editor_assignment(request, article_id):
             if user:
                 return redirect(
                     reverse(
-                        'invite_editor_assignment',
+                        'add_editor_assignment',
                         kwargs={'article_id': article.pk}
                     ) + '?' + parse.urlencode({'user': new_editor_form.data['email'], 'id': str(user.pk)},)
                 )
@@ -289,12 +290,13 @@ def invite_editor_assignment(request, article_id):
                 acc = logic.handle_editor_form(request, new_editor_form, 'section-editor')
                 return redirect(
                     reverse(
-                        'invite_editor_assignment', kwargs={'article_id': article.pk}
+                        'add_editor_assignment', kwargs={'article_id': article.pk}
                     ) + '?' + parse.urlencode({'user': new_editor_form.data['email'], 'id': str(acc.pk)}),
                 )
             else:
                 form.modal = {'id': 'editor'}
-        else:
+
+        elif 'invite' in request.POST:
             form = forms.EditorAssignmentRequestForm(
                 request.POST,
                 journal=request.journal,
@@ -320,8 +322,43 @@ def invite_editor_assignment(request, article_id):
                         kwargs={'article_id': article_id, 'editor_assignment_id': editor_assignment.id}
                     )
                 )
+        else:
+            form = forms.EditorAssignmentRequestForm(
+                request.POST,
+                journal=request.journal,
+                article=article,
+                editors=editors,
+            )
 
-    template = 'admin/review/invite_editor_assignment.html'
+            if form.is_valid() and form.is_confirmed():
+                editor_assignment = form.save(commit=False)
+
+                if editor_assignment.editor.is_editor(request):
+                    editor_assignment.editor_type = 'editor'
+                elif editor_assignment.editor.is_section_editor(request):
+                    editor_assignment.editor_type = 'section-editor'
+                editor_assignment.requesting_editor = request.user
+
+                editor = editor_assignment.editor
+                assignment_type = editor_assignment.editor_type
+
+                if not editor.has_an_editor_role(request):
+                    messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
+                    return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+
+                _, created = logic.assign_editor(article, editor, assignment_type, request)
+                messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
+                if created and editor != request.user:
+                    return redirect('{0}?return={1}'.format(
+                        reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
+                        f'/tgdk/review/unassigned/article/{article_id}/'))
+                elif not created:
+                    messages.add_message(request, messages.WARNING,
+                                        '{0} is already an Editor on this article.'.format(editor.full_name()))
+                
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))        
+
+    template = 'admin/review/add_editor_assignment.html'
 
     context = {
         'article': article,

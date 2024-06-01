@@ -1,13 +1,13 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
-{% block title %}Invite Editor to Assignment{% endblock title %}
-{% block title-section %}Invite Editor to Assignment{% endblock %}
+{% block title %}Add Editor Assignment{% endblock title %}
+{% block title-section %}Add Editor Assignment{% endblock %}
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
-    <li>Invite Editor to Assignment</li>
+    <li>Add Editor Assignment</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -43,6 +43,8 @@
                             <th>Name</th>
                             <th>Email Address</th>
                             <th>Type</th>
+                            <th>Active Assignments</th>
+                            <th width="40%">Interests</th>
                             {% if past_editors %}<th>Has Editor Decided Article</th>{% endif %}
                         </tr>
                         </thead>
@@ -55,6 +57,15 @@
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Editor</td>
+                                <td>{{ editor.active_assignments_count|default_if_none:0 }}</td>
+                                <!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
+                                <td>
+                                    {% for topic in editor.topics %}
+                                    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
+                                    {% empty %}
+                                    No Topics
+                                    {% endfor %}
+                                </td>
                             </tr>
                             {% endif %}
                         {% endfor %}
@@ -65,6 +76,15 @@
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Section Editor</td>
+                                <td>{{ editor.active_reviews_count|default_if_none:0 }}</td>
+                                <!-- <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td> -->
+                                <td>
+                                    {% for topic in editor.topics %}
+                                    <span style="display: inline-block;background-color: #f0f0f0;border: 1px solid #ccc;border-radius: 5px;padding: 3px 6px;margin: 2px;">{{ topic }}</span>
+                                    {% empty %}
+                                    No Topics
+                                    {% endfor %}
+                                </td>
                             </tr>
                             {% endif %}
                         {% endfor %}
@@ -79,16 +99,23 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="title-area">
-                    <h2>2. Set Options</h2>
-                </div>
                 <div class="content">
+                    {% if journal_settings.enable_invite_editor %}
+                    <div class="title-area">
+                        <h2>2. Set Options</h2>
+                    </div>
                     <div class="row expanded">
                         <div class="large-4 columns">{{ form.date_due|foundation }}</div>
+                    </div>
+                    {% endif %}
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <button class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}" type="submit">Invite Editor</button>
+                            <button type="submit" class="button success" name="add" id="add">Add Editor</button>
                             &nbsp;
+                            {% if journal_settings.enable_invite_editor %}
+                            <button class="button success" style="background-color: transparent;border: 1px solid;" name="{{ form.CONFIRMABLE_BUTTON_NAME }}" type="submit" id="invite">Invite Editor</button>
+                            &nbsp;
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -121,49 +148,6 @@
         </div>
     </div>
     {% endif %}
-
-    <div class="reveal large" id="enroll" data-reveal data-animation-in="slide-in-up"
-     data-animation-out="slide-out-down">
-        <div class="card">
-            <div class="card-divider">
-                <h4><i class="fa fa-users">&nbsp;</i>Enroll Existing User as Editor</h4>
-            </div>
-            <div class="card-section">
-                <button class="close-button" data-close aria-label="Close reveal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <div class="content">
-                    <form method="POST">
-                        {% include "elements/forms/errors.html" with form=new_editor_form %}
-                        {% csrf_token %}
-                        <table class="small scroll" id="enrolluser">
-                            <thead>
-                            <tr>
-                                <th>Select</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email Address</th>
-                                <th>Interests</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for user in user_list %}
-                                <tr>
-                                    <td><input type="checkbox" name="user_id" value="{{ user.pk }}"></td>
-                                    <td>{{ user.first_name }}</td>
-                                    <td>{{ user.last_name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.interests.all }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                        <button type="submit" class="button success" name="enrollusers" id="enrollusers">Enroll as Editor</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {% if form.modal %}
         {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="editor_assignment_form" %}

@@ -154,6 +154,7 @@ class EditorAssignmentRequestForm(forms.ModelForm, core_forms.ConfirmableIfError
         if default_due:
             due_date = timezone.now() + timedelta(days=int(default_due))
             self.fields['date_due'].initial = due_date
+            self.fields['date_due'].required = False
 
         if self.editors:
             self.fields['editor'].queryset = self.editors
