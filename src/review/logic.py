@@ -76,8 +76,9 @@ def get_editors(article, candidate_queryset, exclude_pks):
     )
 
     if article.journal.get_setting('general','enable_study_topics'):
-        primary_topic_matches = core_models.AccountTopic.objects.filter(
+        primary_to_primary_matches = core_models.AccountTopic.objects.filter(
             account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
             topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
         ).values(
             "account_id",
@@ -85,8 +86,29 @@ def get_editors(article, candidate_queryset, exclude_pks):
             match_count=Count("account_id"),
         ).values("match_count")
 
-        secondary_topic_matches = core_models.AccountTopic.objects.filter(
+        primary_to_secondary_matches = core_models.AccountTopic.objects.filter(
             account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
             topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
         ).values(
             "account_id",
@@ -95,18 +117,33 @@ def get_editors(article, candidate_queryset, exclude_pks):
         ).values("match_count")
 
         editors = editors.annotate(
-            primary_topic_matches=Subquery(
-                primary_topic_matches,
+            primary_to_primary_matches=Subquery(
+                primary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            primary_to_secondary_matches=Subquery(
+                primary_to_secondary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_primary_matches=Subquery(
+                secondary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_secondary_matches=Subquery(
+                secondary_to_secondary_matches,
                 output_field=IntegerField(),
             )
         ).annotate(
-            secondary_topic_matches=Subquery(
-                secondary_topic_matches,
-                output_field=IntegerField(),
+            primary_to_primary_matches_weighted=Coalesce(F('primary_to_primary_matches'), Value(0)) * 3,
+            primary_to_secondary_matches_weighted=Coalesce(F('primary_to_secondary_matches'), Value(0)) * 2,
+            secondary_to_primary_matches_weighted=Coalesce(F('secondary_to_primary_matches'), Value(0)) * 2,
+            secondary_to_secondary_matches_weighted=Coalesce(F('secondary_to_secondary_matches'), Value(0)) * 1,
+            total_topic_matches=(
+                F('primary_to_primary_matches_weighted') + 
+                F('primary_to_secondary_matches_weighted') + 
+                F('secondary_to_primary_matches_weighted') + 
+                F('secondary_to_secondary_matches_weighted')
             )
-        ).annotate(
-            primary_topic_matches_weighted=F('primary_topic_matches') * 2,
-            total_topic_matches=Coalesce(F('primary_topic_matches_weighted'), Value(0)) + Coalesce(F('secondary_topic_matches'), Value(0)),
         ).order_by('active_assignments_count', '-total_topic_matches')
     else:
         editors = editors.order_by('active_assignments_count')
@@ -166,7 +203,6 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         assignment__article__journal=article.journal,
         assignment__reviewer=OuterRef("id"),
     ).values(
-        # Without this .values call, results are grouped by assignment...
         "assignment__article__journal",
     ).annotate(
         rating_average=Avg("rating"),
@@ -243,9 +279,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         active_reviews_count=Coalesce(F('active_reviews_count'), Value(0)),
     )
 
-    if article.journal.get_setting('general','enable_study_topics'):
-        primary_topic_matches = core_models.AccountTopic.objects.filter(
+    if article.journal.get_setting('general', 'enable_study_topics'):
+        primary_to_primary_matches = core_models.AccountTopic.objects.filter(
             account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
             topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
         ).values(
             "account_id",
@@ -253,8 +290,29 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
             match_count=Count("account_id"),
         ).values("match_count")
 
-        secondary_topic_matches = core_models.AccountTopic.objects.filter(
+        primary_to_secondary_matches = core_models.AccountTopic.objects.filter(
             account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
             topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
         ).values(
             "account_id",
@@ -263,18 +321,33 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         ).values("match_count")
 
         reviewers = reviewers.annotate(
-            primary_topic_matches=Subquery(
-                primary_topic_matches,
+            primary_to_primary_matches=Subquery(
+                primary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            primary_to_secondary_matches=Subquery(
+                primary_to_secondary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_primary_matches=Subquery(
+                secondary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_secondary_matches=Subquery(
+                secondary_to_secondary_matches,
                 output_field=IntegerField(),
             )
         ).annotate(
-            secondary_topic_matches=Subquery(
-                secondary_topic_matches,
-                output_field=IntegerField(),
+            primary_to_primary_matches_weighted=Coalesce(F('primary_to_primary_matches'), Value(0)) * 3,
+            primary_to_secondary_matches_weighted=Coalesce(F('primary_to_secondary_matches'), Value(0)) * 2,
+            secondary_to_primary_matches_weighted=Coalesce(F('secondary_to_primary_matches'), Value(0)) * 2,
+            secondary_to_secondary_matches_weighted=Coalesce(F('secondary_to_secondary_matches'), Value(0)) * 1,
+            total_topic_matches=(
+                F('primary_to_primary_matches_weighted') +
+                F('primary_to_secondary_matches_weighted') +
+                F('secondary_to_primary_matches_weighted') +
+                F('secondary_to_secondary_matches_weighted')
             )
-        ).annotate(
-            primary_topic_matches_weighted=F('primary_topic_matches') * 2,
-            total_topic_matches=Coalesce(F('primary_topic_matches_weighted'), Value(0)) + Coalesce(F('secondary_topic_matches'), Value(0)),
         ).order_by('active_reviews_count', '-total_topic_matches')
     else:
         reviewers = reviewers.order_by('active_reviews_count')
