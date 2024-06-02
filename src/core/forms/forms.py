@@ -8,6 +8,7 @@ import uuid
 import json
 
 from django import forms
+from django.db import transaction
 from django_select2.forms import Select2MultipleWidget
 from django.forms.fields import Field
 from django.utils import timezone
@@ -258,27 +259,34 @@ class EditAccountForm(forms.ModelForm):
         if commit:
             user.save()
 
-            selected_primary_topic = self.cleaned_data['primary_study_topic']
-            for topic in selected_primary_topic:
-                topic_type = models.AccountTopic.PRIMARY
-                if not models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=topic_type).exists():
-                    models.AccountTopic.objects.create(account=user, topic=topic, topic_type=topic_type)
-
+            selected_primary_topic = set(self.cleaned_data['primary_study_topic'])
             selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
-            for topic in selected_secondary_topics:
-                topic_type = models.AccountTopic.SECONDARY
-                if not models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=topic_type).exists():
-                    models.AccountTopic.objects.create(account=user, topic=topic, topic_type=topic_type)
 
-            existing_primary_topics = user.topics('PR')
-            for topic in existing_primary_topics:
-                if topic not in selected_primary_topic:
-                    models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=models.AccountTopic.PRIMARY).delete()
+            existing_topics = models.AccountTopic.objects.filter(account=user)
 
-            existing_secondary_topics = user.topics('SE')
-            for topic in existing_secondary_topics:
-                if topic not in selected_secondary_topics:
-                    models.AccountTopic.objects.filter(account=user, topic=topic, topic_type=models.AccountTopic.SECONDARY).delete()
+            with transaction.atomic():
+
+                for topic in selected_secondary_topics:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.SECONDARY}
+                    )
+                
+                for topic in selected_primary_topic:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.PRIMARY}
+                    )
+                
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.PRIMARY):
+                    if account_topic.topic not in selected_primary_topic:
+                        account_topic.delete()
+
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.SECONDARY):
+                    if account_topic.topic not in selected_secondary_topics:
+                        account_topic.delete()
 
         return user
 

@@ -2475,7 +2475,7 @@ class ArticleTopic(models.Model):
     )
 
     class Meta:
-        unique_together = ('article', 'topic', 'topic_type')
+        unique_together = ('article', 'topic')
 
     def __str__(self):
-        return f"{self.article} - {self.topic} ({self.topic_type()})"
+        return f"{self.article} - {self.topic} ({self.topic_type})"

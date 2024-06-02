@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import re
 
 from django import forms
+from django.db import transaction
 from django_select2.forms import Select2MultipleWidget
 from django.utils.translation import gettext, gettext_lazy as _
 
@@ -279,25 +280,32 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
             if article.journal.get_setting('general','enable_study_topics'):
                 selected_primary_topic = self.cleaned_data['primary_study_topic']
-                topic_type = models.ArticleTopic.PRIMARY
-                if not models.ArticleTopic.objects.filter(article=article, topic=selected_primary_topic, topic_type=topic_type).exists():
-                    models.ArticleTopic.objects.create(article=article, topic=selected_primary_topic, topic_type=topic_type)
-
                 selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
-                for topic in selected_secondary_topics:
-                    topic_type = models.ArticleTopic.SECONDARY
-                    if not models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=topic_type).exists():
-                        models.ArticleTopic.objects.create(article=article, topic=topic, topic_type=topic_type)
 
-                existing_primary_topics = article.topics('PR')
-                for topic in existing_primary_topics:
-                    if topic != selected_primary_topic:
-                        models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.PRIMARY).delete()
+                existing_topics = models.ArticleTopic.objects.filter(article=article)
 
-                existing_secondary_topics = article.topics('SE')
-                for topic in existing_secondary_topics:
-                    if topic not in selected_secondary_topics:
-                        models.ArticleTopic.objects.filter(article=article, topic=topic, topic_type=models.ArticleTopic.SECONDARY).delete()
+                with transaction.atomic():
+
+                    for topic in selected_secondary_topics:
+                        models.ArticleTopic.objects.update_or_create(
+                            article=article,
+                            topic=topic,
+                            defaults={'topic_type': models.ArticleTopic.SECONDARY}
+                        )
+                    
+                    models.ArticleTopic.objects.update_or_create(
+                        article=article,
+                        topic=selected_primary_topic,
+                        defaults={'topic_type': models.ArticleTopic.PRIMARY}
+                    )
+                    
+                    for article_topic in existing_topics.filter(topic_type=models.ArticleTopic.PRIMARY):
+                        if article_topic.topic != selected_primary_topic:
+                            article_topic.delete()
+
+                    for article_topic in existing_topics.filter(topic_type=models.ArticleTopic.SECONDARY):
+                        if article_topic.topic not in selected_secondary_topics:
+                            article_topic.delete()
 
         return article
 

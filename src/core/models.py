@@ -1543,10 +1543,10 @@ class AccountTopic(models.Model):
     )
 
     class Meta:
-        unique_together = ('account', 'topic', 'topic_type')
+        unique_together = ('account', 'topic')
 
     def __str__(self):
-        return f"{self.account} - {self.topic} ({self.topic_type()})"
+        return f"{self.account} - {self.topic} ({self.topic_type})"
 
 
 class EditorialGroup(models.Model):
