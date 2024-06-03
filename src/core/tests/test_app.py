@@ -19,7 +19,7 @@ from utils.shared import clear_cache
 from core import models
 from review import models as review_models
 from submission import models as submission_models
-
+import mock
 
 class CoreTests(TestCase):
     """
@@ -192,6 +192,17 @@ class CoreTests(TestCase):
             msg="Registered user %s can't login with email %s"
                 "" % (email, email),
         )
+
+    @mock.patch('utils.orcid.get_orcid_record_details', return_value={'emails': [], 'last_name': 'arship', 'first_name': 'cdleschol', 'affiliation': 'California Digital Library', 'country': 'US'})
+    def test_orcid_registration(self, record_mock):
+        orcid_id = "0000-0000-0000-0000"
+        token  = models.OrcidToken.objects.create(orcid=orcid_id)
+        register_url = f"{reverse('core_register')}?token={token.token}"
+
+        response = self.client.get(register_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "cdleschol")
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_login_different_case(self):

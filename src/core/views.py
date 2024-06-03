@@ -145,7 +145,6 @@ def user_login(request):
 
     return render(request, template, context)
 
-
 def user_login_orcid(request):
     """
     Allows a user to login with ORCiD
@@ -153,46 +152,52 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
+    action = request.GET.get('action', 'login')
 
     if orcid_code and django_settings.ENABLE_ORCID:
         orcid_id = orcid.retrieve_tokens(
             orcid_code,
             request.site_type,
+            action=action
         )
 
         if orcid_id:
             try:
                 user = models.Account.objects.get(orcid=orcid_id)
-                user.backend = 'django.contrib.auth.backends.ModelBackend'
-                login(request, user)
+                if action == 'login':
+                    user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, user)
 
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
-                elif request.journal:
-                    return redirect(reverse('core_dashboard'))
-                else:
-                    return redirect(reverse('website_index'))
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))
+                    elif request.journal:
+                        return redirect(reverse('core_dashboard'))
+                    else:
+                        return redirect(reverse('website_index'))
 
             except models.Account.DoesNotExist:
                 # Lookup ORCID email addresses
                 orcid_details = orcid.get_orcid_record_details(orcid_id)
                 for email in orcid_details.get("emails"):
-                    candidates = models.Account.objects.filter(email=email)
-                    if candidates.exists():
-                        # Store ORCID for future authentication requests
-                        candidates.update(orcid=orcid_id)
-                        login(request, candidates.first())
-                        if request.GET.get('next'):
-                            return redirect(request.GET.get('next'))
-                        elif request.journal:
-                            return redirect(reverse('core_dashboard'))
-                        else:
-                            return redirect(reverse('website_index'))
+                        candidates = models.Account.objects.filter(email=email)
+                        if candidates.exists():
+                            # Store ORCID for future authentication requests
+                            candidates.update(orcid=orcid_id)
+                            login(request, candidates.first())
+                            if request.GET.get('next'):
+                                return redirect(request.GET.get('next'))
+                            elif request.journal:
+                                return redirect(reverse('core_dashboard'))
+                            else:
+                                return redirect(reverse('website_index'))
 
-                # Prepare ORCID Token for registration and redirect
-                models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-                new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+            # Prepare ORCID Token for registration and redirect
+            models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
 
+            if action == 'register':
+                return redirect(reverse('core_register') + f'?token={new_token.token}')
+            else:
                 return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
         else:
             messages.add_message(
@@ -304,10 +309,16 @@ def register(request):
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-        initial["first_name"] = orcid_details.get("first_name")
-        initial["last_name"] = orcid_details.get("last_name")
+        print(orcid_details)
+        initial["first_name"] = orcid_details.get("first_name", "")
+        initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
             initial["email"] = orcid_details["emails"][0]
+        if orcid_details.get("affiliation"):
+            initial['institution'] = orcid_details['affiliation']
+        if orcid_details.get("country"):
+            if models.Country.objects.filter(code=orcid_details['country']).exists():
+                initial["country"] = models.Country.objects.get(code=orcid_details['country'])
 
     form = forms.RegistrationForm(
         journal=request.journal,

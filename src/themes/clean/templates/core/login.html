@@ -12,7 +12,7 @@
                     <div class="col-md-12">
                         {% if settings.ENABLE_ORCID %}
                         <h2 class="text-center">{% trans "Log in with your account" %}</h2>
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
                            class="btn orcid-button btn-block">{% trans "Log in with ORCiD" %}</a>
                         <br/>
                         {% endif %}

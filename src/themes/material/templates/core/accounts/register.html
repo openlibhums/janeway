@@ -2,6 +2,7 @@
 {% load materializecss %}
 {% load i18n %}
 {% load static %}
+{% load orcid %}
 
 {% block title %}{% trans "Register" %}{% endblock title %}
 
@@ -21,12 +22,14 @@
                     <ul class="no-top-margin browser-default">
                         {% include "common/elements/password_rules.html" %}
                     </ul>
-                    <p>
-                        {% blocktrans trimmed %}For more information read our
-                        <a href="#" data-target="passwordmodal" class="modal-trigger">password
-                            guide</a>.{% endblocktrans %}
-                    </p>
-                    <form method="POST">
+                    <p>{% blocktrans %}For more information read our
+                        <a href="#passwordmodal" class="modal-trigger">password guide</a>
+                        .{% endblocktrans %}</p>
+                        {% if settings.ENABLE_ORCID %}
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'register' %}"
+                           class="btn wide-button orcid-button">{% trans "Register with ORCiD" %}</a>
+                        {% endif %}
+                        <form method="POST">
                         {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
                         {{ form|materializecss }}

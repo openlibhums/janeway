@@ -19,14 +19,14 @@ from orcid import PublicAPI as OrcidAPI
 logger = get_logger(__name__)
 
 
-def retrieve_tokens(authorization_code, site):
+def retrieve_tokens(authorization_code, site, action='login'):
     """ Retrieves the access token for the given code
 
     :param authorization_code: (str) code provided by ORCID
     :site: Object implementing the AbstractSiteModel interface
     :return: ORCID ID or None
     """
-    redirect_uri = build_redirect_uri(site)
+    redirect_uri = build_redirect_uri(site, action=action)
     access_token_req = {
         "code": authorization_code,
         "client_id": settings.ORCID_CLIENT_ID,
@@ -44,6 +44,7 @@ def retrieve_tokens(authorization_code, site):
     try:
         r.raise_for_status()
     except HTTPError as e:
+        print(e)
         logger.error("ORCID request failed: %s" % str(e))
         orcid_id = None
     else:
@@ -53,47 +54,62 @@ def retrieve_tokens(authorization_code, site):
     return orcid_id
 
 
-def build_redirect_uri(site):
+def build_redirect_uri(site, action='login'):
     """ builds the landing page for ORCID requests
     :site: Object implementing the AbstractSiteModel interface
     :return: (str) Redirect URI for ORCID requests
     """
-    request = logic.get_current_request()
-    path = reverse("core_login_orcid")
+    #request = logic.get_current_request()
+    #path = reverse("core_login_orcid")
 
-    return request.site_type.site_url(path)
+    #return request.site_type.site_url(path)
+    return f"http://127.0.0.1:8000/testrepo/login/orcid/?action={action}"
 
-
-def get_orcid_record_details(orcid):
-    details = defaultdict(lambda: None)
+def get_orcid_record(orcid):
     try:
         logger.info("Retrieving ORCiD profile for %s", orcid)
-        api_client = OrcidAPI(
-            settings.ORCID_CLIENT_ID,
-            settings.ORCID_CLIENT_SECRET,
-        )
+        api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET, sandbox=True)
         search_token = api_client.get_search_token_from_orcid()
-        record = api_client.read_record_public(
-            orcid, 'record', search_token,
-        )
-        if record:
-            user_record = record["person"]
-            # Order matters here, we want to get emails first in case anything
-            # goes wrong with person details below
-            details["emails"] = [
-                email["email"]
-                for email in user_record["emails"]["email"]
-            ]
-            try:
-                details["last_name"] = user_record["name"]["family-name"]["value"]
-                details["first_name"] = user_record["name"]["given-names"]["value"]
-            except KeyError:
-                pass
+        return api_client.read_record_public(orcid, 'record', search_token,)
     except HTTPError as e:
         logger.info("Couldn't retrieve profile with ORCID %s", orcid)
         logger.info(e)
     except Exception as e:
         logger.error("Failed to retrieve user details from ORCID API: %s")
         logger.exception(e)
+
+    return None
+
+def get_affiliation(summary):
+    if len(summary["employments"]["employment-summary"]):
+        return summary["employments"]["employment-summary"][0]["organization"]
+    elif len(summary["educations"]["education-summary"]):
+        return summary["educations"]["education-summary"][0]["organization"]
+    else:
+        return None
+
+def get_orcid_record_details(orcid):
+    details = defaultdict(lambda: None)
+    record = get_orcid_record(orcid)
+    if record:
+        user_record = record["person"]
+        # Order matters here, we want to get emails first in case anything
+        # goes wrong with person details below
+        details["emails"] = [
+            email["email"]
+            for email in user_record["emails"]["email"]
+        ]
+
+        name = user_record.get("name", None)
+        if name:
+            if name.get("family-name", None):
+                details["last_name"] = name["family-name"]["value"]
+            if name.get("given-names", None):
+                details["first_name"] = name["given-names"]["value"]
+
+        affiliation = get_affiliation(record["activities-summary"])
+        if affiliation:
+            details["affiliation"] = affiliation["name"]
+            details["country"] = affiliation["address"]["country"]
 
     return details
