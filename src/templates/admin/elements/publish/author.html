@@ -1,0 +1,41 @@
+{% load foundation %}
+
+{% comment %}
+    NOTE! This template is deprecated. Use elements/publish/notifications.html instead.
+{% endcomment %}
+
+<div class="reveal small" id="author" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-envelope-o">&nbsp;</i>Notify Author</h4>
+        </div>
+        <div class="card-section">
+            {% if not article.fixedpubcheckitems.notify_the_author %}
+            <p>You can send an email to the Author informing them of the publication date.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="callout">
+                    <p>
+                        <i>To: </i> {{ article.correspondence_author.full_name }} ({{ article.correspondence_author.email }})<br />
+                        <i>From: </i> {{ request.user.full_name }}({{ request.user.email }})<br />
+                        <i>Subject: </i>{{ article.safe_title }} Publication
+                    </p>
+                    {{ notify_author_email_form|foundation }}
+
+                    <input type="checkbox" name="section_editors" id="section_editors"><label for="section_editors" class="toggle">Notify Section Editors</label>
+                    <br />
+                    <input type="checkbox" name="peer_reviewers" id="peer_reviewers"><label for="peer_reviewers" class="toggle">Notify Peer Reviewers</label>
+                    <br />
+                    <button type="submit" name="author" class="small success button">Notify Author</button>
+                </div>
+            </form>
+            {% else %}
+            <p>The author has already been notified.</p>
+            {% endif %}
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

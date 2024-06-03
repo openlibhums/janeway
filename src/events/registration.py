@@ -123,6 +123,11 @@ event_logic.Events.register_for_event(event_logic.Events.ON_CORRECTIONS_CANCELLE
 event_logic.Events.register_for_event(event_logic.Events.ON_PREPUB_NOTIFICATIONS,
                                       transactional_emails.send_prepub_notifications)
 
+# Publication
+# Note: ON_AUTHOR_PUBLICATION is deprecated
+event_logic.Events.register_for_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
+                                      transactional_emails.send_author_publication_notification)
+
 # Send notifications to registered users.
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       journal_logic.fire_submission_notifications)
