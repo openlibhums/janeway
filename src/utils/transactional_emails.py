@@ -1314,6 +1314,49 @@ def send_prepub_notifications(**kwargs):
         )
 
 
+def send_author_publication_notification(**kwargs):
+    request = kwargs['request']
+    article = kwargs['article']
+    user_message = kwargs['user_message']
+    section_editors = kwargs['section_editors']
+    peer_reviewers = kwargs['peer_reviewers']
+
+    description = "Article, {0}, set for publication on {1}, by {2}".format(article.title,
+                                                                            article.date_published,
+                                                                            request.user.full_name())
+
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Article Published',
+                'target': article}
+
+    notify_helpers.send_email_with_body_from_user(request,
+                                                  'subject_author_publication',
+                                                  article.correspondence_author.email,
+                                                  user_message, log_dict=log_dict)
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+    # Check for SEs and PRs and notify them as well
+    if section_editors:
+        for editor in article.section_editors():
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'section_editor_pub_notification',
+                'subject_section_editor_pub_notification',
+                editor.email,
+                {'article': article, 'editor': editor},
+            )
+
+    if peer_reviewers:
+        reviewers = {review_assignment.reviewer for review_assignment in article.completed_reviews_with_decision}
+        for reviewer in reviewers:
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'peer_reviewer_pub_notification',
+                'subject_peer_reviewer_pub_notification',
+                reviewer.email,
+                {'article': article, 'reviewer': reviewer},
+            )
+
+
 def review_sec_override_notification(**kwargs):
     request = kwargs['request']
     override = kwargs['override']

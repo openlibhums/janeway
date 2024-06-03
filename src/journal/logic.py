@@ -300,6 +300,26 @@ def handle_prepub_notifications(request, article, formset):
     )
 
 
+def notify_author(request, article):
+    """ Note: This function is deprecated. Use handle_prepub_notifications instead.
+    """
+    kwargs = {
+        'request': request,
+        'article': article,
+        'user_message': request.POST.get('email_to_author', 'No message from Editor.'),
+        'section_editors': request.POST.get('section_editors', False),
+        'peer_reviewers': request.POST.get('peer_reviewers', False),
+    }
+
+    event_logic.Events.raise_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
+                                   task_object=article,
+                                   **kwargs)
+
+    article.fixedpubcheckitems.notify_the_author = True
+    article.fixedpubcheckitems.save()
+    messages.add_message(request, messages.INFO, 'Author notified.')
+
+
 def set_render_galley(request, article):
     galley_id = request.POST.get('render_galley')
 
