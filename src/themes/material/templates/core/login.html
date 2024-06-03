@@ -14,7 +14,7 @@
                     <div class="card-content">
                         <span class="card-title">{% trans "Login with your account" %}</span>
                          {% if settings.ENABLE_ORCID %}
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
                            class="btn wide-button orcid-button">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}

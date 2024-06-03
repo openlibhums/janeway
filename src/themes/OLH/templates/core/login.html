@@ -25,7 +25,7 @@
                     <div class="row column log-in-form">
                         {% if settings.ENABLE_ORCID %}
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="button expanded orcid-button">{% trans "Log in with ORCiD" %}</a>
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}" class="button expanded orcid-button">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
                         <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="success button expanded">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
