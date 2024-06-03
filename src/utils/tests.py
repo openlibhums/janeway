@@ -643,6 +643,11 @@ class PrepubEmailTests(UtilsTests):
 
         subject_setting = self.get_default_email_subject('subject_peer_reviewer_pub_notification')
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
+        self.assertNotIn(self.author.email, mail.outbox[1].to)
+        self.assertNotIn(self.author.email, mail.outbox[1].cc)
+        self.assertNotIn(self.author.email, mail.outbox[1].bcc)
+        self.assertNotIn(reviewer.email, mail.outbox[1].to)
+        self.assertNotIn(reviewer.email, mail.outbox[1].cc)
         self.assertIn(self.editor.email, mail.outbox[1].to)
         self.assertIn(reviewer.email, mail.outbox[1].bcc)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
