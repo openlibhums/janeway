@@ -30,7 +30,7 @@
                     </div>
                     {{ notification_formset.0|foundation }}
                 </div>
-                {% if journal_settings.general.notify_peer_reviewers_of_publication %}
+                {% if journal_settings.general.notify_peer_reviewers_of_publication and article.peer_reviewers %}
                     <div class="card-section">
                         <div class="row">
                             <div class="large-12 columns">
