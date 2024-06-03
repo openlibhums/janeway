@@ -2614,3 +2614,18 @@ class GenericFacetedListView(generic.ListView):
             return facets
         else:
             return facets
+
+
+class FilteredArticlesListView(GenericFacetedListView):
+    """
+    Deprecated. Former base class for article list views.
+    """
+
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raise DeprecationWarning(
+            'This view is deprecated. Use GenericFacetedListView instead.'
+        )
