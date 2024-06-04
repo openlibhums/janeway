@@ -27,7 +27,7 @@
                         <div class="card-content" style="min-height: 190px;">
                             <span class="card-title small-card-title">{{ member.user.full_name }}</span>
                             <p>
-                                <small>{{ member.user.affiliation }}</small>
+                                <small>{{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}</small>
                             </p>
                             {% if member.user.enable_public_profile %}
                                 <p>

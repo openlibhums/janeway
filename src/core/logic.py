@@ -522,6 +522,12 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('styling',
                                                       'multi_page_editorial',
                                                       journal),
+            },
+            {
+                'name': 'display_countries_editorial_team',
+                'object': setting_handler.get_setting('styling',
+                                                      'display_countries_editorial_team',
+                                                      journal),
             }
         ]
         setting_group = 'styling'
