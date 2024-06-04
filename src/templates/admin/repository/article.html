@@ -281,8 +281,8 @@
                             <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><span
                                     class="fa fa-download"></span> Download</a></td>
                             <td>
-                                <a aria-label="(opens in a new tab)" target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id version.file.id %}">
-                                    <span class="fa fa-eye"></span> Preview File
+                                <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id version.file.id %}">
+                                    <span class="fa fa-eye"></span> Preview File <span class="sr-only">Opens in new tab</span>
                                 </a>
                             </td>
                             <td>
@@ -332,8 +332,8 @@
                             {% endif %}
                             <td>
                                 {% if update.file %}
-                                 <a aria-label="(opens in a new tab)" target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id update.file.id %}">
-                                    <span class="fa fa-eye"></span> Preview File
+                                 <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id update.file.id %}">
+                                    <span class="fa fa-eye"></span> Preview File <span class="sr-only">Opens in new tab</span>
                                  </a>
                                 {% endif %}
                             </td>
@@ -380,8 +380,8 @@
                                         class="fa fa-download">&nbsp;</span> Download</a>
                                 </td>
                                 <td>
-                                    <a aria-label="(opens in a new tab)" target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id file.id %}">
-                                        <span class="fa fa-eye"></span> Preview File
+                                    <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.id file.id %}">
+                                        <span class="fa fa-eye"></span> Preview File <span class="sr-only">Opens in new tab</span>
                                     </a>
                                 </td>
                                 <td>
