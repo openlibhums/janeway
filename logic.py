@@ -4,7 +4,7 @@ import datetime
 
 from django.db import transaction
 from django.shortcuts import redirect, reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
