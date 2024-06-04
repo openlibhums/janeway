@@ -5140,5 +5140,20 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "When this setting is enabled, and a group member has their country set, the editorial team will display the group member's country.",
+            "is_translatable": false,
+            "name": "display_countries_editorial_team",
+            "pretty_name": "Display Country on Editorial Team Page",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

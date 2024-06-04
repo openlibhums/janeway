@@ -34,7 +34,7 @@
                                 {% include "common/elements/journal/editorial_team_image.html" with group=group classes="thumbnail editorial-image" %}
                                 <strong>{{ member.user.full_name }}</strong><br/>
                                 <i>
-                                    <small>{{ member.user.affiliation }}</small>
+                                    <small>{{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}</small>
                                 </i><br/>
                                 {% if member.user.enable_public_profile %}
                                     <p>

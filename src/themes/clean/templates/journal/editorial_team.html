@@ -30,7 +30,9 @@
                         <div class="card-body">
                             <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
                             <p class="card-text">
-                                <small>{{ member.user.affiliation }}</small>
+                                <small>
+                                    {{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}
+                                </small>
                             </p>
                             {% if user.enable_public_profile %}
                                 <p class="card-text">
