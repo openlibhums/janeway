@@ -662,12 +662,19 @@ class Article(AbstractLastModifiedModel):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
+<<<<<<< HEAD
     competing_interests = JanewayBleachField(
         blank=True, null=True,
         help_text="If you have any conflict "
             "of interests in the publication of this "
             "article please state them here.",
     )
+=======
+    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
+                                                                            "of interests in the publication of this "
+                                                                            "article please state them here.")
+    competing_interest_accounts = models.ManyToManyField('core.Account', through='ArticleAccountCI', blank=True, null=True, related_name='competing_interest_accounts')
+>>>>>>> e3270df6 (add competing interest accounts)
     study_topic = models.ManyToManyField('core.Topics', through='ArticleTopic', blank=True, null=True, related_name='study_topics')
     rights = JanewayBleachField(
         blank=True, null=True,
@@ -1379,6 +1386,9 @@ class Article(AbstractLastModifiedModel):
             'primary': primary_topics,
             'secondary': secondary_topics,
         }
+
+    def competing_accounts(self):
+        return core_models.Account.objects.filter(articleaccountci__article=self)
 
     @cache(7200)
     def altmetrics(self):
@@ -2479,3 +2489,14 @@ class ArticleTopic(models.Model):
 
     def __str__(self):
         return f"{self.article} - {self.topic} ({self.topic_type})"
+
+
+class ArticleAccountCI(models.Model):    
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    account = models.ForeignKey('core.Account', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('article', 'account')
+
+    def __str__(self):
+        return f"{self.article} - {self.account}"

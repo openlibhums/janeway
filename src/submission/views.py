@@ -59,6 +59,7 @@ def start(request, type=None):
             new_article.current_step = 1
             new_article.article_agreement = logic.get_agreement_text(request.journal)
             new_article.save()
+            form.save_m2m()
 
             if type == 'preprint':
                 preprint_models.Preprint.objects.create(article=new_article)
@@ -734,6 +735,7 @@ def edit_metadata(request, article_id):
 
                 if info_form.is_valid():
                     info_form.save(request=request)
+                    info_form.save_m2m()
                     messages.add_message(
                         request,
                         messages.SUCCESS,

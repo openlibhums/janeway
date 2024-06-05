@@ -12,11 +12,38 @@
     <li>{{ article.safe_title }}</li>
     <li>Metadata</li>
 {% endblock breadcrumbs %}
+<<<<<<< HEAD
 {% block head %}
     {{ block.super }}
     {{ info_form.media }}
 {% endblock %}
+=======
+{% block css %}
+<style>    
+    .destroy-tag-selected {
+        color: #999;
+        cursor: pointer;
+        display: inline-block;
+        font-weight: bold;
+        margin-right: 2px;
+        &:hover {
+            text-decoration: none;
+        }
+    }
+>>>>>>> e3270df6 (add competing interest accounts)
 
+    .select2-selection__choice {
+        display: none;
+    }
+    .select2-selection--multiple {
+        height: 40px;
+    }
+    .select2-selection__rendered {
+        height: 40px;
+    }
+
+</style>
+{% endblock %}
 {% block body %}
     <div class="large-12 columns box">
         <div class="row expanded">
@@ -114,6 +141,26 @@
                     </div>
                     {% endif %}
                     {% if request.journal.submissionconfiguration.competing_interests %}
+                        <div class="large-6 columns" style="padding: 0 32px;">
+                            <label for="id_competing_interest_accounts">{% trans 'Competing Interest Accounts' %}</label>
+                            <div class="large-6 columns" style="margin-bottom: 16px; padding: 0;">
+                                {{ info_form.competing_interest_accounts }}
+                                <p class="help-text" style="margin-top: 1px">{{ info_form.competing_interest_accounts.help_text}}</p>
+                            </div>
+                            
+                            <table class="small scroll">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Email" %}</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody class="competing-interests-accounts-container" id="sortable">
+                            </table>
+                        </div>
+
                         <div class="large-10 columns">
                             {{ info_form.competing_interests|foundation }}
                         </div>
@@ -343,5 +390,54 @@
             }
         }
     </script>
+<<<<<<< HEAD
     {% include 'admin/elements/fundref/fundref.html' %}
+=======
+    <script>
+        $(document).ready(function() {
+            $(".competing-interests-accounts").select2({
+                tags: true,
+                placeholder: "Search by email or user name"
+            }).on('change', function() {
+                var $selected = $(this).find('option:selected');
+                var $container = $('.competing-interests-accounts-container');
+                var $div = $('<div>');
+                if ($selected.length === 0) {
+                    var $trDefault = $(
+                        '<tr class="default-row">' +
+                            '<td colspan="4">No items selected</td>' +
+                        '</tr>'
+                    );
+                    $container.html('').append($trDefault);
+                    return;
+                }
+    
+                $selected.each(function(k, v) {
+                    var username = $(v).text().split(" - ")[0];
+                    var email = $(v).text().split(" - ")[1];
+                    var $tr = $(
+                        '<tr class="tag-selected" id="account-' + $(v).val() + '">' +
+                            '<td><i class="fa fa-sort"></i></td>'+
+                            '<td>' + username +'</td>'+
+                            '<td>' + email + '</td>'+
+                            '<td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>'+
+                        '</tr>'
+                    )
+                    $tr.children('td.destroy-tag-selected')
+                        .off('click.select2-copy')
+                        .on('click.select2-copy', function(e) {
+                            var $opt = $(this).data('select2-opt');
+                            $opt.attr('selected', false);
+                            $opt.parents('select').trigger('change');
+                        }).data('select2-opt', $(v));
+                    $div.append($tr);
+                });
+                $container.html('').append($div.children())
+            }).trigger('change');
+        });
+    
+    </script>
+    {% include "admin/elements/jqte.html" %}
+    {% include 'admin/elements/fundref/fundref.html' with funder_form=funder_form %}
+>>>>>>> e3270df6 (add competing interest accounts)
 {% endblock js %}

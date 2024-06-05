@@ -36,13 +36,21 @@ class ArticleStart(forms.ModelForm):
     class Meta:
         model = models.Article
         fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
-                  'competing_interests')
+                  'competing_interests', 'competing_interest_accounts')
+        widgets = {
+            'competing_interest_accounts': Select2MultipleWidget(attrs={'class': 'competing-interests-accounts'}),
+        }
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', False)
         super(ArticleStart, self).__init__(*args, **kwargs)
 
         self.fields['competing_interests'].label = ''
+        self.fields['competing_interest_accounts'].label = 'Competing Interest Accounts'
+        self.fields['competing_interest_accounts'].help_text = 'Search by email address or username'
+        accounts = core_models.Account.objects.filter().all()
+        choices = [(account.id, f"{account.full_name()} - {account.email}") for account in accounts]
+        self.fields['competing_interest_accounts'].choices = choices
 
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
@@ -80,11 +88,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
             'first_page', 'last_page', 'page_numbers', 'total_pages',
             'competing_interests', 'custom_how_to_cite', 'rights', 'study_topic',
+            'competing_interest_accounts',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
-            'study_topic': Select2MultipleWidget,
+            'competing_interest_accounts': Select2MultipleWidget(attrs={'class': 'competing-interests-accounts'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -132,6 +141,13 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
+
+            self.fields['competing_interest_accounts'].initial = article.competing_accounts()
+            self.fields['competing_interest_accounts'].label = 'Competing Interest Accounts'
+            self.fields['competing_interest_accounts'].help_text = 'Search by email address or username'
+            accounts = core_models.Account.objects.filter().all()
+            choices = [(account.id, f"{account.full_name()} - {account.email}") for account in accounts]
+            self.fields['competing_interest_accounts'].choices = choices
 
             abstracts_required = article.journal.get_setting(
                 'general',

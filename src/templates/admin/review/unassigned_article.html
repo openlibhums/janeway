@@ -74,14 +74,32 @@
                             comments{% endif %}</td>
                     </tr>
                     {% if request.journal.submissionconfiguration.competing_interests %}
-                        <tr>
-                            <th colspan="4">Competing Interests</th>
-                        </tr>
-                        <tr>
-                            <td colspan="4">
-                                {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No
-                                    CI{% endif %}</td>
-                        </tr>
+                        <table class="hover scroll" id="unassigned">
+                            <tr>
+                                <th colspan="4">Competing Interest Accounts</th>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                            </tr>
+                            {% for account in article.competing_accounts %}
+                                <tr>
+                                    <td>{{ account.full_name }}</td>
+                                    <td>{{ account.email }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        <table class="hover scroll" id="unassigned">
+                            <tr>
+                                <th colspan="4">Competing Interests</th>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    {% if article.competing_interests %}{{ article.competing_interests|safe }}{% else %}No
+                                        CI{% endif %}
+                                </td>
+                            </tr>
+                        </table>
                     {% endif %}
                     {% for field_answer in article.fieldanswer_set.all %}
                         <tr>
