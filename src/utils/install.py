@@ -246,8 +246,8 @@ def update_issue_types(journal_object, management_command=False):
 
         for item in default_data:
             default_dict = {
-                'pretty_name': item['fields'].get('pretty_name'),
-                'custom_plural': item['fields'].get('custom_plural'),
+                'pretty_name': item['fields'].get('pretty_name', ''),
+                'custom_plural': item['fields'].get('custom_plural', ''),
             }
             issue_type, created = models.IssueType.objects\
             .get_or_create(

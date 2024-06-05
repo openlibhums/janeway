@@ -538,16 +538,18 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
         if profile_dict.get('Middle Name', None) == '—':
             profile_dict['Middle Name'] = ''
 
-        account = core_models.Account.objects.create(email=profile_dict['email'],
-                                                     username=profile_dict['Username'],
-                                                     institution=profile_dict['Affiliation'],
-                                                     first_name=profile_dict['First Name'],
-                                                     last_name=profile_dict['Last Name'],
-                                                     middle_name=profile_dict.get('Middle Name', None),
-                                                     country=profile_dict.get('Country', None),
-                                                     biography=profile_dict.get('Bio Statement', None),
-                                                     salutation=profile_dict.get('Salutation', None),
-                                                     is_active=True)
+        account = core_models.Account.objects.create(
+            email=profile_dict['email'],
+            username=profile_dict['Username'],
+            institution=profile_dict['Affiliation'],
+            first_name=profile_dict['First Name'],
+            last_name=profile_dict['Last Name'],
+            middle_name=profile_dict.get('Middle Name', ''),
+            country=profile_dict.get('Country', None),
+            biography=profile_dict.get('Bio Statement', ''),
+            salutation=profile_dict.get('Salutation', ''),
+            is_active=True,
+        )
         account.save()
 
         if account:
@@ -700,10 +702,10 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
         except core_models.Account.DoesNotExist:
             author_record = core_models.Account.objects.create(
                 email=author.get('email'),
-                first_name=author.get('first_name'),
-                last_name=author.get('last_name'),
-                institution=author.get('affiliation'),
-                biography=author.get('bio'),
+                first_name=author.get('first_name', ''),
+                last_name=author.get('last_name', ''),
+                institution=author.get('affiliation', ''),
+                biography=author.get('bio', ''),
             )
 
         # If we have a country, fetch its record
@@ -1216,7 +1218,8 @@ def extract_date_launched(headers):
 
 def split_affiliation(affiliation):
     parts = [p.strip() for p in affiliation.split(',')]
-    country = institution = department = None
+    country = None
+    institution = department = ''
 
     if len(parts) == 1:
         institution = parts[0]
