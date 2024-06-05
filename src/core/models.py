@@ -43,6 +43,7 @@ from core.model_utils import (
     AbstractSiteModel,
     DynamicChoiceField,
     JanewayBleachField,
+    JanewayBleachCharField,
     PGCaseInsensitiveEmailField,
     SearchLookup,
     default_press_id,
@@ -234,23 +235,49 @@ class Account(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
     name_prefix = models.CharField(max_length=10, blank=True)
-    first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
-    middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
-    last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
+    first_name = JanewayBleachCharField(
+        max_length=300,
+        blank=False,
+        verbose_name=_('First name'),
+    )
+    middle_name = JanewayBleachCharField(
+        max_length=300,
+        blank=True,
+        verbose_name=_('Middle name'),
+    )
+    last_name = JanewayBleachCharField(
+        max_length=300,
+        blank=False,
+        verbose_name=_('Last name'),
+    )
 
     activation_code = models.CharField(max_length=100, null=True, blank=True)
-    salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
-                                  verbose_name=_('Salutation'))
-    suffix = models.CharField(
+    salutation = JanewayBleachCharField(
+        max_length=10,
+        choices=SALUTATION_CHOICES,
+        blank=True,
+        verbose_name=_('Salutation'),
+    )
+    suffix = JanewayBleachCharField(
         max_length=300,
-        null=True,
         blank=True,
         verbose_name=_('Name suffix'),
     )
-    biography = JanewayBleachField(null=True, blank=True, verbose_name=_('Biography'))
+    biography = JanewayBleachField(
+        blank=True,
+        verbose_name=_('Biography'),
+    )
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
-    department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
+    institution = JanewayBleachCharField(
+        max_length=1000,
+        blank=True,
+        verbose_name=_('Institution'),
+    )
+    department = JanewayBleachCharField(
+        max_length=300,
+        blank=True,
+        verbose_name=_('Department'),
+    )
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
     linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
@@ -260,7 +287,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
     confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
-    signature = JanewayBleachField(null=True, blank=True, verbose_name=_("Signature"))
+    signature = JanewayBleachField(
+        blank=True,
+        verbose_name=_("Signature"),
+    )
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(
         Country,
@@ -348,8 +378,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def first_names(self):
-        return '{0}{1}{2}'.format(self.first_name, ' ' if self.middle_name is not None else '',
-                                  self.middle_name if self.middle_name is not None else '')
+        return ' '.join([self.first_name, self.middle_name])
 
     def full_name(self):
         name_elements = [
