@@ -7,6 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('submission', '0079_merge_20240602_1739'),
         ('submission', '0079_frozen_author_null_to_string'),
     ]
 
