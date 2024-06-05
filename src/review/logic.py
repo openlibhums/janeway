@@ -832,12 +832,12 @@ def process_reviewer_csv(path, request, article, form):
             reviewer, created = core_models.Account.objects.get_or_create(
                 email=row.get('email_address'),
                 defaults={
-                    'salutation': row.get('salutation'),
-                    'first_name': row.get('firstname'),
-                    'middle_name': row.get('middlename'),
-                    'last_name': row.get('lastname'),
-                    'department': row.get('department'),
-                    'institution': row.get('institution'),
+                    'salutation': row.get('salutation', ''),
+                    'first_name': row.get('firstname', ''),
+                    'middle_name': row.get('middlename', ''),
+                    'last_name': row.get('lastname', ''),
+                    'department': row.get('department', ''),
+                    'institution': row.get('institution', ''),
                     'country': country,
                     'is_active': True,
                 }
