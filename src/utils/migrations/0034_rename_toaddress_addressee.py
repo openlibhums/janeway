@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
             old_name='ToAddress',
             new_name='Addressee',
         ),
+        migrations.AlterModelOptions(
+            name='addressee',
+            options={},
+        ),
         migrations.AddField(
             model_name='addressee',
             name='field',

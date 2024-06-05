@@ -7,6 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('journal', '0065_prepub_send_notifications'),
         ('journal', '0065_issue_type_null_to_string'),
     ]
 
