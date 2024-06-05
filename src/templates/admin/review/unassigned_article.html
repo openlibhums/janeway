@@ -74,6 +74,7 @@
                             comments{% endif %}</td>
                     </tr>
                     {% if request.journal.submissionconfiguration.competing_interests %}
+                        {% if journal_settings.general.enable_competing_interest_selections %}
                         <table class="hover scroll" id="unassigned">
                             <tr>
                                 <th colspan="4">Competing Interest Accounts</th>
@@ -87,8 +88,11 @@
                                     <td>{{ account.full_name }}</td>
                                     <td>{{ account.email }}</td>
                                 </tr>
+                            {% empty %}
+                            <tr><td colspan="4">No CI</td></tr>
                             {% endfor %}
                         </table>
+                        {% endif %}
                         <table class="hover scroll" id="unassigned">
                             <tr>
                                 <th colspan="4">Competing Interests</th>

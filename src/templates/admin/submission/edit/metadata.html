@@ -141,6 +141,7 @@
                     </div>
                     {% endif %}
                     {% if request.journal.submissionconfiguration.competing_interests %}
+                        {% if journal_settings.general.enable_competing_interest_selections %}
                         <div class="large-6 columns" style="padding: 0 32px;">
                             <label for="id_competing_interest_accounts">{% trans 'Competing Interest Accounts' %}</label>
                             <div class="large-6 columns" style="margin-bottom: 16px; padding: 0;">
@@ -160,6 +161,7 @@
                                 <tbody class="competing-interests-accounts-container" id="sortable">
                             </table>
                         </div>
+                        {% endif %}
 
                         <div class="large-10 columns">
                             {{ info_form.competing_interests|foundation }}

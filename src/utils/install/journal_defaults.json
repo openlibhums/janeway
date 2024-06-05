@@ -5276,6 +5276,25 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Authors can select accounts that have potential competing interests with the article or its authors. This allows for better conflict of interest management and review assignments.",
+            "is_translatable": false,
+            "name": "enable_competing_interest_selections",
+            "pretty_name": "Enable Competing Interest Selections",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "article"
         },
         "setting": {
