@@ -68,8 +68,18 @@
                         <tbody>
                         {% for editor in editors %}
                             {% if journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
-                            <tr>
-                                <td><input type="radio" name="editor" value="{{ editor.id }}" {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}></td>
+                            <tr {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}style="color: #b9b9b9;"{% endif %}>
+                                <td>
+                                    <input type="radio" name="editor" value="{{ reviewer.id }}"
+                                    {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
+                                    {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
+                                    >
+                                    {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}
+                                    <span data-tooltip class="top" tabindex="2" title="Account with conflict of interests.">
+                                        CI
+                                    </span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Editor</td>
@@ -88,8 +98,18 @@
                         {% endfor %}
                         {% for editor in section_editors %}
                             {% if not journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
-                            <tr>
-                                <td><input type="radio" name="editor" value="{{ editor.id }}" {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}></td>
+                            <tr {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}style="color: #b9b9b9;"{% endif %}>
+                                <td>
+                                    <input type="radio" name="editor" value="{{ reviewer.id }}"
+                                    {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
+                                    {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
+                                    >
+                                    {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}
+                                    <span data-tooltip class="top" tabindex="2" title="Account with conflict of interests.">
+                                        CI
+                                    </span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ editor.full_name }}</td>
                                 <td>{{ editor.email }}</td>
                                 <td>Section Editor</td>

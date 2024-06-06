@@ -78,7 +78,7 @@
 
                         <tbody>
                         {% for reviewer in reviewers %}
-                            <tr>
+                            <tr {% if journal_settings.general.enable_competing_interest_selections and reviewer.has_conflict %}style="color: #b9b9b9;"{% endif %}>
                                 {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
                             </tr>
                         {% empty %}

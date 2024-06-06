@@ -13,6 +13,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import (
     Avg,
+    BooleanField,
+    Case,
     Count,
     IntegerField,
     OuterRef,
@@ -23,6 +25,7 @@ from django.db.models import (
     BooleanField,
     Value,
     Value,
+    When,
     F,
 )
 from django.db.models.functions import Coalesce
@@ -66,7 +69,24 @@ def get_editors(article, candidate_queryset, exclude_pks):
     ).prefetch_related(
         prefetch_editor_assignment,
         'interest',
-    ).annotate(
+    )
+    order_by = []
+
+    if article.journal.get_setting('general', 'enable_competing_interest_selections'):
+        conflicting_accounts = core_models.Account.objects.filter(
+            articleaccountci__article=article
+        ).values('pk')
+
+        editors = editors.annotate(
+            has_conflict=Case(
+                When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        order_by.append('has_conflict')
+
+    editors = editors.annotate(
         active_assignments_count=Subquery(
             active_assignments_count,
             output_field=IntegerField(),
@@ -74,6 +94,7 @@ def get_editors(article, candidate_queryset, exclude_pks):
     ).annotate(
         active_assignments_count=Coalesce(F('active_assignments_count'), Value(0)),
     )
+    order_by.append('active_assignments_count')
 
     if article.journal.get_setting('general','enable_study_topics'):
         primary_to_primary_matches = core_models.AccountTopic.objects.filter(
@@ -144,10 +165,10 @@ def get_editors(article, candidate_queryset, exclude_pks):
                 F('secondary_to_primary_matches_weighted') + 
                 F('secondary_to_secondary_matches_weighted')
             )
-        ).order_by('active_assignments_count', '-total_topic_matches')
-        return editors
-
-    editors = editors.order_by('active_assignments_count')
+        )
+        order_by.append('-total_topic_matches')
+    
+    editors = editors.order_by(*order_by)
 
     return editors
 
@@ -237,7 +258,24 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
-    ).annotate(
+    )
+    order_by = []
+
+    if article.journal.get_setting('general', 'enable_competing_interest_selections'):
+        conflicting_accounts = core_models.Account.objects.filter(
+            articleaccountci__article=article
+        ).values('pk')
+
+        reviewers = reviewers.annotate(
+            has_conflict=Case(
+                When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        order_by.append('has_conflict')
+    
+    reviewers = reviewers.annotate(
         active_reviews_count=Subquery(
             active_reviews_count,
             output_field=IntegerField(),
@@ -279,6 +317,7 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).annotate(
         active_reviews_count=Coalesce(F('active_reviews_count'), Value(0)),
     )
+    order_by.append('active_reviews_count')
 
     if article.journal.get_setting('general', 'enable_study_topics'):
         primary_to_primary_matches = core_models.AccountTopic.objects.filter(
@@ -349,10 +388,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 F('secondary_to_primary_matches_weighted') +
                 F('secondary_to_secondary_matches_weighted')
             )
-        ).order_by('active_reviews_count', '-total_topic_matches')
-        return reviewers
+        )
+        order_by.append('-total_topic_matches')
 
-    reviewers = reviewers.order_by('active_reviews_count')
+    reviewers = reviewers.order_by(*order_by)
 
     return reviewers
 
