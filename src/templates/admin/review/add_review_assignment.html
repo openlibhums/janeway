@@ -49,8 +49,8 @@
                     <div style="display: flex; gap:10px;">
                         <span>
                             <div class="switch tiny">
-                                <input class="autoSubmit switch-input" id="tinySwitch" type="checkbox" name="view-study-topics" checked>
-                                <label class="switch-paddle" for="tinySwitch">
+                                <input class="autoSubmit switch-input" id="studyTopicSwitch" type="checkbox" name="view-study-topics" checked>
+                                <label class="switch-paddle" for="studyTopicSwitch">
                                     <span class="show-for-sr">View Study Topics</span>
                                 </label>
                             </div>
@@ -180,13 +180,13 @@
     });
 
     function study_topic_checked() {
-        let isChecked = $('#tinySwitch').is(':checked');
+        let isChecked = $('#studyTopicSwitch').is(':checked');
         $(".list-interests").toggle(!isChecked);
         $(".list-study-topics").toggle(isChecked);
     };
 
-    $('.autoSubmit, .autoSubmit select, .autoSubmit input, .autoSubmit textarea').change(function () {
-        study_topic_checked()
+    $('#studyTopicSwitch').change(function () {
+        study_topic_checked();
     });
     </script>
 {% endblock js %}

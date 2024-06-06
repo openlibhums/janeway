@@ -145,8 +145,9 @@ def get_editors(article, candidate_queryset, exclude_pks):
                 F('secondary_to_secondary_matches_weighted')
             )
         ).order_by('active_assignments_count', '-total_topic_matches')
-    else:
-        editors = editors.order_by('active_assignments_count')
+        return editors
+
+    editors = editors.order_by('active_assignments_count')
 
     return editors
 
@@ -349,8 +350,9 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 F('secondary_to_secondary_matches_weighted')
             )
         ).order_by('active_reviews_count', '-total_topic_matches')
-    else:
-        reviewers = reviewers.order_by('active_reviews_count')
+        return reviewers
+
+    reviewers = reviewers.order_by('active_assignments_count')
 
     return reviewers
 
