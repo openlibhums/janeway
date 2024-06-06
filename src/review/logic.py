@@ -352,7 +352,7 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         ).order_by('active_reviews_count', '-total_topic_matches')
         return reviewers
 
-    reviewers = reviewers.order_by('active_assignments_count')
+    reviewers = reviewers.order_by('active_reviews_count')
 
     return reviewers
 
