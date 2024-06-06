@@ -741,7 +741,11 @@ def dashboard_article(request, article_id):
     :param article_id: int, Article object primary key
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     template = 'core/article.html'
     context = {
