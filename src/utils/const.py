@@ -20,6 +20,11 @@ class EnumContains(Enum, metaclass=EnumContainsMeta):
 def get_allowed_html_tags():
     return _generally_xss_safe
 
+def get_allowed_html_tags_minimal():
+    return ['span', 'em', 'i', 'b', 'strong', 'sup', 'sub']
+
+def get_allowed_attributes_minimal():
+    return ['lang']
 
 def get_allowed_css_styles():
     return _all_styles

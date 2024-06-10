@@ -9,6 +9,7 @@ from contextlib import contextmanager
 from io import BytesIO
 import re
 import sys
+from bleach import clean
 
 from django import forms
 from django.apps import apps
@@ -43,12 +44,18 @@ from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django_bleach.models import BleachField
+from django_bleach.forms import BleachField as BleachFormField
 
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
 from PIL import Image
 import xml.etree.cElementTree as et
+from tinymce.widgets import TinyMCE
 
+from utils.const import (
+    get_allowed_html_tags_minimal,
+    get_allowed_attributes_minimal,
+)
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -580,7 +587,7 @@ class JanewayBleachField(BleachField):
     https://github.com/marksweb/django-bleach/blob/504b3784c525886ba1974eb9ecbff89314688491/django_bleach/models.py#L76
     """
 
-    def from_db_value(self, value,expression, connection):
+    def from_db_value(self, value, expression, connection):
         return value
 
     def pre_save(self, model_instance, *args, **kwargs):
@@ -592,10 +599,60 @@ class JanewayBleachField(BleachField):
             return data
 
 
+class JanewayBleachFormField(BleachFormField):
+    """
+    An override of BleachFormField
+    to avoid the same unwanted effects that
+    JanewayBleachField avoids.
+    """
+
+    widget = TinyMCE
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return self.empty_value
+        return clean(value, **self.bleach_options)
+
+
+class MiniHTMLFormField(JanewayBleachFormField):
+    """
+    A form field to hold limited HTML phrasing content,
+    generally for use inline or on one line.
+    It uses a much smaller bleach allowlist
+    and loads by default with a minimal TinyMCE widget.
+    It is the default formfield used by JanewayBleachCharField.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs['allowed_tags'] = get_allowed_html_tags_minimal()
+        kwargs['allowed_attributes'] = get_allowed_attributes_minimal()
+        super().__init__(*args, **kwargs)
+        # Override the default TinyMCE widget with a minimal one
+        self.widget = TinyMCE(
+            mce_attrs={
+                'plugins': 'help code',
+                'menubar': '',
+                'forced_root_block': 'div',
+                'toolbar': 'help removeformat | undo redo | ' \
+                           'bold italic superscript subscript',
+                'height': '8rem',
+                'resize': True,
+                'elementpath': False,
+            }
+        )
+
+
 class JanewayBleachCharField(JanewayBleachField):
-    """ An override of BleachField to use a TextInput but get sanitization"""
-    def formfield(self, **kwargs):
-        kwargs["widget"] = forms.TextInput()
+    """
+    An override of JanewayBleachField to use a minimal form field
+    and widget but get sanitization.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def formfield(self, *args, **kwargs):
+        kwargs['form_class'] = MiniHTMLFormField
         return super().formfield(**kwargs)
 
 
