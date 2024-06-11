@@ -656,7 +656,9 @@ TINYMCE_CLIPBOARD_CLEANER = {
 }
 TINYMCE_JS_URL = STATIC_URL + "/common/js/tinymce/tinymce.min.js"
 TINYMCE_COMPRESSOR = False
+
 TINYMCE_DEFAULT_CONFIG = {
+    "entity_encoding": "raw",
     "width": "100%",
     "min-height": "300px",
     "resize": True,
