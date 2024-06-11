@@ -290,6 +290,19 @@ def send_review_complete_acknowledgements(**kwargs):
     # send slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
+    reviewer_log_dict = {
+        'level': 'Info',
+        'action_text': f"Review receipt sent to {review_assignment.reviewer.full_name}",
+        'types': 'Review Complete',
+        'target': article,
+    }
+    editor_log_dict = {
+        'level': 'Info',
+        'action_text': f"Review receipt sent to {review_assignment.editor.full_name}",
+        'types': 'Review Complete',
+        'target': article,
+    }
+
     # send to reviewer
     notify_helpers.send_email_with_body_from_setting_template(
         request,
@@ -297,6 +310,7 @@ def send_review_complete_acknowledgements(**kwargs):
         'subject_review_complete_reviewer_acknowledgement',
         review_assignment.reviewer.email,
         context,
+        log_dict=reviewer_log_dict,
     )
 
     # send to editor
@@ -309,6 +323,7 @@ def send_review_complete_acknowledgements(**kwargs):
             'subject_review_complete_acknowledgement',
             editor.email,
             context,
+            log_dict=editor_log_dict,
         )
 
 
