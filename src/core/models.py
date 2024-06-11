@@ -658,7 +658,8 @@ class Interest(models.Model):
 
 setting_types = (
     ('rich-text', 'Rich Text'),
-    ('text', 'Text'),
+    ('mini-html', 'Mini HTML'),
+    ('text', 'Plain Text'),
     ('char', 'Characters'),
     ('number', 'Number'),
     ('boolean', 'Boolean'),

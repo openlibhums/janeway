@@ -36,3 +36,12 @@ def update_translated_settings(apps, setting_name, group_name, values_to_replace
                     setting_value.value = value
                     setting_value.save()
 
+
+def update_setting_types(model, group_name, setting_name, old_type, new_type):
+    model.objects.filter(
+        group__name=group_name,
+        name=setting_name,
+        types=old_type,
+    ).update(
+        types=new_type,
+    )
