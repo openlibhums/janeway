@@ -751,7 +751,7 @@ class SettingValue(models.Model):
         Setting,
         models.CASCADE,
     )
-    value = JanewayBleachField(null=True, blank=True)
+    value = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (
