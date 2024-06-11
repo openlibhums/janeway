@@ -65,7 +65,7 @@
             "is_translatable": true,
             "name": "publisher_name",
             "pretty_name": "Publisher Name",
-            "type": "mini-html"
+            "type": "char"
         },
         "value": {
             "default": ""
@@ -121,7 +121,7 @@
             "is_translatable": true,
             "name": "collection_name",
             "pretty_name": "Collection Name",
-            "type": "mini-html"
+            "type": "char"
         },
         "value": {
             "default": ""
@@ -140,7 +140,7 @@
             "is_translatable": true,
             "name": "collection_name_plural",
             "pretty_name": "Collection Name Plural",
-            "type": "mini-html"
+            "type": "char"
         },
         "value": {
             "default": ""
@@ -4091,7 +4091,7 @@
             "is_translatable": true,
             "name": "news_title",
             "pretty_name": "News Title",
-            "type": "mini-html"
+            "type": "char"
         },
         "value": {
             "default": "News"

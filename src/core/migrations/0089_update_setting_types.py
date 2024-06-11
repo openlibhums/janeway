@@ -4,10 +4,8 @@ from django.db import migrations
 from utils.migration_utils import update_setting_types
 
 SETTINGS_WITH_OLD_AND_NEW_TYPES = [
-    ('general', 'publisher_name', 'char', 'mini-html'),
-    ('general', 'collection_name', 'char', 'mini-html'),
-    ('general', 'collection_name_plural', 'char', 'mini-html'),
-    ('general', 'journal_name', 'char', 'mini-html'),
+    ('general', 'collection_name', 'text', 'char'),
+    ('general', 'collection_name_plural', 'text', 'char'),
     ('email_subject', 'subject_unassign_editor', 'text', 'char'),
     ('email_subject', 'subject_author_copyedit_complete', 'text', 'char'),
     ('email_subject', 'subject_copyediting_decision', 'text', 'char'),
@@ -69,7 +67,6 @@ SETTINGS_WITH_OLD_AND_NEW_TYPES = [
     ('email_subject', 'subject_accepted_review_reminder', 'text', 'char'),
     ('email_subject', 'subject_default_review_reminder', 'text', 'char'),
     ('email_subject', 'subject_notify_se_draft_declined', 'rich-text', 'char'),
-    ('news', 'news_title', 'char', 'mini-html'),
     ('crossref', 'crossref_date_suffix', 'text', 'char'),
     ('general', 'default_journal_language', 'text', 'char'),
     ('email_subject', 'subject_revisions_complete_receipt', 'text', 'char'),
