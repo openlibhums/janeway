@@ -624,11 +624,13 @@ class MiniHTMLFormField(JanewayBleachFormField):
     """
 
     def __init__(self, *args, **kwargs):
+        # These kwargs have to be set this way because otherwise
+        # they will be ignored by the Django Bleach implementation of
+        # BleachField.formfield
+        # https://github.com/marksweb/django-bleach/blob/d675d09423ddb440b4c83c8a82bd8b853f4603c7/django_bleach/models.py#L42-L61
         kwargs['allowed_tags'] = get_allowed_html_tags_minimal()
         kwargs['allowed_attributes'] = get_allowed_attributes_minimal()
-        super().__init__(*args, **kwargs)
-        # Override the default TinyMCE widget with a minimal one
-        self.widget = TinyMCE(
+        kwargs['widget'] = TinyMCE(
             mce_attrs={
                 'plugins': 'help code',
                 'menubar': '',
@@ -640,6 +642,7 @@ class MiniHTMLFormField(JanewayBleachFormField):
                 'elementpath': False,
             }
         )
+        super().__init__(*args, **kwargs)
 
 
 class JanewayBleachCharField(JanewayBleachField):
@@ -648,12 +651,10 @@ class JanewayBleachCharField(JanewayBleachField):
     and widget but get sanitization.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def formfield(self, *args, **kwargs):
-        kwargs['form_class'] = MiniHTMLFormField
-        return super().formfield(**kwargs)
+        defaults = {'form_class': MiniHTMLFormField}
+        defaults.update(kwargs)
+        return super().formfield(*args, **defaults)
 
 
 def default_press():
