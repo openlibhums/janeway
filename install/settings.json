@@ -23,7 +23,7 @@
       "is_translatable": true,
       "name": "subject_typesetting_notify_typesetter",
       "pretty_name": "Subject for Typesetter Assignment Notification (PLUGIN)",
-      "type": "text"
+      "type": "char"
     },
     "value": {
       "default": "Typesetting Assignment"
@@ -53,7 +53,7 @@
       "is_translatable": true,
       "name": "subject_typsetting_typesetter_decision_accept",
       "pretty_name": "Subject for Typesetter Accept (PLUGIN)",
-      "type": "text"
+      "type": "char"
     },
     "value": {
       "default": "Typesetting Assignment Accepted"
@@ -83,7 +83,7 @@
       "is_translatable": true,
       "name": "subject_typsetting_typesetter_decision_decline",
       "pretty_name": "Subject for Typesetter Decline (PLUGIN)",
-      "type": "text"
+      "type": "char"
     },
     "value": {
       "default": "Typesetting Assignment Declined"
@@ -113,7 +113,7 @@
       "is_translatable": true,
       "name": "subject_typesetting_typesetter_complete",
       "pretty_name": "Subject for Typesetter Complete (PLUGIN)",
-      "type": "text"
+      "type": "char"
     },
     "value": {
       "default": "Typesetting Assignment Complete"
@@ -144,7 +144,7 @@
       "is_translatable": true,
       "name": "subject_typesetting_notify_proofreader",
       "pretty_name": "Subject for Proofreader Assignment Notification (PLUGIN)",
-      "type": "text"
+      "type": "char"
     },
     "value": {
       "default": "Proofreading Assignment"
@@ -168,7 +168,7 @@
   {
     "value": {"default": "Production Complete"},
     "setting": {
-        "type": "text",
+        "type": "char",
         "pretty_name": "Production Complete",
         "is_translatable": true,
         "description": "Subject for Email sent to Editors when Production is Complete.",
@@ -202,7 +202,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_complete",
         "pretty_name": "Subject for Typesetting Complete (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Typesetting Complete"
@@ -234,7 +234,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_proofreader_completed",
         "pretty_name": "Subject for Proofreading Complete (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Proofreading Assignment Complete"
@@ -266,7 +266,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_proofreader_cancelled",
         "pretty_name": "Subject for Proofreading Cancelled (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Proofreading Assignment Cancelled"
@@ -298,7 +298,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_proofreader_reset",
         "pretty_name": "Subject for Proofreading Reset (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Proofreading Assignment Reopened"
@@ -330,7 +330,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_typesetter_cancelled",
         "pretty_name": "Subject for Typesetting Cancelled (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Typesetting Assignment Cancelled"
@@ -362,7 +362,7 @@
         "is_translatable": true,
         "name": "subject_typesetting_typesetter_deleted",
         "pretty_name": "Subject for Typesetting Deleted (PLUGIN)",
-        "type": "text"
+        "type": "char"
     },
     "value": {
         "default": "Typesetting Assignment Cancelled"
