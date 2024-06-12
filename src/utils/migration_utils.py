@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.conf import settings
 from django.utils import translation
+from django.db.models import Q
 
 
 def update_translated_settings(apps, setting_name, group_name, values_to_replace, replacement_value):
@@ -37,11 +38,18 @@ def update_translated_settings(apps, setting_name, group_name, values_to_replace
                     setting_value.save()
 
 
-def update_setting_types(model, group_name, setting_name, old_type, new_type):
-    model.objects.filter(
-        group__name=group_name,
-        name=setting_name,
-        types=old_type,
-    ).update(
-        types=new_type,
-    )
+def update_setting_types(
+    model,
+    group_name,
+    old_type,
+    new_type,
+    setting_name=None,
+):
+    """
+    Updates setting types based on setting group, current type,
+    and optionally on setting name.
+    """
+    query = Q(group__name=group_name, types=old_type)
+    if setting_name:
+        query &= Q(name=setting_name)
+    model.objects.filter(query).update(types=new_type)
