@@ -43,6 +43,13 @@
         {% bootstrap_field form.secondary_study_topic %}
     </div>
 </div>
+{% if journal_settings.general.enable_competing_interest_selections %}
+<div class="row">
+    <div class="col-md-12">
+        {{ form.competing_interest_domains|foundation }}
+    </div>
+</div>
+{% endif %}
 <hr />
 <h5>{% trans "Social Media and Accounts" %}</h5>
 <div class="row">

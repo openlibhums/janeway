@@ -6,6 +6,12 @@
 
 {% block css %}
 <link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+<style>
+  .input-error {
+    border: 2px solid #f5c6cb;
+    background-color: #f8d7da;
+  }
+</style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -84,8 +90,33 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-      $("#id_interests").tagit(
-        {allowSpaces: true});
+    $("#id_interests").tagit(
+      {allowSpaces: true});
+
+    function validateTag(tag) {
+      var domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+      return domainRegex.test(tag);
+    }
+
+    function highlightInvalidInput(inputElement) {
+      inputElement.addClass('input-error');
+    }
+
+    function removeHighlightFromInput(inputElement) {
+      inputElement.removeClass('input-error');
+    }
+
+    $("#id_domains").tagit({
+      allowSpaces: true,
+      beforeTagAdded: function(event, ui) {
+        if (!validateTag(ui.tagLabel)) {
+          highlightInvalidInput($(this));
+          return false;
+        } else {
+          removeHighlightFromInput($(this));
+        }
+      }
+    });
   });
 </script>
 {% endblock %}

@@ -54,6 +54,11 @@
             </div>
         </div>
     </div>
+    {% if journal_settings.general.enable_competing_interest_selections %}
+    <div class="large-12 columns">
+        {{ form.competing_interest_domains|foundation }}
+    </div>
+    {% endif %}
 </div>
 <hr />
 <h5>Social Media and Accounts</h5>

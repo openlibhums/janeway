@@ -150,6 +150,22 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
             ).value
             if not send_reader_notifications:
                 self.fields.pop('register_as_reader')
+        
+        enable_competing_interest_selections = self.journal.get_setting(
+            'general',
+            'enable_competing_interest_selections',
+        )
+        if enable_competing_interest_selections:
+            self.fields['competing_interest_domains'] = forms.CharField(
+                label='Domains with Conflict of Interest',
+                required=False,
+                help_text=_('Hit Enter to add a new Domain. e.g., example.com.'),
+                widget=forms.TextInput(attrs={
+                    'id': 'id_domains',
+                    'hidden': True,
+                    'placeholder': _('example.com'),
+                })
+            )
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -169,8 +185,29 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
         user.confirmation_code = uuid.uuid4()
         user.email_sent = timezone.now()
 
+        domain_regex = r'^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$'
+        posted_domains = self.cleaned_data['competing_interest_domains'].split(',')
+        posted_domains = [
+            domain.lower() for domain in posted_domains
+            if re.match(domain_regex, domain.strip())
+        ]
+
         if commit:
             user.save()
+
+            enable_competing_interest_selections = self.journal.get_setting(
+                'general',
+                'enable_competing_interest_selections',
+            )
+            if enable_competing_interest_selections:
+                for domain in posted_domains:
+                    new_domain, c = models.EmailDomainCI.objects.get_or_create(name=domain)
+                    user.competing_interest_domains.add(new_domain)
+
+                for domain in user.competing_interest_domains.all():
+                    if domain.name not in posted_domains:
+                        user.competing_interest_domains.remove(domain)
+
             if self.cleaned_data.get('register_as_reader') and self.journal:
                 user.add_account_role(
                     role_slug="reader",
@@ -204,7 +241,7 @@ class EditAccountForm(forms.ModelForm):
         exclude = ('email', 'username', 'activation_code', 'email_sent',
                    'date_confirmed', 'confirmation_code', 'is_active',
                    'is_staff', 'is_admin', 'date_joined', 'password',
-                   'is_superuser', 'enable_digest')
+                   'is_superuser', 'enable_digest', 'competing_interest_domains')
         widgets = {
             'biography': TinyMCE(),
             'signature': TinyMCE(),
@@ -212,21 +249,41 @@ class EditAccountForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        journal = kwargs.pop('journal', None)
+        self.journal = kwargs.pop('journal', None)
         super(EditAccountForm, self).__init__(*args, **kwargs)
-        if journal:
+        if self.journal:
             topics_queryset = models.Topics.objects.filter(
-                journal=journal,
+                journal=self.journal,
             ).order_by('group__pretty_name', 'pretty_name')
             
             self.fields['primary_study_topic'].queryset = topics_queryset
             self.fields['secondary_study_topic'].queryset = topics_queryset
+
+            enable_competing_interest_selections = self.journal.get_setting(
+                'general',
+                'enable_competing_interest_selections',
+            )
+            if enable_competing_interest_selections:
+                self.fields['competing_interest_domains'] = forms.CharField(
+                    label='Domains with Conflict of Interest',
+                    required=False,
+                    help_text=_('Hit Enter to add a new Domain. e.g., example.com.'),
+                    widget=forms.TextInput(attrs={
+                        'id': 'id_domains',
+                        'hidden': True,
+                        'placeholder': _('example.com'),
+                    })
+                )
 
             if 'instance' in kwargs:
                 account = kwargs['instance']
 
                 self.fields['primary_study_topic'].initial = account.topics('PR')
                 self.fields['secondary_study_topic'].initial = account.topics('SE')
+
+                if enable_competing_interest_selections:
+                    initial_domains = ','.join(domain.name for domain in account.competing_interest_domains.all())
+                    self.fields['competing_interest_domains'].initial = initial_domains
 
             study_topic_choices = [
                 (
@@ -253,6 +310,25 @@ class EditAccountForm(forms.ModelForm):
         for interest in user.interest.all():
             if interest.name not in posted_interests:
                 user.interest.remove(interest)
+        
+        enable_competing_interest_selections = self.journal.get_setting(
+            'general',
+            'enable_competing_interest_selections',
+        )
+        if enable_competing_interest_selections:
+            domain_regex = r'^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$'
+            posted_domains = self.cleaned_data['competing_interest_domains'].split(',')
+            posted_domains = [
+                domain.lower() for domain in posted_domains
+                if re.match(domain_regex, domain.strip())
+            ]
+            for domain in posted_domains:
+                new_domain, c = models.EmailDomainCI.objects.get_or_create(name=domain)
+                user.competing_interest_domains.add(new_domain)
+
+            for domain in user.competing_interest_domains.all():
+                if domain.name not in posted_domains:
+                    user.competing_interest_domains.remove(domain)
 
         user.save()
 

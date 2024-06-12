@@ -260,6 +260,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     date_confirmed = models.DateTimeField(blank=True, null=True)
     confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
     signature = JanewayBleachField(null=True, blank=True, verbose_name=_("Signature"))
+    competing_interest_domains = models.ManyToManyField('EmailDomainCI', null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     study_topic = models.ManyToManyField('Topics', through='AccountTopic', null=True, blank=True)
     country = models.ForeignKey(
@@ -1942,6 +1943,16 @@ def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
         request=request,
         target=hijacked
     )
+
+
+class EmailDomainCI(models.Model):
+    name = models.CharField(max_length=250)
+
+    def __str__(self):
+        return u'%s' % self.name
+
+    def __repr__(self):
+        return u'%s' % self.name
 
 
 hijack_started.connect(log_hijack_started)

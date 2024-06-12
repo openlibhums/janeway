@@ -3,6 +3,42 @@
 {% load i18n %}
 {% load static %}
 
+{% block css %}
+<link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+<style>
+    .tagit-choice {
+        display: inline-block;
+        margin: 2px;
+        padding: 5px 10px;
+        background-color: #e0e0e0;
+        border-radius: 3px;
+        height: max-content;
+    }
+
+    .tagit-label {
+        display: inline;
+    }
+
+    .tagit-choice .ui-icon-close {
+        display: none;
+    }
+
+    .tagit {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .tagit-new input {
+        width: auto;
+        flex: 1 1 auto;
+    }
+
+    .tagit input {
+        min-width: 100px;
+    }
+</style>
+{% endblock %}
+
 {% block title %}{% trans "Register" %}{% endblock title %}
 
 {% block body %}
@@ -29,7 +65,7 @@
                     <form method="POST">
                         {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
-                        {{ form|materializecss }}
+                        {{ form|materializecss }}                        
                         <p>{% trans "By registering an account you agree to our" %}
                           {% if journal_settings.general.privacy_policy_url %}
                             <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
@@ -62,3 +98,29 @@
         </div>
     </div>
 {% endblock body %}
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
+<script src="{% static "common/js/tagit.js" %}"></script>
+
+<script type="text/javascript">
+    function validateTag(tag) {
+        var domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+        return domainRegex.test(tag);
+    }
+    
+    $(document).ready(function () {
+        $("#id_domains").tagit({
+            allowSpaces: true,
+            beforeTagAdded: function(event, ui) {
+                if (!validateTag(ui.tagLabel)) { return false; }
+            },
+            afterTagAdded: function(event, ui) {
+                $(ui.tag).find('.ui-icon.ui-icon-close').remove();
+            }
+        });
+    });
+</script>
+{% endblock %}

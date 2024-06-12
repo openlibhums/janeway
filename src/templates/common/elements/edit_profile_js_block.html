@@ -5,9 +5,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
 
 <script type="text/javascript">
+    function validateTag(tag) {
+        var domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+        return domainRegex.test(tag);
+    }
+
     $(document).ready(function () {
         $("#id_interests").tagit(
-            {allowSpaces: true});
+            {allowSpaces: true}
+        );
+
+        $("#id_domains").tagit({
+            allowSpaces: true,
+            beforeTagAdded: function(event, ui) {
+                if (!validateTag(ui.tagLabel)) { return false; }
+            }
+        });
     });
 </script>
 

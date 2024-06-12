@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load foundation %}
+{% load static %}
 {% load i18n %}
 
 {% block title %}{% trans "Register" %}{% endblock title %}
@@ -77,6 +78,13 @@
                                 {{ form.password_2|foundation }}
                             </div>
                         </div>
+                        {% if journal_settings.general.enable_competing_interest_selections %}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                {{ form.competing_interest_domains|foundation }}
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="row">
                             <div class="large-12 columns">
                                 {{ form.captcha|foundation }}
@@ -114,3 +122,26 @@
     </div>
 
 {% endblock body %}
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
+<script src="{% static "common/js/tagit.js" %}"></script>
+
+<script type="text/javascript">
+    function validateTag(tag) {
+        var domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+        return domainRegex.test(tag);
+    }
+    
+    $(document).ready(function () {
+        $("#id_domains").tagit({
+            allowSpaces: true,
+            beforeTagAdded: function(event, ui) {
+                if (!validateTag(ui.tagLabel)) { return false; }
+            }
+        });
+    });
+</script>
+{% endblock %}
