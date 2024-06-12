@@ -77,9 +77,21 @@ def get_editors(article, candidate_queryset, exclude_pks):
             articleaccountci__article=article
         ).values('pk')
 
+        author_domains = set()
+        for author in article.authors.all():
+            author_domains.update(domain.name for domain in author.competing_interest_domains.all())
+        
+        conflicting_domain_accounts = {
+            editor.pk 
+            for editor in editors 
+            for domain in author_domains 
+            if editor.email.endswith(f"@{domain}") or editor.email.endswith(f".{domain}")
+        }
+
         editors = editors.annotate(
             has_conflict=Case(
                 When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                When(pk__in=conflicting_domain_accounts, then=Value(True)),
                 default=Value(False),
                 output_field=BooleanField(),
             )
@@ -266,9 +278,21 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
             articleaccountci__article=article
         ).values('pk')
 
+        author_domains = set()
+        for author in article.authors.all():
+            author_domains.update(domain.name for domain in author.competing_interest_domains.all())
+        
+        conflicting_domain_accounts = {
+            reviewer.pk 
+            for reviewer in reviewers 
+            for domain in author_domains 
+            if reviewer.email.endswith(f"@{domain}") or reviewer.email.endswith(f".{domain}")
+        }
+
         reviewers = reviewers.annotate(
             has_conflict=Case(
                 When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                When(pk__in=conflicting_domain_accounts, then=Value(True)),
                 default=Value(False),
                 output_field=BooleanField(),
             )
