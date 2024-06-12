@@ -10,45 +10,18 @@
 {% block title-sub %}
     {% trans "Please carefully read through the statements below before checking items" %}{% endblock %}
 {% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
-    <style>    
-        .destroy-tag-selected {
-            color: #999;
-            cursor: pointer;
-            display: inline-block;
-            font-weight: bold;
-            margin-right: 2px;
-            &:hover {
-                text-decoration: none;
-            }
-        }
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
 
-<<<<<<< HEAD
 {% block breadcrumbs %}
     {{ block.super }}
     <li>Submit an Article</li>
 {% endblock %}
 
-=======
-        .select2-selection__choice {
-            display: none;
-        }
-        .select2-selection--multiple {
-            height: 40px;
-        }
-        .select2-selection__rendered {
-            height: 40px;
-        }
-    
-    </style>
-{% endblock %}
->>>>>>> e3270df6 (add competing interest accounts)
 {% block body %}
     <article>
         <form method="POST">
             <div id="content submission-content" class="box">
                 {% csrf_token %}
-
                 {% include "admin/submission/timeline.html" with data=article %}
 
                 {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
@@ -94,29 +67,49 @@
 
                 {% if request.journal.submissionconfiguration.competing_interests %}
                     <div class="title-area">
-                        <h2>{% trans "Competing Interests" %}</h2>
+                        <h2>{% trans "Conflict of Interests" %}</h2>
                     </div>
 
                     {% if journal_settings.general.enable_competing_interest_selections %}
+                    <p>{% trans "Search for users using the name. If an user is matched, they will be registered as a conflict of interest." %}</p>
                     <div class="large-6 columns" style="margin-bottom: 16px;">
-                        <p>{% trans "Search for users using email address or username. If an user is matched, they will be registered as a competing interest." %}</p>
-                        <div class="large-6 columns" style="margin-bottom: 16px; padding: 0;">
-                            {{ form.competing_interest_accounts }}
-                            <p class="help-text" style="margin-top: 1px">{{ form.competing_interest_accounts.help_text}}</p>
-                        </div>
-                        
-                        <table class="small scroll">
+                        <input type="text" id="searchInput" placeholder="Search...">
+                        <table id="availableMembers" class="small scroll selectable-table">
                             <thead>
-                            <tr>
-                                <th></th>
-                                <th>{% trans "Name" %}</th>
-                                <th>{% trans "Email" %}</th>
-                                <th></th>
-                            </tr>
+                                <tr>
+                                    <th width="5%"></th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Affiliation" %}</th>
+                                </tr>
                             </thead>
-                            <tbody class="competing-interests-accounts-container" id="sortable">
+                            <tbody>
+                                {% for account in journal.editorial_members %}
+                                <tr>
+                                    <td style="display: none;" class="id-column">{{ account.id }}</td>
+                                    <td width="5%"><i class="fa fa-plus" style="color: green;"></i></td>
+                                    <td>{{ account.full_name }}</td>
+                                    <td>{{ account.affiliation }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
                         </table>
                     </div>
+                    <div class="large-6 columns">
+                        <table id="selectedMembers" class="small scroll">
+                            <thead>
+                                <tr>
+                                    <th width="5%"></th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Affiliation" %}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="competing-interests-accounts-container">
+                                <!-- Selected members will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <input type="hidden" name="competing_interest_accounts" id="selectedAccounts">
                     {% endif %}
 
                     <div class="content submission-content">
@@ -129,54 +122,80 @@
             </div>
         </form>
     </article>
-
 {% endblock body %}
 
 {% block js %}
 <script>
-    $(document).ready(function() {
-        $(".competing-interests-accounts").select2({
-            tags: true,
-            placeholder: "Search by email or user name"
-        }).on('change', function() {
-            var $selected = $(this).find('option:selected');
-            var $container = $('.competing-interests-accounts-container');
-            var $div = $('<div>');
-            if ($selected.length === 0) {
-                var $trDefault = $(
-                    '<tr class="default-row">' +
-                        '<td colspan="4">No items selected</td>' +
-                    '</tr>'
-                );
-                $container.html('').append($trDefault);
-                return;
-            }
 
-            $selected.each(function(k, v) {
-                var username = $(v).text().split(" - ")[0];
-                var email = $(v).text().split(" - ")[1];
-                var $tr = $(
-                    '<tr class="tag-selected" id="account-' + $(v).val() + '">' +
-                        '<td><i class="fa fa-sort"></i></td>'+
-                        '<td>' + username +'</td>'+
-                        '<td>' + email + '</td>'+
-                        '<td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>'+
-                    '</tr>'
-                )
-                $tr.children('td.destroy-tag-selected')
-                    .off('click.select2-copy')
-                    .on('click.select2-copy', function(e) {
-                        var $opt = $(this).data('select2-opt');
-                        $opt.attr('selected', false);
-                        $opt.parents('select').trigger('change');
-                    }).data('select2-opt', $(v));
-                $div.append($tr);
+    function updateSelectedAccounts() {
+        var selectedIds = [];
+        $('#selectedMembers tbody tr').each(function() {
+            selectedIds.push($(this).find('td.id-column').text());
+        });
+        $('#selectedAccounts').val(selectedIds.join(','));
+    }
+
+    function setSelectedRowHtml(row) {
+        var id = row.find('td.id-column').text();
+        var username = row.find('td:nth-child(3)').text();
+        var affiliation = row.find('td:nth-child(4)').text();
+
+        return '<tr class="tag-selected" id="account-' + id + '">' +
+            '<td width="5%"><i class="fa fa-minus" style="color: red;"></i></td>' +
+            '<td style="display: none;" class="id-column">' + id + '</td>' +
+            '<td>' + username + '</td>' +
+            '<td>' + affiliation + '</td>' +
+            '<td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>' +
+            '</tr>';
+    }
+
+    function setAvailableRowHtml(row) {
+        var id = row.find('td.id-column').text();
+        var username = row.find('td:nth-child(3)').text();
+        var affiliation = row.find('td:nth-child(4)').text();
+
+        return'<tr>' +
+            '<td width="5%"><i class="fa fa-plus" style="color: green;"></i></td>' +
+            '<td style="display: none;" class="id-column">' + id + '</td>' +
+            '<td>' + username + '</td>' +
+            '<td>' + affiliation + '</td>' +
+            '</tr>';
+    }
+
+    $(document).ready(function() {
+
+        var selectedMembersTableBody = $('#selectedMembers tbody');
+        var availableMembersTableBody = $('#availableMembers tbody');
+        var searchInput = $('#searchInput');
+
+        searchInput.on('input', function() {
+            var searchText = $(this).val().toLowerCase();
+            $('#availableMembers tbody tr').each(function() {
+                var username = $(this).find('td:nth-child(3)').text().toLowerCase();
+                $(this).toggle(username.indexOf(searchText) !== -1);
             });
-            $container.html('').append($div.children())
-        }).trigger('change');
+        });
+
+        availableMembersTableBody.on('click', 'tr', function() {
+            var row = $(this);
+            var newRowHtml = setSelectedRowHtml(row)
+            row.remove();
+            selectedMembersTableBody.append(newRowHtml);
+            updateSelectedAccounts();
+        });
+
+        selectedMembersTableBody.on('click', '.destroy-tag-selected', function() {
+            var row = $(this).closest('tr');
+            var newRowHtml = setAvailableRowHtml(row)
+            row.remove();
+            availableMembersTableBody.append(newRowHtml);
+            updateSelectedAccounts();
+        });
+
+        function rowExists(table, id) {
+            return $(table).find('td:contains("' + id + '")').length > 0;
+        }
     });
 
 </script>
-    {{ form.media.js }}
-    {{ form.media.css }}
-{% endblock js %}
+{% endblock %}

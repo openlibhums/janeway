@@ -10,7 +10,7 @@ from django.db import transaction
 from django_select2.forms import Select2MultipleWidget
 from django.utils.translation import gettext, gettext_lazy as _
 
-from submission import models
+from submission import models, logic
 from core import models as core_models
 from identifiers import models as ident_models
 from review.logic import render_choices
@@ -33,24 +33,23 @@ class PublisherNoteForm(forms.ModelForm):
 
 class ArticleStart(forms.ModelForm):
 
+    competing_interest_accounts = forms.CharField(
+        required=False,
+        label=_('Conflict of Interest Accounts'),
+        help_text='Search by email address or username',
+        widget=forms.HiddenInput(),
+    )
+
     class Meta:
         model = models.Article
         fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
-                  'competing_interests', 'competing_interest_accounts')
-        widgets = {
-            'competing_interest_accounts': Select2MultipleWidget(attrs={'class': 'competing-interests-accounts'}),
-        }
+                  'competing_interests')
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', False)
         super(ArticleStart, self).__init__(*args, **kwargs)
 
         self.fields['competing_interests'].label = ''
-        self.fields['competing_interest_accounts'].label = 'Competing Interest Accounts'
-        self.fields['competing_interest_accounts'].help_text = 'Search by email address or username'
-        accounts = core_models.Account.objects.filter().all()
-        choices = [(account.id, f"{account.full_name()} - {account.email}") for account in accounts]
-        self.fields['competing_interest_accounts'].choices = choices
 
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
@@ -75,6 +74,26 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
+    
+    def save(self, commit=True, request=None):
+        article = super().save(commit=False)
+
+        if request:
+            article.owner = request.user
+            article.journal = request.journal
+            article.current_step = 1
+            article.article_agreement = logic.get_agreement_text(request.journal)
+    
+        if commit:
+            article.save()
+
+            competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
+            competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
+            article.competing_interest_accounts.set(competing_interest_accounts)
+
+            article.save()
+
+        return article
 
 
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
@@ -82,6 +101,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
     class Meta:
         model = models.Article
+<<<<<<< HEAD
         fields = (
             'title', 'subtitle', 'abstract', 'non_specialist_summary',
             'language', 'section', 'license', 'primary_issue',
@@ -94,6 +114,21 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
             'competing_interest_accounts': Select2MultipleWidget(attrs={'class': 'competing-interests-accounts'}),
+=======
+        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
+                  'language', 'section', 'license', 'primary_issue',
+                  'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'first_page', 'last_page', 'page_numbers', 'total_pages',
+                  'competing_interests', 'custom_how_to_cite', 'rights')
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': _('Title')}),
+            'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
+            'abstract': forms.Textarea(
+                attrs={
+                    'placeholder': _('Enter your article\'s abstract here')
+                }
+            ),
+>>>>>>> ff0ac3c5 (fix account conflict of interests)
         }
 
     def __init__(self, *args, **kwargs):
@@ -142,13 +177,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
 
-            self.fields['competing_interest_accounts'].initial = article.competing_accounts()
-            self.fields['competing_interest_accounts'].label = 'Competing Interest Accounts'
-            self.fields['competing_interest_accounts'].help_text = 'Search by email address or username'
-            accounts = core_models.Account.objects.filter().all()
-            choices = [(account.id, f"{account.full_name()} - {account.email}") for account in accounts]
-            self.fields['competing_interest_accounts'].choices = choices
-
             abstracts_required = article.journal.get_setting(
                 'general',
                 'abstract_required',
@@ -159,11 +187,24 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 'enable_study_topics',
             )
 
+            enable_competing_interest_selections = article.journal.get_setting(
+                'general',
+                'enable_competing_interest_selections',
+            )
+
             if abstracts_required:
                 self.fields['abstract'].required = True
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
+            
+            if enable_competing_interest_selections:
+                self.fields['competing_interest_accounts'] = forms.CharField(
+                    required=False,
+                    label=_('Conflict of Interest Accounts'),
+                    help_text='Search by email address or username',
+                    widget=forms.HiddenInput(),
+                )
 
             if enable_study_topics:
                 topics_queryset = core_models.Topics.objects.filter(
@@ -289,10 +330,20 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
             if self.pop_disabled_fields:
-                request.journal.submissionconfiguration.handle_defaults(article)
+                request.journal.submissionconfiguration.handle_defaults(article)                
 
         if commit:
             article.save()
+
+            if article.journal.get_setting('general','enable_competing_interest_selections'):
+                article.owner = request.user
+                article.journal = request.journal
+                article.current_step = 1
+                article.article_agreement = logic.get_agreement_text(request.journal)
+
+                competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
+                competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
+                article.competing_interest_accounts.set(competing_interest_accounts)
 
             if article.journal.get_setting('general','enable_study_topics'):
                 selected_primary_topic = self.cleaned_data['primary_study_topic']
@@ -322,6 +373,8 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                     for article_topic in existing_topics.filter(topic_type=models.ArticleTopic.SECONDARY):
                         if article_topic.topic not in selected_secondary_topics:
                             article_topic.delete()
+                
+                article.save()
 
         return article
 

@@ -21,6 +21,7 @@ from django.db import (
     models,
     transaction,
 )
+from django.db.models import Count, Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -384,6 +385,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return self.institution
         else:
             return ''
+    
+    def presentation(self):
+        if self.institution or self.department:
+            return "{} - {}".format(self.full_name(), self.affiliation())
+        return self.full_name()
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(

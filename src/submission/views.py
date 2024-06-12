@@ -53,12 +53,7 @@ def start(request, type=None):
         form = forms.ArticleStart(request.POST, journal=request.journal)
 
         if form.is_valid():
-            new_article = form.save(commit=False)
-            new_article.owner = request.user
-            new_article.journal = request.journal
-            new_article.current_step = 1
-            new_article.article_agreement = logic.get_agreement_text(request.journal)
-            new_article.save()
+            new_article = form.save(request=request)
             form.save_m2m()
 
             if type == 'preprint':

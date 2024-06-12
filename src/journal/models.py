@@ -13,7 +13,8 @@ import re
 
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import OuterRef, Subquery, Value
+from django.db.models import Count, OuterRef, Q, Subquery, Value
+
 from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
@@ -464,6 +465,16 @@ class Journal(AbstractSiteModel):
     @cache(300)
     def editorial_groups(self):
         return core_models.EditorialGroup.objects.filter(journal=self)
+    
+    def editorial_members(self):
+        return core_models.Account.objects.filter(
+            accountrole__journal=self,
+            is_active=True,
+        ).annotate(
+            role_count=Count('accountrole')
+        ).filter(
+            Q(role_count__gt=1) | ~Q(accountrole__role__slug='author')
+        ).distinct()
 
     @property
     def editor_emails(self):
