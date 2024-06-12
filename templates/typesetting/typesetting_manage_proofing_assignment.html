@@ -5,7 +5,9 @@
 
 
 {% block title %}Proofing Article #{{ article.pk }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
 
 {% block breadcrumbs %}
     {{ block.super }}
