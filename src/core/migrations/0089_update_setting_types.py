@@ -88,6 +88,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='setting',
+            name='types',
+            field=models.CharField(choices=[('rich-text', 'Rich Text'), ('mini-html', 'Mini HTML'), ('text', 'Plain Text'), ('char', 'Characters'), ('number', 'Number'), ('boolean', 'Boolean'), ('file', 'File'), ('select', 'Select'), ('json', 'JSON')], max_length=20),
+        ),
         migrations.RunPython(
             update_text_and_char_setting_types,
             reverse_code=migrations.RunPython.noop
