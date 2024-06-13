@@ -101,20 +101,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
     class Meta:
         model = models.Article
-<<<<<<< HEAD
-        fields = (
-            'title', 'subtitle', 'abstract', 'non_specialist_summary',
-            'language', 'section', 'license', 'primary_issue',
-            'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
-            'first_page', 'last_page', 'page_numbers', 'total_pages',
-            'competing_interests', 'custom_how_to_cite', 'rights', 'study_topic',
-            'competing_interest_accounts',
-        )
-        widgets = {
-            'title': forms.TextInput(attrs={'placeholder': _('Title')}),
-            'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
-            'competing_interest_accounts': Select2MultipleWidget(attrs={'class': 'competing-interests-accounts'}),
-=======
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
                   'language', 'section', 'license', 'primary_issue',
                   'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
@@ -123,12 +109,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
-            'abstract': forms.Textarea(
-                attrs={
-                    'placeholder': _('Enter your article\'s abstract here')
-                }
-            ),
->>>>>>> ff0ac3c5 (fix account conflict of interests)
         }
 
     def __init__(self, *args, **kwargs):

@@ -662,19 +662,13 @@ class Article(AbstractLastModifiedModel):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-<<<<<<< HEAD
     competing_interests = JanewayBleachField(
         blank=True, null=True,
         help_text="If you have any conflict "
             "of interests in the publication of this "
             "article please state them here.",
     )
-=======
-    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
-                                                                            "of interests in the publication of this "
-                                                                            "article please state them here.")
-    competing_interest_accounts = models.ManyToManyField('core.Account', through='ArticleAccountCI', blank=True, null=True, related_name='competing_interest_accounts')
->>>>>>> e3270df6 (add competing interest accounts)
+    accounts = models.ManyToManyField('core.Account', through='ArticleAccountCI', blank=True, null=True, related_name='competing_interest_accounts')
     study_topic = models.ManyToManyField('core.Topics', through='ArticleTopic', blank=True, null=True, related_name='study_topics')
     rights = JanewayBleachField(
         blank=True, null=True,
