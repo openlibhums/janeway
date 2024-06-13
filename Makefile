@@ -121,6 +121,8 @@ migrate:		## Runs Django's migrate command
 	bash -c "make command CMD=migrate"
 makemigrations:		## Runs Django's makemigrations command
 	bash -c "make command CMD=makemigrations"
+mergemigrations:		## Runs Django's makemigrations --merge command
+	bash -c "make command CMD='makemigrations --merge'"
 makemessages:
 	#$(foreach file, $(wildcard $(LOCALES_DIR)/*), make command CMD="makemessages --locale=$(file) --ignore=src/plugins/*";)
 	#@for f in $(shell ls ${LOCALES_DIR}); make command CMD='makemessages --locale=$${f} --ignore=src/plugins/*';)
