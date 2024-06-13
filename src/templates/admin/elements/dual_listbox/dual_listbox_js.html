@@ -6,7 +6,7 @@
         $('#selectedMembers tbody tr').each(function() {
             selectedIds.push($(this).find('td.id-column').text());
         });
-        $('#selectedMembers').val(selectedIds.join(','));
+        $('#selectedAccounts').val(selectedIds.join(','));
     }
 
     function setSelectedRowHtml(row) {
