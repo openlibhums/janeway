@@ -777,7 +777,7 @@ class Issue(AbstractLastModifiedModel):
             ordered_articles = ArticleOrdering.objects.filter(issue=self, section=ordered_section.section)
 
             for article in ordered_articles:
-                article_list.append(article)
+                article_list.append(article.article)
 
             articles = self.articles.filter(section=ordered_section.section, pk__in=article_pks)
 
