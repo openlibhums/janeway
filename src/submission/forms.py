@@ -33,13 +33,6 @@ class PublisherNoteForm(forms.ModelForm):
 
 class ArticleStart(forms.ModelForm):
 
-    competing_interest_accounts = forms.CharField(
-        required=False,
-        label=_('Conflict of Interest Accounts'),
-        help_text='Search by email address or username',
-        widget=forms.HiddenInput(),
-    )
-
     class Meta:
         model = models.Article
         fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
@@ -74,6 +67,19 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
+        
+        enable_competing_interest_selections = journal.get_setting(
+            'general',
+            'enable_competing_interest_selections',
+        )
+
+        if enable_competing_interest_selections:
+            self.fields['competing_interest_accounts'] = forms.CharField(
+                required=False,
+                label=_('Conflict of Interest Accounts'),
+                help_text='Search by email address or username',
+                widget=forms.HiddenInput(),
+            )
     
     def save(self, commit=True, request=None):
         article = super().save(commit=False)
@@ -87,9 +93,10 @@ class ArticleStart(forms.ModelForm):
         if commit:
             article.save()
 
-            competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
-            competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
-            article.competing_interest_accounts.set(competing_interest_accounts)
+            if article.journal.get_setting('general','enable_competing_interest_selections'):
+                competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
+                competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
+                article.competing_interest_accounts.set(competing_interest_accounts)
 
             article.save()
 
