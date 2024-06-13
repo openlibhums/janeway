@@ -94,7 +94,8 @@ class ArticleStart(forms.ModelForm):
             article.save()
 
             if article.journal.get_setting('general','enable_competing_interest_selections'):
-                competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
+                competing_interest_account_ids = self.cleaned_data.get('competing_interest_accounts', '')
+                competing_interest_account_ids = competing_interest_account_ids.split(',') if competing_interest_account_ids else []
                 competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
                 article.competing_interest_accounts.set(competing_interest_accounts)
 
@@ -317,18 +318,19 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
             if self.pop_disabled_fields:
-                request.journal.submissionconfiguration.handle_defaults(article)                
+                request.journal.submissionconfiguration.handle_defaults(article)
+
+            article.owner = request.user
+            article.journal = request.journal
+            article.current_step = 1
+            article.article_agreement = logic.get_agreement_text(request.journal)       
 
         if commit:
             article.save()
 
-            if article.journal.get_setting('general','enable_competing_interest_selections'):
-                article.owner = request.user
-                article.journal = request.journal
-                article.current_step = 1
-                article.article_agreement = logic.get_agreement_text(request.journal)
-
-                competing_interest_account_ids = self.cleaned_data['competing_interest_accounts'].split(',')
+            if article.journal.get_setting('general','enable_competing_interest_selections') and article.date_submitted:
+                competing_interest_account_ids = self.cleaned_data.get('competing_interest_accounts', '')
+                competing_interest_account_ids = competing_interest_account_ids.split(',') if competing_interest_account_ids else []
                 competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
                 article.competing_interest_accounts.set(competing_interest_accounts)
 

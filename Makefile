@@ -119,6 +119,8 @@ check:		## Runs janeway's test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
 migrate:		## Runs Django's migrate command
 	bash -c "make command CMD=migrate"
+unmigrate:		## Runs Django's migrate command to specific migration
+	bash -c "make command CMD='migrate $(APP_NAME) $(MIGRATION)'"
 makemigrations:		## Runs Django's makemigrations command
 	bash -c "make command CMD=makemigrations"
 mergemigrations:		## Runs Django's makemigrations --merge command
