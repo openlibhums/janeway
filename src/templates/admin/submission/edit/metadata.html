@@ -12,41 +12,15 @@
     <li>{{ article.safe_title }}</li>
     <li>Metadata</li>
 {% endblock breadcrumbs %}
-<<<<<<< HEAD
 {% block head %}
     {{ block.super }}
     {{ info_form.media }}
 {% endblock %}
-=======
+
 {% block css %}
-    <style>    
-        #availableMembers tbody {
-            display: block;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-<<<<<<< HEAD
-    }
->>>>>>> e3270df6 (add competing interest accounts)
-=======
->>>>>>> ff0ac3c5 (fix account conflict of interests)
-
-        #availableMembers thead, #availableMembers tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .selectable-table tbody tr:hover {
-            background-color: #5897fb;
-            color: #ffff;
-        }
-
-        .selectable-table tbody tr {
-            cursor: pointer;
-        }
-    </style>
+{% include "elements/dual_listbox/dual_listbox_css.html" %}
 {% endblock %}
+
 {% block body %}
     <div class="large-12 columns box">
         <div class="row expanded">
@@ -145,58 +119,9 @@
                     {% endif %}
                     {% if request.journal.submissionconfiguration.competing_interests %}
                         {% if journal_settings.general.enable_competing_interest_selections %}
-                        
                         <div class="large-12 columns">
                             <label style="padding: 0 16px;">{% trans 'Conflict of Interests' %}</label>
-                            <div class="large-6 columns" style="margin-bottom: 16px;">
-                                <input type="text" id="searchInput" placeholder="Search...">
-                                <table id="availableMembers" class="small scroll selectable-table">
-                                    <thead>
-                                        <tr>
-                                            <th width="5%"></th>
-                                            <th>{% trans "Name" %}</th>
-                                            <th>{% trans "Affiliation" %}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for account in journal.editorial_members %}
-                                        {% if account not in article.competing_accounts %}
-                                        <tr>
-                                            <td style="display: none;" class="id-column">{{ account.id }}</td>
-                                            <td width="5%"><i class="fa fa-plus" style="color: green;"></i></td>
-                                            <td>{{ account.full_name }}</td>
-                                            <td>{{ account.affiliation }}</td>
-                                        </tr>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                <p class="help-text">{% trans "Search for users using the name. If an user is matched, they will be registered as a conflict of interest." %}</p>
-                            </div>
-                            <div class="large-6 columns">
-                                <table id="selectedMembers" class="small scroll">
-                                    <thead>
-                                        <tr>
-                                            <th width="5%"></th>
-                                            <th>{% trans "Name" %}</th>
-                                            <th>{% trans "Affiliation" %}</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="competing-interests-accounts-container">
-                                        {% for account in article.competing_accounts %}
-                                        <tr class="tag-selected" id="account-{{account.id}}">
-                                            <td width="5%"><i class="fa fa-minus" style="color: red;"></i></td>
-                                            <td style="display: none;" class="id-column">{{account.id}}</td>
-                                            <td>{{account.full_name}}</td>
-                                            <td>{{account.affiliation}}</td>
-                                            <td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <input type="hidden" name="competing_interest_accounts" id="selectedAccounts">
+                            {% include "elements/dual_listbox/dual_listbox.html" with list_of_members=journal.editorial_members current_members=article.competing_accounts %}
                         </div>
                         {% endif %}
                         
@@ -430,81 +355,6 @@
             }
         }
     </script>
-<<<<<<< HEAD
     {% include 'admin/elements/fundref/fundref.html' %}
-=======
-    <script>
-        function updateSelectedAccounts() {
-            var selectedIds = [];
-            $('#selectedMembers tbody tr').each(function() {
-                selectedIds.push($(this).find('td.id-column').text());
-            });
-            $('#selectedAccounts').val(selectedIds.join(','));
-        }
-
-        function setSelectedRowHtml(row) {
-            var id = row.find('td.id-column').text();
-            var username = row.find('td:nth-child(3)').text();
-            var affiliation = row.find('td:nth-child(4)').text();
-
-            return '<tr class="tag-selected" id="account-' + id + '">' +
-                '<td width="5%"><i class="fa fa-minus" style="color: red;"></i></td>' +
-                '<td style="display: none;" class="id-column">' + id + '</td>' +
-                '<td>' + username + '</td>' +
-                '<td>' + affiliation + '</td>' +
-                '<td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>' +
-                '</tr>';
-        }
-
-        function setAvailableRowHtml(row) {
-            var id = row.find('td.id-column').text();
-            var username = row.find('td:nth-child(3)').text();
-            var affiliation = row.find('td:nth-child(4)').text();
-
-            return'<tr>' +
-                '<td width="5%"><i class="fa fa-plus" style="color: green;"></i></td>' +
-                '<td style="display: none;" class="id-column">' + id + '</td>' +
-                '<td>' + username + '</td>' +
-                '<td>' + affiliation + '</td>' +
-                '</tr>';
-        }
-
-        $(document).ready(function() {
-
-            var selectedMembersTableBody = $('#selectedMembers tbody');
-            var availableMembersTableBody = $('#availableMembers tbody');
-            var searchInput = $('#searchInput');
-
-            searchInput.on('input', function() {
-                var searchText = $(this).val().toLowerCase();
-                $('#availableMembers tbody tr').each(function() {
-                    var username = $(this).find('td:nth-child(3)').text().toLowerCase();
-                    $(this).toggle(username.indexOf(searchText) !== -1);
-                });
-            });
-
-            availableMembersTableBody.on('click', 'tr', function() {
-                var row = $(this);
-                var newRowHtml = setSelectedRowHtml(row)
-                row.remove();
-                selectedMembersTableBody.append(newRowHtml);
-                updateSelectedAccounts();
-            });
-
-            selectedMembersTableBody.on('click', '.destroy-tag-selected', function() {
-                var row = $(this).closest('tr');
-                var newRowHtml = setAvailableRowHtml(row)
-                row.remove();
-                availableMembersTableBody.append(newRowHtml);
-                updateSelectedAccounts();
-            });
-
-            function rowExists(table, id) {
-                return $(table).find('td:contains("' + id + '")').length > 0;
-            }
-        });
-    </script>
-    {% include "admin/elements/jqte.html" %}
-    {% include 'admin/elements/fundref/fundref.html' with funder_form=funder_form %}
->>>>>>> e3270df6 (add competing interest accounts)
+    {% include "elements/dual_listbox/dual_listbox_js.html" %}
 {% endblock js %}
