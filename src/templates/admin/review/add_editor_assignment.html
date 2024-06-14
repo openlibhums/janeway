@@ -70,7 +70,7 @@
                             {% if journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
                             <tr {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}style="color: #b9b9b9;"{% endif %}>
                                 <td>
-                                    <input type="radio" name="editor" value="{{ reviewer.id }}"
+                                    <input type="radio" name="editor" value="{{ editor.id }}"
                                     {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
                                     {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
                                     >
@@ -100,7 +100,7 @@
                             {% if not journal_settings.general.enable_suggested_editors or not editor in suggested_editors %}
                             <tr {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}style="color: #b9b9b9;"{% endif %}>
                                 <td>
-                                    <input type="radio" name="editor" value="{{ reviewer.id }}"
+                                    <input type="radio" name="editor" value="{{ editor.id }}"
                                     {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
                                     {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
                                     >
