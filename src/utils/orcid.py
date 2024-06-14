@@ -59,16 +59,15 @@ def build_redirect_uri(site, action='login'):
     :site: Object implementing the AbstractSiteModel interface
     :return: (str) Redirect URI for ORCID requests
     """
-    #request = logic.get_current_request()
-    #path = reverse("core_login_orcid")
+    request = logic.get_current_request()
+    path = f'{reverse("core_login_orcid")}?action={action}'
 
-    #return request.site_type.site_url(path)
-    return f"http://127.0.0.1:8000/testrepo/login/orcid/?action={action}"
+    return request.site_type.site_url(path)
 
 def get_orcid_record(orcid):
     try:
         logger.info("Retrieving ORCiD profile for %s", orcid)
-        api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET, sandbox=True)
+        api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
         return api_client.read_record_public(orcid, 'record', search_token,)
     except HTTPError as e:
@@ -92,6 +91,8 @@ def get_orcid_record_details(orcid):
     details = defaultdict(lambda: None)
     record = get_orcid_record(orcid)
     if record:
+        details["uri"] = record['orcid-identifier']['uri']
+        details["orcid"] = record['orcid-identifier']['path']
         user_record = record["person"]
         # Order matters here, we want to get emails first in case anything
         # goes wrong with person details below

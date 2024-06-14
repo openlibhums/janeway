@@ -193,16 +193,51 @@ class CoreTests(TestCase):
                 "" % (email, email),
         )
 
-    @mock.patch('utils.orcid.get_orcid_record_details', return_value={'emails': [], 'last_name': 'arship', 'first_name': 'cdleschol', 'affiliation': 'California Digital Library', 'country': 'US'})
+    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliation': 'Elk Valley University', 'country': 'US'}
+
+    @mock.patch('utils.orcid.get_orcid_record_details', return_value=orcid_record)
     def test_orcid_registration(self, record_mock):
         orcid_id = "0000-0000-0000-0000"
         token  = models.OrcidToken.objects.create(orcid=orcid_id)
         register_url = f"{reverse('core_register')}?token={token.token}"
 
         response = self.client.get(register_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Campbell")
+        self.assertContains(response, "Kasey")
+        self.assertContains(response, "Elk Valley University")
+        self.assertContains(response, "campbell@evu.edu")
+        self.assertNotContains(response, "Register with ORCiD")
+        self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertContains(response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">')
+
+    def test_registration(self):
+        response = self.client.get(reverse('core_register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Register with ORCiD")
+
+    @override_settings(ENABLE_ORCID=False)
+    def test_registration(self):
+        response = self.client.get(reverse('core_register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Register with ORCiD")
+
+    @mock.patch('utils.orcid.get_orcid_record_details', return_value=orcid_record)
+    def test_remove_orcid(self, record_mock):
+        orcid_id = "0000-0000-0000-0000"
+        token  = models.OrcidToken.objects.create(orcid=orcid_id)
+        register_url = f"{reverse('core_register')}?token={token.token}&remove=orcid"
+
+        response = self.client.get(register_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "cdleschol")
+        self.assertContains(response, "Campbell")
+        self.assertContains(response, "Kasey")
+        self.assertContains(response, "Elk Valley University")
+        self.assertContains(response, "campbell@evu.edu")
+        self.assertContains(response, "Register with ORCiD")
+        self.assertNotContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertNotContains(response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">')
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_login_different_case(self):
