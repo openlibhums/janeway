@@ -25,7 +25,7 @@ from utils import (
     logic,
     migration_utils,
 )
-from utils.orcid import get_orcid_record_details
+from utils.orcid import get_orcid_record_details, build_redirect_uri
 
 from utils import install
 from utils.transactional_emails import *
@@ -1196,6 +1196,8 @@ class TestORCiDRecord(TestCase):
     @mock.patch('utils.orcid.get_orcid_record', return_value=all_fields)
     def test_record_details_all(self, mock_record):
         details = get_orcid_record_details("0009-0001-0617-4330")
+        self.assertEqual(details["orcid"], "0009-0001-0617-4330")
+        self.assertEqual(details["uri"], "http://sandbox.orcid.org/0009-0001-0617-4330")
         self.assertEqual(details["first_name"], "cdleschol")
         self.assertEqual(details["last_name"], "arship")
         self.assertEqual(len(details["emails"]), 1)
@@ -1206,8 +1208,16 @@ class TestORCiDRecord(TestCase):
     @mock.patch('utils.orcid.get_orcid_record', return_value=min_fields)
     def test_record_details_min(self, mock_record):
         details = get_orcid_record_details("0009-0001-0617-4330")
+        self.assertEqual(details["orcid"], "0009-0001-0617-4330")
+        self.assertEqual(details["uri"], "http://sandbox.orcid.org/0009-0001-0617-4330")
         self.assertIsNone(details["first_name"])
         self.assertIsNone(details["last_name"])
         self.assertEqual(len(details["emails"]), 0)
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
+
+    def test_redirect_uri(self):
+        press= helpers.create_press()
+        repo = helpers.create_repository(press, [], [])
+        self.assertEqual(build_redirect_uri(repo), "http://localhost/login/orcid/?action=login")
+        self.assertEqual(build_redirect_uri(repo, action="register"), "http://localhost/login/orcid/?action=register")

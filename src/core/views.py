@@ -304,12 +304,15 @@ def register(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    context = {}
     initial = {}
     token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-        print(orcid_details)
+        if not request.GET.get('remove', '') == 'orcid':
+            initial["orcid"] = orcid_details["orcid"]
+            context["orcid"] = orcid_details["uri"]
         initial["first_name"] = orcid_details.get("first_name", "")
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
@@ -369,9 +372,7 @@ def register(request):
             return redirect(reverse('core_login'))
 
     template = 'core/accounts/register.html'
-    context = {
-        'form': form,
-    }
+    context["form"] = form
 
     return render(request, template, context)
 
