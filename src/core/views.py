@@ -343,8 +343,6 @@ def register(request):
         if form.is_valid():
             if token_obj:
                 new_user = form.save(commit=False)
-                new_user.orcid = token_obj.orcid
-                new_user.save()
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
