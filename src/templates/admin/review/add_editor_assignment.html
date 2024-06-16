@@ -6,7 +6,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% include "elements/breadcrumbs/review_base.html" %}
+    {% include "elements/breadcrumbs/unassigned_base.html" %}
+    {% if article %}<li><a href="{% url 'review_unassigned_article' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
     <li>Add Editor Assignment</li>
 {% endblock breadcrumbs %}
 
