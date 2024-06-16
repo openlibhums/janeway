@@ -54,4 +54,5 @@ def role_id(request, role_slug):
 def editor_can_access(request, article):
     required_senior_editor = setting_handler.get_setting('general', 'required_senior_editor', request.journal).value
     is_editor = user_has_role(request, 'editor')
-    return is_editor and request.user in article.editor_list() if required_senior_editor else is_editor
+    is_staff = request.user.is_staff
+    return is_staff or (is_editor and request.user in article.editor_list() if required_senior_editor else is_editor)
