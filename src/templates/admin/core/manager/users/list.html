@@ -1,0 +1,127 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load press_url %}
+{% load securitytags %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+  <li>Users</li>
+{% endblock %}
+
+{% block title %}Users | {{ block.super }}{% endblock %}
+
+{% block body %}
+  <section id="content">
+    <div class="large-9 columns">
+      <div class="box cbv_list">
+        <aside class="hide-for-large">
+          <ul class="accordion" data-accordion data-allow-all-closed="true">
+            <li class="accordion-item" data-accordion-item>
+              <a href="#" class="accordion-title">{% trans 'Show Filter Options' %}</a>
+              <div class="accordion-content" data-tab-content>
+                {% include "admin/elements/list_filters.html" %}
+              </div>
+            </li>
+          </ul>
+        </aside>
+        <div class="title-area">
+          <h2>
+            {% if request.journal %}
+              {% trans "Journal Users" %}
+            {% else %}
+              {% trans "All Users" %}
+            {% endif %}
+          </h2>
+          <a
+            href="{% url 'core_add_user' %}?return={{ request.get_full_path|urlencode }}"
+            class="button">
+            <span class="fa fa-user-plus"></span>
+            Add New User
+          </a>
+        </div>
+        {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+        <div class="hide-for-small-only">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">User</th>
+                <th scope="col">Roles</th>
+                <th scope="col">Options</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in account_list %}
+                <tr>
+                  <td>
+                    {{ account.pk }}
+                  </td>
+                  <th scope="row">
+                    <div>
+                      <div>{{ account.full_name }}</div>
+                      <div class="normal-weight">{{ account.affiliation }}</div>
+                      <div
+                        class="normal-weight"
+                        aria-label="Email">
+                        {{ account.email }}
+                      </div>
+                      <div>
+                        {% include 'admin/elements/user_details.html' %}
+                      </div>
+                    </div>
+                  </th>
+                  <td>
+                    {% include 'admin/elements/role_details.html' with viewport='large' %}
+                  </td>
+                  <td>
+                    {% include 'admin/elements/account_options.html' %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4">
+                    <strong>{% trans 'No accounts to display.' %}</strong>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="hide-for-medium">
+          {% for account in account_list %}
+            <div class="callout">
+              <h3><strong>{{ account.full_name }}</strong></h3>
+              <p>{{ account.affiliation }}</p>
+              <p><span>{{ account.email }}</span></p>
+              <p>ID: <span>{{ account.pk }}</span></p>
+              <p>{% include 'admin/elements/user_details.html' %}</p>
+              {% include 'admin/elements/role_details.html' with viewport='small' %}
+              {% include 'admin/elements/account_options.html' %}
+            </div>
+          {% empty %}
+            <p><strong>{% trans 'No accounts to display.' %}</strong></p>
+          {% endfor %}
+        </div>
+        {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+      </div>
+      {% if request.journal and user.is_staff %}
+        <aside class="box">
+          <p class="callout">
+          Note: This page lists all users with a role in
+          <i>{{ request.journal.name }}</i>. If a broader search is needed,
+          try <a href="{{ request.press.url }}/manager/user/all/">All Users
+          at the press level</a>.</p>
+          {% comment %} The above URL is hardcoded because there is no other
+          way to form a press URL on a journal page at the moment. {% endcomment %}
+        </aside>
+      {% endif %}
+    </div>
+    <aside class="large-3 columns show-for-large">
+      <div class="box">
+        {% include "admin/elements/list_filters.html" %}
+      </div>
+    </aside>
+  </section>
+{% endblock body %}

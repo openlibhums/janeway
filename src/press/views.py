@@ -21,6 +21,7 @@ from core import (
     logic as core_logic,
     views as core_views,
 )
+from core.views import BaseUserList
 from journal import (
     models as journal_models,
     views as journal_views,
@@ -435,3 +436,8 @@ def edit_press_journal_description(request, journal_id):
         template,
         context,
     )
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class AllUsers(BaseUserList):
+    pass
