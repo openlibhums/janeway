@@ -1,5 +1,6 @@
 from core.forms.forms import (
     AccessRequestForm,
+    AccountRoleForm,
     AdminUserForm,
     ArticleMetaImageForm,
     CBVFacetForm,
