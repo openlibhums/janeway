@@ -11,12 +11,15 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'core_manager_users' %}">Users</a></li>
+    <li>
+      {% if request.journal %}
+        <a href="{% url 'journal_users' %}">Users</a>
+      {% else %}
+        <a href="{% url 'press_all_users' %}">Users</a>
+      {% endif %}
+    </li>
     <li>{% if active == 'add' %}Add User{% else %}Edit {{user_to_edit.full_name}} {% endif %}</li>
 {% endblock %}
-
-{% block title-section %}Users{% endblock %}
-{% block title-sub %}{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}{% endblock %}
 
 {% block body %}
 <div class="large-12 columns end">

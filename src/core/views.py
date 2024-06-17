@@ -1079,10 +1079,12 @@ def edit_plugin_settings_groups(request, plugin, setting_group_name, journal=Non
 @editor_user_required
 def roles(request):
     """
+    Deprecated.
     Displays a list of the journal roles
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    raise DeprecationWarning('Use JournalUsers instead')
     template = 'core/manager/roles/roles.html'
 
     roles = models.Role.objects.all().exclude(slug='reader')
@@ -1175,10 +1177,12 @@ def role_action(request, slug, user_id, action):
 @editor_user_required
 def users(request):
     """
+    Deprecated
     Displays a list of users, allows multiple users to be added to a role.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    raise DeprecationWarning('Use JournalUsers instead')
     if request.POST:
         users = request.POST.getlist('users')
         role = request.POST.get('role')
@@ -1295,10 +1299,12 @@ def user_edit(request, user_id):
 @staff_member_required
 def inactive_users(request):
     """
+    Deprecated.
     Displays a list of inactive user accounts.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    raise DeprecationWarning('Use AllUsers instead')
     user_list = models.Account.objects.filter(is_active=False)
 
     template = 'core/manager/users/inactive.html'
@@ -1370,6 +1376,10 @@ def user_history(request, user_id):
 
 @editor_user_required
 def enrol_users(request):
+    """
+    Deprecated
+    """
+    raise DeprecationWarning('Use AllUsers instead')
     user_search = []
     first_name = request.GET.get('first_name', '')
     last_name = request.GET.get('last_name', '')

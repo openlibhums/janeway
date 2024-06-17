@@ -1,3 +1,6 @@
+{% comment %}
+This template is deprecated. Use core/manager/users/list.html instead.
+{% endcomment %}
 {% load roles %}
 {% user_roles request.journal user as account_roles %}
 {% user_roles request.journal user 'True' as account_role_slugs %}
