@@ -1,0 +1,29 @@
+<div class="flex">
+  <a
+    class="small button"
+    href="{% url 'core_user_edit' account.id %}?return={{ request.get_full_path|urlencode }}">
+    <span class="fa fa-edit"></span>
+    Edit
+  </a>
+  <a
+    class="small button"
+    href="{% url 'core_user_history' account.id %}">
+    <span class="fa fa-history"></span>
+    History
+  </a>
+  {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
+    <form method="POST">
+      {% csrf_token %}
+      <button
+        class="small button"
+        formaction="{% url 'hijack:acquire' %}"
+        name="user_pk"
+        value="{{ account.pk }}"
+        type="submit">
+        <span class="fa fa-gamepad"></span>
+        Control
+      </button>
+      <input type="hidden" name="next" value="{% url 'core_dashboard' %}">
+    </form>
+  {% endif %}
+</div>

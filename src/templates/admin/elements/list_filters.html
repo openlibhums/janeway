@@ -1,0 +1,29 @@
+{% load foundation %}
+
+{% if facet_form.fields %}
+  <section class="cbv_filters">
+    <div class="title-area">
+      <h2>{% trans 'Search and filter' %}</h2>
+    </div>
+    <form method="GET" id={{ facet_form.id }}>
+      <div class="row">
+        <div class="columns no-bullet">
+          {% for field in facet_form %}
+            <fieldset>
+              <legend>{{ field.label }}</legend>
+              {{ field }}
+            </fieldset>
+          {% endfor %}
+          <button class="button" type="submit">
+            <span class="fa fa-filter"></span>
+            {% trans 'Apply' %}
+          </button>
+          <a href="{{ request.path }}" class="button warning">
+            <span class="fa fa-times"></span>
+            {% trans 'Clear all' %}
+          </a>
+        </div>
+      </div>
+    </form>
+  </section>
+{% endif %}

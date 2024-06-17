@@ -1,0 +1,17 @@
+{% if request.journal %}
+  <div>
+    {% include 'admin/elements/removable_role_chips.html' with accountroles=account.accountrole_set.all journal=request.journal %}
+  </div>
+{% else %}
+  {% regroup account.accountrole_set.all by journal as journal_list %}
+  {% for journal, accountroles in journal_list %}
+    <div>
+      <div>
+        <span class="fa fa-book"></span>
+        {{ journal.name }}
+      </div>
+      {% include 'admin/elements/removable_role_chips.html' %}
+    </div>
+  {% endfor %}
+  {% include 'admin/elements/add_role_dropdown.html' %}
+{% endif %}

@@ -1,0 +1,27 @@
+{% if account.is_active %}
+  <div class="label success">
+    <span class="fa fa-check"></span>
+    Active
+  </div>
+{% else %}
+  <div class="label alert">
+    <span class="fa fa-warning"></span>
+    Inactive
+  </div>
+{% endif %}
+{% if user.is_staff %}
+  {% if account.is_staff %}
+    <div class="label secondary">
+      <span class="fa fa-user"></span>
+      Staff
+    </div>
+  {% endif %}
+{% endif %}
+{% if user.is_superuser %}
+  {% if account.is_superuser %}
+    <div class="label secondary">
+      <span class="fa fa-star"></span>
+      Superuser
+    </div>
+  {% endif %}
+{% endif %}
