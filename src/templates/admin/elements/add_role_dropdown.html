@@ -1,0 +1,39 @@
+<form method="POST">
+  <div class="small button-group">
+    {% csrf_token %}
+    <input hidden name="params_string" value="{{ params_string }}">
+    <input hidden name="user" value="{{ account.pk }}">
+    {% if request.journal %}
+      <input hidden name="journal" value="{{ journal.pk }}">
+    {% endif %}
+    <a
+      class="small button dropdown"
+      aria-label="Add new role"
+      data-toggle="create-accountrole-{{ viewport }}-{{ account.pk }}">
+      Add role
+    </a>
+    <div
+      id="create-accountrole-{{ viewport }}-{{ account.pk }}"
+      class="dropdown-pane"
+      data-dropdown
+      data-close-on-click="true"
+      data-alignment="top">
+      {% if not request.journal %}
+        {{ accountrole_form.journal.label_tag }}
+        {{ accountrole_form.journal }}
+      {% endif %}
+      <div>
+        {% for role in roles %}
+          <button
+            class="small button"
+            name="role"
+            value="{{ role.pk }}"
+            type="submit">
+            <span class="fa fa-plus"></span>
+            {{ role.name }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</form>

@@ -861,3 +861,53 @@ ul.menu {
 .key-value-pair.key-above .value .inline-list li:last-child:after {
   content: "";
 }
+
+.no-bullet ul {
+  margin-left: 0;
+  list-style: none;
+}
+
+.cbv_list {
+  tbody {
+    vertical-align: top;
+    tr {
+      th:first-child {
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+  .flex {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    .chip {
+      cursor: auto;
+    }
+  }
+  .dropdown-pane {
+    width: 400px;
+  }
+  .button-group {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.normal-weight {
+  font-weight: normal;
+}
+
+.cbv_filters {
+  fieldset {
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+  label {
+    position: relative;
+    left: 1.5rem;
+    input {
+      position: absolute;
+      top: 0.4rem;
+      left: -1.5rem;
+    }
+  }
+}
