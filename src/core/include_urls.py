@@ -71,6 +71,11 @@ urlpatterns = [
         press_views.serve_press_file,
         name='serve_press_file',
         ),
+    re_path(
+        r'^press/user/all/$',
+        press_views.AllUsers.as_view(),
+        name='press_all_users',
+    ),
     re_path(r'^press/merge_users/$', press_views.merge_users, name='merge_users'),
     re_path(r'^doi_manager/$', press_views.IdentifierManager.as_view(), name='press_identifier_manager'),
 

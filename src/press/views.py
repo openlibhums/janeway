@@ -20,6 +20,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
+from core.views import BaseUserList
 from journal import (
     models as journal_models,
     views as journal_views,
@@ -434,3 +435,8 @@ def edit_press_journal_description(request, journal_id):
         template,
         context,
     )
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class AllUsers(BaseUserList):
+    pass
