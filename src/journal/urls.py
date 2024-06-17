@@ -228,4 +228,11 @@ urlpatterns = [
     re_path(r'^email/user/(?P<user_id>\d+)/article/(?P<article_id>\d+)/$',
         views.send_user_email, name='send_user_email_article'),
 
+    # Manage users
+    re_path(
+        r'^user/all/$',
+        views.JournalUsers.as_view(),
+        name='journal_users',
+    ),
+
 ]
