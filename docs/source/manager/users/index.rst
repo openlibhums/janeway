@@ -1,21 +1,85 @@
-Users
-=====
-The Users section of the manager has various controls for different permission levels.
+Users and Roles
+===============
+
+The **Users and Roles** section of the manager has various controls for
+different permission levels.
 
 Editors have control of:
 
-- Enrolled Users (users who have a role on your journal)
-- Enrolling Users (giving users a role on your journal)
-- Journal Roles (viewing users with a given role)
+- User accounts at the journal level
+- Account roles in the journal
+- Account activation
 
 Staff have additional controls for:
 
-- Inactive Users (users who have not activated their accounts)
-- Authenticated Users (lists users with active sessions)
-- Merge Users (available at the press level)
+- Viewing authenticated users (users with active sessions)
+- Merging user accounts
 
-Enrolled Users
---------------
+Journal Users
+-------------
+
+If you are an editor or staff member, you can manage user accounts for
+a journal via the **Journal Users** page.
+
+.. figure:: ../../nstatic/journal_users.png
+
+    The Journal Users page.
+
+You can search by a variety of fields, including name, email, ORCID,
+institution, and biography. You can filter by role, whether an account
+is active.
+
+You can also add and remove roles, edit accounts, and if needed create accounts.
+
+Each user’s assignment history is also available from this view.
+
+All Users
+---------
+
+If you are staff, you can see all users across a press (a.k.a. Janeway
+installation).
+
+.. figure:: ../../nstatic/press_all_users.png
+
+    The All Users page at the press level.
+
+At this level, you can filter by journal and staff-member status
+and manage roles across journals, in addition to the actions an editor can take.
+
+Roles
+-----
+Janeway's core roles are as follows:
+
+- Author
+    - Any user who registers with your journal is given this role
+- Copyeditor
+- Editor
+    - Handles processing of articles and assignment of tasks
+- Journal Manager
+    - Has a similar level of permission to the Editor role, but can be given extra access (see below)
+- Production Manager
+    - Handles the assignment and processing of Typesetting articles
+- Proofing Manager
+    - Handles assignment of proofreaders and requesting typesetting changes
+- Proofreader
+- Reader
+    - This role indicated whether a user is signed up for now article notifications
+- Reviewer
+- Section Editor
+- Typesetter
+
+Editing a User
+~~~~~~~~~~~~~~
+The **Edit User** interface is relatively standard, though there are a few
+things to note:
+
+- **Is staff** should only be given to Journal Managers/Publishers and can only be
+  assigned by other staff
+- **Is admin** grants access to Janeway's admin data layer
+- **Is superuser** will set a user to have all roles across the entire system
+
+Enrolled Users (Old)
+--------------------
 The journal users interface lists all users who have one or more roles on your journal. From this page we can:
 
 - Edit a user
@@ -31,16 +95,8 @@ The journal users interface lists all users who have one or more roles on your j
 
     The enrolled users interface. From here we can search, add new users and assign additional roles amongst other things.
 
-Editing a User
-~~~~~~~~~~~~~~
-The edit user interface is relatively standard though there are a few things to note:
-
-- Is staff should only be given to Journal Managers/Publishers and can only be assigned by other staff
-- Is admin grants access to Janeway's admin data layer
-- Is superuser will set a user to have all roles across the entire system
-
-Enrol Users
---------------
+Enrol Users (Old)
+-----------------
 .. _enrolusersanchor:
 
 The enrol users page allows Editors to search for existing user accounts and assign them a role in their journal.
@@ -63,35 +119,9 @@ Once you have found an account you will be able to see which roles they have and
 
     This user has two roles (Author and Editor) and can be assigned any of the other roles.
 
-Inactive Users
---------------
+Inactive Users (Old)
+--------------------
 The inactive users screen is accessible to staff only and lists all users who have not yet activated their account. You are cautioned only to activate accounts that you've confirmed ownership for.
-
-Roles
------
-The roles interface presents a list of Janeway's core roles:
-
-- Author
-    - Any user who registers with your journal is given this role
-- Copyeditor
-- Editor
-    - Handles processing of articles and assignment of tasks
-- Journal Manager
-    - Has a similar level of permission to the Editor role, but can be given extra access (see below)
-- Production Manager
-    - Handles the assignment and processing of Typesetting articles
-- Proofing Manager
-    - Handles assignment of proofreaders and requesting typesetting changes
-- Proofreader
-- Reader
-    - This role indicated whether a user is signed up for now article notifications
-- Reviewer
-- Section Editor
-- Typesetter
-
-Once you have selected a role you will be presented with a list of users who currently have that role. There is also an option to remove the role from that user.
-
-.. figure:: ../../nstatic/roles.gif
 
 Authenticated Users
 -------------------
