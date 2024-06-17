@@ -2524,9 +2524,8 @@ class GenericFacetedListView(generic.ListView):
                 for predicate in predicates:
                     query |= Q(predicate)
                 q_stack.append(query)
-        self.queryset = self.filter_queryset_if_journal(
-            self.queryset.filter(*q_stack)
-        )
+        q_stack.append(self.get_journal_filter_query())
+        self.queryset = self.queryset.filter(*q_stack).distinct()
         return self.order_queryset(self.queryset)
 
     def order_queryset(self, queryset):
@@ -2559,9 +2558,9 @@ class GenericFacetedListView(generic.ListView):
         # To make them change dynamically, return None
         # instead of a separate facet.
         # return None
-        queryset = self.filter_queryset_if_journal(
-            super().get_queryset()
-        )
+
+        journal_query = self.get_journal_filter_query()
+        queryset = super().get_queryset().filter(journal_query)
         facets = self.get_facets()
         for facet in facets.values():
             queryset = queryset.annotate(**facet.get('annotations', {}))
@@ -2617,11 +2616,11 @@ class GenericFacetedListView(generic.ListView):
         else:
             return [queryset]
 
-    def filter_queryset_if_journal(self, queryset):
+    def get_journal_filter_query(self):
         if self.request.journal and hasattr(self.model, 'journal'):
-            return queryset.filter(journal=self.request.journal)
+            return Q(journal=self.request.journal)
         else:
-            return queryset
+            return Q()
 
     def filter_facets_if_journal(self, facets):
         if self.request.journal:
