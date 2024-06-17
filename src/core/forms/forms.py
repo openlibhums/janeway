@@ -894,3 +894,10 @@ class SimpleTinyMCEForm(forms.Form):
     def __init__(self, field_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[field_name] = forms.CharField(widget=TinyMCE)
+
+
+class AccountRoleForm(forms.ModelForm):
+
+    class Meta:
+        model = models.AccountRole
+        fields = '__all__'
