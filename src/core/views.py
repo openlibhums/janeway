@@ -2536,9 +2536,15 @@ class GenericFacetedListView(generic.ListView):
             return queryset
 
     def get_order_by(self):
-        order_by = self.request.GET.get('order_by', '')
+        chosen_order_by = self.request.GET.get('order_by', '')
         order_by_choices = self.get_order_by_choices()
-        return order_by if order_by in dict(order_by_choices) else ''
+        if chosen_order_by in dict(order_by_choices):
+            return chosen_order_by
+        else:
+            try:
+                return order_by_choices[0][0]
+            except IndexError:
+                return ''
 
     def get_order_by_choices(self):
         """ Subclass must implement to allow ordering result set
