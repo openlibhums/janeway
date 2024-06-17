@@ -668,6 +668,7 @@ class AccountRole(models.Model):
 
     class Meta:
         unique_together = ('journal', 'user', 'role')
+        ordering = ('journal', 'role')
 
     def __str__(self):
         return "{0} {1} {2}".format(self.user, self.journal, self.role.name)
