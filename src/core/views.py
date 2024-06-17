@@ -2512,10 +2512,10 @@ class GenericFacetedListView(generic.ListView):
                     )
                     predicates = []
                 elif facets[keyword]['type'] == 'boolean':
-                    if value_list[0]:
-                        predicates = [(keyword, True)]
-                    else:
-                        predicates = [(keyword, False)]
+                    if int(value_list[0]) == 1:
+                        predicates = [(f'{keyword}__exact', 1)]
+                    elif int(value_list[0]) == 0:
+                        predicates = [(f'{keyword}__exact', 0)]
                 elif value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
                 else:
