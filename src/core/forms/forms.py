@@ -617,6 +617,11 @@ class CBVFacetForm(forms.Form):
                     count = values_list.count(each.pk)
                     label_with_count = f'{label} ({count})'
                     choices.append((each.pk, label_with_count))
+
+                if not facet.get('order_by'):
+                    # Default to alpha by choice label
+                    choices = sorted(choices, key=lambda x: x[1])
+
                 self.fields[facet_key] = forms.ChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
@@ -715,9 +720,6 @@ class CBVFacetForm(forms.Form):
                 queryset,
                 key=lambda x: sorted_fks.index(x.pk)
             )
-
-        # Note: There is no way yet to sort on the result of a 
-        # function property like journal.name
 
         return queryset
 
