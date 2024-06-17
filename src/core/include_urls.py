@@ -103,15 +103,15 @@ urlpatterns = [
     re_path(r'^manager/home/settings/order/$', core_views.journal_home_order, name='journal_home_order'),
 
     # Role Management
-    re_path(r'^manager/roles/$', core_views.roles, name='core_manager_roles'),
+    re_path(r'^manager/roles/$', core_views.roles, name='core_manager_roles'), # Deprecated
     re_path(r'^manager/roles/(?P<slug>[-\w.]+)/$', core_views.role, name='core_manager_role'),
     re_path(r'^manager/roles/(?P<slug>[-\w.]+)/user/(?P<user_id>\d+)/(?P<action>[-\w.]+)/$', core_views.role_action,
         name='core_manager_role_action'),
 
     # Users
-    re_path(r'^manager/user/$', core_views.users, name='core_manager_users'),
-    re_path(r'^manager/user/enrol/$', core_views.enrol_users, name='core_manager_enrol_users'),
-    re_path(r'^manager/user/inactive/$', core_views.inactive_users, name='core_manager_inactive_users'),
+    re_path(r'^manager/user/$', core_views.users, name='core_manager_users'), # Deprecated
+    re_path(r'^manager/user/enrol/$', core_views.enrol_users, name='core_manager_enrol_users'), # Deprecated
+    re_path(r'^manager/user/inactive/$', core_views.inactive_users, name='core_manager_inactive_users'), # Deprecated
     re_path(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
     re_path(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
     re_path(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),

@@ -17,10 +17,12 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Users with this role</h2>
+                <h2>Users with the {{ role.name }} role</h2>
             </div>
             <div class="content">
-                <p>To enrol users use the <a href="{% url 'core_manager_enrol_users' %}?return={% url 'core_manager_role' role.slug %}">Enrol Users</a> interface.</p>
+                <p>To enrol users, use the
+                  <a href="{% url 'journal_users' %}">Journal Users</a>
+                  interface.</p>
                 <table class="small scroll" cellspacing="0" width="100%" id='users-with'>
                     <thead>
                     <tr>
