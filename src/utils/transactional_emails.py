@@ -292,13 +292,13 @@ def send_review_complete_acknowledgements(**kwargs):
 
     reviewer_log_dict = {
         'level': 'Info',
-        'action_text': f"Review receipt sent to {review_assignment.reviewer.full_name}",
+        'action_text': f"Review complete notification sent to {review_assignment.reviewer.full_name}",
         'types': 'Review Complete',
         'target': article,
     }
     editor_log_dict = {
         'level': 'Info',
-        'action_text': f"Review receipt sent to {review_assignment.editor.full_name}",
+        'action_text': f"Review complete notification sent to {review_assignment.editor.full_name}",
         'types': 'Review Complete',
         'target': article,
     }
