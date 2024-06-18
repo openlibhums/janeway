@@ -2,7 +2,7 @@
     <a href="{{ journal_settings.general.privacy_policy_url }}">
         {% trans "Privacy Policy" %}
     </a>
-{% elif request.press and request.press.privacy_policy_url %}
+{% elif not request.journal and request.press.privacy_policy_url %}
     <a href="{{ request.press.privacy_policy_url }}">
         {% trans "Privacy Policy" %}
     </a>
