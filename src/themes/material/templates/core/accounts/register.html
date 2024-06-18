@@ -30,12 +30,9 @@
                         {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
                         {{ form|materializecss }}
-                        <p>{% trans "By registering an account you agree to our" %}
-                          {% if journal_settings.general.privacy_policy_url %}
-                            <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
-                          {% else %}
-                            <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
-                          {% endif %}
+                        <p>
+                            {% trans "By registering an account you agree to our" %}
+                            {% include "common/accounts/register_privacy_policy.html" %}
                         </p>
                         {% if journal_settings.general.display_register_page_notice %}
                         {{ journal_settings.general.register_page_notice|safe }}
