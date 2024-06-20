@@ -1292,7 +1292,6 @@ def manage_issues(request, issue_id=None, event=None):
     :param event: string, 'issue', 'delete' or 'remove'
     :return: HttpResponse object or HttpRedirect if POSTed
     """
-    from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
     issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(journal=request.journal), None, None
 
@@ -1353,8 +1352,6 @@ def manage_issues(request, issue_id=None, event=None):
                 save_issue = form.save(commit=False)
                 save_issue.journal = request.journal
                 save_issue.save()
-                if request.FILES and save_issue.large_image:
-                    resize_and_crop(save_issue.large_image.path, [750, 324])
                 if issue:
                     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
                 else:

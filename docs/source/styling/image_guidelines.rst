@@ -59,9 +59,13 @@ These images are resized dynamically depending on various factors (number of iss
 
 Large Image
 -----------
+
+.. note::
+    As of version 1.7 uploaded images are no longer cropped and resized, and the function resize_and_crop has been marked for removal.
+
 Large images are used on article pages, on issue pages, and in any carousel on the journal homepage that draws on these elements. You can set them individually, and you can set a default to be used in all other cases. You can set large images for articles in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`. The default can be changed through :ref:`Journal Settings<journal_settings>`.
 
-The large image has a maximum height of 260px for the material theme and 400px for the OLH theme. Any image larger than 750x324 pixels will be compressed to fit those dimensions, and then it will be cropped horizontally to fit the user's screen size. For this reason, very wide landscape images work best for this element.
+When displayed on the article page the large image has a maximum display height of 260px for the material theme, 400px for the OLH theme and 250px for the clean theme.
 
 .. figure:: /_static/image_guidelines/article_large_image.png
     :alt: Example of large image: material theme
@@ -78,6 +82,7 @@ The large image has a maximum height of 260px for the material theme and 400px f
 
 .. tip::
     The article images can be disabled entirely in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`.
+
 
 Issue Images
 ------------

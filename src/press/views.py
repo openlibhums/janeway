@@ -224,17 +224,23 @@ def edit_press(request):
     )
 
     if request.POST:
-        form = forms.PressForm(request.POST, request.FILES, instance=press)
+        form = forms.PressForm(
+            request.POST,
+            request.FILES,
+            instance=press,
+        )
         if form.is_valid():
             form.save()
-
-            if press.default_carousel_image:
-                from core import logic as core_logic
-                core_logic.resize_and_crop(press.default_carousel_image.path, [750, 324], 'middle')
-
-            messages.add_message(request, messages.INFO, 'Press updated.')
-
-            return redirect(reverse('press_edit_press'))
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Press updated.',
+            )
+            return redirect(
+                reverse(
+                    'press_edit_press',
+                ),
+            )
 
     template = 'press/edit_press.html'
     context = {

@@ -117,6 +117,8 @@ def send_confirmation_link(request, new_user):
 def resize_and_crop(img_path, size, crop_type='middle'):
     """
     Resize and crop an image to fit the specified size.
+
+    Note: This function is deprecated as of version 1.7 and will be removed.
     """
 
     # If height is higher we resize vertically, if not we resize horizontally
@@ -617,8 +619,6 @@ def handle_article_large_image_file(uploaded_file, article, request):
         )
         article.large_image_file = new_file
         article.save()
-
-    resize_and_crop(new_file.self_article_path(), [750, 324], 'middle')
 
 
 def handle_article_thumb_image_file(uploaded_file, article, request):

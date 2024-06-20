@@ -383,8 +383,6 @@ def set_article_image(request, article):
             article.fixedpubcheckitems.select_article_image = True
             article.fixedpubcheckitems.save()
 
-        core_logic.resize_and_crop(new_file.self_article_path(), [750, 324], 'middle')
-
 
 def send_contact_message(new_contact, request):
     body = new_contact.body.replace('\n', '<br>')
