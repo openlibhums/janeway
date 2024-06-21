@@ -2,14 +2,14 @@ Workflow Guides
 ===============
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Guides:
 
-   author
+   workflow/author
    editor/editor
-   reviewer
-   copyeditor
-   typesetter
-   proofing
+   workflow/reviewer
+   workflow/copyeditor
+   workflow/typesetter
+   workflow/proofing
 
 

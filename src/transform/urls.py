@@ -7,9 +7,9 @@ from django.urls import re_path
 from transform import views
 
 urlpatterns = [
-    re_path(r'^galley/(?P<galley_id>.+?)/generate-pdf/$', views.cassius_generate,
+    re_path(r'^galley/(?P<galley_id>\d+?)/generate-pdf/$', views.cassius_generate,
         name='cassius_generate'),
 
-    re_path(r'^galley/(?P<galley_id>.+?)/generate-epub/$', views.epub_generate,
+    re_path(r'^galley/(?P<galley_id>\d+?)/generate-epub/$', views.epub_generate,
         name='epub_generate'),
 ]

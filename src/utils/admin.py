@@ -30,20 +30,20 @@ class LogAdmin(admin.ModelAdmin):
                     'is_email', 'email_subject', 'target')
     list_filter = (admin_utils.GenericRelationArticleJournalFilter,
                    admin_utils.GenericRelationPreprintRepositoryFilter,
-                   'date', 'is_email', 'types')
+                   'date', 'is_email', 'types', 'addressee__field')
     search_fields = ('types', 'email_subject', 'actor__email',
                      'actor__first_name', 'actor__last_name',
-                     'ip_address', 'email_subject', 'toaddress__email')
+                     'ip_address', 'email_subject', 'addressee__email')
     date_hierarchy = ('date')
     raw_id_fields = ('actor',)
 
     inlines = [
-        admin_utils.ToAddressInline,
+        admin_utils.AddresseeInline,
     ]
 
     def _to(self, obj):
         if obj:
-            return ", ".join([to.email for to in obj.toaddress_set.all()])
+            return ", ".join([to.email for to in obj.addressee_set.all()])
 
 
 class VersionAdmin(admin.ModelAdmin):

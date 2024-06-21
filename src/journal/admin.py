@@ -119,11 +119,11 @@ class ArticleOrderingAdmin(admin_utils.ArticleFKModelAdmin):
 
 class FixedPubCheckItemsAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('_article', '_journal', 'metadata', 'verify_doi',
-                    'select_issue', 'set_pub_date', 'notify_the_author',
+                    'select_issue', 'set_pub_date', 'send_notifications',
                     'select_render_galley', 'select_article_image',
                     'select_open_reviews')
     list_filter = ('article__journal', 'metadata', 'verify_doi',
-                   'select_issue', 'set_pub_date', 'notify_the_author',
+                   'select_issue', 'set_pub_date', 'send_notifications',
                    'select_render_galley', 'select_article_image',
                    'select_open_reviews')
     search_fields = ('article__pk', 'article__title', 'article__journal__code')

@@ -7,6 +7,8 @@ Content Manager
 The Content Manager is Janeway's CMS. Pages can be created an edited using our rich text editor.
 
 .. figure:: ../../nstatic/content_manager.png
+    :alt: Janeway CMS.
+    :class: Screenshot
 
     Content Manager
 
@@ -15,6 +17,8 @@ Add a New Page
 To add a new page to your journal select "+ Add New Page" and fill in the fields as detailed in the text beneath each field.
 
 .. figure:: ../../nstatic/content-edit-page.png
+    :alt: Interface for adding a new page through the CMS.
+    :class: Screenshot
 
     Editing a page in the content management system
 
@@ -60,8 +64,8 @@ Fixed nav elements include:
 To add a new custom nav item, from the content manager page, select "Edit Nav" and fill in the fields as desired. Details of how each field works are displayed below the field.
 
 .. figure:: ../../nstatic/content-edit-nav.png
-
-    Editing a custom nav item in the content management system
+    :alt: Editing a custom nav item in the content management system
+    :class: Screenshot
 
 Footer Navigation
 -----------------
@@ -95,8 +99,8 @@ News items can also displayed in the :ref:`carousel<carouselanchor>`.
 To add a new news item select the *News Manager*. The interface displays exiting news items on the left and a form for adding new items on the right.
 
 .. figure:: ../../nstatic/news_manager.png
-
-    News Manager interface
+    :alt: News Manager interface
+    :class: Screenshot
 
 The form fields include:
 
@@ -118,8 +122,8 @@ The form fields include:
     - A series of tags/keywords for the piece, you can filter news items by tags
 
 .. figure:: ../../nstatic/news_item.png
-
-    A news item with image and tags, material theme
+    :alt: A news item with image and tags, material theme
+    :class: Screenshot
 
 Journal Contacts
 ----------------
@@ -135,8 +139,8 @@ You can control the contacts listing for your journal by adding and removing con
 Each outgoing message is recorded in the database and can be viewed in the admin area by staff.
 
 .. figure:: ../../nstatic/contact_manager.png
-
-    Contact Manager interface. The sort handles indicate you can drag and drop to re-order your contacts.
+    :alt: Contact Manager interface. The sort handles indicate you can drag and drop to re-order your contacts.
+    :class: Screenshot
 
 Editorial Team
 --------------
@@ -155,8 +159,7 @@ When you access the interface the form for making a new group is displayed on th
 - Drag and drop to re-order them
 
 .. figure:: ../../nstatic/editorial_team.png
-
-    The Editorial Team interface
+    :alt: The Editorial Team interface
 
 .. tip::
    As of version 1.4 the Group description field supports HTML and presents a rich-text editor. If you do not wish to add an account for each user you can simply list them in the rich text box using, for example, a bulleted list.

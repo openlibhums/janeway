@@ -343,6 +343,10 @@ a:hover .article-title {
     width: 140px;
 }
 
+.alm_numbers {
+    font-size: 1.3rem;
+}
+
 #logo-container svg {
     max-width: 100px;
     max-height: 49px;

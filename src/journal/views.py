@@ -1051,11 +1051,19 @@ def publish_article(request, article_id):
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
     pub_date_form = submission_forms.PubDateForm(instance=article)
-    notify_author_email_form = core_forms.SimpleTinyMCEForm(
-        'email_to_author',
-        initial = {
-            'email_to_author': logic.get_notify_author_text(request, article)
-        }
+    notification_form_kwargs = {
+        'email_context': {
+            'article': article,
+        },
+        'request': request,
+    }
+    notification_initial = logic.get_initial_for_prepub_notifications(
+        request,
+        article,
+    )
+    notification_formset = forms.PrepubNotificationFormSet(
+        form_kwargs=notification_form_kwargs,
+        initial=notification_initial,
     )
     modal = request.GET.get('m', None)
 
@@ -1133,14 +1141,24 @@ def publish_article(request, article_id):
                     )
                 )
 
-        if 'author' in request.POST:
-            logic.notify_author(request, article)
-            return redirect(
-                reverse(
-                    'publish_article',
-                    kwargs={'article_id': article.pk},
-                )
+        if 'notifications' in request.POST:
+            notification_formset = forms.PrepubNotificationFormSet(
+                request.POST,
+                form_kwargs=notification_form_kwargs,
+                initial=notification_initial,
             )
+            if notification_formset.is_valid():
+                logic.handle_prepub_notifications(
+                    request,
+                    article,
+                    notification_formset,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Something went wrong. Please try again.',
+                )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
@@ -1238,7 +1256,7 @@ def publish_article(request, article_id):
         'new_issue_form': new_issue_form,
         'modal': modal,
         'pub_date_form': pub_date_form,
-        'notify_author_email_form': notify_author_email_form,
+        'notification_formset': notification_formset,
     }
 
     return render(request, template, context)
@@ -2278,13 +2296,19 @@ def send_user_email(request, user_id, article_id=None):
             request.POST,
             request.FILES,
         )
-
         if form.is_valid():
+            log_dict = {
+                'level': 'Info',
+                'action_text': f'{request.user} sent an email to {user.full_name}',
+                'types': 'Email',
+                'target': article if article else user,
+            }
             core_email.send_email(
                 user,
                 form.as_dataclass(),
                 request,
                 article=article,
+                log_dict=log_dict,
             )
             close = True
 
@@ -2698,9 +2722,33 @@ def manage_languages(request):
     )
 
 
+class FacetedArticlesListView(core_views.GenericFacetedListView):
+    """
+    This is a base class for article list views.
+    It does not have access controls applied because some public views use it.
+    For staff views, be sure to filter to published articles in get_queryset.
+    Do not use this view directly.
+    This view can also be subclassed and modified for use with other models.
+    """
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+
+    def get_queryset(self, params_querydict=None):
+        self.queryset = super().get_queryset(params_querydict=params_querydict)
+        return self.queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+    def get_facet_queryset(self, **kwargs):
+        queryset = super().get_facet_queryset(**kwargs)
+        return queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(decorators.frontend_enabled, name='dispatch')
-class PublishedArticlesListView(core_views.FilteredArticlesListView):
+class PublishedArticlesListView(FacetedArticlesListView):
 
     """
     A list of published articles that can be searched,

@@ -5,6 +5,10 @@
 {% block title-section %}Dashboard{% endblock %}
 {% block title-sub %}Summary{% endblock %}
 
+{% comment "empty breadcrumb block to override default behaviour an ensure there is no breadcrumb" %}
+{% endcomment %}
+{% block breadcrumbs %}  
+{% endblock breadcrumbs %}
 
 {% block body %}
     <section>

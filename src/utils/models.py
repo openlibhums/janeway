@@ -43,6 +43,11 @@ MESSAGE_STATUS = [
     ('failed', 'Failed'),
 ]
 
+EMAIL_RECIPIENT_FIELDS = [
+    ('to', 'To'),
+    ('cc', 'CC'),
+    ('bcc', 'BCC'),
+]
 
 class LogEntry(models.Model):
     types = models.CharField(max_length=255, null=True, blank=True)
@@ -83,7 +88,18 @@ class LogEntry(models.Model):
 
     @property
     def to(self):
-        return [to.email for to in self.toaddress_set.all()]
+        """ Deprecated in 1.6 because of ambiguity with cc and bcc fields.
+            Use addressee_emails instead.
+        """
+        return self.addressee_emails
+
+    @property
+    def addressees(self):
+        return self.addressee_set.all()
+
+    @property
+    def addressee_emails(self):
+        return set(addressee.email for addressee in self.addressee_set.all())
 
     @staticmethod
     def add_entry(
@@ -122,12 +138,14 @@ class LogEntry(models.Model):
         }
         new_entry = LogEntry.objects.create(**kwargs)
 
-        if to or cc or bcc:
-            for email in join_lists(to, cc, bcc):
-                ToAddress.objects.create(
-                    log_entry=new_entry,
-                    email=email,
-                )
+        for emails, field in [(to, 'to'), (cc, 'cc'), (bcc, 'bcc')]:
+            if emails:
+                for email in emails:
+                    Addressee.objects.create(
+                        log_entry=new_entry,
+                        email=email,
+                        field=field
+                    )
 
         return new_entry
 
@@ -150,18 +168,20 @@ class LogEntry(models.Model):
         return LogEntry.objects.bulk_create(new_entries, batch_size)
 
 
-class ToAddress(models.Model):
+class Addressee(models.Model):
     log_entry = models.ForeignKey(
         LogEntry,
         on_delete=models.CASCADE,
     )
     email = models.EmailField(max_length=300)
+    field = models.CharField(
+        max_length=3,
+        blank=True,
+        choices=EMAIL_RECIPIENT_FIELDS,
+    )
 
     def __str__(self):
         return self.email
-
-    class Meta:
-        verbose_name_plural = 'to addresses'
 
 
 class Version(models.Model):

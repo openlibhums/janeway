@@ -119,7 +119,12 @@ event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_COMPLETE,
 event_logic.Events.register_for_event(event_logic.Events.ON_CORRECTIONS_CANCELLED,
                                       transactional_emails.send_cancel_corrections)
 
+# Prepublication
+event_logic.Events.register_for_event(event_logic.Events.ON_PREPUB_NOTIFICATIONS,
+                                      transactional_emails.send_prepub_notifications)
+
 # Publication
+# Note: ON_AUTHOR_PUBLICATION is deprecated
 event_logic.Events.register_for_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
                                       transactional_emails.send_author_publication_notification)
 

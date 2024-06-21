@@ -13,6 +13,7 @@ from bleach import clean
 
 from django import forms
 from django.apps import apps
+from django.contrib import admin
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -579,6 +580,24 @@ class SearchVector(DjangoSearchVector):
     template = '%(expressions)s'
 
 
+def search_model_admin(request, model, q=None, queryset=None):
+    """
+    A simple search using the admin search functionality,
+    for use in class-based views where our methods for
+    article search do not suit.
+    :param request: A Django request object
+    :param model: Any model that has search_fields specified in its admin
+    :param q: the search term
+    :param queryset: a pre-existing queryset to filter by the search term
+    """
+    if not q:
+        q = request.POST['q'] if request.POST else request.GET['q']
+    if not queryset:
+        queryset = model.objects.all()
+    registered_admin = admin.site._registry[model]
+    return registered_admin.get_search_results(request, queryset, q)
+
+
 class JanewayBleachField(BleachField):
     """ An override of BleachField to avoid casting SafeString from db
     Bleachfield automatically casts the default return type (string) into
@@ -714,3 +733,7 @@ class DateTimePickerModelField(models.DateTimeField):
     def formfield(self, **kwargs):
         kwargs['form_class'] = DateTimePickerFormField
         return super().formfield(**kwargs)
+
+@property
+def NotImplementedField(self):
+    raise NotImplementedError

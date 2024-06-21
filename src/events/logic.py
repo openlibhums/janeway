@@ -227,6 +227,11 @@ class Events:
     # raised when an Editor notifies an author that publication is set
     ON_AUTHOR_PUBLICATION = 'on_author_publication'
 
+    # kwargs: request, article, notification_formset
+    # raised when an editor notifies author, editors,
+    # and/or reviewers that publication is set
+    ON_PREPUB_NOTIFICATIONS = 'on_prepub_notifications'
+
     # kwargs: request, override
     # raised when an Editor overrides review security
     ON_REVIEW_SECURITY_OVERRIDE = 'on_review_security_override'
@@ -275,6 +280,10 @@ class Events:
     # raised when a user access request is evaluated by staff.
     ON_ACCESS_REQUEST_COMPLETE = 'on_access_request_complete'
 
+    DEPRECATED_EVENTS = {
+        ON_AUTHOR_PUBLICATION,
+    }
+
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """
@@ -285,6 +294,9 @@ class Events:
         :param kwargs: the arguments to pass to the event
         :return: None
         """
+        if event_name in Events.DEPRECATED_EVENTS and settings.DEBUG:
+            raise DeprecationWarning(f'{ event_name } is deprecated.')
+
         if settings.DEBUG:
             print('Firing event {}'.format(event_name))
         # destroy/complete tasks that have registered for this event
@@ -315,4 +327,3 @@ class Events:
             Events._hooks[event_name] = []
 
         Events._hooks[event_name] += functions
-

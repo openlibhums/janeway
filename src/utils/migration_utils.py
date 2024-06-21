@@ -11,6 +11,8 @@ from django.db.models import Q
 
 def update_translated_settings(apps, setting_name, group_name, values_to_replace, replacement_value):
     """
+    Deprecated in 1.6, because it only works with an older translation
+    setup that Janeway used to have.
     Gets a setting then iterates through available languages replacing a list of strings with a
     replacement string.
     """
@@ -90,3 +92,32 @@ def replace_strings_in_setting_values(
                         value = value.replace(old_string, new_string)
                         setattr(setting_value, language_var, value)
                         setting_value.save()
+
+
+def update_default_setting_values(apps, setting_name, group_name, values_to_replace, replacement_value):
+    """
+    Updates the specified default setting value where it has not been edited.
+    Accounts for translatable settings that use django-modeltranslation.
+    """
+    with translation.override('en'):
+        SettingValue = apps.get_model('core', 'SettingValue')
+        setting_value = SettingValue.objects.filter(
+            setting__name=setting_name,
+            setting__group__name=group_name,
+            journal=None,
+        ).first()
+
+        if setting_value:
+            language_var = "value_{}".format('en')
+            setattr(setting_value, language_var, replacement_value)
+            setting_value.save()
+
+            variants_to_delete = SettingValue.objects.filter(
+                setting__name=setting_name,
+                setting__group__name=group_name,
+                journal__isnull=False,
+            )
+
+            for variant in variants_to_delete:
+                if getattr(variant, language_var) in values_to_replace:
+                    variant.delete()

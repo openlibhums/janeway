@@ -147,3 +147,4 @@ src/utils/management/commands/test_command.py
 !/src/static/common/
 !/src/static/admin/
 /src/static/admin/hypothesis/**
+jenkins/test-results

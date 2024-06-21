@@ -290,6 +290,19 @@ def send_review_complete_acknowledgements(**kwargs):
     # send slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
+    reviewer_log_dict = {
+        'level': 'Info',
+        'action_text': f"Review complete notification sent to {review_assignment.reviewer.full_name}",
+        'types': 'Review Complete',
+        'target': article,
+    }
+    editor_log_dict = {
+        'level': 'Info',
+        'action_text': f"Review complete notification sent to {review_assignment.editor.full_name}",
+        'types': 'Review Complete',
+        'target': article,
+    }
+
     # send to reviewer
     notify_helpers.send_email_with_body_from_setting_template(
         request,
@@ -297,6 +310,7 @@ def send_review_complete_acknowledgements(**kwargs):
         'subject_review_complete_reviewer_acknowledgement',
         review_assignment.reviewer.email,
         context,
+        log_dict=reviewer_log_dict,
     )
 
     # send to editor
@@ -309,6 +323,7 @@ def send_review_complete_acknowledgements(**kwargs):
             'subject_review_complete_acknowledgement',
             editor.email,
             context,
+            log_dict=editor_log_dict,
         )
 
 
@@ -1283,6 +1298,35 @@ def send_proofing_complete(**kwargs):
             log_dict=log_dict,
         )
         notify_helpers.send_slack(request, description, ['slack_editors'])
+
+
+def send_prepub_notifications(**kwargs):
+    request = kwargs['request']
+    article = kwargs['article']
+    formset = kwargs['formset']
+
+    description = """
+        {article.title} was set to be published {article.date_published}
+        by {request.user.full_name()}
+    """
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Article Set for Publication',
+        'target': article,
+    }
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+    for form in formset:
+        core_email.send_email(
+            None,
+            form.as_dataclass(),
+            request,
+            article=article,
+            log_dict=log_dict,
+        )
 
 
 def send_author_publication_notification(**kwargs):

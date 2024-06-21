@@ -89,8 +89,8 @@ class RevisionActionInline(admin.TabularInline):
     raw_id_fields = ('revisionaction',)
 
 
-class ToAddressInline(admin.TabularInline):
-    model = utils_models.ToAddress
+class AddresseeInline(admin.TabularInline):
+    model = utils_models.Addressee
     extra = 0
 
 

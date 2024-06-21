@@ -3,7 +3,13 @@
 <div>
     {% regroup articles by section as grouped_articles %}
     {% for section, section_articles in grouped_articles %}
-        <h4 class="em">{{ section.name }}</h4>
+        <h4 class="em">
+            {% if section.plural and section_articles|length >= 2 %}
+                {{ section.plural }}
+            {% else %}
+                {{ section.name }}
+            {% endif %}
+        </h4>
         <hr>
         {% for article in section_articles %}
             {% include "elements/journal/box_article.html" with article=article %}
