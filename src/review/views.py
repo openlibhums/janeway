@@ -107,7 +107,11 @@ def unassigned_article(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse or Redirect if POST
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if article.ithenticate_id and not article.ithenticate_score:
         ithenticate.fetch_percentage(request.journal, [article])
@@ -162,6 +166,7 @@ def add_projected_issue(request, article_id):
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
+        journal=request.journal,
     )
 
     form = submission_forms.ProjectedIssueForm(instance=article)
@@ -208,6 +213,7 @@ def view_ithenticate_report(request, article_id):
         submission_models.Article,
         pk=article_id,
         ithenticate_id__isnull=False,
+        journal=request.journal,
     )
 
     ithenticate_url = ithenticate.fetch_url(article)
@@ -241,7 +247,11 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
     :param should_redirect: if true, we redirect the user to the notification page
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     editor = get_object_or_404(core_models.Account, pk=editor_id)
 
     if not editor.has_an_editor_role(request):
@@ -264,7 +274,11 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
 @senior_editor_user_required
 def unassign_editor(request, article_id, editor_id):
     """Unassigns an editor from an article"""
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(
         models.EditorAssignment, article=article, editor=editor
@@ -330,7 +344,11 @@ def assignment_notification(request, article_id, editor_id):
     :param editor_id: Account PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor, notified=False)
 
@@ -378,7 +396,11 @@ def assignment_notification(request, article_id, editor_id):
 @editor_user_required
 def move_to_review(request, article_id, should_redirect=True):
     """Moves an article into the review stage"""
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if article.editorassignment_set.all().count() > 0:
         article.stage = submission_models.STAGE_ASSIGNED
@@ -407,7 +429,11 @@ def in_review(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review_rounds = models.ReviewRound.objects.filter(article=article)
     revisions_requests = models.RevisionRequest.objects.filter(article=article)
 
@@ -563,7 +589,11 @@ def delete_review_round(request, article_id, round_id):
     :param round_id: Round PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review_round = get_object_or_404(models.ReviewRound, pk=round_id)
 
     if request.POST:
@@ -601,8 +631,15 @@ def add_files(request, article_id, round_id):
     :param round_id: Round PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article.objects.prefetch_related('manuscript_files'), pk=article_id)
-    review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
+    article = get_object_or_404(
+        submission_models.Article.objects.prefetch_related('manuscript_files'),
+        pk=article_id,
+        journal=request.journal,
+    )
+    review_round = get_object_or_404(
+        models.ReviewRound.objects.prefetch_related('review_files'),
+        pk=round_id,
+    )
 
     if request.POST:
 
@@ -644,7 +681,11 @@ def add_files(request, article_id, round_id):
 @editor_user_required
 def remove_file(request, article_id, round_id, file_id):
     """Removes a file from a review round."""
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review_round = get_object_or_404(models.ReviewRound, pk=round_id)
     file = get_object_or_404(core_models.File, pk=file_id)
 
@@ -1084,7 +1125,11 @@ def add_review_assignment(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     reviewers = logic.get_reviewer_candidates(
         article,
         user=request.user,
@@ -1186,7 +1231,11 @@ def notify_reviewer(request, article_id, review_id):
     :param review_id: ReviewAssignment PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     email_context = logic.get_reviewer_notification_context(
@@ -1244,7 +1293,11 @@ def view_review(request, article_id, review_id):
     :param review_id: ReviewAssignment PK
     :return: a rendered django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
     visibility_form = forms.ReviewVisibilityForm(
         instance=review,
@@ -1327,7 +1380,11 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     :param answer_id: ReviewAssignmentAnswer PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
     answer = get_object_or_404(models.ReviewAssignmentAnswer, pk=answer_id)
 
@@ -1370,7 +1427,11 @@ def edit_review(request, article_id, review_id):
     :param review_id: ReviewAssignment PK
     :return: a rendered django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
@@ -1410,7 +1471,11 @@ def delete_review(request, article_id, review_id):
     :param review_id: ReviewAssignment PK
     :return: a rendered django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
@@ -1452,7 +1517,11 @@ def withdraw_review(request, article_id, review_id):
     :param review_id: ReviewAssignment PK
     :return:a rendered django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if review.date_complete:
@@ -1535,7 +1604,11 @@ def reset_review(request, article_id, review_id):
     :param review_id: pk of a ReviewAssignment
     :return: a contextualised django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     if request.POST:
@@ -1569,7 +1642,11 @@ def review_decision(request, article_id, decision):
     :param decision
     :return: a contextualised django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     author_review_url = request.journal.site_url(
             reverse('review_author_view', kwargs={'article_id': article.id})
     )
@@ -1698,7 +1775,12 @@ def rate_reviewer(request, article_id, review_id):
     :return: a contextualised django template
     """
 
-    review = get_object_or_404(models.ReviewAssignment, pk=review_id, article__pk=article_id)
+    review = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article__pk=article_id,
+        article__journal=request.journal,
+    )
     if not review.is_complete:
         messages.add_message(request, messages.INFO, 'You cannot rate a reviewer until their review is complete.'
                                                      'You should withdraw this review if you want to rate the reviewer'
@@ -1737,7 +1819,11 @@ def author_view_reviews(request, article_id):
     :param article_id: Article pk
     :return: a contextualised django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     reviews = models.ReviewAssignment.objects.filter(
         article=article,
         is_complete=True,
@@ -1774,7 +1860,11 @@ def request_revisions(request, article_id):
     :param article_id: Article PK
     :return: a contextualised django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     form = forms.RevisionRequest(article=article, editor=request.user)
     review_round = models.ReviewRound.latest_article_round(
         article=article,
@@ -1825,7 +1915,11 @@ def request_revisions_notification(request, article_id, revision_id):
     :param revision_id: PK of a RevisionRequest
     :return: a contextualised django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     revision = get_object_or_404(models.RevisionRequest, pk=revision_id)
     email_content = logic.get_revision_request_content(request, article, revision)
 
@@ -1866,9 +1960,12 @@ def edit_revision_request(request, article_id, revision_id):
     :param revision_id: Revision PK
     :return: HttpResponse
     """
-    revision_request = get_object_or_404(models.RevisionRequest,
-                                         article__pk=article_id,
-                                         pk=revision_id)
+    revision_request = get_object_or_404(
+        models.RevisionRequest,
+        article__pk=article_id,
+        article__journal=request.journal,
+        pk=revision_id
+    )
     form = forms.EditRevisionDue(instance=revision_request)
 
     if revision_request.date_completed:
@@ -1924,6 +2021,7 @@ def do_revisions(request, article_id, revision_id):
     revision_request = get_object_or_404(
         models.RevisionRequest,
         article__pk=article_id,
+        article__journal=request.journal,
         pk=revision_id,
         date_completed__isnull=True,
         article__stage__in=submission_models.REVIEW_STAGES,
@@ -2026,8 +2124,13 @@ def do_revisions(request, article_id, revision_id):
 
 @article_author_required
 def replace_file(request, article_id, revision_id, file_id):
-    revision_request = get_object_or_404(models.RevisionRequest, article__pk=article_id, pk=revision_id,
-                                         date_completed__isnull=True)
+    revision_request = get_object_or_404(
+        models.RevisionRequest,
+        article__pk=article_id,
+        article__journal=request.journal,
+        pk=revision_id,
+        date_completed__isnull=True,
+    )
     file = get_object_or_404(core_models.File, pk=file_id)
 
     if request.GET.get('download', None):
@@ -2073,10 +2176,15 @@ def upload_new_file(request, article_id, revision_id):
     :param request: HttpRequest object
     :param article_id: Article PK
     :param revision_id: RevisionRequest PK
-    :return: Httpresponse or HttpRedirect
+    :return: HttpResponse or HttpRedirect
     """
-    revision_request = get_object_or_404(models.RevisionRequest, article__pk=article_id, pk=revision_id,
-                                         date_completed__isnull=True)
+    revision_request = get_object_or_404(
+        models.RevisionRequest,
+        article__pk=article_id,
+        article__journal=request.journal,
+        pk=revision_id,
+        date_completed__isnull=True,
+    )
     article = revision_request.article
 
     if request.POST and request.FILES:
@@ -2125,9 +2233,12 @@ def view_revision(request, article_id, revision_id):
     :param revision_id: RevisionRequest PK
     :return: HttpResponse
     """
-    revision_request = get_object_or_404(models.RevisionRequest.objects.select_related('article'),
-                                         pk=revision_id,
-                                         article__pk=article_id)
+    revision_request = get_object_or_404(
+        models.RevisionRequest.objects.select_related('article'),
+        pk=revision_id,
+        article__pk=article_id,
+        article__journal=request.journal,
+    )
 
     template = 'review/revision/view_revision.html'
     context = {
@@ -2148,7 +2259,11 @@ def review_warning(request, article_id, decision):
     :param article_id: Article PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if request.POST and request.user.is_editor(request):
         override = models.EditorOverride.objects.create(
@@ -2202,7 +2317,10 @@ def editor_article_file(request, article_id, file_id):
     :param file_id: the file ID to serve
     :return: a streaming response of the requested file or 404
     """
-    article_object = submission_models.Article.objects.get(pk=article_id)
+    article_object = submission_models.Article.objects.get(
+        pk=article_id,
+        journal=request.journal,
+    )
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     return files.serve_file(request, file_object, article_object)
@@ -2253,7 +2371,11 @@ def draft_decision(request, article_id):
     :return: a django template with context
     """
 
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     drafts = models.DecisionDraft.objects.filter(article=article)
     message_to_editor = logic.get_draft_email_message(request, article)
     editors = request.journal.editors()
@@ -2380,7 +2502,11 @@ def draft_decision_text(request, article_id):
 @editor_is_not_author
 @editor_user_required
 def manage_draft(request, article_id, draft_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
 
     if 'decline_draft' in request.POST:
@@ -2413,7 +2539,11 @@ def manage_draft(request, article_id, draft_id):
 @editor_is_not_author
 @editor_user_required
 def edit_draft_decision(request, article_id, draft_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
     editors = request.journal.editors()
@@ -2674,7 +2804,9 @@ def decision_helper(request, article_id):
     :return: a django response
     """
     article = get_object_or_404(
-        submission_models.Article, pk=article_id,
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
     )
 
     reviews = models.ReviewAssignment.objects.filter(

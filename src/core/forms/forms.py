@@ -17,6 +17,7 @@ from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
+from core.model_utils import JanewayBleachFormField, MiniHTMLFormField
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import render_template, setting_handler
@@ -39,14 +40,21 @@ class EditKey(forms.Form):
         super(EditKey, self).__init__(*args, **kwargs)
 
         if self.key_type == 'rich-text':
-            self.fields['value'].widget = TinyMCE()
+            self.fields['value'] = JanewayBleachFormField()
+        elif self.key_type == 'mini-html':
+            self.fields['value'] = MiniHTMLFormField()
+        elif self.key_type == 'text':
+            self.fields['value'].widget = forms.Textarea()
+        elif self.key_type == 'char':
+            self.fields['value'].widget = forms.TextInput()
+        elif self.key_type in {'number', 'integer'}:
+            # 'integer' is either a bug or used by a plugin
+            self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
         elif self.key_type == 'boolean':
             self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
-        elif self.key_type == 'integer':
-            self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
         elif self.key_type == 'file' or self.key_type == 'journalthumb':
             self.fields['value'].widget = forms.FileInput()
-        elif self.key_type in ['text', 'json']:
+        elif self.key_type == 'json':
             self.fields['value'].widget = forms.Textarea()
         else:
             self.fields['value'].widget.attrs['size'] = '100%'
@@ -281,8 +289,20 @@ class GeneratedPluginSettingForm(forms.Form):
             object = field['object']
             if field['types'] == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
-            elif field['types'] == 'rich-text' or field['types'] == 'text' or field['types'] == 'Text':
-                self.fields[field['name']] = forms.CharField(widget=forms.Textarea, required=False)
+            elif field['types'] == 'rich-text':
+                self.fields[field['name']] = JanewayBleachFormField(
+                    required=False,
+               )
+            elif field['types'] == 'mini-html':
+                self.fields[field['name']] = MiniHTMLFormField(
+                    required=False,
+                )
+            elif field['types'] in {'text', 'Text'}:
+                # Keeping Text because a plugin may use it
+                self.fields[field['name']] = forms.CharField(
+                    widget=forms.Textarea,
+                    required=False,
+                )
             elif field['types'] == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
@@ -318,10 +338,18 @@ class GeneratedSettingForm(forms.Form):
 
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
-            elif object.setting.types == 'rich-text' or object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(required=False)
+            elif object.setting.types == 'rich-text':
+                self.fields[field['name']] = JanewayBleachFormField(
+                    required=False,
+                )
+            elif object.setting.types == 'mini-html':
+                self.fields[field['name']] = MiniHTMLFormField(
+                    required=False,
+                )
+            elif object.setting.types == 'text':
                 self.fields[field['name']] = forms.CharField(
-                    widget=TinyMCE(), required=False,
+                    widget=forms.Textarea,
+                    required=False,
                 )
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,

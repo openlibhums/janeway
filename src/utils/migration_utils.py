@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.conf import settings
 from django.utils import translation
+from django.db.models import Q
 
 
 def update_translated_settings(apps, setting_name, group_name, values_to_replace, replacement_value):
@@ -36,3 +37,56 @@ def update_translated_settings(apps, setting_name, group_name, values_to_replace
                     setting_value.value = value
                     setting_value.save()
 
+
+def update_setting_types(
+    model,
+    group_name,
+    old_type,
+    new_type,
+    setting_name=None,
+):
+    """
+    Updates setting types based on setting group, current type,
+    and optionally on setting name.
+    """
+    query = Q(group__name=group_name, types=old_type)
+    if setting_name:
+        query &= Q(name=setting_name)
+    model.objects.filter(query).update(types=new_type)
+
+
+def replace_strings_in_setting_values(
+    apps,
+    setting_name,
+    group_name,
+    replacements,
+    languages=None,
+):
+    """
+    Replaces a substring with a new substring in matching setting values.
+    Accounts for translatable settings that use django-modeltranslation.
+    :param setting_name: Setting.name
+    :param group_name: SettingGroup.name
+    :param replacements: A list of tuples containing old and new strings.
+    :param languages: A list of language codes to check for old and new strings.
+    """
+    if not languages:
+        languages = ['en']
+    with translation.override('en'):
+        SettingValue = apps.get_model('core', 'SettingValue')
+        setting_values = SettingValue.objects.filter(
+            setting__name=setting_name,
+            setting__group__name=group_name,
+        )
+
+        for setting_value in setting_values:
+            for language in languages:
+                language_var = f'value_{language}'
+                value = getattr(setting_value, language_var, '')
+                if not value:
+                    continue
+                for old_string, new_string in replacements:
+                    if old_string in value:
+                        value = value.replace(old_string, new_string)
+                        setattr(setting_value, language_var, value)
+                        setting_value.save()

@@ -26,9 +26,7 @@
 
                         <p>{% trans "Password Rules" %}:</p>
                         <ul class="no-top-margin">
-                            <li>{% blocktrans with password_length=request.press.password_length %}Your password should be {{ password_length }} characters long.{% endblocktrans %}</li>
-                            {% if request.press.password_upper %}<li>{% blocktrans %}Your password should contain at least one upper case letter."{% endblocktrans %} %}</li>{% endif %}
-                            {% if request.press.password_number %}<li>{% blocktrans %}Your password should contain at least one number." %}{% endblocktrans %}</li>{% endif %}
+                            {% include "common/elements/password_rules.html" %}
                         </ul>
                         <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
 

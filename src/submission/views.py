@@ -87,6 +87,7 @@ def submit_submissions(request):
     # gets a list of submissions for the logged in user
     articles = models.Article.objects.filter(
         owner=request.user,
+        journal=request.journal,
     ).exclude(
         stage=models.STAGE_UNSUBMITTED,
     )
@@ -112,7 +113,11 @@ def submit_funding(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(models.Article, pk=article_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     additional_fields = models.Field.objects.filter(journal=request.journal)
     funder_form = forms.ArticleFundingForm(
         article=article,
@@ -163,7 +168,11 @@ def submit_info(request, article_id):
     :return: HttpResponse or HttpRedirect
     """
     with translation.override(settings.LANGUAGE_CODE):
-        article = get_object_or_404(models.Article, pk=article_id)
+        article = get_object_or_404(
+            models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
         additional_fields = models.Field.objects.filter(journal=request.journal)
         submission_summary = setting_handler.get_setting(
             'general',
@@ -219,7 +228,10 @@ def publisher_notes_order(request, article_id):
         ids = request.POST.getlist('note[]')
         ids = [int(_id) for _id in ids]
 
-        article = models.Article.objects.get(pk=article_id)
+        article = models.Article.objects.get(
+            pk=article_id,
+            journal=request.journal,
+        )
 
         for he in article.publisher_notes.all():
             he.sequence = ids.index(he.pk)
@@ -240,7 +252,11 @@ def submit_authors(request, article_id):
     :param article_id: Article PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(models.Article, pk=article_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if article.current_step < 2 and not request.user.is_staff:
         return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
@@ -507,7 +523,11 @@ def submit_files(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse
     """
-    article = get_object_or_404(models.Article, pk=article_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     form = forms.FileDetails()
     configuration = request.journal.submissionconfiguration
 
@@ -605,7 +625,11 @@ def submit_review(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(models.Article, pk=article_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if article.current_step < 4 and not request.user.is_staff:
         return redirect(
@@ -676,7 +700,11 @@ def edit_metadata(request, article_id):
     :return: contextualised django template
     """
     with translation.override(request.override_language):
-        article = get_object_or_404(models.Article, pk=article_id)
+        article = get_object_or_404(
+            models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
         additional_fields = models.Field.objects.filter(
             journal=request.journal,
         )
