@@ -4,14 +4,6 @@ from django.db import migrations
 from production.logic import get_galley_label_and_type
 
 
-class Migration(migrations.Migration):
-
-    dependencies = [
-        ('core', '0087_merge_20240315_1649'),
-        ('metrics', '0010_auto_20230317_1534'),
-    ]
-
-
 def fix_untyped_galleys(apps, schema_editor):
     """ Fixes galleys that haven't had a type set and linked metrics records"""
 
@@ -28,6 +20,13 @@ def fix_untyped_galleys(apps, schema_editor):
         ).update(galley_type=galley_type)
 
 
-operations = [
-    migrations.RunPython(fix_untyped_galleys, reverse_code=migrations.RunPython.noop),
-]
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('core', '0087_merge_20240315_1649'),
+        ('metrics', '0010_auto_20230317_1534'),
+    ]
+
+    operations = [
+        migrations.RunPython(fix_untyped_galleys, reverse_code=migrations.RunPython.noop),
+    ]
