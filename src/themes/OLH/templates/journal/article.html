@@ -113,9 +113,9 @@
                                 data-responsive-menu="drilldown medium-dropdown">
                               {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
-                                <li><a href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="Share on Facebook"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="Share on X"><i class="fa fa-twitter"></i></a></li>
-                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="Share on Linked In"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label={% trans "Share on Facebook" %}><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label={% trans "Share on X" %}><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label={% trans "Share on Linked In" %}><i class="fa fa-linkedin"></i></a></li>
                               {% endwith %}
                             </ul>
                         </div>
@@ -123,13 +123,13 @@
                             <ul class="menu vertical medium-horizontal"
                                 data-responsive-menu="dropdown">
                                 {% hook 'article_buttons' %}
-                                <li><a href="{{ article.local_url }}print/" aria-label="print article"><i class="fa fa-print">&nbsp;</i></a></li>
-                                <li><a href="javascript:resizeText(-1)" aria-label="decrease text size">A-</a></li>
-                                <li><a href="javascript:resizeText(1)" aria-label="increase text size">A+</a></li>
+                                <li><a href="{{ article.local_url }}print/" aria-label={% trans "print article" %}><i class="fa fa-print">&nbsp;</i></a></li>
+                                <li><a href="javascript:resizeText(-1)" aria-label={% trans "decrease text size" %}>A-</a></li>
+                                <li><a href="javascript:resizeText(1)" aria-label={% trans "increase text size" %}>A+</a></li>
                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
-                                <li><a href="#" id="dyslexia-mode" aria-label="Dyslexia mode">{% trans "Dyslexia" %}</a></li>
+                                <li><a href="#" id="dyslexia-mode" aria-label={% trans "Dyslexia mode" %}>{% trans "Dyslexia" %}</a></li>
                                 <li>
-                                    <a href="#" aria-label="Cite article"><i class="fa fa-comments">&nbsp;</i></a>
+                                    <a href="#" aria-label={% trans "Cite article" %}><i class="fa fa-comments">&nbsp;</i></a>
                                     <ul class="menu vertical">
                                         <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
                                         <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
