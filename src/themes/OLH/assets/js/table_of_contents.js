@@ -30,5 +30,10 @@ $( document ).ready(function() {
 
     });
 
-    $("#toc").append(toc);
+    if(iter==0){
+        $("#toc").remove();
+    }
+    else{
+        $("#toc").append(toc);
+    }
 });
