@@ -351,19 +351,24 @@
                             <div class="section">
                                 {% if article.is_published or proofing %}
                                     <h3>{% trans "Download" %}</h3>
-                                    <ul>
-                                        {% for galley in galleys %}
-                                            <li>
-                                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                                    </li>
-                                                    <li>
-                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
-                                                    </li>
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
+                                    {% if galleys %}
+                                        <ul>
+                                            {% for galley in galleys %}
+                                                <li>
+                                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                        </li>
+                                                        <li>
+                                                        <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p> {% trans 'Downloads are not available for this article.' %}</p>
+                                    {% endif %}
+
                                     {% if proofing %}
                                         <p id="note_to_proofreader_2">
                                             <i class="fa fa-info"></i>
@@ -476,13 +481,17 @@
 
                         <div class="section hide-for-small-only">
                             <h3>{% trans "File Checksums" %} (MD5)</h3>
-                            <ul>
-                                {% for galley in galleys %}
-                                    <li>
-                                        <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            {% if galleys %}
+                                <ul>
+                                    {% for galley in galleys %}
+                                        <li>
+                                            <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                            {% endif %}
                         </div>
 
                         <div class="section hide-for-small-only">
