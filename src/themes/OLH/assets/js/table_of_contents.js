@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-
+    
     if (!$("#toc")) {
         return;
     }
@@ -31,7 +31,7 @@ $( document ).ready(function() {
     });
 
     if(iter==0){
-        $("#toc").remove();
+        $("#toc-section").remove();
     }
     else{
         $("#toc").append(toc);
