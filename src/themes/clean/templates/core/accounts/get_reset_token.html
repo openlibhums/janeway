@@ -9,6 +9,7 @@
             <div class="card">
                 <div class="card-block">
                     <div class="col-md-12">
+                        {% include "elements/forms/errors.html" with form=form %}
                         <form method="POST">
                             {% csrf_token %}
                             <div class="form-group">

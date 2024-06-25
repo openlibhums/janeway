@@ -8,6 +8,7 @@
         <div class="col m6 offset-m3">
             <div class="card">
                 <div class="card-content">
+                    {% include "elements/forms/errors.html" with form=form %}
                     <form method="POST">
                         {% csrf_token %}
                         <div class="form-group row">
