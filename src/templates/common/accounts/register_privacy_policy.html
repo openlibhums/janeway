@@ -1,0 +1,13 @@
+{% if request.journal and journal_settings.general.privacy_policy_url %}
+    <a href="{{ journal_settings.general.privacy_policy_url }}">
+        {% trans "Privacy Policy" %}
+    </a>
+{% elif not request.journal and request.press.privacy_policy_url %}
+    <a href="{{ request.press.privacy_policy_url }}">
+        {% trans "Privacy Policy" %}
+    </a>
+{% else %}
+    <a href="{% url 'cms_page' "privacy" %}">
+        {% trans "Privacy Policy" %}
+    </a>
+{% endif %}

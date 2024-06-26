@@ -68,7 +68,11 @@ def article_copyediting(request, article_id):
     :return: a contextualised template
     """
 
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyeditor_assignments = models.CopyeditAssignment.objects.filter(
         article=article,
     )
@@ -132,7 +136,11 @@ def add_copyeditor_assignment(request, article_id):
     :param article_id: a submission.models.Article PK
     :return: HttpRequest object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyeditors = logic.get_copyeditors(article)
     copyeditor_pks = [copyeditor.user.pk for copyeditor in copyeditors]
     files = article.manuscript_files.all() | article.data_figure_files.all()
@@ -185,7 +193,11 @@ def notify_copyeditor_assignment(request, article_id, copyedit_id):
     :param copyedit_id: a CopyeditAssignment PK
     :return: HttpRequest object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
     email_context = logic.get_copyeditor_notification_context(
         request, article, copyedit,
@@ -238,7 +250,11 @@ def edit_assignment(request, article_id, copyedit_id):
     :param copyedit_id: a CopyeditAssignment PK
     :return:
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
     if copyedit.decision:

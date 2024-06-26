@@ -281,9 +281,11 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
     :param proofing_task_id: ProofingTask PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article,
-                                pk=article_id,
-                                journal=request.journal)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     proofing_task = get_object_or_404(models.ProofingTask,
                                       pk=proofing_task_id)
 
@@ -384,7 +386,11 @@ def notify_proofreader(request, article_id, proofing_task_id):
     :param proofing_task_id: ProofingTask PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article.objects.select_related('productionassignment'),
+        pk=article_id,
+        journal=request.journal,
+    )
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     user_message_content = logic.get_notify_proofreader(request, article, proofing_task)
 
@@ -628,7 +634,11 @@ def notify_typesetter_changes(request, article_id, proofing_task_id, typeset_tas
     :param typeset_task_id: TypesetterProofingTask PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
     notification_email_content = logic.get_notify_typesetter(request, article, proofing_task, typeset_task)
@@ -717,7 +727,11 @@ def acknowledge(request, article_id, model_name, model_pk):
     :return: HttpRedirect or HttpResponse
     """
     model, model_object = logic.get_model_and_object(model_name, model_pk)
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     text = logic.get_ack_message(request, article, model_name, model_object)
 
     if request.POST:
@@ -753,9 +767,12 @@ def complete_proofing(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article,
-                                stage=submission_models.STAGE_PROOFING,
-                                pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        stage=submission_models.STAGE_PROOFING,
+        pk=article_id,
+        journal=request.journal,
+    )
     message = logic.get_complete_proofing_message(request, article)
 
     if request.POST:
