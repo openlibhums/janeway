@@ -818,7 +818,7 @@ class Issue(AbstractLastModifiedModel):
             ordered_articles = ArticleOrdering.objects.filter(issue=self, section=ordered_section.section)
 
             for article in ordered_articles:
-                article_list.append(article)
+                article_list.append(article.article)
 
             articles = self.articles.filter(section=ordered_section.section, pk__in=article_pks)
 
@@ -1210,7 +1210,7 @@ class FixedPubCheckItems(models.Model):
     verify_doi = models.BooleanField(default=False)
     select_issue = models.BooleanField(default=False)
     set_pub_date = models.BooleanField(default=False)
-    notify_the_author = models.BooleanField(default=False)
+    send_notifications = models.BooleanField(default=False)
     select_render_galley = models.BooleanField(default=False)
     select_article_image = models.BooleanField(default=False)
     select_open_reviews = models.BooleanField(default=False)

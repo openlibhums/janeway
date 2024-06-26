@@ -1,0 +1,66 @@
+{% load foundation %}
+<div
+    class="reveal small"
+    id="notifications"
+    data-reveal
+    data-animation-in="slide-in-up"
+    data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h3><i class="fa fa-envelope-o">&nbsp;</i>Send Notifications</h3>
+        </div>
+        {% if not article.fixedpubcheckitems.send_notifications %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ notification_formset.management_form }}
+                <div class="card-section">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <h4>Authors</h4>
+                            <p>You can send an email to authors and others
+                            notifying them of the publication date and time.
+                            Any coauthors
+                            {% if journal_settings.general.notify_section_editors_of_publication %}
+                            and section editors
+                            (<a href="{% url 'core_edit_setting' 'general' 'notify_section_editors_of_publication' %}">change setting</a>)
+                            {% endif %}
+                            have been added to CC.</p>
+                            <p>From: {{ request.user.full_name }} &lt;{{ request.user.email }}&gt;</p>
+                        </div>
+                    </div>
+                    {{ notification_formset.0|foundation }}
+                </div>
+                {% if journal_settings.general.notify_peer_reviewers_of_publication and article.peer_reviewers %}
+                    <div class="card-section">
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <h4>Peer reviewers</h4>
+                                <p>Peer reviewers will be notified with the following message
+                                (<a href="{% url 'core_edit_setting' 'general' 'notify_peer_reviewers_of_publication' %}">change setting</a>).
+                                </p>
+                                <p>From: {{ request.user.full_name }} &lt;{{ request.user.email }}&gt;</p>
+                            </div>
+                        </div>
+                        {{ notification_formset.1|foundation }}
+                    </div>
+                {% endif %}
+                <div class="card-divider">
+                    <div class="button-group">
+                        <button type="submit" class="button success" name="notifications"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            <div class="card-section">
+                <div class="row">
+                    <div class="large-12 columns">
+                        <p>Notifications have already been sent.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

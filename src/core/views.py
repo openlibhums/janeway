@@ -32,6 +32,7 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
+from core.model_utils import NotImplementedField, search_model_admin
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -739,7 +740,11 @@ def dashboard_article(request, article_id):
     :param article_id: int, Article object primary key
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     template = 'core/article.html'
     context = {
@@ -1198,9 +1203,10 @@ def add_user(request):
         if registration_form.is_valid():
             new_user = registration_form.save()
             # Every new user is given the author role
-            new_user.add_account_role('author', request.journal)
+            if request.journal:
+                new_user.add_account_role('author', request.journal)
 
-            if role:
+            if role and request.journal:
                 new_user.add_account_role(role, request.journal)
 
             form = forms.EditAccountForm(
@@ -2407,7 +2413,7 @@ def manage_access_requests(request):
 
 def sitemap(request, path_parts):
     """
-    Renders an XML sitemap based on articles and pages available to the journal.
+    Renders an XML sitemap based on articles and available to the journal.
     :param request: HttpRequest object
     :param path_parts: List making up the sitemap path. ['journal', 'code', 'sitemap.xml']
     :return: HttpResponse object
@@ -2420,18 +2426,19 @@ def sitemap(request, path_parts):
     raise Http404()
 
 
-class FilteredArticlesListView(generic.ListView):
+class GenericFacetedListView(generic.ListView):
     """
-    This is a base class for article list views.
-    It does not have access controls applied because some public views use it.
-    For staff views, be sure to filter to published articles in get_queryset.
-    Do not use this view directly.
+    This is a generic base class for creating filterable list views
+    with Janeway models.
     """
+    model = NotImplementedField
+    template_name = NotImplementedField
 
-    model = submission_models.Article
-    template_name = 'core/manager/article_list.html'
     paginate_by = '25'
     facets = {}
+
+    # These fields will receive a single initial value, not a list
+    single_value_fields = {'date_time', 'date', 'integer', 'search', 'boolean'}
 
     # None or integer
     action_queryset_chunk_size = None
@@ -2452,12 +2459,11 @@ class FilteredArticlesListView(generic.ListView):
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
         facets = self.get_facets()
 
-        # Most initial values are in list form
-        # The exception is date_time facets
         initial = dict(params_querydict.lists())
+
         for keyword, value in initial.items():
             if keyword in facets:
-                if facets[keyword]['type'] in ['date_time', 'date']:
+                if facets[keyword]['type'] in self.single_value_fields:
                     initial[keyword] = value[0]
 
         context['facet_form'] = forms.CBVFacetForm(
@@ -2501,26 +2507,31 @@ class FilteredArticlesListView(generic.ListView):
             # The following line prevents the user from passing any parameters
             # other than those specified in the facets.
             if keyword in facets and value_list:
-                if value_list[0]:
-                    predicates = [(keyword, value) for value in value_list]
-                elif facets[keyword]['type'] not in ['date_time', 'date']:
-                    if value_list[0] == '':
-                        predicates = [(keyword, '')]
+                if facets[keyword]['type'] == 'search' and value_list[0]:
+                    self.queryset, _duplicates = search_model_admin(
+                        self.request,
+                        self.model,
+                        q=value_list[0],
+                        queryset=self.queryset,
+                    )
+                    predicates = []
+                elif facets[keyword]['type'] == 'boolean':
+                    if value_list[0]:
+                        predicates = [(keyword, True)]
                     else:
-                        predicates = [(keyword+'__isnull', True)]
+                        predicates = [(keyword, False)]
+                elif value_list[0]:
+                    predicates = [(keyword, value) for value in value_list]
                 else:
                     predicates = []
                 query = Q()
                 for predicate in predicates:
                     query |= Q(predicate)
                 q_stack.append(query)
-        return self.order_queryset(
-            self.filter_queryset_if_journal(
-                self.queryset.filter(*q_stack)
-            )
-        ).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED,
+        self.queryset = self.filter_queryset_if_journal(
+            self.queryset.filter(*q_stack)
         )
+        return self.order_queryset(self.queryset)
 
     def order_queryset(self, queryset):
         order_by = self.get_order_by()
@@ -2549,13 +2560,11 @@ class FilteredArticlesListView(generic.ListView):
     def get_facet_queryset(self):
         # The default behavior is for the facets to stay the same
         # when a filter is chosen.
-        # To make them change dynamically, return None 
+        # To make them change dynamically, return None
         # instead of a separate facet.
         # return None
         queryset = self.filter_queryset_if_journal(
             super().get_queryset()
-        ).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED
         )
         facets = self.get_facets()
         for facet in facets.values():
@@ -2582,7 +2591,7 @@ class FilteredArticlesListView(generic.ListView):
 
             if request.journal:
                 querysets.extend(self.split_up_queryset_if_needed(queryset))
-            else:
+            elif hasattr(self.model, 'journal'):
                 for journal in journal_models.Journal.objects.all():
                     journal_queryset = queryset.filter(journal=journal)
                     if journal_queryset:
@@ -2613,7 +2622,7 @@ class FilteredArticlesListView(generic.ListView):
             return [queryset]
 
     def filter_queryset_if_journal(self, queryset):
-        if self.request.journal:
+        if self.request.journal and hasattr(self.model, 'journal'):
             return queryset.filter(journal=self.request.journal)
         else:
             return queryset
@@ -2624,3 +2633,18 @@ class FilteredArticlesListView(generic.ListView):
             return facets
         else:
             return facets
+
+
+class FilteredArticlesListView(GenericFacetedListView):
+    """
+    Deprecated. Former base class for article list views.
+    """
+
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raise DeprecationWarning(
+            'This view is deprecated. Use GenericFacetedListView instead.'
+        )

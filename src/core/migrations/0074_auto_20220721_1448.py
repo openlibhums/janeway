@@ -3,8 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from django.utils import translation
-from django.conf import settings as django_settings
+from utils import migration_utils
 
 
 OLD_DEFAULT_VALUE = 'Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of "{{ article.title }}" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}'
@@ -15,29 +14,14 @@ NEW_VALUE = 'Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are re
 
 
 def update_default_setting(apps, schema_editor):
-    """
-    Updates the review_assignment setting for a journal where it has not been edited.
-    """
-    with translation.override('en'):
-        SettingValue = apps.get_model('core', 'SettingValue')
-        setting_value = SettingValue.objects.filter(
-            setting__name='review_assignment',
-            journal=None,
-        ).first()
 
-        if setting_value:
-            language_var = "value_{}".format('en')
-            setattr(setting_value, language_var, NEW_VALUE)
-            setting_value.save()
-
-            variants_to_delete = SettingValue.objects.filter(
-                setting__name='review_assignment',
-                journal__isnull=False,
-            )
-
-            for variant in variants_to_delete:
-                if getattr(variant, language_var) in [OLD_DEFAULT_VALUE, VARIANT_ONE, VARIANT_TWO]:
-                    variant.delete()
+    migration_utils.update_default_setting_values(
+        apps,
+        setting_name='review_assignment',
+        group_name='email',
+        values_to_replace=[OLD_DEFAULT_VALUE, VARIANT_ONE, VARIANT_TWO],
+        replacement_value=NEW_VALUE,
+    )
 
 
 class Migration(migrations.Migration):

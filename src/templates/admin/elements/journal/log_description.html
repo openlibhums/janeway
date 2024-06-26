@@ -17,7 +17,9 @@
                         {% endif %}
                     </div>
                     <div class="content">
-                        <p><strong>To: </strong>{% for email in entry.to %}{{ email }}; {% endfor %}</p>
+                        <p>
+                            {% include 'admin/elements/core/addressee_display.html' with entry=entry %}
+                        </p>
                         {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES  %}
                         <p><strong>Status:</strong> <i class="fa fa-circle {{ entry.message_status_class }}"
                                                        aria-hidden="true"></i> {{ entry.get_message_status_display }}

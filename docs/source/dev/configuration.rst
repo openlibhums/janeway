@@ -185,3 +185,129 @@ Add the following to your ``src/core/settings.py``::
         'django_browser_reload.middleware.BrowserReloadMiddleware',
         ...,
     )
+
+Understanding text fields and text editors in Janeway
+-----------------------------------------------------
+
+Janeway tries to provide users with the best kind of
+text field and text editor for each kind of text.
+
+There are four main field types, and there is a
+Janeway setting type for each one (`core.models.Setting`).
+
+| Display model | HTML            | No HTML           |
+| ------------- | --------------- | ----------------- |
+| Block         | Rich Text Field | Plain Text Field  |
+| Inline        | Mini HTML Field | Character Field   |
+
+Rich Text Fields
+~~~~~~~~~~~~~~~~
+
+For multiline rich-text content like custom pages and news
+items, we use a feature-rich text editor called TinyMCE.
+
+.. figure:: nstatic/janeway-rich-text-tinymce.png
+   :class: with-border
+
+    A content page with paragraphs, hyperlinks, headings, and more
+
+Many users copy-paste from Word into these fields, so we use
+a JavaScript event listener to offer them several pasting options.
+Do they want to keep all the styling that Word put into their text?
+Or do they want to just copy plain text and format it again if needed
+in Janeway?
+
+This content is stored in Janeway as an HTML string that is "bleached"
+to make sure it does not contain malicious code. The bleaching
+logic relies on a handful of allowlists that can be configured
+in `settings.py`. The default allowlists are very broad. Separate
+allowlists can be configured for elements, attributes, style rules,
+and so forth.
+
+When this content is loaded into Janeway sites and interfaces,
+it must be “marked safe” for the user’s described
+formatting to take effect. By default in Django,
+HTML markup and other potentially harmful Unicode characters found in strings
+that come from the database are escaped into their respective HTML entities.
+For example `<` becomes `&lt;`. This means the browser does not process these
+characters as HTML instructions, it just converts them to Unicode and presents
+that to the user. The user sees raw HTML, not rendered HTML.
+So if we *do* want HTML markup to be processed (because we’ve bleached it),
+we have to “mark it safe” by using the `mark_safe` function in a view or the
+`|safe` template filter in a template.
+
+This field shows up most often in our codebase as some combination of
+`JanewayBleachField` and `input=TinyMCE()`.
+
+Janeway settings (`core.models.Setting`) that want this behavior must
+have a type of `rich-text`.
+
+Mini HTML Fields
+~~~~~~~~~~~~~~~~~~
+
+There is often the need to store one line of text like a label,
+heading, name, or title. Sometimes light markup like bold and italics
+is needed in these bits of text. For these we have the mini HTML field.
+
+.. figure:: nstatic/janeway-mini-html-field.png
+   :class: with-border
+
+    An article title field allowing italics and a few other styling options
+
+This field does not allow multiline markup, because its content needs to be usable
+in layouts and interfaces where only inline content is expected. Anything
+outside a few [phrasing
+content](https://html.spec.whatwg.org/dev/dom.html#phrasing-content-2) elements
+is removed by the bleaching logic before the string is stored in the database.
+For details see `utils.const.get_allowed_html_tags_minimal` and
+`utils.const.get_allowed_attributes_minimal`. For the user, this means any line
+breaks introduced via the text editor will be removed when the field is saved.
+We consciously limit the toolbar options to signal to users what markup is allowed.
+
+This category shows up in our codebase most often
+as `MiniHTMLFormField`, whish is used by default by the
+`JanewayBleachCharField` model field.
+
+Janeway settings (`core.models.Setting`) that want this behavior must
+have a type of `mini-html`.
+
+Plain Text Fields
+~~~~~~~~~~~~~~~~
+
+Plain text fields are best for multiline content where HTML
+is not supported. Usually the rich text field will be a better
+choice but there are some cases where you cannot use HTML.
+
+The field is rendered as a simple text area. Newlines can be
+entered with the Enter key by the user, or programmatically via
+newline marks like `\n`.
+
+No bleaching is applied because this content
+should not need to be marked safe, because there won’t be any
+markup to process by the browser.
+
+It shows up most often in the codebase as `TextField` or `Textarea`.
+
+Janeway settings (`core.models.Setting`) that want this behavior must
+have a type of `text`.
+
+Character Fields
+~~~~~~~~~~~~~~~~
+
+For many other strings that are controlled via settings,
+Janeway offers the character setting field.
+
+.. figure:: nstatic/janeway-character-field.png
+   :class: with-border
+
+    An ISSN field with no rich text options, just one line of plain text
+
+This field is rendered as a simple text input on one line. It is used
+for storing many different strings like email subject lines, email addresses,
+unique identifiers, and URLs.
+
+This category only typically shows up in our codebase as a `CharField`
+or `TextInput`.
+
+Janeway settings (`core.models.Setting`) that want this behavior must
+have a type of `char`.

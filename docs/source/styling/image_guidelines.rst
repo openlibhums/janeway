@@ -23,10 +23,10 @@ The maximum height of the image is 90px, but the width is not limited, making it
     :alt: Example of header image with Material theme
     :class: screenshot
 
-    Exmaple of header image with Material theme
+    Example of header image with Material theme
 
 .. warning::
-    In the material theme, the navigation buttons and the header image are rendered within the same line, comepeting for space. If a very wide image is combined with a large number of navigation items, the two may overlap on narrow screens. If your journal has a large number of navigation links (5 or more), we recommend using a dropdown menu grouping similar items.
+    In the material theme, the navigation buttons and the header image are rendered within the same line, competing for space. If a very wide image is combined with a large number of navigation items, the two may overlap on narrow screens. If your journal has a large number of navigation links (5 or more), we recommend using a dropdown menu grouping similar items.
 
 
 Cover Image
@@ -59,9 +59,9 @@ These images are resized dynamically depending on various factors (number of iss
 
 Large Image
 -----------
-Large images are used on article pages, on issue pages, and in any carousel that draws in these elements to the journal home page. You can set them individually, and you can set a default to be used in all other cases. You can set large images for articles in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`. The default can can be changed through :ref:`Journal Settings<journal_settings>`.
+Large images are used on article pages, on issue pages, and in any carousel on the journal homepage that draws on these elements. You can set them individually, and you can set a default to be used in all other cases. You can set large images for articles in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`. The default can be changed through :ref:`Journal Settings<journal_settings>`.
 
-The large image has a maximum height of 260px for the material theme and 400px for the OLH theme. Any image larger than 750x324 pixels will be compressed to fit those dimensions, and then it will be cropped horizontally to fit the user screen size. For this reason, very wide landscape images work best for this element.
+The large image has a maximum height of 260px for the material theme and 400px for the OLH theme. Any image larger than 750x324 pixels will be compressed to fit those dimensions, and then it will be cropped horizontally to fit the user's screen size. For this reason, very wide landscape images work best for this element.
 
 .. figure:: /_static/image_guidelines/article_large_image.png
     :alt: Example of large image: material theme
@@ -86,7 +86,7 @@ The Issue page uses the Cover Image file of an Issue and, if it's not available,
 
 Collection Images
 -----------------
-The Collection page uses the Large Image file of an Issue and, if it's not available, the default large image for its parent journal. In all three core themes landscape images are best here.
+The Collection page uses the Large Image file of an Issue and, if it's not available, the default large image for its parent journal. In all three core themes, landscape images are best here.
 
 .. tip::
     Whilst there are recommended image sizes for the Issue and Collection pages consistency is more important. If you load images of 300x200 for a Collection you should consistently load images with the same aspect ratio.
@@ -95,7 +95,7 @@ Favicon
 -------
 This small icon serves multiple purposes in the user's browser.
 
-From wikipedia:
-    A favicon /ˈfæv.ɪˌkɒn/ (short for favorite icon), also known as a shortcut icon, website icon, tab icon, URL icon, or bookmark icon, is a file containing one or more small icons, associated with a particular website or web page. A web designer can create such an icon and upload it to a website (or web page) by several means, and graphical web browsers will then make use of it. Browsers that provide favicon support typically display a page's favicon in the browser's address bar (sometimes in the history as well) and next to the page's name in a list of bookmarks. Browsers that support a tabbed document interface typically show a page's favicon next to the page's title on the tab, and site-specific browsers use the favicon as a desktop icon.
+From Wikipedia:
+    A favicon /ˈfæv.ɪˌkɒn/ (short for favourite icon), also known as a shortcut icon, website icon, tab icon, URL icon, or bookmark icon, is a file containing one or more small icons, associated with a particular website or web page. A web designer can create such an icon and upload it to a website (or web page) by several means, and graphical web browsers will then make use of it. Browsers that provide favicon support typically display a page's favicon in the browser's address bar (sometimes in the history as well) and next to the page's name in a list of bookmarks. Browsers that support a tabbed document interface typically show a page's favicon next to the page's title on the tab, and site-specific browsers use the favicon as a desktop icon.
 
 We recommend using an icon of up to 100x100px, as this should fit most use cases.

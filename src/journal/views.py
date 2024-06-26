@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.files.base import ContentFile
@@ -808,7 +809,11 @@ def submit_files_info(request, article_id, file_id):
     :param file_id: the file ID for which to submit information
     :return: a rendered template to submit file information
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     form = review_forms.ReplacementFileDetails(instance=file_object)
@@ -844,7 +849,11 @@ def file_history(request, article_id, file_id):
     if request.POST:
         return redirect(request.GET['return'])
 
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     template = "journal/file_history.html"
@@ -885,7 +894,11 @@ def file_delete(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     file_object.delete()
@@ -903,7 +916,11 @@ def article_file_make_galley(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     janeway_file = get_object_or_404(core_models.File, pk=file_id)
     blob = janeway_file.get_file(article_object, as_bytes=True)
     content_file = ContentFile(blob)
@@ -972,6 +989,7 @@ def article_figure(request, article_id, galley_id, file_name):
     figure_article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
+        journal=request.journal,
     )
     galley = get_object_or_404(
         core_models.Galley,
@@ -1020,6 +1038,7 @@ def publish_article(request, article_id):
     :param article_id: Article PK
     :return: contextualised django template
     """
+    from submission import forms as submission_forms
     article = get_object_or_404(
         submission_models.Article,
         Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
@@ -1032,14 +1051,22 @@ def publish_article(request, article_id):
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
-    notify_author_email_form = core_forms.SimpleTinyMCEForm(
-        'email_to_author',
-        initial = {
-            'email_to_author': logic.get_notify_author_text(request, article)
-        }
+    pub_date_form = submission_forms.PubDateForm(instance=article)
+    notification_form_kwargs = {
+        'email_context': {
+            'article': article,
+        },
+        'request': request,
+    }
+    notification_initial = logic.get_initial_for_prepub_notifications(
+        request,
+        article,
+    )
+    notification_formset = forms.PrepubNotificationFormSet(
+        form_kwargs=notification_form_kwargs,
+        initial=notification_initial,
     )
     modal = request.GET.get('m', None)
-    pubdate_errors = []
 
     if request.POST:
         if 'assign_issue' in request.POST:
@@ -1087,28 +1114,52 @@ def publish_article(request, article_id):
                 )
 
         if 'pubdate' in request.POST:
-            date_set, pubdate_errors = logic.handle_set_pubdate(
-                request,
-                article,
+            pub_date_form = submission_forms.PubDateForm(
+                request.POST,
+                instance=article,
             )
-            if not pubdate_errors:
-                return redirect(
-                    reverse(
-                        'publish_article',
-                        kwargs={'article_id': article.pk},
+            if pub_date_form.is_valid():
+                article = pub_date_form.save()
+                if article.date_published:
+                    messages.add_message(
+                        request, messages.SUCCESS,
+                        _(
+                            f'Publication date set to { article.date_published.strftime("%Y-%m-%d %H:%M %Z") } '
+                            f'({ naturaltime(article.date_published) })'
+                        )
+                    )
+                else:
+                    messages.add_message(
+                        request, messages.SUCCESS,
+                        _('Publication date unset')
+                    )
+            else:
+                messages.add_message(
+                    request, messages.WARNING,
+                    _(
+                        f'Something went wrong when trying to save the form. '
+                        f'Please try again.'
                     )
                 )
-            else:
-                modal = 'pubdate'
 
-        if 'author' in request.POST:
-            logic.notify_author(request, article)
-            return redirect(
-                reverse(
-                    'publish_article',
-                    kwargs={'article_id': article.pk},
-                )
+        if 'notifications' in request.POST:
+            notification_formset = forms.PrepubNotificationFormSet(
+                request.POST,
+                form_kwargs=notification_form_kwargs,
+                initial=notification_initial,
             )
+            if notification_formset.is_valid():
+                logic.handle_prepub_notifications(
+                    request,
+                    article,
+                    notification_formset,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Something went wrong. Please try again.',
+                )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
@@ -1205,8 +1256,8 @@ def publish_article(request, article_id):
         'issues': issues,
         'new_issue_form': new_issue_form,
         'modal': modal,
-        'pubdate_errors': pubdate_errors,
-        'notify_author_email_form': notify_author_email_form,
+        'pub_date_form': pub_date_form,
+        'notification_formset': notification_formset,
     }
 
     return render(request, template, context)
@@ -1221,10 +1272,13 @@ def publish_article_check(request, article_id):
     :param article_id: Artcle object PK
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article,
-                                Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
-                                Q(stage=submission_models.STAGE_PUBLISHED),
-                                pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
+        Q(stage=submission_models.STAGE_PUBLISHED),
+        pk=article_id,
+        journal=request.journal,
+    )
 
     task_type = request.POST.get('task_type')
     id = request.POST.get('id')
@@ -1747,7 +1801,11 @@ def manage_archive_article(request, article_id):
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
 
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)
     galley_form = production_forms.GalleyForm()
@@ -2162,7 +2220,11 @@ def manage_article_log(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     content_type = ContentType.objects.get_for_model(article)
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
@@ -2182,7 +2244,11 @@ def manage_article_log(request, article_id):
 
 @editor_user_required
 def resend_logged_email(request, article_id, log_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     log_entry = get_object_or_404(utils_models.LogEntry, pk=log_id)
     form = forms.ResendEmailForm(log_entry=log_entry)
     close = False
@@ -2219,7 +2285,8 @@ def send_user_email(request, user_id, article_id=None):
     if article_id:
         article = get_object_or_404(
             submission_models.Article,
-            pk=article_id
+            pk=article_id,
+            journal=request.journal,
         )
 
     if request.POST and 'send' in request.POST:
@@ -2227,13 +2294,19 @@ def send_user_email(request, user_id, article_id=None):
             request.POST,
             request.FILES,
         )
-
         if form.is_valid():
+            log_dict = {
+                'level': 'Info',
+                'action_text': f'{request.user} sent an email to {user.full_name}',
+                'types': 'Email',
+                'target': article if article else user,
+            }
             core_email.send_email(
                 user,
                 form.as_dataclass(),
                 request,
                 article=article,
+                log_dict=log_dict,
             )
             close = True
 
@@ -2256,7 +2329,11 @@ def new_note(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if request.POST:
 
@@ -2324,9 +2401,16 @@ def download_table(request, identifier_type, identifier, table_name):
 
 
 def download_supp_file(request, article_id, supp_file_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id,
-                                stage=submission_models.STAGE_PUBLISHED)
-    supp_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        stage=submission_models.STAGE_PUBLISHED,
+    )
+    supp_file = get_object_or_404(
+        core_models.SupplementaryFile,
+        pk=supp_file_id,
+    )
 
     return files.serve_file(request, supp_file.file, article, public=True)
 
@@ -2346,7 +2430,11 @@ def texture_edit(request, file_id):
 
 @editor_user_required
 def document_management(request, article_id):
-    document_article = get_object_or_404(submission_models.Article, pk=article_id)
+    document_article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     article_files = core_models.File.objects.filter(article_id=document_article.pk)
     return_url = request.GET.get('return', '/dashboard/')
 
@@ -2632,9 +2720,33 @@ def manage_languages(request):
     )
 
 
+class FacetedArticlesListView(core_views.GenericFacetedListView):
+    """
+    This is a base class for article list views.
+    It does not have access controls applied because some public views use it.
+    For staff views, be sure to filter to published articles in get_queryset.
+    Do not use this view directly.
+    This view can also be subclassed and modified for use with other models.
+    """
+    model = submission_models.Article
+    template_name = 'core/manager/article_list.html'
+
+    def get_queryset(self, params_querydict=None):
+        self.queryset = super().get_queryset(params_querydict=params_querydict)
+        return self.queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+    def get_facet_queryset(self, **kwargs):
+        queryset = super().get_facet_queryset(**kwargs)
+        return queryset.exclude(
+            stage=submission_models.STAGE_UNSUBMITTED
+        )
+
+
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(decorators.frontend_enabled, name='dispatch')
-class PublishedArticlesListView(core_views.FilteredArticlesListView):
+class PublishedArticlesListView(FacetedArticlesListView):
 
     """
     A list of published articles that can be searched,

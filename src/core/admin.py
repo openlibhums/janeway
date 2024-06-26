@@ -112,9 +112,17 @@ class PasswordResetAdmin(admin.ModelAdmin):
 
 class SettingValueAdmin(admin.ModelAdmin):
     list_display = ('_setting_name', 'value', 'journal')
-    list_filter = ('journal', )
-    search_fields = ('setting__name', 'setting__pretty_name',
-                     'setting__group__name', 'value')
+    list_filter = (
+        'journal',
+        'setting__types',
+    )
+    search_fields = (
+        'setting__name',
+        'setting__pretty_name',
+        'setting__group__name',
+        'setting__types',
+        'value',
+    )
     raw_id_fields = (
         'setting', 'journal',
     )

@@ -47,7 +47,7 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
                      'form', 'review_file')
 
     def _round(self, obj):
-        return obj.review_round.round_number if obj else ''
+        return obj.review_round.round_number if obj and obj.review_round else ''
 
     inlines = [
         admin_utils.ReviewAssignmentAnswerInline,

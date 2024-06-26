@@ -10,12 +10,12 @@ There are various pages throughout Janeway what allow you to start a new submiss
 2. From the Author block on the Dashboard (see image below)
 3. From the Submission page on the main site if it is enabled
 
-.. figure:: /nstatic/author_dashboard_block.png
+.. figure:: ../nstatic/author_dashboard_block.png
 
     The author block on the dashboard
     
 
-.. figure:: /nstatic/submission_start.png
+.. figure:: ../nstatic/submission_start.png
 
     Start Submission button on main Submission page
     
@@ -40,7 +40,7 @@ The first page of a submission displays some author agreement text and various t
     
 If enabled the Publication Fees, Submission Checklist and Copyright notice fields will be required, that is to say you _must_ check the boxes in order to complete a submission. If you have any issues with any of the clauses it is suggested you get in touch with the editor to discuss them before proceeding.
 
-.. figure:: /nstatic/author_agreement_start.png
+.. figure:: ../nstatic/author_agreement_start.png
 
     Publication Fees displayed on an OLH journal Author Agreement page
    
@@ -62,7 +62,7 @@ The Article Information page displays a form with a series of input boxes. This 
 - Keywords
     - Type your keyword and press enter and it will be turned into a box with an X icon, click the X icon if you want to remove the keyword. You can have multi word keywords (see keyword image below)
 
-.. figure:: /nstatic/article_info.png
+.. figure:: ../nstatic/article_info.png
 
     The Article Information page filled with example data
     
@@ -72,7 +72,7 @@ Author Information
 ------------------
 On the Author Information page we can add the authors of our paper. One some journals the submitting user is added as an author automatically, on others you will have the option to add yourself as an author using a button. 
 
-.. figure:: /nstatic/no_authors.png
+.. figure:: ../nstatic/no_authors.png
 
     In this example journal the submitting user has not been added as an author but can use the "Add self as author" button to add themselves
 
@@ -88,7 +88,7 @@ To add more authors we can either search the journal's author list or create a n
         - Email Address
     - An account will also be generated so that the co-author can log in to the journal to check the progress of the paper. They will need to use the Password Reset function to get access to their account.
     
-.. figure:: /nstatic/current_authors.png
+.. figure:: ../nstatic/current_authors.png
 
     There are now two authors added to the submission. You can use the trash icon to delete authors and the arrow handles to drag and drop to re-order the authors
 
@@ -96,13 +96,13 @@ Article Files
 -------------
 Here you can upload your manuscript and any figure or data files that go along with it.
 
- .. figure:: /nstatic/upload_files.png
+ .. figure:: ../nstatic/upload_files.png
 
     You can upload your Manuscript and seperately any files that go along with your paper
 
 Select one of the Upload buttons and a popup will appear, you can select the file using the "Choose file". You are required to add a label but the description field is optional.
 
- .. figure:: /nstatic/submit_ms.png
+ .. figure:: ../nstatic/submit_ms.png
 
     Submitting a Manuscript file
     
@@ -112,7 +112,7 @@ Review
 ------
 The review page displays a run down of the article you've submitted, metadata, files and authors. Once you have reviewed your submission you can complete or jump back to other stages to make changes.
 
- .. figure:: /nstatic/article_review.png
+ .. figure:: ../nstatic/article_review.png
 
     The review page for the article
 
@@ -137,7 +137,7 @@ When an Editor request revisions there are two ways to start this process:
 
 Once you have accessed the revision request you will be able to view available peer reviews and download, revise or upload new files. Once you've uploaded a revised manuscript and any additional image files you can fill in the covering letter and save the revision.
 
- .. figure:: /nstatic/review_do_revisions.gif
+ .. figure:: ../nstatic/review_do_revisions.gif
  
 
 Copyediting
@@ -157,7 +157,7 @@ When an Editor requests an Author Revision following a copyedit:
     3. Scroll down to “Submitted Articles” 
     4. Click the “Copyediting Review” button next to the article
 
-.. figure:: /nstatic/author_copyedit_1.png
+.. figure:: ../nstatic/author_copyedit_1.png
 
 Once you have accessed the Copyediting Review request you will be able to view requested copyedits and download the copyedited file. Copyedits are made as tracked changes.
 
@@ -167,13 +167,13 @@ To complete a Copyediting Review:
 
 1. Upload your revisions to the copyedited manuscript. You can do so by replacing the copyeditor's version of the file with your own updated version.
 
- .. figure:: /nstatic/author_copyedit_2.png
+ .. figure:: ../nstatic/author_copyedit_2.png
 
 2. Fill in the Note to the Editor with any additional information
 3. Select a Decision (either ‘Accept’ or ‘Corrections Required’)
 4. Click ‘Complete Copyedit Task’
 
- .. figure:: /nstatic/author_copyedit_3.png
+ .. figure:: ../nstatic/author_copyedit_3.png
 
 
 Proofing
@@ -184,7 +184,7 @@ These files are the final finals that will be made publicly available once the a
 For journals that publish content in multiple media formats (HTML, PDF, XML...) It is important that you check all these files before publication. Authors are not expected to be able to open and read XML/HTML code. Instead, Janeway provides a 'preview' button were you will be able to previsualise the article as it will be rendered once it gets published.
 
 
- .. figure:: /nstatic/typesetting/proofreading_1.png
+ .. figure:: ../nstatic/typesetting/proofreading_1.png
 
     Typeset Files download and preview
 
@@ -192,13 +192,13 @@ Once you've previewed the files, you can provide feedback in two ways:
 
 1. Fill in the rich-text "Notes" box. This form element supports rich-text as well as pasting in screenshots or other types of images
 
- .. figure:: /nstatic/typesetting/proofreading_notes.png
+ .. figure:: ../nstatic/typesetting/proofreading_notes.png
 
     Providing proofreading notes via Rich-text editor
 
 2. Upload an annotated file. In the case of PDF files, you can download the file and make annotations offline using specialized software. when this is done, you can upload the annotated file for the editor to review.
 
- .. figure:: /nstatic/typesetting/proofreading_2.png
+ .. figure:: ../nstatic/typesetting/proofreading_2.png
 
     Providing proofreading notes by uploading an annotated file.
 

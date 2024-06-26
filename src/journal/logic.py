@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from bs4 import BeautifulSoup
 import csv
-from dateutil import parser as dateparser
 import os
 from os import listdir, makedirs
 from os.path import isfile, join
@@ -22,7 +21,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
-from django.utils.timezone import make_aware
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -250,38 +248,61 @@ def handle_unassign_issue(request, article, issues):
         messages.add_message(request, messages.WARNING, 'Issue does not exist.')
 
 
-def handle_set_pubdate(request, article):
-    date = request.POST.get('date')
-    time = request.POST.get('time')
+def get_initial_for_prepub_notifications(request, article):
+    author_initial = {}
+    author_initial['to'] = article.correspondence_author.email
+    cc = [au.email for au in article.non_correspondence_authors()]
+    notify_section_editors = request.journal.get_setting(
+        'general',
+        'notify_section_editors_of_publication',
+    )
+    if notify_section_editors:
+        cc.extend([ed.email for ed in article.section_editors()])
+    author_initial['cc'] = ','.join(cc)
 
-    date_time_str = "{0} {1}".format(date, time)
+    notify_peer_reviewers = request.journal.get_setting(
+        'general',
+        'notify_peer_reviewers_of_publication',
+    )
 
-    try:
-        date_time = dateparser.parse(date_time_str)
-        article.date_published = make_aware(date_time)
-        article.fixedpubcheckitems.set_pub_date = True
-        article.fixedpubcheckitems.save()
-        article.save()
-
-        messages.add_message(
-            request, messages.SUCCESS,
-            'Publication Date set to {0}'.format(article.date_published)
+    if not notify_peer_reviewers:
+        return [author_initial]
+    else:
+        peer_reviewer_initial = {}
+        custom_reply_to = request.journal.get_setting(
+            'general',
+            'replyto_address'
         )
+        peer_reviewer_initial['to'] = custom_reply_to or request.user.email
+        reviewer_emails = article.peer_reviewers(emails=True, completed=True)
+        peer_reviewer_initial['bcc'] = ','.join(reviewer_emails)
+        return [author_initial, peer_reviewer_initial]
 
-        return [date_time, []]
-    except ValueError:
-        return [date_time_str, ['Not a recognised Date/Time format. Date: 2016-12-16, Time: 20:20.']]
 
-
-def get_notify_author_text(request, article):
-    context = {
+def handle_prepub_notifications(request, article, formset):
+    kwargs = {
+        'request': request,
         'article': article,
+        'formset': formset,
     }
 
-    return render_template.get_message_content(request, context, 'author_publication')
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_PREPUB_NOTIFICATIONS,
+        task_object=article,
+        **kwargs,
+    )
+    article.fixedpubcheckitems.send_notifications = True
+    article.fixedpubcheckitems.save()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Notifications sent.'
+    )
 
 
 def notify_author(request, article):
+    """ Note: This function is deprecated. Use handle_prepub_notifications instead.
+    """
     kwargs = {
         'request': request,
         'article': article,
