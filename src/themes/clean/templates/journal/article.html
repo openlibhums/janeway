@@ -98,26 +98,22 @@
                 {% if article.is_published or proofing %}
                     <div class="d-lg-none d-xl-none d-md-none">
                         <p>
-                            <strong>{% trans 'Downloads' %}</strong><br/>
-                            {% if galleys %}
-                                {% for galley in galleys %}
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                    <br/>
-                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                        <a target="_blank"
-                                        href="{% url 'article_view_galley' article.id galley.id %}">View
-                                            PDF</a><br/>
-                                    {% endif %}
-                                {% endfor %}
-                                {% if proofing %}
-                                    <p id="note_to_proofreader_1">
-                                        <i class="fa fa-info"></i>
-                                        Note to proofreader: Download links on this page begin to work when the article is published.
-                                    </p>
-                                {% endif %}
-                            {% else %}
-                                <p> {% trans 'Downloads are not available for this article.' %}</p>
-                            {% endif %}
+                            <strong>{% trans 'Downloads' %}></strong><br/>
+                            {% for galley in galleys %}
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                <br/>
+                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                    <a target="_blank"
+                                       href="{% url 'article_view_galley' article.id galley.id %}">View
+                                        PDF</a><br/>
+                            {% endfor %}
+                        </p>
+                        {% if proofing %}
+                            <p id="note_to_proofreader_1">
+                                <i class="fa fa-info"></i>
+                                Note to proofreader: Download links on this page begin to work when the article is published.
+                            </p>
+                        {% endif %}
                     </div>
                 {% endif %}
                 {% if article.funders.all %}
@@ -186,26 +182,30 @@
                 {% endif %}
 
                 {% if article.is_published or proofing %}
-                    <h2>{% trans "Download" %}</h2>
-                    <ul>
-                        {% for galley in galleys %}
-                            {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
-                            <li>
-                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                    </li>
-                                    <li>
-                                        <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                    <h2>{% trans "Downloads" %}</h2>
+                    {% if galleys %}
+                        <ul>
+                            {% for galley in galleys %}
+                                {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
+                                <li>
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                    {% endif %}
+                                </li>
                                 {% endif %}
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                    {% if proofing %}
-                        <p id="note_to_proofreader_2">
-                            <i class="fa fa-info"></i>
-                            Note to proofreader: Download links on this page begin to work when the article is published.
-                        </p>
+                            {% endfor %}
+                        </ul>
+                        {% if proofing %}
+                            <p id="note_to_proofreader_2">
+                                <i class="fa fa-info"></i>
+                                Note to proofreader: Download links on this page begin to work when the article is published.
+                            </p>
+                        {% endif %}
+                    {% else %}
+                        <p> {% trans 'Downloads are not available for this article.' %}</p>
                     {% endif %}
                 {% endif %}
                 {% if article.supplementary_files.all %}
