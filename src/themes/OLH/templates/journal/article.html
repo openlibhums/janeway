@@ -372,12 +372,12 @@
                                                 <i class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
-                                        {% else %}
-                                            <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                         {% endif %} 
                                     {% else %}
                                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                                     {% endif %}
+                                {% else %}
+                                    <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
                             <div class="section">
