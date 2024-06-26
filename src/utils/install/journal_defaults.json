@@ -2127,25 +2127,6 @@
     },
     {
         "group": {
-            "name": "email"
-        },
-        "setting": {
-            "description": "Send to a user specified in notification manager.",
-            "is_translatable": true,
-            "name": "notification_acceptance",
-            "pretty_name": "Acceptance Notification",
-            "type": "rich-text"
-        },
-        "value": {
-            "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that article \"{{ article.safe_title }}\" with corresponding author&nbsp;{{ article.correspondence_author.full_name }} in {{ article.journal.name }} has been accepted for publication.</p>"
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "group": {
             "name": "general"
         },
         "setting": {
@@ -2743,25 +2724,6 @@
             "is_translatable": true,
             "description": "Subject for Email sent when user registers.",
             "name": "subject_new_user_registration"
-        },
-        "group": {
-            "name": "email_subject"
-        },
-        "editable_by": [
-            "editor",
-            "journal-manager"
-        ]
-    },
-    {
-        "value": {
-            "default": ""
-        },
-        "setting": {
-            "type": "char",
-            "pretty_name": "Acceptance Notification",
-            "is_translatable": true,
-            "description": "Subject for Send to a user specified in notification manager.",
-            "name": "subject_notification_acceptance"
         },
         "group": {
             "name": "email_subject"

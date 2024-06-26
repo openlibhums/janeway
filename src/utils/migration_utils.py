@@ -121,3 +121,15 @@ def update_default_setting_values(apps, setting_name, group_name, values_to_repl
             for variant in variants_to_delete:
                 if getattr(variant, language_var) in values_to_replace:
                     variant.delete()
+
+
+def delete_setting(apps, setting_group_name, setting_name):
+    """
+    Used to delete a setting in migrations.
+    """
+    Setting = apps.get_model('core', 'Setting')
+    setting = Setting.objects.filter(
+        group__name=setting_group_name,
+        name=setting_name,
+    )
+    setting.delete()
