@@ -15,8 +15,8 @@ Staff have additional controls for:
 - Viewing authenticated users (users with active sessions)
 - Merging user accounts
 
-Journal Users
--------------
+Journal Users (New)
+-------------------
 
 If you are an editor or staff member, you can manage user accounts for
 a journal via the **Journal Users** page.
@@ -33,8 +33,8 @@ You can also add and remove roles, edit accounts, and if needed create accounts.
 
 Each user’s assignment history is also available from this view.
 
-All Users
----------
+All Users (New)
+---------------
 
 If you are staff, you can see all users across a press (a.k.a. Janeway
 installation).
@@ -78,8 +78,8 @@ things to note:
 - **Is admin** grants access to Janeway's admin data layer
 - **Is superuser** will set a user to have all roles across the entire system
 
-Enrolled Users (Old)
---------------------
+Enrolled Users
+--------------
 The journal users interface lists all users who have one or more roles on your journal. From this page we can:
 
 - Edit a user
@@ -95,8 +95,8 @@ The journal users interface lists all users who have one or more roles on your j
 
     The enrolled users interface. From here we can search, add new users and assign additional roles amongst other things.
 
-Enrol Users (Old)
------------------
+Enrol Users
+-----------
 .. _enrolusersanchor:
 
 The enrol users page allows Editors to search for existing user accounts and assign them a role in their journal.
@@ -119,8 +119,8 @@ Once you have found an account you will be able to see which roles they have and
 
     This user has two roles (Author and Editor) and can be assigned any of the other roles.
 
-Inactive Users (Old)
---------------------
+Inactive Users
+--------------
 The inactive users screen is accessible to staff only and lists all users who have not yet activated their account. You are cautioned only to activate accounts that you've confirmed ownership for.
 
 Authenticated Users
