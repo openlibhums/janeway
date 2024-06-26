@@ -343,7 +343,10 @@ class RepositoryField(models.Model):
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
-    help_text = model_utils.JanewayBleachField(blank=True, null=True)
+    help_text = models.TextField(
+        blank=True,
+        null=True,
+    )
     display = models.BooleanField(
         default=False,
         help_text='Whether or not display this field in the article page',
