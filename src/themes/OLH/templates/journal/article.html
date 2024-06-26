@@ -202,10 +202,10 @@
                             {% endif %}
 
                             {% if article.is_published or proofing %}
-                            {% if galleys %}
                                 <div class="show-for-small-only">
                                     <p>
-                                        <strong>{% trans 'Downloads' %}:</strong><br/>
+                                    <strong>{% trans 'Downloads' %}:</strong><br/>
+                                    {% if galleys %}
                                         {% for galley in galleys %}
                                             <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                             <br/>
@@ -213,15 +213,17 @@
                                                 <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a><br/>
                                             {% endif %}
                                         {% endfor %}
-                                    </p>
-                                    {% if proofing %}
-                                        <p id="note_to_proofreader_1">
-                                            <i class="fa fa-info"></i>
-                                            Note to proofreader: Download links on this page begin to work when the article is published.
                                         </p>
+                                        {% if proofing %}
+                                            <p id="note_to_proofreader_1">
+                                                <i class="fa fa-info"></i>
+                                                Note to proofreader: Download links on this page begin to work when the article is published.
+                                            </p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p> {% trans 'Downloads are not available for this article.' %}</p>
                                     {% endif %}
                                 </div>
-                            {% endif %}
                             {% endif %}
 
                             {% if article.funders.all %}
@@ -350,7 +352,7 @@
                             {% endif %}
                             <div class="section">
                                 {% if article.is_published or proofing %}
-                                    <h3>{% trans "Download" %}</h3>
+                                    <h3>{% trans "Downloads" %}</h3>
                                     {% if galleys %}
                                         <ul>
                                             {% for galley in galleys %}
@@ -365,18 +367,17 @@
                                                 </li>
                                             {% endfor %}
                                         </ul>
+                                        {% if proofing %}
+                                            <p id="note_to_proofreader_2">
+                                                <i class="fa fa-info"></i>
+                                                Note to proofreader: Download links on this page begin to work when the article is published.
+                                            </p>
+                                        {% else %}
+                                            <p> {% trans 'Downloads are not available until this article is published ' %}</p>
+                                        {% endif %} 
                                     {% else %}
                                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                                     {% endif %}
-
-                                    {% if proofing %}
-                                        <p id="note_to_proofreader_2">
-                                            <i class="fa fa-info"></i>
-                                            Note to proofreader: Download links on this page begin to work when the article is published.
-                                        </p>
-                                    {% endif %}
-                                {% else %}
-                                    <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
                             <div class="section">
