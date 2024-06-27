@@ -1514,6 +1514,10 @@ class Article(AbstractLastModifiedModel):
         self.date_declined = timezone.now()
         self.date_accepted = None
         self.stage = STAGE_REJECTED
+
+        self.incomplete_reviews().update(decision='withdrawn',
+                                         date_complete=timezone.now(),
+                                         is_complete=True,)
         self.save()
 
     def undo_review_decision(self):
@@ -1830,6 +1834,11 @@ class Article(AbstractLastModifiedModel):
         ).exclude(
             decision='withdrawn',
         )
+
+    def incomplete_reviews(self):
+        return self.reviewassignment_set.filter(is_complete=False,
+                                                date_declined__isnull=True,
+                                                decision__isnull=True)
 
     def ms_and_figure_files(self):
         return chain(self.manuscript_files.all(), self.data_figure_files.all())

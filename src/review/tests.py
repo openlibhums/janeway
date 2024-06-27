@@ -275,6 +275,37 @@ class ReviewTests(TestCase):
             self.review_assignment_complete,
         )
 
+    def test_incomplete_reviews(self):
+        article1 = helpers.create_article(self.journal_one,
+                                          **{'owner': self.regular_user,
+                                             'title': 'Test Article',
+                                             'stage': submission_models.STAGE_UNDER_REVIEW,})
+
+        article1.correspondence_author = self.regular_user
+        article1.save()
+
+        round =  review_models.ReviewRound.objects.create(article=article1, round_number=1,)
+
+        assignment = helpers.create_review_assignment(journal=self.journal_one,
+                                                      article=article1,
+                                                      is_complete=False,
+                                                      review_round=round,
+                                                      reviewer=self.regular_user,)
+        assignment.decision = None
+        assignment.save()
+
+        self.client.force_login(self.editor)
+        decline_url = reverse('review_decision',
+                              kwargs={'article_id': article1.pk,
+                                      'decision': 'decline'})
+        response = self.client.get(decline_url, SERVER_NAME=self.journal_one.domain,)
+        self.assertContains(response, "The following incomplete reviews will be marked as withdrawn")
+
+        data = {'cc': [''], 'bcc': [''], 'subject': ['Article Declined'], 'body': ['Article Declined'], 'attachments': [''], 'skip': ['skip']}
+        response = self.client.post(decline_url, data, SERVER_NAME=self.journal_one.domain,)
+        self.assertEqual(article1.reviewassignment_set.filter(is_complete=True).count(), 1)
+        self.assertEqual(article1.reviewassignment_set.filter(is_complete=False).count(), 0)
+
     def test_completed_reviews_shared_setting(self):
         # setup data
         article_with_completed_reviews = helpers.create_article(
