@@ -19,7 +19,7 @@ from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import reverse
+from django.shortcuts import reverse, Http404
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 
@@ -1006,3 +1006,18 @@ def filter_articles_to_editor_assigned(request, articles):
     )
     assignment_article_pks = [assignment.article.pk for assignment in assignments]
     return articles.filter(pk__in=assignment_article_pks)
+
+
+def sitemap(request, path_parts):
+    """
+    Renders an XML sitemap based on articles and pages available to the journal.
+    :param request: HttpRequest object
+    :param path_parts: List making up the sitemap path. ['journal', 'code', 'sitemap.xml']
+    :return: HttpResponse object
+    """
+    try:
+        return files.serve_sitemap_file(path_parts)
+    except FileNotFoundError:
+        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
+
+    raise Http404()

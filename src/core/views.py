@@ -2411,21 +2411,6 @@ def manage_access_requests(request):
     )
 
 
-def sitemap(request, path_parts):
-    """
-    Renders an XML sitemap based on articles and available to the journal.
-    :param request: HttpRequest object
-    :param path_parts: List making up the sitemap path. ['journal', 'code', 'sitemap.xml']
-    :return: HttpResponse object
-    """
-    try:
-        return files.serve_sitemap_file(path_parts)
-    except FileNotFoundError:
-        logger.warning('Sitemap for {} not found.'.format(request.journal.name))
-
-    raise Http404()
-
-
 class GenericFacetedListView(generic.ListView):
     """
     This is a generic base class for creating filterable list views

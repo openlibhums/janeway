@@ -81,15 +81,15 @@ def sitemap(request):
     :return: HttpResponse object
     """
     if request.journal is not None:
-        # if there's a journal, then we render the _journal_ sitemap, not the press
+        # if there's a journal, then we render the _journal_ sitemap,
+        # not the press
         return journal_views.sitemap(request)
 
     if request.repository is not None:
         # if there is a repository we return the repository sitemap.
         return repository_views.sitemap(request)
 
-
-    return core_views.sitemap(
+    return core_logic.sitemap(
         request,
         ['sitemap.xml'],
     )
