@@ -4,17 +4,19 @@
                 {% if crossref_issue.issue.issue_title %}
                 <conference_name>{{ crossref_issue.issue.issue_title }}</conference_name>
                 {% else %}
-                <conference_name>{{ crossref_issue.journal.title }} - {{ crossref_issue.issue.year }}</conference_name>
+                <conference_name>{{ crossref_issue.journal.title }}</conference_name>
                 {% endif %}
             </event_metadata>
             <proceedings_metadata>
                 {% if crossref_issue.issue.issue_title %}
                 <proceedings_title>{{ crossref_issue.issue.issue_title }}</proceedings_title>
                 {% else %}
-                <proceedings_title>{{ crossref_issue.journal.title }} - {{ crossref_issue.issue.year }}</proceedings_title>
+                <proceedings_title>{{ crossref_issue.journal.title }}</proceedings_title>
                 {% endif %}
                 <publisher>
-                  <publisher_name>{{ crossref_issue.issue.journal.press.name }}</publisher_name>
+                    <publisher_name>
+                        {{ crossref_issue.issue.publisher }}
+                    </publisher_name>
                 </publisher>
                 <publication_date media_type="online">
                     <month>{{ crossref_issue.issue.date.month }}</month>
