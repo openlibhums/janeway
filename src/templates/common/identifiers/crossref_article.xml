@@ -49,6 +49,16 @@
                     <year>{{ article.date_accepted.year }}</year>
                 </acceptance_date>
                 {% endif %}
+                {% if first_page or last_page %}
+                    <pages>
+                        {% if first_page %}
+                            <first_page>{{ first_page }}</first_page>
+                        {% endif %}
+                        {% if last_page %}
+                            <last_page>{{ last_page }}</last_page>
+                        {% endif %}
+                    </pages>
+                {% endif %}
                 {% if article.license %}
                 <ai:program name="AccessIndicators">
                     <ai:license_ref>{{ article.license }}</ai:license_ref>
