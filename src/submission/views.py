@@ -16,6 +16,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from core import files, models as core_models
+from journal.models import Issue
 from repository import models as preprint_models
 from security.decorators import (
     article_edit_user_required,
@@ -70,12 +71,52 @@ def start(request, type=None):
             ).processed_value:
                 logic.add_user_as_author(request.user, new_article)
 
-            return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
+            user_has_issues = Issue.objects.by_user(request.user).open_for_submission().current_journal(request.journal).exists()
+            if user_has_issues:
+                return redirect(reverse('submit_issue', kwargs={'article_id': new_article.pk}))
+            else:
+                return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
     template = 'admin/submission/start.html'
     context = {
         'form': form
     }
+
+    return render(request, template, context)
+
+
+@login_required
+@decorators.submission_is_enabled
+@article_is_not_submitted
+@article_edit_user_required
+@submission_authorised
+def submit_issue(request, article_id):
+    """
+    Select primary issue for the article, if issue selection is active.
+
+    :param request: HttpRequest object
+    :param article_id: int, None or 'preprint'
+    :return: HttpRedirect or HttpResponse
+    """
+    user_has_issues = Issue.objects.by_user(request.user).open_for_submission().current_journal(
+        request.journal).exists()
+    if not user_has_issues:
+        return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+    article = get_object_or_404(models.Article, pk=article_id)
+
+    if request.POST:
+        form = forms.SelectIssueForm(journal=request.journal, user=request.user, data=request.POST, instance=article)
+        if form.is_valid():
+            article = form.save(commit=False)
+            article.journal = request.journal
+            article.current_step = 2
+            article.save()
+            return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+    else:
+        form = forms.SelectIssueForm(journal=request.journal, user=request.user, instance=article)
+
+    template = 'admin/submission/submit_issue.html'
+    context = {"form": form, "article": article}
 
     return render(request, template, context)
 
@@ -199,10 +240,11 @@ def submit_info(request, article_id):
                 additional_fields=additional_fields,
                 submission_summary=submission_summary,
                 journal=request.journal,
+                keep_primary_issue=True
             )
             if form.is_valid():
                 form.save(request=request)
-                article.current_step = 2
+                article.current_step = 3
                 article.save()
 
                 return redirect(
@@ -258,7 +300,7 @@ def submit_authors(request, article_id):
         journal=request.journal,
     )
 
-    if article.current_step < 2 and not request.user.is_staff:
+    if article.current_step < 3 and not request.user.is_staff:
         return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
 
     form = forms.AuthorForm()
@@ -351,7 +393,7 @@ def submit_authors(request, article_id):
         else:
             author = core_models.Account.objects.get(pk=correspondence_author)
             article.correspondence_author = author
-            article.current_step = 3
+            article.current_step = 4
             article.save()
 
             return redirect(reverse(
@@ -531,7 +573,7 @@ def submit_files(request, article_id):
     form = forms.FileDetails()
     configuration = request.journal.submissionconfiguration
 
-    if article.current_step < 3 and not request.user.is_staff:
+    if article.current_step < 4 and not request.user.is_staff:
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     error, modal = None, None
@@ -590,7 +632,7 @@ def submit_files(request, article_id):
 
         if 'next_step' in request.POST:
             if article.manuscript_files.all().count() >= 1:
-                article.current_step = 4
+                article.current_step = 5
                 article.save()
                 if configuration.funding:
                     return redirect(reverse(
@@ -631,7 +673,7 @@ def submit_review(request, article_id):
         journal=request.journal,
     )
 
-    if article.current_step < 4 and not request.user.is_staff:
+    if article.current_step < 5 and not request.user.is_staff:
         return redirect(
             reverse(
                 'submit_info',
@@ -651,7 +693,7 @@ def submit_review(request, article_id):
             form.save()
             article.date_submitted = timezone.now()
             article.stage = models.STAGE_UNASSIGNED
-            article.current_step = 5
+            article.current_step = 6
             article.snapshot_authors(article)
             article.save()
 

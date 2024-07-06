@@ -1314,7 +1314,6 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(journal=request.journal), None, None
 
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
@@ -1323,13 +1322,18 @@ def manage_issues(request, issue_id=None, event=None):
         sort_form = issue_forms.SortForm()
         if event == 'edit':
             modal = 'issue'
-        if event == 'delete':
+        elif event == 'delete':
             modal = 'deleteme'
-        if event == 'remove':
+        elif event == 'remove':
             article_id = request.GET.get('article')
             article = get_object_or_404(submission_models.Article, pk=article_id, pk__in=issue.article_pks)
             issue.articles.remove(article)
             return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+        else:
+            modal = None
+    else:
+        issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(
+            journal=request.journal), None, None
 
     if request.POST:
         if 'make_current' in request.POST:
@@ -1344,7 +1348,6 @@ def manage_issues(request, issue_id=None, event=None):
                     messages.WARNING,
                     'Issues that have a future publication date cannot be set as the current issue for a journal.',
                 )
-            issue = None
             return redirect(reverse('manage_issues'))
 
         if 'delete_issue' in request.POST:
@@ -1370,9 +1373,7 @@ def manage_issues(request, issue_id=None, event=None):
                 form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
 
             if form.is_valid():
-                save_issue = form.save(commit=False)
-                save_issue.journal = request.journal
-                save_issue.save()
+                save_issue = form.save()
                 if request.FILES and save_issue.large_image:
                     resize_and_crop(save_issue.large_image.path, [750, 324])
                 if issue:

@@ -25,6 +25,10 @@ urlpatterns = [
     path('', include('core.include_urls')),
 ]
 
+urlpatterns += [
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+]
+
 try:
     if settings.DEBUG or settings.IN_TEST_RUNNER:
         import debug_toolbar

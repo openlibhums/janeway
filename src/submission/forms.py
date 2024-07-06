@@ -11,6 +11,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
+from journal import models as journal_models
 from review.logic import render_choices
 from utils.forms import (
     KeywordModelForm,
@@ -67,6 +68,31 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('competing_interests')
 
 
+class SelectIssueForm(forms.ModelForm):
+    """Used to choose the destination special issue during submission."""
+
+    primary_issue = forms.ModelChoiceField(
+        queryset=None,
+        required=False,
+        blank=True,
+        empty_label=gettext("No selection"),
+        widget=forms.RadioSelect(),
+    )
+
+    class Meta:
+        model = models.Article
+        fields = ("primary_issue",)
+
+    def __init__(self, *args, **kwargs):
+        """Init the query set now, otherwise we are missing a current_journal."""
+        journal = kwargs.pop('journal', False)
+        user = kwargs.pop('user', False)
+        super().__init__(*args, **kwargs)
+        self.fields["primary_issue"].queryset = (
+            journal_models.Issue.objects.by_user(user).open_for_submission().current_journal(journal)
+        )
+
+
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
     FILTER_PUBLIC_FIELDS = False
 
@@ -98,6 +124,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         elements = kwargs.pop('additional_fields', None)
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
+        self.keep_primary_issue = kwargs.pop('keep_primary_issue', False)
         self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
         editor_view = kwargs.pop('editor_view', False)
         super(ArticleInfo, self).__init__(*args, **kwargs)
@@ -120,6 +147,10 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 )
                 license_queryset = license_queryset.filter(
                     available_for_submission=self.FILTER_PUBLIC_FIELDS,
+                )
+            if article.primary_issue and article.primary_issue.allowed_sections:
+                section_queryset = section_queryset.filter(
+                    pk__in=article.primary_issue.allowed_sections.values_list('pk', flat=True),
                 )
             self.fields['section'].queryset = section_queryset
             self.fields['license'].queryset = license_queryset
@@ -208,6 +239,11 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                     if editor_view:
                         self.fields[element.name].required = False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.keep_primary_issue:
+            cleaned_data['primary_issue'] = self.instance.primary_issue
+        return cleaned_data
 
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)

@@ -5,17 +5,25 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 from django.urls import reverse
 
-from core import files, forms as core_forms
+from core import files, forms as core_forms, models as core_models
 from journal import models
 
 
 class NewIssue(forms.ModelForm):
+    date_open = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
+    date_close = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop("journal")
         super().__init__(*args, **kwargs)
         self.fields["issue_type"].queryset = models.IssueType.objects.filter(
             journal=journal)
+        editors = core_models.Account.objects.filter(
+                accountrole__role__slug__in=["editor", "section-editor"],
+                accountrole__journal=journal,
+        )
+        self.fields["managing_editors"].queryset = editors
+        self.instance.journal = journal
         if self.instance and self.instance.code:
             path = reverse(
                 "journal_collection_by_code_with_digits",
@@ -29,7 +37,8 @@ class NewIssue(forms.ModelForm):
         fields = (
             'issue_title', 'volume', 'issue', 'date', 'issue_description',
             'short_description', 'cover_image', 'large_image', 'issue_type',
-            'code', 'doi', 'isbn',
+            'code', 'doi', 'isbn', 'short_name', 'description', 'date_open', 'date_close', 'invitees',
+            'allowed_sections', 'managing_editors', 'documents', 'expected_submissions', 'internal_notes'
         )
 
 
