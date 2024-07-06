@@ -29,7 +29,7 @@ def delete_notification_acceptance_setting(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0094_alter_account_preferred_timezone'),
+        ('core', '0095_merge_20240621_0722'),
     ]
 
     operations = [
