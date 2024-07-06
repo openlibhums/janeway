@@ -43,4 +43,4 @@ def select_issue_available(journal, user):
     :return: boolean
     """
 
-    return Issue.objects.by_user(user).open_for_submission().current_journal(journal).exists()
+    return Issue.objects.for_submission(user=user, journal=journal).exists()

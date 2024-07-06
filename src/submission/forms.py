@@ -89,7 +89,7 @@ class SelectIssueForm(forms.ModelForm):
         user = kwargs.pop('user', False)
         super().__init__(*args, **kwargs)
         self.fields["primary_issue"].queryset = (
-            journal_models.Issue.objects.by_user(user).open_for_submission().current_journal(journal)
+            journal_models.Issue.objects.for_submission(user=user, journal=journal)
         )
 
 

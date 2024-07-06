@@ -71,7 +71,7 @@ def start(request, type=None):
             ).processed_value:
                 logic.add_user_as_author(request.user, new_article)
 
-            user_has_issues = Issue.objects.by_user(request.user).open_for_submission().current_journal(request.journal).exists()
+            user_has_issues = Issue.objects.for_submission(user=request.user, journal=request.journal).exists()
             if user_has_issues:
                 return redirect(reverse('submit_issue', kwargs={'article_id': new_article.pk}))
             else:
@@ -98,8 +98,7 @@ def submit_issue(request, article_id):
     :param article_id: int, None or 'preprint'
     :return: HttpRedirect or HttpResponse
     """
-    user_has_issues = Issue.objects.by_user(request.user).open_for_submission().current_journal(
-        request.journal).exists()
+    user_has_issues = Issue.objects.for_submission(user=request.user, journal=request.journal).exists()
     if not user_has_issues:
         return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
     article = get_object_or_404(models.Article, pk=article_id)

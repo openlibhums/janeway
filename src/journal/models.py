@@ -609,6 +609,22 @@ ISSUE_CODE_RE = re.compile("^[a-zA-Z0-9-_]+$")
 
 class IssueQuerySet(models.QuerySet):
 
+    def for_submission(self, journal, user):
+        """
+        Issues available for submission by the user.
+
+        Issues are filtered by the following criteria:
+        - The issue is a collection
+        - The issue is open for submission
+        - The issue is for the current journal
+        - The user is included in Issue.invitees for any issue or without invitees or with the user in the invitees.
+
+        :param journal: Journal
+        :param user: User
+        :return: QuerySet
+        """
+        return self.collection().by_user(user).open_for_submission().current_journal(journal)
+
     def open_for_submission(self):
         """Build a queryset of Issues open for submission."""
         _now = timezone.now()
@@ -616,6 +632,10 @@ class IssueQuerySet(models.QuerySet):
             models.Q(date_close__isnull=True) | models.Q(date_close__gte=_now),
             models.Q(date_open__isnull=True) | models.Q(date_open__lte=_now)
         )
+
+    def collection(self):
+        """Filter collection type issues."""
+        return self.filter(issue_type__code="collection")
 
     def current_journal(self, journal):
         """Build a queryset of Issues for the current journal."""
