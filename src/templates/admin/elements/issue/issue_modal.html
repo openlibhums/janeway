@@ -13,6 +13,9 @@
                     <div class="large-12 columns">
                         {{ form.issue_title|foundation }}
                     </div>
+                    <div class="large-12 columns">
+                        {{ form.short_name|foundation }}
+                    </div>
                     <div class="large-6 columns">
                         {{ form.volume|foundation }}
                     </div>
@@ -48,6 +51,9 @@
                         {{ form.issue_description|foundation }}
                     </div>
                     <div class="large-12 columns">
+                        {{ form.description|foundation }}
+                    </div>
+                    <div class="large-12 columns">
                         {{ form.issue_type|foundation }}
                     </div>
                     <div class="large-6 columns">
@@ -55,6 +61,30 @@
                     </div>
                     <div class="large-6 columns">
                         {{ form.isbn|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        <h5>{% translate "Special configuration" %}</h5>
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.date_open|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.date_close|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.invitees|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.managing_editors|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.allowed_sections|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.expected_submissions|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.internal_notes|foundation }}
                     </div>
                     <div class="large-12 columns">
                         <button name="save_issue" type="submit" class="button success">{% if issue %}Edit{% else %}Add{% endif %} Issue</button>
