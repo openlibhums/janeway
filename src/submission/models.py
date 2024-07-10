@@ -1515,7 +1515,7 @@ class Article(AbstractLastModifiedModel):
         self.date_accepted = None
         self.stage = STAGE_REJECTED
 
-        self.incomplete_reviews().update(decision='withdrawn',
+        self.incomplete_reviews().update(decision=RD.DECISION_WITHDRAWN.value,
                                          date_complete=timezone.now(),
                                          is_complete=True,)
         self.save()
