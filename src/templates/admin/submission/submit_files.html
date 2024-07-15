@@ -122,8 +122,8 @@
         </div>
     </article>
 
-    {% include "admin/elements/submit/file.html" with modaltype="manuscript" %}
-    {% include "admin/elements/submit/file.html" with modaltype="data" %}
+    {% include "admin/elements/submit/file.html" with modaltype="manuscript" form=ms_form instructions=journal_settings.general.manuscript_file_submission_instructions|safe %}
+    {% include "admin/elements/submit/file.html" with modaltype="data" form=data_form instructions=journal_settings.general.data_figure_file_submission_instructions|safe %}
 
 {% endblock body %}
 

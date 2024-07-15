@@ -528,7 +528,16 @@ def submit_files(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
-    form = forms.FileDetails()
+    ms_form = forms.FileDetails(
+        initial={
+            "label": article.journal.submissionconfiguration.submission_file_text,
+        },
+    )
+    data_form = forms.FileDetails(
+        initial={
+            "label": "Figure/Data File",
+        },
+    )
     configuration = request.journal.submissionconfiguration
 
     if article.current_step < 3 and not request.user.is_staff:
@@ -550,18 +559,18 @@ def submit_files(request, article_id):
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
 
         if 'manuscript' in request.POST:
-            form = forms.FileDetails(request.POST)
+            ms_form = forms.FileDetails(request.POST)
             uploaded_file = request.FILES.get('file')
-            if logic.check_file(uploaded_file, request, form):
-                if form.is_valid():
+            if logic.check_file(uploaded_file, request, ms_form):
+                if ms_form.is_valid():
                     new_file = files.save_file_to_article(
                         uploaded_file,
                         article,
                         request.user,
                     )
                     article.manuscript_files.add(new_file)
-                    new_file.label = form.cleaned_data['label']
-                    new_file.description = form.cleaned_data['description']
+                    new_file.label = ms_form.cleaned_data['label']
+                    new_file.description = ms_form.cleaned_data['description']
                     new_file.save()
                     return redirect(
                         reverse('submit_files', kwargs={'article_id': article_id}),
@@ -572,21 +581,22 @@ def submit_files(request, article_id):
                 modal = 'manuscript'
 
         if 'data' in request.POST:
-            for uploaded_file in request.FILES.getlist('file'):
-                form = forms.FileDetails(request.POST)
-                if form.is_valid():
-                    new_file = files.save_file_to_article(
-                        uploaded_file,
-                        article,
-                        request.user,
-                    )
-                    article.data_figure_files.add(new_file)
-                    new_file.label = form.cleaned_data['label']
-                    new_file.description = form.cleaned_data['description']
-                    new_file.save()
-                    return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
-                else:
-                    modal = 'data'
+            data_form = forms.FileDetails(request.POST)
+            uploaded_file = request.FILES.get('file')
+            if data_form.is_valid() and uploaded_file:
+                new_file = files.save_file_to_article(
+                    uploaded_file,
+                    article,
+                    request.user,
+                )
+                article.data_figure_files.add(new_file)
+                new_file.label = data_form.cleaned_data['label']
+                new_file.description = data_form.cleaned_data['description']
+                new_file.save()
+                return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+            else:
+                data_form.add_error(None, 'You must select a file.')
+                modal = 'data'
 
         if 'next_step' in request.POST:
             if article.manuscript_files.all().count() >= 1:
@@ -606,7 +616,8 @@ def submit_files(request, article_id):
     context = {
         'article': article,
         'error': error,
-        'form': form,
+        'ms_form': ms_form,
+        'data_form': data_form,
         'modal': modal,
     }
 
