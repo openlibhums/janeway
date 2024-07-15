@@ -1,0 +1,44 @@
+{% comment %}
+Easily select or deselect all the checkboxes for a given field.
+
+Make sure to wrap this widget and the checkboxes in fieldset.
+
+Usage:
+
+<fieldset>
+    <legend>Which colours?</legend>
+    {% include "admin/core/widgets/select_all.html" %}
+    <input id="red" name="red" type="checkbox"><label for="red">Red</label>
+    <input id="blue" name="blue" type="checkbox"><label for="blue">Blue</label>
+</fieldset>
+
+{% endcomment %}
+
+{% load uuid %}
+
+{% short_uuid4 as pid %}
+
+<div id="{{ pid }}" style="button-group">
+    <button class="button selectall" type="button">
+        <span class="fa fa-check"></span>
+        Select all
+    </button>
+    <button class="button deselectall" type="button">
+        <span class="fa fa-close"></span>
+        Deselect all
+    </button>
+</div>
+<script defer type="module">
+    function toggleInputsInFieldset(event) {
+        const checked = event.currentTarget.classList.contains('selectall');
+        const fieldset = event.currentTarget.closest('fieldset');
+        const checkboxes = fieldset.querySelectorAll('input[type="checkbox"]');
+        Array.from(checkboxes).forEach(checkbox => {
+          checkbox.checked = checked;
+        });
+    }
+    const selectAll = document.querySelector('#{{ pid }} .selectall');
+    selectAll.addEventListener('click', toggleInputsInFieldset);
+    const deselectAll = document.querySelector('#{{ pid }} .deselectall');
+    deselectAll.addEventListener('click', toggleInputsInFieldset);
+</script>
