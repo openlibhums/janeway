@@ -2,8 +2,6 @@
   <div class="flex">
     {% csrf_token %}
     <input hidden name="params_string" value="{{ params_string }}">
-    <input hidden name="user" value="{{ account.pk }}">
-    <input hidden name="journal" value="{{ journal.pk }}">
     {% for accountrole in accountroles %}
       {% if accountrole.journal == journal %}
         <div class="small button-group">
