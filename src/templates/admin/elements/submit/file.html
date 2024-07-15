@@ -4,56 +4,42 @@
 <div class="small reveal" id="{{ modaltype }}" data-reveal>
     <div class="card">
         <div class="card-divider">
-            <h5><i class="fa fa-upload">&nbsp;</i>{% trans "Add New File" %}</h5>
+            <h5>
+                <span class="fa fa-upload"></span>
+                {% trans "Add New File" %}
+            </h5>
         </div>
         <div class="card-section">
-            <small>{% include "elements/forms/errors.html" with form=form %}</small>
-            {% if modaltype == 'manuscript' %}
-                {{ journal_settings.general.manuscript_file_submission_instructions|safe }}
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="large-12 columns">
-                            <input name="file" type="file" class="filestyle" data-placeholder="No file"
-                                   data-buttonname="btn-primary">
-                        </div>
+            <div>
+                {{ instructions }}
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="large-12 columns">
+                        <input
+                            name="file"
+                            type="file"
+                            class="filestyle"
+                            data-placeholder="No file"
+                            data-buttonname="btn-primary">
                     </div>
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <label>
-                                {% trans 'Label' %} <span class="red">*</span>
-                            </label>
-                            <input type="text" name="label" id="id_label" required="" maxlength="200" value="{{ request.journal.submissionconfiguration.submission_file_text }}">
-                        </div>
-                    </div>
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <label>{% trans 'Description' %}</label>
-                            <textarea name="description" id="id_description" rows="10" cols="40"></textarea>
-                        </div>
-                    </div>
-                    <button type="submit" name="manuscript" class="success button">{% trans 'Add File' %}</button>
-                    <button class="close-button" data-close="" aria-label="Close reveal" type="button">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </form>
-            {% else %}
-                {{ journal_settings.general.data_figure_file_submission_instructions|safe }}
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="large-12 columns">
-                            <input name="file" type="file" class="filestyle" data-placeholder="No file"
-                                   data-buttonName="btn-primary">
-                        </div>
-                    </div>
-                    {{ form|foundation }}
-                    <button type="submit" name="{{ modaltype }}" class="success button">{% trans "Add File" %}</button>
-                    <button class="close-button" data-close aria-label="Close reveal" type="button">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </form>
-            {% endif %}
+                </div>
+                {{ form|foundation }}
+                <button
+                    type="submit"
+                    name="{{ modaltype }}"
+                    class="success button">
+                    {% trans 'Add File' %}
+                </button>
+                <button
+                    class="close-button"
+                    data-close=""
+                    aria-label="Close reveal"
+                    type="button">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </form>
         </div>
     </div>
 </div>
