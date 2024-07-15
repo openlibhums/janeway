@@ -1,6 +1,7 @@
 import os
 
 from django import template
+from django.core.exceptions import FieldError
 from django.template.defaultfilters import filesizeformat
 
 from bs4 import BeautifulSoup
@@ -59,6 +60,15 @@ def file_type(article, file):
     galley_files = [galley.file for galley in article.galley_set.all()]
     galley_sub_files = list()
     review_files = [review.review_file for review in article.reviewassignment_set.all()]
+    try:
+        # GalleyProofing belongs to the typesetting plugin
+        annotated_files = models.File.objects.filter(
+            galleyproofing__round__article=article,
+        )
+    except FieldError:
+        annotated_files = models.File.objects.none(
+            proofingtask__round__article=article,
+        )
 
     for galley in article.galley_set.all():
         for image in galley.images.all():
@@ -72,6 +82,8 @@ def file_type(article, file):
         return 'Data/Figure'
     if file in galley_files:
         return 'Galley'
+    if file in annotated_files:
+        return 'Proofing'
     if file in copyedited_files:
         return 'Copyedit'
     if file in galley_sub_files:
