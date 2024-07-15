@@ -1,0 +1,86 @@
+{% comment %}
+Easily fill in a date or datetime field.
+
+date_input_id - str: the id of the input these buttons should control.
+
+Usage:
+
+{% include "admin/core/widgets/soon_date_buttons.html" with date_input_id="due" %}
+<label for="due">Due date</label>
+<input id="due" name="due" type="date">
+
+{% endcomment %}
+
+{% load uuid %}
+{% load due_dates %}
+
+{% short_uuid4 as pid %}
+
+<div id="{{ pid }}" style="button-group">
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=0 input_type=input_type %}">
+    Now
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=1 input_type=input_type %}">
+    1 day
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=2 input_type=input_type %}">
+    2 days
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=3 input_type=input_type %}">
+    3 days
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=5 input_type=input_type %}">
+    5 days
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=7 input_type=input_type %}">
+    1 week
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=14 input_type=input_type %}">
+    2 weeks
+  </button>
+  <button
+    class="button set-date"
+    type="button"
+    aria-controls="{{ date_input_id }}"
+    value="{% due_date days=28 input_type=input_type %}">
+    4 weeks
+  </button>
+</div>
+<script defer type="module">
+  function setDate(event) {
+    const dateInput = document.querySelector('#{{ date_input_id }}');
+    dateInput.value = event.currentTarget.value;
+  }
+  const setDateButtons = document.querySelectorAll('#{{ pid }} .set-date');
+  Array.from(setDateButtons).forEach(dateButton => {
+    dateButton.addEventListener('click', setDate);
+  });
+</script>
