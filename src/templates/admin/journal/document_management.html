@@ -20,14 +20,14 @@
                 <tr>
                     <th>ID</th>
                     <th>Label</th>
+                    <th>Filename</th>
+                    <th>Type</th>
                     <th>Uploaded</th>
                     <th>Modified</th>
-                    <th>Filename</th>
                     <th>Download</th>
                     <th>History</th>
                     <th>Replace</th>
                     <th>Delete</th>
-                    <th>Type</th>
                     {% if request.user.is_admin %}
                     <th>Admin</th>
                     {% endif %}
@@ -41,9 +41,10 @@
                     <tr>
                         <td>{{ file.pk }}</td>
                         <td class="wrap-long-text">{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
+                        <td class="wrap-long-text">{{ file }}</td>
+                        <td>{% file_type article file %}</td>
                         <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                         <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
-                        <td class="wrap-long-text">{{ file }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">
@@ -60,7 +61,6 @@
                             <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-trash">
                                 &nbsp;</i></a>{% endif %}</td>
-                        <td>{% file_type article file %}</td>
                         {% if request.user.is_admin %}
                         <td>
                             <a target="_blank" href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit</a>
@@ -97,7 +97,7 @@
             </div>
         </div>
         <div class="card-section">
-            <p>Add a label and then upload a file. You can only upload one file type at a <time class=""></time></p>
+            <p>Add a label and then upload a file. You can only upload one file type at a time.</p>
             {% if error %}
                 <div class="alert alert-warning" role="alert">{{ error }}</div>
             {% endif %}
@@ -110,10 +110,12 @@
                 <label for="label">File Label*</label>
                 <input type="text" maxlength="200" id="label" name="label" placeholder="Add file label here." required="required" />
                 <input type="hidden" name="upload" value="upload">
-                <h4>New Manuscript File</h4>
+                <h4>Manuscript File</h4>
                 <div class="clearfix">
                     <div>
-                        <p><small>MS files are used in review and copyediting.</small></p>
+                        <p><small>Manuscript files hold the main text content of the
+                        article while it is being finalized. They are used across review,
+                        copyediting, and typesetting.</small></p>
                         <input name="manu-file" type="file" class="float-left" style="width:50%;"
                                data-placeholder="No file"
                                data-buttonName="btn-primary">
@@ -127,7 +129,10 @@
                 <h4>Figure/Data File</h4>
                 <div class="clearfix">
                     <div>
-                        <p><small>Figure files are images from manuscripts. Data files are any other file not an image or Manuscript that relate to the paper.</small></p>
+                        <p><small>Figure files hold images that will be included
+                        in the article. Data files hold any other other content
+                        that is not an image or main text content
+                        but that will be included in the published article.</small></p>
                         <input name="fig-file" type="file" class="float-left" style="width:50%;"
                                data-placeholder="No file"
                                data-buttonName="btn-primary">
@@ -138,28 +143,65 @@
                     </div>
                 </div>
 
-                <h4>Production</h4>
+                <h4>Galley File</h4>
                 <div class="clearfix">
                     <div>
-                        <p><small>Upload a new file for use in Production/Typesetting.</small></p>
-                        <input name="prod-file" type="file" class="float-left" style="width:50%;"
+                        <p><small>Galleys are files that have been typeset
+                        or encoded, most often in XML, HTML, or PDF format,
+                        so that they are ready for proofing and publication.</small></p>
+                        <input name="galley-file" type="file" class="float-left" style="width:50%;"
                                data-placeholder="No file"
                                data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="prod"><i
+                        <button type="submit" class="button success float-right" name="galley"><i
                                 class="fa fa-upload">
                             &nbsp;</i>Upload
                         </button>
                     </div>
                 </div>
 
-                <h4>Proofing</h4>
+                <h4>Proofing File</h4>
                 <div class="clearfix">
                     <div>
-                        <p><small>Upload a new file for use in Proofing.</small></p>
-                        <input name="proof-file" type="file" class="float-left" style="width:50%;"
+                        <p><small>Proofing files are copies of galleys
+                        that have been marked up to indicate corrections to be
+                        made in subsequent rounds of typesetting.</small></p>
+                        <input name="proofing-file" type="file" class="float-left" style="width:50%;"
                                data-placeholder="No file"
                                data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="proof"><i
+                        <button type="submit" class="button success float-right" name="proofing"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h4>Source File</h4>
+                <div class="clearfix">
+                    <div>
+                        <p><small>Source files are files created in typesetting
+                        while generating a galley. They are often in
+                        specialized file formats used by graphic design and
+                        document layout applications.</small></p>
+                        <input name="source-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="source"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h4>Supplementary File</h4>
+                <div class="clearfix">
+                    <div>
+                        <p><small>Supplementary files are publication-ready
+                        pieces of content to be published alongside the article,
+                        often with their own DOIs.</small></p>
+                        <input name="supp-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="supp"><i
                                 class="fa fa-upload">
                             &nbsp;</i>Upload
                         </button>
