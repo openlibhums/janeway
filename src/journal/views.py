@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
 import re
+from importlib import import_module
 
 from django.conf import settings
 from django.contrib import messages
@@ -2442,18 +2443,23 @@ def document_management(request, article_id):
 
     if request.POST and request.FILES:
 
-        label = request.POST.get('label') if request.POST.get('label') else 'File'
+        label = request.POST.get('label') if request.POST.get('label') else '[Unlabeled]'
 
         if 'manu' in request.POST:
             from core import files as core_files
             file = request.FILES.get('manu-file')
-            new_file = core_files.save_file_to_article(file, document_article,
-                                                       request.user, label=label, is_galley=False)
+            new_file = core_files.save_file_to_article(
+                file,
+                document_article,
+                request.user,
+                label=label,
+                is_galley=False,
+            )
             document_article.manuscript_files.add(new_file)
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _('Production file uploaded.'),
+                _('Manuscript file uploaded.'),
             )
 
         if 'fig' in request.POST:
@@ -2470,10 +2476,11 @@ def document_management(request, article_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _('Production file uploaded.'),
+                _('Data/figure file uploaded.'),
             )
 
         if 'prod' in request.POST:
+            # Deprecated. Use manuscript file instead.
             from production import logic as prod_logic
             file = request.FILES.get('prod-file')
             prod_logic.save_prod_file(document_article, request, file, label)
@@ -2483,14 +2490,76 @@ def document_management(request, article_id):
                 _('Production file uploaded.'),
             )
 
-        if 'proof' in request.POST:
+        if 'galley' in request.POST:
             from production import logic as prod_logic
-            file = request.FILES.get('proof-file')
+            file = request.FILES.get('galley-file')
             prod_logic.save_galley(document_article, request, file, True, label)
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _('Proofing file uploaded.'),
+                _('Galley file uploaded.'),
+            )
+
+        if 'proofing' in request.POST:
+            from core import files as core_files
+            file = request.FILES.get('proofing-file')
+            new_file = core_files.save_file_to_article(
+                file,
+                document_article,
+                request.user,
+                label=label,
+            )
+            try:
+                typesetting_models = import_module('plugins.typesetting.models')
+                rounds = typesetting_models.TypesettingRound.objects.filter(
+                    article=document_article,
+                )
+                if rounds:
+                    current_round = rounds.first()
+                else:
+                    current_round = typesetting_models.TypesettingRound.objects.create(
+                        article=document_article,
+                    )
+                request.user.add_account_role('proofreader', request.journal)
+                proofing = typesetting_models.GalleyProofing.objects.create(
+                    round=current_round,
+                    manager=request.user,
+                    proofreader=request.user,
+                    due=timezone.now(),
+                    accepted=timezone.now(),
+                    completed=timezone.now(),
+                )
+                proofing.annotated_files.add(new_file)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Proofing file uploaded.'),
+                )
+            except ModuleNotFoundError:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Saved file.'),
+                )
+
+        if 'supp' in request.POST:
+            from production import logic as prod_logic
+            file = request.FILES.get('supp-file')
+            prod_logic.save_supp_file(document_article, request, file, label)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Supplementary file uploaded.'),
+            )
+
+        if 'source' in request.POST:
+            from production import logic as prod_logic
+            file = request.FILES.get('source-file')
+            prod_logic.save_source_file(document_article, request, file, label)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Typesetting source file uploaded.'),
             )
 
         return redirect(

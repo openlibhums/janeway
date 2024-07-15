@@ -44,6 +44,7 @@ def get_all_galleys(article):
 
 
 def save_prod_file(article, request, uploaded_file, label):
+    # Deprecated. A prod file is just a manuscript file.
     new_file = files.save_file_to_article(uploaded_file, article, request.user)
     new_file.label = label
     new_file.is_galley = False
@@ -63,9 +64,9 @@ def save_supp_file(article, request, uploaded_file, label):
     article.supplementary_files.add(supp_file)
 
 
-def save_source_file(article, request, uploaded_file):
+def save_source_file(article, request, uploaded_file, label='Source File'):
     new_file = files.save_file_to_article(uploaded_file, article, request.user)
-    new_file.label = "Source File"
+    new_file.label = label
     new_file.is_galley = False
     new_file.save()
 
