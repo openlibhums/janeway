@@ -19,6 +19,7 @@
             {% endif %}
             <form method="POST">
                 {% csrf_token %}
+                {% include "admin/core/widgets/soon_date_buttons.html" with date_input_id=pub_date_form.date_published.id_for_label input_type="datetime-local" %}
                 {{ pub_date_form|foundation }}
                 <button type="submit" name="pubdate" class="small success button">Set Publication Date</button>
             </form>
