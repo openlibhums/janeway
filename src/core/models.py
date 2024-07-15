@@ -8,6 +8,7 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
+from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
 import warnings
@@ -32,7 +33,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.template.defaultfilters import linebreaksbr
+from django.template.defaultfilters import date
 import swapper
 
 from core import files, validators
@@ -1224,6 +1225,17 @@ class Galley(AbstractLastModifiedModel):
 
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
+
+    def detail(self):
+        return format_html(
+            'Galley {}, {}, modified {}, linked to <a href="#file_{}">file {} - {}</a>',
+            self.pk,
+            self.label,
+            self.file.last_modified.strftime('%Y-%m-%d %H:%M'),
+            self.file.pk,
+            self.file.pk,
+            self.file.original_filename,
+        )
 
     def render(self, recover=False):
         return files.render_xml(
