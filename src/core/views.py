@@ -2739,19 +2739,16 @@ class BaseUserList(GenericFacetedListView):
 
     def post(self, request, *args, **kwargs):
 
-        post_data = request.POST.copy()
-        if 'remove_accountrole' in post_data:
+        if 'remove_accountrole' in request.POST:
             accountrole = core_models.AccountRole.objects.get(
-                pk=post_data.get('remove_accountrole')
+                pk=request.POST.get('remove_accountrole')
             )
             message = f'{accountrole.role} role removed ' \
                       f'from {accountrole.user} in {accountrole.journal.name}.'
             accountrole.delete()
             messages.success(request, message)
         elif 'role' in request.POST:
-            if request.journal:
-                post_data.update({'journal': request.journal})
-            form = forms.AccountRoleForm(post_data)
+            form = forms.AccountRoleForm(request.POST)
             if form.is_valid():
                 accountrole = form.save()
                 message = f'{accountrole.role} role added ' \
