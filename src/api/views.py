@@ -62,6 +62,11 @@ class AccountViewSet(viewsets.ModelViewSet):
                 Q(first_name__iregex=search_regex) |
                 Q(last_name__iregex=search_regex)
             )
+        orcid = self.request.query_params.get('orcid')
+        if orcid:
+            queryset = queryset.filter(
+                orcid=orcid,
+            )
         return queryset
 
 
