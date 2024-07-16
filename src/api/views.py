@@ -170,6 +170,7 @@ class PreprintViewSet(viewsets.ModelViewSet):
             repository=self.request.repository,
         )
         search_term = self.request.query_params.get('search')
+        stage = self.request.query_params.get('stage')
         if search_term:
             split_search_term = search_term.split(' ')
             # Initial filter on Title, Abstract and Keywords.
@@ -198,6 +199,11 @@ class PreprintViewSet(viewsets.ModelViewSet):
             )
             preprints = repository_models.Preprint.objects.filter(
                 pk__in=preprint_pks,
+            )
+
+        if stage:
+            preprints = preprints.filter(
+                stage=stage,
             )
         return preprints
 
@@ -281,6 +287,16 @@ class PreprintFiles(viewsets.ModelViewSet):
             raise NotImplementedError(
                 "This view only works with Repositories.",
             )
+
+
+class RepositorySubjects(viewsets.ModelViewSet):
+    serializer_class = serializers.PreprintSubjectGroupSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        return repository_models.Subject.objects.filter(
+            repository=self.request.repository,
+        )
 
 
 def oai(request):
