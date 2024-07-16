@@ -1,6 +1,5 @@
 import collections
 import csv
-import operator
 import json
 import re
 
@@ -9,7 +8,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
 
-from rest_framework import viewsets, generics
+from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 
@@ -164,8 +163,6 @@ class PreprintViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         preprints = repository_models.Preprint.objects.filter(
             repository=self.request.repository,
-            date_published__lte=timezone.now(),
-            stage=repository_models.STAGE_PREPRINT_PUBLISHED,
         )
         search_term = self.request.query_params.get('search')
         if search_term:
@@ -197,6 +194,29 @@ class PreprintViewSet(viewsets.ModelViewSet):
             preprints = repository_models.Preprint.objects.filter(
                 pk__in=preprint_pks,
             )
+        return preprints
+
+
+class UserPreprintsViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.PreprintSerializer
+    http_method_names = ['get', 'post', 'put']
+    permission_classes = [
+        permissions.IsAuthenticated,
+        api_permissions.IsPreprintOwner
+    ]
+
+    def get_serializer_class(self):
+        if self.request.method in 'GET':
+            return serializers.PreprintSerializer
+        elif self.request.method in ['POST', 'PUT']:
+            return serializers.PreprintCreateSerializer
+        return serializers.PreprintSerializer
+
+    def get_queryset(self):
+        preprints = repository_models.Preprint.objects.filter(
+            repository=self.request.repository,
+            owner=self.request.user,
+        )
         return preprints
 
 

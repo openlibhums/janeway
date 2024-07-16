@@ -20,6 +20,7 @@ router.register(r'preprints', views.PreprintViewSet, 'preprint')
 router.register(r'repository_licenses', views.PreprintLicenses, 'repository_licenses')
 router.register(r'repository_fields', views.RepositoryFields, 'repository_fields')
 router.register(r'preprint_files', views.PreprintFiles, 'preprint_files')
+router.register(r'user_preprints', views.UserPreprintsViewSet, 'user_preprints')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

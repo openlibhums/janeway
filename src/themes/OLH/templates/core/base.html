@@ -217,20 +217,7 @@
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
-    {% for message in messages %}
-        {% ifequal message.tags "warning" %}
-            toastr.warning("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "info" %}
-            toastr.info("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "danger" %}
-            toastr.error("{{ message|linebreaksbr }}");
-        {% endifequal%}
-        {% ifequal message.tags "success" %}
-            toastr.success("{{ message|linebreaksbr }}")
-        {% endifequal%}
-    {% endfor %}
+
 
 </script>
 {% include "common/elements/analytics.html" %}

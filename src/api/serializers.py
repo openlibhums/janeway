@@ -354,7 +354,7 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             title=validated_data.get('title'),
             abstract=validated_data.get('abstract'),
             owner=validated_data.get('owner'),
-            stage=validated_data.get('stage'),
+            stage=validated_data.get('stage', 'preprint_review'),
             license=validated_data.get('license'),
             date_submitted=validated_data.get('date_submitted'),
             date_accepted=validated_data.get('date_accepted'),
