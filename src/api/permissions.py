@@ -1,6 +1,9 @@
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions
+
+from repository import models as rm
 
 
 class IsEditor(permissions.BasePermission):
@@ -46,3 +49,30 @@ class IsRepositoryManager(permissions.BasePermission):
 
         if request.repository and request.user in request.repository.managers.all():
             return True
+
+
+class IsPreprintOwner(permissions.BasePermission):
+    message = 'You must be the owner of this preprint to edit it.'
+
+    def has_permission(self, request, view):
+        # grant access to non-create/update requests
+        if request.method not in ['PUT', 'PATCH']:
+            return True
+
+        # grant access if user is the preprint's owner
+        preprint_id = request.data.get('pk')
+        if not preprint_id:
+            preprint_id = view.kwargs.get('pk')
+
+        preprint = get_object_or_404(
+            rm.Preprint,
+            pk=preprint_id,
+        )
+        if request.user == preprint.owner:
+            return True
+
+        if request.user.is_staff:
+            return True
+
+        # Otherwise don't grant access
+        return False
