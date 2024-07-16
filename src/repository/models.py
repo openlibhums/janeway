@@ -1089,16 +1089,19 @@ class PreprintVersion(models.Model):
             return None
 
     def public_download_url(self):
-        path = reverse(
-            'repository_file_download',
-            kwargs={
-                'preprint_id': self.preprint.pk,
-                'file_id': self.file.pk,
-            },
-        )
-        return self.preprint.repository.site_url(
-            path=path,
-        )
+        if self.preprint and self.file:
+            path = reverse(
+                'repository_file_download',
+                kwargs={
+                    'preprint_id': self.preprint.pk,
+                    'file_id': self.file.pk,
+                },
+            )
+            return self.preprint.repository.site_url(
+                path=path,
+            )
+        else:
+            return ''
 
 
 class Comment(models.Model):
