@@ -12,9 +12,7 @@
     <div class="button-group">
     {% if round.has_completed_proofing %}
         <a data-open="add_round" class="alert button">Request Corrections</a>
-    {% endif %}
-
-    {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
+    {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
         <a data-open="add_round" class="alert button">Request Corrections</a>
     {% endif %}
 
