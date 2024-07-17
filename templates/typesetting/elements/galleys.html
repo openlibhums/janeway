@@ -5,25 +5,26 @@
 {% load bool_fa %}
 
 <table class="scroll small">
-    <tr style="text-align: left">
+    <tr>
         <th>ID</th>
         <th>Label</th>
-        <th width="25%">Filename</th>
+        <th>Filename</th>
         <th>Public</th>
         <th>Modified</th>
         <th>Edit</th>
-        <th><span class="fa fa-download"></span></th>
+        <th>Download</th>
         <th>History</th>
         <th>Preview</th>
         <th>Figures</th>
         <th>Delete</th>
         {% if request.user.is_admin %}
-            <th></th>{% endif %}
+            <th>Admin</th>
+        {% endif %}
     </tr>
     {% for galley in galleys %}
         {% can_edit_file galley.file galley.article as user_can_edit_file %}
         <tr>
-            <td>{{ galley.pk }}</td>
+            <th>{{ galley.pk }}</th>
             <td>{{ galley.label }}</td>
             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
             <td>{{ galley.public|bool_fa }}</td>
@@ -56,8 +57,8 @@
             <td>
                 <form method="POST" action="{% url 'typesetting_delete_galley' galley.pk %}">
                     {% csrf_token %}
-
                     <button type="submit" name="delete" value="{{ galley.file.pk }}"><i
+                        onclick="return confirm('Are you sure you want to delete this galley?');"
                             class="fa fa-trash">
                         &nbsp;</i>
                     </button>
@@ -69,7 +70,7 @@
                         class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
                 </td>{% endif %}
         </tr>
-        {% empty %}
+    {% empty %}
         <tr>
             <td colspan="10">No typeset files have been uploaded.</td>
         </tr>
@@ -77,9 +78,11 @@
 </table>
 
 {% if not disable_upload %}
-<div class="float-right"><a class="button success" data-open="uploadbox"><i
-        class="fa fa-cloud-upload">
-    &nbsp;</i>Upload New Typeset File</a>
-</div>
+    <div class="button-group">
+        <a class="float-right button success" data-open="uploadbox">
+            <span class="fa fa-cloud-upload"></span>
+            Upload New Typeset File
+        </a>
+    </div>
+    {% include "typesetting/elements/new_galley.html" %}
 {% endif %}
-<br />
