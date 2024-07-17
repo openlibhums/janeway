@@ -1228,10 +1228,8 @@ class Galley(AbstractLastModifiedModel):
 
     def detail(self):
         return format_html(
-            'Galley {}, {}, modified {}, linked to <a href="#file_{}">file {} - {}</a>',
-            self.pk,
+            '{} galley linked to <a href="#file_{}">file {}: {}</a>',
             self.label,
-            self.file.last_modified.strftime('%Y-%m-%d %H:%M'),
             self.file.pk,
             self.file.pk,
             self.file.original_filename,
