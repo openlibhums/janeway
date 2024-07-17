@@ -14,6 +14,8 @@
             <td><input type="radio" name="typesetter" value="{{ typesetter.id }}"
                        {% if form.cleaned_data.typesetter.id == typesetter.id %}checked="checked"
                        {% elif form.instance.typesetter == typesetter %}checked="checked"
+                       {% elif forloop.first and forloop.last %}checked="checked"
+                       {% elif typesetter == form.last_typesetter %}checked="checked"
                        {% endif %}></td>
             <td>{{ typesetter.full_name }}</td>
             <td>{{ typesetter.email }}</td>
