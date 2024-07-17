@@ -1,4 +1,4 @@
-<table class="scroll small" id="typesetter">
+<table class="scroll small" id="proofreader">
     <thead>
     <tr>
         <th>Select</th>
@@ -10,17 +10,21 @@
     <tbody>
     {% for proofreader in proofreaders %}
         <tr>
-            <td><input type="radio" name="proofreader" value="{{ proofreader.id }}"
-                       {% if form.cleaned_data.proofreader.id == proofreader.id or proofreader.id == assignment.proofreader.pk %}checked="checked"{% endif %}></td>
+            <th>
+                <input
+                    type="radio"
+                    name="proofreader"
+                    {% if form.cleaned_data.proofreader.id == proofreader.id or proofreader.id == assignment.proofreader.pk %}
+                        checked="checked"
+                    {% endif %}
+                    value="{{ proofreader.id }}">
+            </th>
             <td>{{ proofreader.full_name }}</td>
             <td>{{ proofreader.email }}</td>
         </tr>
     {% empty %}
         <tr>
-            <td>No suitable proofreaders.</td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td colspan="3">No suitable proofreaders.</td>
         </tr>
     {% endfor %}
     </tbody>
