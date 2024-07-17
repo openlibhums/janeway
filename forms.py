@@ -1,16 +1,17 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
-from django_summernote.widgets import SummernoteWidget
-
 from core import models as core_models, forms as core_forms
+from core.model_utils import JanewayBleachFormField
 from plugins.typesetting import models
 from utils.forms import HTMLDateInput
 
 
-class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
+class TypesettingAssignmentForm(
+    forms.ModelForm,
+    core_forms.ConfirmableIfErrorsForm
+):
 
     # Confirmable form modification
     QUESTION = _('Are you sure you want to create a typesetting assignment?')
@@ -19,17 +20,17 @@ class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         typesetters = kwargs.pop('typesetters')
         files = kwargs.pop('files')
         galleys = kwargs.pop('galleys', ())
+        initial_galleys_to_correct = kwargs.pop('initial_galleys_to_correct', ())
         self.rounds = kwargs.pop('rounds')
-        super(AssignTypesetter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['typesetter'].queryset = typesetters
         self.fields['files_to_typeset'].queryset = files
-        self.fields['corrections'] = forms.MultipleChoiceField(
+        self.fields['galleys_to_correct'] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple(),
             required=False,
-            choices=[(g.pk, g.label) for g in galleys],
-            help_text='Select which files require corrections '
-                      '(Click and drag to select multiple)',
-            initial=[galley.pk for galley in galleys],
+            choices=[(g.pk, g.detail()) for g in galleys],
+            initial=initial_galleys_to_correct,
         )
 
     class Meta:
@@ -47,30 +48,31 @@ class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         }
 
     def save(self, commit=True):
-        assignment = super(AssignTypesetter, self).save(commit=False)
+        assignment = super().save(commit=False)
         assignment.round = self.rounds[0]
 
         if commit:
             with transaction.atomic():
                 assignment.save()
 
-                for file in self.cleaned_data.get('files_to_typeset'):
+                for file in assignment.files_to_typeset.all():
+                    assignment.files_to_typeset.remove(file)
+                for file in self.cleaned_data.get('files_to_typeset', ()):
                     assignment.files_to_typeset.add(file)
 
-                for galley_id in self.cleaned_data.get("corrections", []):
+                galleys_to_correct = self.cleaned_data.get('galleys_to_correct', ())
+                for correction in assignment.corrections.all():
+                    if correction.galley.pk not in galleys_to_correct:
+                        correction.delete()
+                for galley_id in galleys_to_correct:
                     galley = core_models.Galley.objects.get(pk=galley_id)
-                    correction, _ = assignment.corrections.get_or_create(
+                    assignment.corrections.get_or_create(
                         task=assignment,
                         galley=galley,
                         label=galley.label,
                     )
 
         return assignment
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if not cleaned_data.get('files_to_typeset'):
-            raise ValidationError("At least one file must be made picked")
 
     def check_for_potential_errors(self):
         # Confirmable form modification
@@ -81,7 +83,42 @@ class AssignTypesetter(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         if message:
             potential_errors.append(message)
 
+        files_to_typeset = self.cleaned_data.get('files_to_typeset', ())
+        if not files_to_typeset:
+            message = "No files were selected for typesetting. The typesetter " \
+                      "may not have access to the right files."
+            potential_errors.append(message)
+
+        galleys_to_correct = self.cleaned_data.get('galleys_to_correct', ())
+        if not galleys_to_correct and self.rounds.first().article.galley_set.exists():
+            message = "No galleys were marked for correction."
+            potential_errors.append(message)
+
+        for galley_id in galleys_to_correct:
+            try:
+                galley = core_models.Galley.objects.get(pk=galley_id)
+                if galley.file not in files_to_typeset:
+                    message = f"Galley {galley.pk} was selected " \
+                              f"for correction, but the typesetter was " \
+                              f"not given access to the linked " \
+                              f"file: {galley.file.pk} - {galley.file.label}."
+                    potential_errors.append(message)
+            except core_models.Galley.DoesNotExist:
+                pass
+
         return potential_errors
+
+    def last_typesetter(self):
+        if len(self.rounds) > 1:
+            return self.rounds[1].typesettingassignment.typesetter
+        else:
+            return None
+
+
+class EditTypesettingAssignmentForm(TypesettingAssignmentForm):
+    QUESTION = _('Are you sure you want to save the typesetting assignment?')
+    CONFIRMABLE_BUTTON_NAME = 'edit_confirmed'
+    CONFIRMED_BUTTON_NAME = 'edit_confirmable'
 
 
 class AssignProofreader(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
@@ -136,7 +173,7 @@ def decision_choices():
 
 class TypesetterDecision(forms.Form):
     decision = forms.ChoiceField(choices=decision_choices(), required=True)
-    note = forms.CharField(widget=forms.Textarea, required=False)
+    note = JanewayBleachFormField(required=False)
 
 
 class ManagerDecision(forms.ModelForm):
@@ -204,11 +241,6 @@ class ProofingForm(forms.ModelForm, core_forms.ConfirmableForm):
         summernote_attrs = {
             'disable_attachment': True,
             'height': '500px',
-        }
-        widgets = {
-            'notes': SummernoteWidget(
-                attrs={'summernote': summernote_attrs},
-            ),
         }
 
     def check_for_potential_errors(self):
