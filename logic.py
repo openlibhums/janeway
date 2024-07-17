@@ -3,6 +3,7 @@ import uuid
 import datetime
 
 from django.db import transaction
+from django.db.models import Q, ExpressionWrapper, BooleanField
 from django.shortcuts import redirect, reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
@@ -22,11 +23,13 @@ from plugins.typesetting.notifications import notify
 
 def production_ready_files(article, file_objects=False):
     """
+    Deprecated.
     Gathers a list of production ready files.
     :param article: an Article object
     :param file_objects: Boolean
     :return: a list of File type objects
     """
+    raise DeprecationWarning('Use get_typesetting_files instead.')
     submitted_ms_files = article.manuscript_files.filter(is_galley=False)
     copyeditted_files = logic.get_copyedit_files(article)
 
@@ -47,6 +50,42 @@ def production_ready_files(article, file_objects=False):
             'Manuscript File': submitted_ms_files,
             'Copyedited File': copyeditted_files,
         }
+
+
+def get_typesetting_files(article, previous_round=None):
+    """
+    Gets queryset of files that may be needed during typesetting.
+    File objects will be pre-checked for the user as a convenience
+    if they are galleys or if they are proofing files from
+    the previous round.
+    :param article: an Article object
+    :param previous_round: TypesettingRound
+    """
+    query = Q(manuscript_files=article)
+    query |= Q(data_figure_files=article)
+    query |= Q(copyeditor_files__article=article)
+    query |= Q(galley__article=article)
+    query |= Q(supplementaryfile__supp=article)
+    query |= Q(galleyproofing__round__article=article)
+    queryset = core_models.File.objects
+
+    # Pre-check files that are likely to be needed
+    checked_query = Q()
+    checked_query |= Q(galley__article=article)
+    if previous_round:
+        checked_query |= Q(
+            galleyproofing__round__article=article,
+            galleyproofing__round=previous_round,
+            galleyproofing__completed__isnull=False,
+        )
+
+    queryset = queryset.annotate(
+        checked=ExpressionWrapper(
+            checked_query,
+            output_field=BooleanField()
+        )
+    )
+    return queryset.filter(query).order_by('-last_modified')
 
 
 def get_typesetters(journal):

@@ -1,16 +1,12 @@
 <div class="callout bs-callout-success">
     <p><strong>Task from the editor:</strong></p>
-    {{ assignment.task|safe }}
+    {{ assignment.task|safe|default:"<p>No task details were provided.</p>"|safe }}
 </div>
 {% if assignment.display_proof_comments and assignment.proofing_assignments_for_corrections.exists %}
-<div class="callout bs-callout-success">
-    <p><strong>Comments from the proofreaders:</strong></p>
-    <p>The editor has made available the following comments from the proofreaders</p>
-        <a class="button primary" data-open="view_proofing"><i class="fa fa-eye action-icon">&nbsp;</i>
-            View proofreader feedback
-        </a>
-    <p>
-</div>
+    <div class="callout">
+        <p>The editor has made available the following comments from the proofreaders:</p>
+        {% include "typesetting/elements/view_proofreading_comments.html" %}
+    </div>
 {% endif %}
 
 
@@ -30,4 +26,3 @@
         <td>{{ assignment.due }}</td>
     </tr>
 </table>
-{% include "typesetting/elements/view_proofreading_comments.html" with typesetting_assignment=assignment %}

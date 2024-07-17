@@ -12,7 +12,7 @@ from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
 from security import decorators
 from submission import models as submission_models
-from core import models as core_models, files
+from core import models as core_models, forms as core_forms, files
 from production import logic as production_logic
 from journal.views import article_figure
 from journal import logic as journal_logic
@@ -70,7 +70,7 @@ def typesetting_article(request, article_id):
     galleys = core_models.Galley.objects.filter(
         article=article,
     )
-    manuscript_files = logic.production_ready_files(article)
+    files = logic.get_typesetting_files(article)
     supp_choice_form = forms.SupplementaryFileChoiceForm(article=article)
     galley_form = forms.GalleyForm()
 
@@ -168,7 +168,7 @@ def typesetting_article(request, article_id):
         'article': article,
         'rounds': rounds,
         'galleys': galleys,
-        'manuscript_files': manuscript_files,
+        'files': files,
         'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
         'next_element': logic.get_next_element('typesetting_articles', request),
         'supp_choice_form': supp_choice_form,
@@ -278,6 +278,8 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         )
 
     if 'prod' in request.POST:
+        # Deprecated.
+        # We now want to avoid using this view for generic document management.
         for uploaded_file in request.FILES.getlist('prod-file'):
             production_logic.save_prod_file(
                 article,
@@ -468,10 +470,7 @@ def typesetting_assign_typesetter(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
-    galleys = article.galley_set.all()
-
     typesetters = logic.get_typesetters(request.journal)
-    files = logic.production_ready_files(article, file_objects=True)
     rounds = models.TypesettingRound.objects.filter(article=article)
     current_round = rounds[0]
     if rounds.count() > 1:
@@ -484,15 +483,22 @@ def typesetting_assign_typesetter(request, article_id):
         previous_round = None
         proofing_assignments = ()
 
-    form = forms.AssignTypesetter(
+    files = logic.get_typesetting_files(
+        article,
+        previous_round=previous_round,
+    )
+    galleys = article.galley_set.all()
+    initial_galleys_to_correct = [galley.pk for galley in galleys]
+    form = forms.TypesettingAssignmentForm(
         typesetters=typesetters,
         files=files,
         rounds=rounds,
         galleys=galleys,
+        initial_galleys_to_correct=initial_galleys_to_correct,
     )
 
     if request.POST:
-        form = forms.AssignTypesetter(
+        form = forms.TypesettingAssignmentForm(
             request.POST,
             typesetters=typesetters,
             files=files,
@@ -525,7 +531,8 @@ def typesetting_assign_typesetter(request, article_id):
     context = {
         'article': article,
         'typesetters': typesetters,
-        'files': logic.production_ready_files(article),
+        'files': files,
+        'galleys': galleys,
         'form': form,
         'round': current_round,
         'proofing_assignments': proofing_assignments,
@@ -621,31 +628,41 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         round__article=article,
     )
     typesetters = logic.get_typesetters(request.journal)
-    files = logic.production_ready_files(article, file_objects=True)
-    rounds = models.TypesettingRound.objects.filter(article=article)
-    edit_form = forms.AssignTypesetter(
-        typesetters=typesetters,
-        files=files,
-        rounds=rounds,
-        instance=assignment
-    )
-
+    files = logic.get_typesetting_files(article)
     galleys = core_models.Galley.objects.filter(
         article=assignment.round.article,
     )
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    current_round = rounds[0]
+    initial_galleys_to_correct = [
+        correction.galley.pk for correction in assignment.corrections.all()
+    ]
+    edit_form = forms.EditTypesettingAssignmentForm(
+        typesetters=typesetters,
+        files=files,
+        galleys=galleys,
+        rounds=rounds,
+        initial_galleys_to_correct=initial_galleys_to_correct,
+        instance=assignment,
+    )
+    galley_form = forms.GalleyForm()
 
     decision_form = forms.ManagerDecision()
 
-    if request.POST and "edit" in request.POST:
-        edit_form = forms.AssignTypesetter(
+    if request.POST and (
+        edit_form.CONFIRMABLE_BUTTON_NAME in request.POST
+        or edit_form.CONFIRMED_BUTTON_NAME in request.POST
+    ):
+        edit_form = forms.EditTypesettingAssignmentForm(
             request.POST,
             typesetters=typesetters,
             files=files,
+            galleys=galleys,
             rounds=rounds,
             instance=assignment,
         )
 
-        if edit_form.is_valid():
+        if edit_form.is_valid() and edit_form.is_confirmed():
             assignment = edit_form.save()
 
             assignment.manager = request.user
@@ -702,7 +719,9 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         'galleys': galleys,
         'form': edit_form,
         'typesetters': typesetters,
-        'files': logic.production_ready_files(article),
+        'files': files,
+        'galley_form': galley_form,
+        'proofing_assignments': assignment.proofing_assignments_for_corrections,
         'decision_form': decision_form,
         'pending_corrections': [
             correction for correction in assignment.corrections.all()
@@ -840,12 +859,22 @@ def typesetting_assignment(request, assignment_id):
         round__article__journal=request.journal
     )
     article = assignment.round.article
+
+    # Display galleys that were selected by the editor
+    # or that were uploaded by the typesetter
     galleys = core_models.Galley.objects.filter(
-        article=article,
+        Q(article=article),
+        (Q(file__files_to_typeset=assignment) | Q(file__owner=request.user)),
+    )
+
+    supplementary_files = article.supplementary_files.filter(
+        file__pk__in=[file.pk for file in assignment.files_to_typeset.all()],
     )
 
     form = forms.TypesetterDecision()
     galley_form = forms.GalleyForm()
+    complete_form = core_forms.SimpleTinyMCEForm(field_name='note_from_typesetter')
+    complete_form.fields['note_from_typesetter'].required = False
 
     if request.POST:
         if 'source' in request.POST:
@@ -929,8 +958,10 @@ def typesetting_assignment(request, assignment_id):
             if not correction.corrected
         ],
         'missing_images': [g for g in galleys if g.has_missing_image_files()],
+        'supplementary_files': supplementary_files,
         'proofing_assignments': assignment.proofing_assignments_for_corrections,
         'galley_form': galley_form,
+        'complete_form': complete_form,
     }
 
     return render(request, template, context)

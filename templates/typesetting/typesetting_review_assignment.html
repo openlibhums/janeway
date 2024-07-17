@@ -37,11 +37,11 @@
                   <tr>
                       <td>{{ assignment.pk }}</td>
                       <td>{{ assignment.manager.full_name }}</td>
-                      <td>{{ assignment.assigned }}</td>
-                      <td>{{ assignment.due }}</td>
-                      <td>{{ assignment.accepted }}</td>
+                      <td>{{ assignment.assigned|date }}</td>
+                      <td>{{ assignment.due|date }}</td>
+                      <td>{{ assignment.accepted|date }}</td>
                       <td>{% if assignment.completed %}
-                          {{ assignment.completed }}{% else %}
+                          {{ assignment.completed|date }}{% else %}
                           {{ assignment.completed|bool_fa }}{% endif %}</td>
                       <td>{{ assignment.status|capfirst }}</td>
                   </tr>
@@ -63,31 +63,19 @@
         <div class="large-12 columns">
             <div class="box">
               <div class="title-area">
-                 <h2>Manage Assignment</h2>
-             </div>
+                <h2>Manage Assignment</h2>
+              </div>
               <div class="content">
-                <form method="POST">
-                   {% csrf_token %}
+              <form id="review_assignment" method="POST">
+                {% csrf_token %}
+                {% include "elements/forms/errors.html" %}
                 {% if not assignment.accepted and not assignment.declined %}
-                    <div class="title-area">
-                        <p>Typesetter</p>
-                    </div>
-                    <div class="content">
-                        {% include "typesetting/elements/typesetter_list.html" with typesetters=typesetters %}
-                    </div>
-                    <div class="title-area">
-                        <p>Files available for the typesetter</p>
-                    </div>
-                    <div class="content">
-                        {% include "typesetting/elements/file_list.html" with files=files %}
-                    </div>
-                    <div class="content">
-                        {{ form.due|foundation }}
-                    </div>
-                    <div class="content">
-                        {{ form.assignment|foundation }}
-                    </div>
-                  <button class="button success" name="edit">Save Changes</button>
+                  {% include 'typesetting/elements/typesetting_assignment_fields.html' %}
+                  <button
+                      class="button success"
+                      name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
+                      Save Changes
+                  </button>
                   <button class="button alert" name="delete" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete Assignment</button>
                 {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
                     {% if pending_corrections %}
@@ -145,13 +133,21 @@
                     <h2>Typeset Files</h2>
                 </div>
                 <div class="content">
-                    {% include "typesetting/elements/galleys.html" with galleys=galleys disable_upload='y' %}
+                    {% include "typesetting/elements/galleys.html" with disable_upload="y" %}
                 </div>
             </div>
         </div>
     </div>
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="review_assignment" %}
+    {% endif %}
+
 {% endblock body %}
 
 {% block js %}
-<script src="{% static "admin/js/check_all.js" %}"></script>
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+    {% include "elements/datatables.html" with target="#typesetter #file_list" %}
 {% endblock js %}

@@ -17,7 +17,7 @@
     <div class="row expanded">
 
 
-        <div class="large-6 columns">
+        <div class="columns">
             <div class="box">
                 <div class="title-area">
                     <h2>Assignment Information</h2>
@@ -31,13 +31,15 @@
                 </div>
                 {% endif %}
                 <div class="title-area">
-                    <h2>Files to Typeset</h2>
+                    <h2>Files to Use</h2>
                 </div>
                 <div class="content">
-                    <p><small>The following files have been selected for use in generating the typeset articles.</small></p>
-                    {% include "typesetting/elements/typesetter/files.html" %}
+                    <p><small>The following files have been selected
+                      for use or reference when
+                      generating the typeset articles.</small></p>
+                    {% include "typesetting/elements/file_list.html" with files=assignment.files_to_typeset.all input_name="files_to_typeset" %}
                 </div>
-                {% if article.supplementary_files.exists %}
+                {% if supplementary_files %}
                 <div class="title-area">
                     <h2>Supplementary Files</h2>
                 </div>
@@ -48,12 +50,14 @@
                 {% endif %}
                 {% if not assignment.cancelled %}
                 <div class="title-area">
-                    <h2>Upload Typeset Files</h2>
+                    <h2>Upload Galleys</h2>
                 </div>
                 <div class="content">
-                    <p><small>Any typeset files associated with this article will be displayed here. Ensure that any image files are uploaded using the upload images function and not as typeset files.</small></p>
+                    <p><small>Any galleys (typeset files) that were selected by the editor
+                    for correction, or that you originally uploaded, will appear here. Ensure
+                    that any image files that belong with XML files are uploaded using the
+                    upload images function and not as typeset files.</small></p>
                     {% include "typesetting/elements/typesetter/galleys.html" %}
-
                 </div>
                 <div class="title-area">
                     <h2>Upload Source Files</h2>
@@ -99,10 +103,9 @@
 
                     <form method="POST">
                         {% csrf_token %}
-                        <p>
-                            <small>Once you are happy with the typeset files, you can mark this stage as complete.</small>
-                        </p>
-                        <textarea name="note_from_typesetter" placeholder="If you have a note for the manager you can add it here."></textarea>
+                        <p><small>Once you are happy with the typeset files,
+                        you can mark this stage as complete, with an optional note.</small></p>
+                        {{ complete_form|foundation }}
                         <button class="button" name="complete_typesetting">Complete Typesetting</button>
                     </form>
                     {% endif %}
@@ -110,7 +113,7 @@
             </div>
         </div>
 
-        <div class="large-6 columns">
+        <div class="columns">
             <div class="box">
                 <div class="title-area">
                     <h2>Metadata</h2>

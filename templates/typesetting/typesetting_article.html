@@ -40,19 +40,38 @@
             </div>
         </div>
 
-        {% include "typesetting/elements/production_files.html" %}
-
         <div class="box">
             <div class="title-area">
-                <h2>Current Typeset Files</h2>
+                <h2>Files for Typesetting</h2>
             </div>
             <div class="content">
                 <p>
-                    <small>Any typeset files that have been uploaded either by Editors or Typesetters are listed below. All files below will be downloadable by article readers, so ensure that only the final ready-to-publish files are below.</small>
+                    <small>Listed below are all the files that may be needed
+                    in typesetting, including reference files like
+                    pre-existing galleys and proofing files.
+                    You can manage these files with Document
+                    Management in the Actions box.</small>
+                </p>
+                {% include "typesetting/elements/file_list.html" with files=files options=True %}
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Galleys</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>Any typeset files (a.k.a. galleys) that have been
+                    uploaded either by editors or typesetters are listed
+                    below. All files below will be downloadable by article
+                    readers, so ensure that only the final ready-to-publish
+                    files are included.</small>
                 </p>
                 {% include "typesetting/elements/galleys.html" %}
             </div>
         </div>
+
         <div class="box">
             <div class="title-area">
                 <h2>Optional Files</h2>
@@ -86,7 +105,9 @@
         {% include "typesetting/elements/sidebar.html" %}
     </div>
 
-    {% include "typesetting/elements/new_galley.html" %}
+    {% for file in files %}
+        {% include "typesetting/elements/transform_modal.html" with article=article file=file request=request %}
+    {% endfor %}
     {% include "elements/production/source_files_upload.html" %}
     {% include "elements/production/new_supp_file.html" %}
     {% include "typesetting/elements/choose_supp_file.html" %}
@@ -99,4 +120,6 @@
 
 {% endblock body %}
 
-
+{% block js %}
+    {% include "elements/datatables.html" with target="#file_list" %}
+{% endblock js %}

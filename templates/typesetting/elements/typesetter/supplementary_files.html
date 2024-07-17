@@ -7,7 +7,7 @@
         <th>DOI</th>
         <th>Download</th>
     </tr>
-    {% for supp_file in article.supplementary_files.all %}
+    {% for supp_file in supplementary_files %}
         <tr>
             <td>{{ supp_file.pk }}</td>
             <td>{{ supp_file.label|truncatechars:40 }}</td>
@@ -18,7 +18,7 @@
             </td>
         {% empty %}
         <tr>
-            <td colspan="10">No supplementary files have been uploaded.</td>
+            <td colspan="10">No supplementary files have been shared by the editor.</td>
         </tr>
     {% endfor %}
 </table>

@@ -1,28 +1,23 @@
-<div class="reveal small" id="view_proofing" data-reveal data-animation-in="slide-in-up"
-     data-animation-out="slide-out-down">
-    <div class="card">
-        <h3> Proofreading Feedback </h3>
-        {% for proof in proofing_assignments %}
-        <div class="card-divider">
-            <h3>From {{ proof.proofreader }} ({{ proof.proofreader.email }})</h3>
-            <p><strong>Annotated files:</strong></p>
-              {% for f in proof.annotated_files.all %}
-               {% if typesetting_assignment %}
-              <a href="{% url 'typesetting_typesetter_download_file' typesetting_assignment.pk f.pk %}"><i class="fa fa-download">&nbsp;</i> {{ f }}</a>
-               {% else %}
-              <a href="{% url 'typesetting_download_file' article.pk f.pk %}"><i class="fa fa-download">&nbsp;</i> {{ f }}</a>
-               {% endif %}
-              {% empty %}
-              <p>There are no annotated files</p>
-              {% endfor %}
-
-        </div>
-        <div class="card-section">
-            <p>{{ proof.notes|safe }}</p>
-        </div>
-        {% endfor %}
+{% for proof in proofing_assignments %}
+    <div class="callout bs-callout-info">
+        <details>
+            <summary>
+                Comments from {{ proof.proofreader }} ({{ proof.proofreader.email }})
+            </summary>
+            <div style="padding-block: 1rem;">
+                {{ proof.notes|safe|default:"<p>No comments were provided.</p>"|safe }}
+                <p>Associated files:</p>
+                <ul>
+                    {% for file in proof.annotated_files.all %}
+                        <li>
+                             {{ file.original_filename }}
+                             (<a href="#file_{{ file.pk }}">file #{{ file.pk }}</a>)
+                        </li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </details>
     </div>
-    <button class="close-button" data-close aria-label="Close reveal" type="button">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
+{% endfor %}
