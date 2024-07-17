@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from django.db import models
 from django.utils import timezone
 
+from core.model_utils import JanewayBleachField
 from plugins.typesetting import plugin_settings
 from utils import models as utils_models
 from utils import notify_helpers
@@ -112,7 +113,7 @@ class TypesettingAssignment(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.DateTimeField(blank=True, null=True)
     reviewed = models.BooleanField(default=False)
-    display_proof_comments= models.BooleanField(
+    display_proof_comments = models.BooleanField(
         default=True,
         help_text="Allow the typesetter to see the proofreading comments",
     )
@@ -122,12 +123,12 @@ class TypesettingAssignment(models.Model):
         blank=True,
     )
 
-    task = models.TextField(
-        null=True,
+    task = JanewayBleachField(
+        blank=True,
         verbose_name='Typesetting Task',
         help_text='Please let the typesetter know what you want them to create'
                   ' and if there are any special circumstances. They will have'
-                  ' access to the articles metadata.',
+                  ' access to the article’s metadata.',
     )
     files_to_typeset = models.ManyToManyField(
         'core.File',
@@ -138,7 +139,7 @@ class TypesettingAssignment(models.Model):
         'core.Galley',
         blank=True,
     )
-    typesetter_note = models.TextField(
+    typesetter_note = JanewayBleachField(
         blank=True,
         verbose_name='Note to Editor',
     )
@@ -316,13 +317,13 @@ class GalleyProofing(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.BooleanField(default=False)
 
-    task = models.TextField(
+    task = JanewayBleachField(
         verbose_name="Proofing Task",
         help_text='Add any additional information or instructions '
                   'for the proofreader here.',
     )
     proofed_files = models.ManyToManyField('core.Galley', blank=True)
-    notes = models.TextField(blank=True)
+    notes = JanewayBleachField(blank=True)
     annotated_files = models.ManyToManyField('core.File', blank=True)
 
     objects = models.Manager()
