@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0095_auto_20240605_1024'),
-    ]N
+    ]
 
     operations = [
         migrations.RunPython(
