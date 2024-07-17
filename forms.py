@@ -98,10 +98,10 @@ class TypesettingAssignmentForm(
             try:
                 galley = core_models.Galley.objects.get(pk=galley_id)
                 if galley.file not in files_to_typeset:
-                    message = f"Galley {galley.pk} was selected " \
-                              f"for correction, but the typesetter was " \
-                              f"not given access to the linked " \
-                              f"file: {galley.file.pk} - {galley.file.label}."
+                    message = f"The galley with a label of {galley.label} " \
+                              f"was selected for correction, but the typesetter " \
+                              f"was not given access to the linked " \
+                              f"file: {galley.file.pk} - {galley.file.original_filename}."
                     potential_errors.append(message)
             except core_models.Galley.DoesNotExist:
                 pass
@@ -117,8 +117,8 @@ class TypesettingAssignmentForm(
 
 class EditTypesettingAssignmentForm(TypesettingAssignmentForm):
     QUESTION = _('Are you sure you want to save the typesetting assignment?')
-    CONFIRMABLE_BUTTON_NAME = 'edit_confirmed'
-    CONFIRMED_BUTTON_NAME = 'edit_confirmable'
+    CONFIRMABLE_BUTTON_NAME = 'edit_confirmable'
+    CONFIRMED_BUTTON_NAME = 'edit_confirmed'
 
 
 class AssignProofreader(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
