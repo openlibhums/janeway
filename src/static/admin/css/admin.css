@@ -822,3 +822,41 @@ ul.menu {
   /* Temporary hotfix for compatibility with TinyMCE */
   z-index: 10 !important;
 }
+
+.key-value-pair {
+  font-family: "Open Sans", sans-serif;
+  margin-bottom: 20px;
+}
+
+.key-value-pair.key-above .key {
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: left;
+  color: darkgray;
+  margin-bottom: 5px;
+}
+
+.key-value-pair.key-above .value {
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.key-value-pair.key-above .value .inline-list {
+  display: inline;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.key-value-pair.key-above .value .inline-list li {
+  display: inline;
+}
+
+.key-value-pair.key-above .value .inline-list li:after {
+  content: ", ";
+}
+
+.key-value-pair.key-above .value .inline-list li:last-child:after {
+  content: "";
+}

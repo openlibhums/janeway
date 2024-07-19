@@ -5,39 +5,118 @@
 {% load field %}
 
 {% block title-section %}
-    {{ preprint.title }} {% trans 'Submission Complete' %}
+  Review Your {{ request.repository.object_name }} Submission
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
-        Dashboard</a></li>
-    <li>Start Submission</li>
-    <li>Add Authors</li>
-    <li>Upload Files</li>
-    <li>Submission Complete</li>
+  {% include "admin/elements/breadcrumbs/repository_submission.html" with review=True %}
 {% endblock %}
 
 
 {% block body %}
-    <div class="box">
-        <div class="row expanded">
-            <div class="large-6 columns">
+  <div class="box">
 
-                <div class="title-area">
-                    <h2>Submission Complete</h2>
-                </div>
-                <p>Thank you for submitting your {{ request.repository.object_name }} to {{ request.repository.name }}.</p>
-
-                <div class="title-area">
-                    <h2>Next Steps</h2>
-                </div>
-                <p>One of our team will review your submission and will be in touch. You can close the submission system using the button below, you will be taken to the dashboard.</p>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    <button name="complete" class="button">Close Submission System</button>
-                </form>
-            </div>
+    <div class="row expanded">
+      <div class="large-6 columns">
+        <div class="title-area">
+          <h2>{{ request.repository.object_name }} Metadata</h2>
+          <a href="{% url 'repository_submit_with_id' preprint.pk %}"
+             class="button">Edit Metadata
+          </a>
         </div>
+        <div class="content">
+
+          {% include "admin/elements/layout/key_value_above.html" with key="Title" value=preprint.title %}
+          {% include "admin/elements/layout/key_value_above.html" with key="Abstract" value=preprint.abstract render_line_breaks=True %}
+          {% include "admin/elements/layout/key_value_above.html" with key="License" value=preprint.license.name %}
+          {% include "admin/elements/layout/key_value_above.html" with key="Published DOI" value=preprint.doi %}
+          {% include "admin/elements/layout/key_value_above.html" with key="Subjects" value=preprint.subject.all list=True %}
+          {% include "admin/elements/layout/key_value_above.html" with key="Keywords" value=preprint.keywords.all list=True %}
+          {% include "admin/elements/layout/key_value_above.html" with key="Comments to the Editor" value=preprint.comments_editor render_line_breaks=True %}
+
+          {% for field_answer in preprint.repositoryfieldanswer_set.all %}
+            {% include "admin/elements/layout/key_value_above.html" with key=field_answer.field.name value=field_answer.answer render_line_breaks=True %}
+          {% endfor %}
+        </div>
+
+        <div class="title-area">
+          <h2>Authors</h2>
+          <a href="{% url 'repository_authors' preprint.pk %}"
+             class="button">Edit
+            Authors</a>
+        </div>
+        <div class="content">
+          <table class="table small">
+            <tr>
+              <th>Email Address</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+            </tr>
+            {% for author in preprint.preprintauthor_set.all %}
+              <tr>
+                <td>{{ author.account.email }}</td>
+                <td>{{ author.account.first_name }}</td>
+                <td>{{ author.account.last_name }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        <div class="title-area">
+          <h2>Files</h2>
+          <a href="{% url 'repository_files' preprint.pk %}" class="button">Edit
+            Files</a>
+        </div>
+        <div class="content">
+          <table class="table small">
+            <tr>
+              <th>Original Filename</th>
+              <th>Size</th>
+            </tr>
+            {% if preprint.submission_file %}
+              <tr>
+                <td>{{ preprint.submission_file.original_filename }}</td>
+                <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="2">No file uploaded.</td>
+              </tr>
+            {% endif %}
+          </table>
+        </div>
+
+        <div class="title-area">
+          <h2>Supplementary Files</h2>
+          <a href="{% url 'repository_files' preprint.pk %}" class="button">
+            Edit Supplementary Files
+          </a>
+        </div>
+        <div class="content">
+          <ul>
+            {% for link in preprint.supplementaryfiles %}
+              <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+              {% empty %}
+              <li>No Supplementary File</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="large-6 columns">
+        <div class="title-area">
+          <h2>Complete Submission</h2>
+        </div>
+        <div class="content">
+          {{ request.repository.review_submission_text|safe }}
+          <form method="POST">
+            {% csrf_token %}
+            <button name="complete" class="button">
+              Submit {{ request.repository.object_name }}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 {% endblock %}
