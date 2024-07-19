@@ -1,0 +1,18 @@
+<div class="key-value-pair key-above">
+  <div class="key">
+    {{ key }}
+  </div>
+  <div class="value">
+    {% if list %}
+      <ul class="inline-list">
+        {% for item in value %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    {% elif render_line_breaks %}
+      {{ value|linebreaksbr|default_if_none:"No value supplied" }}
+    {% else %}
+      {{ value|default_if_none:"No value supplied" }}
+    {% endif %}
+  </div>
+</div>
