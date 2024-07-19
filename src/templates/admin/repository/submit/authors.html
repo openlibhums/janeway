@@ -9,10 +9,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
-        Dashboard</a></li>
-    <li>Start Submission</li>
-    <li>Add Authors</li>
+{% include "admin/elements/breadcrumbs/repository_submission.html" with authors=True %}
 {% endblock %}
 
 {% block body %}
