@@ -104,7 +104,11 @@
             {% for supp_file in preprint.supplementaryfiles %}
             <tr>
               <td>{{ supp_file.label }}</td>
-              <td>{{ supp_file.link }}</td>
+              <td>
+                <a href="{{ supp_file.url }}" target="_blank">
+                  {{ supp_file.url }} <span class="show-for-sr">(external link, opens in new tab)</span>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr>
