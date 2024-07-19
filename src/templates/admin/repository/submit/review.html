@@ -20,12 +20,13 @@
       <div class="large-6 columns">
         <div class="title-area">
           <h2>{{ request.repository.object_name }} Metadata</h2>
-          <a href="{% url 'repository_submit_with_id' preprint.pk %}"
-             class="button">Edit Metadata
+          <a
+            href="{% url 'repository_submit_with_id' preprint.pk %}"
+            class="button">
+            Edit Metadata
           </a>
         </div>
         <div class="content">
-
           {% include "admin/elements/layout/key_value_above.html" with key="Title" value=preprint.title %}
           {% include "admin/elements/layout/key_value_above.html" with key="Abstract" value=preprint.abstract render_line_breaks=True %}
           {% include "admin/elements/layout/key_value_above.html" with key="License" value=preprint.license.name %}
@@ -33,7 +34,6 @@
           {% include "admin/elements/layout/key_value_above.html" with key="Subjects" value=preprint.subject.all list=True %}
           {% include "admin/elements/layout/key_value_above.html" with key="Keywords" value=preprint.keywords.all list=True %}
           {% include "admin/elements/layout/key_value_above.html" with key="Comments to the Editor" value=preprint.comments_editor render_line_breaks=True %}
-
           {% for field_answer in preprint.repositoryfieldanswer_set.all %}
             {% include "admin/elements/layout/key_value_above.html" with key=field_answer.field.name value=field_answer.answer render_line_breaks=True %}
           {% endfor %}
@@ -41,9 +41,11 @@
 
         <div class="title-area">
           <h2>Authors</h2>
-          <a href="{% url 'repository_authors' preprint.pk %}"
-             class="button">Edit
-            Authors</a>
+          <a
+            href="{% url 'repository_authors' preprint.pk %}"
+            class="button">
+            Edit Authors
+          </a>
         </div>
         <div class="content">
           <table class="table small">
@@ -64,8 +66,9 @@
 
         <div class="title-area">
           <h2>Files</h2>
-          <a href="{% url 'repository_files' preprint.pk %}" class="button">Edit
-            Files</a>
+          <a href="{% url 'repository_files' preprint.pk %}" class="button">
+            Edit Files
+          </a>
         </div>
         <div class="content">
           <table class="table small">
@@ -93,13 +96,22 @@
           </a>
         </div>
         <div class="content">
-          <ul>
-            {% for link in preprint.supplementaryfiles %}
-              <li><a href="{{ link.url }}">{{ link.label }}</a></li>
-              {% empty %}
-              <li>No Supplementary File</li>
+          <table class="table small">
+            <tr>
+              <th>Label</th>
+              <th>Link</th>
+            </tr>
+            {% for supp_file in preprint.supplementaryfiles %}
+            <tr>
+              <td>{{ supp_file.label }}</td>
+              <td>{{ supp_file.link }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2">No supplementary files supplied</td>
+            </tr>
             {% endfor %}
-          </ul>
+          </table>
         </div>
       </div>
 
