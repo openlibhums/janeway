@@ -52,9 +52,15 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         self.admin = kwargs.pop('admin', False)
         elements = self.request.repository.additional_submission_fields()
         super(PreprintInfo, self).__init__(*args, **kwargs)
+
         if self.admin:
             self.fields.pop('submission_agreement')
             self.fields.pop('comments_editor')
+
+        # If using this form and there is an instance then this has
+        # previously been checked as it is required.
+        if self.instance:
+            self.fields['submission_agreement'].initial = True
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
             enabled=True,
@@ -487,6 +493,7 @@ class RepositorySite(RepositoryBase):
             'limit_access_to_submission',
             'submission_access_request_text',
             'submission_access_contact',
+            'review_submission_text',
             'custom_js_code',
             'review_helper',
         )

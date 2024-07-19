@@ -1,0 +1,39 @@
+<li>
+  <a href="{% url 'repository_dashboard' %}">
+    {{ request.repository.name }} Dashboard
+  </a>
+</li>
+<li>
+  <a href="{% url 'repository_submit_with_id' preprint.pk %}">
+    Metadata
+  </a>
+</li>
+
+<li>
+  {% if files or review %}
+    <a href="{% url 'repository_authors' preprint.pk %}">
+      Add Authors
+    </a>
+  {% else %}
+    Add Authors
+  {% endif %}
+</li>
+
+<li>
+  {% if review %}
+    <a href="{% url 'repository_files' preprint.pk %}">
+      Add Files
+    </a>
+  {% else %}
+    Add Files
+  {% endif %}
+</li>
+<li>
+  {% if review %}
+    <a href="{% url 'repository_review' preprint.pk %}">
+      Review Submission
+    </a>
+  {% else %}
+    Review Submission
+  {% endif %}
+</li>
