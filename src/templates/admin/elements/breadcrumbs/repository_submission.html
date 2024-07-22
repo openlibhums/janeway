@@ -4,36 +4,42 @@
   </a>
 </li>
 <li>
+  {% if preprint %}
   <a href="{% url 'repository_submit_with_id' preprint.pk %}">
     Metadata
   </a>
-</li>
-
-<li>
-  {% if files or review %}
-    <a href="{% url 'repository_authors' preprint.pk %}">
-      Add Authors
-    </a>
   {% else %}
-    Add Authors
+  Metadata
   {% endif %}
 </li>
 
-<li>
-  {% if review %}
+{% if files or review %}
+  <li>
+      <a href="{% url 'repository_authors' preprint.pk %}">
+        Add Authors
+      </a>
+  </li>
+{% elif authors %}
+    <li>
+      Add Authors
+    </li>
+{% endif %}
+
+{% if review %}
+  <li>
     <a href="{% url 'repository_files' preprint.pk %}">
       Add Files
     </a>
-  {% else %}
+  </li>
+{% elif files %}
+  <li>
     Add Files
-  {% endif %}
-</li>
+  </li>
+{% endif %}
+
+
+{% if review %}
 <li>
-  {% if review %}
-    <a href="{% url 'repository_review' preprint.pk %}">
-      Review Submission
-    </a>
-  {% else %}
     Review Submission
-  {% endif %}
 </li>
+{% endif %}
