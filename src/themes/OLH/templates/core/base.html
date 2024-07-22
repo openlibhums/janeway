@@ -51,6 +51,7 @@
 
 </head>
 <body>
+{% include "common/elements/skip_to_main_content.html" %}
 <div class="wrapper">
     <header class="main-header" role="banner">
         <div class="main top-bar">
@@ -171,7 +172,7 @@
         {% endblock navbar %}
     </header>
 
-    <main>
+    <main id="main-content">
         {% block body %}{% endblock body %}
     </main>
 </div>

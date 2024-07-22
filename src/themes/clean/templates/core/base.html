@@ -34,7 +34,7 @@
     {% hook 'base_head_css' %}
 </head>
 <body>
-<div class="skipnav"><a href="#main">{% trans 'Skip to main content' %}</a></div>
+{% include "common/elements/skip_to_main_content.html" %}
 <div class="container">
     <header class="site-header" role="banner">
         <div id="journal-title">
@@ -72,7 +72,7 @@
             {% include "press/nav.html" %}
         {% endif %}
     </header>
-    <main id="main">
+    <main id="main-content">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
