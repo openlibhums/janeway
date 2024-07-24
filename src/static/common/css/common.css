@@ -299,25 +299,31 @@ article .list-romanupper {
     margin-top: 15px;
 }
 
+/* Styling for skip to main content link */
 .skip-container {
-    position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    transition: top 0.3s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 0;
+    overflow: hidden;
 }
 
-.skip-to-content {
-    background: #f0f0f0;
-    color: #000;
-    padding: 8px 16px;
-    text-decoration: none;
-    display: inline-block;
+.skip-to-content,
+.skip-to-nav {
+    position: absolute;
+    left: -999px;
 }
 
 .skip-to-content:focus,
-.skip-to-content:hover,
+.skip-to-nav:focus {
+    position: relative;
+    left: 0;
+    margin-block-start: 10px;
+    margin-block-end: 10px;
+}
+
 .skip-container:focus-within {
-    top: 10px;
+    height: auto;
+    overflow: visible;
 }
