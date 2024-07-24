@@ -178,7 +178,7 @@ def user_login_orcid(request):
             except models.Account.DoesNotExist:
                 # Lookup ORCID email addresses
                 orcid_details = orcid.get_orcid_record_details(orcid_id)
-                for email in orcid_details.get("emails"):
+                for email in orcid_details.get("emails", []):
                     candidates = models.Account.objects.filter(email=email)
                     if candidates.exists():
                         # Store ORCID for future authentication requests
@@ -310,9 +310,10 @@ def register(request):
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-        if not request.GET.get('remove', '') == 'orcid':
-            initial["orcid"] = orcid_details["orcid"]
-            context["orcid"] = orcid_details["uri"]
+        # we use the full orcid uri for display
+        context["orcid"] = orcid_details["uri"]
+        # but we save only the orcid (not uri) in the db
+        initial["orcid"] = orcid_details["orcid"]
         initial["first_name"] = orcid_details.get("first_name", "")
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
