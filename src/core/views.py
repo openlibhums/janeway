@@ -179,17 +179,17 @@ def user_login_orcid(request):
                 # Lookup ORCID email addresses
                 orcid_details = orcid.get_orcid_record_details(orcid_id)
                 for email in orcid_details.get("emails"):
-                        candidates = models.Account.objects.filter(email=email)
-                        if candidates.exists():
-                            # Store ORCID for future authentication requests
-                            candidates.update(orcid=orcid_id)
-                            login(request, candidates.first())
-                            if request.GET.get('next'):
-                                return redirect(request.GET.get('next'))
-                            elif request.journal:
-                                return redirect(reverse('core_dashboard'))
-                            else:
-                                return redirect(reverse('website_index'))
+                    candidates = models.Account.objects.filter(email=email)
+                    if candidates.exists():
+                        # Store ORCID for future authentication requests
+                        candidates.update(orcid=orcid_id)
+                        login(request, candidates.first())
+                        if request.GET.get('next'):
+                            return redirect(request.GET.get('next'))
+                        elif request.journal:
+                            return redirect(reverse('core_dashboard'))
+                        else:
+                            return redirect(reverse('website_index'))
 
             # Prepare ORCID Token for registration and redirect
             models.OrcidToken.objects.filter(orcid=orcid_id).delete()
