@@ -44,7 +44,6 @@ def retrieve_tokens(authorization_code, site, action='login'):
     try:
         r.raise_for_status()
     except HTTPError as e:
-        print(e)
         logger.error("ORCID request failed: %s" % str(e))
         orcid_id = None
     else:
