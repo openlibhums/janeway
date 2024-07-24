@@ -277,17 +277,6 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
             "Please upload each Typeset File separately",
         )
 
-    if 'prod' in request.POST:
-        # Deprecated.
-        # We now want to avoid using this view for generic document management.
-        for uploaded_file in request.FILES.getlist('prod-file'):
-            production_logic.save_prod_file(
-                article,
-                request,
-                uploaded_file,
-                'Production Ready File',
-            )
-
     if assignment and galley:
         assignment.galleys_created.add(galley)
 
