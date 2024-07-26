@@ -356,12 +356,13 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
         size=100,
     )
     preprint.submission_file = file
-    repo_models.PreprintAuthor.objects.create(
+    preprint_author = repo_models.PreprintAuthor.objects.create(
         preprint=preprint,
         account=author,
         order=1,
-        affiliation='Made Up University',
     )
+    preprint_author.affiliation = 'Made Up University'
+    preprint_author.save()
     return preprint
 
 

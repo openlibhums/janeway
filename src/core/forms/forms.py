@@ -183,7 +183,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'department', 'institution', 'country', 'orcid',)
+                  'last_name', 'orcid',)
         widgets = {'orcid': forms.HiddenInput() }
 
     def __init__(self, *args, **kwargs):
@@ -532,7 +532,7 @@ class SectionForm(JanewayTranslationModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
+        fields = ('email', 'salutation', 'first_name', 'last_name',)
 
 
 class LoginForm(CaptchaForm):

@@ -591,10 +591,18 @@ class Preprint(models.Model):
     def add_user_as_author(self, user):
         preprint_author, created = PreprintAuthor.objects.get_or_create(
             account=user,
-            affiliation=user.institution,
             preprint=self,
             defaults={'order': self.next_author_order()},
         )
+        for affiliation in user.affiliation_set.all():
+            core_models.Affiliation.objects.get_or_create(
+                preprint_author=preprint_author,
+                title=affiliation.title,
+                department=affiliation.department,
+                organization=affiliation.is_primary,
+                start=affiliation.start,
+                end=affiliation.end,
+            )
 
         return created
 
@@ -901,7 +909,6 @@ class PreprintAuthor(models.Model):
         on_delete=models.SET_NULL,
     )
     order = models.PositiveIntegerField(default=0)
-    affiliation = models.TextField(blank=True, null=True)
 
     objects = PreprintAuthorManager()
 
@@ -914,6 +921,14 @@ class PreprintAuthor(models.Model):
             author=self.account.full_name() if self.account else '',
             preprint=self.preprint.title,
         )
+
+    @property
+    def affiliation(self):
+        return core_models.Affiliation.get_primary(preprint_author=self)
+
+    @affiliation.setter
+    def affiliation(self, value):
+        core_models.Affiliation.naive_get_or_create(value, preprint_author=self)
 
     @property
     def full_name(self):
@@ -949,6 +964,9 @@ class PreprintAuthor(models.Model):
 
 
 class Author(models.Model):
+    """
+    Deprecated. Please use PreprintAuthor instead.
+    """
     email_address = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
@@ -960,6 +978,10 @@ class Author(models.Model):
         null=True,
         verbose_name=_('ORCID')
     )
+
+    def __init__(self, *args, **kwargs):
+        raise DeprecationWarning('Use PreprintAuthor instead.')
+        super().__init__(*args, **kwargs)
 
     @property
     def full_name(self):

@@ -1974,16 +1974,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
         validators=[plain_text_validator],
 )
 
-    institution = models.CharField(
-        max_length=1000,
-        blank=True,
-        validators=[plain_text_validator],
-)
-    department = models.CharField(
-        max_length=300,
-        blank=True,
-        validators=[plain_text_validator],
-    )
     frozen_biography = JanewayBleachField(
         blank=True,
         verbose_name=_('Frozen Biography'),
@@ -1994,13 +1984,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     " for the account will be populated instead."
                    ),
     )
-    country = models.ForeignKey(
-        'core.Country',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-
     order = models.PositiveIntegerField(default=1)
 
     is_corporate = models.BooleanField(
@@ -2031,6 +2014,34 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     def __str__(self):
         return self.full_name()
+
+    @property
+    def institution(self):
+        affil = self.affiliation(obj=True)
+        return str(affil.organization) if affil else ''
+
+    @institution.setter
+    def institution(self, value):
+        core_models.Affiliation.naive_get_or_create(value, frozen_author=self)
+
+    @property
+    def department(self):
+        affil = self.affiliation(obj=True)
+        return str(affil.department) if affil else ''
+
+    @department.setter
+    def department(self, value):
+        core_models.Affiliation.naive_set_primary_department(value, frozen_author=self)
+
+    @property
+    def country(self):
+        affil = self.affiliation(obj=True)
+        organization = affil.organization if affil else None
+        return str(organization.country) if organization else None
+
+    @country.setter
+    def country(self, value):
+        Affiliation.naive_set_primary_country(value, frozen_author=self)
 
     def full_name(self):
         if self.is_corporate:
@@ -2115,13 +2126,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
         else:
             return self.first_name
 
-    def affiliation(self):
-        if self.institution and self.department:
-            return "{}, {}".format(self.department, self.institution)
-        elif self.institution:
-            return self.institution
-        else:
-            return ''
+    def affiliation(self, obj=False, date=None):
+        return core_models.Affiliation.get_primary(
+            frozen_author=self,
+            obj=obj,
+            date=date,
+        )
 
     @property
     def is_correspondence_author(self):
