@@ -72,6 +72,7 @@ def get_typesetting_files(article, previous_round=None):
     # Pre-check files that are likely to be needed
     checked_query = Q()
     checked_query |= Q(galley__article=article)
+    checked_query |= Q(data_figure_files=article)
     if previous_round:
         checked_query |= Q(
             galleyproofing__round__article=article,
