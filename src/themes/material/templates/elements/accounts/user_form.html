@@ -92,7 +92,10 @@
 <hr />
 <h5>{% trans "Options" %}</h5>
 <div class="row">
-    <div class="col m4">
+    <div class="col m12">
         {% include "elements/forms/checkbox.html" with field=form.enable_public_profile %}
+    </div>
+   <div class="col m12">
+        {% include "elements/forms/checkbox.html" with field=form.enable_datatables_save_state %}
     </div>
 </div>

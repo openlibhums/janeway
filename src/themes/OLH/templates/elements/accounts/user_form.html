@@ -94,7 +94,10 @@
 <hr />
 <h5>{% trans 'Options' %}</h5>
 <div class="row">
-    <div class="large-4 columns">
+    <div class="large-12 columns">
         {{ form.enable_public_profile|foundation }}
+    </div>
+    <div class="large-12 columns">
+        {{ form.enable_datatables_save_state|foundation }}
     </div>
 </div>

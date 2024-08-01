@@ -54,7 +54,8 @@ class AccountAdmin(UserAdmin):
         (None, {'fields': (
             'name_prefix', 'middle_name', 'orcid',
             'institution', 'department', 'country', 'twitter',
-            'linkedin', 'facebook', 'github', 'website', 'biography', 'enable_public_profile',
+            'linkedin', 'facebook', 'github', 'website', 'biography',
+            'enable_public_profile', 'enable_datatables_save_state',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
     )

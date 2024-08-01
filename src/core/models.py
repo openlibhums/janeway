@@ -290,6 +290,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
         ),
         verbose_name=_("Enable public profile"),
     )
+    enable_datatables_save_state = models.BooleanField(
+        default=False,
+        verbose_name=_(
+            'Preserve searchable/sortable table state'
+        ),
+        help_text=_(
+            'Enable this option to allow searchable and sortable tables in '
+            'the back office to preserve their current state. This ensures '
+            'that your search results and sorting preferences are preserved '
+            'when you navigate away from the page and return later.',
+        )
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 

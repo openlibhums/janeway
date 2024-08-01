@@ -13,6 +13,7 @@ $(document).ready(function() {
     {% if sort_list %}"order": [{{ sort_list }}],{% endif %}
     {% if disable_ordering %}"ordering": false,{% endif %}
     {% if page_length %}"pageLength": {{ page_length }},{% endif %}
+    {% if request.user and request.user.enable_datatables_save_state %}stateSave: true,{% endif %}
     });
 } );
 
