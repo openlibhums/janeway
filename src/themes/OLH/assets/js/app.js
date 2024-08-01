@@ -7,7 +7,6 @@ $(function() {
         $('html,body').animate({
           scrollTop: target.offset().top - $(".mini-bar").outerHeight()
         }, 1000);
-        return false;
       }
     }
   });
