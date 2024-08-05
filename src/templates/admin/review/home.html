@@ -54,7 +54,7 @@
                                 None{% endif %}</td>
                             {% if journal_settings.general.enable_expanded_review_details %}
                                 <td>
-                                    {% if article.reviewassignment_set.exists %}
+                                    {% if article.reviewassignment_set.exists or article.revisionrequest_set.exists %}
                                         <table style="width:100%; min-width:230px;"
                                                class="table table-stack small no-pad no-bottom-margin">
                                             {% for review in article.reviews_not_withdrawn %}
@@ -113,7 +113,7 @@
                                             {% endfor %}
                                         </table>
                                     {% else %}
-                                        No Review assignments
+                                        No review or revision assignments
                                     {% endif %}
                                 </td>
                             {% else %}
