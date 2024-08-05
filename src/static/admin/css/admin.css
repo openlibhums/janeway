@@ -822,3 +822,12 @@ ul.menu {
   /* Temporary hotfix for compatibility with TinyMCE */
   z-index: 10 !important;
 }
+
+.avatar-placeholder .avatar-placeholder-bg {
+  fill: #55C1E7;
+}
+.avatar-placeholder .avatar-placeholder-text {
+  font-family: "Open sans", sans-serif;
+  font-size: 16px;
+  fill: #fff;
+}

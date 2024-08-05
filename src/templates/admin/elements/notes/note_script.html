@@ -1,16 +1,44 @@
 <script>
-    function submit_note(article_id) {
-        var text = $('#' + article_id + '_new_note').val();
-        data = {'note': text}
-        $.ajax({
-            "type": "POST",
-            "dataType": "json",
-            "url": "{% url 'article_new_note' article.pk %} ",
-            "data": data,
-            "success": function (data) {
-                $('#' + article_id + '_new_note').val("")
-                $('.note-holder').prepend(data.html);
+    function submit_note(articleId) {
+        const text = document.getElementById(`${articleId}_new_note`).value;
+        const data = new URLSearchParams();
+        data.append('note', text);
+        fetch("{% url 'article_new_note' article.pk %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie('csrftoken')
             },
-        });
+            body: data,
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`${articleId}_new_note`).value = "";
+            document.querySelector(
+                '.note-holder'
+            ).insertAdjacentHTML(
+                'afterbegin',
+                data.html
+            );
+            toastr.info(data.status);
+        })
+    }
+
+    function delete_note (noteId) {
+        const data = new URLSearchParams();
+        data.append('note_id', noteId);
+        fetch("{% url 'article_delete_note' article.pk %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie('csrftoken')
+            },
+            body: data,
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`note-${noteId}`).remove();
+            toastr.info(data.status);
+        })
     }
 </script>

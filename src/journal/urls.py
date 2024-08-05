@@ -126,6 +126,11 @@ urlpatterns = [
     re_path(r'^(?P<article_id>\d+)/file/(?P<file_id>\d+)/makegalley/$', views.article_file_make_galley,
         name='article_file_make_galley'),
     re_path(r'^note/(?P<article_id>\d+)/new/$', views.new_note, name='article_new_note'),
+    re_path(
+        r'^note/(?P<article_id>\d+)/delete/$',
+        views.delete_note,
+        name='article_delete_note',
+    ),
 
     # Publication
     re_path(r'^publish/$',

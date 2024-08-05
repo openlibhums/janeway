@@ -481,7 +481,7 @@ def article_from_identifier(request, identifier_type, identifier):
         id_models.Identifier,
         id_type=identifier_type,
         identifier=identifier,
-        article__journal = request.journal
+        article__journal=request.journal
     )
     return redirect(identifier.article.url)
 
@@ -2324,6 +2324,7 @@ def send_user_email(request, user_id, article_id=None):
 
 
 @editor_user_required
+@require_POST
 def new_note(request, article_id):
     """
     Generates a new Note object, must be POST.
@@ -2336,30 +2337,25 @@ def new_note(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
+    note = request.POST.get('note')
+    sav_note = submission_models.Note.objects.create(
+        article=article,
+        creator=request.user,
+        text=note,
+    )
+    return_dict = {
+        'html': logic.create_html_snippet(sav_note),
+        'status': 'Note created.',
+    }
 
-    if request.POST:
-
-        note = request.POST.get('note')
-
-        sav_note = submission_models.Note.objects.create(
-            article=article,
-            creator=request.user,
-            text=note,
-        )
-
-        return_dict = {'id': sav_note.pk, 'note': sav_note.text, 'initials': sav_note.creator.initials(),
-                       'date_time': str(sav_note.date_time),
-                       'html': logic.create_html_snippet(sav_note)}
-
-    else:
-
-        return_dict = {'error': 'This request must be made with POST'}
-
-    return HttpResponse(json.dumps(return_dict), content_type="application/json")
+    return JsonResponse(
+        return_dict,
+    )
 
 
 @editor_user_required
-def delete_note(request, article_id, note_id):
+@require_POST
+def delete_note(request, article_id):
     """
     Deletes a Note object.
     :param request: HttpRequest object
@@ -2367,10 +2363,25 @@ def delete_note(request, article_id, note_id):
     :param note_id: Note object PK
     :return: HttpResponse
     """
-    note = get_object_or_404(submission_models.Note, pk=note_id)
-    note.delete()
-
-    return HttpResponse
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+    )
+    note_id = request.POST.get('note_id', None)
+    if note_id:
+        note = get_object_or_404(
+            submission_models.Note,
+            pk=note_id,
+            article=article,
+        )
+        note.delete()
+        return JsonResponse(
+            {'status': "Note deleted."},
+        )
+    return JsonResponse(
+        {'status': 'No note ID supplied.'},
+        status=400,
+    )
 
 
 def download_journal_file(request, file_id):

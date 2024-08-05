@@ -1,17 +1,25 @@
 {% load markdown %}
 
-<div class="large-1 columns">
-	{% if note.creator.profile_image %}
-	<span class="avatar">
-		<img src="{{ note.creator.profile_image.url }}" />
+<div id="note-{{ note.pk }}">
+  <div class="large-1 columns">
+    {% if note.creator.profile_image %}
+      <span class="avatar">
+		<img src="{{ note.creator.profile_image.url }}"/>
 	</span>
-	{% else %}
-	<img src="http://placehold.it/58/55C1E7/fff&text={{ note.creator.initials }}" />
-	{% endif %}
-</div>
-<div class="large-11 columns end">
-	<div class="panel  callout radius" style="margin-bottom: 0px;">
-	{{ note.text|markdown_to_html }}
-	</div>
-	<p class="small pull-right" style="margin-top: 0px;">Added {{ note.date_time }} - <a href="{% url 'kanban_delete_note' note.article.pk note.pk %}"><i class="fa fa-trash">&nbsp;</i></a></p>
+    {% else %}
+      <svg class="avatar-placeholder" width="58" height="58" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 58">
+        <rect width="58" height="58" class="avatar-placeholder-bg" />
+        <text x="50%" y="50%" class="avatar-placeholder-text" dy=".3em" text-anchor="middle">{{ note.creator.initials }}</text>
+      </svg>
+    {% endif %}
+  </div>
+  <div class="large-11 columns end">
+    <div class="panel  callout radius" style="margin-bottom: 0px;">
+      {{ note.text|markdown_to_html|safe }}
+    </div>
+    <p class="small pull-right" style="margin-top: 0px;">
+      Added {{ note.date_time }} -
+    <button onclick="delete_note({{ note.id }}, {{ note.article.pk }})"><i
+            class="fa fa-trash">&nbsp;</i></button>
+  </div>
 </div>
