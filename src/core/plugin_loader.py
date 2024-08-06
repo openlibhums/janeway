@@ -96,12 +96,7 @@ def validate_plugin_version(plugin_settings):
     current_version = version.parse(janeway_version.base_version)
     valid = current_version >= wants_version
 
-    if not valid:
-        raise ImproperlyConfigured(
-            "Plugin {} not  compatibile with current install: {} < {}".format(
-                plugin_settings.PLUGIN_NAME, current_version, wants_version
-            )
-        )
+
 
 
 def get_plugin(module_name, permissive):

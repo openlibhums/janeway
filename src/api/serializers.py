@@ -321,7 +321,8 @@ class PreprintSerializer(serializers.ModelSerializer):
         fields = ('pk', 'title', 'abstract', 'stage', 'license', 'keywords',
                   'date_submitted', 'date_accepted', 'date_published',
                   'doi', 'preprint_doi', 'authors', 'subject', 'versions',
-                  'supplementary_files', 'additional_field_answers', 'owner',)
+                  'supplementary_files', 'additional_field_answers', 'owner',
+                  'stage',)
 
     authors = PreprintAccountSerializer(
         many=True,
@@ -535,3 +536,56 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         source="repositoryfieldanswer_set",
         many=True,
     )
+
+
+class SubmissionAccountSearch(serializers.ModelSerializer):
+    class Meta:
+        model = core_models.Account
+        fields = (
+            'pk',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'orcid',
+        )
+
+
+class VersionQueueCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.VersionQueue
+        fields = (
+            'preprint',
+            'update_type',
+            'title',
+            'abstract',
+            'published_doi',
+            'file',
+        )
+
+    def validate(self, data):
+        request = self.context.get('request', None)
+        preprint = data.get("preprint")
+
+        if not request.user == preprint.owner:
+            raise serializers.ValidationError(
+                {"error": "You cannot add a version for a preprint "
+                          "that you do not own."}
+            )
+
+        return data
+
+
+class VersionQueueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.VersionQueue
+        fields = (
+            'preprint',
+            'update_type',
+            'date_submitted',
+            'date_decision',
+            'approved',
+            'published_doi',
+            'title',
+            'abstract',
+            'file',
+        )

@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
+from django.db.models.functions import Lower
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
@@ -171,22 +172,31 @@ class PreprintViewSet(viewsets.ModelViewSet):
         )
         search_term = self.request.query_params.get('search')
         stage = self.request.query_params.get('stage')
+        subject = self.request.query_params.get('subject')
+
         if search_term:
             split_search_term = search_term.split(' ')
+            lower_split_search_term = [term.lower() for term in
+                                       split_search_term]
+
             # Initial filter on Title, Abstract and Keywords.
             preprint_search = preprints.filter(
-                (Q(title__icontains=search_term) |
-                 Q(abstract__icontains=search_term) |
-                 Q(keywords__word__in=split_search_term))
+                Q(title__icontains=search_term) |
+                Q(abstract__icontains=search_term) |
+                Q(keywords__word__in=split_search_term)
             )
-            from_author = repository_models.PreprintAuthor.objects.filter(
-                (
-                    Q(account__first_name__in=split_search_term) |
-                    Q(account__middle_name__in=split_search_term) |
-                    Q(account__last_name__in=split_search_term) |
-                    Q(account__institution__icontains=search_term)
-                )
+
+            from_author = repository_models.PreprintAuthor.objects.annotate(
+                lower_first_name=Lower('account__first_name'),
+                lower_middle_name=Lower('account__middle_name'),
+                lower_last_name=Lower('account__last_name')
+            ).filter(
+                Q(lower_first_name__in=lower_split_search_term) |
+                Q(lower_middle_name__in=lower_split_search_term) |
+                Q(lower_last_name__in=lower_split_search_term) |
+                Q(account__institution__icontains=search_term)
             )
+
             preprints_from_author = [
                 pa.preprint for pa in
                 repository_models.PreprintAuthor.objects.filter(
@@ -194,9 +204,12 @@ class PreprintViewSet(viewsets.ModelViewSet):
                     preprint__date_published__lte=timezone.now(),
                 )
             ]
+
             preprint_pks = list(preprint.pk for preprint in
-                set(list(preprint_search) + preprints_from_author)
-            )
+                                set(list(
+                                    preprint_search) + preprints_from_author)
+                                )
+
             preprints = repository_models.Preprint.objects.filter(
                 pk__in=preprint_pks,
             )
@@ -205,10 +218,30 @@ class PreprintViewSet(viewsets.ModelViewSet):
             preprints = preprints.filter(
                 stage=stage,
             )
+
+        if subject:
+            preprints = preprints.filter(
+                subject__name=subject,
+            )
+
         return preprints
 
 
-class UserPreprintsViewSet(viewsets.ModelViewSet):
+class PublishedPreprintViewSet(PreprintViewSet):
+    http_method_names = ['get']
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+
+    def get_queryset(self):
+        preprints = super().get_queryset()
+        return preprints.filter(
+            date_published__isnull=False,
+            stage=repository_models.STAGE_PREPRINT_PUBLISHED,
+        )
+
+
+class UserPreprintsViewSet(PreprintViewSet):
     serializer_class = serializers.PreprintSerializer
     http_method_names = ['get', 'post', 'put']
     permission_classes = [
@@ -224,8 +257,8 @@ class UserPreprintsViewSet(viewsets.ModelViewSet):
         return serializers.PreprintSerializer
 
     def get_queryset(self):
-        preprints = repository_models.Preprint.objects.filter(
-            repository=self.request.repository,
+        preprints = super().get_queryset()
+        preprints = preprints.filter(
             owner=self.request.user,
         )
         return preprints
@@ -297,6 +330,67 @@ class RepositorySubjects(viewsets.ModelViewSet):
         return repository_models.Subject.objects.filter(
             repository=self.request.repository,
         )
+
+
+class RepositoryVersionQueue(viewsets.ModelViewSet):
+    serializer_class = serializers.VersionQueueSerializer
+    http_method_names = ['get', 'post']
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_serializer_class(self):
+        if self.request.method in 'GET':
+            return serializers.VersionQueueSerializer
+        elif self.request.method in ['POST']:
+            return serializers.VersionQueueCreateSerializer
+        return serializers.VersionQueueSerializer
+
+    def get_queryset(self):
+        return repository_models.VersionQueue.objects.filter(
+            preprint__repository=self.request.repository,
+            preprint__owner=self.request.user,
+        )
+
+
+class SubmissionAccountSearch(viewsets.ModelViewSet):
+    """
+    Limited search feature for authenticated users. Can search by
+    exact email or exact ORCID. Returns 0 results if no exact match.
+
+    The availability of this view is controlled by the Django setting:
+    API_ENABLE_SUBMISSION_ACCOUNT_SEARCH which is False by default.
+    """
+    serializer_class = serializers.SubmissionAccountSearch
+    http_method_names = ['get']
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_queryset(self):
+        search = self.request.GET.get('search')
+        if not search:
+            return core_models.Account.objects.none()
+        return core_models.Account.objects.filter(
+            Q(email=search) | Q(orcid=search),
+        )[:1]
+
+
+class UserInfo(AccountViewSet):
+    """
+    Account viewset limited to a single payload based on the current user.
+    """
+    http_method_names = ['get']
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get_queryset(self):
+        accounts = super().get_queryset()
+        accounts = accounts.filter(
+            pk=self.request.user.pk,
+        )
+        return accounts
 
 
 def oai(request):

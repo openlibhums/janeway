@@ -1,4 +1,5 @@
 from django.urls import re_path, include
+from django.conf import settings
 
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
@@ -16,12 +17,22 @@ router.register(r'licences', views.LicenceViewSet, 'licence')
 router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 router.register(r'accounts', views.AccountViewSet, 'accounts')
 
-router.register(r'preprints', views.PreprintViewSet, 'preprint')
+router.register(r'preprints', views.PreprintViewSet, 'repository_preprints')
 router.register(r'repository_licenses', views.PreprintLicenses, 'repository_licenses')
 router.register(r'repository_fields', views.RepositoryFields, 'repository_fields')
-router.register(r'preprint_files', views.PreprintFiles, 'preprint_files')
-router.register(r'user_preprints', views.UserPreprintsViewSet, 'user_preprints')
-router.register(r'repository_subjects', views.RepositorySubjects, 'preprint_subjects')
+router.register(r'preprint_files', views.PreprintFiles, 'repository_preprint_files')
+router.register(r'user_preprints', views.UserPreprintsViewSet, 'repository_user_preprints')
+router.register(r'repository_subjects', views.RepositorySubjects, 'repository_preprint_subjects')
+router.register(r'published_preprints', views.PublishedPreprintViewSet, 'repository_published_preprint')
+router.register(r'version_queue', views.RepositoryVersionQueue, 'repository_version_queue')
+router.register(r'user_info', views.UserInfo, 'api_user_info')
+
+if settings.API_ENABLE_SUBMISSION_ACCOUNT_SEARCH:
+    router.register(
+        r'submission_account_search',
+        views.SubmissionAccountSearch,
+        'submission_account_search',
+    )
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
