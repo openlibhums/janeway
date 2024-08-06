@@ -2646,7 +2646,7 @@ def serve_article_pdf(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object and not article_object.is_published:
+    if not article_object or not article_object.is_published:
         raise Http404
 
     pdf = article_object.pdfs.first()
