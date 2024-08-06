@@ -721,3 +721,5 @@ HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
 # Note that the provided theme CSS expects a default crop size of (1500, 648)
 # and may not work properly with a different size.
 DEFAULT_CROP_SIZE = (1500, 648)
+
+API_ENABLE_SUBMISSION_ACCOUNT_SEARCH = False
