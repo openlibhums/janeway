@@ -388,7 +388,7 @@ def extract_citations_for_crossref(article):
                     "</cyear", "</cYear"
                 )
         except Exception as e:
-            logger.error('Error transforming Crossref citations: %s' % e)
+            logger.info('Error transforming Crossref citations: %s' % e)
     else:
         logger.debug('No XML galleys found for crossref citation extraction')
 
