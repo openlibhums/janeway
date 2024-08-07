@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load orcid %}
+{% load next_url %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
 
@@ -12,13 +13,20 @@
                     <div class="col-md-12">
                         {% if settings.ENABLE_ORCID %}
                         <h2 class="text-center">{% trans "Log in with your account" %}</h2>
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
-                           class="btn orcid-button btn-block">{% trans "Log in with ORCiD" %}</a>
+                        <a
+                            href="{% url_with_next 'core_login_orcid' %}"
+                            class="btn orcid-button btn-block">
+                            {% trans "Log in with ORCiD" %}
+                        </a>
                         <br/>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="btn btn-primary btn-block">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
-                         <br/>
+                          <a
+                            href="{% url_with_next 'oidc_authentication_init' %}"
+                            class="btn btn-primary btn-block">
+                            {% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}
+                          </a>
+                          <br>
                         {% endif %}
                         <form method="POST">
                             {% include "common/elements/static-error-messages.html" with form=form %}
@@ -40,12 +48,15 @@
                                         class="btn btn-primary btn-block">{% trans "Log in" %}</button>
                             </p>
                         </form>
-                        <p class="text-center"><a
-                                href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a>
-                        </p>
-
                         <p class="text-center">
-                            <a href="{% url 'core_register' %}">{% trans "Register a new account" %}</a>
+                          <a href="{% url_with_next 'core_get_reset_token' %}">
+                            {% trans "Forgotten your password?" %}
+                          </a>
+                        </p>
+                        <p class="text-center">
+                          <a href="{% url_with_next 'core_register' %}">
+                            {% trans "Register a new account" %}
+                          </a>
                         </p>
                     </div>
                 </div>

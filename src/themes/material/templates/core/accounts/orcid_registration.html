@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+{% load materializecss %}
+{% load i18n %}
+{% load static %}
+{% load next_url %}
+
+{% block title %}{% trans "Unregistered ORCiD" %}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col m8 offset-m2">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        {% trans "Unregistered ORCiD" %}
+                    </span>
+                    <p>{% blocktrans %}
+                    The ORCiD you logged in with is not
+                    currently linked with an account in our system. You can
+                    either register a new account, or login with an existing
+                    account to link your ORCiD for future use.
+                    {% endblocktrans %}</p>
+                    <form method="POST" action="{% url_with_next 'core_login' %}">
+                        {% include "elements/forms/errors.html" %}
+                        {% csrf_token %}
+                        <div class="input-field">
+                          <label>{% trans 'Email' %}</label>
+                          <input name="user_name" type="text" placeholder="janeway@voyager.com">
+                        </div>
+                        <div class="input-field">
+                          <label>{% trans 'Password' %}</label>
+                          <input type="password" placeholder="Password" name="user_pass">
+                        </div>
+                        <input name="orcid_token" type="hidden" value="{{ token.token }}">
+                        <p>
+                          <button class="btn wide-button" type="submit">
+                            {% trans 'Log In' %}
+                          </button>
+                        </p>
+                        <p class="center-align">
+                          <a
+                            href="{% url_with_next 'core_register' %}&token={{ token.token }}">
+                            {% trans "Register an Account" %}
+                          </a>
+                        </p>
+                        <p class="center-align">
+                          <a href="{% url_with_next 'core_get_reset_token' %}">
+                            {% trans "Reset Your Password" %}
+                          </a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load orcid %}
+{% load next_url %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
 
@@ -13,14 +14,20 @@
                     {% csrf_token %}
                     <div class="card-content">
                         <span class="card-title">{% trans "Login with your account" %}</span>
-                         {% if settings.ENABLE_ORCID %}
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
-                           class="btn wide-button orcid-button">{% trans "Log in with ORCiD" %}</a>
+                        {% if settings.ENABLE_ORCID %}
+                            <a
+                                href="{% url_with_next 'core_login_orcid' %}"
+                                class="btn wide-button orcid-button">
+                                {% trans "Log in with ORCiD" %}
+                            </a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
-                           class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
-                            <br />
+                          <a
+                            href="{% url_with_next 'oidc_authentication_init' %}"
+                            class="waves-effect waves-light btn wide-button blue lighten-2">
+                            {% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}
+                          </a>
+                          <br>
                         {% endif %}
                         {% if request.repository and request.repository.login_text %}
                             {{ request.repository.login_text|safe }}
@@ -42,12 +49,15 @@
                             <button class="waves-effect waves-light btn wide-button">{% trans "Login" %}</button>
                         </p>
                         <p class="center-align">
-                            <a href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
+                          <a href="{% url_with_next 'core_register' %}">
+                            {% trans "Register an Account" %}
+                          </a>
                         </p>
                         <p class="center-align">
-                            <a href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
+                          <a href="{% url_with_next 'core_get_reset_token' %}">
+                            {% trans "Reset Your Password" %}
+                          </a>
                         </p>
-
                     </div>
                 </form>
             </div>

@@ -43,7 +43,10 @@ def base_check(request, login_redirect=False):
     ):
         if login_redirect is True:
             request_params = request.GET.urlencode()
-            params = urlencode({"next": f"{request.path}?{request_params}"})
+            if request_params:
+                params = urlencode({"next": f"{request.path}?{request_params}"})
+            else:
+                params = urlencode({"next": request.path})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         elif isinstance(login_redirect, str):
             params = urlencode({"next": login_redirect})

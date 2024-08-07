@@ -11,13 +11,14 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
+from urllib.parse import unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.template.loader import get_template
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
@@ -37,9 +38,10 @@ logger = get_logger(__name__)
 
 def send_reset_token(request, reset_token):
     core_reset_password_url = request.site_type.site_url(
-        reverse(
+        reverse_with_next(
             'core_reset_password',
             kwargs={'token': reset_token.token},
+            request=request,
         )
     )
     context = {
@@ -47,69 +49,90 @@ def send_reset_token(request, reset_token):
         'core_reset_password_url': core_reset_password_url,
     }
     log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
-    if not request.journal:
-        message = render_template.get_message_content(
-            request,
-            context,
-            request.press.password_reset_text,
-            template_is_setting=True,
-        )
-    else:
-        message = render_template.get_message_content(
-            request,
-            context,
-            'password_reset',
-        )
-
-    subject = 'subject_password_reset'
-
-    notify_helpers.send_email_with_body_from_user(
+    notify_helpers.send_email_with_body_from_setting_template(
         request,
-        subject,
+        'password_reset',
+        'subject_password_reset',
         reset_token.account.email,
-        message,
+        context,
         log_dict=log_dict,
     )
 
 
-def send_confirmation_link(request, new_user):
-    core_confirm_account_url = request.site_type.site_url(
-        reverse(
+def reverse_with_next(url_name, request, next_url='', args=None, kwargs=None):
+    """
+    Reverse a URL but keep the 'next' parameter that exists on the request
+    or that the caller wants to introduce.
+    The value of 'next' can be in raw unicode or can have been percent-encoded one time.
+    :param request: HttpRequest, optionally containing 'next' in GET or POST
+    :param next_url: an optional string with the path and query parts of
+                     a destination URL -- overrides any 'next' in request data
+    :param args: args to pass to django.shortcuts.reverse, if no kwargs
+    :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
+    """
+    # reverse can only except either args or kwargs
+    if args:
+        reversed_url = reverse(url_name, args=args)
+    elif kwargs:
+        reversed_url = reverse(url_name, kwargs=kwargs)
+    else:
+        reversed_url = reverse(url_name)
+
+    if not next_url:
+        next_url = request.GET.get('next', '') or request.POST.get('next', '')
+
+    if not next_url:
+        return reversed_url
+
+    # Parse the reversed URL string enough to safely update the query parameters.
+    # Then re-encode them into a query string and generate the final URL.
+    next_url = unquote(next_url) # raw unicode query string
+    parsed_url = urlparse(reversed_url) # ParseResult
+    parsed_query = QueryDict(parsed_url.query, mutable=True) # mutable QueryDict
+    parsed_query.update({'next': next_url})
+    # We treat / as safe to match the default behavior
+    # of the |urlencode template filter,
+    # which is where many next URLs are created
+    new_query_string = parsed_query.urlencode(safe="/") # Full percent-encoded query string
+    return parsed_url._replace(query=new_query_string).geturl()
+
+
+def get_confirm_account_url(request, user, next_url=''):
+    return request.site_type.site_url(
+        reverse_with_next(
             'core_confirm_account',
-            kwargs={'token': new_user.confirmation_code},
+            request,
+            kwargs={'token': user.confirmation_code},
+            next_url=next_url,
         )
     )
+
+
+def send_confirmation_link(request, new_user):
+    core_confirm_account_url = get_confirm_account_url(request, new_user)
+    if request.journal:
+        site_name = request.journal.name
+    elif request.repository:
+        site_name = request.repository.name
+    else:
+        site_name = request.press.name
     context = {
         'user': new_user,
+        'site_name': site_name,
         'core_confirm_account_url': core_confirm_account_url,
     }
-    if not request.journal:
-        message = render_template.get_message_content(
-            request,
-            context,
-            request.press.registration_text,
-            template_is_setting=True,
-        )
-    else:
-        message = render_template.get_message_content(
-            request,
-            context,
-            'new_user_registration',
-        )
-
-    subject = 'subject_new_user_registration'
-
     notify_helpers.send_slack(
         request,
         'New registration: {0}'.format(new_user.full_name()),
         ['slack_admins'],
     )
     log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
-    notify_helpers.send_email_with_body_from_user(
+    notify_helpers.send_email_with_body_from_setting_template(
         request,
-        subject,
+        'new_user_registration',
+        'subject_new_user_registration',
         new_user.email,
-        message,
+        context,
         log_dict=log_dict,
     )
 
@@ -643,20 +666,18 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
         article.save()
 
 
-def handle_email_change(request, email_address):
+def handle_email_change(request, email_address, next_url=''):
     request.user.email = email_address
     request.user.is_active = False
     request.user.confirmation_code = uuid.uuid4()
     request.user.clean()
     request.user.save()
 
-    core_confirm_account_url = request.site_type.site_url(
-        reverse(
-            'core_confirm_account',
-            kwargs={'token': request.user.confirmation_code},
-        )
+    core_confirm_account_url = get_confirm_account_url(
+        request,
+        request.user,
+        next_url=next_url,
     )
-
     context = {
         'user': request.user,
         'core_confirm_account_url': core_confirm_account_url,
@@ -867,7 +888,7 @@ def check_for_bad_login_attempts(request):
     time = timezone.now() - timedelta(minutes=10)
 
     attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address, timestamp__gte=time)
-    print(time, attempts.count())
+    logger.debug(f'Bad login attempt {attempts.count()+1} at {time}')
     return attempts.count()
 
 

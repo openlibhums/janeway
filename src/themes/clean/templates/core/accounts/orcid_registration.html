@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load foundation %}
+{% load next_url %}
 
 {% block title %}{% trans 'Unregistered ORCiD' %}{% endblock title %}
 
@@ -12,7 +13,7 @@
 
         <div class="col-md-4">
 
-            <form method="POST" action="{% url 'core_login' %}">
+            <form method="POST" action="{% url_with_next 'core_login' %}">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-block">
@@ -27,7 +28,11 @@
                             <input name="orcid_token" type="hidden" value="{{ token.token }}" class="form-control">
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">{% trans 'Log In' %}</button>
-                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans 'Forgot your password' %}?</a></p>
+                        <p class="text-center">
+                          <a href="{% url_with_next 'core_get_reset_token' %}">
+                            {% trans "Forgot your password?" %}
+                          </a>
+                        </p>
                     </div>
                 </div>
             </form>
@@ -40,7 +45,11 @@
                 <div class="card-block">
                     <h5>{% trans 'Register' %}</h5>
                     <br/>
-                    <a href="{% url 'core_register' %}?token={{ token.token }}" class="btn btn-primary btn-block">{% trans 'Register' %}</a>
+                    <a
+                      href="{% url_with_next 'core_register' %}&token={{ token.token }}"
+                      class="btn btn-primary btn-block">
+                      {% trans 'Register' %}
+                    </a>
                 </div>
             </div>
 
