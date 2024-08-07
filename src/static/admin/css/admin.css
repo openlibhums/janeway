@@ -834,6 +834,7 @@ ul.menu {
   text-align: left;
   color: #696969;
   margin-bottom: 0.31rem;
+  font-weight: normal;
 }
 
 .key-value-pair.key-above .value {
