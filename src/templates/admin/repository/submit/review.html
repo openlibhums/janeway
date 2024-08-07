@@ -27,16 +27,18 @@
           </a>
         </div>
         <div class="content">
-          {% include "admin/elements/layout/key_value_above.html" with key="Title" value=preprint.title %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Abstract" value=preprint.abstract render_line_breaks=True %}
-          {% include "admin/elements/layout/key_value_above.html" with key="License" value=preprint.license.name %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Published DOI" value=preprint.doi %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Subjects" value=preprint.subject.all list=True %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Keywords" value=preprint.keywords.all list=True %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Comments to the Editor" value=preprint.comments_editor render_line_breaks=True %}
-          {% for field_answer in preprint.repositoryfieldanswer_set.all %}
-            {% include "admin/elements/layout/key_value_above.html" with key=field_answer.field.name value=field_answer.answer render_line_breaks=True %}
-          {% endfor %}
+          <dl>
+            {% include "admin/elements/layout/key_value_above.html" with key="Title" value=preprint.title %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Abstract" value=preprint.abstract render_line_breaks=True %}
+            {% include "admin/elements/layout/key_value_above.html" with key="License" value=preprint.license.name %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Published DOI" value=preprint.doi %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Subjects" value=preprint.subject.all list=True %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Keywords" value=preprint.keywords.all list=True %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Comments to the Editor" value=preprint.comments_editor render_line_breaks=True %}
+            {% for field_answer in preprint.repositoryfieldanswer_set.all %}
+              {% include "admin/elements/layout/key_value_above.html" with key=field_answer.field.name value=field_answer.answer render_line_breaks=True %}
+            {% endfor %}
+          </dl>
         </div>
 
         <div class="title-area">
