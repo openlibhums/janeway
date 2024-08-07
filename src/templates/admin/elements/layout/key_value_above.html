@@ -12,7 +12,7 @@
     {% elif render_line_breaks %}
       {{ value|linebreaksbr|default_if_none:"No value supplied" }}
     {% else %}
-      {{ value|default_if_none:"No value supplied" }}
+      {{ value|default:"No value supplied" }}
     {% endif %}
   </div>
 </div>
