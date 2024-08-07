@@ -825,19 +825,19 @@ ul.menu {
 
 .key-value-pair {
   font-family: "Open Sans", sans-serif;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 .key-value-pair.key-above .key {
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.4;
   text-align: left;
   color: #696969;
-  margin-bottom: 5px;
+  margin-bottom: 0.31rem;
 }
 
 .key-value-pair.key-above .value {
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1.4;
   text-align: left;
 }
