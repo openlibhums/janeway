@@ -61,7 +61,6 @@
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
                             <li><a href="{% url 'manage_issues_id' issue.pk %}">{% trans 'Edit Issue' %}</a></li>
                         {% endif %}
-                        <li>{{ news_item }}</li>
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
                             <li><a href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans 'Edit News Item' %}</a></li>
                         {% endif %}
