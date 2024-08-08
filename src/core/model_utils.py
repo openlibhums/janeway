@@ -709,7 +709,7 @@ class DynamicChoiceField(models.CharField):
         """
         try:
             super().validate(value, model_instance)
-        except exceptions.ValidationError as e:
+        except ValidationError as e:
             # If the raised exception is for invalid choice we check if the
             # choice is in dynamic choices.
             if e.code == 'invalid_choice':
