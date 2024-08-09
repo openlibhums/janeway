@@ -187,6 +187,18 @@
                 {% endif %}
 
                 {% if article.is_published or proofing %}
+                    <h2>{% trans "Share" %}</h2>
+                    {% with article.get_doi_url as doi_url%}
+                        <a class="waves-effect waves-light btn btn-small social-share-btn facebook-bg"
+                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
+                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
+                        <a class="waves-effect waves-light btn btn-small social-share-btn twitter-x" 
+                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a>
+                        <a class="waves-effect waves-light btn btn-small social-share-btn linkedin-bg"
+                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
+                    {% endwith %}
                     <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}
                         <ul>
