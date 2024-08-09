@@ -101,44 +101,47 @@
     {% endif %}
 
         <div data-sticky-container class="row">
-            <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+            <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
                         <button class="menu-icon" type="button" data-toggle aria-label="{% trans 'Options' %}"></button>
                         <div class="title-bar-title">{% trans 'Options' %}</div>
                     </div>
                     <div id="options-menu">
-                        <div class="large-6 columns">
+                        <div class="small-4 medium-3 large-2 columns">
                             <ul class="menu vertical medium-horizontal pad-left-15"
                                 data-responsive-menu="drilldown medium-dropdown">
                               {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
                                 <li><a href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="{% trans 'Share on X' %}"><i class="fa fa-twitter"></i></a></li>
+                                <li><a class= "twitter-x"
+                                    href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a></li>
                                 <li><a href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></li>
                               {% endwith %}
                             </ul>
                         </div>
-                        <div class="large-6 columns">
-                            <ul class="menu vertical medium-horizontal align-right"
-                                data-responsive-menu="dropdown">
-                                {% hook 'article_buttons' %}
-                                <li><a href="{{ article.local_url }}print/" aria-label="{% trans 'print article' %}"><i class="fa fa-print">&nbsp;</i></a></li>
-                                <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
-                                <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
-                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
-                                <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
-                                <li>
-                                    <a href="#" aria-label="{% trans 'Cite article' %}"><i class="fa fa-comments">&nbsp;</i></a>
-                                    <ul class="menu vertical">
-                                        <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
-                                        <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
-                                        <li><a href="#" data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
-                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
-                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
+                        <div class="small-8 medium-9 large-10 columns">
+                            <div class = "float-right">
+                                <ul class="menu vertical medium-horizontal"
+                                    data-responsive-menu="dropdown">
+                                    {% hook 'article_buttons' %}
+                                    <li><a href="{{ article.local_url }}print/" aria-label="{% trans 'print article' %}"><i class="fa fa-print">&nbsp;</i></a></li>
+                                    <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
+                                    <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
+                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                    <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
+                                    <li>
+                                        <a href="#" aria-label="{% trans 'Cite article' %}"><i class="fa fa-comments">&nbsp;</i></a>
+                                        <ul class="menu vertical">
+                                            <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
+                                            <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
+                                            <li><a href="#" data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
+                                            <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
+                                            <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
