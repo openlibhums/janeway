@@ -257,9 +257,9 @@
                         <a class="waves-effect waves-light btn btn-small facebook-bg"
                             href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
                             target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
-                        <a class="waves-effect waves-light btn btn-small twitter-bg" 
+                        <a class="waves-effect waves-light btn btn-small twitter-bg twitter-x" 
                             href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}"><i class="fa fa-twitter"></i></a>
+                            target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a>
                         <a class="waves-effect waves-light btn btn-small linkedin-bg"
                             href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
                             target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
