@@ -562,8 +562,8 @@ nav a.sidenav-trigger i {
 :root {
     --facebook: #3b5998;
     --facebook-hover: #3b5998;
-    --twitter: #00acee;
-    --twitter-hover: #008abe;
+    --twitter: black;
+    --twitter-hover: white;
     --linkedin: #0e76a8;
     --linkedin-hover: #0b5e87;
 }
@@ -584,10 +584,12 @@ nav a.sidenav-trigger i {
 
 .twitter-bg {
     background-color: var(--twitter);
+    color: var(--twitter-hover) !important;
 }
 
 .twitter-bg:hover {
     background-color: var(--twitter-hover);
+    color: var(--twitter) !important;
 }
 
 .linkedin-bg {

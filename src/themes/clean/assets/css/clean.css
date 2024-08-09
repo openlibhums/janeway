@@ -453,3 +453,7 @@ header svg {
 .page-item.active .page-link {
   background-color: #4F637D;
 }
+
+.social-share-btn{
+    border: 1px black solid;
+}
