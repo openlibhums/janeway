@@ -59,9 +59,9 @@ def build_redirect_uri(site, action='login'):
     :return: (str) Redirect URI for ORCID requests
     """
     request = logic.get_current_request()
-    path = f'{reverse("core_login_orcid")}?action={action}'
 
-    return request.site_type.site_url(path)
+    return request.site_type.site_url(reverse("core_login_orcid"),
+                                      query={'state': action})
 
 def get_orcid_record(orcid):
     try:

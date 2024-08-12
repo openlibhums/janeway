@@ -1219,5 +1219,5 @@ class TestORCiDRecord(TestCase):
     def test_redirect_uri(self):
         press= helpers.create_press()
         repo = helpers.create_repository(press, [], [])
-        self.assertEqual(build_redirect_uri(repo), "http://localhost/login/orcid/?action=login")
-        self.assertEqual(build_redirect_uri(repo, action="register"), "http://localhost/login/orcid/?action=register")
+        self.assertEqual(build_redirect_uri(repo), "http://localhost/login/orcid/?state=login")
+        self.assertEqual(build_redirect_uri(repo, action="register"), "http://localhost/login/orcid/?state=register")
