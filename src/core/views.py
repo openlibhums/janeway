@@ -233,10 +233,10 @@ def get_reset_token(request):
     :return: HttpResponse object
     """
     new_reset_token = None
-    form = forms.GetResetToken()
+    form = forms.FormGetResetToken()
 
     if request.POST:
-        form = forms.GetResetToken(
+        form = forms.FormGetResetToken(
             request.POST,
         )
         if form.is_valid():
