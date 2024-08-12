@@ -152,7 +152,7 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
-    action = request.GET.get('action', 'login')
+    action = request.GET.get('state', 'login')
 
     if orcid_code and django_settings.ENABLE_ORCID:
         orcid_id = orcid.retrieve_tokens(
