@@ -207,7 +207,7 @@ class Press(AbstractSiteModel):
         """ Returns a Repo's path mode url relative to its press """
         return self.site_path_url(repository, path)
 
-    def site_path_url(self, child_site, path=None):
+    def site_path_url(self, child_site, path=None, query=''):
         """Returns the path mode URL of a site relative to its press"""
         _path = "/" + child_site.code
         request = logic.get_current_request()
@@ -226,6 +226,7 @@ class Press(AbstractSiteModel):
             scheme=self._get_scheme(),
             port=port,
             path=_path,
+            query=query,
         )
 
     @staticmethod

@@ -105,14 +105,16 @@ class AbstractSiteModel(models.Model):
             obj = cls.objects.get(domain=domain)
         return obj
 
-    def site_url(self, path=None):
+    def site_url(self, path=None, query=''):
         # This is here to avoid circular imports
         from utils import logic
         return logic.build_url(
             netloc=self.domain,
             scheme=self._get_scheme(),
             path=path or "",
+            query=query,
         )
+
     def _get_scheme(self):
         scheme = self.SCHEMES[self.is_secure]
         if settings.DEBUG is True:
