@@ -438,6 +438,21 @@ def repository_preprint(request, preprint_id):
             )
             return redirect(reverse('core_login'))
 
+        if not request.repository.enable_comments:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'The comment feature is disabled for this repository.',
+            )
+            return redirect(
+                reverse(
+                    'repository_preprint',
+                    kwargs={
+                        'preprint_id': preprint.pk,
+                    }
+                )
+            )
+
         form = forms.CommentForm(
             request.POST,
             preprint=preprint,
@@ -1212,7 +1227,7 @@ def repository_preprint_log(request, preprint_id):
 
 @repository_setting_enabled(
     attr_name='enable_comments',
-    error_message='Comments are disabled.',
+    error_message='The comment feature is disabled.',
 )
 @preprint_editor_or_author_required
 def repository_comments(request, preprint_id):
