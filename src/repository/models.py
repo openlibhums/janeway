@@ -242,6 +242,10 @@ class Repository(model_utils.AbstractSiteModel):
         default='OLH',
         choices=theme_choices(),
     )
+    display_public_metrics = models.BooleanField(
+        default=False,
+        help_text='Enable this setting to display metrics publicly.'
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
