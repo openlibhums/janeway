@@ -237,7 +237,7 @@ class Repository(model_utils.AbstractSiteModel):
                 "and complete.</p><p>When you are satisfied with your review "
                 "click the button below to finalize your submission.</p>",
         help_text="Text that displays on the review page just before the "
-                  "author completes their submission.</p>"
+                  "author completes their submission."
     )
     submission_access_contact = models.EmailField(
         blank=True,
