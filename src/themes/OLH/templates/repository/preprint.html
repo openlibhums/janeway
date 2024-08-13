@@ -57,53 +57,56 @@
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen></iframe>
                 {% endif %}
-                <h5>{% trans 'Comments' %}</h5>
-                {% if request.user.is_authenticated %}
-                    <div>
-                        <form method="POST">
-                            {% csrf_token %}
-                            {{ form|foundation }}
-                            <button type="submit" class="success button">{% trans 'Add Comment' %}</button>
-                        </form>
-                    </div>
-                {% endif %}
 
-                {% for comment in comments %}
-                    <div class="callout">
-                        <div class="row" id="comment-{{ comment.pk }}">
-                            <div class="large-2 columns">
-                                {% if comment.author.profile_image and not comment.review.anonymous %}
-                                    <img src="{{ comment.author.profile_image.url }}">
-                                {% else %}
-                                    <img src="{% static "common/img/icons/users.png" %}">
-                                {% endif %}
-                            </div>
-                            <div class="large-10 columns">
-                                {% if comment.review %}
-                                    <p>
-                                    <small>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
-                                        @ {{ comment.date_time }}</small>
-                                </p>
-                                <p>
-                                    {{ comment.body|safe }}
-                                </p>
-                                {% else %}
-                                <p>
-                                    <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
-                                        @ {{ comment.date_time }}</small>
-                                </p>
-                                <p>
-                                    {{ comment.body|linebreaksbr }}
-                                </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="callout">
-                        <p>{% trans "There are no comments or no comments have been made public for this article." %}</p>
-                    </div>
-                {% endfor %}
+                {% if request.repository.enable_comments %}
+                  <h5>{% trans 'Comments' %}</h5>
+                  {% if request.user.is_authenticated %}
+                      <div>
+                          <form method="POST">
+                              {% csrf_token %}
+                              {{ form|foundation }}
+                              <button type="submit" class="success button">{% trans 'Add Comment' %}</button>
+                          </form>
+                      </div>
+                  {% endif %}
+
+                  {% for comment in comments %}
+                      <div class="callout">
+                          <div class="row" id="comment-{{ comment.pk }}">
+                              <div class="large-2 columns">
+                                  {% if comment.author.profile_image and not comment.review.anonymous %}
+                                      <img src="{{ comment.author.profile_image.url }}">
+                                  {% else %}
+                                      <img src="{% static "common/img/icons/users.png" %}">
+                                  {% endif %}
+                              </div>
+                              <div class="large-10 columns">
+                                  {% if comment.review %}
+                                      <p>
+                                      <small>Invited Review Comment #{{ comment.pk }} {% if comment.review.anonymous %}Anonymous{% else %}{{ comment.author.full_name }}{% endif %}
+                                          @ {{ comment.date_time }}</small>
+                                  </p>
+                                  <p>
+                                      {{ comment.body|safe }}
+                                  </p>
+                                  {% else %}
+                                  <p>
+                                      <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                          @ {{ comment.date_time }}</small>
+                                  </p>
+                                  <p>
+                                      {{ comment.body|linebreaksbr }}
+                                  </p>
+                                  {% endif %}
+                              </div>
+                          </div>
+                      </div>
+                      {% empty %}
+                      <div class="callout">
+                          <p>{% trans "There are no comments or no comments have been made public for this article." %}</p>
+                      </div>
+                  {% endfor %}
+                {% endif %}
                 {% hook 'article_footer_block' %}
             </div>
         </div>
