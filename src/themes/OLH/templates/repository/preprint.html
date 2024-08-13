@@ -11,7 +11,7 @@
     <div class="row">
         <br/><br/>
         <div class="large-12 columns">
-            <h3>{{ preprint.title|safe }}</h3>
+            <h1>{{ preprint.title|safe }}</h1>
             <p>
                 This is a {{ request.repository.object_name }} and has not been
                 peer reviewed.
@@ -30,7 +30,7 @@
             </p>
         </div>
         <div class="large-8 columns">
-            <h5>{% trans "Authors" %}</h5>
+            <h2>{% trans "Authors" %}</h2>
             <div class="truncatejs">
                 <p class="authors">
                     {% for author in preprint.authors %}
@@ -42,7 +42,7 @@
                     {% endfor %}
                 </p>
             </div>
-            <h5>{% trans "Abstract" %}</h5>
+            <h2>{% trans "Abstract" %}</h2>
             <div class="truncatejs">
                 <p>
                     {{ preprint.abstract|safe }}
@@ -50,14 +50,14 @@
             </div>
             <div itemprop="articleBody" id="pdf">
                 {% if preprint.current_version_file_type == 'html' %}
-                    <h5>{% trans 'Preprint Body' %}</h5>
+                    <h2>{% trans 'Preprint Body' %}</h2>
                     {{ html|safe }}
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen></iframe>
                 {% endif %}
-                <h5>{% trans 'Comments' %}</h5>
+                <h2>{% trans 'Comments' %}</h2>
                 {% if request.user.is_authenticated %}
                     <div>
                         <form method="POST">
@@ -111,7 +111,7 @@
             <div class="article-menu">
                 <small>
                     {% if preprint.current_version.file %}
-                        <h5>{% trans "Downloads" %}</h5>
+                        <h2>{% trans "Downloads" %}</h2>
                         <p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
                                     class="fa fa-download"></span>
@@ -119,19 +119,23 @@
                             </a>
                         </p>
                     {% endif %}
-                    <h5>{% trans "Metadata" %}</h5>
+                    <h2>{% trans "Metadata" %}</h2>
                     <ul>
                         <li>{% trans "Published" %}: {{ preprint.date_published|date:"Y-m-d" }}</li>
                         <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date:"Y-m-d" }}</li>
-                        <li>{% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
+                        {% if preprint.license %}<li>
+                          {% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
                                                      title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
+                        {% endif %}
                         </li>
                         <li>Subjects: {% include "common/repository/subject_display.html" %}</li>
-                        <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                        {% if preprint.keywords.all %}
+                          <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                        {% endif %}
                         {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
                     </ul>
                     {% if preprint.preprintversion_set.count > 1 %}
-                    <h5>{% trans "Versions" %}</h5>
+                    <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
@@ -140,6 +144,15 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
+
+                    {% if request.repository.display_public_metrics %}
+                      <h2>{% trans "Metrics" %}</h2>
+                      <ul>
+                        <li>{% trans "Views" %}: {{ preprint.views.count }}</li>
+                        <li>{% trans "Downloads" %}: {{ preprint.downloads.count }}</li>
+                      </ul>
+                    {% endif %}
+
                     <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
 
                 </small>
