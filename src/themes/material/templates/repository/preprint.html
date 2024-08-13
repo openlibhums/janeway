@@ -81,6 +81,7 @@
                             to post a comment.</p>
 
                         {% endif %}
+                        {% if request.repository.enable_comments %}
                         <div class="divider"></div>
                         <br />
                         <div class="comment-scroll">
@@ -120,6 +121,7 @@
                                 </div>
                             {% endfor %}
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
