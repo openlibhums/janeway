@@ -517,6 +517,9 @@ class FileUploadForm(forms.Form):
         )
         self.fields["file"].validators.append(validator)
 
+class DocumentUploadForm(forms.Form):
+    """ A document management form that allows the user to upload documents to different parts of the workflow"""
+    pass
 
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):

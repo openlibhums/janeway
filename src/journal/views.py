@@ -2440,6 +2440,26 @@ def document_management(request, article_id):
     article_files = core_models.File.objects.filter(article_id=document_article.pk)
     return_url = request.GET.get('return', '/dashboard/')
 
+    template = 'admin/journal/document_management.html'
+    context = {
+        'files': article_files,
+        'article': document_article,
+        'return_url': return_url,
+    }
+    return render(request, template, context)
+
+def document_upload(request, article_id):
+    document_article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    return_url = request.GET.get('return', '/dashboard/')
+    template = 'admin/journal/document_upload.html'
+    context = {
+        'article': document_article,
+        'return_url': return_url,
+        }
     if request.POST and request.FILES:
 
         label = request.POST.get('label') if request.POST.get('label') else 'File'
@@ -2503,16 +2523,7 @@ def document_management(request, article_id):
                 return_url
             )
         )
-
-    template = 'admin/journal/document_management.html'
-    context = {
-        'files': article_files,
-        'article': document_article,
-        'return_url': return_url,
-    }
-
     return render(request, template, context)
-
 
 def download_issue(request, issue_id):
     issue_object = get_object_or_404(
