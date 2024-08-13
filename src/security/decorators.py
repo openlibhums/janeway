@@ -1406,3 +1406,35 @@ def setting_is_enabled(setting_name, setting_group_name):
 
         return inner
     return decorator
+
+
+def repository_setting_enabled(attr_name, error_message='Setting disabled'):
+    """
+    Generally should only be used with boolean fields. Repository must be set
+    on request.
+
+    Usage:
+
+    @repository_setting_enabled(
+        attr_name='a_n_attr',
+        error_message='A N Error Message',
+    )
+    """
+    def decorator(func):
+        @wraps(func)
+        def inner(request, *args, **kwargs):
+            if request.repository is None:
+                raise Http404('No repository found.')
+
+            value = getattr(
+                request.repository,
+                attr_name
+            )
+
+            if value:
+                return func(request, *args, **kwargs)
+
+            raise Http404(error_message)
+
+        return inner
+    return decorator

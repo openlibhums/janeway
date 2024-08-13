@@ -3967,6 +3967,80 @@ class TestSecurity(TestCase):
             "permission denied.",
         )
 
+    def test_repository_setting_enabled_no_repository(self):
+        """
+        Test that the decorator raises Http404 if no repository is found in the request.
+        """
+        # Create a request without attaching a repository
+        self.client.force_login(
+            self.repo_manager
+        )
+        response = self.client.get(
+            reverse(
+                'repository_comments',
+                kwargs={
+                    'preprint_id': self.preprint.pk,
+                },
+            ),
+        )
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_repository_setting_enabled_disabled_setting(self):
+        """
+        Test that the decorator raises Http404 if the repository setting is disabled.
+        """
+        # Disable the enable_comments setting
+        self.repository.enable_comments = False
+        self.repository.save()
+
+        self.client.force_login(
+            self.repo_manager
+        )
+
+        response = self.client.get(
+            reverse(
+                'repository_comments',
+                kwargs={
+                    'preprint_id': self.preprint.pk,
+                },
+            ),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_repository_setting_enabled_enabled_setting(self):
+        """
+        Test that the decorator allows the view to execute if the setting is enabled.
+        """
+        # Enable the enable_comments setting
+        self.repository.enable_comments = True
+        self.repository.save()
+
+        self.client.force_login(
+            self.repo_manager
+        )
+
+        response = self.client.get(
+            reverse(
+                'repository_comments',
+                kwargs={
+                    'preprint_id': self.preprint.pk,
+                },
+            ),
+            SERVER_NAME=self.repository.domain,
+        )
+        print(response)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
     # General helper functions
 
     @staticmethod
