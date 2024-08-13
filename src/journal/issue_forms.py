@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from core import files, forms as core_forms, models as core_models
 from journal import models
+from submission.models import Section
 
 
 class NewIssue(forms.ModelForm):
@@ -23,6 +24,7 @@ class NewIssue(forms.ModelForm):
                 accountrole__journal=journal,
         )
         self.fields["managing_editors"].queryset = editors
+        self.fields["allowed_sections"].queryset = Section.objects.filter(journal=journal)
         self.instance.journal = journal
         if self.instance and self.instance.code:
             path = reverse(
