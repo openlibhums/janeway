@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from dateutil import tz
 
@@ -29,9 +28,6 @@ from core import (
     models as core_models,
 )
 from journal import models as journal_models
-from submission import models as submission_models
-
-
 from utils import (
   logger,
   logic as utils_logic,
@@ -44,6 +40,7 @@ from security.decorators import (
     is_article_preprint_editor,
     is_repository_manager,
     submission_authorised,
+    repository_setting_enabled,
 )
 
 
@@ -1217,6 +1214,10 @@ def repository_preprint_log(request, preprint_id):
     return render(request, template, context)
 
 
+@repository_setting_enabled(
+    attr_name='enable_comments',
+    error_message='Comments are disabled.',
+)
 @preprint_editor_or_author_required
 def repository_comments(request, preprint_id):
     """
@@ -1925,6 +1926,10 @@ def send_preprint_to_journal(request, preprint_id, journal_id=None):
 
 
 # Repository Review
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def list_reviews(request, preprint_id):
     """
@@ -1957,6 +1962,10 @@ def list_reviews(request, preprint_id):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def review_detail(request, preprint_id, review_id):
     """
@@ -2031,6 +2040,10 @@ def review_detail(request, preprint_id, review_id):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def manage_review(request, preprint_id):
     """
@@ -2081,6 +2094,10 @@ def manage_review(request, preprint_id):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def notify_reviewer(request, preprint_id, review_id):
     preprint = get_object_or_404(
@@ -2134,6 +2151,10 @@ def notify_reviewer(request, preprint_id, review_id):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 def submit_review(request, review_id, access_code):
     """
     Allows a reviewer to submit their review.
@@ -2200,6 +2221,10 @@ def submit_review(request, review_id, access_code):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 def download_review_file(request, review_id, access_code):
     """
     Returns the latest version file for a given preprint.
@@ -2218,6 +2243,10 @@ def download_review_file(request, review_id, access_code):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def edit_review_comment(request, preprint_id, review_id):
     preprint = get_object_or_404(
@@ -2267,6 +2296,10 @@ def edit_review_comment(request, preprint_id, review_id):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def manage_reviewers(request):
     role = core_models.Role.objects.get(slug='reviewer')
@@ -2423,6 +2456,10 @@ def send_user_email(request, user_id, preprint_id):
     return render(request, template, context)
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def list_review_recommendations(request):
     recommendations = models.ReviewRecommendation.objects.filter(
@@ -2470,6 +2507,10 @@ def list_review_recommendations(request):
     )
 
 
+@repository_setting_enabled(
+    attr_name='enable_invited_comments',
+    error_message='The invited comments feature is disabled.',
+)
 @is_repository_manager
 def manage_review_recommendation(request, recommendation_id=None):
     recommendation = None
