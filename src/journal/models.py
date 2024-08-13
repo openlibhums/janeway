@@ -631,7 +631,7 @@ class IssueQuerySet(models.QuerySet):
         return self.filter(
             models.Q(date_close__isnull=True) | models.Q(date_close__gte=_now),
             models.Q(date_open__isnull=True) | models.Q(date_open__lte=_now)
-        )
+        ).exclude(date_open__isnull=True, date_close__isnull=True)
 
     def collection(self):
         """Filter collection type issues."""
