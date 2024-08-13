@@ -124,7 +124,7 @@ class PasswordResetForm(forms.Form):
         return password_2
 
 
-class FormGetResetToken(forms.Form):
+class GetResetTokenForm(forms.Form):
     """ A form that validates password reset email addresses"""
 
     email_address = forms.EmailField(
