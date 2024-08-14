@@ -36,9 +36,11 @@ from core import (
     logic as core_logic,
     views as core_views,
 )
+from core.models import File
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_best_galley, get_galley_content
+from journal.logic import get_best_galley, get_galley_content, _handle_issue_galleys, _handle_issue_documents
+from journal.models import Issue, IssueGalley
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -1384,12 +1386,18 @@ def manage_issues(request, issue_id=None, event=None):
                 modal = 'issue'
 
     template = 'journal/manage/issues.html'
+    try:
+        galleys = [issue.galley.file]
+    except IssueGalley.DoesNotExist:
+        galleys = []
     context = {
         'issues': issue_list if not issue else [issue],
         'issue': issue,
         'form': form,
         'modal': modal,
         'galley_form': galley_form,
+        'galleys': galleys,
+        'documents': list(issue.documents.all()),
         'articles': issue.get_sorted_articles(published_only=False) if issue else None,
         'sort_form': sort_form,
     }
@@ -1429,40 +1437,22 @@ def manage_issue_display(request):
     return render(request, template, context)
 
 
+
+
 @editor_user_required
-def issue_galley(request, issue_id, delete=False):
+def issue_galley(request, issue_id, document_type, file_id=None):
     issue = get_object_or_404(models.Issue, pk=issue_id)
 
-    if request.method == 'POST':
-        form = issue_forms.IssueGalleyForm(request.POST, request.FILES)
-        if 'delete' in request.POST:
-            issue_galley = get_object_or_404(models.IssueGalley, issue=issue)
-            issue_galley.delete()
-            messages.info(request, "Issue Galley Deleted")
-        elif form.is_valid():
-            uploaded_file = request.FILES["file"]
-            try:
-                issue_galley = models.IssueGalley.objects.get(issue=issue)
-                issue_galley.replace_file(uploaded_file)
-            except models.IssueGalley.DoesNotExist:
-                file_obj = files.save_file(
-                    request,
-                    uploaded_file,
-                    label=issue.issue_title,
-                    public=False,
-                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk),
-                )
-                models.IssueGalley.objects.create(
-                    file=file_obj,
-                    issue=issue,
-                )
-
-            messages.info(request, "Issue Galley Uploaded")
-        elif form.errors:
-            messages.error(
-                request,
-                "\n".join(field.errors.as_text() for field in form)
-            )
+    success = False
+    message = "No action required"
+    if document_type == "galley":
+        success, message = _handle_issue_galleys(request, request.POST, request.FILES, issue, delete='delete' in request.POST)
+    elif document_type == "document":
+        success, message = _handle_issue_documents(request, request.POST, request.FILES, issue, file_id, delete='delete' in request.POST)
+    if success:
+        messages.info(request, message)
+    else:
+        messages.error(request, message)
 
     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
@@ -2549,6 +2539,23 @@ def download_issue_galley(request, issue_id, galley_id):
     )
 
     return issue_galley.serve(request)
+
+def download_issue_document(request, issue_id, file_id):
+    issue_object = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+    try:
+        issue_file = issue_object.documents.get(pk=file_id)
+    except core_models.File.DoesNotExist:
+        raise Http404
+    return files.serve_any_file(
+        request,
+        issue_file,
+        public=True,
+        path_parts=(models.IssueGalley.FILES_PATH, issue_id),
+    )
 
 
 def doi_redirect(request, identifier_type, identifier):

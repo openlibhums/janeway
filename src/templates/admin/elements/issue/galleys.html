@@ -3,7 +3,7 @@
 <div class="large-6 columns">
     <div class="box">
             <div class="title-area">
-                <h2>Galleys</h2>
+                <h2>{{ title }}</h2>
             </div>
             <div class="content">
                 <table class="small scroll">
@@ -12,37 +12,45 @@
                         <th width="25%">Filename</th>
                         <th>Type</th>
                         <th>Download</th>
-                        <th>Replace</th>
+                        {% if object_mode == "galley" %}
+                          <th>Replace</th>
+                        {% endif %}
                         <th>Delete</th>
                     </tr>
-                    {% if issue.galley %}
+                    {% for file in files %}
                         <tr>
-                            <td>{{ issue.galley.file.label }}</td>
-                            <td>{{ issue.galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>Galley</td>
-                            <td><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp;</i></a>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ object_name|title }}</td>
+                            {% if object_mode == "galley" %}
+                              <td><a href="{% url 'journal_issue_download_galley' issue.pk file.galley.pk %}"><i class="fa fa-download">&nbsp;</i></a>
+                            {% else %}
+                              <td><a href="{% url 'journal_issue_download_document' issue.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a>
+                            {% endif %}
                             </td>
-                            <td><a data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                            {% if object_mode == "galley" %}
+                              <td><a data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                            {% endif %}
                             <td>
-                            <form id="delete-galley" method="POST" enctype="multipart/form-data" action="{% url 'issue_galley' issue.pk%}">
+                            <form id="delete-galley" method="POST" enctype="multipart/form-data" action="{% url 'issue_galley' issue.pk file.pk object_mode %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="delete" value="true" />
                                 <a onclick="document.getElementById('delete-galley').submit()" >
                                     <i class="fa fa-trash">&nbsp;</i>
-                                </button>
+                                </a>
                             </form>
                             </td>
                         </tr>
-                    {% else %}
+                    {% empty %}
                         <tr>
-                            <td colspan="9">No galleys have been uploaded.</td>
+                            <td colspan="9">No {{ object_name }} have been uploaded.</td>
                         </tr>
-                    {% endif %}
+                    {% endfor %}
                 </table>
-                {% if not issue.galley %}
-                 <a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i>Upload a new galley</a>
+                {% if not files or object_mode == "document" %}
+                 <a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i>Upload a new {{ object_name }}</a>
                 {% endif %}
             </div>
     </div>
-    {% include "elements/issue/new_galley.html" with form=galley_form %}
+    {% include "elements/issue/new_galley.html" with form=galley_form object_mode=object_mode object_name=object_name %}
 </div>
