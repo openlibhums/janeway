@@ -151,7 +151,7 @@ urlpatterns = [
         views.issue_add_article, name='issue_add_article'),
     re_path(r'^manage/issues/(?P<issue_id>\d+)/(?P<file_id>\d+)/(?P<document_type>\w+)/$',
         views.issue_galley, name='issue_galley'),
-    re_path(r'^manage/issues/(?P<issue_id>\d+)/(?P<document_type>\w+)/$',
+    re_path(r'^manage/issues/(?P<issue_id>\d+)/(?P<document_type>(galley|document))/$',
         views.issue_galley, name='issue_galley'),
     re_path(r'^manage/issues/(?P<issue_id>\d+)/order/$',
         views.issue_article_order, name='issue_article_order'),
