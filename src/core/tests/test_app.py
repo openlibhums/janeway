@@ -19,7 +19,7 @@ from utils.shared import clear_cache
 from core import models
 from review import models as review_models
 from submission import models as submission_models
-
+import mock
 
 class CoreTests(TestCase):
     """
@@ -192,6 +192,46 @@ class CoreTests(TestCase):
             msg="Registered user %s can't login with email %s"
                 "" % (email, email),
         )
+
+    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliation': 'Elk Valley University', 'country': 'US'}
+
+    @override_settings(CAPTCHA_TYPE=None)
+    @mock.patch('utils.orcid.get_orcid_record_details', return_value=orcid_record)
+    def test_orcid_registration(self, record_mock):
+        orcid_id = "0000-0000-0000-0000"
+        token  = models.OrcidToken.objects.create(orcid=orcid_id)
+        register_url = f"{reverse('core_register')}?token={token.token}"
+
+        response = self.client.get(register_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Campbell")
+        self.assertContains(response, "Kasey")
+        self.assertContains(response, "Elk Valley University")
+        self.assertContains(response, "campbell@evu.edu")
+        self.assertNotContains(response, "Register with ORCiD")
+        self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertContains(response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">')
+
+        response = self.client.post(register_url, {'first_name': 'Campbell', 'last_name': 'Kasey', 'email': "campbell@evu.edu", 'institution': "Elk Valley University", 'password_1': 'test_password', 'password_2': 'test_password', 'orcid': "0000-0000-0000-0000"})
+
+        self.assertTrue(models.Account.objects.filter(email='campbell@evu.edu').exists())
+        a = models.Account.objects.get(email='campbell@evu.edu')
+        self.assertEqual(a.first_name, "Campbell")
+        self.assertEqual(a.last_name, "Kasey")
+        self.assertEqual(a.institution, "Elk Valley University")
+        self.assertEqual(a.email, "campbell@evu.edu")
+        self.assertEqual(a.orcid, orcid_id)
+
+    def test_registration(self):
+        response = self.client.get(reverse('core_register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Register with ORCiD")
+
+    @override_settings(ENABLE_ORCID=False)
+    def test_registration(self):
+        response = self.client.get(reverse('core_register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Register with ORCiD")
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_login_different_case(self):

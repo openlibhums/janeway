@@ -30,7 +30,11 @@
                         </ul>
                         <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
 
+                        {% include "common/elements/orcid_registration.html" %}
+
                         {% include "elements/forms/errors.html" with form=form %}
+
+                        {{ form.orcid }}
 
                         <div class="row">
                             <div class="large-12 columns">

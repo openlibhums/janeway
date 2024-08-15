@@ -1,0 +1,14 @@
+{% load orcid %}
+{% load static %}
+
+{% if settings.ENABLE_ORCID %}
+    {% if orcid %}
+        <p>
+            ORCiD                            
+            <a href="{{ orcid }}"><img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}"> {{ orcid }}</a>&nbsp;
+            [<a href="{% url 'core_register' %}">remove</a>]
+        </p>
+    {% else %}
+        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'register' %}" class="button expanded orcid-button">{% trans "Register with ORCiD" %}</a>
+    {% endif %}
+{% endif %}
