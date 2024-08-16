@@ -519,7 +519,31 @@ class FileUploadForm(forms.Form):
 
 class DocumentUploadForm(forms.Form):
     """ A document management form that allows the user to upload documents to different parts of the workflow"""
-    pass
+    label = forms.CharField(
+        max_length=200,
+        required=True,
+        label=_('File label'),
+    )
+    file_type = forms.ChoiceField(
+        widget=forms.RadioSelect(
+            attrs={'aria-label': ""},
+        ),
+        choices=[
+            ('manu', _('Manuscript File - used in review and copy-editing.')),
+            ('fig', _('Figure/Data File - Figure files are images from manuscripts. Data files are any other file not an image or manuscript that relate to the paper.')),
+            ('prod', _('Production File - for use in Production/Typesetting.')),
+            ('proof', _('Proofing - for use in Proofing.')),  
+        ], 
+        required=True,
+        label= _('File Type'),
+    )
+    file = forms.FileField(
+        label= _('Select and Upload'),
+        widget=forms.FileInput(
+            attrs={'aria-label': _('File chooser')}
+        ),
+        required=True,
+    )
 
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):

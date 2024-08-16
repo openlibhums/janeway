@@ -2437,14 +2437,16 @@ def document_management(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
-    article_files = core_models.File.objects.filter(article_id=document_article.pk)
-    return_url = request.GET.get('return', '/dashboard/')
+    article_files = core_models.File.objects.filter(
+        article_id=document_article.pk,
+    )
 
     template = 'admin/journal/document_management.html'
     context = {
         'files': article_files,
         'article': document_article,
-        'return_url': return_url,
+        'return_url': request.GET.get('return', '/dashboard/'),
+        'form': core_forms.DocumentUploadForm(),
     }
     return render(request, template, context)
 
