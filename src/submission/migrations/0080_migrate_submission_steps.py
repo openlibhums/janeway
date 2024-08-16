@@ -5,9 +5,13 @@ from django.db.models import F
 
 
 def increment_submission_steps(apps, schema_editor):
-    """Increment the current step of all submissions by 1 in a transaction safe manner."""
+    """Increment the current step of all submissions by 1 in a transaction safe manner.
+
+    This is needed because we are introducing an optional step before the first;
+    See changes in timeline.html.
+    """
     Article = apps.get_model("submission", "Article")
-    Article.objects.all().update(current_step=F("current_step") + 1)
+    Article.objects.exclude(current_step=1).update(current_step=F("current_step") + 1)
 
 
 class Migration(migrations.Migration):
