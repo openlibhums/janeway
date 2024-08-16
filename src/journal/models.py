@@ -644,7 +644,7 @@ class IssueQuerySet(models.QuerySet):
     def by_user(self, user):
         """Build a queryset of Issues available to the current user.
 
-        This means user is included in Issue.invitees for any issue or  without invitees or with the user in the invitees.
+        This means user is included in Issue.invitees or the Issue is without invitees.
         """
         if user and user.is_authenticated:
             return self.filter(
@@ -663,7 +663,7 @@ class Issue(AbstractLastModifiedModel):
     # issue metadata
     volume = models.IntegerField(default=1)
     issue = models.CharField(max_length=255, default="1")
-    short_name = models.CharField(blank=True, max_length=300, help_text=gettext("Internal issue name"), default="")
+    short_name = models.CharField(blank=True, max_length=300, help_text=gettext("Short name or codde"), default="")
     issue_title = models.CharField(blank=True, max_length=300)
     cached_display_title = models.CharField(
         null=True, blank=True, max_length=300,
@@ -744,25 +744,40 @@ class Issue(AbstractLastModifiedModel):
     date_close = models.DateTimeField(null=True, blank=True, verbose_name=gettext("Date of submission closing"))
     invitees = models.ManyToManyField(
         "core.Account",
+        verbose_name=gettext("Invited authors"),
         blank=True,
         related_name="invited_issues",
+        help_text=gettext(
+            "If any is selected, only the users in this list will be able to select the issue in the submission"
+            "process"
+        ),
     )
     allowed_sections = models.ManyToManyField(
         "submission.Section",
+        verbose_name=gettext("Sections available on the issue"),
         blank=True,
+        help_text=gettext("Only the selected sections will be available for selection during the submission process"),
     )
     managing_editors = models.ManyToManyField(
         "core.Account",
+        verbose_name=gettext("Editors "),
         blank=True,
         related_name="managed_issue",
     )
     documents = models.ManyToManyField(
         "core.File",
+        verbose_name=gettext("Internal documents related to the issue"),
         blank=True,
         related_name="issue_documents",
     )
-    expected_submissions = models.IntegerField(null=True, blank=True, help_text=gettext("Expected number of submissions"))
-    internal_notes = models.TextField(blank=True, null=True)
+    expected_submissions = models.IntegerField(
+        verbose_name=gettext("Expected number of submissions"), null=True, blank=True,
+        help_text=gettext("Informative field to help editors track progress")
+    )
+    internal_notes = models.TextField(
+        verbose_name=gettext("General notes on issue"), blank=True, null=True,
+        help_text=gettext("Only available in the manager")
+    )
 
     objects = IssueQuerySet.as_manager()
 
