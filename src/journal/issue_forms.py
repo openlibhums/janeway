@@ -24,7 +24,7 @@ class NewIssue(forms.ModelForm):
                 accountrole__journal=journal,
         )
         self.fields["managing_editors"].queryset = editors
-        self.fields["allowed_sections"].queryset = Section.objects.filter(journal=journal)
+        self.fields["allowed_sections"].queryset = Section.objects.filter(journal=journal).order_by("name")
         self.instance.journal = journal
         if self.instance and self.instance.code:
             path = reverse(
