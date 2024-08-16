@@ -516,7 +516,7 @@ class ReviewTests(TestCase):
         )
 
         # finally, delete the file from disk
-        files.dissociate_file(article_with_completed_reviews, file)
+        files.unassociate_file(article_with_completed_reviews, file)
 
 
     def setup_request_object(self):

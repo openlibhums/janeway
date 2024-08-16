@@ -476,7 +476,7 @@ def serve_pdf_galley_to_browser(request, file, article):
         raise Http404
 
 
-def dissociate_file(article_object, file_object):
+def unassociate_file(article_object, file_object):
     """ Deletes a file. Note: the actual file is not deleted, this just removes the association of the file with an
     article.  The history remains.
 
