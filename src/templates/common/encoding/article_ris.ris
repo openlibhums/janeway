@@ -1,13 +1,17 @@
 {% load settings %}TY  - {% if article.journal.is_conference %}CONF{% else %}JOUR{% endif %}
-AB  - {{ article.abstract|escape}}
-AU  - {{ article.author_list }}
-DA  - {{ article.date_published.year }}/{{article.date_published.month}}//
-{% if article.get_doi %}DO - {{ article.get_doi }}{% endif %}
+AB  - {{ article.abstract|escape}}{% for author in article.frozen_authors.all %}
+AU  - {{ author.full_name }}{% endfor %}
+PA  - {{ article.date_published.year }}
+DA  - {{ article.date_published|date:"Y/m/d" }}
+{% if article.get_doi %}DO  - {{ article.get_doi }}{% endif %}
 IS  - {{ article.issue.issue }}
 VL  - {{ article.issue.volume }}
 PB  - {{ article.journal|setting:'publisher_name' }}
 PY  - {{ article.date_published.year }}
 TI  - {{ article.title|escape}}
 T2  - {{ article.journal_title }}
-UR  - {{ article.url }}
+UR  - {{ article.url }}{% for keyword in article.keywords.all %}
+KW  - {{ keyword.word }}{% endfor %}
+{% if article.first_page %}SP  - {{ article.first_page }}{% endif %}
+{% if article.last_page %}EP  - {{ article.last_page }}{% endif %}
 ER  -

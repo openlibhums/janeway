@@ -1399,6 +1399,11 @@ class Article(AbstractLastModifiedModel):
         else:
             return ", ".join([author.full_name() for author in self.authors.all()])
 
+    def bibtex_author_list(self):
+        return " and ".join(
+            [author.full_name() for author in self.frozen_authors()],
+        )
+
     def keyword_list_str(self, separator=","):
         if self.keywords.exists():
             return separator.join(kw.word for kw in self.keywords.all())
