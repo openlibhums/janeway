@@ -3,6 +3,7 @@
 import core.model_utils
 from django.conf import settings
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -171,6 +172,15 @@ class Migration(migrations.Migration):
             name="short_name",
             field=models.CharField(
                 blank=True, default="", help_text="Short name or codde", max_length=300
+            ),
+        ),
+        migrations.AlterField(
+            model_name="issue",
+            name="date",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                help_text="Date after which the issue if visible to the public (this does not affect the article's visibility).",
+                verbose_name="Publication date",
             ),
         ),
     ]

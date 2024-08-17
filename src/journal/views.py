@@ -1317,6 +1317,8 @@ def manage_issues(request, issue_id=None, event=None):
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
 
+    galleys = []
+    documents = []
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
         form = issue_forms.NewIssue(instance=issue, journal=issue.journal)
@@ -1386,10 +1388,12 @@ def manage_issues(request, issue_id=None, event=None):
                 modal = 'issue'
 
     template = 'journal/manage/issues.html'
-    try:
-        galleys = [issue.galley.file]
-    except IssueGalley.DoesNotExist:
-        galleys = []
+    if issue:
+        try:
+            galleys = [issue.galley.file]
+        except IssueGalley.DoesNotExist:
+            pass
+        documents = list(issue.documents.all())
     context = {
         'issues': issue_list if not issue else [issue],
         'issue': issue,
@@ -1397,7 +1401,7 @@ def manage_issues(request, issue_id=None, event=None):
         'modal': modal,
         'galley_form': galley_form,
         'galleys': galleys,
-        'documents': list(issue.documents.all()),
+        'documents': documents,
         'articles': issue.get_sorted_articles(published_only=False) if issue else None,
         'sort_form': sort_form,
     }

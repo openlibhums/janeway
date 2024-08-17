@@ -148,7 +148,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 license_queryset = license_queryset.filter(
                     available_for_submission=self.FILTER_PUBLIC_FIELDS,
                 )
-            if article.primary_issue and article.primary_issue.allowed_sections:
+            if article.primary_issue and article.primary_issue.allowed_sections.exists():
                 section_queryset = section_queryset.filter(
                     pk__in=article.primary_issue.allowed_sections.values_list('pk', flat=True),
                 )
