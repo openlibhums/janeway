@@ -14,8 +14,13 @@
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form|foundation }}
-        
+        <h3>1. Label the file:</h3>
+        {{ form.label }}
+        <h3>2. Choose the file type:</h3>
+        {{ form.file_type}}
+        <h3>3. Select the file:</h3>
+        {{ form.file }}
+
         <button type="submit" class="button success float-right" name="file-upload">
             <span class="fa fa-upload" aria-hidden="true"></span> &nbsp; Upload
         </button>

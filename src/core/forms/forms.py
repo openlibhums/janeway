@@ -521,7 +521,8 @@ class DocumentUploadForm(forms.Form):
     """ A document management form that allows the user to upload documents to different parts of the workflow"""
     label = forms.CharField(
         widget=forms.TextInput(
-            attrs={'placeholder': 'e.g. figure 1 version 2',
+            attrs={'placeholder': _('e.g. figure 1 version 2'),
+                   'aria-label': _("Enter text to label the file"),
                    }
         ),
         max_length=200,
@@ -530,11 +531,10 @@ class DocumentUploadForm(forms.Form):
     )
     file_type = forms.ChoiceField(
         widget=forms.RadioSelect(
-            attrs={'aria-label': ""},
         ),
         choices=[
             ('manu', _('Manuscript File - used in review and copy-editing.')),
-            ('fig', _('Figure/Data File - Figure files are images from manuscripts. Data files are any other file not an image or manuscript that relate to the paper.')),
+            ('fig', _('Figure/Data File - Figure files are images from manuscripts. Data files are any other file that relates to the paper.')),
             ('prod', _('Production File - for use in Production/Typesetting.')),
             ('proof', _('Proofing - for use in Proofing.')),  
         ], 
