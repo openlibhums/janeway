@@ -2512,11 +2512,9 @@ class GenericFacetedListView(generic.ListView):
                         queryset=self.queryset,
                     )
                     predicates = []
-                elif facets[keyword]['type'] == 'boolean':
-                    if int(value_list[0]) == 1:
-                        predicates = [(f'{keyword}__exact', 1)]
-                    elif int(value_list[0]) == 0:
-                        predicates = [(f'{keyword}__exact', 0)]
+                elif facets[keyword]['type'] == 'boolean' and value_list[0] != '':
+                    # All = None, Yes = 1, No = 0
+                    predicates = [(f'{keyword}__exact', value_list[0])]
                 elif value_list[0]:
                     predicates = [(keyword, value) for value in value_list]
                 else:
@@ -2666,11 +2664,15 @@ class BaseUserList(GenericFacetedListView):
             },
             'is_active': {
                 'type': 'boolean',
-                'field_label': 'Active',
+                'field_label': 'Active status',
+                'true_label': 'Active',
+                'false_label': 'Inactive',
             },
             'is_staff': {
                 'type': 'boolean',
                 'field_label': 'Staff member',
+                'true_label': 'Staff',
+                'false_label': 'Not staff',
             },
             'accountrole__role__pk': {
                 'type': 'foreign_key',

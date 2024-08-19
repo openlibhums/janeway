@@ -697,10 +697,15 @@ class CBVFacetForm(forms.Form):
                 )
 
             elif facet['type'] == 'boolean':
-                self.fields[facet_key] = forms.ChoiceField(
+                self.fields[facet_key] = forms.TypedChoiceField(
                     widget=forms.widgets.RadioSelect,
-                    choices=[(1, 'Yes'), (0, 'No')],
+                    choices=[
+                        ('', facet.get('all_label', 'All')),
+                        (1, facet.get('true_label', 'Yes')),
+                        (0, facet.get('false_label', 'No')),
+                    ],
                     required=False,
+                    coerce=int,
                 )
 
             self.fields[facet_key].label = facet['field_label']
