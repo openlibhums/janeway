@@ -520,6 +520,10 @@ class FileUploadForm(forms.Form):
 class DocumentUploadForm(forms.Form):
     """ A document management form that allows the user to upload documents to different parts of the workflow"""
     label = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'placeholder': 'e.g. figure 1 version 2',
+                   }
+        ),
         max_length=200,
         required=True,
         label=_('File label'),
