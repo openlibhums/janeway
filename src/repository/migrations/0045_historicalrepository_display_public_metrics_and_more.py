@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0044_alter_repositoryfield_help_text'),
+        ('repository', '0044_historicalrepository_review_submission_text_and_more'),
     ]
 
     operations = [
