@@ -1,18 +1,27 @@
 {% load foundation %}
 
 {% if facet_form.fields %}
-  <section class="cbv_filters">
-    <div class="title-area">
-      <h2>{% trans 'Search and filter' %}</h2>
-    </div>
-    <form method="GET" id={{ facet_form.id }}>
-      <div class="row">
-        <div class="columns no-bullet">
+  <aside aria-labelledby="search-and-filter" class="rummage-filters">
+    <div class="box">
+      <div class="title-area">
+        <h2 id="search-and-filter">{% trans 'Search and filter' %}</h2>
+      </div>
+      <form method="GET" id={{ facet_form.id }}>
+        <div class="no-bullet">
           {% for field in facet_form %}
-            <fieldset>
-              <legend>{{ field.label }}</legend>
+            {% if field.widget_type == "checkboxselectmultiple" or field.widget_type == "radioselect" %}
+              <fieldset>
+                <legend>{{ field.label }}</legend>
+                {% if field.widget_type == "checkboxselectmultiple" and not field.0 %}
+                  <p>None to display.</p>
+                {% else %}
+                  {{ field }}
+                {% endif %}
+              </fieldset>
+            {% else %}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
               {{ field }}
-            </fieldset>
+            {% endif %}
           {% endfor %}
           <button class="button" type="submit">
             <span class="fa fa-filter"></span>
@@ -23,7 +32,7 @@
             {% trans 'Clear all' %}
           </a>
         </div>
-      </div>
-    </form>
-  </section>
+      </form>
+    </div>
+  </aside>
 {% endif %}
