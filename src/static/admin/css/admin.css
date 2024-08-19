@@ -867,22 +867,32 @@ ul.menu {
   list-style: none;
 }
 
-.cbv_list {
-  tbody {
-    vertical-align: top;
-    tr {
-      th:first-child {
-        overflow-wrap: anywhere;
-      }
-    }
+/*
+ * The Rummage Portal
+ * An interface that lets users rummage through a long list,
+ * narrowing it down by searching and filtering,
+ * and finally taking an action on one or more items.
+ * For usage see admin/core/manager/users/list.html.
+ * */
+
+.rummage-portal {
+  display: grid;
+  column-gap: 1rem;
+  margin-block-end: 10rem;
+  @media (orientation: portrait) {
+    grid-template-columns: 100%;
   }
-  .flex {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 0.5rem;
-    .chip {
-      cursor: auto;
-    }
+  @media (orientation: landscape) {
+    grid-template-columns: 20rem minmax(auto, 60rem);
+  }
+  h3 {
+    font-size: 1.3rem;
+  }
+  h4 {
+    font-size: 1rem;
+  }
+  .button {
+    margin: 0;
   }
   .dropdown-pane {
     width: 400px;
@@ -892,22 +902,42 @@ ul.menu {
   }
 }
 
-.normal-weight {
-  font-weight: normal;
-}
-
-.cbv_filters {
+.rummage-filters {
+  display: grid;
   fieldset {
     position: relative;
     margin-bottom: 0.5rem;
+    label {
+      margin-inline-start: -0.25rem;
+      display: flex;
+      column-gap: 0.25rem;
+      align-items: center;
+      input {
+        width: 1rem;
+        height: 1rem;
+        margin: 0.25rem;
+      }
+    }
   }
   label {
-    position: relative;
-    left: 1.5rem;
-    input {
-      position: absolute;
-      top: 0.4rem;
-      left: -1.5rem;
+    font-size: 1rem;
+  }
+}
+
+.rummage-result-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  @media (orientation: portrait) {
+    flex-direction: column;
+  }
+  @media (orientation: landscape) {
+    > :first-child {
+      flex: 0 0 20rem;
+    }
+    > :last-child {
+      flex: 0 0 20rem;
+      justify-content: space-between;
     }
   }
 }

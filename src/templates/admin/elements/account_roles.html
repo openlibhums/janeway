@@ -1,0 +1,38 @@
+<form method="POST">
+  <div class="flex portrait-column landscape-column gap-0-75">
+    {% csrf_token %}
+    <input
+      hidden
+      aria-label="hidden input - no user access"
+      name="params_string"
+      value="{{ params_string }}">
+    {% for accountrole in accountroles %}
+      {% if accountrole.journal == journal %}
+        <div class="flex gap-1 items-center">
+          <div class="width-min-content">
+            {{ accountrole.role.name }}
+          </div>
+          <div>
+            {% if accountrole.role.slug == 'author' and request.journal %}
+              (base role)
+              {% comment %}
+                This attempts to gaurd against removing the last role a person has,
+                when doing so would remove them from view, preventing the user
+                from undoing their action or adding another role.
+              {% endcomment %}
+            {% else %}
+              <button
+                class="tiny warning button flex gap-0-25"
+                name="remove_accountrole"
+                value="{{ accountrole.pk }}"
+                type="submit">
+                <span class="fa fa-trash"></span>
+                Remove
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</form>
