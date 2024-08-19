@@ -153,7 +153,7 @@ class NewsItem(models.Model):
     def __str__(self):
         if self.posted_by:
             return '{0} posted by {1} on {2}'.format(
-                mark_safe(self.title),
+                self.title,
                 self.posted_by.full_name(),
                 self.posted,
             )
