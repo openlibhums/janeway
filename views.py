@@ -854,7 +854,7 @@ def typesetting_assignment(request, assignment_id):
     galleys = core_models.Galley.objects.filter(
         Q(article=article),
         (Q(file__files_to_typeset=assignment) | Q(file__owner=request.user)),
-    )
+    ).distinct()
 
     supplementary_files = article.supplementary_files.filter(
         file__pk__in=[file.pk for file in assignment.files_to_typeset.all()],
