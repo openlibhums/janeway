@@ -22,6 +22,9 @@
                 <div class="title-area">
                     <h2>Assignment Information</h2>
                 </div>
+                <p>
+                  {{ article.safe_title }} [<a href="#view-metadata">Skip to full metadata</a>]
+                </p>
                 <div class="content">
                     {% include "typesetting/elements/typesetter/info.html" %}
                 </div>
@@ -116,7 +119,7 @@
         <div class="columns">
             <div class="box">
                 <div class="title-area">
-                    <h2>Metadata</h2>
+                    <h2 id="view-metadata">Metadata</h2>
                 </div>
                 <div class="content">
                     {% include "typesetting/elements/typesetter/metadata.html" %}
