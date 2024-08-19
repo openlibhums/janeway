@@ -1,0 +1,4 @@
+/* A single file to collect CSS for the back-office UI */
+
+@import "admin.css";
+@import "app.css";

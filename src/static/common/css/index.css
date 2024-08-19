@@ -1,0 +1,5 @@
+/* Collect the most widely used common CSS in a single file */
+
+@import "common.css";
+@import "utilities.css";
+@import "font-awesome.css";
