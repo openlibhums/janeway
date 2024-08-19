@@ -1,17 +1,18 @@
-{% if request.journal %}
+<div class="flex portrait-column landscape-column row-gap-1">
   <div>
-    {% include 'admin/elements/removable_role_chips.html' with accountroles=account.accountrole_set.all journal=request.journal %}
-  </div>
-{% else %}
-  {% regroup account.accountrole_set.all by journal as journal_list %}
-  {% for journal, accountroles in journal_list %}
-    <div>
+    <h4 class="uppercase">Roles</h4>
+    {% if request.journal %}
       <div>
-        <span class="fa fa-book"></span>
-        {{ journal.name }}
+        {% include 'admin/elements/account_roles.html' with accountroles=account.accountrole_set.all journal=request.journal %}
       </div>
-      {% include 'admin/elements/removable_role_chips.html' %}
-    </div>
-  {% endfor %}
+    {% else %}
+      {% regroup account.accountrole_set.all by journal as journal_list %}
+      {% for journal, accountroles in journal_list %}
+        <h5>{{ journal.name }}</h5>
+        {% include 'admin/elements/account_roles.html' with accountroles=accountroles journal=journal %}
+        {% if not forloop.last %}<hr>{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
   {% include 'admin/elements/add_role_dropdown.html' %}
-{% endif %}
+</div>

@@ -1,28 +1,38 @@
 <form method="POST">
-  <div class="small button-group">
+  <div>
     {% csrf_token %}
-    <input hidden name="params_string" value="{{ params_string }}">
-    <input hidden name="user" value="{{ account.pk }}">
+    <input
+      hidden
+      name="params_string"
+      aria-label="hidden input - no user access"
+      value="{{ params_string }}">
+    <input
+      hidden
+      name="user"
+      aria-label="hidden input - no user access"
+      value="{{ account.pk }}">
     {% if request.journal %}
       <input hidden name="journal" value="{{ journal.pk }}">
     {% endif %}
-    <a
-      class="small button dropdown"
-      aria-label="Add new role"
-      data-toggle="create-accountrole-{{ viewport }}-{{ account.pk }}">
-      Add role
-    </a>
+    <div class="flex gap-0-5">
+      <a
+        class="small button dropdown"
+        data-toggle="create-accountrole-{{ account.pk }}">
+        <span class="fa fa-plus"></span>
+        Add role
+      </a>
+    </div>
     <div
-      id="create-accountrole-{{ viewport }}-{{ account.pk }}"
+      id="create-accountrole-{{ account.pk }}"
       class="dropdown-pane"
       data-dropdown
       data-close-on-click="true"
       data-alignment="top">
       {% if not request.journal %}
-        {{ accountrole_form.journal.label_tag }}
+        <label>{{ accountrole_form.journal.label }}</label>
         {{ accountrole_form.journal }}
       {% endif %}
-      <div>
+      <div class="flex wrap gap-0-5">
         {% for role in roles %}
           <button
             class="small button"
