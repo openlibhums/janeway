@@ -2440,24 +2440,43 @@ def document_management(request, article_id):
     article_files = core_models.File.objects.filter(
         article_id=document_article.pk,
     )
+    return_url = request.GET.get('return', '/dashboard/')
+    form = core_forms.DocumentUploadForm()
 
+    if request.POST and request.FILES:
+        form = core_forms.DocumentUploadForm(
+            request.POST, 
+            request.FILES,
+        )
+        if form.is_valid():
+            form.save()
+            return redirect(
+                '{0}?return={1}'.format(
+                    reverse(
+                        'document_management',
+                        kwargs={'article_id': document_article.pk}
+                    ),
+                    return_url
+                )
+            )
+    
     template = 'admin/journal/document_management.html'
     context = {
         'files': article_files,
         'article': document_article,
-        'return_url': request.GET.get('return', '/dashboard/'),
-        'form': core_forms.DocumentUploadForm(),
+        'return_url': return_url,
+        'form': form,
     }
     return render(request, template, context)
 
-def document_upload(request, article_id):
+def document_management_upload(request, article_id):
     document_article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
         journal=request.journal,
     )
-    return_url = request.GET.get('return', '/dashboard/')
-    template = 'admin/journal/document_upload.html'
+
+    template = 'admin/journal/document_management_upload.html'
     context = {
         'article': document_article,
         'return_url': return_url,

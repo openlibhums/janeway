@@ -542,12 +542,15 @@ class DocumentUploadForm(forms.Form):
         label= _('File Type'),
     )
     file = forms.FileField(
-        label= _('Select and Upload'),
+        label= _('Select File'),
         widget=forms.FileInput(
             attrs={'aria-label': _('File chooser')}
         ),
         required=True,
     )
+    def save(self, commit=True):
+        data = self.cleaned_data
+        print(data)
 
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):
