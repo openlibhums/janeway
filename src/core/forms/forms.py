@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
-
+from django.shortcuts import get_object_or_404,
 from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
@@ -550,6 +550,18 @@ class DocumentUploadForm(forms.Form):
     )
     def save(self, commit=True):
         data = self.cleaned_data
+        from core import files as core_files
+        from production import logic as prod_logic
+        file = data.file
+        document_article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
+        
+        if file_type =='manu' or file_type =='fig':
+            pass
+
         print(data)
 
 class UserCreationFormExtended(UserCreationForm):

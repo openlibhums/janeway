@@ -2489,8 +2489,12 @@ def document_management_upload(request, article_id):
         if file_type == 'manu':
             from core import files as core_files
             file = request.FILES.get('new-file')
-            new_file = core_files.save_file_to_article(file, document_article,
-                                                       request.user, label=label, is_galley=False)
+            new_file = core_files.save_file_to_article(
+                file, 
+                document_article,
+                request.user, 
+                label=label, 
+                is_galley=False)
             document_article.manuscript_files.add(new_file)
             messages.add_message(
                 request,
