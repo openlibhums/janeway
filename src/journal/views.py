@@ -1759,35 +1759,38 @@ def issue_article_order(request, issue_id=None):
 
 
 @editor_user_required
-def manage_archive(request):
+def published_article_archive(request):
     """
     Allows the editor to view information about an article that has been published already.
     :param request: request object
     :return: contextualised django template
     """
-    published_articles = submission_models.Article.objects.filter(
-        journal=request.journal,
-        stage=submission_models.STAGE_PUBLISHED
-    ).order_by(
-        '-date_published'
-    )
-    rejected_articles = submission_models.Article.objects.filter(
-        journal=request.journal,
-        stage__in=[
-            submission_models.STAGE_REJECTED,
-            submission_models.STAGE_ARCHIVED,
-        ],
-    ).order_by(
-        '-date_declined'
-    )
-
-    template = 'journal/manage/archive.html'
+    template = 'journal/manage/published_article_archive.html'
     context = {
-        'published_articles': published_articles,
-        'rejected_articles': rejected_articles,
+        'published_articles': request.journal.archive_published_articles(),
     }
 
-    return render(request, template, context)
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@editor_user_required
+def rejected_archived_article_archive(request):
+    """
+    Allows an editor to view rejected and archived articles.
+    """
+    template = 'journal/manage/rejected_archived_article_archive.html'
+    context = {
+        'articles': request.journal.rejected_and_archived_articles(),
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 @editor_user_required
