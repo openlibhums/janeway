@@ -104,10 +104,16 @@ class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PreprintSubjectGroupSerializer(serializers.HyperlinkedModelSerializer):
+    preprints = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='repository_preprints-detail',
+        source='preprint_set',
+    )
 
     class Meta:
         model = repository_models.Subject
-        fields = ('name', 'preprint_set')
+        fields = ('name', 'preprints')
 
 
 class PreprintFileCreateSerializer(serializers.ModelSerializer):
