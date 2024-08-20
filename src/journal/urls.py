@@ -160,8 +160,16 @@ urlpatterns = [
         views.sort_issue_sections, name='manage_sort_issue_sections'),
 
     # Article Archive
-    re_path(r'^manage/archive/$',
-        views.manage_archive, name='manage_archive'),
+    re_path(
+        r'^manage/archive/$',
+        views.published_article_archive,
+        name='manage_archive',
+    ),
+    re_path(
+        r'^manage/archive/rejected-archived/$',
+        views.rejected_archived_article_archive,
+        name='manage_rejected_archived_archive',
+    ),
     re_path(r'^manage/archive/article/(?P<article_id>\d+)/$',
         views.manage_archive_article, name='manage_archive_article'),
 
