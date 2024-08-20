@@ -518,6 +518,37 @@ class FileUploadForm(forms.Form):
         )
         self.fields["file"].validators.append(validator)
 
+class DocumentUploadForm(forms.Form):
+    """ A document management form that allows the user to upload documents to different parts of the workflow"""
+    label = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'placeholder': _('e.g. figure 1 version 2'),
+                   'aria-label': _("Enter text to label the file"),
+                   }
+        ),
+        max_length=200,
+        required=True,
+        label=_('File label'),
+    )
+    file_type = forms.ChoiceField(
+        widget=forms.RadioSelect(
+        ),
+        choices=[
+            ('manu', _('Manuscript File - used in review and copy-editing.')),
+            ('fig', _('Figure/Data File - Figure files are images from manuscripts. Data files are any other file that relates to the paper.')),
+            ('prod', _('Production File - for use in Production/Typesetting.')),
+            ('proof', _('Proofing - for use in Proofing.')),  
+        ], 
+        required=True,
+        label= _('File Type'),
+    )
+    file = forms.FileField(
+        label= _('Select and Upload'),
+        widget=forms.FileInput(
+            attrs={'aria-label': _('File chooser')}
+        ),
+        required=True,
+    )
 
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):

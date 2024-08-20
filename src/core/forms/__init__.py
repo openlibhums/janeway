@@ -5,6 +5,7 @@ from core.forms.forms import (
     CBVFacetForm,
     ConfirmableForm,
     ConfirmableIfErrorsForm,
+    DocumentUploadForm,
     EditAccountForm,
     EditKey,
     EditorialGroupForm,
