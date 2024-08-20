@@ -1,0 +1,60 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Article Archive{% endblock title %}
+{% block title-section %}Article Archive{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Rejected and Archived Article Archive</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Rejected and Archived Articles</h2>
+            </div>
+            <div class="content">
+                <table class="small article_list scroll">
+                    <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>Title</td>
+                        <td>Rejected or Archived</td>
+                        <td>Authors</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in articles %}
+                        <tr>
+                            <td>{{ article.pk }}</td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                            <td>
+                              {% if article.stage == 'Archived' %}
+                              Archived
+                              {% else %}
+                              Rejected {{ article.date_declined|date:"Y-m-d" }}
+                              {% endif %}
+                            </td>
+                            <td>
+                              {{ article.frozen_authors }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".article_list" %}
+{% endblock %}
