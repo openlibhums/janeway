@@ -1599,6 +1599,12 @@ class Topic(models.Model):
     )
     title = models.CharField(max_length=255, blank=True)
 
+    public_submissions = models.BooleanField(default=True)
+
+    @property
+    def article_count(self):
+        return self.article_set.count()
+
 
 class SectionOrdering(models.Model):
     section = models.ForeignKey(
