@@ -223,6 +223,17 @@ class SectionOrderingAdmin(admin.ModelAdmin):
         return truncatewords(obj.issue.__str__(), 10)
 
 
+class TopicAdmin(admin.ModelAdmin):
+    list_display = ('title', 'journal', 'article_count',
+                    )
+    list_filter = ('journal',)
+    search_fields = ('title',)
+
+    @staticmethod
+    def apply_select_related(self, qs):
+        return qs.prefetch_related('journal')
+
+
 admin_list = [
     (models.Issue, IssueAdmin),
     (models.IssueType, IssueTypeAdmin),
@@ -237,6 +248,7 @@ admin_list = [
     (models.SectionOrdering, SectionOrderingAdmin),
     (models.BannedIPs, BannedIPAdmin),
     (models.Notifications, NotificationsAdmin),
+    (models.Topic, TopicAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
