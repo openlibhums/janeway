@@ -1,0 +1,29 @@
+{% load foundation %}
+{% load field %}
+<tr id="topic-form-{{ topic.id }}">
+  <td>{{ topic.pk }}</td>
+  <td>{{ topic_form.title|form_id:"edit-"|form_id:topic.id|foundation}}</td>
+  <td>{{ topic_form.public_submissions|form_id:"edit-"|form_id:topic.id|foundation}}</td>
+  <td>{{ topic.article_count }}</td>
+  <td>
+  <form
+      id="edit-{{ topic.id }}"
+     {% if topic %}
+     hx-post="{% url "core_manager_topic_edit" topic.id %}"
+     hx-target="#topic-form-{{ topic.id }}"
+     hx-swap="outerHTML"
+     {% else %}
+     hx-post="{% url "core_manager_topic_add" %}"
+     hx-target="#topic-form-{{ topic.id }}"
+     hx-swap="beforeend"
+     hx-on="htmx:afterRequest: this.remove()"
+     {% endif %}
+  >
+  {% csrf_token %}
+    <button type="submit" class="tiny success button">
+          Save
+      </button>
+  </form>
+  </td>
+</tr>
+

@@ -1,0 +1,28 @@
+{% load bool_fa %}
+<tr id="topic-{{topic.id}}">
+<td>{{ topic.pk }}</td>
+<td>{{ topic.title }}</td>
+<td>{{ topic.public_submissions|bool_fa }}</td>
+<td>{{ topic.article_count }}</td>
+<td>
+          <span
+            class="tiny warning button"
+            hx-get="{% url 'core_manager_topic_edit' topic.id %}"
+            hx-target="#topic-{{ topic.id }}"
+            hx-swap="outerHTML"
+            hx-trigger="click"
+            ><span class="fa fa-edit"></span> Edit
+        </span>
+
+  <form hx-on="htmx:afterRequest: this.remove()" >
+    {% csrf_token %}
+      <button {% if topic.article_set.count %}disabled{% endif %}
+              type="submit"
+              class="tiny alert button delete {% if topic.article_count %}disabled{% endif %}"
+              name="delete"
+              value="{{ topic.pk }}">
+          <i class="fa fa-trash"></i> Delete
+      </button>
+   </form>
+</td>
+</tr>

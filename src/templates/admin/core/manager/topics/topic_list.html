@@ -1,0 +1,67 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Topics{% endblock title %}
+{% block title-section %}Topics{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li>Topics</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Topics</h2>
+                <a href="" class="button">Add New topic</a> 
+            </div>
+            <div class="content">
+                <p>{% blocktrans %}
+                  Here you can create topics, a grouping element that is only used for display purposes.
+                  Once an article topic is created, any articles that are part of the same topic within the same issue and section will be displayed together under a common heading with the topic title.
+                  {% endblocktrans %}
+                </p>
+                <p>
+                    <strong>NB.</strong> {% blocktrans %}You cannot delete a Topic that contains articles. Remove the articles from the section if you want to delete it.{% endblocktrans %}
+                </p>
+                    {% csrf_token %}
+                    <table class="table scroll">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Open for Submission</th>
+                            <th># Articles</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for topic in topics %}
+                            {% include "admin/core/manager/topics/topic_row.html"%}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this section?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock js %}
