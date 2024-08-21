@@ -1592,6 +1592,14 @@ class IssueEditor(models.Model):
         )
 
 
+class Topic(models.Model):
+    journal = models.ForeignKey(
+        "journal.Journal",
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255, blank=True)
+
+
 class SectionOrdering(models.Model):
     section = models.ForeignKey(
         "submission.Section",
@@ -1614,6 +1622,22 @@ class SectionOrdering(models.Model):
 
     class Meta:
         ordering = ("order", "section")
+
+
+class TopicOrdering(models.Model):
+    topic = models.ForeignKey(
+        "journal.Topic",
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        "submission.Section",
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        "journal.Issue",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=1)
 
 
 class ArticleOrdering(models.Model):

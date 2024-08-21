@@ -1047,6 +1047,9 @@ class Article(AbstractLastModifiedModel):
     section = models.ForeignKey(
         "Section", blank=True, null=True, on_delete=models.SET_NULL
     )
+    topic = models.ForeignKey(
+        "journal.Topic", blank=True, null=True, on_delete=models.SET_NULL
+    )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
         dynamic_choices=get_jats_article_types(),
