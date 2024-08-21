@@ -139,6 +139,9 @@ class IssueDisplayForm(forms.ModelForm):
 
 
 class TopicForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["title"].required = True
 
     class Meta:
         model = journal_models.Topic

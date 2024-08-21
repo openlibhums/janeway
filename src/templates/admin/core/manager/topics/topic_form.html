@@ -16,10 +16,10 @@
      id="edit-{{ topic.id }}"
      hx-post="{% url "core_manager_topic_edit" topic.id %}"
      {% else %}
+     id="new-topic"
      hx-post="{% url "core_manager_topic_add" %}"
-     hx-target="#topic-form-{{ topic.id }}"
-     hx-target="#new-form"
      {% endif %}
+     hx-target="#topic-form-{{ topic.id }}"
      hx-swap="outerHTML"
   >
   {% csrf_token %}
