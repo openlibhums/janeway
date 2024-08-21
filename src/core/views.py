@@ -2598,23 +2598,6 @@ def topic_list(request):
         journal=request.journal,
     )
 
-    if request.POST and 'delete' in request.POST:
-        object_id = request.POST.get('delete')
-        topic_delete = get_object_or_404(journal_models.Topic, pk=object_id)
-
-        if topic_delete.article_set.exists():
-            messages.add_message(
-                request,
-                messages.WARNING,
-                _(
-                    'You cannot remove a topic that contains articles.'
-                    ' Remove articles from the topic if you want to delete it.'
-                ),
-            )
-        else:
-            topic.delete()
-        return redirect(reverse('core_manager_topics'))
-
     template = 'core/manager/topics/topic_list.html'
     context = {
         'topics': topics,
@@ -2648,7 +2631,20 @@ def topic_form(request, topic_id=None):
             journal=request.journal
         )
     form = journal_forms.TopicForm(instance=topic)
-    if request.POST:
+    if request.method == "DELETE":
+        if topic.article_set.exists():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a topic that contains articles.'
+                    ' Remove articles from the topic if you want to delete it.'
+                ),
+            )
+        else:
+            topic.delete()
+            return HttpResponse("")
+    elif request.method == "POST":
         form = journal_forms.TopicForm(request.POST, instance=topic)
         if form.is_valid():
             topic = form.save(commit=False)

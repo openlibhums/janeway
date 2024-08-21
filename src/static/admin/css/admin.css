@@ -1429,3 +1429,7 @@ dialog::backdrop {
     margin-bottom: 0;
 }
 
+.topic-row.htmx-swapping {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}

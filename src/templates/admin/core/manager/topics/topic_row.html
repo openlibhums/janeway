@@ -1,28 +1,33 @@
 {% load bool_fa %}
-<tr id="topic-{{topic.id}}">
+<tr class="topic-row" id="topic-{{topic.id}}">
 <td>{{ topic.pk }}</td>
 <td>{{ topic.title }}</td>
 <td>{{ topic.public_submissions|bool_fa }}</td>
 <td>{{ topic.article_count }}</td>
 <td>
-          <span
-            class="warning button"
-            hx-get="{% url 'core_manager_topic_edit' topic.id %}"
-            hx-target="#topic-{{ topic.id }}"
-            hx-swap="outerHTML"
-            hx-trigger="click"
-            ><span class="fa fa-edit"></span> Edit
-        </span>
-
-  <form hx-on="htmx:afterRequest: this.remove()" >
+    <span
+        class="warning button"
+        hx-get="{% url 'core_manager_topic_edit' topic.id %}"
+        hx-target="#topic-{{ topic.id }}"
+        hx-swap="outerHTML"
+        hx-trigger="click"
+        ><span class="fa fa-edit"></span> Edit
+    </span>
+    <form
+        hx-delete="{% url 'core_manager_topic_edit' topic.id %}"
+        hx-swap="outerHTML swap:0.5s"
+        hx-target="#topic-{{ topic.id }}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-confirm="{% trans 'Are you sure you want to delete this topic?' %}"
+    >
     {% csrf_token %}
-      <button {% if topic.article_set.count %}disabled{% endif %}
-              type="submit"
-              class="alert button delete {% if topic.article_count %}disabled{% endif %}"
-              name="delete"
-              value="{{ topic.pk }}">
-          <i class="fa fa-trash"></i> Delete
-      </button>
-   </form>
+    <button {% if topic.article_set.exists %}disabled{% endif %}
+            type="submit"
+            class="alert button delete {% if topic.article_count %}disabled{% endif %}"
+            name="delete"
+            value="{{ topic.pk }}">
+        <i class="fa fa-trash"></i> Delete
+    </button>
+    </form>
 </td>
 </tr>
