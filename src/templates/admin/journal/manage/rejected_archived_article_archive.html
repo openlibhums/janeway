@@ -26,6 +26,7 @@
                         <td>ID</td>
                         <td>Title</td>
                         <td>Rejected or Archived</td>
+                        <td>Date Rejected or Archived</td>
                         <td>Authors</td>
                     </tr>
                     </thead>
@@ -39,7 +40,14 @@
                               {% if article.stage == 'Archived' %}
                               Archived
                               {% else %}
-                              Rejected {{ article.date_declined|date:"Y-m-d" }}
+                              Rejected
+                              {% endif %}
+                            </td>
+                            <td>
+                              {% if article.stage == 'Archived' %}
+                              {{ article.date_archived|date:"Y-m-d" }}
+                              {% else %}
+                              {{ article.date_declined|date:"Y-m-d" }}
                               {% endif %}
                             </td>
                             <td>
