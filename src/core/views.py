@@ -2651,7 +2651,9 @@ def topic_form(request, topic_id=None):
     if request.POST:
         form = journal_forms.TopicForm(request.POST, instance=topic)
         if form.is_valid():
-            topic = form.save()
+            topic = form.save(commit=False)
+            topic.journal = request.journal
+            topic.save()
             messages.add_message(request, messages.INFO, 'Changes saved.')
             return redirect(reverse(
                 "core_manager_topic", kwargs={"topic_id": topic.id}

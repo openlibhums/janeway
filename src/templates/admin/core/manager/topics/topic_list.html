@@ -19,7 +19,6 @@
         <div class="box">
             <div class="title-area">
                 <h2>Topics</h2>
-                <a href="" class="button">Add New topic</a> 
             </div>
             <div class="content">
                 <p>{% blocktrans %}
@@ -41,10 +40,21 @@
                             <th>Actions</th>
                         </tr>
                         </thead>
-                        <tbody id="sortable">
+                        <tbody>
                         {% for topic in topics %}
                             {% include "admin/core/manager/topics/topic_row.html"%}
                         {% endfor %}
+                        <tr id="new-topic-wrapper">
+                          <td colspan="100%">
+                        <span class="success button"
+                           hx-get="{% url "core_manager_topic_add" %}"
+                           hx-target="#new-topic-wrapper"
+                           hx-swap="beforebegin"
+                        >
+                          <span class="fa fa-plus-circle">Add new topic
+                        </span>
+                          </td>
+                        </tr>
                         </tbody>
                     </table>
             </div>
@@ -53,12 +63,10 @@
 {% endblock body %}
 
 {% block js %}
-    <script src="{% static "admin/js/csrf.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script>
         $(document).ready(function () {
             $(".delete").click(function () {
-                if (!confirm("Are you sure you want to delete this section?")) {
+                if (!confirm("Are you sure you want to delete this topic?")) {
                     return false;
                 }
             });

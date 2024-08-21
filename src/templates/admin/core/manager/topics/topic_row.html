@@ -6,7 +6,7 @@
 <td>{{ topic.article_count }}</td>
 <td>
           <span
-            class="tiny warning button"
+            class="warning button"
             hx-get="{% url 'core_manager_topic_edit' topic.id %}"
             hx-target="#topic-{{ topic.id }}"
             hx-swap="outerHTML"
@@ -18,7 +18,7 @@
     {% csrf_token %}
       <button {% if topic.article_set.count %}disabled{% endif %}
               type="submit"
-              class="tiny alert button delete {% if topic.article_count %}disabled{% endif %}"
+              class="alert button delete {% if topic.article_count %}disabled{% endif %}"
               name="delete"
               value="{{ topic.pk }}">
           <i class="fa fa-trash"></i> Delete

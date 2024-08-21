@@ -139,6 +139,7 @@ class IssueDisplayForm(forms.ModelForm):
 
 
 class TopicForm(forms.ModelForm):
+
     class Meta:
         model = journal_models.Topic
         fields = ('title', 'public_submissions')
