@@ -22,7 +22,7 @@
                              alt="{{ carousel_item.carousel_title|striptags }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                              <p>{{ carousel_item.carousel_subtitle }}</p>
-                             <h2>{{ carousel_item.carousel_title|safe|truncatechars:200 }}</h2>
+                             <h2><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|safe|truncatechars:200 }}</a></h2>
                         </div>
                     </div>
                 {% endfor %}

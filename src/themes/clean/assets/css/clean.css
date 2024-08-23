@@ -243,6 +243,11 @@ main a:hover {
     background-color: rgba(55, 55, 55, .8);
 }
 
+.carousel-caption a, .carousel-caption a:hover {
+    color: white;
+    text-decoration: none;
+}
+
 .row-eq-height {
     display: -webkit-box;
     display: -webkit-flex;
