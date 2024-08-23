@@ -23,7 +23,7 @@
             <div class="content">
                 <p>Select a copyeditor from the list of users below. <strong>Note: </strong> if a copyeditor already has an active copyediting task for this article they will not appear in the list, you should first close that task if you wish to assign them again.</p>
                 {% include "elements/forms/errors.html" with form=form %}
-                {# TableA11y #}
+                {# TableA11y, fail, empty cells #}
                 <table class="scroll small" id="copyeditor">
                     <thead>
                     <tr>
@@ -60,7 +60,7 @@
             </div>
             <div class="content">
                 <p>You can select which files are available to the Copyeditor.</p>
-                {# TableA11y #}
+                {# TableA11y, fail, empty cells #}
                 <table class="scroll small">
                     <tr>
                         <th></th>
