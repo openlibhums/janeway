@@ -2,7 +2,7 @@
 {% user_roles request.journal user as account_roles %}
 {% user_roles request.journal user 'True' as account_role_slugs %}
 
-{# TableA11y #}
+{# TableA11y, fail, form within table #}
 <table class="small scroll" id='users'>
     <thead>
     <tr>

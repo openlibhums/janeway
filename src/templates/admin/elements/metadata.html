@@ -12,7 +12,7 @@
             class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
 {% endif %}
 <h4>{{ article.safe_title }}</h4>
-{# TableA11y #}
+{# TableA11y, review, V3 #}
 <table class="scroll small">
     <tr>
         <th>Section</th>
@@ -130,7 +130,7 @@
 <div class="title-area">
     <h2>Funders</h2>
 
-            {# TableA11y #}
+            {# TableA11y, fail, merged data cells #}
             <table class="scroll">
                 <thead>
                 <tr>
@@ -164,7 +164,7 @@
 
     <p>These records are those of the article authors frozen at the point of submission.</p>
 
-    {# TableA11y #}
+    {# TableA11y, review, V1 #}
     <table class="scroll small" id="unassigned">
         <tr>
             <th>Name</th>
@@ -198,7 +198,7 @@
 {% if user_is_editor and journal_settings.general.hide_editors_from_authors %}
     <p>The setting to <a href="{% url 'core_edit_setting' 'general' 'hide_editors_from_authors' %}">hide editor details from authors</a> is turned on. Editors can view this section, but authors cannot.</p>
 {% endif %}
-{# TableA11y #}
+{# TableA11y, fail, merged data cells #}
 <table id="unassigned" class="scroll small">
     <tr style="text-align: left">
         <th>Name</th>
@@ -223,7 +223,7 @@
     <h2>Projected Issue</h2>
 </div>
 <div class="content">
-    {# TableA11y #}
+    {# TableA11y, fail, empty th #}
     <table class="scroll">
         <tr>
             <th>ID</th>
@@ -254,7 +254,7 @@
     <h2>Issues and Collections</h2>
 </div>
 <div class="content">
-    {# TableA11y #}
+    {# TableA11y, fail, empty th #}
     <table class="scroll">
         <tr>
             <th>ID</th>
@@ -306,7 +306,7 @@
 </div>
 {% setting_var request.journal 'use_crossref' as use_crossref %}
 <div class="content">
-    {# TableA11y #}
+    {# TableA11y, review, V1 #}
     <table class="scroll">
         <tr>
             <th>ID Type</th>
@@ -355,7 +355,7 @@
 
 {% if files %}
     <h4>Files</h4>
-    {# TableA11y #}
+    {# TableA11y, fail, fixed text (heading?) within data cells #}
     <table class="small scroll">
         <tr>
             <th>Label</th>

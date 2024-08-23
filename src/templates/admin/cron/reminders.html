@@ -24,7 +24,7 @@
 
                 <form method="POST" action="{% url 'cron_reminders' %}">
                     {% csrf_token %}
-                    {# TableA11y #}
+                    {# TableA11y, fail, merged data cells #}
                     <table class="table">
                         <tr>
                             <th>ID</th>
