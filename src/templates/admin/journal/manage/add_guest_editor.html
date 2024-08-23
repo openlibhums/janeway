@@ -22,6 +22,7 @@
                 <a class="button" href="{% url 'manage_issues_id' issue.pk %}">Back</a>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll">
                     <tr>
                         <th>Title</th>
@@ -50,6 +51,7 @@
             <div class="content">
                 <form method="POST" action="{% url 'manage_remove_issue_editor' issue.pk %}">
                     {% csrf_token %}
+                    {# TableA11y #}
                     <table class="small scroll">
                         <thead>
                         <tr>
@@ -95,6 +97,7 @@
                 <h2>Journal Users</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="small scroll" id="guest-editor-users">
                     <thead>
                     <tr>

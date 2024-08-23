@@ -24,6 +24,7 @@
                 <a href="#" data-open="statuskey" class="button">Review Status Key</a>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="small scroll" id="unassigned">
                     <thead>
                     <tr>
@@ -55,6 +56,7 @@
                             {% if journal_settings.general.enable_expanded_review_details %}
                                 <td>
                                     {% if article.reviewassignment_set.exists or article.revisionrequest_set.exists %}
+                                        {# TableA11y #}
                                         <table style="width:100%; min-width:230px;"
                                                class="table table-stack small no-pad no-bottom-margin">
                                             {% for review in article.reviews_not_withdrawn %}

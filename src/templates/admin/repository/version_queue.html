@@ -19,6 +19,7 @@
             <p>{% trans 'The following updates are ready for moderation. By default the lists are show the oldest request first.' %}</p>
             <form method="POST">
                 {% csrf_token %}
+                {# TableA11y #}
                 <table id="versions" class="scroll">
                     <thead>
                         <tr>

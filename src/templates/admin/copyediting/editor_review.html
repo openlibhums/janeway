@@ -21,6 +21,7 @@
             </div>
             <div class="content">
                 <p>Files you sent the copyeditor to complete their task.</p>
+                {# TableA11y #}
                 <table class="scroll small">
                     <tr>
                         <th>Label</th>
@@ -41,6 +42,7 @@
             </div>
             <div class="content">
                 <p>Files the copyeditor has uploaded.</p>
+                {# TableA11y #}
                 <table class="scroll small">
                     <tr>
                         <th>Label</th>
@@ -75,6 +77,7 @@
                 </div>
                 <div class="content">
                     {% for review in copyedit.author_reviews %}
+                        {# TableA11y #}
                         <table class="scroll">
                             <tr>
                                 <th>Requested</th>
@@ -105,6 +108,7 @@
                                 {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}
                             </tr>
                         </table>
+                        {# TableA11y #}
                         <table class="scroll small">
                             <tr>
                                 <th>Label</th>

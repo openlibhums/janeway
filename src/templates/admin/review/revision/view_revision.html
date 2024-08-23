@@ -17,6 +17,7 @@
     <p>Details of the current article files and revision actions are listed below. The author had the opportunity to provide a covering letter.</p>
     {% if revision_request.type == 'major_revisions' %}<p><strong>N.B.</strong> This article has had <i>Major Revisions</i> requested. It should undergo another
     round of review.</p>{% endif %}
+    {# TableA11y #}
     <table class="scroll">
         <tr>
             <th>Date Requested</th>
@@ -71,6 +72,7 @@
         <h2>Files</h2>
     </div>
     <div class="content">
+        {# TableA11y #}
         <table class="scroll small">
             <tr>
                 <th>Label</th>
@@ -117,6 +119,7 @@
         <h2>Actions</h2>
     </div>
     <div class="content">
+        {# TableA11y #}
         <table class="scroll">
             <tr>
                 <th>Date Logged</th>

@@ -30,6 +30,7 @@
         <div class="box">
             {% if journal_settings.general.enable_peer_review_data_block %}
             <!-- table id for unit testing -->
+            {# TableA11y #}
             <table id="peer_review_data_block" class="scroll">
                 <tr>
                     <th>Date Requested</th>
@@ -51,6 +52,7 @@
                 {% endfor %}
             </table>
             {% else %}
+                {# TableA11y #}
                 <table class="table scroll">
                     {% for review in article.peer_reviews_for_author_consumption %}
                         <tr>
@@ -73,6 +75,7 @@
     <div class="box">
         <div class="title-area">
             <h2>View and Download Stats</h2>
+            {# TableA11y #}
             <table class="scroll">
                 <tr>
                     <th>Views</th>

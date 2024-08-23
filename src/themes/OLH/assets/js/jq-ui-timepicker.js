@@ -595,6 +595,7 @@
             }
 
 
+            // TableA11y
             html = '<table class="ui-timepicker-table ui-widget-content ui-corner-all"><tr>';
 
             if (showHours) {
@@ -603,6 +604,7 @@
                         '<div class="ui-timepicker-title ui-widget-header ui-helper-clearfix ui-corner-all">' +
                         hourLabel +
                         '</div>' +
+                        // TableA11y
                         '<table class="ui-timepicker">';
 
                 for (row = 1; row <= rows; row++) {
@@ -746,6 +748,7 @@
             html += '<div class="ui-timepicker-title ui-widget-header ui-helper-clearfix ui-corner-all">' +
                     minuteLabel +
                     '</div>' +
+                    // TableA11y
                     '<table class="ui-timepicker">';
 
             minuteCounter = 0;

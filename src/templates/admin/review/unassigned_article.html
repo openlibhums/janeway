@@ -22,6 +22,7 @@
                 <a class="button" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="hover scroll">
                     <tr>
                         <th>Section</th>
@@ -96,6 +97,7 @@
                 <h2>Authors</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="hover stack scroll" id="unassigned">
                     <tr>
                         <th>Name</th>
@@ -143,6 +145,7 @@
                     </small>
                 </p>
                 {% endif %}
+                {# TableA11y #}
                 <table class="table scroll small">
                     <tr>
                         <th>Label</th>
@@ -210,6 +213,7 @@
                 <h2>Editors</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll small" id="unassigned">
                     <tr>
                         <th>Name</th>
@@ -239,6 +243,7 @@
                 <h2>Add Editors</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll small" id="editors">
                     <thead>
                     <tr>

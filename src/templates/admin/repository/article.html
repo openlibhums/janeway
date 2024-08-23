@@ -24,6 +24,7 @@
                 {% endif %}
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll small">
                     <tr>
                         <th colspan="3">Title</th>
@@ -206,6 +207,7 @@
             <div class="content">
                 <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
                     {% csrf_token %}
+                    {# TableA11y #}
                     <table class="small">
                         <thead>
                         <tr>
@@ -250,6 +252,7 @@
                 <h2>Versions</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll small">
                     <thead>
                     <tr>
@@ -288,6 +291,7 @@
                 <h2>Pending Updates</h2>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="scroll small">
                     <thead>
                     <tr>
@@ -332,6 +336,7 @@
                 <a href="#" class="button" data-open="new_file"><span class="fa fa-upload">&nbsp;</span> Upload File</a>
             </div>
             <div class="content">
+                {# TableA11y #}
                 <table class="small scroll">
                     <tr>
                         <th>Filename</th>
