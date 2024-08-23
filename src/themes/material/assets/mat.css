@@ -561,11 +561,11 @@ nav a.sidenav-trigger i {
 
 :root {
     --facebook: #3b5998;
-    --facebook-hover: #3b5998;
+    --facebook-hover: white;
     --twitter: black;
     --twitter-hover: white;
     --linkedin: #0e76a8;
-    --linkedin-hover: #0b5e87;
+    --linkedin-hover: white;
 }
 
 .btn-small {
@@ -575,29 +575,33 @@ nav a.sidenav-trigger i {
 }
 
 .facebook-bg {
-    background-color: var(--facebook);
+    background-color: var(--facebook) !important;
+    color: var(--facebook-hover) !important;
 }
 
 .facebook-bg:hover {
-    background-color: var(--facebook-hover);
+    background-color: var(--facebook-hover) !important;
+    color:var(--facebook) !important;
 }
 
 .twitter-bg {
-    background-color: var(--twitter);
+    background-color: var(--twitter) !important;
     color: var(--twitter-hover) !important;
 }
 
 .twitter-bg:hover {
-    background-color: var(--twitter-hover);
+    background-color: var(--twitter-hover) !important;
     color: var(--twitter) !important;
 }
 
 .linkedin-bg {
-    background-color: var(--linkedin);
+    background-color: var(--linkedin) !important;
+    color: var(--linkedin-hover) !important;
 }
 
 .linkedin-bg:hover {
-    background-color: var(--linkedin-hover);
+    background-color: var(--linkedin-hover) !important;
+    color: var(--linkedin) !important;
 }
 
 .flexbox {
