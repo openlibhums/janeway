@@ -70,6 +70,7 @@
                     <p>{% trans 'You can reorder the authors by dragging and dropping rows in the table below.' %}</p>
                     <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'submission'  %}">
                         {% csrf_token %}
+                        {# TableA11y #}
                         <table class="small">
                             <thead>
                                 <tr>

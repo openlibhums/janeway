@@ -26,6 +26,7 @@
                 <p>Article Current Stage: <strong>{{ article.get_stage_display }}</strong>.</p><p>This article has been through the following stages:</p>
                 <form method="POST">
                     {% csrf_token %}
+                    {# TableA11y #}
                     <table>
                         <tr>
                             <th>Stage</th>

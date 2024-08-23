@@ -23,6 +23,7 @@
                             Article</a>{% endif %}
                 </div>
                 <div class="content">
+                    {# TableA11y #}
                     <table class="table">
                         <tr>
                             <th colspan="2">Title</th>
@@ -86,6 +87,7 @@
                     <h2>Authors</h2>
                 </div>
                 <div class="content">
+                    {# TableA11y #}
                     <table class="table">
                         <tr>
                             <th>{% trans 'Name' %}</th>
@@ -109,6 +111,7 @@
                     <h2>Dates</h2>
                 </div>
                 <div class="content">
+                    {# TableA11y #}
                     <table class="small">
                         <tr>
                             <th>Submitted</th>
@@ -152,6 +155,7 @@
                 <div class="content">
                     <p>Views track how often the {{ request.repository.object_name }} page has been visited, while Downloads record the number of times a
                         {{ request.repository.object_name }}'s file has been downloaded.</p>
+                    {# TableA11y #}
                     <table class="table">
                         <tr>
                             <th>Metric Type</th>
@@ -188,6 +192,7 @@
                     <h2>Files</h2>
                 </div>
                 <div class="content">
+                    {# TableA11y #}
                     <table class="small scroll">
                         <tr>
                             <th>Filename</th>
@@ -214,6 +219,7 @@
                     <a href="#" class="button" data-open="uploadbox">Upload New Version</a>
                 </div>
                 <div class="content">
+                    {# TableA11y #}
                     <table class="small">
                         <tr>
                             <th>ID</th>
