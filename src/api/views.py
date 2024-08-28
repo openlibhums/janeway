@@ -238,6 +238,9 @@ class PublishedPreprintViewSet(PreprintViewSet):
         return preprints.filter(
             date_published__isnull=False,
             stage=repository_models.STAGE_PREPRINT_PUBLISHED,
+        ).order_by(
+            '-date_published',
+            'title',
         )
 
 
@@ -257,9 +260,9 @@ class UserPreprintsViewSet(PreprintViewSet):
         return serializers.PreprintSerializer
 
     def get_queryset(self):
-        preprints = super().get_queryset()
-        preprints = preprints.filter(
+        preprints = repository_models.Preprint.objects.filter(
             owner=self.request.user,
+            repository=self.request.repository,
         )
         return preprints
 
@@ -303,7 +306,8 @@ class PreprintFiles(viewsets.ModelViewSet):
     serializer_class = serializers.PreprintFileSerializer
     http_method_names = ['get', 'post', 'delete']
     permission_classes = [
-        api_permissions.IsRepositoryManager,
+        permissions.IsAuthenticated,
+        api_permissions.IsPreprintOwner
     ]
 
     def get_serializer_class(self):
@@ -315,6 +319,7 @@ class PreprintFiles(viewsets.ModelViewSet):
         if self.request.repository:
             return repository_models.PreprintFile.objects.filter(
                 preprint__repository=self.request.repository,
+                preprint__owner=self.request.user,
             )
         else:
             raise NotImplementedError(

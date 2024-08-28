@@ -7,6 +7,7 @@ from core import models as core_models
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+from events import logic as event_logic
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -104,16 +105,30 @@ class PreprintSubjectSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PreprintSubjectGroupSerializer(serializers.HyperlinkedModelSerializer):
-    preprints = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='repository_preprints-detail',
-        source='preprint_set',
-    )
+    preprints = serializers.SerializerMethodField()
 
     class Meta:
         model = repository_models.Subject
         fields = ('name', 'preprints')
+
+    def get_preprints(self, obj):
+        # You can filter or modify the queryset here
+        custom_queryset = repository_models.Preprint.objects.filter(
+            subject=obj,
+            date_published__isnull=False,
+            stage=repository_models.STAGE_PREPRINT_PUBLISHED,
+        )
+        request = self.context.get('request')
+        format = self.context.get(
+            'format',
+            None,
+        )
+        view_name = 'repository_preprints-detail'
+        return [
+            serializers.HyperlinkedIdentityField(view_name=view_name).get_url(
+                preprint, 'repository_preprints-detail', request, format)
+            for preprint in custom_queryset
+        ]
 
 
 class PreprintFileCreateSerializer(serializers.ModelSerializer):
@@ -375,6 +390,7 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             date_published=validated_data.get('date_published'),
             doi=validated_data.get('doi'),
             preprint_doi=validated_data.get('preprint_doi'),
+            comments_editor=validated_data.get('comments_editor'),
         )
 
         for i, author_data in enumerate(validated_data.get('authors', [])):
@@ -430,11 +446,37 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
                     answer=answer,
                     preprint=preprint,
                 )
+        for supp_file in validated_data.get('preprintsupplementaryfile_set'):
+            url = supp_file.get('url')
+            label = supp_file.get('label')
+
+            if url and label:
+                repository_models.PreprintSupplementaryFile.objects.update_or_create(
+                    preprint=preprint,
+                    url=url,
+                    defaults={
+                        'label': label,
+                    }
+                )
 
         return preprint
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        pre_save_stage = instance.stage
+
+        if (
+            pre_save_stage == repository_models.STAGE_PREPRINT_UNSUBMITTED and
+            validated_data.get('stage') == repository_models.STAGE_PREPRINT_REVIEW
+        ):
+            request = self.context.get('request', None)
+            instance.submit_preprint()
+            kwargs = {'request': request, 'preprint': instance}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_PREPRINT_SUBMISSION,
+                **kwargs,
+            )
+
         instance.title = validated_data.get('title')
         instance.abstract = validated_data.get('abstract')
         instance.owner = validated_data.get('owner')
@@ -446,6 +488,7 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         instance.date_published = validated_data.get('date_published')
         instance.doi = validated_data.get('doi')
         instance.preprint_doi = validated_data.get('preprint_doi')
+        instance.comments_editor = validated_data.get('comments_editor')
         instance.save()
 
         authors = []
@@ -520,6 +563,19 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             if answer_obj not in answers:
                 answer_obj.delete()
 
+        for supp_file in validated_data.get('preprintsupplementaryfile_set'):
+            url = supp_file.get('url')
+            label = supp_file.get('label')
+
+            if url and label:
+                repository_models.PreprintSupplementaryFile.objects.update_or_create(
+                    preprint=instance,
+                    url=url,
+                    defaults={
+                        'label': label,
+                    }
+                )
+
         return instance
 
     class Meta:
@@ -527,7 +583,8 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         fields = ('pk', 'authors', 'title', 'abstract', 'stage', 'license', 'keywords',
                   'date_submitted', 'date_accepted', 'date_published',
                   'doi', 'preprint_doi', 'subject',
-                  'additional_field_answers', 'owner', 'repository')
+                  'additional_field_answers', 'owner', 'repository',
+                  'supplementary_files', 'comments_editor')
 
     authors = PreprintAccountSerializer(
         many=True,
@@ -542,6 +599,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         source="repositoryfieldanswer_set",
         many=True,
     )
+    supplementary_files = PreprintSupplementaryFileSerializer(
+        source="preprintsupplementaryfile_set",
+        many=True,
+    )
 
 
 class SubmissionAccountSearch(serializers.ModelSerializer):
@@ -553,6 +614,7 @@ class SubmissionAccountSearch(serializers.ModelSerializer):
             'middle_name',
             'last_name',
             'orcid',
+            'email',
         )
 
 

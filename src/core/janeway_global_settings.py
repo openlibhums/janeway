@@ -616,4 +616,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
 }
+# This setting should only be enabled on Dev or where CORS is properly
+# configured to stop misuse of this endpoint.
 API_ENABLE_SUBMISSION_ACCOUNT_SEARCH = False
