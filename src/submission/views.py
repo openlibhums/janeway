@@ -70,6 +70,11 @@ def start(request, type=None):
             ).processed_value:
                 logic.add_user_as_author(request.user, new_article)
 
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_SUBMISSION_START,
+                **{'request': request, 'article': new_article}
+            )
+
             return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
     template = 'admin/submission/start.html'

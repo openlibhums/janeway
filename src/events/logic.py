@@ -17,6 +17,10 @@ class Events:
     # list of event constants used internally by Janeway
 
     # kwargs: article, request
+    # raised when an article submission has started
+    ON_ARTICLE_SUBMISSION_START = 'on_article_submission_start'
+
+    # kwargs: article, request
     # raised when an article is submitted
     ON_ARTICLE_SUBMITTED = 'on_article_submitted'
 
