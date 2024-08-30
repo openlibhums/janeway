@@ -273,7 +273,7 @@
         $.ajax({
             "type": "POST",
             "dataType": "json",
-            "url": "/publish/article/" + {{ article.pk }} + "/check/",
+            "url": "{% url 'publish_article_check' article.pk %}",
             "data": data,
             "success": function(data) {
                 console.log(item.id)
