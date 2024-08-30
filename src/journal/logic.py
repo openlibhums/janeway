@@ -16,13 +16,14 @@ import warnings
 
 from django.contrib import messages
 from django.conf import settings
+from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
 
-from core import models as core_models, files
+from core import models as core_models, files, forms as core_forms
 from journal import models as journal_models, issue_forms
 from journal.forms import SearchForm
 from submission import models as submission_models
@@ -716,3 +717,69 @@ def merge_sections(destination, to_merge):
             article.section = destination
             article.save()
         section.delete()
+
+
+def _handle_issue_galleys(request, post_data, files_data, issue, delete=False):
+    """
+    Handles the upload / delete of the issue galley.
+
+    request object is provided only to pass it to the save_file function. We may want to refactor save_file to not
+     require the request object but just the owner of the file.
+    """
+    form = issue_forms.IssueGalleyForm(post_data, files_data)
+    if delete:
+        issue_galley = get_object_or_404(journal_models.IssueGalley, issue=issue)
+        issue_galley.delete()
+        return True, "Issue Galley Deleted"
+    elif form.is_valid():
+        uploaded_file = files_data["file"]
+        try:
+            issue_galley = journal_models.IssueGalley.objects.get(issue=issue)
+            issue_galley.replace_file(uploaded_file)
+        except journal_models.IssueGalley.DoesNotExist:
+            file_obj = files.save_file(
+                request,
+                uploaded_file,
+                label=issue.issue_title,
+                public=False,
+                path_parts=(journal_models.IssueGalley.FILES_PATH, issue.pk),
+            )
+            journal_models.IssueGalley.objects.create(
+                file=file_obj,
+                issue=issue,
+            )
+        return True, "Issue Galley Uploaded"
+    elif form.errors:
+        return False, "\n".join(field.errors.as_text() for field in form)
+
+def _handle_issue_documents(request, post_data, files_data, issue, file_id, delete=False):
+    """
+    Handles the upload / delete of issue documents.
+
+    request object is provided only to pass it to the save_file function. We may want to refactor save_file to not
+     require the request object but just the owner of the file.
+    """
+    form = core_forms.FileUploadForm(post_data, files_data)
+    if delete and file_id:
+        try:
+            issue_file = issue.documents.get(pk=file_id)
+        except core_models.File.DoesNotExist:
+            raise Http404
+        issue_file.delete()
+        return True, "Issue Document Deleted"
+    elif delete and not file_id:
+        return False, "No Document provided for deletion"
+    elif form.is_valid():
+        uploaded_file = files_data["file"]
+        file_obj = files.save_file(
+            request,
+            uploaded_file,
+            label=issue.issue_title,
+            public=False,
+            # even if documents are not galleys, we store them in the galleys folder
+            path_parts=(journal_models.IssueGalley.FILES_PATH, issue.pk),
+        )
+        issue.documents.add(file_obj)
+        return True, "Issue Document Uploaded"
+    elif form.errors:
+        return False, "\n".join(field.errors.as_text() for field in form)

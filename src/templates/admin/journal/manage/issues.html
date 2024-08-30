@@ -103,7 +103,8 @@
 {% if issue %}
     {% include "admin/elements/issue/table_of_contents.html" with issue=issue %}
     {% include "admin/elements/issue/guest_editors.html" with issue=issue %}
-    {% include "admin/elements/issue/galleys.html" with issue=issue galleys=galleys %}
+    {% include "admin/elements/issue/galleys.html" with issue=issue files=documents object_mode="document" object_name="document" title="Documents" %}
+    {% include "admin/elements/issue/galleys.html" with issue=issue files=galleys object_mode="galley" object_name="galley" title="Galleys" %}
 {% endif %}
 {% include "admin/elements/issue/issue_modal.html" %}
 {% include "admin/elements/issue/delete_modal.html" %}

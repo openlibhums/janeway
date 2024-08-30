@@ -37,9 +37,11 @@ from core import (
     logic as core_logic,
     views as core_views,
 )
+from core.models import File
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_best_galley, get_galley_content
+from journal.logic import get_best_galley, get_galley_content, _handle_issue_galleys, _handle_issue_documents
+from journal.models import Issue, IssueGalley
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -1315,8 +1317,9 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(journal=request.journal), None, None
 
+    galleys = []
+    documents = []
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
         form = issue_forms.NewIssue(instance=issue, journal=issue.journal)
@@ -1324,13 +1327,18 @@ def manage_issues(request, issue_id=None, event=None):
         sort_form = issue_forms.SortForm()
         if event == 'edit':
             modal = 'issue'
-        if event == 'delete':
+        elif event == 'delete':
             modal = 'deleteme'
-        if event == 'remove':
+        elif event == 'remove':
             article_id = request.GET.get('article')
             article = get_object_or_404(submission_models.Article, pk=article_id, pk__in=issue.article_pks)
             issue.articles.remove(article)
             return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+        else:
+            modal = None
+    else:
+        issue, modal, form, galley_form, sort_form = None, None, issue_forms.NewIssue(
+            journal=request.journal), None, None
 
     if request.POST:
         if 'make_current' in request.POST:
@@ -1345,7 +1353,6 @@ def manage_issues(request, issue_id=None, event=None):
                     messages.WARNING,
                     'Issues that have a future publication date cannot be set as the current issue for a journal.',
                 )
-            issue = None
             return redirect(reverse('manage_issues'))
 
         if 'delete_issue' in request.POST:
@@ -1371,9 +1378,7 @@ def manage_issues(request, issue_id=None, event=None):
                 form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
 
             if form.is_valid():
-                save_issue = form.save(commit=False)
-                save_issue.journal = request.journal
-                save_issue.save()
+                save_issue = form.save()
                 if request.FILES and save_issue.large_image:
                     resize_and_crop(save_issue.large_image.path, [750, 324])
                 if issue:
@@ -1384,12 +1389,20 @@ def manage_issues(request, issue_id=None, event=None):
                 modal = 'issue'
 
     template = 'journal/manage/issues.html'
+    if issue:
+        try:
+            galleys = [issue.galley.file]
+        except IssueGalley.DoesNotExist:
+            pass
+        documents = list(issue.documents.all())
     context = {
         'issues': issue_list if not issue else [issue],
         'issue': issue,
         'form': form,
         'modal': modal,
         'galley_form': galley_form,
+        'galleys': galleys,
+        'documents': documents,
         'articles': issue.get_sorted_articles(published_only=False) if issue else None,
         'sort_form': sort_form,
     }
@@ -1429,40 +1442,22 @@ def manage_issue_display(request):
     return render(request, template, context)
 
 
+
+
 @editor_user_required
-def issue_galley(request, issue_id, delete=False):
+def issue_galley(request, issue_id, document_type, file_id=None):
     issue = get_object_or_404(models.Issue, pk=issue_id)
 
-    if request.method == 'POST':
-        form = issue_forms.IssueGalleyForm(request.POST, request.FILES)
-        if 'delete' in request.POST:
-            issue_galley = get_object_or_404(models.IssueGalley, issue=issue)
-            issue_galley.delete()
-            messages.info(request, "Issue Galley Deleted")
-        elif form.is_valid():
-            uploaded_file = request.FILES["file"]
-            try:
-                issue_galley = models.IssueGalley.objects.get(issue=issue)
-                issue_galley.replace_file(uploaded_file)
-            except models.IssueGalley.DoesNotExist:
-                file_obj = files.save_file(
-                    request,
-                    uploaded_file,
-                    label=issue.issue_title,
-                    public=False,
-                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk),
-                )
-                models.IssueGalley.objects.create(
-                    file=file_obj,
-                    issue=issue,
-                )
-
-            messages.info(request, "Issue Galley Uploaded")
-        elif form.errors:
-            messages.error(
-                request,
-                "\n".join(field.errors.as_text() for field in form)
-            )
+    success = False
+    message = "No action required"
+    if document_type == "galley":
+        success, message = _handle_issue_galleys(request, request.POST, request.FILES, issue, delete='delete' in request.POST)
+    elif document_type == "document":
+        success, message = _handle_issue_documents(request, request.POST, request.FILES, issue, file_id, delete='delete' in request.POST)
+    if success:
+        messages.info(request, message)
+    else:
+        messages.error(request, message)
 
     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
@@ -2617,6 +2612,23 @@ def download_issue_galley(request, issue_id, galley_id):
     )
 
     return issue_galley.serve(request)
+
+def download_issue_document(request, issue_id, file_id):
+    issue_object = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+    try:
+        issue_file = issue_object.documents.get(pk=file_id)
+    except core_models.File.DoesNotExist:
+        raise Http404
+    return files.serve_any_file(
+        request,
+        issue_file,
+        public=True,
+        path_parts=(models.IssueGalley.FILES_PATH, issue_id),
+    )
 
 
 def doi_redirect(request, identifier_type, identifier):
