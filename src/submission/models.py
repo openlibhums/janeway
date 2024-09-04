@@ -1400,7 +1400,7 @@ class Article(AbstractLastModifiedModel):
             return ", ".join([author.full_name() for author in self.authors.all()])
 
     def bibtex_author_list(self):
-        return " and ".join(
+        return " AND ".join(
             [author.full_name() for author in self.frozen_authors()],
         )
 
