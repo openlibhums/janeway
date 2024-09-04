@@ -19,7 +19,8 @@ from django.db.models import (
     Value,
     TextField,
     F,
-    ExpressionWrapper
+    ExpressionWrapper,
+    DateTimeField
 )
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.signals import post_save, m2m_changed
@@ -677,7 +678,10 @@ class Journal(AbstractSiteModel):
                 ),
                 output_field=TextField()
             ),
-            date_archived=Subquery(date_archived_subquery)
+            date_archived=Subquery(
+                date_archived_subquery,
+                output_field=DateTimeField(),
+            )
         ).order_by(
             '-date_declined'
         )

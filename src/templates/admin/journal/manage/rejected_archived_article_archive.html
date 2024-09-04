@@ -41,9 +41,13 @@
                             </td>
                             <td>
                               {% if article.stage == 'Archived' %}
-                              {{ article.date_archived|date:"Y-m-d" }}
+                                {% if article.date_archived %}
+                                  {{ article.date_archived|date:"Y-m-d" }}
+                                {% else %}
+                                  No archive date recorded
+                                {% endif %}
                               {% else %}
-                              {{ article.date_declined|date:"Y-m-d" }}
+                                {{ article.date_declined|date:"Y-m-d" }}
                               {% endif %}
                             </td>
                             <td>
