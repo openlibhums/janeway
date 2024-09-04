@@ -16,48 +16,58 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
-    <div class="row expanded">
+  <div class="row expanded">
+    <div class="large-12 columns">
       <div class="box">
-          <div class="title-area">
-              <h2>Typesetting worked on
-                  by {{ assignment.typesetter.full_name }}</h2>
-              <a href="{% url 'typesetting_article' article.pk %}" class="button">< Back</a>
-          </div>
-          <div class="content">
-              <table class="table small">
-                  <tr>
-                      <th>ID</th>
-                      <th>Manager</th>
-                      <th>Created</th>
-                      <th>Due</th>
-                      <th>Accepted</th>
-                      <th>Completed</th>
-                      <th>Status</th>
-                  </tr>
-                  <tr>
-                      <td>{{ assignment.pk }}</td>
-                      <td>{{ assignment.manager.full_name }}</td>
-                      <td>{{ assignment.assigned|date }}</td>
-                      <td>{{ assignment.due|date }}</td>
-                      <td>{{ assignment.accepted|date }}</td>
-                      <td>{% if assignment.completed %}
-                          {{ assignment.completed|date }}{% else %}
-                          {{ assignment.completed|bool_fa }}{% endif %}</td>
-                      <td>{{ assignment.status|capfirst }}</td>
-                  </tr>
-                  {% if assignment.accepted %}
-                      <tr>
-                          <th colspan="7">Note from Typesetter</th>
-                      </tr>
-                      <tr>
-                          <td colspan="7">{{ assignment.typesetter_note|safe }}</td>
-                      </tr>
-                  {% endif %}
-              </table>
-          </div>
-          </div>
+        <div class="title-area">
+          <h2>Typesetting worked on
+            by {{ assignment.typesetter.full_name }}</h2>
+          <a href="{% url 'typesetting_article' article.pk %}" class="button"><
+            Back</a>
+        </div>
+        <div class="content">
+          <table class="table small">
+            <tr>
+              <th>ID</th>
+              <th>Manager</th>
+              <th>Created</th>
+              <th>Due</th>
+              <th>Accepted</th>
+              <th>Completed</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>{{ assignment.pk }}</td>
+              <td>{{ assignment.manager.full_name }}</td>
+              <td>{{ assignment.assigned|date }}</td>
+              <td>{{ assignment.due|date }}</td>
+              <td>{{ assignment.accepted|date }}</td>
+              <td>{% if assignment.completed %}
+                {{ assignment.completed|date }}{% else %}
+                {{ assignment.completed|bool_fa }}{% endif %}</td>
+              <td>{{ assignment.status|capfirst }}</td>
+            </tr>
+            {% if assignment.accepted %}
+              <tr>
+                <th colspan="7">Note from Typesetter</th>
+              </tr>
+              <tr>
+                <td colspan="7">
+                  {{ assignment.typesetter_note|safe|default:"No typesetter note recorded." }}
+                </td>
+              </tr>
+            {% endif %}
+          </table>
+        </div>
+        <div class="title-area">
+          <h2>Typesetting Task</h2>
+        </div>
+        <div class="content">
+          {{ assignment.task|safe|default:"No typesetting task was recorded." }}
+        </div>
       </div>
     </div>
+  </div>
 
     <div class="row expanded">
         <div class="large-12 columns">
