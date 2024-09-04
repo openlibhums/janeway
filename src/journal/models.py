@@ -46,7 +46,12 @@ from core.model_utils import (
 )
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic, install, db_functions
+from utils import (
+    setting_handler,
+    logic,
+    install,
+    db_functions,
+)
 from utils.function_cache import cache, mutable_cached_property
 from utils.logger import get_logger
 from review import models as review_models
@@ -648,6 +653,11 @@ class Journal(AbstractSiteModel):
         return articles_with_identifiers
 
     def rejected_and_archived_articles(self):
+        date_archived_subquery = submission_models.ArticleStageLog.objects.filter(
+            article=OuterRef('pk'),
+            stage_to='Archived'
+        ).order_by('date_time').values('date_time')[:1]
+
         return submission_models.Article.objects.filter(
             journal=self,
             stage__in=[
@@ -666,7 +676,8 @@ class Journal(AbstractSiteModel):
                     ),
                 ),
                 output_field=TextField()
-            )
+            ),
+            date_archived=Subquery(date_archived_subquery)
         ).order_by(
             '-date_declined'
         )
