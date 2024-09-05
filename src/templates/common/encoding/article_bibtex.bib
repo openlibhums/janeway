@@ -1,6 +1,6 @@
 {% load settings %}
 {% load encoding %}
-{% if article.journal.is_conference %}@conference{% else %}@article{% endif %}{% templatetag openbrace %}{{ article.journal.code }} {{ article.id }},
+{% if article.journal.is_conference %}@conference{% else %}@article{% endif %}{% templatetag openbrace %}{{ article.journal.code }}{{ article.id }},
 	author = {{ article.author_list|latex_conform }},
 	title = {{ article.title|escape|latex_conform }},
 	volume = {{ article.issue.volume|latex_conform }},
