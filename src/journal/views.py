@@ -2455,8 +2455,8 @@ def document_management(request, article_id):
                 request=request,
             )
             messages.add_message(
-                messages.SUCCESS,
                 request,
+                messages.SUCCESS,
                 _("File uploaded."),
             )
             return redirect(

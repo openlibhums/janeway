@@ -550,6 +550,9 @@ class DocumentUploadForm(forms.Form):
     )
     def save(self, article, request, commit=True):
         data = self.cleaned_data
+
+        print(data)
+
         from core import files as core_files
         from production import logic as prod_logic
         file = data["file"]
@@ -580,8 +583,6 @@ class DocumentUploadForm(forms.Form):
 
         if file_type == 'proof':
             prod_logic.save_galley(article, request, file, True, label)
-
-        print(data)
 
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):
