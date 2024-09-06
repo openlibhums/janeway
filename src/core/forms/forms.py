@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
-from django.shortcuts import get_object_or_404,
+from django.shortcuts import get_object_or_404
 from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
@@ -548,19 +548,38 @@ class DocumentUploadForm(forms.Form):
         ),
         required=True,
     )
-    def save(self, commit=True):
+    def save(self, article, request, commit=True):
         data = self.cleaned_data
         from core import files as core_files
         from production import logic as prod_logic
-        file = data.file
-        document_article = get_object_or_404(
-            submission_models.Article,
-            pk=article_id,
-            journal=request.journal,
-        )
+        file = data["file"]
+        file_type = data["file_type"]
+        label = data["label"]
         
-        if file_type =='manu' or file_type =='fig':
-            pass
+        if file_type == 'manu':
+            new_file = core_files.save_file_to_article(
+                file, 
+                article,
+                request.user, 
+                label=label, 
+                is_galley=False)
+            article.manuscript_files.add(new_file) 
+
+        if file_type =='fig':
+            new_file = core_files.save_file_to_article(
+                file,
+                article,
+                request.user,
+                label=label,
+                is_galley=False,
+            )
+            article.data_figure_files.add(new_file)
+
+        if file_type == 'prod':
+            prod_logic.save_prod_file(article, request, file, label)
+
+        if file_type == 'proof':
+            prod_logic.save_galley(article, request, file, True, label)
 
         print(data)
 

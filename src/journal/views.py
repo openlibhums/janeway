@@ -2443,13 +2443,22 @@ def document_management(request, article_id):
     return_url = request.GET.get('return', '/dashboard/')
     form = core_forms.DocumentUploadForm()
 
-    if request.POST and request.FILES:
+    if request.POST:
         form = core_forms.DocumentUploadForm(
             request.POST, 
             request.FILES,
         )
+        
         if form.is_valid():
-            form.save()
+            form.save(
+                article=document_article,
+                request=request,
+            )
+            messages.add_message(
+                messages.SUCCESS,
+                request,
+                _("File uploaded."),
+            )
             return redirect(
                 '{0}?return={1}'.format(
                     reverse(
@@ -2486,58 +2495,7 @@ def document_management_upload(request, article_id):
         label = request.POST.get('label') if request.POST.get('label') else 'File'
         file_type = request.POST.get('file-type-chooser', None)
 
-        if file_type == 'manu':
-            from core import files as core_files
-            file = request.FILES.get('new-file')
-            new_file = core_files.save_file_to_article(
-                file, 
-                document_article,
-                request.user, 
-                label=label, 
-                is_galley=False)
-            document_article.manuscript_files.add(new_file)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Manuscript file uploaded.'),  
-            )
-
-        if file_type =='fig':
-            from core import files as core_files
-            file = request.FILES.get('new-file')
-            new_file = core_files.save_file_to_article(
-                file,
-                document_article,
-                request.user,
-                label=label,
-                is_galley=False,
-            )
-            document_article.data_figure_files.add(new_file)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Figure or Data file uploaded.'),
-            )
-
-        if file_type == 'prod':
-            from production import logic as prod_logic
-            file = request.FILES.get('new-file')
-            prod_logic.save_prod_file(document_article, request, file, label)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Production file uploaded.'),
-            )
-
-        if file_type == 'proof':
-            from production import logic as prod_logic
-            file = request.FILES.get('new-file')
-            prod_logic.save_galley(document_article, request, file, True, label)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Galley file uploaded.'),
-            )
+        
 
         return redirect(
             '{0}?return={1}'.format(
