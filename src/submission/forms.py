@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import re
 
 from django import forms
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext, gettext_lazy as _
 
 from submission import models
@@ -20,6 +21,19 @@ from utils.forms import (
 from utils import setting_handler
 
 from tinymce.widgets import TinyMCE
+
+
+def get_submit_info_form(request):
+    if request.user.is_editor(request):
+        custom_form = setting_handler.get_setting(
+            "general", "submit_info_form_editor_version", request.journal
+        )
+    else:
+        custom_form = setting_handler.get_setting(
+            "general", "submit_info_form_general_version", request.journal
+        )
+    form_path = custom_form.processed_value
+    return import_string(form_path)
 
 
 class PublisherNoteForm(forms.ModelForm):

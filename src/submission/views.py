@@ -185,10 +185,7 @@ def submit_info(request, article_id):
             request.journal,
         ).processed_value
 
-        # Determine the form to use depending on whether the user is an editor.
-        article_info_form = forms.ArticleInfoSubmit
-        if request.user.is_editor(request):
-            article_info_form = forms.EditorArticleInfoSubmit
+        article_info_form = forms.get_submit_info_form(request)
 
         form = article_info_form(
             instance=article,
