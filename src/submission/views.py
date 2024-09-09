@@ -730,7 +730,7 @@ def edit_metadata(request, article_id):
             article=article,
         )
 
-        info_form = forms.ArticleInfo(
+        info_form = forms.get_submit_info_edit_form(request)(
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
@@ -764,7 +764,7 @@ def edit_metadata(request, article_id):
                     return redirect(reverse_url)
 
             if 'metadata' in request.POST:
-                info_form = forms.ArticleInfo(
+                info_form = forms.get_submit_info_edit_form(request)(
                     request.POST,
                     instance=article,
                     additional_fields=additional_fields,

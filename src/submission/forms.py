@@ -36,6 +36,15 @@ def get_submit_info_form(request):
     return import_string(form_path)
 
 
+
+def get_submit_info_edit_form(request):
+    custom_form = setting_handler.get_setting(
+        "general", "submit_info_form_general_version", request.journal
+    )
+    form_path = custom_form.processed_value
+    return import_string(form_path)
+
+
 class PublisherNoteForm(forms.ModelForm):
 
     class Meta:
