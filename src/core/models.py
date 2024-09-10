@@ -54,6 +54,7 @@ from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from production import logic as production_logic
+from utils.orcid import is_token_valid
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -278,6 +279,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name=_('Department'),
     )
+    orcid_token = models.CharField(max_length=40, null=True, blank=True)
+    orcid_token_expiration = models.DateTimeField(null=True, blank=True)
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
     linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
@@ -617,6 +620,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                                         last_name=self.last_name)[:30]
         return username.lower()
 
+    def get_orcid_url(self):
+        return f"{settings.ORCID_URL.replace('oauth/authorize', '')}{self.orcid}"
+
+    def is_orcid_token_valid(self):
+        return is_token_valid(self.orcid, self.orcid_token)
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
@@ -626,6 +634,8 @@ class OrcidToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     orcid = models.CharField(max_length=200)
     expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
+    access_token = models.CharField(max_length=40, null=True, blank=True)
+    access_token_expiration = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)

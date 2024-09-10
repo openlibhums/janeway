@@ -153,10 +153,10 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
-    action = request.GET.get('state', 'login')
+    action = request.GET.get('state', 'core_orcid_registration')
 
     if orcid_code and django_settings.ENABLE_ORCID:
-        orcid_id = orcid.retrieve_tokens(
+        access_token, expiration, orcid_id = orcid.retrieve_tokens(
             orcid_code,
             request.site_type,
             action=action
@@ -165,7 +165,7 @@ def user_login_orcid(request):
         if orcid_id:
             try:
                 user = models.Account.objects.get(orcid=orcid_id)
-                if action == 'login':
+                if action == 'core_orcid_registration':
                     user.backend = 'django.contrib.auth.backends.ModelBackend'
                     login(request, user)
 
@@ -194,12 +194,11 @@ def user_login_orcid(request):
 
             # Prepare ORCID Token for registration and redirect
             models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+            new_token = models.OrcidToken.objects.create(orcid=orcid_id,
+                                                         access_token=access_token,
+                                                         access_token_expiration=expiration)
 
-            if action == 'register':
-                return redirect(reverse('core_register') + f'?token={new_token.token}')
-            else:
-                return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
+            return redirect(reverse(action, kwargs={'token': new_token.token}) )
         else:
             messages.add_message(
                 request,
@@ -305,7 +304,7 @@ def reset_password(request, token):
     return render(request, template, context)
 
 
-def register(request):
+def register(request, token=None):
     """
     Displays a form for users to register with the journal. If the user is registering on a journal we give them
     the Author role.
@@ -314,7 +313,6 @@ def register(request):
     """
     context = {}
     initial = {}
-    token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
@@ -331,6 +329,8 @@ def register(request):
         if orcid_details.get("country"):
             if models.Country.objects.filter(code=orcid_details['country']).exists():
                 initial["country"] = models.Country.objects.get(code=orcid_details['country'])
+    else:
+        token_obj = None
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -352,6 +352,9 @@ def register(request):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                new_user.orcid_token = token_obj.access_token
+                new_user.orcid_expiration = token_obj.access_token_expiration
+                new_user.save()
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
@@ -428,6 +431,17 @@ def activate_account(request, token):
 
     return render(request, template, context)
 
+@login_required
+def profile_add_orcid(request, token):
+    user = request.user
+
+    token_obj = get_object_or_404(models.OrcidToken, token=token)
+    user.orcid = token_obj.orcid
+    user.orcid_token = token_obj.access_token
+    user.orcid_token_expiration = token_obj.access_token_expiration
+    user.save()
+
+    return redirect(reverse('core_edit_profile'))
 
 @login_required
 def edit_profile(request):
@@ -437,6 +451,12 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
+    if 'remove_orcid' in request.GET:
+        if orcid.revoke_token(user.orcid_token):
+            user.orcid = None
+            user.orcid_token = None
+            user.save()
+
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
     if request.journal:
