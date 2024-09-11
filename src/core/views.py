@@ -32,12 +32,8 @@ from django.utils import translation
 from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
-<<<<<<< HEAD
-from core import models, forms, logic, workflow, models as core_models
-from core.model_utils import NotImplementedField, search_model_admin
-=======
 from core import models, forms, logic, workflow, files, models as core_models
->>>>>>> c2077d63e (Rework of sitemap views.)
+from core.model_utils import NotImplementedField, search_model_admin
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -45,6 +41,7 @@ from security.decorators import (
 )
 from submission import models as submission_models
 from review import models as review_models
+from copyediting import models as copyedit_models
 from copyediting import models as copyedit_models
 from production import models as production_models
 from journal import models as journal_models
