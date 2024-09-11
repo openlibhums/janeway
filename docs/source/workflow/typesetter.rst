@@ -53,7 +53,7 @@ This page is broken in three sections.
 	- This is also where you will mark the assignment as complete to submit the uploaded files.
 
 Uploading a Typeset File
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 .. figure:: ../nstatic/typesetting_files.png
 	:alt: The files section of the typesetting page. It shows the ‘Files to typeset’, ‘Upload typeset files’ and ‘Upload source file’ options.
 
@@ -69,7 +69,7 @@ In this box, you will find the option to label your file with its filetype. For 
     Janeway operates with the UTF-8 encoding. Please ensure that any HTML and XML files (plain text galleys) you upload use this encoding.
 
 Editing typeset files and uploading additional files
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you need to make changes to the typeset files, reupload them or upload additional files, this can be done through the ‘Edit Typeset File’ page. This page can be accessed by clicking on the ‘Edit’ button.
 
 .. figure:: ../nstatic/typesetting_edit_button.png
@@ -94,7 +94,7 @@ This page is broken into three sections.
 	- You can also change the XSLT file used to render the galley from here. 
 
 Managing typeset files
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 In the first section of the page, you can view the file currently uploaded, and replace or download it. You can also view the file's history by clicking on the button under 'History'. 
 
 This will open a page where you can download and reinstate previous versions, or delete the current file entirely (in case you have uploaded an incorrect file).
@@ -103,7 +103,7 @@ This will open a page where you can download and reinstate previous versions, or
 	:alt: The File history and metadata page.
 
 Managing images and figure files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. figure:: ../nstatic/typesetting_image_upload.png
 	:alt: A screenshot displaying the available options for adding image files: uploading a file in a section for a dedicated image (displaying its filename), uploading images as additional files or uploading a zip file.
 
@@ -121,7 +121,7 @@ On this page, you can also upload a CSS file associated with the article for an 
 You can also select the XSL file used for rendering the HTML out of the file. This will be the Janeway default (1.4.3.) except if explicitly instructed otherwise. In that case, this will be communicated by the editors as part of the typesetting task or agreement.
 
 Finishing Up
----------------
+------------
 Once you are done with the typesetting (or correction) task, you can leave a note for the editor and click the button to complete the task to send it to the editor to review. Please note that once you complete the task, you will be unable to return to this page.
 
 .. note:: If you attempt to complete the typesetting task with potential issues remaining (e.g. missing image files, typeset files that have not been corrected), Janeway will warn you about this.
