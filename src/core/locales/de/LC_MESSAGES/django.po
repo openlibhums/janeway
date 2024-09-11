@@ -3082,6 +3082,7 @@ msgstr "Passwortrichtlinien"
 #: src/themes/clean/templates/core/accounts/register.html:20
 #: src/themes/material/templates/core/accounts/register.html:22
 #: src/themes/material/templates/core/accounts/reset_password.html:19
+#: src/templates/common/elements/password_rules.html:2
 msgid "Your password should be %(password_length)s characters long."
 msgstr "Ihr Passwort sollte %(password_length)s Zeichen lang sein."
 
@@ -3091,8 +3092,9 @@ msgstr "Ihr Passwort sollte %(password_length)s Zeichen lang sein."
 #: src/themes/clean/templates/core/accounts/reset_password.html:20
 #: src/themes/material/templates/core/accounts/register.html:23
 #: src/themes/material/templates/core/accounts/reset_password.html:20
-msgid "Your password should contain at least one upper case letter.\""
-msgstr "Ihr Passwort sollte mindestens einen Großbuchstaben enthalten.\""
+#: src/templates/common/elements/password_rules.html:7
+msgid "Your password should contain at least one upper case letter."
+msgstr "Ihr Passwort sollte mindestens einen Großbuchstaben enthalten."
 
 #: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/OLH/templates/core/accounts/reset_password.html:31
@@ -3100,17 +3102,27 @@ msgstr "Ihr Passwort sollte mindestens einen Großbuchstaben enthalten.\""
 #: src/themes/clean/templates/core/accounts/reset_password.html:21
 #: src/themes/material/templates/core/accounts/register.html:24
 #: src/themes/material/templates/core/accounts/reset_password.html:21
+#: src/templates/common/elements/password_rules.html:12
 #, python-format
-msgid "Your password should contain at least one number.\" %%}"
-msgstr "Ihr Passwort sollte mindestens eine Zahl enthalten.\" %%}"
+msgid "Your password should contain at least one number."
+msgstr "Ihr Passwort sollte mindestens eine Zahl enthalten."
 
-#: src/themes/OLH/templates/core/accounts/register.html:32
+#: src/themes/OLH/templates/core/accounts/register.html:31
+#: src/themes/OLH/templates/core/accounts/reset_password.html:32
 msgid ""
-"For more information read our <a href=\"#\" data-open=\"password-modal"
-"\">password guide</a>."
+"For more information read our <a href=\"#\" data-open=\"password-"
+"modal\">password guide</a>."
 msgstr ""
-"Für weitere Informationen lesen Sie <a href=\"#\" data-open=\"password-modal"
-"\">password guide</a>."
+"Für weitere Informationen lesen Sie <a href=\"#\" data-open=\"password-modal\">password guide</a>."
+
+#: src/themes/material/templates/core/accounts/register.html:25
+#: src/themes/material/templates/core/accounts/reset_password.html:22
+msgid ""
+"For more information read our <a href=\"#\" data-target=\"passwordmodal\" "
+"class=\"modal-trigger\">password guide</a>."
+msgstr ""
+"Für weitere Informationen lesen Sie <a href=\"#\" data-target=\"passwordmodal\" class=\"modal-trigger\">password guide</a>"
+
 
 #: src/themes/OLH/templates/core/accounts/register.html:83
 #: src/themes/clean/templates/core/accounts/register.html:27
@@ -3208,7 +3220,6 @@ msgid ""
 msgstr ""
 "Ihr Passwort sollte %(request.press.password_length)s Zeichen lang sein."
 
-#: src/themes/OLH/templates/core/accounts/reset_password.html:33
 #: src/themes/material/templates/core/accounts/register.html:26
 msgid ""
 "For more information read our\n"
@@ -4524,7 +4535,6 @@ msgstr ""
 "                    "
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:23
-#: src/themes/material/templates/core/accounts/reset_password.html:23
 msgid ""
 "For more information read our\n"
 "                                    <a href=\"#passwordmodal\" class=\"modal-"
@@ -5194,12 +5204,6 @@ msgstr "abgelehnt"
 
 #~ msgid "characters long"
 #~ msgstr "Zeichen lang"
-
-#~ msgid "Your password should contain at least one upper case letter."
-#~ msgstr "Ihr Passwort sollte mindesten einen Großbuchstaben enthalten."
-
-#~ msgid "Your password should contain at least one number."
-#~ msgstr "Ihr Passworte sollte mindestens eine Zahl enthalten"
 
 #~ msgid ""
 #~ "Your password should be at minimum 12 characters long. It does not\n"
