@@ -27,14 +27,10 @@ This file is usually created during the setup process and can be based on the pr
   - Set to either 'domain' or 'path' dependind on whether the primary way to access sites is via individual domains for each or path based urls eg. journal.press.com or press.com/journal/.
 - DATABASES
   - You can set the database connection details for the install.
-- CAPTCHA_TYPE
-  - Can be one of three different variables: 'simple_math', 'recaptcha' or 'hcaptcha'.
-    - simple_math
-      - A very simple captcha using a basic mathematical question.
-    - recaptcha
-      - Uses Google's reCaptcha2. Has been shown to be less effective recently but v3 is not GDPR compliant. You should complete 'RECAPTCHA_PRIVATE_KEY' and 'RECAPTCHA_PUBLIC_KEY' otherwise you will get an error.
-    - hcaptcha
-      - Uses hcaptcha, a new addition to Janeway. You should complete 'HCAPTCHA_SITEKEY' and 'HCAPTCHA_SECRET' otherwise you will get an error.
+- CAPTCHA_TYPE: Can be one of three different variables: 'simple_math', 'recaptcha' or 'hcaptcha'.
+  - simple_math - A very simple captcha using a basic mathematical question.
+  - recaptcha - Uses Google's reCaptcha2. Has been shown to be less effective recently but v3 is not GDPR compliant. You should complete 'RECAPTCHA_PRIVATE_KEY' and 'RECAPTCHA_PUBLIC_KEY' otherwise you will get an error.
+  - hcaptcha - Uses hcaptcha, a new addition to Janeway. You should complete 'HCAPTCHA_SITEKEY' and 'HCAPTCHA_SECRET' otherwise you will get an error.
 - LOGGING
     - Provides the configuration for Python's logger. We recommend following the steps described in the `Django documentation <https://docs.djangoproject.com/en/1.11/topics/logging/>`_ for configuration.
     - By default, Janeway will log both to the console as well as to the file located at `logs/janeway.log` and rotates the file every 50MB. For production systems, you may want to change the location and/or rotation strategy as per the Django documentation
@@ -206,10 +202,10 @@ Rich Text Fields
 For multiline rich-text content like custom pages and news
 items, we use a feature-rich text editor called TinyMCE.
 
-.. figure:: nstatic/janeway-rich-text-tinymce.png
+.. figure:: ../nstatic/janeway-rich-text-tinymce.png
    :class: with-border
 
-    A content page with paragraphs, hyperlinks, headings, and more
+   A content page with paragraphs, hyperlinks, headings, and more
 
 Many users copy-paste from Word into these fields, so we use
 a JavaScript event listener to offer them several pasting options.
@@ -243,16 +239,16 @@ Janeway settings (`core.models.Setting`) that want this behavior must
 have a type of `rich-text`.
 
 Mini HTML Fields
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 There is often the need to store one line of text like a label,
 heading, name, or title. Sometimes light markup like bold and italics
 is needed in these bits of text. For these we have the mini HTML field.
 
-.. figure:: nstatic/janeway-mini-html-field.png
+.. figure:: ../nstatic/janeway-mini-html-field.png
    :class: with-border
 
-    An article title field allowing italics and a few other styling options
+   An article title field allowing italics and a few other styling options
 
 This field does not allow multiline markup, because its content needs to be usable
 in layouts and interfaces where only inline content is expected. Anything
@@ -272,7 +268,7 @@ Janeway settings (`core.models.Setting`) that want this behavior must
 have a type of `mini-html`.
 
 Plain Text Fields
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 Plain text fields are best for multiline content where HTML
 is not supported. Usually the rich text field will be a better
@@ -297,10 +293,10 @@ Character Fields
 For many other strings that are controlled via settings,
 Janeway offers the character setting field.
 
-.. figure:: nstatic/janeway-character-field.png
+.. figure:: ../nstatic/janeway-character-field.png
    :class: with-border
 
-    An ISSN field with no rich text options, just one line of plain text
+   An ISSN field with no rich text options, just one line of plain text
 
 This field is rendered as a simple text input on one line. It is used
 for storing many different strings like email subject lines, email addresses,
