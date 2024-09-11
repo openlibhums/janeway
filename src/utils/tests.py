@@ -211,7 +211,7 @@ class SitemapTests(UtilsTests):
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <sitemap>
-        <loc>http://localhost/TST/{}_sitemap.xml</loc>
+        <loc>http://localhost/TST/issue/{}_sitemap.xml</loc>
     </sitemap>
     
 </sitemapindex>""".format(self.issue_one.pk)

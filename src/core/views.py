@@ -42,7 +42,6 @@ from security.decorators import (
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
-from copyediting import models as copyedit_models
 from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
