@@ -561,6 +561,17 @@ def submit_files(request, article_id):
                 messages.WARNING,
                 _('File deleted'),
             )
+
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_FILE_DELETE,
+                **{
+                    'request': request,
+                    'file_id': file_id,
+                    'original_filename': file.original_filename,
+                    'article': article
+                }
+            )
+            
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
 
         if 'manuscript' in request.POST:
@@ -577,6 +588,18 @@ def submit_files(request, article_id):
                     new_file.label = ms_form.cleaned_data['label']
                     new_file.description = ms_form.cleaned_data['description']
                     new_file.save()
+
+                    event_logic.Events.raise_event(
+                        event_logic.Events.ON_ARTICLE_FILE_UPLOAD,
+                        **{
+                            'request': request,
+                            'file_id': new_file,
+                            'original_filename': new_file.original_filename,
+                            'file_type': 'manuscript',
+                            'article': article
+                        }
+                    )
+
                     return redirect(
                         reverse('submit_files', kwargs={'article_id': article_id}),
                     )
@@ -598,6 +621,18 @@ def submit_files(request, article_id):
                 new_file.label = data_form.cleaned_data['label']
                 new_file.description = data_form.cleaned_data['description']
                 new_file.save()
+
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_FILE_UPLOAD,
+                    **{
+                        'request': request,
+                        'file_id': new_file,
+                        'original_filename': new_file.original_filename,
+                        'file_type': 'data',
+                        'article': article
+                    }
+                )
+
                 return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
             else:
                 data_form.add_error(None, 'You must select a file.')
