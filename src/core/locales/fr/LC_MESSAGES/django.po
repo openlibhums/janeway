@@ -61,10 +61,8 @@ msgid "Password"
 msgstr "Mot de passe"
 
 #: src/core/forms/forms.py:130
-#, fuzzy
-#| msgid "Reset Password"
 msgid "Repeat Password"
-msgstr "Mot de passe"
+msgstr "Répéter le mot de passe"
 
 #: src/core/forms/forms.py:133
 msgid ""
@@ -3064,8 +3062,6 @@ msgstr ""
 #: src/themes/clean/templates/core/accounts/reset_password.html:17
 #: src/themes/material/templates/core/accounts/register.html:20
 #: src/themes/material/templates/core/accounts/reset_password.html:17
-#, fuzzy
-#| msgid "Password 1"
 msgid "Password Rules"
 msgstr "Mot de passe"
 
