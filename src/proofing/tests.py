@@ -139,11 +139,11 @@ class TestLogic(TestCase):
         )
         self.assertContains(
             response,
-            'Active Article',
+            f'Article ID: {self.active_article.id}',
         )
         self.assertNotContains(
             response,
-            'Archived Article'
+            f'Article ID: {self.archived_article.id}',
         )
 
     def test_archived_article_correction_404s(self):
