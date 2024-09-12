@@ -587,8 +587,8 @@ class SubmissionTests(TestCase):
         clear_cache()
         bibtex = encoding.encode_article_as_bibtex(article)
         expected = """
-            @article{TST %s,
-                author = {Martin Eve, Mauro Sanchez},
+            @article{TST%s,
+                author = {Martin Eve AND Mauro Sanchez},
                 title = {Test article: a test article},
                 volume = {2},
                 year = {1990},
@@ -597,7 +597,7 @@ class SubmissionTests(TestCase):
                 abstract = {test_abstract},
                 month = {1},
                 issn = {%s},
-                publisher={},
+                publisher ={},
                 journal = {%s}
             }
         """ % (article.pk, article.pk, article.journal.issn, article.journal.name)
@@ -628,8 +628,10 @@ class SubmissionTests(TestCase):
         expected = """
             TY  - JOUR
             AB  - test_abstract
-            AU  - Martin Eve, Mauro Sanchez
-            DA  - 1990/1//
+            AU  - Martin Eve
+            AU  - Mauro Sanchez
+            PA  - 1990
+            DA  - 1990/01/01
             IS  - 2
             VL  - 2
             PB  -
