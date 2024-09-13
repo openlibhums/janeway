@@ -187,6 +187,10 @@ class Repository(
     review_helper = models.TextField(blank=True, null=True)
     manager_review_status_change = models.TextField(blank=True, null=True)
     reviewer_review_status_change = models.TextField(blank=True, null=True)
+    new_version_submitted = models.TextField(
+        blank=True,
+        help_text='Email sent when an author uploads a new version.',
+    )
     footer = models.TextField(
         blank=True,
         null=True,

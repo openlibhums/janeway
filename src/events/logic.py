@@ -259,6 +259,10 @@ class Events:
     # raised when a Review changes status
     ON_PREPRINT_REVIEW_STATUS_CHANGE = 'on_preprint_review_status_change'
 
+    # kwargs: request, new_version, preprint
+    # raised when a preprint author uploads a new version
+    ON_PREPRINT_NEW_VERSION = 'on_preprint_new_version'
+
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'

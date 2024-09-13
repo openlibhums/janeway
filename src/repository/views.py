@@ -232,6 +232,15 @@ def repository_submit_update(request, preprint_id, action):
 
             new_version.save()
 
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_PREPRINT_NEW_VERSION,
+                **{
+                    'request': request,
+                    'new_version': new_version,
+                    'preprint': preprint,
+                },
+            )
+
             return redirect(
                 reverse(
                     'repository_author_article',

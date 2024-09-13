@@ -147,6 +147,12 @@ event_logic.Events.register_for_event(
 )
 
 event_logic.Events.register_for_event(
+    event_logic.Events.ON_PREPRINT_NEW_VERSION,
+    transactional_emails.preprint_new_version,
+)
+
+
+event_logic.Events.register_for_event(
     event_logic.Events.ON_ACCESS_REQUEST,
     transactional_emails.access_request_notification,
 )
@@ -165,6 +171,7 @@ event_logic.Events.register_for_event(
     event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
     transactional_emails.preprint_review_status_change,
 )
+
 
 # wire up task-creation events
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,

@@ -539,6 +539,7 @@ class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            'submission_notification_recipients',
             'submission',
             'publication',
             'decline',
@@ -548,7 +549,7 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation',
             'manager_review_status_change',
             'reviewer_review_status_change',
-            'submission_notification_recipients',
+            'new_version_submitted',
         )
 
         widgets = {
@@ -561,6 +562,7 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation': SummernoteWidget,
             'manager_review_status_change': SummernoteWidget,
             'reviewer_review_status_change': SummernoteWidget,
+            'new_version_submitted': SummernoteWidget,
             'submission_notification_recipients': TableMultiSelectUser()
         }
 
