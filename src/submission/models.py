@@ -1911,23 +1911,23 @@ class FrozenAuthor(AbstractLastModifiedModel):
         on_delete=models.SET_NULL,
     )
 
-    name_prefix = JanewayBleachCharField(
+    name_prefix = models.CharField(
         max_length=300,
         blank=True,
         help_text=_("Optional name prefix (e.g: Prof or Dr)")
 
         )
-    name_suffix = JanewayBleachCharField(
+    name_suffix = models.CharField(
         max_length=300,
         blank=True,
         help_text=_("Optional name suffix (e.g.: Jr or III)")
     )
-    first_name = JanewayBleachCharField(max_length=300, blank=True)
-    middle_name = JanewayBleachCharField(max_length=300, blank=True)
-    last_name = JanewayBleachCharField(max_length=300, blank=True)
+    first_name = models.CharField(max_length=300, blank=True)
+    middle_name = models.CharField(max_length=300, blank=True)
+    last_name = models.CharField(max_length=300, blank=True)
 
-    institution = JanewayBleachCharField(max_length=1000, blank=True)
-    department = JanewayBleachCharField(max_length=300, blank=True)
+    institution = models.CharField(max_length=1000, blank=True)
+    department = models.CharField(max_length=300, blank=True)
     frozen_biography = JanewayBleachField(
         blank=True,
         verbose_name=_('Frozen Biography'),
