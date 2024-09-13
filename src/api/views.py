@@ -264,6 +264,9 @@ class UserPreprintsViewSet(PreprintViewSet):
             owner=self.request.user,
             repository=self.request.repository,
         )
+        stage_filter = self.request.GET.get('stage')
+        if stage_filter:
+            preprints = preprints.filter(stage=stage_filter)
         return preprints
 
 
@@ -352,10 +355,16 @@ class RepositoryVersionQueue(viewsets.ModelViewSet):
         return serializers.VersionQueueSerializer
 
     def get_queryset(self):
-        return repository_models.VersionQueue.objects.filter(
+        version_queues = repository_models.VersionQueue.objects.filter(
             preprint__repository=self.request.repository,
             preprint__owner=self.request.user,
         )
+        preprint_filter = self.request.GET.get('preprint')
+        if preprint_filter:
+            version_queues = version_queues.filter(
+                preprint=preprint_filter
+            )
+        return version_queues
 
 
 class SubmissionAccountSearch(viewsets.ModelViewSet):
