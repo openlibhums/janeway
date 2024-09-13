@@ -592,6 +592,7 @@ class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            'submission_notification_recipients',
             'submission',
             'publication',
             'decline',
@@ -601,7 +602,7 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation',
             'manager_review_status_change',
             'reviewer_review_status_change',
-            'submission_notification_recipients',
+            'new_version_submitted',
         )
 
         widgets = {
@@ -614,6 +615,7 @@ class RepositoryEmails(RepositoryBase):
             'review_invitation': TinyMCE,
             'manager_review_status_change': TinyMCE,
             'reviewer_review_status_change': TinyMCE,
+            'new_version_submitted': TinyMCE,
             'submission_notification_recipients': TableMultiSelectUser()
         }
 

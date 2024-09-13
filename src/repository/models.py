@@ -213,6 +213,10 @@ class Repository(model_utils.AbstractSiteModel):
     reviewer_review_status_change = model_utils.JanewayBleachField(
         blank=True, null=True
     )
+    new_version_submitted = model_utils.JanewayBleachField(
+        blank=True,
+        help_text="Email sent when an author uploads a new version.",
+    )
     footer = model_utils.JanewayBleachField(
         blank=True,
         null=True,
