@@ -2435,13 +2435,15 @@ msgstr ""
 msgid ""
 "All authors must agree to the below statements in order to submit an article "
 "to"
-msgstr ""
+msgstr "Alle auteurs moeten zich akkoord verklaren met onderstaande stellingen "
+"om een artikel te publiceren in"
 
 #: src/templates/admin/submission/start.html:24
 msgid ""
 "If you do not agree with these terms you will be unable to proceed with your "
 "submission."
-msgstr ""
+msgstr "Als je je niet akkoord verklaart met deze voorwaarden "
+"kan je niet verdergaan met deze inzending."
 
 #: src/templates/admin/submission/start.html:29
 msgid "Publication Fees"
