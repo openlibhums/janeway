@@ -350,6 +350,7 @@ class Journal(AbstractSiteModel):
             return False
 
     @property
+    @cache(600)
     def press(self):
         press = press_models.Press.objects.all().first()
         return press
@@ -361,7 +362,9 @@ class Journal(AbstractSiteModel):
             # Lookup by code
             try:
                 code = request.path.split('/')[1]
-                obj = cls.objects.get(code=code)
+                obj = cls.objects.get(
+                    code=code,
+                )
                 path = code
             except (IndexError, cls.DoesNotExist):
                 pass

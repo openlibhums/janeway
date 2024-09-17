@@ -251,6 +251,17 @@ def issues(request):
         journal=request.journal,
         issue_type=issue_type,
         date__lte=timezone.now(),
+    ).select_related(
+        'issue_type',
+        'journal',
+    ).annotate(
+        published_articles_count=Count(
+            'articles',
+            filter=Q(
+                articles__stage=submission_models.STAGE_PUBLISHED,
+                articles__date_published__lte=timezone.now(),
+            )
+        )
     )
     template = 'journal/issues.html'
     context = {

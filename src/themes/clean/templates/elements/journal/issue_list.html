@@ -2,7 +2,7 @@
     {% for issue in issues %}
         <li>
             <a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }}
-                &bull; {{ issue.articles.all.count }} {% trans "items" %}</a>
+                &bull; {{ issue.issue.published_articles_count }} {% trans "items" %}</a>
         </li>
         {% empty %}
         <li>{% trans 'This journal has no issues' %}.</li>
