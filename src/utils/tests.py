@@ -10,6 +10,7 @@ from django.apps import apps
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
@@ -29,7 +30,11 @@ from utils.orcid import get_orcid_record_details, build_redirect_uri
 
 from utils import install
 from utils.transactional_emails import *
-from utils.forms import FakeModelForm, KeywordModelForm
+from utils.forms import (
+    FakeModelForm,
+    KeywordModelForm,
+    plain_text_validator,
+)
 from utils.logic import generate_sitemap
 from utils.testing import helpers
 from utils.shared import clear_cache
@@ -790,6 +795,23 @@ class TestForms(TestCase):
         form.is_valid()
         journal = form.save()
         self.assertFalse(journal.keywords.exists())
+
+
+class TestPlainTextValidator(TestCase):
+
+    def test_plain_text_validator_valid(self):
+        name_test = "Kathryn Janeway"
+        ampersand_test = "Voyager & co"
+        try:
+            plain_text_validator(name_test)
+            plain_text_validator(ampersand_test)
+        except ValidationError:
+            self.fail("Valid plain text input raised a ValidationError")
+
+    def test_plain_text_validator_invalid(self):
+        rogue_input = 'Borg <span onClick="alert()"> Queen'
+        with self.assertRaises(ValidationError):
+            plain_text_validator(rogue_input)
 
 
 class TestModels(TestCase):
