@@ -563,6 +563,7 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             if answer_obj not in answers:
                 answer_obj.delete()
 
+        urls = []
         for supp_file in validated_data.get('preprintsupplementaryfile_set'):
             url = supp_file.get('url')
             label = supp_file.get('label')
@@ -575,6 +576,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
                         'label': label,
                     }
                 )
+                urls.append(url)
+        for supp_file in instance.preprintsupplementaryfile_set.all():
+            if supp_file.url not in urls:
+                supp_file.delete()
 
         return instance
 
