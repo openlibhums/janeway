@@ -53,6 +53,7 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
+from utils.forms import plain_text_validator
 from production import logic as production_logic
 
 fs = JanewayFileSystemStorage()
@@ -239,16 +240,19 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=300,
         blank=False,
         verbose_name=_('First name'),
+        validators=[plain_text_validator],
     )
     middle_name = models.CharField(
         max_length=300,
         blank=True,
         verbose_name=_('Middle name'),
+        validators=[plain_text_validator],
     )
     last_name = models.CharField(
         max_length=300,
         blank=False,
         verbose_name=_('Last name'),
+        validators=[plain_text_validator],
     )
 
     activation_code = models.CharField(max_length=100, null=True, blank=True)
@@ -257,11 +261,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         choices=SALUTATION_CHOICES,
         blank=True,
         verbose_name=_('Salutation'),
+        validators=[plain_text_validator],
     )
     suffix = models.CharField(
         max_length=300,
         blank=True,
         verbose_name=_('Name suffix'),
+        validators=[plain_text_validator],
     )
     biography = JanewayBleachField(
         blank=True,
@@ -272,11 +278,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=1000,
         blank=True,
         verbose_name=_('Institution'),
+        validators=[plain_text_validator],
     )
     department = models.CharField(
         max_length=300,
         blank=True,
         verbose_name=_('Department'),
+        validators=[plain_text_validator],
     )
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
