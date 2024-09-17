@@ -13,6 +13,7 @@ from django.test import TestCase, TransactionTestCase
 from django.utils import translation, timezone
 from django.urls.base import clear_script_prefix
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.test.utils import override_settings
 
@@ -566,6 +567,33 @@ class SubmissionTests(TestCase):
             form.cleaned_data.get('orcid'),
             '0000-0003-2126-266X',
         )
+
+    def test_author_form_harmful_inputs(self):
+        harmful_string = '<span onClick="alert()"> This are not the droids you are looking for </span>'
+        for i, attr in enumerate({
+            "first_name",
+            "last_name",
+            "middle_name",
+            "name_prefix",
+            "suffix",
+            "institution",
+            "department",
+        }):
+            form = forms.AuthorForm(
+                {
+                    'first_name': 'Andy',
+                    'last_name': 'Byers',
+                    'biography': 'Andy',
+                    'institution': 'Birkbeck, University of London',
+                    'email': f'andy{i}@janeway.systems',
+                    'orcid': 'https://orcid.org/0000-0003-2126-266X',
+                    **{attr: harmful_string},
+                }
+            )
+            self.assertFalse(
+                form.is_valid(),
+                f"Harmful code injected into field '{attr}'"
+            )
 
     @override_settings(URL_CONFIG='domain')
     def test_article_encoding_bibtex(self):
