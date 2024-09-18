@@ -36,12 +36,10 @@
                 {% else %}Awaiting acknowledgement{% endif %}
                 </td>
                 <td>{{ review.date_due|date:"Y-m-d" }}</td>
-                <td>{% if review.decision %}
+                <td>{% if review.decision and review.date_complete %}
                 {{ review.get_decision_display|capfirst }}
                 <br />
-                {% if review.date_complete %}
-                    {{ review.date_complete|date:"Y-m-d H:i" }}
-                {% endif %}
+                {{ review.date_complete|date:"Y-m-d H:i" }}
                 {% else %}
                 --
                 {% endif %}
