@@ -93,8 +93,7 @@ def is_preprint_editor(context):
     return request.user.is_preprint_editor(request)
 
 
-@register.filter
-def se_can_see_pii(value, article):
+def can_see_pii(request, article):
     # Before doing anything, check the setting is enabled:
     se_pii_filter_enabled = setting_handler.get_setting(
         setting_group_name='permission',
@@ -103,18 +102,39 @@ def se_can_see_pii(value, article):
     ).processed_value
 
     if not se_pii_filter_enabled:
-        return value
+        return False
 
     # Check if the user is an SE and return an anonymised value.
     # If the user is not a section editor we assume they have permission
     # to view the actual value.
-    request = GlobalRequestMiddleware.get_current_request()
     stages = [
         models.STAGE_UNASSIGNED,
         models.STAGE_UNDER_REVIEW,
         models.STAGE_UNDER_REVISION,
     ]
     if request.user in article.section_editors() and article.stage in stages:
+        return True
+    return False
+
+
+@register.filter
+def se_can_see_pii(value, article):
+    request = GlobalRequestMiddleware.get_current_request()
+
+    if can_see_pii(request, article):
         return 'Value Anonymised'
     else:
         return value
+
+
+@register.simple_tag(takes_context=True)
+def can_see_pii_tag(context, article):
+    request = context.get('request')
+
+    if can_see_pii(request, article):
+        return False
+    else:
+        return True
+
+
+
