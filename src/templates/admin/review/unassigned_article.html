@@ -104,8 +104,8 @@
                     </tr>
                     {% for order in article.articleauthororder_set.all %}
                         <tr>
-                            <td>{{ order.author.full_name }}</td>
-                            <td>{{ order.author.email }}</td>
+                            <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
+                            <td>{{ order.author.email|se_can_see_pii:article }}</td>
                             <td>{% if order.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>

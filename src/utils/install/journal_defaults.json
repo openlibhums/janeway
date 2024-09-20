@@ -5117,5 +5117,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "When this setting is enabled assigned section editors will not be able to see PII data about authors until a decision for an article has been made.",
+            "is_translatable": false,
+            "name": "se_pii_filter",
+            "pretty_name": "Section Editor Personally Identifiable Information Filter",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]
