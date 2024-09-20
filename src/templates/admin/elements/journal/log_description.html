@@ -1,3 +1,4 @@
+{% load securitytags %}
 <div class="reveal large" id="entry-{{ entry.pk }}" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
     <div class="card">
@@ -37,7 +38,7 @@
                     <h2>Content</h2>
                 </div>
                 <div class="content">
-                    {{ entry.description|safe|linebreaksbr }}
+                    {{ entry.description|safe|linebreaksbr|se_can_see_pii:article }}
                 </div>
             </div>
         </div>

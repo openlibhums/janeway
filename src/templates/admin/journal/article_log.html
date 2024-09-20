@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
+{% load static securitytags %}
 
 {% block title %}Article {{ article.pk }} Log{% endblock %}
 {% block title-section %}Article {{ article.pk }} Log{% endblock %}
@@ -45,7 +45,7 @@
                             </td>
                             <td>{{ entry.email_subject }}</td>
                             <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
-                            <td>{% if entry.actor %}{{ entry.actor.full_name }}{% else %}Janeway System{% endif %}</td>
+                            <td>{% if entry.actor %}{{ entry.actor.full_name|se_can_see_pii:article }}{% else %}Janeway System{% endif %}</td>
                             <td>{{ entry.get_level_display|capfirst }}</td>
                             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
                                 {% if entry.is_email %}
