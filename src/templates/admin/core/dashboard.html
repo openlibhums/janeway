@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load roles %}
+{% load roles securitytags %}
 
 {% block title %}Dashboard{% endblock title %}
 {% block title-section %}Dashboard{% endblock %}
@@ -192,7 +192,7 @@
                                     <td>
                                         <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.safe_title }}</a>
                                     </td>
-                                    <td>{{ assignment.article.author_list }}</td>
+                                    <td>{{ assignment.article.author_list|se_can_see_pii:assignment.article }}</td>
                                     <td>{{ assignment.article.date_submitted }}</td>
                                     <td>{{ assignment.article.get_stage_display }}</td>
                                 </tr>

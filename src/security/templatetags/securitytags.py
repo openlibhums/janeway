@@ -1,5 +1,9 @@
 from django import template
+
+from core.middleware import GlobalRequestMiddleware
 from security import logic
+from submission import models
+from utils import setting_handler
 
 register = template.Library()
 
@@ -87,3 +91,30 @@ def is_repository_manager(context):
 def is_preprint_editor(context):
     request = context['request']
     return request.user.is_preprint_editor(request)
+
+
+@register.filter
+def se_can_see_pii(value, article):
+    # Before doing anything, check the setting is enabled:
+    se_pii_filter_enabled = setting_handler.get_setting(
+        setting_group_name='permission',
+        setting_name='se_pii_filter',
+        journal=article.journal,
+    ).processed_value
+
+    if not se_pii_filter_enabled:
+        return value
+
+    # Check if the user is an SE and return an anonymised value.
+    # If the user is not a section editor we assume they have permission
+    # to view the actual value.
+    request = GlobalRequestMiddleware.get_current_request()
+    stages = [
+        models.STAGE_UNASSIGNED,
+        models.STAGE_UNDER_REVIEW,
+        models.STAGE_UNDER_REVISION,
+    ]
+    if request.user in article.section_editors() and article.stage in stages:
+        return 'Value Anonymised'
+    else:
+        return value
