@@ -1092,7 +1092,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Here are some guidelines."
+            "default": "<p>When uploading galleys, please label them by the format, such as “XML” or “PDF”.</p><p>XML and HTML galleys can be previewed after uploading to check how they will be rendered when published.</p><p>The Galleys section should only contain one representative file for each format. If you are uploading the first version of a new format, please upload a new Galley (typeset file). If you are making revisions or corrections to an existing format, please use select <strong>Edit</strong> and then upload the new version, rather than adding a new Galley.</p>"
         },
         "editable_by": [
             "editor",
