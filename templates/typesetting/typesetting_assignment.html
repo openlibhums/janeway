@@ -2,6 +2,7 @@
 {% load bool_fa %}
 {% load static %}
 {% load foundation %}
+{% load settings %}
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
 {% block title-sub %}
@@ -25,6 +26,13 @@
                 <p>
                   {{ article.safe_title }} [<a href="#view-metadata">Skip to full metadata</a>]
                 </p>
+                <div class="content">
+                  <p><strong>Typesetting Guide</strong></p>
+                  <div class="callout bs-callout-info">
+                    {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
+                    {{ typesetting_guide|safe }}
+                  </div>
+                </div>
                 <div class="content">
                     {% include "typesetting/elements/typesetter/info.html" %}
                 </div>
