@@ -1,4 +1,6 @@
+{% load settings %}
 {% load foundation %}
+{% load static %}
 
 <div class="callout">
     <div class="title-area">
@@ -49,6 +51,20 @@
         <h2>4. Define the Task</h2>
     </div>
     <div class="content">
+      <strong><span>Typesetting Guide</strong>
+        [<a
+          target="_blank"
+          aria-label="Edit typesetting guide"
+          href="{% url 'core_edit_setting' 'general' 'typesetting_guide' %}">
+          Edit
+        </a>]
+      </h3>
+      <div class="callout bs-callout-info">
+        {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
+        {{ typesetting_guide|safe }}
+      </div>
+    </div>
+    <div class="content">
         {% if proofing_assignments %}
             <p>Should the typesetter see the comments from proofreaders?</p>
             {{ form.display_proof_comments|foundation }}
@@ -61,8 +77,7 @@
         {% endif %}
     </div>
     <div class="content">
-        <p>What instructions do you have for the typesetter? They will
-        have access to all of the article’s metadata.</p>
+      <p>Are there any other instructions for the typesetter?</p>
       {{ form.task|foundation }}
     </div>
 </div>

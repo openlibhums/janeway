@@ -24,7 +24,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='typesettingassignment',
             name='task',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='Please let the typesetter know what you want them to create and if there are any special circumstances. They will have access to the article’s metadata.', verbose_name='Typesetting Task'),
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text='The task description if not explained in the typesetting guidelines.',
+                verbose_name='Typesetting Task',
+            ),
         ),
         migrations.AlterField(
             model_name='typesettingassignment',
