@@ -81,7 +81,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             'language', 'section', 'license', 'primary_issue',
             'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
             'first_page', 'last_page', 'page_numbers', 'total_pages',
-            'competing_interests', 'custom_how_to_cite', 'rights',
+            'custom_how_to_cite', 'rights',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -241,10 +241,6 @@ class ArticleInfoSubmit(ArticleInfo):
     # Filter licenses and sections to publicly available only
     FILTER_PUBLIC_FIELDS = True
 
-    def __init__(self, *args, **kwargs):
-        super(ArticleInfoSubmit, self).__init__(*args, **kwargs)
-        self.fields.pop('competing_interests')
-
 
 class EditorArticleInfoSubmit(ArticleInfo):
     # Used when an editor is making a submission.
@@ -252,12 +248,16 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
     def __init__(self, *args, **kwargs):
         super(EditorArticleInfoSubmit, self).__init__(*args, **kwargs)
-        self.fields.pop('competing_interests')
         if self.fields.get('section'):
             self.fields['section'].label_from_instance = lambda obj: obj.display_name_public_submission
             self.fields['section'].help_text = "As an editor you will see all " \
                                                "sections even if they are  " \
                                                "closed for public submission"
+
+
+class EditArticleMetadata(ArticleInfo):
+    class Meta(ArticleInfo.Meta):
+        fields = ArticleInfo.Meta.fields + ('competing_interests',)
 
 
 class AuthorForm(forms.ModelForm):
