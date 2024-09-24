@@ -145,6 +145,7 @@ def can_see_pii(request, article):
     # to view the actual value.
     stages = [
         submission_models.STAGE_UNASSIGNED,
+        submission_models.STAGE_ASSIGNED,
         submission_models.STAGE_UNDER_REVIEW,
         submission_models.STAGE_UNDER_REVISION,
     ]
