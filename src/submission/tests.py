@@ -934,3 +934,35 @@ class FrozenAuthorModelTest(TestCase):
 
     def test_full_name(self):
         self.assertEqual('Dr. S. Bella Rogers Esq.', self.frozen_author.full_name())
+
+
+from django.test import TestCase
+from .forms import EditArticleMetadata, ArticleInfoSubmit, \
+    EditorArticleInfoSubmit
+
+
+class ArticleFormTests(TestCase):
+
+    def test_competing_interests_in_edit_article_metadata(self):
+        form = EditArticleMetadata()
+        self.assertIn(
+            'competing_interests',
+            form.fields,
+            "'competing_interests' should be present in EditArticleMetadata",
+        )
+
+    def test_competing_interests_not_in_article_info_submit(self):
+        form = ArticleInfoSubmit()
+        self.assertNotIn(
+            'competing_interests',
+            form.fields,
+            "'competing_interests' should NOT be present in ArticleInfoSubmit",
+        )
+
+    def test_competing_interests_not_in_editor_article_info_submit(self):
+        form = EditorArticleInfoSubmit()
+        self.assertNotIn(
+            'competing_interests',
+            form.fields,
+            "'competing_interests' should NOT be present in EditorArticleInfoSubmit"
+        )
