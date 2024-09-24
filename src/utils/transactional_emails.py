@@ -594,6 +594,21 @@ def send_revisions_complete(**kwargs):
             },
         )
     )
+
+    # Get custom reply-to if se pii is enabled.
+    se_pii_filter_enabled = request.journal.get_setting(
+        group_name='permission',
+        setting_name='se_pii_filter',
+    )
+    custom_reply_to = None
+    if se_pii_filter_enabled:
+        custom_reply_to_value = request.journal.get_setting(
+            group_name='general',
+            setting_name='replyto_address',
+        )
+        if custom_reply_to_value:
+            custom_reply_to = custom_reply_to_value
+
     notify_helpers.send_email_with_body_from_setting_template(
         request=request,
         template='revisions_complete_editor_notification',
@@ -609,7 +624,8 @@ def send_revisions_complete(**kwargs):
             'action_text': description,
             'types': 'Revisions Complete',
             'target': article,
-        }
+        },
+        custom_reply_to=custom_reply_to,
     )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
