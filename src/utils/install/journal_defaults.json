@@ -4870,7 +4870,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ revision.article.correspondence_author.full_name }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
+            "default": "<p>{{ revision.article.correspondence_author.full_name|se_can_see_pii:revision.article }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
         },
         "editable_by": [
             "editor",
@@ -5123,7 +5123,7 @@
             "name": "permission"
         },
         "setting": {
-            "description": "When this setting is enabled assigned section editors will not be able to see PII data about authors until a decision for an article has been made.",
+            "description": "When this setting is enabled assigned section editors will not be able to see PII data about authors until a decision for an article has been made. The general setting Reply-To Address should be set in order for this setting to work correctly.",
             "is_translatable": false,
             "name": "se_pii_filter",
             "pretty_name": "Section Editor Personally Identifiable Information Filter",
