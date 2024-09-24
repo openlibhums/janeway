@@ -43,10 +43,20 @@ from journal.logic import get_best_galley, get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
-from security.decorators import article_stage_accepted_or_later_required, \
-    article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
-    file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
-    editor_user_required, keyword_page_enabled
+from security.decorators import (
+    article_exists,
+    article_stage_accepted_or_later_required,
+    article_stage_accepted_or_later_or_staff_required,
+    editor_user_required,
+    editor_user_required_and_can_see_pii,
+    file_edit_user_required,
+    file_history_user_required,
+    file_user_required,
+    has_journal,
+    has_request,
+    keyword_page_enabled,
+    production_user_or_editor_required,
+)
 from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
@@ -2432,7 +2442,7 @@ def texture_edit(request, file_id):
     return render(request, template, context)
 
 
-@editor_user_required
+@editor_user_required_and_can_see_pii
 def document_management(request, article_id):
     document_article = get_object_or_404(
         submission_models.Article,
