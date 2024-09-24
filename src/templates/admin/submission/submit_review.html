@@ -85,6 +85,17 @@
                                 <td>{{ article.license.name }}</td>{% endif %}
                         </tr>
 
+                        {% if request.journal.submissionconfiguration.competing_interests %}
+                            <tr>
+                                <th colspan="3">Competing Interests</th>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    {{ article.competing_interests|safe|default:"No competing interests declared" }}
+                                </td>
+                            </tr>
+                        {% endif %}
+
                         {% for field_answer in article.fieldanswer_set.all %}
                         <tr>
                             <th colspan="3">{{ field_answer.field.name }}</th>

@@ -33,8 +33,12 @@ class ArticleStart(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
-                  'competing_interests')
+        fields = (
+            'publication_fees',
+            'submission_requirements',
+            'copyright_notice',
+            'competing_interests',
+        )
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', False)
@@ -208,7 +212,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                     if editor_view:
                         self.fields[element.name].required = False
 
-
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
@@ -238,6 +241,10 @@ class ArticleInfoSubmit(ArticleInfo):
     # Filter licenses and sections to publicly available only
     FILTER_PUBLIC_FIELDS = True
 
+    def __init__(self, *args, **kwargs):
+        super(ArticleInfoSubmit, self).__init__(*args, **kwargs)
+        self.fields.pop('competing_interests')
+
 
 class EditorArticleInfoSubmit(ArticleInfo):
     # Used when an editor is making a submission.
@@ -245,6 +252,7 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
     def __init__(self, *args, **kwargs):
         super(EditorArticleInfoSubmit, self).__init__(*args, **kwargs)
+        self.fields.pop('competing_interests')
         if self.fields.get('section'):
             self.fields['section'].label_from_instance = lambda obj: obj.display_name_public_submission
             self.fields['section'].help_text = "As an editor you will see all " \
