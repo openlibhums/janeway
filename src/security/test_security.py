@@ -29,7 +29,7 @@ from repository import models as repository_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
-from utils.testing import helpers
+from utils.testing import context_managers, helpers
 
 
 class TestSecurity(TestCase):
@@ -3104,6 +3104,29 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
+    def test_section_editor_cant_access_view_because_of_pii(self):
+        review_models.EditorAssignment.objects.get_or_create(
+            article=self.article_in_review,
+            editor=self.section_editor,
+            editor_type='section-editor',
+            notified=True,
+        )
+        func = Mock()
+
+        with context_managers.janeway_setting_override(
+            "permission", "se_pii_filter", self.journal_one, True,
+        ):
+            decorated_func = decorators.editor_user_required_and_can_see_pii(func)
+            kwargs = {'article_id': self.article_in_review.pk}
+
+            request = self.prepare_request_with_user(self.section_editor, self.journal_one)
+
+            with self.assertRaises(
+                PermissionDenied,
+                "SE PII filter not leading to PermissionDenied"
+            ):
+                decorated_func(request, **kwargs)
+
     def test_article_stage_review_required_with_review_article(self):
         func = Mock()
         decorated_func = decorators.article_stage_review_required(func)
@@ -4149,6 +4172,13 @@ class TestSecurity(TestCase):
                                            privacy="owner")
 
         self.third_file.save()
+
+        self.article_in_review = submission_models.Article.objects.create(
+            owner=self.regular_user, title="A Test Article in review",
+            abstract="An abstract",
+            stage=submission_models.STAGE_UNDER_REVIEW,
+            journal_id=self.journal_one.id,
+        )
 
         self.article_in_production = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                abstract="An abstract",
