@@ -97,9 +97,9 @@ def se_can_see_pii(value, article):
     request = GlobalRequestMiddleware.get_current_request()
 
     if logic.can_see_pii(request, article):
-        return 'Value Anonymised'
-    else:
         return value
+    else:
+        return 'Value Anonymised'
 
 
 @register.simple_tag(takes_context=True)
@@ -107,9 +107,9 @@ def can_see_pii_tag(context, article):
     request = context.get('request')
 
     if logic.can_see_pii(request, article):
-        return False
-    else:
         return True
+    else:
+        return False
 
 
 

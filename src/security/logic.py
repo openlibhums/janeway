@@ -136,8 +136,9 @@ def can_see_pii(request, article):
         journal=article.journal,
     ).processed_value
 
+    # early return if filter not enabled
     if not se_pii_filter_enabled:
-        return False
+        return True
 
     # Check if the user is an SE and return an anonymised value.
     # If the user is not a section editor we assume they have permission
@@ -148,5 +149,5 @@ def can_see_pii(request, article):
         submission_models.STAGE_UNDER_REVISION,
     ]
     if request.user in article.section_editors() and article.stage in stages:
-        return True
-    return False
+        return False
+    return True
