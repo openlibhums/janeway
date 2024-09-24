@@ -3123,7 +3123,7 @@ class TestSecurity(TestCase):
 
             with self.assertRaises(
                 PermissionDenied,
-                "SE PII filter not leading to PermissionDenied"
+                msg="SE PII filter not leading to PermissionDenied",
             ):
                 decorated_func(request, **kwargs)
 
