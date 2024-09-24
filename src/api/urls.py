@@ -3,6 +3,7 @@ from django.conf import settings
 
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from api import views
 from api.oai import views as oai_views
@@ -32,6 +33,16 @@ if settings.API_ENABLE_SUBMISSION_ACCOUNT_SEARCH:
         r'submission_account_search',
         views.SubmissionAccountSearch,
         'submission_account_search',
+    )
+    router.register(
+        r'register',
+        views.RegisterAccount,
+        'register_account',
+    )
+    router.register(
+        r'activate',
+        views.ActivateAccount,
+        'activate_account',
     )
 
 # Wire up our API using automatic URL routing.

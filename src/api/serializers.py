@@ -1,9 +1,11 @@
+import uuid
+
 from rest_framework import serializers, validators
 
 from django.db import transaction
 from django.shortcuts import reverse
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
@@ -662,3 +664,68 @@ class VersionQueueSerializer(serializers.ModelSerializer):
             'abstract',
             'file',
         )
+
+
+class RegisterAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = core_models.Account
+        fields = (
+            'pk',
+            'email',
+            'salutation',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'orcid',
+            'institution',
+            'department',
+            'biography',
+            'password',
+            'confirmation_code',
+        )
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
+        user.confirmation_code = uuid.uuid4()
+        user.save()
+        request = self.context.get("request")
+        core_logic.send_confirmation_link(request, user)
+        return user
+
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        try:
+            if validated_data.get('password'):
+                user.set_password(validated_data['password'])
+                user.save()
+        except KeyError:
+            pass
+        return user
+
+    password = serializers.CharField(
+        max_length=128,
+        write_only=True,
+        required=True,
+    )
+    confirmation_code = serializers.CharField(
+        read_only=True,
+    )
+
+
+class ActivateAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = core_models.Account
+        fields = (
+            'confirmation_code',
+        )
+
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        user.is_active = True
+        user.save()
+        return user
+
+    confirmation_code = serializers.CharField(
+        read_only=True,
+    )

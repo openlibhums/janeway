@@ -12,6 +12,7 @@ from django.db.models.functions import Lower
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
+from rest_framework.views import APIView
 
 from api import serializers, permissions as api_permissions
 from core import models as core_models
@@ -403,6 +404,25 @@ class UserInfo(AccountViewSet):
         accounts = super().get_queryset()
         accounts = accounts.filter(
             pk=self.request.user.pk,
+        )
+        return accounts
+
+
+class RegisterAccount(viewsets.ModelViewSet):
+    serializer_class = serializers.RegisterAccountSerializer
+    http_method_names = ['post']
+
+    # TODO: on PUT allow only the current user
+
+
+class ActivateAccount(viewsets.ModelViewSet):
+    serializer_class = serializers.ActivateAccountSerializer
+    http_method_names = ['put']
+
+    def get_queryset(self):
+        accounts = core_models.Account.objects.filter(
+            confirmation_code=self.request.data.get('confirmation_code'),
+            is_active=False,
         )
         return accounts
 
