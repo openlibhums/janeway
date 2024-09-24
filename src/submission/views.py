@@ -75,7 +75,13 @@ def start(request, type=None):
                 **{'request': request, 'article': new_article}
             )
 
-            return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
+            return redirect(
+                reverse(
+                    'submit_info',
+                    kwargs={
+                        'article_id': new_article.pk},
+                ),
+            )
 
     template = 'admin/submission/start.html'
     context = {
@@ -697,7 +703,7 @@ def submit_review(request, article_id):
 
             return redirect(reverse('core_dashboard'))
 
-    template = "admin/submission//submit_review.html"
+    template = "admin/submission/submit_review.html"
     context = {
         'article': article,
         'form': form,
