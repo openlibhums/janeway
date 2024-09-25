@@ -2,7 +2,7 @@ from django import template
 
 from core.middleware import GlobalRequestMiddleware
 from security import logic
-from submission import models
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
@@ -99,7 +99,7 @@ def se_can_see_pii(value, article):
     if logic.can_see_pii(request, article):
         return value
     else:
-        return 'Value Anonymised'
+        return _('[Anonymised data]')
 
 
 @register.simple_tag(takes_context=True)
