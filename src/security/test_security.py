@@ -3105,12 +3105,6 @@ class TestSecurity(TestCase):
             decorated_func(request, **kwargs)
 
     def test_section_editor_cant_access_view_because_of_pii(self):
-        review_models.EditorAssignment.objects.get_or_create(
-            article=self.article_in_review,
-            editor=self.section_editor,
-            editor_type='section-editor',
-            notified=True,
-        )
         func = Mock()
 
         with context_managers.janeway_setting_override(
@@ -3990,10 +3984,77 @@ class TestSecurity(TestCase):
             "permission denied.",
         )
 
+    # PII Tests
+    def test_section_editor_cannot_see_pii_when_enabled(self):
+        """
+        Test that the section editor cannot see PII and it is anonymized in
+        the response.
+        """
+        with context_managers.janeway_setting_override(
+            "permission", "se_pii_filter", self.article_in_review.journal, True,
+        ):
+            self.client.force_login(self.section_editor)
+            article_views = [
+                'manage_article_log',
+                'edit_metadata',
+                'review_unassigned_article',
+                'review_in_review',
+            ]
+            general_views = [
+                'core_dashboard',
+                'review_home',
+                'core_active_submissions',
+            ]
+            list_of_pii_strings = self.get_pii_strings_for_article(
+                self.article_in_review,
+            )
+
+            for view_name in general_views:
+                response = self.client.get(
+                    reverse(
+                        view_name,
+                    ),
+                    SERVER_NAME=self.article_in_review.journal.domain,
+                )
+                found_strings = [
+                    string in response.content.decode('utf-8') for string in list_of_pii_strings
+                ]
+                self.assertFalse(any(found_strings))
+                self.assertContains(
+                    response,
+                    'Value Anonymised'
+                )
+
+            for view_name in article_views:
+                response = self.client.get(
+                    reverse(
+                        view_name,
+                        kwargs={
+                            'article_id': self.article_in_review.pk,
+                        }
+                    ),
+                    SERVER_NAME=self.article_in_review.journal.domain,
+                )
+                found_strings = [
+                    string in response.content.decode('utf-8') for string in
+                    list_of_pii_strings
+                ]
+                self.assertFalse(any(found_strings))
+                self.assertContains(
+                    response,
+                    self.article_in_review.pk,
+                )
+
     # General helper functions
 
     @staticmethod
-    def create_user(username, roles=None, journal=None):
+    def create_user(
+            username,
+            roles=None,
+            journal=None,
+            first_name='',
+            last_name='',
+    ):
         """
         Creates a user with the specified permissions.
         :return: a user with the specified permissions
@@ -4003,6 +4064,7 @@ class TestSecurity(TestCase):
             username,
             roles=roles,
             journal=journal,
+            **{'first_name': first_name, 'last_name': last_name}
         )
 
     @staticmethod
@@ -4029,6 +4091,18 @@ class TestSecurity(TestCase):
         journal_two.save()
 
         return journal_one, journal_two
+
+    @staticmethod
+    def get_pii_strings_for_article(article):
+        pii_strings = []
+        for fa in article.frozen_authors():
+            pii_strings.append(fa.first_name)
+            pii_strings.append(fa.last_name)
+            pii_strings.append(fa.email)
+        pii_strings.append(article.correspondence_author.first_name)
+        pii_strings.append(article.correspondence_author.last_name)
+        pii_strings.append(article.correspondence_author.email)
+        return [string for string in pii_strings if string]
 
     @classmethod
     def setUpTestData(self):
@@ -4063,7 +4137,13 @@ class TestSecurity(TestCase):
         self.editor.is_active = True
         self.editor.save()
 
-        self.author = self.create_user("authoruser@martineve.com", ["author"], journal=self.journal_one)
+        self.author = self.create_user(
+            "authoruser@martineve.com",
+            ["author"],
+            journal=self.journal_one,
+            first_name="Martin",
+            last_name="Eve",
+        )
         self.author.is_active = True
         self.author.save()
 
@@ -4178,8 +4258,22 @@ class TestSecurity(TestCase):
             abstract="An abstract",
             stage=submission_models.STAGE_UNDER_REVIEW,
             journal_id=self.journal_one.id,
+            correspondence_author=self.repo_manager,
         )
-
+        self.article_in_review.authors.add(
+            self.author,
+        )
+        self.article_in_review.snapshot_authors()
+        review_models.ReviewRound.objects.get_or_create(
+            article=self.article_in_review,
+            round_number=1,
+        )
+        review_models.EditorAssignment.objects.get_or_create(
+            article=self.article_in_review,
+            editor=self.section_editor,
+            editor_type='section-editor',
+            notified=True,
+        )
         self.article_in_production = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                abstract="An abstract",
                                                                stage=submission_models.STAGE_TYPESETTING,
