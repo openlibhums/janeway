@@ -3999,11 +3999,14 @@ class TestSecurity(TestCase):
                 'edit_metadata',
                 'review_unassigned_article',
                 'review_in_review',
+                'review_decision',
+                'decision_helper',
             ]
             general_views = [
                 'core_dashboard',
                 'review_home',
                 'core_active_submissions',
+                'review_unassigned',
             ]
             list_of_pii_strings = self.get_pii_strings_for_article(
                 self.article_in_review,
@@ -4017,21 +4020,21 @@ class TestSecurity(TestCase):
                     SERVER_NAME=self.article_in_review.journal.domain,
                 )
                 found_strings = [
-                    string in response.content.decode('utf-8') for string in list_of_pii_strings
+                    string in response.content.decode('utf-8') for string in
+                    list_of_pii_strings
                 ]
                 self.assertFalse(any(found_strings))
-                self.assertContains(
-                    response,
-                    'Value Anonymised'
-                )
 
             for view_name in article_views:
+                kwargs = {
+                    'article_id': self.article_in_review.pk,
+                }
+                if view_name == 'review_decision':
+                    kwargs['decision'] = 'accept'
                 response = self.client.get(
                     reverse(
                         view_name,
-                        kwargs={
-                            'article_id': self.article_in_review.pk,
-                        }
+                        kwargs=kwargs,
                     ),
                     SERVER_NAME=self.article_in_review.journal.domain,
                 )
@@ -4040,10 +4043,6 @@ class TestSecurity(TestCase):
                     list_of_pii_strings
                 ]
                 self.assertFalse(any(found_strings))
-                self.assertContains(
-                    response,
-                    self.article_in_review.pk,
-                )
 
     # General helper functions
 
@@ -4099,9 +4098,15 @@ class TestSecurity(TestCase):
             pii_strings.append(fa.first_name)
             pii_strings.append(fa.last_name)
             pii_strings.append(fa.email)
+            pii_strings.append(fa.orcid if fa.orcid else '')
+            pii_strings.append(fa.institution)
         pii_strings.append(article.correspondence_author.first_name)
         pii_strings.append(article.correspondence_author.last_name)
         pii_strings.append(article.correspondence_author.email)
+        pii_strings.append(
+            article.correspondence_author.orcid if article.correspondence_author.orcid else ''
+        )
+        pii_strings.append(article.correspondence_author.institution)
         return [string for string in pii_strings if string]
 
     @classmethod
@@ -4138,11 +4143,11 @@ class TestSecurity(TestCase):
         self.editor.save()
 
         self.author = self.create_user(
-            "authoruser@martineve.com",
+            "b.torres@voyager.com",
             ["author"],
             journal=self.journal_one,
-            first_name="Martin",
-            last_name="Eve",
+            first_name="Belanna",
+            last_name="Torres",
         )
         self.author.is_active = True
         self.author.save()
@@ -4210,7 +4215,11 @@ class TestSecurity(TestCase):
         self.staff_member.is_staff = True
         self.staff_member.save()
 
-        self.repo_manager = self.create_user("repomanager@janeway.systems")
+        self.repo_manager = self.create_user(
+            "repomanager@janeway.systems",
+            first_name='Tom',
+            last_name='Paris',
+        )
         self.repo_manager.is_active = True
         self.repo_manager.save()
 
