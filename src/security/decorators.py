@@ -275,7 +275,6 @@ def editor_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         article_id = kwargs.get('article_id', None)
 
         if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
