@@ -306,7 +306,7 @@ def editor_user_required_and_can_see_pii(func):
             deny_access(
                 request,
                 "You cannot access this page yet, because it could reveal"
-                " personally identifable information"
+                " personally identifiable information."
             )
         return func(request, *args, **kwargs)
     return can_see_pii_decorator
