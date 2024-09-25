@@ -848,6 +848,7 @@ def submit_files_info(request, article_id, file_id):
 
 @login_required
 @file_history_user_required
+@editor_user_required_and_can_see_pii
 def file_history(request, article_id, file_id):
     """ Renders a template to show the history of a file.
 
