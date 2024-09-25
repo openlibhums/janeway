@@ -4100,9 +4100,11 @@ class TestSecurity(TestCase):
             pii_strings.append(fa.email)
             pii_strings.append(fa.orcid if fa.orcid else '')
             pii_strings.append(fa.institution)
+            pii_strings.append(fa.department)
         pii_strings.append(article.correspondence_author.first_name)
         pii_strings.append(article.correspondence_author.last_name)
         pii_strings.append(article.correspondence_author.email)
+        pii_strings.append(article.correspondence_author.department)
         pii_strings.append(
             article.correspondence_author.orcid if article.correspondence_author.orcid else ''
         )
