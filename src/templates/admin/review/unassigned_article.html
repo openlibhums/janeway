@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static roles i18n securitytags %}
+{% can_see_pii_tag article as can_see_pii %}
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
@@ -29,7 +30,7 @@
                     </tr>
                     <tr>
                         <td>{{ article.section.name }}</td>
-                        <td>{{ article.owner.full_name }}</td>
+                        <td>{{ article.owner.full_name|se_can_see_pii:article }}</td>
                         <td>{{ article.license.short_name }}</td>
                         <td>{{ article.get_language_display }}</td>
                     </tr>
@@ -149,7 +150,9 @@
                         <th>Uploaded</th>
                         <th>Download</th>
                         <th>Replace</th>
+                        {% if can_see_pii %}
                         <th>File History</th>
+                        {% endif %}
                         {% if journal_settings.crosscheck.enable %}
                             <th>Similarity Check</th>{% endif %}
                     </tr>
@@ -166,9 +169,11 @@
                                 <td>
                                     <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                                {% if can_see_pii %}
                                 <td>
                                     <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
                                             class="fa fa-history">&nbsp;</i></a></td>
+                                {% endif %}
                                 {% if journal_settings.crosscheck.enable %}
                                     <td>{% if not article.ithenticate_id %}
                                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i
