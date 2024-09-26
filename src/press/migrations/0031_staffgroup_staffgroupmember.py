@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('press', '0030_press_secondary_image_url'),
+        ('press', '0031_press_journal_footer_text'),
     ]
 
     operations = [
