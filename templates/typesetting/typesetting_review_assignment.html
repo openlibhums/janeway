@@ -47,16 +47,6 @@
                 {{ assignment.completed|bool_fa }}{% endif %}</td>
               <td>{{ assignment.status|capfirst }}</td>
             </tr>
-            {% if assignment.accepted %}
-              <tr>
-                <th colspan="7">Note from Typesetter</th>
-              </tr>
-              <tr>
-                <td colspan="7">
-                  {{ assignment.typesetter_note|safe|default:"No typesetter note recorded." }}
-                </td>
-              </tr>
-            {% endif %}
           </table>
         </div>
         <div class="title-area">
@@ -64,6 +54,28 @@
         </div>
         <div class="content">
           {{ assignment.task|safe|default:"No typesetting task was recorded." }}
+        </div>
+        {% if assignment.accepted %}
+        <div class="title-area">
+          <h2>Note from Typesetter</h2>
+        </div>
+        <div class="content">
+          {{ assignment.typesetter_note|safe|default:"No typesetter note recorded." }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row expanded">
+    <div class="large-12 columns">
+      <div class="box">
+        <div class="title-area">
+          <h2>Selected Files</h2>
+        </div>
+        <div class="content">
+          <p>These are the files that the typesetter was given access to during this round of typesetting.</p>
+          {% include "typesetting/elements/file_list.html" with files=assignment.files_to_typeset.all input_name="files_to_typeset" %}
         </div>
       </div>
     </div>
