@@ -7,7 +7,7 @@ Janeway is written in Python (3.10+) and utilises the Django framework (4.2).
 
 
 # Installation instructions
-Developer installation [instructions are available in our documentation site](https://janeway.readthedocs.io/en/latest/installation.html#installation-guide).
+Developer installation [instructions are available in our documentation site](https://janeway.readthedocs.io/en/latest/dev/installation.html).
 
 A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
 
