@@ -4053,17 +4053,36 @@ class TestSecurity(TestCase):
             journal=None,
             first_name='',
             last_name='',
+            institution='',
+            department='',
+            orcid='',
+            country_name='',
+            country_code='',
     ):
         """
         Creates a user with the specified permissions.
         :return: a user with the specified permissions
         """
         # For consistency, outsourced to newer testing helpers
+        country_obj = None
+        if country_code and country_name:
+            country_obj, c = core_models.Country.objects.get_or_create(
+                code=country_code,
+                name=country_name,
+            )
+
         return helpers.create_user(
             username,
             roles=roles,
             journal=journal,
-            **{'first_name': first_name, 'last_name': last_name}
+            **{
+                'first_name': first_name,
+                'last_name': last_name,
+                'institution': institution,
+                'department': department,
+                'orcid': orcid,
+                'country': country_obj,
+            }
         )
 
     @staticmethod
@@ -4101,6 +4120,7 @@ class TestSecurity(TestCase):
             pii_strings.append(fa.orcid if fa.orcid else '')
             pii_strings.append(fa.institution)
             pii_strings.append(fa.department)
+            pii_strings.append(fa.country)
         pii_strings.append(article.correspondence_author.first_name)
         pii_strings.append(article.correspondence_author.last_name)
         pii_strings.append(article.correspondence_author.email)
@@ -4109,6 +4129,7 @@ class TestSecurity(TestCase):
             article.correspondence_author.orcid if article.correspondence_author.orcid else ''
         )
         pii_strings.append(article.correspondence_author.institution)
+        pii_strings.append(article.correspondence_author.country)
         return [string for string in pii_strings if string]
 
     @classmethod
@@ -4122,7 +4143,16 @@ class TestSecurity(TestCase):
                            "production", "copyeditor", "typesetter",
                            "proofing-manager", "section-editor"])
 
-        self.regular_user = self.create_user("regularuser@martineve.com")
+        self.regular_user = self.create_user(
+            "redshirt@voyager.com",
+            first_name='Tim',
+            last_name='Redshirt',
+            institution='Starfleet Ops',
+            department='Canon Fodder',
+            orcid='1234-1234-1234-0000',
+            country_name='United States of America',
+            country_code='US',
+        )
         self.regular_user.is_active = True
         self.regular_user.save()
 
@@ -4150,6 +4180,11 @@ class TestSecurity(TestCase):
             journal=self.journal_one,
             first_name="Belanna",
             last_name="Torres",
+            institution='Starfleet',
+            department='Engineering',
+            orcid='0000-1234-1234-1234',
+            country_code='FR',
+            country_name='France',
         )
         self.author.is_active = True
         self.author.save()
