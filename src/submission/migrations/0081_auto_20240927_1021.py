@@ -25,8 +25,6 @@ def update_text_editor_comments(apps, schema_editor):
                 article.comments_editor = bleach_value(
                     article.comments_editor,
                 )
-                print(article.pk)
-                print(article.comments_editor)
             article.save()
 
 
