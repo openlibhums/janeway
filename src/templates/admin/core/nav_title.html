@@ -1,0 +1,12 @@
+{% if request.press %}
+  {% url 'core_manager_index' as href %}
+{% else %}
+  {% url 'core_dashboard' as href %}
+{% endif %}
+
+<li class="title">
+  <a href="{{ href }}">
+    <span class="fa fa-chevron-circle-down"></span>
+    <span>Janeway</span>
+  </a>
+</li>

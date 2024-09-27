@@ -12,33 +12,12 @@
     </button>
     <ul class="vertical menu">
         <li class="title">
-            <a href="#">
-                <i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway
-            </a>
+          <a href="{% url 'core_manager_index' %}">
+            <i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway
+          </a>
         </li>
         {% if journal_settings.general.switch_language %}
-        <li class="subtitle">
-            <a href="#">Switch Language</a>
-        </li>
-        <li>
-            <div class="small-12 small-centered columns">
-                 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-                    <input name="next" type="hidden" value="{{ request.PATH }}" />
-                    <select name="language" onchange="this.form.submit()">
-                        {% get_current_language as LANGUAGE_CODE %}
-                        {% get_available_languages as LANGUAGES %}
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                            {% if language.code in request.available_languages %}
-                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                {{ language.name_local }} ({{ language.code }})
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-        </li>
+          {% include "admin/core/nav_language.html" %}
         {% endif %}
         <li class="subtitle"><a href="#">Dashboards</a></li>
         <li>

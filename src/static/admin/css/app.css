@@ -4840,12 +4840,13 @@ header {
 
 .off-canvas .menu > li.title > a {
   background: #2a2d37;
-  pointer-events: none; }
+}
 
 .off-canvas .menu > li.subtitle > a {
   pointer-events: none; }
 
-.off-canvas .menu > li > a {
+.off-canvas .menu > li > a,
+.off-canvas .menu > li.subtitle > div {
   width: 225px;
   font-family: "Open sans", sans-serif;
   font-size: 0.8125rem;
@@ -4859,7 +4860,14 @@ header {
   .off-canvas .menu > li > a:hover {
     background: #353946; }
 
-.uppercase, header h1, header .button, .off-canvas .menu > li.subtitle > a, .title-area h2, .title-area h4 {
+.uppercase,
+header h1,
+header .button,
+.off-canvas .menu > li.subtitle > a,
+.off-canvas .menu > li.subtitle > div,
+.title-area h2,
+.title-area h4 {
+
   letter-spacing: .1em;
   text-transform: uppercase; }
 
