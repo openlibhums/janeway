@@ -51,9 +51,11 @@
     {% endfor %}
 </table>
 
+{% if not disable_upload %}
 <div class="button-group">
     <a class="float-right button success" data-open="uploadbox">
         <span class="fa fa-cloud-upload"></span>
         Upload New Typeset File
     </a>
 </div>
+{% endif %}

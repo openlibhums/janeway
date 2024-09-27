@@ -71,11 +71,14 @@
     <div class="large-12 columns">
       <div class="box">
         <div class="title-area">
-          <h2>Selected Files</h2>
+          <h2>Files</h2>
         </div>
         <div class="content">
-          <p>These are the files that the typesetter was given access to during this round of typesetting.</p>
+          <p><small>These are the files that the typesetter was given access to during this round of typesetting.</small></p>
           {% include "typesetting/elements/file_list.html" with files=assignment.files_to_typeset.all input_name="files_to_typeset" %}
+        </div>
+        <div class="content">
+          {% include "typesetting/elements/galleys_with_help_text.html" with disable_upload="y" %}
         </div>
       </div>
     </div>
