@@ -145,7 +145,6 @@ def text_sanitizer(text_value, tags=None, attrs=None, excl=ENTITIES_MAP):
 def plain_text_validator(value):
     """ A field validator that ensures a textual input has no harmful code"""
 
-    # bleach strips carriage returns, convert them to newlines.
     cleaned = value.replace("\r", "")
     sanitized = text_sanitizer(cleaned)
 
