@@ -53,7 +53,11 @@
                     </div>
 
                     <div class="large-6 columns">
-                        {{ form.orcid|foundation }}
+                        {% if settings.ENABLE_ORCID %}
+                            {% include 'admin/elements/accounts/orcid_field.html' with form=form %}
+                        {% else %}
+                            {{ form.orcid|foundation }}
+                        {% endif %}
                     </div>
                     <div class="large-6 columns">
                         {{ form.email|foundation }}

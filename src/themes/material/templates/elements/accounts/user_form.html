@@ -45,7 +45,11 @@
         {% bootstrap_field form.facebook %}
     </div>
     <div class="col m4">
-        {% bootstrap_field form.orcid %}
+        {% if settings.ENABLE_ORCID %}
+            {% include 'admin/elements/accounts/orcid_field.html' with form=form %}
+        {% else %}
+            {% bootstrap_field form.orcid %}
+        {% endif %}
     </div>
 </div>
 <div class="row">
