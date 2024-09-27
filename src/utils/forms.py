@@ -145,10 +145,10 @@ def text_sanitizer(text_value, tags=None, attrs=None, excl=ENTITIES_MAP):
 def plain_text_validator(value):
     """ A field validator that ensures a textual input has no harmful code"""
 
-    cleaned = value.replace("\r", "")
-    sanitized = text_sanitizer(cleaned)
+    string_with_no_carriage_returns = value.replace("\r", "")
+    sanitized = text_sanitizer(string_with_no_carriage_returns)
 
-    if cleaned != sanitized:
+    if string_with_no_carriage_returns != sanitized:
         raise ValidationError(
             _("HTML is not allowed in this field")
         )
