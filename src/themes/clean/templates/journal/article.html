@@ -301,9 +301,9 @@
                     {% endif %}
                     <h2>{% trans "Citation" %}</h2>
                     <div class="btn-group-vertical">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-Style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-Style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-Style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-style Citation' %}</button>
                         <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
                             {% trans 'Download' %} RIS
                         </a>
