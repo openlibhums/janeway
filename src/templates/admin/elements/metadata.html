@@ -1,11 +1,9 @@
-{% load settings %}
-{% load roles %}
-{% load static %}
-{% load bool_fa %}
+{% load settings roles static bool_fa securitytags %}
 
 {% user_has_role request 'editor' as user_is_editor %}
 {% user_has_role request 'section-editor' as user_is_section_editor %}
 {% user_has_role request 'production' as user_is_production %}
+{% can_see_pii_tag article as can_see_pii %}
 
 {% if user_is_editor or user_is_production or user_is_section_editor %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
@@ -22,7 +20,14 @@
     <tr>
         <td>{{ article.section.name }}</td>
         {% if article.correspondence_author %}
-        <td>{{ article.correspondence_author.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' article.correspondence_author.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+        <td>
+          {{ article.correspondence_author.full_name|se_can_see_pii:article }}
+          {% if can_see_pii %}
+            &nbsp;<a onclick="return popitup('{% url 'send_user_email_article' article.correspondence_author.pk article.pk %}')">
+            <i class="fa fa-envelope">&nbsp;</i>
+          </a>
+          {% endif %}
+        </td>
         {% else %}
         <td><i class="fa fa-warning">&nbsp;</i> This article has no correspondence_author</td>
         {% endif %}
@@ -171,12 +176,25 @@
         </tr>
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
-                <td>{{ f_author.full_name }}</td>
+                <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
                 <td>
-                    {% if f_author.author.email %}{{ f_author.author.email }}
-                    <span data-tooltip tabindex="1" title="Send an email to {{ f_author.author.email }}"><a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></span>
-                    <span data-tooltip tabindex="1" title="Account linked to author"><a href="{% url 'core_user_edit' f_author.author.pk %}"><i class="fa fa-user">&nbsp;</i></a></span>
-                    {% elif f_author.email %}{{ f_author.email}}{% else %}No email address recorded.{% endif %}</td>
+                    {% if f_author.author.email %}{{ f_author.author.email|se_can_see_pii:article }}
+                      {% if can_see_pii %}
+                        <span data-tooltip tabindex="1"
+                              title="Send an email to {{ f_author.author.email }}"><a
+                                onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i
+                                class="fa fa-envelope">&nbsp;</i></a></span>
+                        <span data-tooltip tabindex="1"
+                              title="Account linked to author"><a
+                                href="{% url 'core_user_edit' f_author.author.pk %}"><i
+                                class="fa fa-user">&nbsp;</i></a></span>
+                      {% endif %}
+                    {% elif f_author.email %}
+                      {{ f_author.email|se_can_see_pii:article }}
+                    {% else %}
+                      No email address recorded.
+                    {% endif %}
+                </td>
                 <td>{{ f_author.display_email|bool_fa }}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>

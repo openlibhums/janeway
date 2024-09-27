@@ -1,8 +1,7 @@
 import os
 import hashlib
 import hmac
-from urllib.parse import SplitResult, quote_plus, urlencode
-from tqdm import tqdm
+from urllib.parse import SplitResult, urlencode
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType

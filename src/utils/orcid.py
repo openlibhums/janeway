@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from collections import defaultdict
 from django.conf import settings
@@ -59,7 +59,6 @@ def build_redirect_uri(site, action='login'):
     :return: (str) Redirect URI for ORCID requests
     """
     request = logic.get_current_request()
-
     return request.site_type.site_url(reverse("core_login_orcid"),
                                       query={'state': action})
 

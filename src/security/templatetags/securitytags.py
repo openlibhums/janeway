@@ -1,5 +1,8 @@
 from django import template
+
+from core.middleware import GlobalRequestMiddleware
 from security import logic
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
@@ -87,3 +90,26 @@ def is_repository_manager(context):
 def is_preprint_editor(context):
     request = context['request']
     return request.user.is_preprint_editor(request)
+
+
+@register.filter
+def se_can_see_pii(value, article):
+    request = GlobalRequestMiddleware.get_current_request()
+
+    if logic.can_see_pii(request, article):
+        return value
+    else:
+        return _('[Anonymised data]')
+
+
+@register.simple_tag(takes_context=True)
+def can_see_pii_tag(context, article):
+    request = context.get('request')
+
+    if logic.can_see_pii(request, article):
+        return True
+    else:
+        return False
+
+
+

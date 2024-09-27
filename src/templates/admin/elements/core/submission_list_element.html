@@ -1,12 +1,12 @@
+{% load securitytags %}
 <li class="list-group-item list-group-item-dashboard">
     <div class="row expanded">
         <div class="medium-9 columns">
-            <p class="submission">{{ article.pk }} - {{ article.title|truncatechars_html:200|safe }} ({{ article.correspondence_author.last_name }})<br/>
+            <p class="submission">{{ article.pk }} - {{ article.title|truncatechars_html:200|safe }} ({{ article.correspondence_author.last_name|se_can_see_pii:article }})<br/>
                 <small>
-                    Authors: {{ article.author_list }}<br/>
-                    {% for editor in article.editors %}{% if forloop.first %}Editors: {% endif %}{{ editor.editor.full_name }} (
-                        {% if editor.editor_type == 'section-editor' %}SE{% else %}E
-                        {% endif %}){% if not forloop.last %}, {% endif %}{% endfor %}
+                    Authors: {{ article.author_list|se_can_see_pii:article }}<br/>
+                    {% for editor in article.editors %}{% if forloop.first %}Editors: {% endif %}{{ editor.editor.full_name }}
+                        ({% if editor.editor_type == 'section-editor' %}SE{% else %}E{% endif %}){% if not forloop.last %}, {% endif %}{% endfor %}
                         <a href="{{ article.current_workflow_element_url }}">
                             View Article <i class="fa fa-arrow-circle-o-right"></i>
                         </a>

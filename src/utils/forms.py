@@ -1,3 +1,4 @@
+import bleach
 from django.forms import (
     CharField,
     CheckboxInput,
@@ -8,6 +9,7 @@ from django.forms import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from modeltranslation import forms as mt_forms, translator
 from captcha.fields import ReCaptchaField
@@ -16,6 +18,9 @@ from simplemathcaptcha.fields import MathCaptchaField
 from hcaptcha.fields import hCaptchaField
 
 from submission import models as submission_models
+
+
+ENTITIES_MAP = (("&amp;", "&"), ("&gt;", ">"), ("&lt;", "<"))
 
 
 class JanewayTranslationModelForm(mt_forms.TranslationModelForm):
@@ -109,3 +114,38 @@ class CaptchaForm(Form):
             captcha = CharField(widget=HiddenInput, required=False)
 
         self.fields["captcha"] = captcha
+
+
+def text_sanitizer(text_value, tags=None, attrs=None, excl=ENTITIES_MAP):
+    """ A sanitizer for clearing potential harmful html/css/js from the input
+    :param text_value: the string to sanitize
+    :param tags: A list of allowed html tags
+    :param attrs: A dict of allowed html attributes
+    :param excl: A list of pairs of allowed items and their replacement
+    :return: Sanitized string
+    """
+    tags = tags or []
+    attrs = attrs or {}
+    excl = excl or {}
+
+    cleaned = bleach.clean(
+        text_value,
+        tags=tags,
+        attributes=attrs,
+        strip=True,
+    )
+    # Allow certain entities that bleach won't whitelist
+    # https://github.com/mozilla/bleach/issues/192#issuecomment-2304545475
+    for escaped, raw in excl:
+        cleaned = cleaned.replace(escaped, raw)
+
+    return cleaned
+
+
+def plain_text_validator(value):
+    """ A field validator that ensures a textual input has no harmful code"""
+    sanitized = text_sanitizer(value)
+    if value != sanitized:
+        raise ValidationError(
+            _("HTML is not allowed in this field")
+        )

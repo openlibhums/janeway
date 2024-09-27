@@ -2,6 +2,9 @@ from django import template
 
 from core import models
 
+from submission import models
+
+
 register = template.Library()
 
 

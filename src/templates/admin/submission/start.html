@@ -62,7 +62,7 @@
                         {{ journal_settings.general.copyright_notice|safe }}
                         <br />
                         {{ form.copyright_notice }}&nbsp;&nbsp;<label
-                            for="id_copyright_notice">{{ form.copyright_notice.label }}</label>
+                            for="id_copyright_notice">{{ form.copyright_notice.label|safe }}</label>
                     </div>
                 {% endif %}
 

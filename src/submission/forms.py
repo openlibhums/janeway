@@ -33,8 +33,12 @@ class ArticleStart(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('publication_fees', 'submission_requirements', 'copyright_notice',
-                  'competing_interests')
+        fields = (
+            'publication_fees',
+            'submission_requirements',
+            'copyright_notice',
+            'competing_interests',
+        )
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', False)
@@ -77,7 +81,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             'language', 'section', 'license', 'primary_issue',
             'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
             'first_page', 'last_page', 'page_numbers', 'total_pages',
-            'competing_interests', 'custom_how_to_cite', 'rights',
+            'custom_how_to_cite', 'rights',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -208,7 +212,6 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                     if editor_view:
                         self.fields[element.name].required = False
 
-
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
@@ -250,6 +253,11 @@ class EditorArticleInfoSubmit(ArticleInfo):
             self.fields['section'].help_text = "As an editor you will see all " \
                                                "sections even if they are  " \
                                                "closed for public submission"
+
+
+class EditArticleMetadata(ArticleInfo):
+    class Meta(ArticleInfo.Meta):
+        fields = ArticleInfo.Meta.fields + ('competing_interests',)
 
 
 class AuthorForm(forms.ModelForm):

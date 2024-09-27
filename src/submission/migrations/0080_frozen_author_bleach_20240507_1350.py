@@ -2,6 +2,7 @@
 
 import core.model_utils
 from django.db import migrations, models
+import utils.forms
 
 
 class Migration(migrations.Migration):
@@ -15,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='frozenauthor',
             name='department',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300),
+            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
             name='first_name',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300),
+            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
@@ -40,26 +41,26 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='frozenauthor',
             name='institution',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=1000),
+            field=models.CharField(blank=True, max_length=1000, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
             name='last_name',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300),
+            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
             name='middle_name',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300),
+            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
             name='name_prefix',
-            field=core.model_utils.JanewayBleachCharField(blank=True, help_text='Optional name prefix (e.g: Prof or Dr)', max_length=300),
+            field=models.CharField(blank=True, help_text='Optional name prefix (e.g: Prof or Dr)', max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='frozenauthor',
             name='name_suffix',
-            field=core.model_utils.JanewayBleachCharField(blank=True, help_text='Optional name suffix (e.g.: Jr or III)', max_length=300),
+            field=models.CharField(blank=True, help_text='Optional name suffix (e.g.: Jr or III)', max_length=300, validators=[utils.forms.plain_text_validator]),
         ),
     ]

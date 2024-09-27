@@ -4440,7 +4440,9 @@ msgid "\n"
 msgstr ""
 
 #: src/core/views.py:355
-msgid "Your account has been created, please follow theinstructions in the email that has been sent to you."
+msgid ""
+"Your account has been created. Please follow the instructions in the email "
+"that has been sent to you."
 msgstr ""
 
 #: src/core/views.py:400

@@ -33,7 +33,7 @@
                                 <td>{{ article.pk }}</td>
                                 <td>{{ article.safe_title }}</td>
                                 <td>{{ article.date_submitted }}</td>
-                                <td>{{ article.correspondence_author.full_name }}</td>
+                                <td>{{ article.correspondence_author.full_name|se_can_see_pii:article }}</td>
                                 <td>{{ article.section.name }}</td>
                                 <td><a href="{% url 'review_unassigned_article' article.pk %}">View</a></td>
                             </tr>

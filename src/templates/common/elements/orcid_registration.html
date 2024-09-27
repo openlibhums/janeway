@@ -9,6 +9,10 @@
             [<a href="{% url 'core_register' %}">remove</a>]
         </p>
     {% else %}
-        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'register' %}" class="button expanded orcid-button">{% trans "Register with ORCiD" %}</a>
+        <a
+          href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'register' %}"
+          class="{{ button_classes|default:"orcid-button" }}">
+          {% trans "Register with ORCiD" %}
+        </a>
     {% endif %}
 {% endif %}

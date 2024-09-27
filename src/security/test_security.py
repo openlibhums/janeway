@@ -29,7 +29,7 @@ from repository import models as repository_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
-from utils.testing import helpers
+from utils.testing import context_managers, helpers
 
 
 class TestSecurity(TestCase):
@@ -3104,6 +3104,23 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
+    def test_section_editor_cant_access_view_because_of_pii(self):
+        func = Mock()
+
+        with context_managers.janeway_setting_override(
+            "permission", "se_pii_filter", self.journal_one, True,
+        ):
+            decorated_func = decorators.editor_user_required_and_can_see_pii(func)
+            kwargs = {'article_id': self.article_in_review.pk}
+
+            request = self.prepare_request_with_user(self.section_editor, self.journal_one)
+
+            with self.assertRaises(
+                PermissionDenied,
+                msg="SE PII filter not leading to PermissionDenied",
+            ):
+                decorated_func(request, **kwargs)
+
     def test_article_stage_review_required_with_review_article(self):
         func = Mock()
         decorated_func = decorators.article_stage_review_required(func)
@@ -3967,19 +3984,105 @@ class TestSecurity(TestCase):
             "permission denied.",
         )
 
+    # PII Tests
+    def test_section_editor_cannot_see_pii_when_enabled(self):
+        """
+        Test that the section editor cannot see PII and it is anonymized in
+        the response.
+        """
+        with context_managers.janeway_setting_override(
+            "permission", "se_pii_filter", self.article_in_review.journal, True,
+        ):
+            self.client.force_login(self.section_editor)
+            article_views = [
+                'manage_article_log',
+                'edit_metadata',
+                'review_unassigned_article',
+                'review_in_review',
+                'review_decision',
+                'decision_helper',
+            ]
+            general_views = [
+                'core_dashboard',
+                'review_home',
+                'core_active_submissions',
+                'review_unassigned',
+            ]
+            list_of_pii_strings = self.get_pii_strings_for_article(
+                self.article_in_review,
+            )
+
+            for view_name in general_views:
+                response = self.client.get(
+                    reverse(
+                        view_name,
+                    ),
+                    SERVER_NAME=self.article_in_review.journal.domain,
+                )
+                found_strings = [
+                    string in response.content.decode('utf-8') for string in
+                    list_of_pii_strings
+                ]
+                self.assertFalse(any(found_strings))
+
+            for view_name in article_views:
+                kwargs = {
+                    'article_id': self.article_in_review.pk,
+                }
+                if view_name == 'review_decision':
+                    kwargs['decision'] = 'accept'
+                response = self.client.get(
+                    reverse(
+                        view_name,
+                        kwargs=kwargs,
+                    ),
+                    SERVER_NAME=self.article_in_review.journal.domain,
+                )
+                found_strings = [
+                    string in response.content.decode('utf-8') for string in
+                    list_of_pii_strings
+                ]
+                self.assertFalse(any(found_strings))
+
     # General helper functions
 
     @staticmethod
-    def create_user(username, roles=None, journal=None):
+    def create_user(
+            username,
+            roles=None,
+            journal=None,
+            first_name='',
+            last_name='',
+            institution='',
+            department='',
+            orcid='',
+            country_name='',
+            country_code='',
+    ):
         """
         Creates a user with the specified permissions.
         :return: a user with the specified permissions
         """
         # For consistency, outsourced to newer testing helpers
+        country_obj = None
+        if country_code and country_name:
+            country_obj, c = core_models.Country.objects.get_or_create(
+                code=country_code,
+                name=country_name,
+            )
+
         return helpers.create_user(
             username,
             roles=roles,
             journal=journal,
+            **{
+                'first_name': first_name,
+                'last_name': last_name,
+                'institution': institution,
+                'department': department,
+                'orcid': orcid,
+                'country': country_obj,
+            }
         )
 
     @staticmethod
@@ -4007,6 +4110,28 @@ class TestSecurity(TestCase):
 
         return journal_one, journal_two
 
+    @staticmethod
+    def get_pii_strings_for_article(article):
+        pii_strings = []
+        for fa in article.frozen_authors():
+            pii_strings.append(fa.first_name)
+            pii_strings.append(fa.last_name)
+            pii_strings.append(fa.email)
+            pii_strings.append(fa.orcid if fa.orcid else '')
+            pii_strings.append(fa.institution)
+            pii_strings.append(fa.department)
+            pii_strings.append(fa.country)
+        pii_strings.append(article.correspondence_author.first_name)
+        pii_strings.append(article.correspondence_author.last_name)
+        pii_strings.append(article.correspondence_author.email)
+        pii_strings.append(article.correspondence_author.department)
+        pii_strings.append(
+            article.correspondence_author.orcid if article.correspondence_author.orcid else ''
+        )
+        pii_strings.append(article.correspondence_author.institution)
+        pii_strings.append(article.correspondence_author.country)
+        return [string for string in pii_strings if string]
+
     @classmethod
     def setUpTestData(self):
         """
@@ -4018,7 +4143,16 @@ class TestSecurity(TestCase):
                            "production", "copyeditor", "typesetter",
                            "proofing-manager", "section-editor"])
 
-        self.regular_user = self.create_user("regularuser@martineve.com")
+        self.regular_user = self.create_user(
+            "redshirt@voyager.com",
+            first_name='Tim',
+            last_name='Redshirt',
+            institution='Starfleet Ops',
+            department='Canon Fodder',
+            orcid='1234-1234-1234-0000',
+            country_name='United States of America',
+            country_code='US',
+        )
         self.regular_user.is_active = True
         self.regular_user.save()
 
@@ -4040,7 +4174,18 @@ class TestSecurity(TestCase):
         self.editor.is_active = True
         self.editor.save()
 
-        self.author = self.create_user("authoruser@martineve.com", ["author"], journal=self.journal_one)
+        self.author = self.create_user(
+            "b.torres@voyager.com",
+            ["author"],
+            journal=self.journal_one,
+            first_name="Belanna",
+            last_name="Torres",
+            institution='Starfleet',
+            department='Engineering',
+            orcid='0000-1234-1234-1234',
+            country_code='FR',
+            country_name='France',
+        )
         self.author.is_active = True
         self.author.save()
 
@@ -4107,7 +4252,11 @@ class TestSecurity(TestCase):
         self.staff_member.is_staff = True
         self.staff_member.save()
 
-        self.repo_manager = self.create_user("repomanager@janeway.systems")
+        self.repo_manager = self.create_user(
+            "repomanager@janeway.systems",
+            first_name='Tom',
+            last_name='Paris',
+        )
         self.repo_manager.is_active = True
         self.repo_manager.save()
 
@@ -4150,6 +4299,27 @@ class TestSecurity(TestCase):
 
         self.third_file.save()
 
+        self.article_in_review = submission_models.Article.objects.create(
+            owner=self.regular_user, title="A Test Article in review",
+            abstract="An abstract",
+            stage=submission_models.STAGE_UNDER_REVIEW,
+            journal_id=self.journal_one.id,
+            correspondence_author=self.repo_manager,
+        )
+        self.article_in_review.authors.add(
+            self.author,
+        )
+        self.article_in_review.snapshot_authors()
+        review_models.ReviewRound.objects.get_or_create(
+            article=self.article_in_review,
+            round_number=1,
+        )
+        review_models.EditorAssignment.objects.get_or_create(
+            article=self.article_in_review,
+            editor=self.section_editor,
+            editor_type='section-editor',
+            notified=True,
+        )
         self.article_in_production = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                abstract="An abstract",
                                                                stage=submission_models.STAGE_TYPESETTING,

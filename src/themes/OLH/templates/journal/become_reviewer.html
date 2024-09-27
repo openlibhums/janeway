@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load i18n %}
+{% load next_url %}
 
 {% block title %}{% trans "Become a Reviewer" %}{% endblock title %}
 
@@ -12,8 +13,9 @@
 
             {% if not code == 'already-reviewer' %}
                 {% if code == 'not-logged-in' %}
-                    <a class="success button" href="{% url 'core_login' %}?next={% url 'become_reviewer' %}">
-                        {% trans "Login" %}</a>
+                    <a class="success button" href="{% url_with_return 'core_login' %}">
+                      {% trans "Log in" %}
+                    </a>
                 {% else %}
                     <form method="POST">
                     {% csrf_token %}

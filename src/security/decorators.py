@@ -18,7 +18,13 @@ from production import models as production_models
 from submission import models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
-from security.logic import can_edit_file, can_view_file_history, can_view_file, is_data_figure_file
+from security.logic import (
+    can_edit_file,
+    can_see_pii,
+    can_view_file,
+    can_view_file_history,
+    is_data_figure_file,
+)
 from utils import setting_handler
 from utils.logger import get_logger
 from repository import models as preprint_models
@@ -43,10 +49,13 @@ def base_check(request, login_redirect=False):
     ):
         if login_redirect is True:
             request_params = request.GET.urlencode()
-            params = urlencode({"next": f"{request.path}?{request_params}"})
+            if request_params:
+                params = urlencode({"next": f"{request.path}?{request_params}"})
+            else:
+                params = urlencode({"next": request.path})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         elif isinstance(login_redirect, str):
-            params = urlencode({"next": redirect})
+            params = urlencode({"next": login_redirect})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         else:
             return False
@@ -269,7 +278,6 @@ def editor_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         article_id = kwargs.get('article_id', None)
 
         if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
@@ -286,6 +294,25 @@ def editor_user_required(func):
             deny_access(request)
 
     return wrapper
+
+
+def editor_user_required_and_can_see_pii(func):
+    """Extends editor_user_required to check if SE can see PII"""
+    @editor_user_required
+    def can_see_pii_decorator(request, *args, **kwargs):
+        article_id = kwargs.get('article_id')
+        article = get_object_or_404(models.Article, pk=article_id)
+        if (
+            request.user in article.section_editors()
+            and not can_see_pii(request, article)
+        ):
+            deny_access(
+                request,
+                "You cannot access this page yet, because it could reveal"
+                " personally identifiable information."
+            )
+        return func(request, *args, **kwargs)
+    return can_see_pii_decorator
 
 
 def any_editor_user_required(func):

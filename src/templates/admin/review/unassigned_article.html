@@ -1,11 +1,10 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
-{% load roles %}
-{% load i18n %}
+{% load static roles i18n securitytags %}
+{% can_see_pii_tag article as can_see_pii %}
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -31,9 +30,9 @@
                     </tr>
                     <tr>
                         <td>{{ article.section.name }}</td>
-                        <td>{{ article.owner.full_name }}</td>
+                        <td>{{ article.owner.full_name|se_can_see_pii:article }}</td>
                         <td>{{ article.license.short_name }}</td>
-                        <td>{{ article.language }}</td>
+                        <td>{{ article.get_language_display }}</td>
                     </tr>
                     <tr>
                         <th colspan="2">Started</th>
@@ -104,8 +103,8 @@
                     </tr>
                     {% for order in article.articleauthororder_set.all %}
                         <tr>
-                            <td>{{ order.author.full_name }}</td>
-                            <td>{{ order.author.email }}</td>
+                            <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
+                            <td>{{ order.author.email|se_can_see_pii:article }}</td>
                             <td>{% if order.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
@@ -151,7 +150,9 @@
                         <th>Uploaded</th>
                         <th>Download</th>
                         <th>Replace</th>
+                        {% if can_see_pii %}
                         <th>File History</th>
+                        {% endif %}
                         {% if journal_settings.crosscheck.enable %}
                             <th>Similarity Check</th>{% endif %}
                     </tr>
@@ -168,9 +169,11 @@
                                 <td>
                                     <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                                {% if can_see_pii %}
                                 <td>
                                     <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
                                             class="fa fa-history">&nbsp;</i></a></td>
+                                {% endif %}
                                 {% if journal_settings.crosscheck.enable %}
                                     <td>{% if not article.ithenticate_id %}
                                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i

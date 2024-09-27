@@ -24,7 +24,7 @@
                     <p>
                         {% blocktrans trimmed %}For more information read our <a href="#" data-target="passwordmodal" class="modal-trigger">password guide</a>.{% endblocktrans %}
                     </p>
-                        {% include "common/elements/orcid_registration.html" %}
+                        {% include "common/elements/orcid_registration.html" with button_classes="btn wide-button orcid-button" %}
                         <form method="POST">
                         {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
