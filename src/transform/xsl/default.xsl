@@ -451,6 +451,14 @@
         </ol>
     </xsl:template>
 
+    <xsl:template match="back/notes/fn-group">
+        <!-- Render note items as an ordered list -->
+        <xsl:element name="ol">
+            <xsl:attribute name="class">footnotes</xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+
   <xsl:template match="back/notes/title[1]">
     <!-- Render the first title of the notes as a top level article header -->
     <xsl:element name="h2">
