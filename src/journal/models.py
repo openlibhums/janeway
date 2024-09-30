@@ -331,6 +331,11 @@ class Journal(AbstractSiteModel):
     def use_crossref(self):
         return setting_handler.get_setting('Identifiers', 'use_crossref', self, default=True).processed_value
 
+    @property
+    @cache(120)
+    def register_doi_at_acceptance(self):
+        return setting_handler.get_setting('Identifiers', 'register_doi_at_acceptance', self, default=True).processed_value
+
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)
