@@ -1513,7 +1513,8 @@ class Article(AbstractLastModifiedModel):
 
         if self.journal.use_crossref:
             id = id_logic.generate_crossref_doi_with_pattern(self)
-            id.register()
+            if self.journal.register_doi_at_acceptance:
+                id.register()
 
     def decline_article(self):
         self.date_declined = timezone.now()
