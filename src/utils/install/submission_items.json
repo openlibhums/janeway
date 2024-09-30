@@ -43,5 +43,15 @@
     "group": "special",
     "name": "sections",
     "title": "sections"
+  },
+  {
+    "group": "general",
+    "name": "submit_info_form_editor_version",
+    "title": "submission.forms.EditorArticleInfoSubmit"
+  },
+  {
+    "group": "general",
+    "name": "submit_info_form_general_version",
+    "title": "submission.forms.ArticleInfoSubmit"
   }
 ]

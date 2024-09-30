@@ -185,10 +185,7 @@ def submit_info(request, article_id):
             request.journal,
         ).processed_value
 
-        # Determine the form to use depending on whether the user is an editor.
-        article_info_form = forms.ArticleInfoSubmit
-        if request.user.is_editor(request):
-            article_info_form = forms.EditorArticleInfoSubmit
+        article_info_form = forms.get_submit_info_form(request)
 
         form = article_info_form(
             instance=article,
@@ -733,7 +730,7 @@ def edit_metadata(request, article_id):
             article=article,
         )
 
-        info_form = forms.ArticleInfo(
+        info_form = forms.get_submit_info_edit_form(request)(
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
@@ -767,7 +764,7 @@ def edit_metadata(request, article_id):
                     return redirect(reverse_url)
 
             if 'metadata' in request.POST:
-                info_form = forms.ArticleInfo(
+                info_form = forms.get_submit_info_edit_form(request)(
                     request.POST,
                     instance=article,
                     additional_fields=additional_fields,

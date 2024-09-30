@@ -5117,5 +5117,43 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Dotted path of the form used during the submission phase for editors.",
+            "is_translatable": true,
+            "name": "submit_info_form_editor_version",
+            "pretty_name": "General Publication Editor info form",
+            "type": "char"
+        },
+        "value": {
+            "default": "submission.forms.EditorArticleInfoSubmit"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Dotted path of the form used during the submission phase for authors.",
+            "is_translatable": true,
+            "name": "submit_info_form_general_version",
+            "pretty_name": "General Publication info form",
+            "type": "char"
+        },
+        "value": {
+            "default": "submission.forms.ArticleInfoSubmit"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
