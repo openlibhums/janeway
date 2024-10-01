@@ -60,6 +60,7 @@ When Crossref integration is enabled, the following personal information is shar
 DOAJ
 ~~~~
 When the DOAJ Transporter is enabled, the following personal information is shared:
+
 - Author names
 - Institution and department
 - ORCID

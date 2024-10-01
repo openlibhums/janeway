@@ -247,13 +247,11 @@ Key Settings for Triple Anonymous Peer Review
 
 - Section Editor Personally Identifiable Information Filter (``se_pii_filter``)
 
-  - Type: Boolean (checkbox)
-  - Action: Must be toggled on to enable anonymisation of author data in the relevant interfaces.
+  - Must be toggled on to enable anonymisation of author data in the relevant interfaces.
 
 - Reply-To Address (``replyto_address``)
 
-  - Type: Char field (text box)
-  - Action: Must be set to a valid email address. This is required to avoud leaking author email addresses during the review process.
+  - Must be set to a valid email address. This is required to avoud leaking author email addresses during the review process.
 
 These settings are accessible through the All Settings screen (Manager > All Settings).
 
