@@ -237,6 +237,68 @@ In the revision process, authors are encouraged to provide a written response to
 
     Response letter being shared with peer reviewers.
 
+Triple Anonymous Peer Review
+----------------------------
+
+Triple Anonymous Peer Review in Janeway involves anonymising author information to ensure that section editors are unaware of the authors' identities during the review process. This review method ensures that the reviewer, section editor, and author remain anonymous to one another until the completion of the review stage. Here is an overview of how this feature operates:
+
+Key Settings for Triple Anonymous Peer Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Section Editor Personally Identifiable Information Filter (``se_pii_filter``)
+
+  - Type: Boolean (checkbox)
+  - Action: Must be toggled on to enable anonymisation of author data in the relevant interfaces.
+
+- Reply-To Address (``replyto_address``)
+
+  - Type: Char field (text box)
+  - Action: Must be set to a valid email address. This is required to avoud leaking author email addresses during the review process.
+
+These settings are accessible through the All Settings screen (Manager > All Settings).
+
+Workflow of Triple Anonymous Peer Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Assigning the Section Editor**: The journal editor assigns a section editor to the manuscript. Before doing so, the manuscript file must be anonymous to prevent the section editor from seeing any personal data.
+- **Assigning Reviewers**: The section editor can now manage the peer review process as normal.
+- **Anonymised Data**: Instead of viewing the author's personal details (name, email, institution), the section editor will see '[Anonymised data]' in these fields throughout the review process.
+- **Access to Information Post-Review**: Once the review is completed, section editors regain access to the author's personal information.
+
+Areas with Anonymisation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here are the specific areas within Janeway where anonymisation is applied:
+
+- **Dashboards**
+
+  - Anonymises author data on the main dashboard, kanban view, and active submissions section.
+
+- **Unassigned**
+
+  - Anonymises author data for unassigned submissions.
+
+- **Review**
+
+  - Section editors cannot access the Document Manager, where author details might be stored.
+
+- **View Metadata**
+
+  - Author details are anonymised in the metadata view.
+
+- **Edit Metadata**
+
+  - Section editors are blocked from editing article metadata, ensuring no access to author information.
+
+- **Article Log**
+
+  - Author information is anonymised in the article log, ensuring section editors do not gain access to personal data through log entries.
+
+- **Email Templates**
+
+  - Limits the display of author information in email templates, particularly for decision letters (e.g., revision request, acceptance, and decline).
+
+This system ensures a rigorous triple-anonymous process, safeguarding the identities of all parties involved.
 
 An Example Review Round
 -----------------------
