@@ -1,6 +1,5 @@
 {% extends "admin/core/base.html" %}
 {% load static roles i18n securitytags %}
-{% can_see_pii_tag article as can_see_pii %}
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
@@ -14,6 +13,7 @@
 
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
+    {% can_see_pii_tag article as can_see_pii %}
     <div class="large-7 columns">
         <div class="box">
             <div class="title-area">
