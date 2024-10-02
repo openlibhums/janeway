@@ -1,0 +1,67 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load orcid %}
+{% load fqdn %}
+
+{% block title %}{% trans "Log in" %}{% endblock title %}
+
+{% block body %}
+  <div class="padding-block-2 grid place-content-center">
+    <div class="max-w-24">
+      <form method="POST">
+        {% include "common/elements/static-error-messages.html" with form=form %}
+        {% csrf_token %}
+        <div class="callout padding-inline-2">
+          <h2 class="text-center">
+            {% trans "Log in" %}
+          </h2>
+          {% if settings.ENABLE_ORCID %}
+            <div>
+              <a
+                href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
+                class="button expanded orcid-button">
+                {% trans "Log in with ORCiD" %}
+              </a>
+            </div>
+          {% endif %}
+          {% if settings.ENABLE_OIDC %}
+            <div>
+              <a
+                href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
+                class="button expanded secondary hollow">
+                {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
+              </a>
+            </div>
+          {% endif %}
+          {% if journal_settings.general.display_login_page_notice %}
+            {{ journal_settings.general.login_page_notice|safe }}
+          {% endif %}
+          <label for="{{ form.user_name.id_for_label }}">
+            {% trans form.fields.user_name.label %}
+          </label>
+          {{ form.user_name }}
+          <label for="{{ form.user_pass.id_for_label }}">
+            {% trans form.user_pass.label %}
+          </label>
+          {{ form.user_pass }}
+          {{ form.captcha }}
+          <div>
+            <button type="submit" class="button expanded primary">
+              {% trans "Log in with your account" %}
+            </button>
+          </div>
+          <p class="text-center">
+            <a href="{% url 'core_get_reset_token' %}">
+              {% trans "Forgotten your password?" %}
+            </a>
+          </p>
+          <p class="text-center">
+            <a href="{% url 'core_register' %}">
+              {% trans "Register a new account" %}
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock body %}

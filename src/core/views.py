@@ -142,7 +142,7 @@ def user_login(request):
     context = {
         'form': form,
     }
-    template = 'core/login.html'
+    template = 'admin/core/accounts/login.html'
 
     return render(request, template, context)
 
@@ -254,7 +254,7 @@ def get_reset_token(request):
             except models.Account.DoesNotExist:
                 return redirect(reverse('core_login'))
 
-    template = 'core/accounts/get_reset_token.html'
+    template = 'admin/core/accounts/get_reset_token.html'
     context = {
         'new_reset_token': new_reset_token,
         'form': form,

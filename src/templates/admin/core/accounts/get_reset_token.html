@@ -1,0 +1,37 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load orcid %}
+{% load fqdn %}
+{% load i18n foundation %}
+
+{% block title %}{% trans "Reset password" %}{% endblock title %}
+
+{% block body %}
+  <div class="padding-block-2 grid place-content-center">
+    <div class="max-w-24">
+      {% include "elements/forms/errors.html" with form=form %}
+      <form method="POST">
+        {% csrf_token %}
+        <div class="callout padding-inline-2">
+          <h2 class="text-center">
+            {% trans "Reset password" %}
+          </h2>
+          <p>
+            {% blocktrans %}
+              Enter your email address and then follow the link sent to you by email.
+            {% endblocktrans %}
+          </p>
+          <label for="{{ form.email_address.id_for_label }}">
+            {% trans form.email_address.label %}
+          </label>
+          {{ form.email_address }}
+          <div>
+            <button type="submit" class="button expanded primary">
+              {% trans "Request link" %}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock body %}

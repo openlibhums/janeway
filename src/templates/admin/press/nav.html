@@ -78,8 +78,10 @@
             <div class="small-4 columns text-right">
                 <div class="profile">
                     <a class="float-right" data-toggle="profile-dropdown">
+                      {% if not request.user.is_anonymous %}
                         <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
                         {% include "elements/avatar.html" with user=request.user tooltip="off" %}
+                      {% endif %}
                     </a>
                 </div>
                 <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">

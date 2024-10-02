@@ -1,0 +1,24 @@
+/* This file resets some things for basic accessibility in the back-office UI
+ * until we can migrate the UI to a new CSS codebase */
+
+:root {
+  /* Back-office named colors */
+  --clr-blue-medium: #305AA3;
+  --clr-navy: #1a2a57;
+  --clr-black: #0a0a0a;
+  --clr-white: #fff;
+
+  /* Third-party named colors */
+  --clr-orcid-primary: rgb(166, 206, 57);
+  --clr-orcid-dark: rgb(127, 170, 38);
+  --clr-orcid-darkest: rgb(68, 116, 5);
+  --clr-orcid-light: rgb(212, 231, 161);
+  --clr-orcid-lightest: rgb(245, 249, 232);
+
+  /* Functional colors */
+  --clr-primary: var(--clr-blue-medium);
+  --clr-secondary: var(--clr-blue-medium);
+  --clr-text: var(--clr-black);
+  --clr-orcid-background: var(--clr-orcid-lightest);
+  --clr-orcid-foreground: var(--clr-orcid-darkest);
+}
