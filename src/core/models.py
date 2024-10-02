@@ -1054,7 +1054,7 @@ class File(AbstractLastModifiedModel):
             file_name = '{code}-{pk}{surname}{extension}'.format(
                 code=article.journal.code,
                 pk=article.pk,
-                surname=author_surname,
+                surname=author_surname.strip(),
                 extension=extension
             )
             return file_name.lower()
