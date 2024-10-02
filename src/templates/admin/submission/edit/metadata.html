@@ -1,8 +1,6 @@
 {% extends "admin/core/base.html" %}}
 {% load foundation static bool_fa securitytags %}
 
-{% can_see_pii_tag article as can_see_pii %}
-
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
 
 
@@ -18,6 +16,7 @@
 {% endblock %}
 
 {% block body %}
+    {% can_see_pii_tag article as can_see_pii %}
     <div class="large-12 columns box">
         <div class="row expanded">
             <form method="POST"{% if journal_settings.general.abstract_required %} novalidate{% endif %}>
@@ -157,7 +156,7 @@
                             <td>{{ f_author.institution|se_can_see_pii:article }}</td>
                             <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                 <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                            <td>{% if can_see_pii_tag %}
+                            <td>{% if can_see_pii %}
                               <a href="?author={{ f_author.pk }}&return={{ return }}"><i
                                     class="fa fa-edit">&nbsp;</i>Edit</a>
                               {% else %}
