@@ -54,7 +54,7 @@
     <!-- article citation modals -->
     <div id="HarvardModal" class="reveal" data-reveal aria-labelledby="HarvardModalTitle" aria-hidden="true"
          role="dialog">
-        <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
+        <h2 id="HarvardModalTitle">Harvard-style Citation</h2>
         <p>{% for author in article.authors.all %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
             ({{ article.date_published.year }}) '{{ article.safe_title }}',
@@ -69,7 +69,7 @@
 
     <div id="VancouverModal" class="reveal" data-reveal aria-labelledby="VancouverModalTitle" aria-hidden="true"
          role="dialog">
-        <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
+        <h2 id="VancouverModalTitle">Vancouver-style Citation</h2>
         <p>{% for author in article.authors.all %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
             {{ article.safe_title }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};0(0):{{ article.page_range }}.
@@ -83,7 +83,7 @@
 
     <div id="APAModal" class="reveal" data-reveal aria-labelledby="APAModalTitle" aria-hidden="true"
          role="dialog">
-        <h2 id="APAModalTitle">APA-Style Citation</h2>
+        <h2 id="APAModalTitle">APA-style Citation</h2>
         <p>{% for author in article.authors.all %}{% if forloop.last and not forloop.first %}
             &amp; {% endif %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
