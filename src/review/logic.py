@@ -22,6 +22,7 @@ from django.db.models import (
     When,
     BooleanField,
     Value,
+    Q,
 )
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
@@ -49,7 +50,8 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
         ).exclude(date_complete__isnull=True).order_by("-date_complete")
     )
     active_reviews_count = models.ReviewAssignment.objects.filter(
-        is_complete=False,
+        Q(date_complete__isnull=True) | Q(is_complete=True),
+        article__journal=article.journal,
         reviewer=OuterRef("id"),
     ).values(
         "reviewer_id",
