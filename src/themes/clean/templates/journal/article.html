@@ -312,6 +312,15 @@
                         </a>
                         <br/>
                     </div>
+                    {% if article.preprint and article.preprint.is_published %}
+                      <h2>{{ article.preprint.repository.object_name }}</h2>
+                      <p>This article is linked to
+                        a {{ article.preprint.repository.object_name }}
+                        in {{ article.preprint.repository.name }}.</p>
+                      <p>
+                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                      </p>
+                    {% endif %}
                     <h2>{% trans 'File Checksums' %}</h2> (MD5)
                     {% if galleys %}
                         <ul>

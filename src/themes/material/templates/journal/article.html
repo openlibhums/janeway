@@ -449,6 +449,16 @@
                         </div>
                     {% endif %}
 
+                    {% if article.preprint and article.preprint.is_published %}
+                      <h4>{{ article.preprint.repository.object_name }}</h4>
+                      <p>This article is linked to
+                        a {{ article.preprint.repository.object_name }}
+                        in {{ article.preprint.repository.name }}.</p>
+                      <p>
+                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                      </p>
+                    {% endif %}
+
                     {% if article.is_published or proofing %}
                         <h4>
                             {% trans "File Checksums" %} (MD5)
