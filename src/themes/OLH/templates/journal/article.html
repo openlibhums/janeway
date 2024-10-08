@@ -475,7 +475,7 @@
                         </div>
                         {% endfor %}
 
-                        {% if article.preprint %}
+                        {% if article.preprint and article.preprint.is_published %}
                         <div class="section hide-for-small-only">
                             <h3>{{ article.preprint.repository.object_name }}</h3>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
