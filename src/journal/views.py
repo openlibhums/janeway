@@ -2820,12 +2820,6 @@ class FacetedArticlesListView(core_views.GenericFacetedListView):
             stage=submission_models.STAGE_UNSUBMITTED
         )
 
-    def get_facet_queryset(self, **kwargs):
-        queryset = super().get_facet_queryset(**kwargs)
-        return queryset.exclude(
-            stage=submission_models.STAGE_UNSUBMITTED
-        )
-
 
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(decorators.frontend_enabled, name='dispatch')
@@ -2862,13 +2856,6 @@ class PublishedArticlesListView(FacetedArticlesListView):
             },
         }
         return self.filter_facets_if_journal(facets)
-
-    def get_facet_queryset(self):
-        queryset = super().get_facet_queryset()
-        return queryset.filter(
-            date_published__lte=timezone.now(),
-            stage=submission_models.STAGE_PUBLISHED,
-        )
 
     def get_order_by_choices(self):
         return [

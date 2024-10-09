@@ -589,18 +589,14 @@ class AccessRequestForm(forms.ModelForm):
 class CBVFacetForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        # This form populates the facets that users can filter results on
-        # If you pass a separate facet_queryset into kwargs, the form is
-        # the same regardless of how the result queryset changes
-        # To have the facets dynamically contract based on the result queryset,
-        # do not pass anything for facet_queryset into kwargs.
+        # This form populates the facets that users can filter results on.
+        # The facets dynamically change based on the queryset of results,
+        # so users only see filter options that will have an effect on the
+        # current results.
 
         self.id = 'facet_form'
         self.queryset = kwargs.pop('queryset')
         self.facets = kwargs.pop('facets')
-        self.facet_queryset = kwargs.pop('facet_queryset', None)
-        if not self.facet_queryset:
-            self.facet_queryset = self.queryset
         self.fields = {}
 
         super().__init__(*args, **kwargs)
@@ -611,10 +607,7 @@ class CBVFacetForm(forms.Form):
 
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
-                if self.facet_queryset:
-                    column = self.facet_queryset.values_list(facet_key, flat=True)
-                else:
-                    column = self.queryset.values_list(facet_key, flat=True)
+                column = self.queryset.values_list(facet_key, flat=True)
                 values_list = list(filter(bool, column))
                 choice_queryset = facet['model'].objects.filter(pk__in=values_list)
 
@@ -642,14 +635,10 @@ class CBVFacetForm(forms.Form):
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
 
-                if self.facet_queryset:
-                    queryset = self.facet_queryset
-                else:
-                    queryset = self.queryset
                 column = []
                 values_list = []
                 lookup_parts = facet_key.split('.')
-                for obj in queryset:
+                for obj in self.queryset:
                     for part in lookup_parts:
                         if obj:
                             try:

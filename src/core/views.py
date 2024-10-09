@@ -2487,7 +2487,6 @@ class GenericFacetedListView(generic.ListView):
 
         context['facet_form'] = forms.CBVFacetForm(
             queryset=queryset,
-            facet_queryset=self.get_facet_queryset(),
             facets=facets,
             initial=initial,
         )
@@ -2580,18 +2579,8 @@ class GenericFacetedListView(generic.ListView):
         return self.filter_facets_if_journal(facets)
 
     def get_facet_queryset(self):
-        # The default behavior is for the facets to stay the same
-        # when a filter is chosen.
-        # To make them change dynamically, return None
-        # instead of a separate facet.
-        # return None
-
-        journal_query = self.get_journal_filter_query()
-        queryset = super().get_queryset().filter(journal_query)
-        facets = self.get_facets()
-        for facet in facets.values():
-            queryset = queryset.annotate(**facet.get('annotations', {}))
-        return queryset.order_by()
+        # This method is deprecated.
+        return None
 
     def get_actions(self):
         return []
@@ -2780,6 +2769,3 @@ class BaseUserList(GenericFacetedListView):
                 messages.success(request, message)
 
         return super().post(request, *args, **kwargs)
-
-    def get_facet_queryset(self):
-        return None
