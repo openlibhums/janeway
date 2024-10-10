@@ -8,6 +8,7 @@ from importlib import import_module
 import json
 import pytz
 import time
+import warnings
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -2580,7 +2581,11 @@ class GenericFacetedListView(generic.ListView):
 
     def get_facet_queryset(self):
         # This method is deprecated.
-        return None
+        warnings.warn(
+            ".get_facet_queryset() is deprecated and will"
+            " be removed. Use .get_queryset instead"
+        )
+        return self.get_queryset()
 
     def get_actions(self):
         return []
