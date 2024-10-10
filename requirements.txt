@@ -5,7 +5,7 @@ bs4==0.0.1
 colorlog==3.1.4
 chardet==3.0.4
 crossrefapi==1.5.0
-Django==4.2.15
+Django==4.2.16
 django-bleach==3.0.1
 django-bootstrap4==23.2
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git@284fc5f08e58d8655c7301eddb49f920fda516d2#egg=foundationform
