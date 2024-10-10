@@ -1,7 +1,5 @@
 {% extends "admin/core/base.html" %}}
-{% load foundation %}
-{% load static %}
-{% load bool_fa %}
+{% load foundation static bool_fa securitytags %}
 
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
 
@@ -18,6 +16,7 @@
 {% endblock %}
 
 {% block body %}
+    {% can_see_pii_tag article as can_see_pii %}
     <div class="large-12 columns box">
         <div class="row expanded">
             <form method="POST"{% if journal_settings.general.abstract_required %} novalidate{% endif %}>
@@ -143,22 +142,27 @@
                         <th>Display Email Link?</th>
                         <th>Institution</th>
                         <th>Correspondence Author</th>
-                        <th></th>
-                        <th></th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                     </thead>
                     <tbody id="sortable">
                     {% for f_author in article.frozen_authors %}
                         <tr id="authors-{{ f_author.pk }}">
                             <td><i class="fa fa-sort"></i></td>
-                            <td>{{ f_author.full_name }}</td>
-                            <td>{{ f_author.email }}</td>
+                            <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
+                            <td>{{ f_author.email|se_can_see_pii:article }}</td>
                             <td>{{ f_author.display_email|bool_fa }}</td>
-                            <td>{{ f_author.institution }}</td>
+                            <td>{{ f_author.institution|se_can_see_pii:article }}</td>
                             <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                 <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                            <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
-                                    class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                            <td>{% if can_see_pii %}
+                              <a href="?author={{ f_author.pk }}&return={{ return }}"><i
+                                    class="fa fa-edit">&nbsp;</i>Edit</a>
+                              {% else %}
+                                Author data cannot be edited
+                              {% endif %}
+                            </td>
                             <td>
                                 <form method="POST">{% csrf_token %}
                                     <button type="submit" name="delete" value="{{ f_author.pk }}"><i
@@ -276,7 +280,9 @@
             </div>
         </div>
     </div>
+    {% if can_see_pii %}
     {% include "admin/elements/submission/edit_author.html" %}
+    {% endif %}
 {% endblock body %}
 
 

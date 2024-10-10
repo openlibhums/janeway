@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from production import models as production_models
 from proofing import models as proofing_models
 from submission import models as submission_models
+from utils import setting_handler
 
 
 def can_edit_file(request, user, file_object, article):
@@ -125,3 +126,29 @@ def is_data_figure_file(file_object, article_object):
 
     # deny access to all others
     return False
+
+
+def can_see_pii(request, article):
+    # Before doing anything, check the setting is enabled:
+    se_pii_filter_enabled = setting_handler.get_setting(
+        setting_group_name='permission',
+        setting_name='se_pii_filter',
+        journal=article.journal,
+    ).processed_value
+
+    # early return if filter not enabled
+    if not se_pii_filter_enabled:
+        return True
+
+    # Check if the user is an SE and return an anonymised value.
+    # If the user is not a section editor we assume they have permission
+    # to view the actual value.
+    stages = [
+        submission_models.STAGE_UNASSIGNED,
+        submission_models.STAGE_ASSIGNED,
+        submission_models.STAGE_UNDER_REVIEW,
+        submission_models.STAGE_UNDER_REVISION,
+    ]
+    if request.user in article.section_editors() and article.stage in stages:
+        return False
+    return True

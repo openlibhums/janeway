@@ -4,22 +4,19 @@ Review
 Unassigned Article
 ------------------
 
-Once an Author has submitted an article it is the Editor's turn to review the unassigned article, assign an Editor and move it into the review process. An Editor will be notified once an article is submitted, the email will contain a link, or the Editor can access the article from the Dashboard page.
+Once an Author has submitted an article it is the Editor's turn to review the unassigned article, assign an Editor and move it into Review. An Editor will be notified once an article is submitted, the email will contain a link, or the Editor can access the article from their Dashboard.
 
-Selecting Unassigned will provide the Editor with a list of articles that haven't yet been assigned an Editor and moved into review. You can view the data for an article by selecting "View". On the left hand of the page all of the article's metadata will be listed, on the right, its options and actions.
+Selecting Unassigned will provide the Editor with a list of articles that haven't been assigned to an Editor yet and moved into Review. You can view the data for an article by selecting "View". On the left hand of the page, all of the article's metadata will be listed, on the right, its options and actions.
 
-The first thing an Editor needs to do is assign an Editor or Section Editor to the handle the article through the journal workflow. Once assigned, the Editor can then do one of the following:
+The first thing an Editor needs to do is assign an Editor or Section Editor to handle the article through the journal workflow. Once assigned, the Editor can do one of the following:
 
-1. Move the article to review
-2. Reject the article outright
-3. Accept the article outright
+1. Move the article to Review.
+2. Reject the article outright.
+3. Accept the article outright.
 
-Rejecting will allow you to tell the author why, Accepting will move it into Copyediting (if you have the default workflow) and Moving to Review will move the article into the Review workflow.
+Rejecting the article will allow the Editor to inform the Author with reasons for rejection, accepting the article will move it into Copyediting (if you have the default workflow) and moving to Review will move the article into the peer review process.
 
-If you move the article into review and are the author of an article you will be blocked by a permission denied page.
-
-If you opt to over-ride the security warning, all other Editors will be notified of this.
-
+If you move the article into review and are its Author, you will be blocked by a permission denied page. If you opt to override the security warning, all other Editors will be notified of this.
 
 .. figure:: ../nstatic/unassigned.gif
    :alt: Setting a projected issue and assigning an editor.
@@ -29,7 +26,7 @@ If you opt to over-ride the security warning, all other Editors will be notified
 Review Page
 -----------
 
-The review page presets various actions:
+The review page presents various actions:
 
 1. Add Files
 2. Delete Round
@@ -42,47 +39,50 @@ The review page presets various actions:
 Add Files
 ---------------
 
-The Add Files options allows you to list which files will be listed for the reviewers in the current review round. All reviewers for a given round will see the same files. You will also be asked to confirm that the files you've selected have been checked to ensure there is no identifying author information in them. If there are you can download, edit and replace the version in the system on this screen.
+The Add Files option allows you to list which files will be available for the reviewers in the current review round. All reviewers for a given round will see the same files. You will also be asked to confirm that the selected files have been checked to ensure there is no identifying author information in them. If there are you can download, edit and replace the version in the system on this screen.
 
 .. figure:: ../nstatic/review_add_files.gif
 
 Delete Round
 ------------------
 
-This is an end all button, it will remove the files and reviewers from the current round. You will be given a prompt that explains what will be deleted if you agree, **NB**. **there is no way to recover a review assignment once it is deleted so only use this option if you really want to remove it, better to add a new round which will close all open review assignments.**
+This is an 'end-all' button, it will remove the files and reviewers from the current round. You will be given a prompt that explains what will be deleted if you agree.
+
+.. warning::
+   There is no way to recover a review assignment once it is deleted, so only use this option if you are certain you wish to remove it. It is often better to add a new round which will close all open review assignments.
 
 Add Reviewer
 ------------------
 
-When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(anonymity, form and due date\) or, if you've setup the required defaults, you can "Assign with Defaults". This will use the default type, anonymity, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
+When adding a reviewer you have two options, you can select a reviewer and go through the process of setting up their review \(anonymity, form and due date\) or, if you've set up the required defaults, you can "Assign with Defaults". This will use the default type, anonymity, form and due date for your journal and send an automated email to the reviewer \(the former allows you to edit the email\).
 
 Assuming you choose to select the options yourself, when you press "Add Reviewer" you will be taken to the "Notify" page where you can edit the outgoing email to the user. There is an option available to skip sending this email if you wish.
 
-Once the reviewer is assigned they will be able to access the system and let you know if they will complete the review and, if yes, access the review form you specified.
+Once the Reviewer is assigned they will be able to access the system and let you know if they will complete the review and, if yes, access the review form you specified.
 
 .. figure:: ../nstatic/review_add_reviewer.gif
 
 Managing a Review
 -----------------
 
-Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
+Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means that you are waiting for the Reviewer to accept or decline to undertake the review. At this stage, you can:
 
-1. View the review, though it doesn't tell us much
-2. Withdraw the review
-3. Delete the review
-4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
+1. View the review, though it will not contain much information yet.
+2. Withdraw the review.
+3. Delete the review.
+4. If the review is withdrawn or declined by the Reviewer, you can use the new Reset option to set it back to Awaiting Acknowledgement.
 
 
 Making Reviews Available to Authors
 -----------------------------------
-Once a peer review is complete, editors then have the option to make it available to the the author to read. By default the review will not be available for the author to read. When the review has a file, you will also have the option to make the file available for the author to read. Once you have opened a review you will see a details of the review assignment, a summary of the review and the review availability controls.
+Once a peer review is complete, editors then have the option to make it available to the Author to read. By default, the review will not be available for the Author to read. When the review has a file, you will also have the option to make the file available for the Author to read. Once you have opened a review you will see details of the review assignment, a summary of the review and the review availability controls.
 
 .. figure:: ../nstatic/review_view_page.png
 
 Allow Author to Read Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can make the review form visible to the author by toggling *Author can access this review*, and the file available by toggling *Author can access review file*.
+You can make the review form visible to the Author by toggling *Author can access this review*, and the file available by toggling *Author can access review file*.
 
 .. figure:: ../nstatic/review_visibility_controls_1.png
 
@@ -109,9 +109,9 @@ Once you have adjusted the visibility of Peer Review reports, and have clicked t
 Decision Helper
 -----------------
 .. warning::
-    As of version 1.3.10 all review decisions have been moved to the Decision Helper page.
+    As of version 1.3.10, all review decisions have been moved to the Decision Helper page.
 
-One of the options under Actions is "Make a Decision" this will take you to the Decision Helper page. Once on this page you will see a summary of reviewer recommendations, their review form answers and a list of uncompleted reviews. The decisions available from this screen are:
+One of the options under Actions is "Make a Decision", this will take you to the Decision Helper page. On this page, you will see a summary of reviewer recommendations, their review form answers and a list of uncompleted reviews. The decisions available from this screen are:
 
 - Accept Article
     - Accepts the article, allows you to email the author and moves the article into the next stage.
@@ -135,7 +135,7 @@ Request Revisions
 .. tip::
     Before requesting revisions make sure you have marked reviews as available to the author. The Request Revisions page will warn you if you have not done this for a given review.
 
-Requesting revisions will allow you to ask the Author to make changes to the manuscript, this may be for editorial reasons or as the result of a round of peer review. Usually the process would be:
+Requesting revisions will allow you to ask the Author to make changes to the manuscript, this may be for editorial reasons or as the result of a round of peer review. Usually, the process would be:
 
 1. Review Round 1
     1. Reviewer 1
@@ -181,7 +181,7 @@ If the DD is Decline, the article will be archived and the author notified.
 To approve a DD:
 
 1. Click on the link in the email notifying you of the DD
-2. Click ‘Edit’ in the ‘Existing Draft Decisions’ box on the upper right hand side of the screen (NB do not start filling in the ‘Draft Decision’ form – your Section Editor will already have drafted an email to the author in ‘Existing Draft Decisions)
+2. Click ‘Edit’ in the ‘Existing Draft Decisions’ box on the upper right-hand side of the screen (NB do not start filling in the ‘Draft Decision’ form – your Section Editor will already have drafted an email to the author in ‘Existing Draft Decisions)
 3. Review the email to the Author and the Peer Review reports. Helpful Tip: You can open the ‘Reviews’ tab for the article in a separate window to compare the Peer Review Reports with the DD
 4. Click ‘Approve’ to action the DD
 
@@ -190,7 +190,7 @@ Sharing Peer Reviews
 
 .. note:: This is a new feature added in v1.5.1.
 
-In Janeway, editors have the ability to share completed peer reviews among the reviewers who took part in an article review process. There are two ways to accomplish this, and both can be managed through the Review Settings interface.
+In Janeway, editors can share completed peer reviews among the reviewers who took part in an article review process. There are two ways to accomplish this, and both can be managed through the Review Settings interface.
 
 1. The first method involves a new decision available on the decision helper screen. With this option, editors can mark the reviews of an article as shareable. Additionally, an email will be sent to all the reviewers who participated in the peer review, providing them with a link to access and view the review content.
 2. The second option simplifies the process by automatically sharing completed reviews from previous rounds with reviewers in rounds 2 and beyond. When reviewers access the review interface, they will be given the choice to view anonymous reviews completed by their peers.
@@ -226,7 +226,7 @@ Once this setting is activated, editors don't need to take any additional action
 
     Round 2 reviewer viewing completed round 1 reviews.
 
-Editors have the ability to modify the message that clarifies the reason why reviewers can see the reviews in the manager interface.
+Editors can modify the message that clarifies the reason why reviewers can see the reviews in the manager interface.
 
 
 Sharing Author Response Letters
@@ -237,6 +237,66 @@ In the revision process, authors are encouraged to provide a written response to
 
     Response letter being shared with peer reviewers.
 
+Triple Anonymous Peer Review
+----------------------------
+
+Triple Anonymous Peer Review in Janeway involves anonymising author information to ensure that section editors are unaware of the authors' identities during the review process. This review method ensures that the reviewer, section editor, and author remain anonymous to one another until the completion of the review stage. Here is an overview of how this feature operates:
+
+Key Settings for Triple Anonymous Peer Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Section Editor Personally Identifiable Information Filter (``se_pii_filter``)
+
+  - Must be toggled on to enable anonymisation of author data in the relevant interfaces.
+
+- Reply-To Address (``replyto_address``)
+
+  - Must be set to a valid email address. This is required to avoid leaking author email addresses during the review process.
+
+These settings are accessible through the All Settings screen (Manager > All Settings).
+
+Workflow of Triple Anonymous Peer Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Assigning the Section Editor**: The journal editor assigns a section editor to the manuscript. Before doing so, the manuscript file must be anonymous to prevent the section editor from seeing any personal data.
+- **Assigning Reviewers**: The section editor can now manage the peer review process as normal.
+- **Anonymised Data**: Instead of viewing the author's personal details (name, email, institution), the section editor will see '[Anonymised data]' in these fields throughout the review process.
+- **Access to Information Post-Review**: Once the review is completed, section editors regain access to the author's personal information.
+
+Areas with Anonymisation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here are the specific areas within Janeway where anonymisation is applied:
+
+- **Dashboards**
+
+  - Anonymises author data on the main dashboard, kanban view, and active submissions section.
+
+- **Unassigned**
+
+  - Anonymises author data for unassigned submissions.
+
+- **Review**
+
+  - Section editors cannot access the Document Manager, where author details might be stored.
+
+- **View Metadata**
+
+  - Author details are anonymised in the metadata view.
+
+- **Edit Metadata**
+
+  - Section editors are blocked from editing article metadata, ensuring no access to author information.
+
+- **Article Log**
+
+  - Author information is anonymised in the article log, ensuring section editors do not gain access to personal data through log entries.
+
+- **Email Templates**
+
+  - Limits the display of author information in email templates, particularly for decision letters (e.g., revision request, acceptance, and decline).
+
+This system ensures a rigorous triple-anonymous process, safeguarding the identities of all parties involved.
 
 An Example Review Round
 -----------------------
@@ -258,9 +318,9 @@ Here is an example of a review round.
 
 Finishing Up
 ------------
-When in the standard workflow, after Review comes Copyediting.
+When using the standard workflow, Copyediting follows Review.
 
-To complete the Review stage you can select one of either:
+To complete the Review stage you can select one of the following:
 
-1. Accept Article, moves the article into the next stage.
-2. Decline Article, removes the paper from the workflow.
+1. Accept Article, this moves the article into the next stage.
+2. Decline Article, this removes the paper from the workflow.

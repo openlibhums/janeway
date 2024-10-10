@@ -3,6 +3,8 @@
 import core.model_utils
 from django.db import migrations, models
 
+import utils
+
 
 class Migration(migrations.Migration):
 
@@ -19,32 +21,32 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='account',
             name='department',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300, verbose_name='Department'),
+            field=models.CharField(blank=True, max_length=300, verbose_name='Department', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
             name='first_name',
-            field=core.model_utils.JanewayBleachCharField(max_length=300, verbose_name='First name'),
+            field=models.CharField(max_length=300, verbose_name='First name', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
             name='institution',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=1000, verbose_name='Institution'),
+            field=models.CharField(blank=True, max_length=1000, verbose_name='Institution', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
             name='last_name',
-            field=core.model_utils.JanewayBleachCharField(max_length=300, verbose_name='Last name'),
+            field=models.CharField(max_length=300, verbose_name='Last name', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
             name='middle_name',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300, verbose_name='Middle name'),
+            field=models.CharField(blank=True, max_length=300, verbose_name='Middle name', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
             name='salutation',
-            field=core.model_utils.JanewayBleachCharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, verbose_name='Salutation'),
+            field=models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, verbose_name='Salutation', validators=[utils.forms.plain_text_validator]),
         ),
         migrations.AlterField(
             model_name='account',
@@ -54,6 +56,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='account',
             name='suffix',
-            field=core.model_utils.JanewayBleachCharField(blank=True, max_length=300, verbose_name='Name suffix'),
+            field=models.CharField(blank=True, max_length=300, verbose_name='Name suffix', validators=[utils.forms.plain_text_validator]),
         ),
     ]

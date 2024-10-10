@@ -10,3 +10,4 @@ Information for developers
    dev/robotsandsitemaps
    dev/api
    dev/plugins
+   dev/pii

@@ -43,10 +43,20 @@ from journal.logic import get_best_galley, get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
-from security.decorators import article_stage_accepted_or_later_required, \
-    article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
-    file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
-    editor_user_required, keyword_page_enabled
+from security.decorators import (
+    article_exists,
+    article_stage_accepted_or_later_required,
+    article_stage_accepted_or_later_or_staff_required,
+    editor_user_required,
+    editor_user_required_and_can_see_pii,
+    file_edit_user_required,
+    file_history_user_required,
+    file_user_required,
+    has_journal,
+    has_request,
+    keyword_page_enabled,
+    production_user_or_editor_required,
+)
 from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
@@ -838,6 +848,7 @@ def submit_files_info(request, article_id, file_id):
 
 @login_required
 @file_history_user_required
+@editor_user_required_and_can_see_pii
 def file_history(request, article_id, file_id):
     """ Renders a template to show the history of a file.
 
@@ -2432,7 +2443,7 @@ def texture_edit(request, file_id):
     return render(request, template, context)
 
 
-@editor_user_required
+@editor_user_required_and_can_see_pii
 def document_management(request, article_id):
     document_article = get_object_or_404(
         submission_models.Article,
@@ -2809,12 +2820,6 @@ class FacetedArticlesListView(core_views.GenericFacetedListView):
             stage=submission_models.STAGE_UNSUBMITTED
         )
 
-    def get_facet_queryset(self, **kwargs):
-        queryset = super().get_facet_queryset(**kwargs)
-        return queryset.exclude(
-            stage=submission_models.STAGE_UNSUBMITTED
-        )
-
 
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(decorators.frontend_enabled, name='dispatch')
@@ -2851,13 +2856,6 @@ class PublishedArticlesListView(FacetedArticlesListView):
             },
         }
         return self.filter_facets_if_journal(facets)
-
-    def get_facet_queryset(self):
-        queryset = super().get_facet_queryset()
-        return queryset.filter(
-            date_published__lte=timezone.now(),
-            stage=submission_models.STAGE_PUBLISHED,
-        )
 
     def get_order_by_choices(self):
         return [

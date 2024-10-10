@@ -20,7 +20,7 @@
                                {% include "common/elements/password_rules.html" %}
                             </ul>
                             <p>{% blocktrans %}For more information read our <a href="#" data-toggle="modal" data-target="#passwordmodal">password guide</a>.{% endblocktrans %}</p>
-                            {% include "common/elements/orcid_registration.html" %}
+                            {% include "common/elements/orcid_registration.html" with button_classes="btn orcid-button btn-block" %}
                             <br>
                             {% bootstrap_form form %}
                             <p>

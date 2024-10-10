@@ -275,7 +275,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. <br/>You can access your revision here: {{ do_revisions_url }} <br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }},</p><p>We are requesting that you make some changes to your paper.</p><p>You can access your revision here: {{ do_revisions_url }}</p><p>Your revisions are due on {{ revision.date_due }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
         },
         "editable_by": [
             "editor",
@@ -446,7 +446,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.safe_title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }},<br/><br/>We are happy to inform you that your article, \"{{ article.safe_title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -465,7 +465,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.safe_title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }},<br><br>We are sorry to inform you that \"{{ article.safe_title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} <br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1092,7 +1092,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Here are some guidelines."
+            "default": "<p>When uploading galleys, please label them by the format, such as “XML” or “PDF”.</p><p>XML and HTML galleys can be previewed after uploading to check how they will be rendered when published.</p><p>The Galleys section should only contain one representative file for each format. If you are uploading the first version of a new format, please upload a new Galley (typeset file). If you are making revisions or corrections to an existing format, please use select <strong>Edit</strong> and then upload the new version, rather than adding a new Galley.</p>"
         },
         "editable_by": [
             "editor",
@@ -4870,7 +4870,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ revision.article.correspondence_author.full_name }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
+            "default": "<p>{{ revision.article.correspondence_author.full_name|se_can_see_pii:revision.article }} has successfully completed the assigned revision task for article #{{ revision.article.pk }} - \"{{ revision.article.title }}.\"</p><p>Please take a moment to review the revisions at {{ url }}.</p>"
         },
         "editable_by": [
             "editor",
@@ -5112,6 +5112,21 @@
             "is_translatable": false,
             "name": "display_countries_editorial_team",
             "pretty_name": "Display Country on Editorial Team Page",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "When this setting is enabled assigned section editors will not be able to see personally identifiable information about authors until a decision for an article has been made. The general setting Reply-To Address should be set in order for this setting to work correctly.",
+            "is_translatable": false,
+            "name": "se_pii_filter",
+            "pretty_name": "Section Editor Personally Identifiable Information Filter",
             "type": "boolean"
         },
         "value": {
