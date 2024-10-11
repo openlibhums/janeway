@@ -255,6 +255,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         validators=[plain_text_validator],
     )
 
+    # activation_code is deprecated
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(
         max_length=10,
@@ -294,7 +295,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
     profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
-    confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
+    confirmation_code = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name=_("Confirmation Code"),
+        help_text='A UUID created upon registration and retrieved '
+                  'for authentication during account activation',
+    )
     signature = JanewayBleachField(
         blank=True,
         verbose_name=_("Signature"),

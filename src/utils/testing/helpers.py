@@ -3,10 +3,16 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 from contextlib import ContextDecorator
+from unittest.mock import Mock
 
+from django.http import HttpRequest
+from django.test.client import QueryDict
 from django.utils import translation, timezone
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 import datetime
 
 from core import (
@@ -638,3 +644,47 @@ def create_setting(
         is_translatable=is_translatable,
         default_value=default_value,
     )
+
+
+def get_mock_request(press, journal=None):
+    request = Mock(HttpRequest)
+    type(request).user = Mock(User)
+    type(request).GET = QueryDict()
+    type(request).POST = QueryDict()
+
+    type(request).press = Mock(press_models.Press)
+    if journal:
+        type(request).journal = Mock(journal_models.Journal)
+        journal_type = ContentType.objects.get_for_model(journal)
+        type(request).model_content_type = journal_type
+        type(request).site_type = journal
+    else:
+        press_type = ContentType.objects.get_for_model(press)
+        type(request).model_content_type = press_type
+        type(request).site_type = press
+
+    return request
+
+
+def get_theme_dirs():
+    """
+    Together with the mock library,
+    this lets you test public-facing views, once for each theme.
+
+    Example usage:
+
+    @patch('utils.template_override_middleware.Loader.get_theme_dirs')
+    def test_a_view_for_each_theme(self, get_theme_dirs):
+        for theme_dirs in testin_helpers.get_theme_dirs():
+            get_theme_dirs.response_value = theme_dirs
+            response = self.client.get('/my/path/', {})
+            self.assertIn(
+                'The text I am looking for',
+                response.content.decode(),
+            )
+    """
+    return [
+        [os.path.join(settings.BASE_DIR, 'themes', 'clean', 'templates')],
+        [os.path.join(settings.BASE_DIR, 'themes', 'OLH', 'templates')],
+        [os.path.join(settings.BASE_DIR, 'themes', 'material', 'templates')],
+    ]
