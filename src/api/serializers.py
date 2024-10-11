@@ -706,7 +706,7 @@ class RegisterAccountSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128,
         write_only=True,
-        required=True,
+        required=False,
     )
     confirmation_code = serializers.CharField(
         read_only=True,

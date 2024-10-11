@@ -8,11 +8,12 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.contrib.auth import logout
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
-from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from api import serializers, permissions as api_permissions
 from core import models as core_models
@@ -406,6 +407,25 @@ class UserInfo(AccountViewSet):
             pk=self.request.user.pk,
         )
         return accounts
+
+
+class Logout(viewsets.ViewSet):
+    """
+    A ViewSet for logging out the current user.
+    """
+
+    http_method_names = ['post']
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    @staticmethod
+    def create(self, request):
+        logout(request)
+        return Response(
+            {'detail': 'Successfully logged out.'},
+            status=status.HTTP_200_OK,
+        )
 
 
 class RegisterAccount(viewsets.ModelViewSet):

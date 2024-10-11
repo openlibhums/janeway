@@ -27,6 +27,7 @@ router.register(r'repository_subjects', views.RepositorySubjects, 'repository_pr
 router.register(r'published_preprints', views.PublishedPreprintViewSet, 'repository_published_preprint')
 router.register(r'version_queue', views.RepositoryVersionQueue, 'repository_version_queue')
 router.register(r'user_info', views.UserInfo, 'api_user_info')
+router.register(r'logout', views.Logout, basename='logout')
 
 if settings.API_ENABLE_SUBMISSION_ACCOUNT_SEARCH:
     router.register(
