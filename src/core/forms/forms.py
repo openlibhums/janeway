@@ -7,6 +7,7 @@ import uuid
 import json
 
 from django import forms
+from django.db.models import Q
 from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -610,21 +611,14 @@ class CBVFacetForm(forms.Form):
                 column = self.queryset.values_list(facet_key, flat=True)
                 values_list = list(filter(bool, column))
                 choice_queryset = facet['model'].objects.filter(pk__in=values_list)
-
-                if facet.get('order_by'):
-                    choice_queryset = self.order_by(choice_queryset, facet, values_list)
-
                 choices = []
                 for each in choice_queryset:
                     label = getattr(each, facet["choice_label_field"])
-                    count = values_list.count(each.pk)
+                    count = self.queryset.filter(Q((facet_key, each.pk))).count()
                     label_with_count = f'{label} ({count})'
                     choices.append((each.pk, label_with_count))
 
-                if not facet.get('order_by'):
-                    # Default to alpha by choice label
-                    choices = sorted(choices, key=lambda x: x[1])
-
+                choices = sorted(choices, key=lambda x: x[1])
                 self.fields[facet_key] = forms.ChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
