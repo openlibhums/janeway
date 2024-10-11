@@ -16,7 +16,7 @@
             </div>
             <div class="large-8 columns">
                 <h4>{% trans "Contact" %}</h4>
-                <form method="POST">
+                <form method="POST" novalidate>
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}
                     <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
