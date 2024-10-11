@@ -30,7 +30,7 @@
                 </div>
                 <div class="large-8 columns">
                     <h3>{% trans "Contact" %}</h3>
-                    <form method="POST">
+                    <form method="POST" novalidate>
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}
                         <div class="row expanded">
