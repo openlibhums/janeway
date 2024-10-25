@@ -133,16 +133,15 @@ def serve_journal_cover(request):
 
 @has_journal
 def funder_articles(request, funder_id):
-    # NOTE: This view is not usable currently because
-    # it is visually indistinguishable from the main Article search page.
-    # There is a filter applied to the queryset by the funder,
-    # but that is not represented in the filters, and the main heading
-    # just says "Articles".
-    """ Renders the list of articles in the journal.
+    """ Deprecated. Renders the list of articles in the journal.
 
         :param request: the request associated with this call
         :return: a rendered template of all articles
         """
+    raise DeprecationWarning(
+        'This view is deprecated.'
+    )
+
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
