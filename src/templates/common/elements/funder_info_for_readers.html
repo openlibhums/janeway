@@ -18,13 +18,6 @@
           {% include "elements/layout/key_value_above.html" with key=statement_label value=funder.funding_statement|safe render_line_breaks=True %}
         {% endif %}
       </dl>
-      {% if funder.fundref_id %}
-        <p>
-          <a href="{% url "funder_articles" funder.fundref_id %}">
-            {% trans "Browse all articles funded by" %} {{ funder.name }}
-          </a>
-        </p>
-      {% endif %}
     {% endfor %}
   </div>
 {% endif %}
