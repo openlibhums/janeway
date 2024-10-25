@@ -686,11 +686,17 @@ class RegisterAccountSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super().create(validated_data)
-        user.set_password(validated_data['password'])
+        password = validated_data.get('password')
+        if password:
+            user.set_password(password)
+
         user.confirmation_code = uuid.uuid4()
         user.save()
+
         request = self.context.get("request")
-        core_logic.send_confirmation_link(request, user)
+        if request:
+            core_logic.send_confirmation_link(request, user)
+
         return user
 
     def update(self, instance, validated_data):

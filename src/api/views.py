@@ -9,8 +9,10 @@ from django.utils import timezone
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.contrib.auth import logout
+from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
+from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -420,7 +422,7 @@ class Logout(viewsets.ViewSet):
     ]
 
     @staticmethod
-    def create(self, request):
+    def create(request):
         logout(request)
         return Response(
             {'detail': 'Successfully logged out.'},
@@ -432,7 +434,32 @@ class RegisterAccount(viewsets.ModelViewSet):
     serializer_class = serializers.RegisterAccountSerializer
     http_method_names = ['post']
 
-    # TODO: on PUT allow only the current user
+
+class UpdateAccountView(APIView):
+    serializer_class = serializers.RegisterAccountSerializer
+    http_method_names = ['put']
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def put(self, request, *args, **kwargs):
+        account = get_object_or_404(
+            core_models.Account,
+            email=request.user.email,
+        )
+        data = request.data.copy()
+        data.pop('email', None)
+        serializer = self.serializer_class(
+            account,
+            data=data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class ActivateAccount(viewsets.ModelViewSet):

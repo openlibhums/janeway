@@ -36,12 +36,12 @@ if settings.API_ENABLE_SUBMISSION_ACCOUNT_SEARCH:
         'submission_account_search',
     )
     router.register(
-        r'register',
+        r'account/register',
         views.RegisterAccount,
         'register_account',
     )
     router.register(
-        r'activate',
+        r'account/activate',
         views.ActivateAccount,
         'activate_account',
     )
@@ -56,4 +56,5 @@ urlpatterns = [
     re_path(r'^schema/$', get_schema_view(title="Janeway API", description="API for Janeway", version="0.0.1"), name='openapi-schema'),
     re_path(r'^swagger_ui/$', views.swagger_ui, name='swagger_ui'),
     re_path(r'^redoc/$', views.redoc, name='redoc'),
+    re_path(r'^account/update/$', views.UpdateAccountView.as_view(), name='update_account'),
 ]
