@@ -2997,7 +2997,7 @@ msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/elements/journal/citation_modals.html:49
-msgid "APA-Style Citation"
+msgid "APA-style Citation"
 msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:3
@@ -3786,11 +3786,11 @@ msgid "Enter New Password Again"
 msgstr ""
 
 #: src/themes/clean/templates/elements/journal/citation_modals.html:6
-msgid "Harvard-Style Citation"
+msgid "Harvard-style Citation"
 msgstr ""
 
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
-msgid "Vancouver-Style Citation"
+msgid "Vancouver-style Citation"
 msgstr ""
 
 #: src/themes/clean/templates/elements/sections_block.html:4
