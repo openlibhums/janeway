@@ -3653,7 +3653,7 @@ msgstr ""
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:5
 #: src/themes/clean/templates/elements/journal/citation_modals.html:6
 #: src/themes/clean/templates/journal/article.html:294
-msgid "Harvard-Style Citation"
+msgid "Harvard-style Citation"
 msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:9
@@ -3682,7 +3682,7 @@ msgstr "Frais de publication"
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:27
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
 #: src/themes/clean/templates/journal/article.html:295
-msgid "Vancouver-Style Citation"
+msgid "Vancouver-style Citation"
 msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
@@ -3696,7 +3696,7 @@ msgstr ""
 #: src/themes/clean/templates/journal/article.html:296
 #, fuzzy
 #| msgid "Salutation"
-msgid "APA-Style Citation"
+msgid "APA-style Citation"
 msgstr "Salutation"
 
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:4
