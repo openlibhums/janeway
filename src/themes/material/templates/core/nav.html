@@ -168,7 +168,9 @@
 
     <ul id="account" class="dropdown-content">
         <li><a class="dropdown-item" href="{% url 'core_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% if user_is_editor %}
         <li><a class="dropdown-item" href="{% url 'kanban' %}">{% trans "Kanban" %}</a></li>
+        {% endif %}
         {% if not journal_settings.general.disable_journal_submission %}
             <li><a class="dropdown-item" href="{% url 'submission_start' %}">{% trans "Submit" %}</a></li>{% endif %}
         {% user_has_role request 'editor' as user_is_editor %}
