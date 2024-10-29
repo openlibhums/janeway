@@ -1,0 +1,9 @@
+{% load mimetype %}
+
+{% if request.journal and request.journal.favicon %}
+  <link rel="icon" href="{{ request.journal.favicon.url }}" type="{{ request.journal.favicon|get_mime }}"/>
+{% elif request.repository and request.repository.favicon %}
+  <link rel="icon" href="{{ request.repository.favicon.url }}" type="{{ request.repository.favicon|get_mime }}"/>
+{% elif request.press and request.press.favicon %}
+  <link rel="icon" href="{{ request.press.favicon.url }}" type="{{ request.press.favicon|get_mime }}"/>
+{% endif %}

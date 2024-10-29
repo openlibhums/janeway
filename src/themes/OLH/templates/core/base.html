@@ -42,13 +42,7 @@
         <link rel="alternate" type="application/rss+xml" title="Articles RSS Feed" href="{% url 'rss_articles' %}"/>
         <link  type="application/atom+xml" rel="alternate" title="News Feed for Journal" href="{% url 'rss_news' %}">
     {% endif %}
-
-    {% if request.journal and journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon" />
-    {% elif request.press.favicon %}
-        <link rel="icon" href="{{ request.press.favicon.url }}" type="image/vnd.microsoft.icon" />
-    {% endif %}
-
+    {% include "common/elements/favicons.html" %}
 </head>
 <body>
 {% include "common/elements/skip_to_main_content.html" %}
