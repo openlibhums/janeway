@@ -30,7 +30,7 @@
                         </strong>
                         {% for author in article.frozen_authors.all %}
                         {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
                         {% if not forloop.last %}, {% endif %}
@@ -71,9 +71,10 @@
                                                                                                 href="#"
                                                                                                 {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
-                                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
-                                                <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
-                                            </a>{% endif %}
+                                            {% if author.orcid %}
+                                              <a href="https://orcid.org/{{ author.orcid }}">
+                                                <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                                            {% endif %}
                                             {% if author.institution and author.institution != " " %}
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
@@ -165,7 +166,7 @@
                         <ul>
                         {% for author in article.frozen_authors.all %}
                         <li>{{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
                         </li>
@@ -320,7 +321,7 @@
                                                 {{ author.full_name }}
                                                 {% if author.orcid %}
                                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
-                                                    <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo">
                                                 </a>
                                                 {% endif %}
                                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}
