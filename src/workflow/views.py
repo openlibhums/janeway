@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
-from workflow import logic
+from workflow import logic, forms
 from utils import models as utils_models
 from events import logic as event_logic
 
@@ -25,6 +25,7 @@ def manage_article_workflow(request, article_id):
         pk=article_id,
         journal=request.journal
     )
+    form = forms.ConfirmArchivingForm()
 
     if request.POST:
         if 'stage_to' in request.POST:
@@ -42,32 +43,42 @@ def manage_article_workflow(request, article_id):
                 messages.INFO,
                 'Processing: {}'.format(stages_string),
             )
-        elif 'archive' in request.POST:
-            utils_models.LogEntry.add_entry(
-                types='Workflow',
-                description='Article has been archived.',
-                level='Info',
-                actor=request.user,
-                target=article,
+            return redirect(
+                reverse(
+                    'manage_article_workflow',
+                    kwargs={'article_id': article.pk}
+                )
             )
-            article.stage = submission_models.STAGE_ARCHIVED
-            article.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Article has been archived.',
+        elif 'archive' in request.POST or 'confirmed' in request.POST:
+            form = forms.ConfirmArchivingForm(
+                request.POST,
             )
-
-        return redirect(
-            reverse(
-                'manage_article_workflow',
-                kwargs={'article_id': article.pk}
-            )
-        )
-
+            if form.is_valid():
+                if form.is_confirmed():
+                    utils_models.LogEntry.add_entry(
+                        types='Workflow',
+                        description='Article has been archived.',
+                        level='Info',
+                        actor=request.user,
+                        target=article,
+                    )
+                    article.stage = submission_models.STAGE_ARCHIVED
+                    article.save()
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'Article has been archived.',
+                    )
+                    return redirect(
+                        reverse(
+                            'manage_article_workflow',
+                            kwargs={'article_id': article.pk}
+                        )
+                    )
     template = 'workflow/manage_article_workflow.html'
     context = {
         'article': article,
+        'form': form,
     }
 
     return render(request, template, context)

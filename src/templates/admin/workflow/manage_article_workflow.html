@@ -56,7 +56,7 @@
                 <p>This article has already been archived.</p>
                 {% else %}
                 <p>Archiving an article will remove it from the workflow, essentially tombstoning it. You can still access it through the Article Archive.</p>
-                <form method="POST">
+                <form method="POST" id="archive-article">
                     {% csrf_token %}
                     <button name="archive" class="danger button">Archive Article</button>
                 </form>
@@ -64,4 +64,14 @@
             </div>
         </div>
     </div>
-{% endblock %}
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="archive-article" %}
+    {% endif %}
+{% endblock body %}
+
+{% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+{% endblock js %}
+
