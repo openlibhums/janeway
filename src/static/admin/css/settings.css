@@ -13,4 +13,11 @@
   --clr-orcid: rgb(68, 116, 5);
   --clr-orcid-light: rgb(245, 249, 232);
 
+  /* Alpha theme mapping */
+  --clr-black: #262522;
+  --clr-white: #fdfeff;
+  --clr-tan: #fdf3e3;
+  --clr-orange: #bb4e30;
+  --clr-blue: #36565f;
+  --clr-rust: #c08031;
 }
