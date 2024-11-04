@@ -250,7 +250,7 @@ def handle_unassign_issue(request, article, issues):
 
 def get_initial_for_prepub_notifications(request, article):
     author_initial = {}
-    author_initial['to'] = article.correspondence_author.email
+    author_initial['to'] = article.correspondence_author.email if article.correspondence_author else  None
     cc = [au.email for au in article.non_correspondence_authors()]
     notify_section_editors = request.journal.get_setting(
         'general',
@@ -265,7 +265,7 @@ def get_initial_for_prepub_notifications(request, article):
         'notify_peer_reviewers_of_publication',
     )
 
-    if not notify_peer_reviewers:
+    if not notify_peer_reviewers or not article.peer_reviewers():
         return [author_initial]
     else:
         peer_reviewer_initial = {}
