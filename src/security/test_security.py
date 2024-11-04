@@ -4001,6 +4001,9 @@ class TestSecurity(TestCase):
                 'review_in_review',
                 'review_decision',
                 'decision_helper',
+                'review_request_revisions',
+                'request_revisions_notification',
+                'review_view_review'
             ]
             general_views = [
                 'core_dashboard',
@@ -4031,6 +4034,10 @@ class TestSecurity(TestCase):
                 }
                 if view_name == 'review_decision':
                     kwargs['decision'] = 'accept'
+                elif view_name == 'request_revisions_notification':
+                    kwargs['revision_id'] = self.air_revision_request.pk
+                elif view_name == 'review_view_review':
+                    kwargs['review_id'] = self.air_completed_review.pk
                 response = self.client.get(
                     reverse(
                         view_name,
@@ -4319,6 +4326,25 @@ class TestSecurity(TestCase):
             editor=self.section_editor,
             editor_type='section-editor',
             notified=True,
+        )
+        self.air_revision_request = review_models.RevisionRequest.objects.create(
+            article=self.article_in_review,
+            editor=self.section_editor,
+            editor_note='Hey, this is just a test! No sweat.',
+            date_due=timezone.now(),
+        )
+        self.air_round = review_models.ReviewRound.objects.create(
+            article=self.article_in_review,
+            round_number=10,
+        )
+        self.air_completed_review = review_models.ReviewAssignment.objects.create(
+            article=self.article_in_review,
+            reviewer=self.second_reviewer,
+            editor=self.section_editor,
+            review_round=self.air_round,
+            date_due=timezone.now(),
+            date_complete=timezone.now(),
+            is_complete=True,
         )
         self.article_in_production = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                abstract="An abstract",
