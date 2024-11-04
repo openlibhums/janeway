@@ -1121,7 +1121,7 @@ class Article(AbstractLastModifiedModel):
         if self.correspondence_author:
             return self.authors.exclude(pk=self.correspondence_author.pk)
         else:
-            return self.authors
+            return self.authors.all()
 
     def is_accepted(self):
         if self.date_published:
