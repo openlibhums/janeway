@@ -5,7 +5,7 @@
 
 {% block title %}View Review{% endblock title %}
 {% block title-section %}View Review{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} /
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} /
     {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
