@@ -16,7 +16,7 @@
                             <a href="{% url 'core_news_item' item.pk %}"><img
                                     class="news-image"
                                     src="{{ item.best_image_url }}"
-                                    alt="{{ item.title|safe }}"/></a>
+                                    alt="{{ item.title|striptags }}"/></a>
                         </div>
                     {% endif %}
                 {% endif %}
