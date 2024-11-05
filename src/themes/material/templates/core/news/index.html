@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load escaping %}
 {% load i18n %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
@@ -15,7 +16,7 @@
                 <div class="card">
                     {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">
-                        <img src="{{ item.best_image_url }}" alt="{{ item.title|striptags }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title|striptags|unescape }}"/>
                         <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title|safe }}

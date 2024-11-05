@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load escaping %}
 {% load i18n %}
 
 {% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
@@ -17,7 +18,7 @@
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
                                  src="{{ news_item.best_image_url }}"
-                                 alt="{{ news_item.title | striptags }}">
+                                 alt="{{ news_item.title | striptags| unescape }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>
