@@ -1,5 +1,6 @@
 {% load svg from press_url %}
 {% load truncate %}
+{% load escaping %}
 {% load i18n %}
 
 <section>
@@ -16,7 +17,7 @@
                             <a href="{% url 'core_news_item' item.pk %}"><img
                                     class="news-image"
                                     src="{{ item.best_image_url }}"
-                                    alt="{{ item.title|striptags }}"/></a>
+                                    alt="{{ item.title|striptags|unescape }}"/></a>
                         </div>
                     {% endif %}
                 {% endif %}

@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load escaping %}
 {% load i18n %}
 
 {% block title %}{% trans "News" %}{% endblock title %}
@@ -15,7 +16,7 @@
                         <div class="large-5 columns">
                             <a href="{% url 'core_news_item' item.pk %}">
                                 <img class="news-image" src="{{ item.best_image_url }}"
-                                alt="{{ item.title }}"/></a>
+                                alt="{{ item.title|striptags|unescape }}"/></a>
                         </div>
                         <div class="large-7 columns">
                             <h4>{{ item.title }}</h4>
