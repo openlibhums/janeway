@@ -1,4 +1,4 @@
-![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Janeway")
+![Janeway Logo](https://www.openlibhums.org/media/press/Janeway_RGB_Keyline_Logo_Black.png "Janeway")
 
 Janeway is a web-based platform for publishing journals, preprints, conference proceedings, and books. It is developed and maintained by a team of developers at the Open Library of Humanities, part of Birkbeck, University of London.
 
@@ -64,16 +64,8 @@ If you wish to get in touch about Janeway, contact information is provided below
 Andy Byers, Director of Publishing Technology - a.byers@bbk.ac.uk
 
 # Major Releases
-Major releases are listed below. Between v1.3 & v1.4 there were a large number of minor releases. You can find more information on the [releases](https://github.com/BirkbeckCTP/janeway/releases) page.
+All releases are listed on the [releases](https://github.com/BirkbeckCTP/janeway/releases) page.
 
-| Version | Released   | Code Name |
-|---------|------------|-----------|
-| v1.0    | 10/07/2017 | Kathryn   |
-| v1.1    | 01/09/2017 | Chakotay  |
-| v1.2    | 06/11/2017 | Tuvok     |
-| v1.3    | 10/08/2018 | Doctor    |
-| v1.4    | 25/10/2021 | Kes       |
-| v1.5    | 07/05/2023 | Torres    |
 
 # Geolocation
 Janeway includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com)
