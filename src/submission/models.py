@@ -906,15 +906,31 @@ class Article(AbstractLastModifiedModel):
     def has_galley(self):
         return self.galley_set.all().exists()
 
+    @staticmethod
+    @cache(600)
+    def publication_detail_settings(journal):
+        display_date_accepted = journal.get_setting(
+            group_name='article',
+            setting_name='display_date_accepted',
+        )
+        display_date_submitted = journal.get_setting(
+            group_name='article',
+            setting_name='display_date_submitted',
+        )
+        return display_date_submitted, display_date_accepted
+
     @property
     def has_publication_details(self):
         """Determines if an article has publication details override"""
+        display_date_submitted, display_date_accepted = self.publication_detail_settings(self.journal)
         return(
             self.page_range
             or self.article_number
             or self.publisher_name
             or self.publication_title
             or self.ISSN_override
+            or (display_date_submitted and self.date_submitted)
+            or (display_date_accepted and self.date_accepted)
         )
 
     @property
@@ -1121,7 +1137,7 @@ class Article(AbstractLastModifiedModel):
         if self.correspondence_author:
             return self.authors.exclude(pk=self.correspondence_author.pk)
         else:
-            return self.authors
+            return self.authors.all()
 
     def is_accepted(self):
         if self.date_published:

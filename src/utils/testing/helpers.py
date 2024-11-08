@@ -241,13 +241,17 @@ def create_galley(article, file_obj=None, **kwargs):
     return galley
 
 
-def create_section(journal):
+def create_section(journal, **kwargs):
+    defaults = {
+        'number_of_reviewers': 2,
+        'name': 'Article',
+        'plural': 'Articles',
+    }
+    defaults.update(kwargs)
 
     section, created = sm_models.Section.objects.get_or_create(
         journal=journal,
-        number_of_reviewers=2,
-        name='Article',
-        plural='Articles'
+        **defaults,
     )
     return section
 

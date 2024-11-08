@@ -1,0 +1,23 @@
+{% if article.funders.all %}
+  <div class="callout primary">
+    <h2>{% trans "Funding" %}</h2>
+    {% trans "Name" as name_label %}
+    {% trans "FundRef ID" as fundref_id_label %}
+    {% trans "Funding ID" as funding_id_label %}
+    {% trans "Funding Statement" as statement_label %}
+    {% for funder in article.funders.all %}
+      <dl>
+        {% include "elements/layout/key_value_above.html" with key=name_label value=funder.name %}
+        {% if funder.fundref_id %}
+          {% include "elements/layout/key_value_above.html" with key=fundref_id_label value=funder.fundref_id %}
+        {% endif %}
+        {% if funder.funding_id %}
+          {% include "elements/layout/key_value_above.html" with key=funding_id_label value=funder.funding_id %}
+        {% endif %}
+        {% if funder.funding_statement %}
+          {% include "elements/layout/key_value_above.html" with key=statement_label value=funder.funding_statement|safe render_line_breaks=True %}
+        {% endif %}
+      </dl>
+    {% endfor %}
+  </div>
+{% endif %}

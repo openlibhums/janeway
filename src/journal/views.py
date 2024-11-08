@@ -133,11 +133,15 @@ def serve_journal_cover(request):
 
 @has_journal
 def funder_articles(request, funder_id):
-    """ Renders the list of articles in the journal.
+    """ Deprecated. Renders the list of articles in the journal.
 
         :param request: the request associated with this call
         :return: a rendered template of all articles
         """
+    raise DeprecationWarning(
+        'This view is deprecated.'
+    )
+
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 

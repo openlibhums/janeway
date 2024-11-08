@@ -4,7 +4,7 @@
 
 {% block title %}Request Revisions{% endblock title %}
 {% block title-section %}Request Revisions{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
@@ -23,7 +23,7 @@
             <p>You can send a message to the author or skip it.</p>
             <div class="card">
                 <div class="card-divider">
-                    <h4>To {{ article.correspondence_author.full_name }}</h4>
+                    <h4>To {{ article.correspondence_author.full_name|se_can_see_pii:article }}</h4>
                     <h5>From {{ request.user.full_name }}</h5>
                 </div>
                 <form method="POST" enctype="multipart/form-data">
