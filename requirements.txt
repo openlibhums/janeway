@@ -48,7 +48,6 @@ psycopg2-binary~=2.9.8
 pyasn1==0.1.9
 pycparser==2.14
 PyJWT==2.4.0
-pytz
 Pillow==10.2.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
