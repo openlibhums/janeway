@@ -9,17 +9,12 @@ from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
 import time
-import itertools
 
-from django.urls import reverse
 from django.template.loader import render_to_string
-from django.utils.http import urlencode
 from django.utils.html import strip_tags
 from django.conf import settings
-from django.contrib import messages
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
-import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -28,6 +23,7 @@ from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
 from submission import models as submission_models
+from repository import models as repository_models
 
 logger = get_logger(__name__)
 
@@ -597,3 +593,41 @@ def auto_assign_issue_doi(issue):
 
 def on_article_assign_to_issue(article, issue, user):
     auto_assign_issue_doi(issue)
+
+
+def get_object_by_content_type(content_type, object_id, request):
+    """
+    Fetches either an Article or a Preprint based on the content type.
+    """
+    if content_type == 'article':
+        return get_object_or_404(
+            submission_models.Article,
+            pk=object_id,
+            journal=request.journal,
+        )
+    else:
+        return get_object_or_404(
+            repository_models.Preprint,
+            pk=object_id,
+            repository=request.repository,
+        )
+
+
+def get_identifier_by_content_type(content_type, obj, identifier_id, id_type=None):
+    """
+    Fetches the Identifier for either an Article or a Preprint.
+    """
+    if content_type == 'article':
+        return get_object_or_404(
+            models.Identifier,
+            pk=identifier_id,
+            article=obj,
+            **({'id_type': id_type} if id_type else {})
+        )
+    else:
+        return get_object_or_404(
+            models.Identifier,
+            pk=identifier_id,
+            preprint_version__preprint=obj,
+            **({'id_type': id_type} if id_type else {})
+        )

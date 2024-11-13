@@ -4,28 +4,22 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.http import HttpResponse
-from django.shortcuts import reverse, get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.db.models import OuterRef, Subquery
-
-from identifiers import models, forms
-from submission import models as submission_models
-from core import views as core_views
-from journal import models as journal_models
-
-from security.decorators import production_user_or_editor_required, editor_user_required
-from identifiers import logic
-
-import datetime
-from uuid import uuid4
-
 from django.urls import reverse
 from django.contrib import messages
-from django.utils import timezone
 
-
+from identifiers import models, forms, logic, preprints
+from core import views as core_views
+from journal import models as journal_models
+from security.decorators import (
+    production_user_or_editor_required,
+    editor_user_required,
+)
 from utils import models as util_models
+from repository import models as repository_models
 
 
 def pingback(request):
@@ -47,87 +41,116 @@ def pingback(request):
 
 
 @production_user_or_editor_required
-def article_identifiers(request, article_id):
+def identifiers(
+    request,
+    object_id,
+    content_type='article',
+):
     """
-    Displays a list of current article identifiers.
-    :param request: HttpRequest
-    :param article_id: Article object PK
-    :return: HttpResponse
+    Displays a list of current identifiers for either an article or a preprint.
     """
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifiers = models.Identifier.objects.filter(article=article)
+    # Only article and preprint content types are supported, all others
+    # will 404.
+    if content_type == 'article':
+        identifier_objects = models.Identifier.objects.filter(
+            article=obj
+        )
+    else:
+        identifier_objects = models.Identifier.objects.filter(
+            preprint_version__preprint=obj,
+        )
 
-    template = 'identifiers/article_identifiers.html'
+    template = 'identifiers/identifiers.html'
     context = {
-        'article': article,
-        'identifiers': identifiers,
+        'object': obj,
+        'identifiers': identifier_objects,
+        'content_type': content_type,
     }
-
-    return render(request, template, context)
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 @production_user_or_editor_required
-def manage_identifier(request, article_id, identifier_id=None):
+def manage_identifier(
+    request,
+    object_id,
+    identifier_id=None,
+    content_type='article',
+):
     """
-    Allows an editor to add a new or edit and existing identifier.
-    :param request: HttpRequest
-    :param article_id: Article object PK
-    :param identifier_id: Identifier object PK, optional
-    :return: HttpResponse or Redirect
+    Allows an editor to add a new or edit an existing identifier.
     """
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
-    ) if identifier_id else None
+    identifier = (
+        logic.get_identifier_by_content_type(
+            content_type=content_type,
+            obj=obj,
+            identifier_id=identifier_id,
+        ) if identifier_id else None
+    )
 
     form = forms.IdentifierForm(
         instance=identifier,
-        article=article,
+        article=obj if content_type == 'article' else None,
+        preprint=obj if content_type == 'preprint' else None,
     )
 
     if request.POST:
         form = forms.IdentifierForm(
             request.POST,
             instance=identifier,
-            article=article,
+            article=obj if content_type == 'article' else None,
+            preprint=obj if content_type == 'preprint' else None,
         )
-
         if form.is_valid():
             form.save()
-            messages.add_message(
+            messages.success(
                 request,
-                messages.SUCCESS,
-                "Identifier saved.",
+                'Identifier saved.',
             )
             return redirect(
                 reverse(
-                    'article_identifiers',
-                    kwargs={'article_id': article.pk},
-                )
+                    'identifiers',
+                    kwargs={
+                        'content_type': content_type,
+                        'object_id': obj.pk,
+                    },
+                ),
             )
 
     template = 'identifiers/manage_identifier.html'
     context = {
-        'article': article,
+        'object': obj,
         'identifier': identifier,
         'form': form,
+        'content_type': content_type,
     }
-
-    return render(request, template, context)
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 @production_user_or_editor_required
-def show_doi(request, article_id, identifier_id):
+def show_doi(
+    request,
+    object_id,
+    identifier_id,
+    content_type='article',
+):
     """
     Shows a DOI deposit
     :param request: HttpRequest
@@ -135,16 +158,15 @@ def show_doi(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
+    identifier = logic.get_identifier_by_content_type(
+        content_type=content_type,
+        obj=obj,
+        identifier_id=identifier_id,
         id_type='doi',
     )
 
@@ -152,15 +174,31 @@ def show_doi(request, article_id, identifier_id):
         document = identifier.crossrefstatus.latest_deposit.document
         if not document:
             raise AttributeError
-        return HttpResponse(document, content_type="application/xml")
+        return HttpResponse(
+            document,
+            content_type='application/xml',
+        )
     except AttributeError:
-        template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))
+        template_context = logic.create_crossref_doi_batch_context(
+            request.journal,
+            {identifier},
+        )
         template = 'common/identifiers/crossref_doi_batch.xml'
-        return render(None, template, template_context, content_type="application/xml")
+        return render(
+            None,
+            template,
+            template_context,
+            content_type='application/xml',
+        )
 
 
 @production_user_or_editor_required
-def poll_doi(request, article_id, identifier_id):
+def poll_doi(
+    request,
+    object_id,
+    identifier_id,
+    content_type='article',
+):
     """
     Polls crossref for DOI info
     :param request: HttpRequest
@@ -168,24 +206,24 @@ def poll_doi(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
+    identifier = logic.get_identifier_by_content_type(
+        content_type=content_type,
+        obj=obj,
+        identifier_id=identifier_id,
         id_type='doi',
     )
 
     # Scenario 1: The identifier has not been polled or deposited before.
     # It needs a CrossrefStatus object created.
     if not identifier.crossrefstatus:
-        models.CrossrefStatus.objects.create(identifier=identifier)
-
+        models.CrossrefStatus.objects.create(
+            identifier=identifier,
+        )
     # Scenario 2: The identifier has been deposited before.
     # It will have a CrossrefStatus and a CrossrefDeposit already.
     elif identifier.crossrefstatus.latest_deposit:
@@ -193,7 +231,7 @@ def poll_doi(request, article_id, identifier_id):
         messages.add_message(
             request,
             messages.INFO if not error else messages.ERROR,
-            status
+            status,
         )
 
     # Scenario 3: The identifier has only been polled before
@@ -203,17 +241,24 @@ def poll_doi(request, article_id, identifier_id):
 
     # In all scenarios, update the CrossrefStatus last.
     identifier.crossrefstatus.update()
-
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
-        )
+            'identifiers',
+            kwargs={
+                'content_type': content_type,
+                'object_id': obj.pk,
+            },
+        ),
     )
 
 
 @production_user_or_editor_required
-def poll_doi_output(request, article_id, identifier_id):
+def poll_doi_output(
+    request,
+    object_id,
+    identifier_id,
+    content_type='article',
+):
     """
     Gets Crossref response stored on CrossrefDeposit
     :param request: HttpRequest
@@ -221,16 +266,15 @@ def poll_doi_output(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    from utils import setting_handler
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
+    identifier = logic.get_identifier_by_content_type(
+        content_type=content_type,
+        obj=obj,
+        identifier_id=identifier_id,
         id_type='doi',
     )
 
@@ -238,19 +282,26 @@ def poll_doi_output(request, article_id, identifier_id):
         return HttpResponse('Error: no deposit found')
     elif 'doi_batch' not in identifier.crossrefstatus.latest_deposit.result_text:
         return HttpResponse(identifier.crossrefstatus.latest_deposit.result_text)
-    else:
-        text = identifier.crossrefstatus.latest_deposit.get_record_diagnostic(identifier.identifier)
-        if text:
-            resp = HttpResponse(text, content_type="application/xml")
-        else:
-            resp = HttpResponse(identifier.crossrefstatus.latest_deposit.result_text, content_type="application/xml")
-        resp['Content-Disposition'] = 'inline;'
-        return resp
+
+    text = identifier.crossrefstatus.latest_deposit.get_record_diagnostic(
+        identifier.identifier,
+    )
+    resp = HttpResponse(
+        text or identifier.crossrefstatus.latest_deposit.result_text,
+        content_type='application/xml',
+    )
+    resp['Content-Disposition'] = 'inline;'
+    return resp
 
 
 @require_POST
 @production_user_or_editor_required
-def issue_doi(request, article_id, identifier_id):
+def issue_doi(
+    request,
+    object_id,
+    identifier_id,
+    content_type='article',
+):
     """
     Issues a DOI identifier
     :param request: HttpRequest
@@ -258,36 +309,53 @@ def issue_doi(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
+    identifier = logic.get_identifier_by_content_type(
+        content_type=content_type,
+        obj=obj,
+        identifier_id=identifier_id,
         id_type='doi',
     )
 
-    status, error = identifier.register()
+    if content_type == 'article':
+        status, error = identifier.register()
+    else:
+        preprint_versions = repository_models.PreprintVersion.objects.filter(
+            preprint=obj,
+        )
+        status, error = preprints.deposit_doi_for_preprint_version(
+            request.repository,
+            preprint_versions,
+        )
+
     messages.add_message(
         request,
         messages.INFO if not error else messages.ERROR,
-        status
+        status,
     )
-
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
-        )
+            'identifiers',
+            kwargs={
+                'content_type': content_type,
+                'object_id': obj.pk,
+            },
+        ),
     )
 
 
 @require_POST
 @production_user_or_editor_required
-def delete_identifier(request, article_id, identifier_id):
+def delete_identifier(
+    request,
+    object_id,
+    identifier_id,
+    content_type='article',
+):
     """
     Deletes an identifier
     :param request: HttpRequest
@@ -295,28 +363,30 @@ def delete_identifier(request, article_id, identifier_id):
     :param identifier_id: Identifier object PK
     :return: HttpRedirect
     """
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal,
+    obj = logic.get_object_by_content_type(
+        content_type=content_type,
+        object_id=object_id,
+        request=request,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
+    identifier = logic.get_identifier_by_content_type(
+        content_type=content_type,
+        obj=obj,
+        identifier_id=identifier_id,
     )
 
     identifier.delete()
-    messages.add_message(
-        request, messages.SUCCESS,
-        'Identifier deleted.'
+    messages.success(
+        request,
+        'Identifier deleted.',
     )
-
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
-        )
+            'identifiers',
+            kwargs={
+                'content_type': content_type,
+                'object_id': obj.pk,
+            },
+        ),
     )
 
 
