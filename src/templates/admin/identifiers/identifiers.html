@@ -1,24 +1,21 @@
-{% extends "admin/core/base.html" %}}
+{% extends "admin/core/base.html" %}
 {% load foundation %}
 
-{% block title %}Edit Identifiers - {{ article.pk }}{% endblock title %}
-
+{% block title %}Edit Identifiers - {{ object.pk }}{% endblock title %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 <li>Edit</li>
-<li>{{ article.safe_title }}</li>
+<li>{{ object.safe_title }}</li>
 <li>Identifiers</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
 <div class="large-12 columns box">
-    <div class="pull-right">
-
-    </div>
+    <div class="pull-right"></div>
     <div class="title-area">
         <h2>Edit Identifiers</h2>
-        <a href="{% url 'add_new_identifier' article.pk %}" class="button">Add Identifier</a>
+        <a href="{% url 'add_new_identifier' content_type object.pk %}" class="button">Add Identifier</a>
     </div>
     <table class="small scroll">
         <tr>
@@ -37,12 +34,15 @@
         <tr>
             <form method="POST">
                 {% csrf_token %}
-                <td>{{ ident.get_id_type_display }}</td>
+                <td>{{ ident.get_id_type_display }}
+                    {% if ident.preprint_version %}
+                        (Preprint Version: {{ ident.preprint_version.version }})
+                    {% endif %}
+                </td>
                 <td>{{ ident.identifier }}</td>
                 <td>
-                    <a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button">
-                        <i class="fa fa-edit">&nbsp;</i>
-                        Edit
+                    <a href="{% url 'edit_identifier' content_type object.pk ident.pk %}" class="small button">
+                        <i class="fa fa-edit">&nbsp;</i>Edit
                     </a>
                 </td>
                 <td>
@@ -63,14 +63,14 @@
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">
+                        <button type="submit" class="small success button" formaction="{% url 'issue_doi' content_type object.pk ident.pk %}">
                             Register
                         </button>
                     {% endif %}
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <a class="small success button" href="{% url 'show_doi' article.pk ident.pk %}">
+                        <a class="small success button" href="{% url 'show_doi' content_type object.pk ident.pk %}">
                             {% if ident.crossrefstatus.latest_deposit %}
                                 View XML
                             {% else %}
@@ -81,22 +81,21 @@
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' and ident.crossrefstatus.latest_deposit %}
-                        <a class="small success button" href="{% url 'poll_doi_output' article.pk ident.pk %}">
+                        <a class="small success button" href="{% url 'poll_doi_output' content_type object.pk ident.pk %}">
                             View XML
                         </a>
                     {% endif %}
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <a class="small success button" href="{% url 'poll_doi' article.pk ident.pk %}">
+                        <a class="small success button" href="{% url 'poll_doi' content_type object.pk ident.pk %}">
                             Poll for status
                         </a>
                     {% endif %}
                 </td>
                 <td>
-                    <button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}">
-                        <i class="fa fa-trash">&nbsp;</i>
-                        Delete
+                    <button class="small button warning" name="delete" formaction="{% url 'delete_identifier' content_type object.pk ident.pk %}">
+                        <i class="fa fa-trash">&nbsp;</i>Delete
                     </button>
                 </td>
             </form>

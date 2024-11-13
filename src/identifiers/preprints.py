@@ -41,6 +41,7 @@ def get_dois_for_preprint_versions(preprint_versions):
 
 
 def send_preprint_version_crossref_deposit(repository, versions, identifiers):
+    status, error = None, None
     identifiers = set((i for i in identifiers))
     template = 'common/identifiers/crossref_preprint_batch.xml'
     template_context = {
@@ -92,16 +93,21 @@ def send_preprint_version_crossref_deposit(repository, versions, identifiers):
             targets=versions,
         )
         logger.info(status)
+        error = None
     for identifier in identifiers:
         crossref_status = models.CrossrefStatus.objects.get(
             identifier=identifier,
         )
         crossref_status.update()
 
+    return status, error
+
 
 def deposit_doi_for_preprint_version(repository, preprint_versions):
     if repository.crossref_enable:
         status, error = check_repository_crossref_settings(repository)
+
+        print(status, error)
 
         if not error:
             identifiers = get_dois_for_preprint_versions(preprint_versions)
@@ -110,4 +116,4 @@ def deposit_doi_for_preprint_version(repository, preprint_versions):
                 preprint_versions,
                 identifiers
             )
-        return error
+        return status, error
