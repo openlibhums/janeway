@@ -8,9 +8,8 @@
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li>Edit</li>
-<li>{{ article.safe_title }}</li>
-<li><a href="{% url 'identifiers' content_type object.pk %}">Identifiers</a></li>
+<li><a href="{% url 'identifiers' content_type object.pk %}">{{ object.safe_title }}</a></li>
+<li>Manage</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
