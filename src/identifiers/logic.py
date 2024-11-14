@@ -24,6 +24,7 @@ from crossref.restful import Depositor
 from identifiers import models
 from submission import models as submission_models
 from repository import models as repository_models
+from journal import models as journal_models
 
 logger = get_logger(__name__)
 
@@ -111,15 +112,26 @@ def check_crossref_settings(journal):
 
 
 @cache(30)
-def get_poll_settings(journal):
-    test_mode = setting_handler.get_setting('Identifiers',
-                                            'crossref_test',
-                                            journal).processed_value or settings.DEBUG
-    username = setting_handler.get_setting('Identifiers', 'crossref_username',
-                                           journal).processed_value
-    password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                               journal).processed_value
-    return test_mode, username, password
+def get_poll_settings(parent_object):
+    if isinstance(parent_object, journal_models.Journal):
+        test_mode = setting_handler.get_setting(
+            'Identifiers',
+            'crossref_test',
+            parent_object
+        ).processed_value or settings.DEBUG
+        username = setting_handler.get_setting(
+            'Identifiers',
+            'crossref_username',
+            parent_object,
+        ).processed_value
+        password = setting_handler.get_setting(
+            'Identifiers',
+            'crossref_password',
+            parent_object,
+        ).processed_value
+        return test_mode, username, password
+    elif isinstance(parent_object, repository_models.Repository):
+        return parent_object.crossref_test_mode, parent_object.crossref_username, parent_object.crossref_password
 
 
 def get_dois_for_articles(articles, create=False):

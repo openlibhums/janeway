@@ -19,7 +19,7 @@
         <year>{{ version.date_time.year }}</year>
     </posted_date>
     <program xmlns="http://www.crossref.org/AccessIndicators.xsd">
-        <free_to_read start_date="{{ version.preprint.date_published|date:"Y-m-d" }}"/>
+        <free_to_read start_date="{{ version.date_time|date:"Y-m-d" }}"/>
         <license_ref>{{ version.preprint.license.url }}</license_ref>
     </program>
     <doi_data>

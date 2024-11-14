@@ -164,6 +164,10 @@
                         <a href="{% url 'repository_send_to_a_journal' preprint.pk %}"><i class="fa fa-exchange">&nbsp;</i>Send to Journal
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'identifiers' 'preprint' preprint.pk %}"><i class="fa fa-link">&nbsp;</i>Manage Identifiers
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">

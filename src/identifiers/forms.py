@@ -77,12 +77,13 @@ class IdentifierForm(forms.ModelForm):
 
     def save(self, commit=True):
         identifier = super(IdentifierForm, self).save(commit=False)
-
-        if self.article:
-            identifier.article = self.article
+        if not self.instance:
+            if self.article:
+                identifier.article = self.article
+            elif self.preprint:
+                identifier.preprint_version = self.preprint.current_version
 
         if commit:
-            pass
             identifier.save()
 
         return identifier
