@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Janeway'
-copyright = '2018, Andy Byers, Mauro Sanchez & Martin Paul Eve'
-author = 'Andy Byers, Mauro Sanchez & Martin Paul Eve'
+copyright = '2018-2024 Birkbeck, University of London'
+author = 'OLH Publishing Technologies Team'
 
 # The short X.Y version
 version = '1.7.3'
