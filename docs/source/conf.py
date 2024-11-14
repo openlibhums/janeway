@@ -21,7 +21,7 @@
 
 project = 'Janeway'
 copyright = '2018-2024 Birkbeck, University of London'
-author = 'OLH Publishing Technologies Team'
+author = 'Open Library of Humanities'
 
 # The short X.Y version
 version = '1.7.3'
