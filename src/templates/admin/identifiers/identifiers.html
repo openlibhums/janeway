@@ -16,6 +16,14 @@
         <h2>Edit Identifiers</h2>
         <a href="{% url 'add_new_identifier' content_type object.pk %}" class="button">Add Identifier</a>
     </div>
+    {% if request.repository %}
+        <div class="bs-callout bs-callout-warning">
+            <p>
+              <span class="fa fa-exclamation-triangle"></span>
+              Note: You can only add a DOI to a preprint if it has a current version.{% if not object.current_version %} This preprint does not have a current version.{% endif %}
+            </p>
+        </div>
+    {% endif %}
     <table class="small scroll">
         <tr>
             <th>Type</th>
