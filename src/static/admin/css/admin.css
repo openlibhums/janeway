@@ -941,3 +941,14 @@ ul.menu {
     }
   }
 }
+
+.orcid-button {
+  color: var(--clr-black);
+  border: 1px solid var(--clr-orcid);
+  background-color: var(--clr-white);
+}
+.orcid-button:hover, .orcid-button:focus {
+  color: var(--clr-black);
+  border: 1px solid var(--clr-orcid);
+  background-color: var(--clr-orcid-light);
+}
