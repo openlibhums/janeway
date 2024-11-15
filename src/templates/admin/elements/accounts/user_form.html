@@ -1,96 +1,87 @@
 {% load foundation %}
 {% load static %}
 
-<h5>{% trans 'Core Data' %}</h5>
-<div class="row">
-    <div class="large-12 columns">
-        {{ form.email|foundation }}
-    </div>
-    <div class="large-2 columns">
-        {{ form.salutation|foundation }}
-    </div>
-    <div class="large-3 columns">
-        {{ form.first_name|foundation }}
-    </div>
-    <div class="large-2 columns">
-        {{ form.middle_name|foundation }}
-    </div>
-    <div class="large-3 columns">
-        {{ form.last_name|foundation }}
-    </div>
-    <div class="large-2 columns">
-        {{ form.suffix|foundation }}
-    </div>
-</div>
-<div class="row">
-    <div class="large-4 columns">
-        {{ form.department|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.institution|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.country|foundation }}
-    </div>
-</div>
+<fieldset>
+  <legend>{% trans "Name" %}</legend>
+  <div class="flex wrap column-gap-2">
+    {% include "admin/elements/forms/field.html" with field=form.salutation %}
+    {% include "admin/elements/forms/field.html" with field=form.first_name %}
+    {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+    {% include "admin/elements/forms/field.html" with field=form.last_name %}
+    {% include "admin/elements/forms/field.html" with field=form.suffix %}
+  </div>
+</fieldset>
 <hr />
-<h5>Social Media and Accounts</h5>
-<div class="row">
-    <div class="large-4 columns">
-        {{ form.twitter|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.facebook|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.orcid|foundation }}
-    </div>
-</div>
-<div class="row">
-    <div class="large-4 columns">
-        {{ form.github|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.linkedin|foundation }}
-    </div>
-    <div class="large-4 columns">
-        {{ form.website|foundation }}
-    </div>
-</div>
+<fieldset>
+  <legend>{% trans "Affiliations" %}</legend>
+  <div class="flex wrap column-gap-2">
+    {% include "admin/elements/forms/field.html" with field=form.department %}
+    {% include "admin/elements/forms/field.html" with field=form.institution %}
+    {% include "admin/elements/forms/field.html" with field=form.country %}
+  </div>
+</fieldset>
 <hr />
-<h5>{% trans 'Biography and Signature' %}</h5>
-<div class="row">
-    <div class="large-6 columns">
-        {{ form.biography|foundation }}
-    </div>
-    <div class="large-6 columns">
-        {{ form.signature|foundation }}
-    </div>
-    <div class="large-12 columns">
-        <label for="id_interests">{% trans 'Review Interests' %}</label>
-        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> {% trans "Hit Enter to add a new interest" %}.
-    </div>
-</div>
-
-<h5>{% trans 'Profile Image' %}</h5>
-<div class="row">
-    <div class="large-3 columns">
-        {% if user_to_edit.profile_image %}
-        <img src="{{ user_to_edit.profile_image.url }}" class="thumbnail editorial-image">
-        {% else %}
-        <img src="{% static "common/img/icons/users.png" %}" class="thumbnail editorial-image">
-        {% endif %}
-    </div>
-    <div class="large-9 columns">
-        {{ form.profile_image|foundation }}
-    </div>
-
-
-</div>
+<fieldset>
+  <legend>{% trans "Social Media and Accounts" %}</legend>
+  <div class="flex wrap column-gap-2">
+    {% include "admin/elements/forms/field.html" with field=form.twitter %}
+    {% include "admin/elements/forms/field.html" with field=form.facebook %}
+    {% include "admin/elements/forms/field.html" with field=form.orcid %}
+    {% include "admin/elements/forms/field.html" with field=form.github %}
+    {% include "admin/elements/forms/field.html" with field=form.linkedin %}
+    {% include "admin/elements/forms/field.html" with field=form.website %}
+  </div>
+</fieldset>
 <hr />
-<h5>{% trans 'Email Options' %}</h5>
-<div class="row">
-    <div class="large-4 columns">
-        {{ form.enable_digest|foundation }}
+<fieldset>
+  <legend>{% trans "Biography and Signature" %}</legend>
+  <div class="flex wrap column-gap-2">
+    <div class="max-w-24">
+      {% include "admin/elements/forms/field.html" with field=form.biography %}
     </div>
-</div>
+    <div class="max-w-24">
+      {% include "admin/elements/forms/field.html" with field=form.signature %}
+    </div>
+  </div>
+</fieldset>
+<hr />
+<fieldset>
+  <legend>{% trans 'Review Interests' %}</legend>
+  <div>
+    <label class="show-for-sr" for="id_interests">
+      {% trans 'Review Interests' %}
+    </label>
+    <input
+      type="text"
+      id="id_interests"
+      name="interests"
+      value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
+    <p>{% trans "Hit Enter to add a new interest" %}.</p>
+  </div>
+</fieldset>
+<hr />
+<fieldset>
+  <legend>{% trans 'Profile Image' %}</legend>
+  <div class="flex landscape-row portrait-column column-gap-3">
+    <div class="max-w-24">
+      {% if user_to_edit.profile_image %}
+        <img
+          src="{{ user_to_edit.profile_image.url }}"
+          class="thumbnail editorial-image">
+      {% else %}
+        <img
+          src="{% static "common/img/icons/users.png" %}"
+          class="thumbnail editorial-image">
+      {% endif %}
+    </div>
+    {% include "admin/elements/forms/field.html" with field=form.profile_image %}
+  </div>
+</fieldset>
+<hr />
+<fieldset>
+  <legend>{% trans 'Options' %}</legend>
+  <div class="flex wrap column-gap-2">
+    {% include "admin/elements/forms/field.html" with field=form.enable_public_profile %}
+    {% include "admin/elements/forms/field.html" with field=form.preferred_timezone %}
+  </div>
+</fieldset>

@@ -1,0 +1,58 @@
+{% extends "admin/core/small_form.html" %}
+{% load static i18n orcid %}
+
+{% block contextual_title %}
+  {% trans "Log in" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block form_content %}
+  <h2 class="text-center">
+    {% trans "Log in" %}
+  </h2>
+  {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+  {% if settings.ENABLE_ORCID %}
+    <div>
+      <a
+        href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
+        class="button secondary hollow expanded orcid-button">
+        <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">
+        {% trans "Log in with ORCiD" %}
+      </a>
+    </div>
+  {% endif %}
+  {% if settings.ENABLE_OIDC %}
+    <div>
+      <a
+        href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
+        class="button secondary hollow expanded">
+        {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
+      </a>
+    </div>
+  {% endif %}
+  {% if journal_settings.general.display_login_page_notice %}
+    {{ journal_settings.general.login_page_notice|safe }}
+  {% endif %}
+  {% include "admin/elements/forms/field.html" with field=form.user_name %}
+  {% include "admin/elements/forms/field.html" with field=form.user_pass %}
+  {{ form.captcha }}
+  <div>
+    <button type="submit" class="button secondary expanded">
+      {% trans "Log in with your account" %}
+    </button>
+  </div>
+  <p class="text-center">
+    <a href="{% url 'core_get_reset_token' %}">
+      {% trans "Forgotten your password?" %}
+    </a>
+  </p>
+  <p class="text-center">
+    <a href="{% url 'core_register' %}">
+      {% trans "Register a new account" %}
+    </a>
+  </p>
+  {% include "admin/elements/forms/denotes_required.html" %}
+{% endblock form_content %}

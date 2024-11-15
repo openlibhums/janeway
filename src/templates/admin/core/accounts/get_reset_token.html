@@ -1,0 +1,30 @@
+{% extends "admin/core/small_form.html" %}
+{% load orcid fqdn i18n foundation %}
+
+{% block contextual_title %}
+  {% trans "Reset password" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>{% trans "Reset password" %}</li>
+{% endblock breadcrumbs %}
+
+{% block form_content %}
+  <h2 class="text-center">
+    {% trans "Reset password" %}
+  </h2>
+  {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+  <p>
+    {% blocktrans %}
+      Enter your email address and then follow the link sent to you by email.
+    {% endblocktrans %}
+  </p>
+  {% include "admin/elements/forms/field.html" with field=form.email_address %}
+  <div>
+    <button type="submit" class="button secondary expanded">
+      {% trans "Request link" %}
+    </button>
+  </div>
+  {% include "admin/elements/forms/denotes_required.html" %}
+{% endblock form_content %}
