@@ -1511,11 +1511,12 @@ h6 {
 
 a {
   line-height: inherit;
-  color: #5a98e5;
+  color: var(--clr-blue-medium);
   text-decoration: none;
   cursor: pointer; }
   a:hover, a:focus {
-    color: #3380df; }
+    color: var(--clr-navy);
+  }
   a img {
     border: 0; }
 
@@ -2216,7 +2217,8 @@ select {
       content: "/";
       color: #b7bac0; }
   .breadcrumbs a {
-    color: #5a98e5; }
+    color: var(--clr-blue-medium);
+  }
     .breadcrumbs a:hover {
       text-decoration: underline; }
   .breadcrumbs .disabled {
