@@ -374,7 +374,7 @@ def register(request):
 
             messages.add_message(
                 request, messages.SUCCESS,
-                _('Your account has been created, please follow the'
+                _('Your account has been created. Please follow the '
                 'instructions in the email that has been sent to you.'),
             )
             return redirect(reverse('core_login'))
