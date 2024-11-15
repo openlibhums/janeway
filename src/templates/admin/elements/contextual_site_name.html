@@ -1,0 +1,7 @@
+{% if request.journal %}
+{{ journal.name }}
+{% elif request.repository %}
+{{ request.repository.name }}
+{% else %}
+{{ request.press.name }}
+{% endif %}

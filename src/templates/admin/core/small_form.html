@@ -1,0 +1,28 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}
+  {% block contextual_title %}{% endblock contextual_title %}
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
+
+{% block title-section %}
+  {{ block.super }}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid place-content-center">
+    <div class="max-w-24">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="card padding-block-2 padding-inline-2">
+          {% block form_content %}
+          {% endblock form_content %}
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock body %}
