@@ -1,0 +1,140 @@
+{% extends "admin/core/large_form.html" %}
+{% load i18n foundation static %}
+
+{% block css %}
+  <link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block contextual_title %}
+  {% trans "Edit Profile" %}
+{% endblock contextual_title %}
+
+{% block body %}
+  <div class="grid place-content-center gap-0">
+    <h2 class="text-center">
+      {% trans "Edit Profile" %}
+    </h2>
+    {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+    <div class="max-w-56">
+      <section class="card padding-block-2 padding-inline-2">
+        <h3>{% trans "Change Your Email Address" %}</h3>
+        {% blocktrans %}
+          <p>If you want to change your email address you may do so below,
+          however, you will be logged out and your
+          account will be marked as inactive until you follow the
+          instructions in the verification email. <strong>Note: </strong>
+          Changing your email address will also change your username as these
+          are one and the same.</p>
+        {% endblocktrans %}
+        <p><strong>{% trans 'Current Email Address' %}:</strong>
+        {{ request.user.email }}</p>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="flex wrap column-gap-2">
+            <div>
+              <label for="email_address">
+                <strong>{% trans 'New Email Address' %}</strong>
+                <span aria-hidden="true">*</span>
+              </label>
+              <input type="email" name="email_address" required="true">
+            </div>
+          </div>
+          <button type="submit" name="email" class="button secondary">
+            {% trans "Update Email Address" %}
+          </button>
+        </form>
+        {% include "admin/elements/forms/denotes_required.html" %}
+      </section>
+      {% if request.journal and send_reader_notifications %}
+        <section class="card padding-block-2 padding-inline-2">
+          <h3>{% trans "Register for Article Notifications" %}</h3>
+          <form method="POST">
+            <p>{% blocktrans %}
+              Use the button below to register to receive notifications of new articles
+              published in this journal.
+            {% endblocktrans %}</p>
+            {% csrf_token %}
+            {% if reader %}
+              <button name="unsubscribe" class="button secondary">
+                {% trans "Unsubscribe from Article Notifications" %}
+              </button>
+            {% else %}
+              <button name="subscribe" class="button secondary">
+                {% trans "Subscribe to Article Notifications" %}
+              </button>
+            {% endif %}
+          </form>
+        </section>
+      {% endif %}
+      <section class="card padding-block-2 padding-inline-2">
+        <h3>{% trans "Update Password" %}</h3>
+        <p>{% blocktrans %}
+          You can update your password by entering your existing
+          password plus your new password.
+        {% endblocktrans %}</p>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="flex wrap column-gap-2">
+            <div>
+              <label for="current_password">
+                <strong>{% trans "Current Password" %}</strong>
+                <span aria-hidden="true">*</span>
+              </label>
+              <input type="password" name="current_password" required="true">
+            </div>
+            <div>
+              <label for="new_password_one">
+                <strong>{% trans "New Password" %}</strong>
+                <span aria-hidden="true">*</span>
+              </label>
+              <input type="password" name="new_password_one" required="true">
+            </div>
+            <div>
+              <label for="new_password_two">
+                <strong>{% trans "Enter Password Again" %}</strong>
+                <span aria-hidden="true">*</span>
+              </label>
+              <input type="password" name="new_password_two" required="true">
+            </div>
+          </div>
+          <button
+            type="submit"
+            name="change_password"
+            class="button secondary">
+            {% trans "Update Password" %}
+          </button>
+        </form>
+        {% include "admin/elements/forms/denotes_required.html" %}
+      </section>
+      <section class="card padding-block-2 padding-inline-2">
+        <h3>{% trans 'Profile Details' %}</h3>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% include "admin/elements/accounts/user_form.html" %}
+          <div>
+            <button
+              type="submit"
+              name="edit_profile"
+              class="button secondary">
+              <span class="fa fa-save"></span>
+              {% trans "Save" %}
+            </button>
+          </div>
+          {% include "admin/elements/forms/denotes_required.html" %}
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock body %}
+
+{% block js %}
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+  <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+  <script src="{% static "common/js/tagit.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $("#id_interests").tagit(
+          {allowSpaces: true});
+    });
+  </script>
+{% endblock %}
