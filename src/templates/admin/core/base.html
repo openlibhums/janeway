@@ -51,12 +51,17 @@
         <div class="large-12 columns">
             {% include "hijack/notification.html" %}
             <nav aria-label="You are here:" role="navigation">
-                <ul class="breadcrumbs">
-                    {% block breadcrumbs %}
-                        {% if request.journal %}
-                            <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>{% endif %}
-                    {% endblock breadcrumbs %}
-                </ul>
+              <ul class="breadcrumbs">
+                {% block breadcrumbs %}
+                  {% if request.user.is_authenticated %}
+                    {% if request.journal %}
+                      <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
+                    {% endif %}
+                  {% else %}
+                    <li><a href="{% url 'core_login' %}">Log in</a></li>
+                  {% endif %}
+                {% endblock breadcrumbs %}
+              </ul>
             </nav>
             {% if article.pk %}
                 {% include "admin/elements/article_jump.html" %}
@@ -64,12 +69,20 @@
         </div>
     </div>
 
-    <section class="title">
+    {% if request.user.is_authenticated %}
+      {% comment %}
+        The way title-section is established below
+        breaks accessibility because if it is not used,
+        there is an empty h1. So, for the short-term, we exclude it from
+        public-facing account management pages.
+      {% endcomment %}
+      <section class="title">
         <div class="row expanded column">
             <h1>{% block title-section %}{% endblock %}</h1>
             <p>{% block title-sub %}{% endblock %}</p>
         </div>
-    </section>
+      </section>
+    {% endif %}
 
     {% block body %}
     {% endblock body %}
