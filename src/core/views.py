@@ -144,7 +144,7 @@ def user_login(request):
     context = {
         'form': form,
     }
-    template = 'core/login.html'
+    template = 'admin/core/accounts/login.html'
 
     return render(request, template, context)
 
@@ -256,7 +256,7 @@ def get_reset_token(request):
             except models.Account.DoesNotExist:
                 return redirect(reverse('core_login'))
 
-    template = 'core/accounts/get_reset_token.html'
+    template = 'admin/core/accounts/get_reset_token.html'
     context = {
         'new_reset_token': new_reset_token,
         'form': form,
@@ -298,7 +298,7 @@ def reset_password(request, token):
             messages.add_message(request, messages.SUCCESS, 'Your password has been reset.')
             return redirect(reverse('core_login'))
 
-    template = 'core/accounts/reset_password.html'
+    template = 'admin/core/accounts/reset_password.html'
     context = {
         'reset_token': reset_token,
         'form': form,
@@ -380,7 +380,7 @@ def register(request):
             )
             return redirect(reverse('core_login'))
 
-    template = 'core/accounts/register.html'
+    template = 'admin/core/accounts/register.html'
     context["form"] = form
 
     return render(request, template, context)
@@ -389,7 +389,7 @@ def register(request):
 def orcid_registration(request, token):
     token = get_object_or_404(models.OrcidToken, token=token, expiry__gt=timezone.now())
 
-    template = 'core/accounts/orcid_registration.html'
+    template = 'admin/core/accounts/orcid_registration.html'
     context = {
         'token': token,
     }
@@ -423,7 +423,7 @@ def activate_account(request, token):
 
         return redirect(reverse('core_login'))
 
-    template = 'core/accounts/activate_account.html'
+    template = 'admin/core/accounts/activate_account.html'
     context = {
         'account': account,
     }
@@ -541,7 +541,7 @@ def edit_profile(request):
         elif 'export' in request.POST:
             return logic.export_gdpr_user_profile(user)
 
-    template = 'core/accounts/edit_profile.html'
+    template = 'admin/core/accounts/edit_profile.html'
     context = {
         'form': form,
         'staff_group_membership_form': staff_group_membership_form,
