@@ -76,6 +76,31 @@
 .column-gap-5 { column-gap: 5rem; }
 .column-gap-6 { column-gap: 6rem; }
 
-/* Content-based width */
-.width-min-content { width: min-content };
-.width-max-content { width: max-content };
+/* Width */
+.max-w-8 { max-width: 8rem; }
+.max-w-12 { max-width: 12rem; }
+.max-w-16 { max-width: 16rem; }
+.max-w-20 { max-width: 20rem; }
+.max-w-24 { max-width: 24rem; }
+.max-w-28 { max-width: 28rem; }
+.max-w-32 { max-width: 32rem; }
+.max-w-40 { max-width: 40rem; }
+.max-w-48 { max-width: 48rem; }
+.max-w-56 { max-width: 56rem; }
+.max-w-64 { max-width: 64rem; }
+.max-w-72 { max-width: 72rem; }
+.max-w-80 { max-width: 80rem; }
+.width-min-content { width: min-content; }
+.width-max-content { width: max-content; }
+
+/* Padding */
+.padding-inline-0 { padding-inline: 0rem; }
+.padding-inline-1 { padding-inline: 1rem; }
+.padding-inline-2 { padding-inline: 2rem; }
+.padding-inline-3 { padding-inline: 3rem; }
+.padding-inline-4 { padding-inline: 4rem; }
+.padding-block-0 { padding-block: 0rem; }
+.padding-block-1 { padding-block: 1rem; }
+.padding-block-2 { padding-block: 2rem; }
+.padding-block-3 { padding-block: 3rem; }
+.padding-block-4 { padding-block: 4rem; }
