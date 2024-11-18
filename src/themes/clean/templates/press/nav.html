@@ -74,12 +74,14 @@
                     </div>
                 </li>
             {% else %}
+                {# IconA11y Decorative #}
                 <li class="nav-item">
                   <a href="{% url 'core_login' %}" class="nav-link">
                     <span class="fa fa-sign-in"></span>
                     {% trans 'Log in' %}
                   </a>
                 </li>
+                {# IconA11y Decorative #}
                 <li class="nav-item">
                   <a href="{% url 'core_register' %}" class="nav-link">
                     <span class="fa fa-user-plus"></span>

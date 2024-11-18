@@ -62,6 +62,7 @@
             {% endfor %}
 
             {% if request.journal.nav_review %}
+                {# IconA11y Decorative #}
                 <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
             {% endif %}
             {% hook 'nav_block' %}

@@ -19,18 +19,24 @@
         {% endif %}
     <div class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
         {% if article.pinned %}
+            {# IconA11y Semantic #}
             <i class="float-right fa fa-thumb-tack"></i>
         {% endif %}
+            {# IconA11y Semantic #}
             <h2>{{ article.title|safe }}{% if article.is_remote %}&nbsp;<i class="fa fa-external-link small-icon-text"></i>{% endif %}</h2>
            {% include "elements/journal/authors_block.html" %}
-            <p><span class="date"><i
-                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                    class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
+            <p><span class="date">
+                {# IconA11y Semantic #}
+                <i class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> 
+                {# IconA11y Decorative #}
+                <i class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
             {% if article.issues.count > 1 %}
+            {# IconA11y Decorative #}
               <p><strong><i class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
               {% for other in article.issues.all %}
               {% if other != article.issue %}
               <p>
+                {# IconA11y Decorative #}
                 <i class="fa fa-book"></i>
                 <a class="issue-link" href="{{ other.url }}">
                     {{other.issue_type.pretty_name}}: {{ other.display_title }}

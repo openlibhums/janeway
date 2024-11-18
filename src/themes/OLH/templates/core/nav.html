@@ -41,8 +41,23 @@
         {% if request.journal.nav_sub %}<li><a href="{% url 'journal_submissions' %}">{% trans 'Submission' %}</a></li>{% endif %}
         {% if request.journal.nav_contact %}<li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>{% endif %}
         {% hook 'nav_block' %}
-        {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}<li><a href="{% url 'submission_start' %}" class="button"><i class="fa fa-cloud-upload"></i> {% trans 'Start Submission' %}</a></li>{% endif %}
-        {% if request.journal.nav_review %}<li><a href="{% url 'become_reviewer' %}" class="button"><i class="fa fa-trophy"></i> {% trans 'Become a Reviewer' %}</a></li>{% endif %}
+        {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}
+            <li>
+                <a href="{% url 'submission_start' %}" class="button">
+                    {# IconA11y Decorative #}
+                    <i class="fa fa-cloud-upload"></i> {% trans 'Start Submission' %}
+                </a>
+            </li>
+        {% endif %}
+        {% if request.journal.nav_review %}
+            <li>
+                <a href="{% url 'become_reviewer' %}" class="button">
+                    {# IconA11y Decorative #}
+                    <i class="fa fa-trophy"></i> 
+                    {% trans 'Become a Reviewer' %}
+                </a>
+            </li>
+        {% endif %}
 
         <li class=".is-dropdown-submenu-parent show-for-small-only">
             <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Account' %}</a>
