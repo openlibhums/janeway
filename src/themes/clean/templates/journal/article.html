@@ -54,10 +54,17 @@
                                     {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
-                                                itemprop="name">({{ author.institution }})</span></span>{% endif %}
+                                                itemprop="name">({{ author.institution }})</span></span>
+                                    {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}</a>{% endif %}</span></span>
+                                           class="fa fa-envelope email-link"
+                                           > 
+                                           {# IconA11y Semantic #}
+                                           {% trans 'Contact' %}
+                                        </a>
+                                    {% endif %}
+                                </span></span>
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -111,6 +118,7 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
+                                        {# IconA11y Decorative #}
                                         <i class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
@@ -188,6 +196,7 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
+                                {# IconA11y Decorative #}
                                 <i class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -238,6 +247,7 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
+                    {# IconA11y Semantic #}
                     <li>{% trans "Peer Reviewed" %} <span class="fa fa-check-circle"></span> </li>
                     {% endif %}
                     {% if article.license %}

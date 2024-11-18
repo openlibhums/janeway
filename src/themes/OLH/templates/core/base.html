@@ -87,6 +87,7 @@
                     </div>
                     <div data-responsive-toggle="search-menu" data-hide-for="medium">
                         <a href="#" class="search-toggle" data-toggle>
+                            {# IconA11y Semantic #}
                             <i class="fa fa-search"></i>
                         </a>
                     </div>
@@ -155,6 +156,7 @@
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="input-group">
+                                {# IconA11y Semantic #}
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
                                 <input type="hidden" name="sort" value="title">

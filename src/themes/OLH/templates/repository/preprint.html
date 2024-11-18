@@ -113,6 +113,7 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
+                            {# IconA11y Decorative #}
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
                                     class="fa fa-download"></span>
                                 Download {{ request.repository.object_name }}
@@ -138,6 +139,7 @@
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
+                            {# IconA11y Semantic #}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
@@ -153,6 +155,7 @@
                       </ul>
                     {% endif %}
 
+                    {# IconA11y Decorative #}
                     <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
 
                 </small>
