@@ -33,9 +33,11 @@
                             <div class="large-12s columns end">
                                 <h2>{{ preprint.title|safe }}</h2>
                                 <p>{{ preprint.display_authors_compact }}</p>
-                                <p><span class="date"><i
-                                        class="fa fa-calendar"></i> {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;<i
-                                        class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
+                                <p><span class="date">
+                                    {# IconA11y Semantic #}
+                                    <i class="fa fa-calendar"></i> {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;
+                                    {# IconA11y Semantic #}
+                                    <i class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
                                 <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
                             </div>
                         </div>
@@ -64,6 +66,7 @@
                         <form method="POST" action="{% url 'repository_search' %}">
                             {% csrf_token %}
                             <div class="input-group">
+                                {# IconA11y Semantic #}
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="search_term"
                                        placeholder="{% trans "Search preprints" %}"
