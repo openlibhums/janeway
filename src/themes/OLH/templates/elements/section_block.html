@@ -24,8 +24,10 @@
             <td>
                 <strong>
                     {% if section.public_submissions %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-check" title="{% trans 'yes' %}"></i>
                     {% else %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-times" title="{% trans 'no' %}"></i>
                     {% endif %}
                 </strong>
@@ -33,8 +35,10 @@
             <td>
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-check" title="{% trans 'yes' %}"></i>
                     {% else %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-times" title="{% trans 'no' %}"></i>
                     {% endif %}
                 </strong>
@@ -42,8 +46,10 @@
             <td>
                 <strong>
                     {% if section.indexing %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-check" title="{% trans 'yes' %}"></i>
                     {% else %}
+                        {# IconA11y Semantic #}
                         <i class="fa fa-times" title="{% trans 'no' %}"></i>
                     {% endif %}
                 </strong>
