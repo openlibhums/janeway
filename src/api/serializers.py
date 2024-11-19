@@ -9,6 +9,7 @@ from core import models as core_models, logic as core_logic
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+from identifiers import models as identifier_models
 from events import logic as event_logic
 
 
@@ -735,3 +736,14 @@ class ActivateAccountSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(
         read_only=True,
     )
+
+
+class IdentifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = identifier_models.Identifier
+        fields = (
+            'id_type',
+            'identifier',
+            'article',
+            'preprint_version',
+        )

@@ -26,6 +26,8 @@ router.register(r'user_preprints', views.UserPreprintsViewSet, 'repository_user_
 router.register(r'repository_subjects', views.RepositorySubjects, 'repository_preprint_subjects')
 router.register(r'published_preprints', views.PublishedPreprintViewSet, 'repository_published_preprint')
 router.register(r'version_queue', views.RepositoryVersionQueue, 'repository_version_queue')
+router.register(r'identifiers', views.Identifiers, 'api_identifiers')
+
 router.register(r'user_info', views.UserInfo, 'api_user_info')
 router.register(r'logout', views.Logout, basename='logout')
 

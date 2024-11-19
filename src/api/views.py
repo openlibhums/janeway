@@ -22,6 +22,7 @@ from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
 from repository import models as repository_models
+from identifiers import models as identifier_models
 
 
 @api_view(['GET'])
@@ -472,6 +473,51 @@ class ActivateAccount(viewsets.ModelViewSet):
             is_active=False,
         )
         return accounts
+
+
+class Identifiers(viewsets.ModelViewSet):
+    serializer_class = serializers.IdentifierSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        preprint_id = self.request.GET.get('preprint_id')
+        preprint_version_id = self.request.GET.get('preprint_version_id')
+        article_id = self.request.GET.get('article_id')
+
+        if self.request.repository:
+            return self._get_repository_identifiers(
+                preprint_id,
+                preprint_version_id,
+            )
+        elif self.request.journal:
+            return self._get_journal_identifiers(article_id)
+        return identifier_models.Identifier.objects.none()
+
+    def _get_repository_identifiers(self, preprint_id, preprint_version_id):
+        queryset = identifier_models.Identifier.objects.filter(
+            preprint_version__preprint__repository=self.request.repository,
+            preprint_version__preprint__date_published__lte=timezone.now(),
+            enabled=True,
+        )
+        if preprint_id:
+            queryset = queryset.filter(
+                preprint_version__preprint__pk=preprint_id,
+            )
+        elif preprint_version_id:
+            queryset = queryset.filter(
+                preprint_version__pk=preprint_version_id,
+            )
+        return queryset
+
+    def _get_journal_identifiers(self, article_id):
+        queryset = identifier_models.Identifier.objects.filter(
+            article__journal=self.request.journal,
+            article__date_published__lte=timezone.now(),
+            enabled=True,
+        )
+        if article_id:
+            queryset = queryset.filter(article__pk=article_id)
+        return queryset
 
 
 def oai(request):
