@@ -1,5 +1,5 @@
-/* This file resets some things for basic accessibility in the back-office UI
- * until we can migrate the UI to a new CSS codebase */
+/* This file resets some things for accessibility in the back-office UI
+ * and can also be expanded to hold other global variables */
 
 :root {
 
