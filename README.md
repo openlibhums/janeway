@@ -46,7 +46,7 @@ You can get more detail by viewing our [project boards here on GitHub](https://g
 
 We aim to build releases in 8-week sprints, though some development cycles have taken quite a bit longer.
 
-[More on how we develop Janeway](https://github.com/orgs/BirkbeckCTP/projects/21/views/1?pane=issue&itemId=18253226).
+[More on how we develop Janeway](https://github.com/orgs/openlibhums/projects/21/views/1?pane=issue&itemId=18253226).
 
 # Licensing
 Janeway is available under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE (Version 3, 19 November 2007).
