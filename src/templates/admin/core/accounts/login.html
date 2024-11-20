@@ -18,7 +18,7 @@
     <div>
       <a
         href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
-        class="button secondary hollow expanded orcid-button">
+        class="button expanded orcid-button">
         <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">
         {% trans "Log in with ORCiD" %}
       </a>
