@@ -26,3 +26,10 @@
     </div>
   </div>
 {% endblock body %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

@@ -95,8 +95,9 @@
 <script src="{% static "common/js/tinymce/tinymce.min.js" %}"></script>
 {% endif %}
 <script src="{% static "django_tinymce/init_tinymce.js" %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-<script>
+{% block toastr %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script>
     toastr.options = {
         "closeButton": true,
         "debug": true,
@@ -128,7 +129,8 @@
             toastr.success("{{ message|linebreaksbr }}")
         {% endif %}
     {% endfor %}
-</script>
+  </script>
+{% endblock toastr %}
 
 {% block js %}{% endblock %}
 </body>
