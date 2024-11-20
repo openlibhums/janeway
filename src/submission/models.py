@@ -35,6 +35,7 @@ from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 import swapper
+from rest_framework.fields import ChoiceField
 
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import(
@@ -226,6 +227,56 @@ LANGUAGE_CHOICES = (
     (u'yap', u'Yapese'), (u'yid', u'Yiddish'), (u'yor', u'Yoruba'), (u'ypk', u'Yupik languages'),
     (u'znd', u'Zande languages'), (u'zap', u'Zapotec'), (u'zza', u'Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki'),
     (u'zen', u'Zenaga'), (u'zha', u'Zhuang; Chuang'), (u'zul', u'Zulu'), (u'zun', u'Zuni'))
+
+JATS_TYPE_CHOICES = (
+    ("abstract", _("Abstract")),
+    ("addendum", _("Addendum")),
+    ("announcement", _("Announcement")),
+    ("article-commentary", _("Article Commentary")),
+    ("back-matter", _("Back Matter")),
+    ("bibliography", _("Bibliography")),
+    ("book-review", _("Book Review")),
+    ("brief-report", _("Brief Report")),
+    ("calendar", _("Calendar")),
+    ("case-report", _("Case Report")),
+    ("collection", _("Collection")),
+    ("comment", _("Comment")),
+    ("correction", _("Correction")),
+    ("data-note", _("Data Note")),
+    ("discussion", _("Discussion")),
+    ("dissertation", _("Dissertation")),
+    ("editorial", _("Editorial")),
+    ("essay", _("Essay")),
+    ("exhibition", _("Exhibition")),
+    ("expression-of-concern", _("Expression of Concern")),
+    ("fictional-work", _("Fictional Work")),
+    ("front-matter", _("Front Matter")),
+    ("interview", _("Interview")),
+    ("introduction", _("Introduction")),
+    ("legal-case", _("Legal Case")),
+    ("letter-to-the-editor", _("Letter to the Editor")),
+    ("meeting-report", _("Meeting Report")),
+    ("media-review", _("Media Review")),
+    ("method", _("Method")),
+    ("multimedia-article", _("Multimedia Article")),
+    ("note", _("Note")),
+    ("obituary", _("Obituary")),
+    ("oration", _("Oration")),
+    ("pictorial-work", _("Pictorial Work")),
+    ("plain-language-summary", _("Plain Language Summary")),
+    ("poetry", _("Poetry")),
+    ("product-review", _("Product Review")),
+    ("rapid-communication", _("Rapid Communication")),
+    ("registered-report", _("Registered Report")),
+    ("reply", _("Reply")),
+    ("report", _("Report")),
+    ("research-article", _("Research Article")),
+    ("research-letter", _("Research Letter")),
+    ("retraction", _("Retraction")),
+    ("review-article", _("Review Article")),
+    ("target-article", _("Target Article")),
+    ("other", _("Other")),
+)
 
 STAGE_UNSUBMITTED = 'Unsubmitted'
 STAGE_UNASSIGNED = 'Unassigned'
@@ -640,6 +691,9 @@ class Article(AbstractLastModifiedModel):
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
+    jats_article_type = models.CharField(max_length=255,
+                                         choices=JATS_TYPE_CHOICES,
+                                         blank=True, null=True)
     license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
 
@@ -2143,6 +2197,10 @@ class Section(AbstractLastModifiedModel):
                   " overruling the notification settings for the journal.",
         related_name='section_editors',
     )
+    jats_article_type = models.CharField(max_length=255,
+                                         choices=JATS_TYPE_CHOICES,
+                                         blank=True, null=True,
+                                         verbose_name="JATS default article type")
     auto_assign_editors = models.BooleanField(
         default=False,
         help_text="Articles submitted to this section will be automatically"

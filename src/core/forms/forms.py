@@ -480,7 +480,7 @@ class SectionForm(JanewayTranslationModelForm):
         fields = [
             'name', 'plural', 'number_of_reviewers',
             'is_filterable', 'sequence', 'section_editors',
-            'editors', 'public_submissions', 'indexing',
+            'editors', 'jats_article_type', 'public_submissions', 'indexing',
             'auto_assign_editors',
         ]
 
