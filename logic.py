@@ -304,7 +304,7 @@ def mint_supp_file_doi(supp_file, doi=None):
         ).processed_value,
         'timestamp_suffix': setting_handler.get_setting(
             'crossref', 'crossref_date_suffix', article.journal,
-        ),
+        ).processed_value,
         'parent_doi': article_doi,
         'doi': doi,
         'now': datetime.datetime.now(),
