@@ -213,6 +213,12 @@ def submit_info(request, article_id):
             )
             if form.is_valid():
                 form.save(request=request)
+
+                # set the default JATS section based on the article type in
+                # the section
+                if article.section:
+                    article.jats_article_type = article.section.jats_article_type
+
                 article.current_step = 2
                 article.save()
 

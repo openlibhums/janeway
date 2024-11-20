@@ -89,6 +89,15 @@
                             {{ info_form.primary_issue|foundation }}
                         </div>
                     </div>
+
+                    <div class="row expanded">
+                        <div class="large-6 columns">
+                            <div class="large-12 columns">
+                                <label>{{ info_form.jats_article_type.label }}</label>
+                                {{ info_form.jats_article_type }}
+                            </div>
+                        </div>
+                    </div>
                     {% if request.journal.submissionconfiguration.competing_interests %}
                         <div class="large-10 columns">
                             {{ info_form.competing_interests|foundation }}
