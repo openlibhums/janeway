@@ -10,6 +10,7 @@ import os
 from dateutil import parser as dateparser
 from itertools import chain
 
+from django.db.models import SET_NULL
 from django.urls import reverse
 from django.db import (
     connection,
@@ -52,6 +53,7 @@ from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
+from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.forms import plain_text_validator
@@ -75,6 +77,22 @@ def article_media_upload(instance, filename):
     path = "articles/{0}/".format(instance.pk)
     return os.path.join(path, filename)
 
+CREDIT_ROLE_CHOICES = [
+    ('conceptualization', 'Conceptualization'),
+    ('Data Curation', 'Data Curation'),
+    ('Formal Analysis', 'Formal Analysis'),
+    ('Funding Acquisition', 'Funding Acquisition'),
+    ('Investigation', 'Investigation'),
+    ('Methodology', 'Methodology'),
+    ('Project Administration', 'Project Administration'),
+    ('Resources', 'Resources'),
+    ('Software', 'Software'),
+    ('Supervision', 'Supervision'),
+    ('Validation', 'Validation'),
+    ('Visualization', 'Visualization'),
+    ('Writing - Original Draft', 'Writing - Original Draft'),
+    ('Writing - Review Editing', 'Writing - Review & Editing'),
+]
 
 SALUTATION_CHOICES = [
     ('', '---'),
@@ -2183,6 +2201,28 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 return order == 0
         else:
             return True
+
+
+class CreditRecord(AbstractLastModifiedModel):
+    """Represents a CRediT record for an article"""
+
+    class Meta:
+        verbose_name = 'CRediT record'
+        verbose_name_plural = 'CRediT records'
+
+    author = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    frozen_author = models.ForeignKey(FrozenAuthor, blank=True, null=True, on_delete=SET_NULL)
+    preprint_author = models.ForeignKey(repository_models.PreprintAuthor, blank=True, null=True, on_delete=SET_NULL)
+    article = models.ForeignKey(Article, blank=True, null=True, on_delete=SET_NULL)
+    role = models.CharField(max_length=100, blank=True, null=True, choices=CREDIT_ROLE_CHOICES)
+
+    def __str__(self):
+        return self.role
 
 
 class Section(AbstractLastModifiedModel):
