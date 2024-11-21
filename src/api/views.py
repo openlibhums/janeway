@@ -243,6 +243,7 @@ class PublishedPreprintViewSet(PreprintViewSet):
         return preprints.filter(
             date_published__isnull=False,
             stage=repository_models.STAGE_PREPRINT_PUBLISHED,
+            repository=self.request.repository,
         ).order_by(
             '-date_published',
             'title',
