@@ -9,12 +9,17 @@
   {% trans "Edit Profile" %}
 {% endblock contextual_title %}
 
+{% block breadcrumbs %}
+  <li>Edit Profile</li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  {% trans "Edit Profile" %}
+{% endblock %}
+
 {% block body %}
-  <div class="grid place-content-center gap-0">
-    <h2 class="text-center">
-      {% trans "Edit Profile" %}
-    </h2>
-    {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+  <div class="grid">
+    {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
     <div class="max-w-56">
       <section class="card padding-block-2 padding-inline-2">
         <h3>{% trans "Change Your Email Address" %}</h3>

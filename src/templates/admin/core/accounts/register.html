@@ -5,22 +5,19 @@
   {% trans "Register for an account" %}
 {% endblock contextual_title %}
 
-{% block css %}
-    {% include "common/elements/edit_profile_css_block.html" %}
-{% endblock %}
-
 {% block breadcrumbs %}
   {{ block.super }}
   <li>{% trans "Register for an account" %}</li>
 {% endblock breadcrumbs %}
 
+{% block title-section %}
+  {% trans "Register for an account" %}
+{% endblock %}
+
 {% block form_content %}
-  <h2 class="text-center">
-    {% trans "Register for an account" %}
-  </h2>
-  {% include "admin/elements/forms/accessible_messages.html" with form=form %}
-  <div class="grid place-content-center">
-    {% include "common/elements/orcid_registration.html" with button_classes="button expanded orcid-button" %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  <div class="flex wrap gap-1">
+    {% include "common/elements/orcid_registration.html" with button_classes="button orcid-button" %}
   </div>
   <div class="flex wrap gap-1">
     {% include "admin/elements/forms/field.html" with field=form.email %}

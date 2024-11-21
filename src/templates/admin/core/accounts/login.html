@@ -6,14 +6,15 @@
 {% endblock contextual_title %}
 
 {% block breadcrumbs %}
-  {{ block.super }}
+  <li>Log in</li>
 {% endblock breadcrumbs %}
 
+{% block title-section %}
+  {% trans "Log in" %}
+{% endblock %}
+
 {% block form_content %}
-  <h2 class="text-center">
-    {% trans "Log in" %}
-  </h2>
-  {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
   {% if settings.ENABLE_ORCID %}
     <div>
       <a

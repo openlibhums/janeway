@@ -14,11 +14,11 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
-  <div class="grid place-content-center">
-    <div class="max-w-56">
+  <div class="grid">
+    <div class="padding-block-1 max-w-56">
       <form method="POST">
         {% csrf_token %}
-        {% include "admin/elements/forms/accessible_messages.html" %}
+        {% include "admin/elements/forms/messages_in_callout.html" %}
         <div class="card padding-block-2 padding-inline-2">
           {% block form_content %}
           {% endblock form_content %}
