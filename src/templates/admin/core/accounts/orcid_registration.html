@@ -10,11 +10,12 @@
   <li>{% trans "Unregistered ORCiD" %}</li>
 {% endblock breadcrumbs %}
 
+{% block title-section %}
+  {% trans "Unregistered ORCiD" %}
+{% endblock %}
+
 {% block form_content %}
-  <h2 class="text-center">
-    {% trans "Unregistered ORCiD" %}
-  </h2>
-  {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
   <p>{% blocktrans %}
     The ORCiD you logged in with is not currently linked with an
     account in our system. You can either register a new account, or login with
