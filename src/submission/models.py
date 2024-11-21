@@ -35,7 +35,6 @@ from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 import swapper
-from rest_framework.fields import ChoiceField
 
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import(
