@@ -692,7 +692,8 @@ class Article(AbstractLastModifiedModel):
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
     jats_article_type = models.CharField(max_length=255,
                                          choices=JATS_TYPE_CHOICES,
-                                         blank=True, null=True)
+                                         blank=True, null=True,
+                                         help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.")
     license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
 
@@ -2199,7 +2200,8 @@ class Section(AbstractLastModifiedModel):
     jats_article_type = models.CharField(max_length=255,
                                          choices=JATS_TYPE_CHOICES,
                                          blank=True, null=True,
-                                         verbose_name="JATS default article type")
+                                         verbose_name="JATS default article type",
+                                         help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis. Changing this will not change any existing article's type.")
     auto_assign_editors = models.BooleanField(
         default=False,
         help_text="Articles submitted to this section will be automatically"
