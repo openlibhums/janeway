@@ -6,35 +6,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0052_merge_20210624_0923'),
+        ("core", "0052_merge_20210624_0923"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contacts',
-            name='name_nl',
+            model_name="contacts",
+            name="name_nl",
             field=models.CharField(max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='role_nl',
+            model_name="contacts",
+            name="role_nl",
             field=models.CharField(max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='description_nl',
+            model_name="editorialgroup",
+            name="description_nl",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='name_nl',
+            model_name="editorialgroup",
+            name="name_nl",
             field=models.CharField(max_length=500, null=True),
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value_nl',
+            model_name="settingvalue",
+            name="value_nl",
             field=models.TextField(blank=True, null=True),
         ),
     ]

@@ -12,7 +12,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for journal in journal_models.Journal.objects.filter(is_remote=False):
-
             if ithenticate.ithenticate_is_enabled(journal):
                 print("Processing journal {0}...".format(journal.name))
                 articles = models.Article.objects.filter(
@@ -22,4 +21,8 @@ class Command(BaseCommand):
                 )
                 ithenticate.fetch_percentage(journal, articles)
             else:
-                print('Ithenticate is not enabled for {journal}. Skipping.'.format(journal=journal.name))
+                print(
+                    "Ithenticate is not enabled for {journal}. Skipping.".format(
+                        journal=journal.name
+                    )
+                )

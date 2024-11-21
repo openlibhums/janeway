@@ -5,21 +5,20 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0065_prepub_send_notifications'),
-        ('journal', '0065_issue_type_null_to_string'),
+        ("journal", "0065_prepub_send_notifications"),
+        ("journal", "0065_issue_type_null_to_string"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issuetype',
-            name='custom_plural',
+            model_name="issuetype",
+            name="custom_plural",
             field=core.model_utils.JanewayBleachCharField(blank=True, max_length=255),
         ),
         migrations.AlterField(
-            model_name='issuetype',
-            name='pretty_name',
+            model_name="issuetype",
+            name="pretty_name",
             field=core.model_utils.JanewayBleachCharField(max_length=255),
         ),
     ]

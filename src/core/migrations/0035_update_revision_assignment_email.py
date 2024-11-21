@@ -9,7 +9,7 @@ NEW_VALUE = "Dear {{ article.correspondence_author.full_name }},<br><br>We are r
 
 
 def replace_template(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
     settings = SettingValueTranslation.objects.filter(value=OLD_VALUE)
 
     for setting in settings:
@@ -18,7 +18,7 @@ def replace_template(apps, schema_editor):
 
 
 def reverse_code(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
     settings = SettingValueTranslation.objects.filter(value=NEW_VALUE)
     for setting in settings:
         setting.value = OLD_VALUE
@@ -26,9 +26,8 @@ def reverse_code(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0034_fix_wrong_signature_review_ack'),
+        ("core", "0034_fix_wrong_signature_review_ack"),
     ]
 
     operations = [

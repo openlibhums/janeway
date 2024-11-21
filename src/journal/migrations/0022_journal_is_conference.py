@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0021_journal_enable_correspondence_authors'),
+        ("journal", "0021_journal_enable_correspondence_authors"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='is_conference',
+            model_name="journal",
+            name="is_conference",
             field=models.BooleanField(default=False),
         ),
     ]

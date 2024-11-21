@@ -1,6 +1,7 @@
 """
 Janeway's File System classes
 """
+
 __copyright__ = "Copyright 2018 Birkbeck, University of London"
 __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
@@ -15,10 +16,11 @@ from django.utils.deconstruct import deconstructible
 
 @deconstructible
 class JanewayFileSystemStorage(FileSystemStorage):
-    """ Allows to change settings.MEDIA_ROOT without generating a migration
+    """Allows to change settings.MEDIA_ROOT without generating a migration
 
     :param relative_path: relative path on top of settings.MEDIA_ROOT
     """
+
     def __init__(self, location=None, *args, **kwargs):
         relative_path = None
         if location:
@@ -32,7 +34,4 @@ class JanewayFileSystemStorage(FileSystemStorage):
         super().__init__(location, *args, **kwargs)
 
     def __eq__(self, other):
-        return (
-            isinstance(other, self.__class__)
-            and self.base_url == other.base_url
-        )
+        return isinstance(other, self.__class__) and self.base_url == other.base_url

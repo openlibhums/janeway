@@ -7,60 +7,61 @@ from django.db import migrations
 
 EMAILS_TO_FIX = [
     {
-        'name': 'accepted_review_reminder',
-        'pretty_name': 'Accepted Review Reminder',
-        'description': 'Notify reviewer of accepted request and remind them to review submission.',
+        "name": "accepted_review_reminder",
+        "pretty_name": "Accepted Review Reminder",
+        "description": "Notify reviewer of accepted request and remind them to review submission.",
     },
     {
-        'name': 'author_publication',
-        'pretty_name': 'Author Publication Notification',
-        'description': 'Notify the author of their publication date and time.',
+        "name": "author_publication",
+        "pretty_name": "Author Publication Notification",
+        "description": "Notify the author of their publication date and time.",
     },
     {
-        'name': 'review_decline_acknowledgement',
-        'pretty_name': 'Review Decline Acknowledgement',
+        "name": "review_decline_acknowledgement",
+        "pretty_name": "Review Decline Acknowledgement",
     },
     {
-        'name': 'editor_digest',
-        'description': 'Digest email sent to editors.',
+        "name": "editor_digest",
+        "description": "Digest email sent to editors.",
     },
     {
-        'name': 'notify_proofreader_assignment',
-        'description': 'Email sent to a proofreader when they are given an assignment.'
+        "name": "notify_proofreader_assignment",
+        "description": "Email sent to a proofreader when they are given an assignment.",
     },
     {
-        'name': 'review_request_sent',
-        'pretty_name': 'Review Request Update',
-        'description': 'Email sent when a review assignment is updated.',
+        "name": "review_request_sent",
+        "pretty_name": "Review Request Update",
+        "description": "Email sent when a review assignment is updated.",
     },
 ]
 
+
 def fix_email_names_descriptions(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
 
     for fix in EMAILS_TO_FIX:
-        settings = Setting.objects.filter(name=fix.get('name'))
+        settings = Setting.objects.filter(name=fix.get("name"))
 
         for setting in settings:
-            if fix.get('pretty_name'):
-                setting.pretty_name = fix.get('pretty_name')
+            if fix.get("pretty_name"):
+                setting.pretty_name = fix.get("pretty_name")
 
-            if fix.get('description'):
-                setting.description = fix.get('description')
+            if fix.get("description"):
+                setting.description = fix.get("description")
 
             setting.save()
 
 
 def move_from_address_to_general(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
-    Group = apps.get_model('core', 'SettingGroup')
+    Setting = apps.get_model("core", "Setting")
+    Group = apps.get_model("core", "SettingGroup")
 
     try:
-        group = Group.objects.get(name='general')
+        group = Group.objects.get(name="general")
 
         try:
             from_address = Setting.objects.get(
-                name='from_address',
+                name="from_address",
             )
             from_address.group = group
             from_address.save()
@@ -68,15 +69,15 @@ def move_from_address_to_general(apps, schema_editor):
             # In this case load_default_settings has been run before this migration.
             # We need to delete that new setting.
             Setting.objects.get(
-                name='from_address',
-                group__name='general',
+                name="from_address",
+                group__name="general",
             ).delete()
 
             # And the update the existing one so that any linked SettingValues are
             # retained.
             setting_to_retain = Setting.objects.get(
-                name='from_address',
-                group__name='email',
+                name="from_address",
+                group__name="email",
             )
             setting_to_retain.group = group
             setting_to_retain.save()
@@ -86,21 +87,17 @@ def move_from_address_to_general(apps, schema_editor):
 
 
 def move_from_address_to_email(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
-    Group = apps.get_model('core', 'SettingGroup')
+    Setting = apps.get_model("core", "Setting")
+    Group = apps.get_model("core", "SettingGroup")
 
-    group = Group.objects.get(name='email')
+    group = Group.objects.get(name="email")
 
-    Setting.objects.filter(
-        name='from_address'
-    ).update(
-        group=group
-    )
+    Setting.objects.filter(name="from_address").update(group=group)
+
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0040_auto_20200529_1415'),
+        ("core", "0040_auto_20200529_1415"),
     ]
 
     operations = [
@@ -111,5 +108,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             move_from_address_to_general,
             reverse_code=move_from_address_to_email,
-        )
+        ),
     ]

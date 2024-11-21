@@ -8,59 +8,77 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0001_initial'),
-        ('submission', '0001_initial'),
-        ('copyediting', '0001_initial'),
+        ("core", "0001_initial"),
+        ("submission", "0001_initial"),
+        ("copyediting", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='copyeditassignment',
-            name='article',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="copyeditassignment",
+            name="article",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='copyeditassignment',
-            name='copyeditor',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='copyeditor', to=settings.AUTH_USER_MODEL),
+            model_name="copyeditassignment",
+            name="copyeditor",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="copyeditor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='copyeditassignment',
-            name='copyeditor_files',
-            field=models.ManyToManyField(to='core.File'),
+            model_name="copyeditassignment",
+            name="copyeditor_files",
+            field=models.ManyToManyField(to="core.File"),
         ),
         migrations.AddField(
-            model_name='copyeditassignment',
-            name='editor',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cp_editor', to=settings.AUTH_USER_MODEL),
+            model_name="copyeditassignment",
+            name="editor",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="cp_editor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='copyeditassignment',
-            name='files_for_copyediting',
-            field=models.ManyToManyField(related_name='files_for_copyediting', to='core.File'),
+            model_name="copyeditassignment",
+            name="files_for_copyediting",
+            field=models.ManyToManyField(
+                related_name="files_for_copyediting", to="core.File"
+            ),
         ),
         migrations.AddField(
-            model_name='authorreview',
-            name='assignment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='copyediting.CopyeditAssignment'),
+            model_name="authorreview",
+            name="assignment",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="copyediting.CopyeditAssignment",
+            ),
         ),
         migrations.AddField(
-            model_name='authorreview',
-            name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="authorreview",
+            name="author",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='authorreview',
-            name='files_updated',
-            field=models.ManyToManyField(to='core.File', verbose_name='files_updated'),
+            model_name="authorreview",
+            name="files_updated",
+            field=models.ManyToManyField(to="core.File", verbose_name="files_updated"),
         ),
         migrations.AlterUniqueTogether(
-            name='copyeditassignment',
-            unique_together=set([('article', 'copyeditor')]),
+            name="copyeditassignment",
+            unique_together=set([("article", "copyeditor")]),
         ),
     ]

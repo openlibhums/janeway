@@ -8,15 +8,17 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0059_better_page_metadata'),
+        ("submission", "0059_better_page_metadata"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='frozenauthor',
-            name='display_email',
-            field=models.BooleanField(default=False, help_text='If checked, this authors email address link will be displayed on the article page.'),
+            model_name="frozenauthor",
+            name="display_email",
+            field=models.BooleanField(
+                default=False,
+                help_text="If checked, this authors email address link will be displayed on the article page.",
+            ),
         ),
     ]

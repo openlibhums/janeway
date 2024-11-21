@@ -7,20 +7,24 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0009_merge_20170907_1721'),
+        ("submission", "0009_merge_20170907_1721"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='licence',
-            name='order',
+            model_name="licence",
+            name="order",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='license',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='submission.Licence'),
+            model_name="article",
+            name="license",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="submission.Licence",
+            ),
         ),
     ]

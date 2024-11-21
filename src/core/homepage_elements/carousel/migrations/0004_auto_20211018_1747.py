@@ -21,37 +21,49 @@ def migrate_carousel_mode(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0046_auto_20210922_1436'),
-        ('carousel', '0003_auto_20200121_1020'),
+        ("journal", "0046_auto_20210922_1436"),
+        ("carousel", "0003_auto_20200121_1020"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='carousel',
-            name='current_issue',
-            field=models.BooleanField(default=False, help_text='Always include the current issue'),
+            model_name="carousel",
+            name="current_issue",
+            field=models.BooleanField(
+                default=False, help_text="Always include the current issue"
+            ),
         ),
         migrations.AddField(
-            model_name='carousel',
-            name='issues',
-            field=models.ManyToManyField(blank=True, to='journal.Issue', verbose_name='Issues and Collections'),
+            model_name="carousel",
+            name="issues",
+            field=models.ManyToManyField(
+                blank=True, to="journal.Issue", verbose_name="Issues and Collections"
+            ),
         ),
         migrations.AddField(
-            model_name='carousel',
-            name='latest_articles',
-            field=models.BooleanField(default=False, help_text='The carousel will display the latest published articles'),
+            model_name="carousel",
+            name="latest_articles",
+            field=models.BooleanField(
+                default=False,
+                help_text="The carousel will display the latest published articles",
+            ),
         ),
         migrations.AddField(
-            model_name='carousel',
-            name='latest_news',
-            field=models.BooleanField(default=False, help_text='The carousel will display the latest published news items'),
+            model_name="carousel",
+            name="latest_news",
+            field=models.BooleanField(
+                default=False,
+                help_text="The carousel will display the latest published news items",
+            ),
         ),
         migrations.AlterField(
-            model_name='carousel',
-            name='exclude',
-            field=models.BooleanField(default=False, help_text='If enabled, the selectors below will behave as an exclusion list'),
+            model_name="carousel",
+            name="exclude",
+            field=models.BooleanField(
+                default=False,
+                help_text="If enabled, the selectors below will behave as an exclusion list",
+            ),
         ),
         migrations.RunPython(migrate_carousel_mode, migrations.RunPython.noop),
     ]

@@ -6,50 +6,49 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0050_auto_20210513_0943'),
+        ("core", "0050_auto_20210513_0943"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contacts',
-            name='name_cy',
+            model_name="contacts",
+            name="name_cy",
             field=models.CharField(max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='name_de',
+            model_name="contacts",
+            name="name_de",
             field=models.CharField(max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='name_en',
+            model_name="contacts",
+            name="name_en",
             field=models.CharField(max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='name_fr',
+            model_name="contacts",
+            name="name_fr",
             field=models.CharField(max_length=300, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='role_cy',
+            model_name="contacts",
+            name="role_cy",
             field=models.CharField(max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='role_de',
+            model_name="contacts",
+            name="role_de",
             field=models.CharField(max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='role_en',
+            model_name="contacts",
+            name="role_en",
             field=models.CharField(max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='contacts',
-            name='role_fr',
+            model_name="contacts",
+            name="role_fr",
             field=models.CharField(max_length=200, null=True),
         ),
     ]

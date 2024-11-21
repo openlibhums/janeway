@@ -14,12 +14,16 @@ from journal import models as journal_models
 from submission import models as sm_models
 from utils.testing.helpers import create_journals
 
-FROZEN_DATETIME_20180628 = timezone.make_aware(timezone.datetime(2018, 6, 28, 8, 15, 27, 243860))
-FROZEN_DATETIME_20180629 = timezone.make_aware(timezone.datetime(2018, 6, 29, 8, 15, 27, 243860))
+FROZEN_DATETIME_20180628 = timezone.make_aware(
+    timezone.datetime(2018, 6, 28, 8, 15, 27, 243860)
+)
+FROZEN_DATETIME_20180629 = timezone.make_aware(
+    timezone.datetime(2018, 6, 29, 8, 15, 27, 243860)
+)
+
 
 # Create your tests here.
 class TestCarousel(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.journal_one, cls.journal_2 = create_journals()
@@ -27,20 +31,19 @@ class TestCarousel(TestCase):
         cls.news_item = comms_models.NewsItem.objects.create(
             posted=FROZEN_DATETIME_20180628,
         )
-        cls.news_item.content_type = ContentType.objects.get_for_model(
-            cls.journal_one)
+        cls.news_item.content_type = ContentType.objects.get_for_model(cls.journal_one)
         cls.news_item.object_id = cls.journal_one.id
         cls.article = sm_models.Article.objects.create(
             journal=cls.journal_one,
             stage=sm_models.STAGE_PUBLISHED,
             date_published=FROZEN_DATETIME_20180628,
-            title='Carousel Article One',
+            title="Carousel Article One",
         )
         cls.article = sm_models.Article.objects.create(
             journal=cls.journal_one,
             stage=sm_models.STAGE_PUBLISHED,
             date_published=FROZEN_DATETIME_20180629,
-            title='Carousel Article Two',
+            title="Carousel Article Two",
         )
 
     def test_carousel(self):

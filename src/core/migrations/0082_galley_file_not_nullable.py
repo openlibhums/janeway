@@ -3,22 +3,26 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
+
 def upgrade(apps, schema_editor):
     Galley = apps.get_model("core", "Galley")
     Galley.objects.filter(file__isnull=True).delete()
+
 
 class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('core', '0081_alter_account_preferred_timezone'),
+        ("core", "0081_alter_account_preferred_timezone"),
     ]
 
     operations = [
         migrations.RunPython(upgrade, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
-            model_name='galley',
-            name='file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.file'),
+            model_name="galley",
+            name="file",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="core.file"
+            ),
         ),
     ]

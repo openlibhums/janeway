@@ -26,33 +26,33 @@ FROZEN_DATETIME_20210103 = timezone.make_aware(timezone.datetime(2021, 1, 3, 0, 
 class TestAccount(TestCase):
     def test_creation(self):
         data = {
-            'email': 'test@test.com',
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Prof.',
-            'first_name': 'Martin',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": "test@test.com",
+            "is_active": True,
+            "password": "this_is_a_password",
+            "salutation": "Prof.",
+            "first_name": "Martin",
+            "last_name": "Eve",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
 
         models.Account.objects.create(**data)
         try:
-            models.Account.objects.get(email='test@test.com')
+            models.Account.objects.get(email="test@test.com")
         except models.Account.DoesNotExist:
-            self.fail('User account has not been created.')
+            self.fail("User account has not been created.")
 
     def test_username_normalised(self):
         email = "TEST@test.com"
         data = {
-            'email': email,
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Prof.',
-            'first_name': 'Martin',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": email,
+            "is_active": True,
+            "password": "this_is_a_password",
+            "salutation": "Prof.",
+            "first_name": "Martin",
+            "last_name": "Eve",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         obj = models.Account.objects.create(**data)
         self.assertEquals(obj.username, email.lower())
@@ -60,14 +60,14 @@ class TestAccount(TestCase):
     def test_username_normalised_quick_form(self):
         email = "QUICK@test.com"
         data = {
-            'email': email,
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Prof.',
-            'first_name': 'Martin',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": email,
+            "is_active": True,
+            "password": "this_is_a_password",
+            "salutation": "Prof.",
+            "first_name": "Martin",
+            "last_name": "Eve",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         form = forms.QuickUserForm(data=data)
         acc = form.save()
@@ -77,7 +77,7 @@ class TestAccount(TestCase):
         email = "TEST@TEST.com"
         expected = "TEST@test.com"
         data = {
-            'email': email,
+            "email": email,
         }
         obj = models.Account.objects.create(**data)
         self.assertEquals(obj.email, expected)
@@ -187,11 +187,8 @@ class TestAccount(TestCase):
             role=role_obj,
         )
         unique_violation = models.AccountRole.objects.create(
-            user=to_account,
-            journal=journal,
-            role=role_obj
+            user=to_account, journal=journal, role=role_obj
         )
-
 
         # Test
         merge_models(from_account, to_account)
@@ -204,12 +201,12 @@ class TestAccount(TestCase):
 
     def test_full_name(self):
         author = models.Account.objects.create(
-            email='test@example.com',
-            first_name='',
-            middle_name='',
-            last_name='Sky',
+            email="test@example.com",
+            first_name="",
+            middle_name="",
+            last_name="Sky",
         )
-        self.assertEqual('Sky', author.full_name())
+        self.assertEqual("Sky", author.full_name())
 
 
 class TestSVGImageFormField(TestCase):
@@ -223,10 +220,7 @@ class TestSVGImageFormField(TestCase):
             "file.svg",
             svg_data.encode("utf-8"),
         )
-        TestForm = type(
-            "TestFormForm", (Form,),
-            {"file": SVGImageFieldForm()}
-        )
+        TestForm = type("TestFormForm", (Form,), {"file": SVGImageFieldForm()})
         form = TestForm({}, {"file": svg_file})
         self.assertTrue(form.is_valid())
 
@@ -240,34 +234,27 @@ class TestSVGImageFormField(TestCase):
             "file.svg",
             svg_data.encode("utf-8"),
         )
-        TestForm = type(
-            "TestFormForm", (Form,),
-            {"file": SVGImageFieldForm()}
-        )
+        TestForm = type("TestFormForm", (Form,), {"file": SVGImageFieldForm()})
         form = TestForm({}, {"file": svg_file})
         self.assertFalse(form.is_valid())
 
     def test_upload_image_to_svg_image_form_field(self):
         svg_data = ""
         image_data = (
-            b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
-            b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
-            b'\x02\x4c\x01\x00\x3b'
+            b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+            b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+            b"\x02\x4c\x01\x00\x3b"
         )
         image_file = SimpleUploadedFile(
             "file.gif",
             image_data,
         )
-        TestForm = type(
-            "TestFormForm", (Form,),
-            {"file": SVGImageFieldForm()}
-        )
+        TestForm = type("TestFormForm", (Form,), {"file": SVGImageFieldForm()})
         form = TestForm({}, {"file": image_file})
         self.assertTrue(form.is_valid())
 
 
 class TestLastModifiedModel(TestCase):
-
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
@@ -275,39 +262,30 @@ class TestLastModifiedModel(TestCase):
         self.issue = helpers.create_issue(self.journal_one)
 
         self.article, c = submission_models.Article.objects.get_or_create(
-            title='Test Model Utils Article',
+            title="Test Model Utils Article",
         )
 
     def test_abstract_last_mod_save(self):
-        test_abstract_text = 'The Phantom Menace Sucks'
+        test_abstract_text = "The Phantom Menace Sucks"
         self.article.abstract = test_abstract_text
         self.article.save()
 
-        self.assertEqual(
-            self.article.abstract,
-            test_abstract_text
-        )
+        self.assertEqual(self.article.abstract, test_abstract_text)
 
     def test_abstract_last_mod_update_doesnt_die(self):
         article_last_mod = self.article.last_modified
 
-        articles = submission_models.Article.objects.filter(
-            pk=self.article.pk
-        ).update(
-            title='You\'re Wrong About the Phantom Menace'
+        articles = submission_models.Article.objects.filter(pk=self.article.pk).update(
+            title="You're Wrong About the Phantom Menace"
         )
 
     def test_last_modified_model(self):
         # prepare
         with freeze_time(FROZEN_DATETIME_20210102):
-            issue_date = self.issue.last_modified = (
-                timezone.now() - timedelta(days=1)
-            )
+            issue_date = self.issue.last_modified = timezone.now() - timedelta(days=1)
             self.issue.save()
         with freeze_time(FROZEN_DATETIME_20210101):
-            self.article.last_modified = (
-                timezone.now() - timedelta(days=2)
-            )
+            self.article.last_modified = timezone.now() - timedelta(days=2)
             self.article.save()
 
         # Test
@@ -379,16 +357,15 @@ class TestLastModifiedModel(TestCase):
 
 
 class TestModelUtils(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.account = helpers.create_user(
-            'Ab6CrWPPxQ7FoLj5dgdH@example.org',
+            "Ab6CrWPPxQ7FoLj5dgdH@example.org",
         )
 
     def test_search_model_admin(self):
         request = HttpRequest()
-        request.GET = QueryDict('q=Ab6CrWPPxQ7FoLj5dgdH')
+        request.GET = QueryDict("q=Ab6CrWPPxQ7FoLj5dgdH")
         results, _duplicates = search_model_admin(
             request,
             models.Account,

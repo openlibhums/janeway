@@ -12,7 +12,6 @@ from security.decorators import editor_user_required
 
 @editor_user_required
 def preprints(request):
-
     form = forms.PreprintForm(instance=request.press)
 
     if request.POST:
@@ -20,11 +19,11 @@ def preprints(request):
 
         if form.is_valid():
             form.save()
-            return redirect(reverse('preprints'))
+            return redirect(reverse("preprints"))
 
-    template = 'preprints.html'
+    template = "preprints.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)

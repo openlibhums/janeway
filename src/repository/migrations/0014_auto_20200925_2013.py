@@ -6,15 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0013_auto_20200925_1946'),
+        ("repository", "0013_auto_20200925_1946"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='repository',
-            name='login_text',
-            field=models.TextField(blank=True, help_text='If text is added it will display on the login and register pages.', null=True, verbose_name='Account Page Text'),
+            model_name="repository",
+            name="login_text",
+            field=models.TextField(
+                blank=True,
+                help_text="If text is added it will display on the login and register pages.",
+                null=True,
+                verbose_name="Account Page Text",
+            ),
         ),
     ]

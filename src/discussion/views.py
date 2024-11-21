@@ -15,7 +15,7 @@ def threads(request, object_type, object_id, thread_id=None):
     """
     modal = None
 
-    if object_type == 'article':
+    if object_type == "article":
         object_to_get = get_object_or_404(
             submission_models.Article,
             pk=object_id,
@@ -59,25 +59,25 @@ def threads(request, object_type, object_id, thread_id=None):
             thread = form.save()
             return redirect(
                 reverse(
-                    'discussion_thread',
+                    "discussion_thread",
                     kwargs={
-                        'object_type': thread.object_string(),
-                        'object_id': thread.object_id(),
-                        'thread_id': thread.pk,
-                    }
+                        "object_type": thread.object_string(),
+                        "object_id": thread.object_id(),
+                        "thread_id": thread.pk,
+                    },
                 )
             )
         else:
-            modal = 'new_thread'
+            modal = "new_thread"
 
-    template = 'admin/discussion/threads.html'
+    template = "admin/discussion/threads.html"
     context = {
-        'object': object_to_get,
-        'object_type': object_type,
-        'threads': threads,
-        'active_thread': thread,
-        'form': form,
-        'modal': modal,
+        "object": object_to_get,
+        "object_type": object_type,
+        "threads": threads,
+        "active_thread": thread,
+        "form": form,
+        "modal": modal,
     }
     return render(request, template, context)
 
@@ -91,17 +91,15 @@ def add_post(request, thread_id):
     )
     thread.create_post(
         request.user,
-        request.POST.get('new_post'),
+        request.POST.get("new_post"),
     )
     return redirect(
         reverse(
-            'discussion_thread',
+            "discussion_thread",
             kwargs={
-                'object_type': thread.object_string(),
-                'object_id': thread.object_id(),
-                'thread_id': thread.pk,
-            }
+                "object_type": thread.object_string(),
+                "object_id": thread.object_id(),
+                "thread_id": thread.pk,
+            },
         )
     )
-
-

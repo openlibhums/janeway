@@ -17,8 +17,9 @@ class TraceNode(template.Node):
 
     def render(self, context):
         import pdb
+
         pdb.set_trace()
-        return ''
+        return ""
 
 
 @register.tag

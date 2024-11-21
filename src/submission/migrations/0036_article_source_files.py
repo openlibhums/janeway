@@ -6,16 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0030_merge_20190405_1549'),
-        ('submission', '0035_auto_20190712_2015'),
+        ("core", "0030_merge_20190405_1549"),
+        ("submission", "0035_auto_20190712_2015"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='source_files',
-            field=models.ManyToManyField(blank=True, related_name='source_files', to='core.File'),
+            model_name="article",
+            name="source_files",
+            field=models.ManyToManyField(
+                blank=True, related_name="source_files", to="core.File"
+            ),
         ),
     ]

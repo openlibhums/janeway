@@ -7,9 +7,8 @@ from django.contrib.postgres.operations import CITextExtension
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0042_auto_20200825_1051'),
+        ("core", "0042_auto_20200825_1051"),
     ]
 
     operations = [CITextExtension()]

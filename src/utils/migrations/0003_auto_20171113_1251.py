@@ -6,35 +6,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0002_auto_20170813_1302'),
+        ("utils", "0002_auto_20170813_1302"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='logentry',
-            name='is_email',
+            model_name="logentry",
+            name="is_email",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='logentry',
-            name='message_id',
+            model_name="logentry",
+            name="message_id",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='logentry',
-            name='to',
+            model_name="logentry",
+            name="to",
             field=models.EmailField(blank=True, max_length=254, null=True),
         ),
         migrations.AlterField(
-            model_name='logentry',
-            name='types',
+            model_name="logentry",
+            name="types",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='pluginsetting',
-            name='types',
-            field=models.CharField(choices=[('rich-text', 'Rich Text'), ('text', 'Text'), ('char', 'Characters'), ('number', 'Number'), ('boolean', 'Boolean'), ('file', 'File'), ('select', 'Select'), ('json', 'JSON')], default='text', max_length=20),
+            model_name="pluginsetting",
+            name="types",
+            field=models.CharField(
+                choices=[
+                    ("rich-text", "Rich Text"),
+                    ("text", "Text"),
+                    ("char", "Characters"),
+                    ("number", "Number"),
+                    ("boolean", "Boolean"),
+                    ("file", "File"),
+                    ("select", "Select"),
+                    ("json", "JSON"),
+                ],
+                default="text",
+                max_length=20,
+            ),
         ),
     ]

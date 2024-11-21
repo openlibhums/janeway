@@ -6,15 +6,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0054c_auto_20220811_0958'),
+        ("journal", "0054c_auto_20220811_0958"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issue',
-            name='isbn',
-            field=models.CharField(blank=True, help_text='An ISBN is relevant for non-serial collections such as conference proceedings', max_length=28, null=True, verbose_name='ISBN'),
+            model_name="issue",
+            name="isbn",
+            field=models.CharField(
+                blank=True,
+                help_text="An ISBN is relevant for non-serial collections such as conference proceedings",
+                max_length=28,
+                null=True,
+                verbose_name="ISBN",
+            ),
         ),
     ]

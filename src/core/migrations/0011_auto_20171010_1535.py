@@ -7,15 +7,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0010_account_enable_public_profile'),
+        ("core", "0010_account_enable_public_profile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='galley',
-            name='article',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="galley",
+            name="article",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="submission.Article",
+            ),
         ),
     ]

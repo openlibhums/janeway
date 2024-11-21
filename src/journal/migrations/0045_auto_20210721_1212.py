@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0044_journal_contact_info_nl'),
+        ("journal", "0044_journal_contact_info_nl"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='is_remote',
-            field=models.BooleanField(default=False, help_text='When enabled, the journal is marked as not hosted in Janeway.'),
+            model_name="journal",
+            name="is_remote",
+            field=models.BooleanField(
+                default=False,
+                help_text="When enabled, the journal is marked as not hosted in Janeway.",
+            ),
         ),
     ]

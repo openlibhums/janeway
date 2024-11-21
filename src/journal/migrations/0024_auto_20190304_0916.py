@@ -7,15 +7,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0023_issuegalley'),
+        ("journal", "0023_issuegalley"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issuegalley',
-            name='issue',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='galley', to='journal.Issue'),
+            model_name="issuegalley",
+            name="issue",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="galley",
+                to="journal.Issue",
+            ),
         ),
     ]

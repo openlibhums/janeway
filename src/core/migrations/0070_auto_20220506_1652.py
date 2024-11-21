@@ -9,58 +9,81 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0069_merge_20220427_1042'),
+        ("core", "0069_merge_20220427_1042"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PGFileText',
+            name="PGFileText",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('contents', django.contrib.postgres.search.SearchVectorField(blank=True, editable=False, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "contents",
+                    django.contrib.postgres.search.SearchVectorField(
+                        blank=True, editable=False, null=True
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'required_db_vendor': 'postgresql',
+                "abstract": False,
+                "required_db_vendor": "postgresql",
             },
         ),
         migrations.CreateModel(
-            name='FileText',
+            name="FileText",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
             options={
-                'swappable': 'CORE_FILETEXT_MODEL',
+                "swappable": "CORE_FILETEXT_MODEL",
             },
         ),
         migrations.AddField(
-            model_name='file',
-            name='text',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-            to=settings.CORE_FILETEXT_MODEL,
-            related_name='file',
+            model_name="file",
+            name="text",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.CORE_FILETEXT_MODEL,
+                related_name="file",
             ),
         ),
         migrations.AlterField(
-            model_name='file',
-            name='history',
-            field=models.ManyToManyField(blank=True, to='core.FileHistory'),
+            model_name="file",
+            name="history",
+            field=models.ManyToManyField(blank=True, to="core.FileHistory"),
         ),
         migrations.AddField(
-            model_name='filetext',
-            name='contents',
+            model_name="filetext",
+            name="contents",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='filetext',
-            name='date_populated',
+            model_name="filetext",
+            name="date_populated",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AddField(
-            model_name='pgfiletext',
-            name='date_populated',
+            model_name="pgfiletext",
+            name="date_populated",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

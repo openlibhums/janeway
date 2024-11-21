@@ -10,14 +10,16 @@ URL_NAME_RE = r"url '(\w+)'"
 
 
 def replace_setting_urls(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
+    settings = SettingValueTranslation.objects.filter(
+        master__setting__group__name="email"
+    )
     for s in settings:
         fix_url(s)
 
 
 def fix_url(setting):
-    """ Replaces anchor urls in a setting value with a django variable
+    """Replaces anchor urls in a setting value with a django variable
 
     The django variable is built from the url name, appending "_url" at the end
     e.g:
@@ -57,11 +59,12 @@ def fix_url(setting):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0044_auto_20201210_1140'),
+        ("core", "0044_auto_20201210_1140"),
     ]
 
     operations = [
-        migrations.RunPython(replace_setting_urls, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            replace_setting_urls, reverse_code=migrations.RunPython.noop
+        ),
     ]

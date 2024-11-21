@@ -33,36 +33,43 @@ def sitesectomy(*args, **kwargs):
             # New installations won't have a django_sites table
             pass
 
+
 class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('journal', '0017_file_fields_for_the_last_time'),
-        ('core', '0018_auto_20181116_1123'),
+        ("journal", "0017_file_fields_for_the_last_time"),
+        ("core", "0018_auto_20181116_1123"),
     ]
     operations = [
         migrations.AddField(
-            model_name='domainalias',
-            name='press',
+            model_name="domainalias",
+            name="press",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
-                on_delete=django.db.models.deletion.CASCADE, to='press.Press'),
+                on_delete=django.db.models.deletion.CASCADE,
+                to="press.Press",
+            ),
         ),
         migrations.AlterField(
-            model_name='domainalias',
-            name='domain',
-            field=models.CharField(default='www.example.com', max_length=255, unique=True),
+            model_name="domainalias",
+            name="domain",
+            field=models.CharField(
+                default="www.example.com", max_length=255, unique=True
+            ),
         ),
         migrations.AddField(
-            model_name='domainalias',
-            name='journal',
+            model_name="domainalias",
+            name="journal",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
-                on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journal.Journal",
+            ),
         ),
         migrations.RunPython(sitesectomy, reverse_code=migrations.RunPython.noop),
-#        migrations.RunSQL(JOURNAL_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
-#        migrations.RunSQL(PRESS_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
+        #        migrations.RunSQL(JOURNAL_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
+        #        migrations.RunSQL(PRESS_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
     ]

@@ -7,21 +7,30 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0012_presssetting_is_boolean'),
-        ('submission', '0015_auto_20171013_1104'),
+        ("press", "0012_presssetting_is_boolean"),
+        ("submission", "0015_auto_20171013_1104"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='licence',
-            name='press',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='press.Press'),
+            model_name="licence",
+            name="press",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="press.Press",
+            ),
         ),
         migrations.AlterField(
-            model_name='licence',
-            name='journal',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='journal.Journal'),
+            model_name="licence",
+            name="journal",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="journal.Journal",
+            ),
         ),
     ]

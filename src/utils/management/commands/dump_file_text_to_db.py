@@ -13,10 +13,10 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('--journal-code', type=str)
-        parser.add_argument('--article-id', type=int)
-        parser.add_argument('--file-id', type=int)
-        parser.add_argument('--all', action="store_true", default=False)
+        parser.add_argument("--journal-code", type=str)
+        parser.add_argument("--article-id", type=int)
+        parser.add_argument("--file-id", type=int)
+        parser.add_argument("--all", action="store_true", default=False)
 
     def handle(self, *args, **options):
         errors = []

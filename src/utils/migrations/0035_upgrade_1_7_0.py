@@ -12,16 +12,17 @@ def rollback(apps, schema_editor):
     latest_version.rollback = timezone.now()
     latest_version.save()
 
+
 def upgrade(apps, schema_editor):
     version_model = apps.get_model("utils", "Version")
     new_version = version_model.objects.create(number=VERSION)
     new_version.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('utils', '0034_rename_toaddress_addressee'),
-        ('core', '0097_merge_20240819_1617'),
+        ("utils", "0034_rename_toaddress_addressee"),
+        ("core", "0097_merge_20240819_1617"),
     ]
 
     operations = [

@@ -22,23 +22,18 @@ def move_xsl_files(apps, schema_editor, from_, to):
         if not filename:
             continue
         elif filename == "default.xsl":
-            shutil.copyfile(
-                os.path.join(from_, filename),
-                os.path.join(to, filename)
-            )
+            shutil.copyfile(os.path.join(from_, filename), os.path.join(to, filename))
         else:
             try:
-                shutil.move(
-                    os.path.join(from_, filename),
-                    os.path.join(to, filename)
-                )
+                shutil.move(os.path.join(from_, filename), os.path.join(to, filename))
             except FileNotFoundError:
                 pass
 
 
 def move_xsl_to_new(apps, schema_editor, *args, **kwargs):
     move_xsl_files(
-        apps, schema_editor,
+        apps,
+        schema_editor,
         from_=os.path.join(settings.BASE_DIR, "transform/xsl"),
         to=os.path.join(settings.BASE_DIR, "files/xsl"),
     )
@@ -46,34 +41,42 @@ def move_xsl_to_new(apps, schema_editor, *args, **kwargs):
 
 def move_xsl_to_old(apps, schema_editor, *args, **kwargs):
     move_xsl_files(
-        apps, schema_editor,
+        apps,
+        schema_editor,
         from_=os.path.join(settings.BASE_DIR, "files/xsl"),
         to=os.path.join(settings.BASE_DIR, "transform/xsl"),
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0036_merge_20200420_1333'),
+        ("core", "0036_merge_20200420_1333"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='xslfile',
-            name='journal',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="xslfile",
+            name="journal",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journal.Journal",
+            ),
         ),
         migrations.AddField(
-            model_name='xslfile',
-            name='original_filename',
-            field=models.CharField(default='default.xsl', max_length=255),
+            model_name="xslfile",
+            name="original_filename",
+            field=models.CharField(default="default.xsl", max_length=255),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='xslfile',
-            name='file',
-            field=models.FileField(storage=core.file_system.JanewayFileSystemStorage('files/xsl'), upload_to=core.models.upload_to_journal),
+            model_name="xslfile",
+            name="file",
+            field=models.FileField(
+                storage=core.file_system.JanewayFileSystemStorage("files/xsl"),
+                upload_to=core.models.upload_to_journal,
+            ),
         ),
-        migrations.RunPython(move_xsl_to_new, reverse_code=move_xsl_to_old)
+        migrations.RunPython(move_xsl_to_new, reverse_code=move_xsl_to_old),
     ]

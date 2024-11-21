@@ -7,7 +7,8 @@ from django.apps import AppConfig
 
 
 class PreprintConfig(AppConfig):
-    name = 'preprint'
+    name = "preprint"
+
 
 # THE PREPRINTS APP HAS BEEN RENAMED REPOSITORY AND THSI WILL BE REMOVED IN
 # 1.3.9

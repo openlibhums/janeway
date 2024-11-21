@@ -6,21 +6,23 @@ from django.db import migrations
 
 
 def set_about_plugin_to_hpe(apps, schema_editor):
-    Plugin = apps.get_model('utils', 'Plugin')
+    Plugin = apps.get_model("utils", "Plugin")
 
     Plugin.objects.filter(
-        name='About',
+        name="About",
     ).update(
         homepage_element=True,
     )
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0058_merge_20211005_0909'),
-        ('utils', '0023_upgrade_1_4_0'),
+        ("core", "0058_merge_20211005_0909"),
+        ("utils", "0023_upgrade_1_4_0"),
     ]
 
     operations = [
-        migrations.RunPython(set_about_plugin_to_hpe, reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(
+            set_about_plugin_to_hpe, reverse_code=migrations.RunPython.noop
+        )
     ]

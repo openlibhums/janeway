@@ -1,4 +1,4 @@
-#from urllib.parse import unquote_plus
+# from urllib.parse import unquote_plus
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -9,12 +9,12 @@ from freezegun import freeze_time
 from utils.testing import helpers
 from repository import models as repo_models
 
-REPO_DOMAIN = 'repo.domain.com'
+REPO_DOMAIN = "repo.domain.com"
 FROZEN_DATETIME_202209 = timezone.make_aware(timezone.datetime(2022, 9, 1, 0, 0, 0))
 FROZEN_DATETIME_202208 = timezone.make_aware(timezone.datetime(2022, 8, 31, 0, 0, 0))
 
-class TestPreprintOAIViews(TestCase):
 
+class TestPreprintOAIViews(TestCase):
     @classmethod
     @freeze_time(FROZEN_DATETIME_202208)
     def setUpTestData(cls):
@@ -28,15 +28,23 @@ class TestPreprintOAIViews(TestCase):
 
         cls.preprint = helpers.create_preprint(cls.repo, cls.author, cls.subject)
         cls.preprint.stage = repo_models.STAGE_PREPRINT_PUBLISHED
-        cls.preprint.date_published = timezone.make_aware(timezone.datetime(2022, 8, 31, 0, 0, 0)) 
+        cls.preprint.date_published = timezone.make_aware(
+            timezone.datetime(2022, 8, 31, 0, 0, 0)
+        )
         cls.preprint.make_new_version(cls.preprint.submission_file)
         cls.preprint.save()
 
-        cls.unpublished_preprint = helpers.create_preprint(cls.repo, cls.author, cls.subject, title="Unpublished Preprint")
+        cls.unpublished_preprint = helpers.create_preprint(
+            cls.repo, cls.author, cls.subject, title="Unpublished Preprint"
+        )
 
-        cls.older_preprint = helpers.create_preprint(cls.repo, cls.author, cls.subject, title="Older Test Preprint")
+        cls.older_preprint = helpers.create_preprint(
+            cls.repo, cls.author, cls.subject, title="Older Test Preprint"
+        )
         cls.older_preprint.stage = repo_models.STAGE_PREPRINT_PUBLISHED
-        cls.older_preprint.date_published = timezone.make_aware(timezone.datetime(2022, 8, 29, 0, 0, 0))
+        cls.older_preprint.date_published = timezone.make_aware(
+            timezone.datetime(2022, 8, 29, 0, 0, 0)
+        )
         cls.older_preprint.make_new_version(cls.older_preprint.submission_file)
         cls.older_preprint.save()
 
@@ -44,23 +52,20 @@ class TestPreprintOAIViews(TestCase):
     @freeze_time(FROZEN_DATETIME_202209)
     def test_list_records_dc(self):
         expected = LIST_RECORDS_DATA_DC
-        response = self.client.get(reverse('OAI_list_records'), SERVER_NAME=REPO_DOMAIN)
+        response = self.client.get(reverse("OAI_list_records"), SERVER_NAME=REPO_DOMAIN)
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_202209)
     def test_list_records_jats(self):
         expected = LIST_RECORDS_DATA_JATS
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME=REPO_DOMAIN
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME=REPO_DOMAIN)
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
@@ -68,27 +73,23 @@ class TestPreprintOAIViews(TestCase):
     def test_list_sets(self):
         expected = LIST_SETS_DATA_DC
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListSets",
             metadataPrefix="oai_dc",
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME=REPO_DOMAIN
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME=REPO_DOMAIN)
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
-
 
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_202209)
     def test_get_record_dc(self):
         expected = GET_RECORD_DATA_DC
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="oai_dc",
@@ -97,8 +98,7 @@ class TestPreprintOAIViews(TestCase):
         query_string = urlencode(query_params)
 
         response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="repo.domain.com"
+            f"{path}?{query_string}", SERVER_NAME="repo.domain.com"
         )
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
@@ -108,7 +108,7 @@ class TestPreprintOAIViews(TestCase):
     def test_get_record_jats(self):
         expected = GET_RECORD_DATA_JATS
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="jats",
@@ -117,8 +117,7 @@ class TestPreprintOAIViews(TestCase):
         query_string = urlencode(query_params)
 
         response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="repo.domain.com"
+            f"{path}?{query_string}", SERVER_NAME="repo.domain.com"
         )
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
@@ -128,7 +127,7 @@ class TestPreprintOAIViews(TestCase):
     def test_list_identifiers_jats(self):
         expected = LIST_IDENTIFIERS_JATS
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListIdentifiers",
             metadataPrefix="jats",
@@ -136,8 +135,7 @@ class TestPreprintOAIViews(TestCase):
         query_string = urlencode(query_params)
 
         response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="repo.domain.com"
+            f"{path}?{query_string}", SERVER_NAME="repo.domain.com"
         )
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
@@ -147,7 +145,7 @@ class TestPreprintOAIViews(TestCase):
     def test_identify_dc(self):
         expected = IDENTIFY_DATA_DC
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="Identify",
             metadataPrefix="oai_dc",
@@ -155,8 +153,7 @@ class TestPreprintOAIViews(TestCase):
         query_string = urlencode(query_params)
 
         response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="repo.domain.com"
+            f"{path}?{query_string}", SERVER_NAME="repo.domain.com"
         )
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -165,21 +162,21 @@ class TestPreprintOAIViews(TestCase):
     def test_get_records_until(self):
         expected = GET_RECORD_DATA_UNTIL
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="oai_dc",
             # until=str(datetime.datetime(2022, 8, 30, tzinfo=pytz.UTC)),
-            until=timezone.make_aware(timezone.datetime(2022, 8, 30, 0, 0, 0))
+            until=timezone.make_aware(timezone.datetime(2022, 8, 30, 0, 0, 0)),
         )
         query_string = urlencode(query_params)
 
         response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="repo.domain.com"
+            f"{path}?{query_string}", SERVER_NAME="repo.domain.com"
         )
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
+
 
 LIST_RECORDS_DATA_DC = """
     <?xml version="1.0" encoding="UTF-8"?>

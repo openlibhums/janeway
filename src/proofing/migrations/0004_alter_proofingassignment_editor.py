@@ -6,16 +6,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('proofing', '0003_typesetterproofingtask_files'),
+        ("proofing", "0003_typesetterproofingtask_files"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='proofingassignment',
-            name='editor',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='proofing_editor', to=settings.AUTH_USER_MODEL),
+            model_name="proofingassignment",
+            name="editor",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="proofing_editor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

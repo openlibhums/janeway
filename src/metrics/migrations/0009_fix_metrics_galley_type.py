@@ -6,10 +6,10 @@ from django.db import migrations, models
 
 
 def fix_bad_galley_type(apps, schema_editor):
-    """ Fixes records that have mistakenly set their galley_type as 'view' """
+    """Fixes records that have mistakenly set their galley_type as 'view'"""
     ArticleAccess = apps.get_model("metrics", "ArticleAccess")
     Article = apps.get_model("submission", "Article")
-    for galley_type in ["html", "xml", "image"]: # Order matters
+    for galley_type in ["html", "xml", "image"]:  # Order matters
         print("Fixing Access records of type '%s'" % galley_type)
         # First, fix articles with no render_galley:
         articles = Article.objects.filter(
@@ -41,15 +41,14 @@ def rollback(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('metrics', '0008_auto_20191119_2340'),
+        ("metrics", "0008_auto_20191119_2340"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='articleaccess',
-            name='galley_type',
+            model_name="articleaccess",
+            name="galley_type",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
         migrations.RunPython(

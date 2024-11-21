@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0053_auto_20210629_0641'),
+        ("core", "0053_auto_20210629_0641"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='settingvaluetranslation',
-            options={'managed': False},
+            name="settingvaluetranslation",
+            options={"managed": False},
         ),
     ]

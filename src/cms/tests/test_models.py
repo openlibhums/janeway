@@ -30,7 +30,7 @@ class TestCaseWithCMSData(TestCase):
         cls.press_cms_page = helpers.create_cms_page(press_type, cls.press.pk)
         journal_type = ContentType.objects.get_for_model(cls.journal_one)
         cls.journal_cms_page = helpers.create_cms_page(journal_type, cls.journal_one.pk)
-        setting_handler.save_setting('general', 'custom_cms_templates', None, 'custom')
+        setting_handler.save_setting("general", "custom_cms_templates", None, "custom")
 
     @classmethod
     def tearDownClass(cls):

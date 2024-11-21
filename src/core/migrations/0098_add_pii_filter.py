@@ -5,36 +5,44 @@ from utils import migration_utils
 
 updates = [
     {
-        'setting_names': ['review_decision_accept', 'request_revisions', 'review_decision_decline'],
-        'replacements': [(
-            '{{ article.correspondence_author.full_name }}',
-            '{{ article.correspondence_author.full_name|se_can_see_pii:article }}'
-        )]
+        "setting_names": [
+            "review_decision_accept",
+            "request_revisions",
+            "review_decision_decline",
+        ],
+        "replacements": [
+            (
+                "{{ article.correspondence_author.full_name }}",
+                "{{ article.correspondence_author.full_name|se_can_see_pii:article }}",
+            )
+        ],
     },
     {
-        'setting_names': ['revisions_complete_editor_notification'],
-        'replacements': [(
-            '{{ revision.article.correspondence_author.full_name }}',
-            '{{ revision.article.correspondence_author.full_name|se_can_see_pii:revision.article }}'
-        )]
+        "setting_names": ["revisions_complete_editor_notification"],
+        "replacements": [
+            (
+                "{{ revision.article.correspondence_author.full_name }}",
+                "{{ revision.article.correspondence_author.full_name|se_can_see_pii:revision.article }}",
+            )
+        ],
     },
 ]
 
 
 def replace_values(apps, schema_editor):
     for update in updates:
-        for setting_name in update.get('setting_names'):
+        for setting_name in update.get("setting_names"):
             migration_utils.replace_strings_in_setting_values(
                 apps=apps,
                 setting_name=setting_name,
-                group_name='email',
-                replacements=update.get('replacements'),
+                group_name="email",
+                replacements=update.get("replacements"),
             )
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0097_merge_20240819_1617'),
+        ("core", "0097_merge_20240819_1617"),
     ]
 
     operations = [

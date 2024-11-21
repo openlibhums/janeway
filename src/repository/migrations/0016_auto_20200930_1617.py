@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0015_repository_submission_agreement'),
+        ("repository", "0015_repository_submission_agreement"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='repository',
-            name='submission_agreement',
-            field=models.TextField(default='<p>Authors grant us the right to publish, on this website, their uploaded manuscript, supplementary materials and any supplied metadata.</p>', help_text="Add any information that the author may need to know as part of their submission, eg. Copyright transfer etc.'", null=True),
+            model_name="repository",
+            name="submission_agreement",
+            field=models.TextField(
+                default="<p>Authors grant us the right to publish, on this website, their uploaded manuscript, supplementary materials and any supplied metadata.</p>",
+                help_text="Add any information that the author may need to know as part of their submission, eg. Copyright transfer etc.'",
+                null=True,
+            ),
         ),
     ]

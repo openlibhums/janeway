@@ -19,8 +19,8 @@ from orcid import PublicAPI as OrcidAPI
 logger = get_logger(__name__)
 
 
-def retrieve_tokens(authorization_code, site, action='login'):
-    """ Retrieves the access token for the given code
+def retrieve_tokens(authorization_code, site, action="login"):
+    """Retrieves the access token for the given code
 
     :param authorization_code: (str) code provided by ORCID
     :site: Object implementing the AbstractSiteModel interface
@@ -36,7 +36,7 @@ def retrieve_tokens(authorization_code, site, action='login'):
     }
 
     content_length = len(urlencode(access_token_req))
-    access_token_req['content-length'] = str(content_length)
+    access_token_req["content-length"] = str(content_length)
     base_url = settings.ORCID_TOKEN_URL
 
     logger.info("Connecting with ORCID on %s" % base_url)
@@ -53,22 +53,28 @@ def retrieve_tokens(authorization_code, site, action='login'):
     return orcid_id
 
 
-def build_redirect_uri(site, action='login'):
-    """ builds the landing page for ORCID requests
+def build_redirect_uri(site, action="login"):
+    """builds the landing page for ORCID requests
     :site: Object implementing the AbstractSiteModel interface
     :return: (str) Redirect URI for ORCID requests
     """
     request = logic.get_current_request()
 
-    return request.site_type.site_url(reverse("core_login_orcid"),
-                                      query={'state': action})
+    return request.site_type.site_url(
+        reverse("core_login_orcid"), query={"state": action}
+    )
+
 
 def get_orcid_record(orcid):
     try:
         logger.info("Retrieving ORCiD profile for %s", orcid)
         api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
-        return api_client.read_record_public(orcid, 'record', search_token,)
+        return api_client.read_record_public(
+            orcid,
+            "record",
+            search_token,
+        )
     except HTTPError as e:
         logger.info("Couldn't retrieve profile with ORCID %s", orcid)
         logger.info(e)
@@ -78,6 +84,7 @@ def get_orcid_record(orcid):
 
     return None
 
+
 def get_affiliation(summary):
     if len(summary["employments"]["employment-summary"]):
         return summary["employments"]["employment-summary"][0]["organization"]
@@ -86,19 +93,17 @@ def get_affiliation(summary):
     else:
         return None
 
+
 def get_orcid_record_details(orcid):
     details = defaultdict(lambda: None)
     record = get_orcid_record(orcid)
     if record:
-        details["uri"] = record['orcid-identifier']['uri']
-        details["orcid"] = record['orcid-identifier']['path']
+        details["uri"] = record["orcid-identifier"]["uri"]
+        details["orcid"] = record["orcid-identifier"]["path"]
         user_record = record["person"]
         # Order matters here, we want to get emails first in case anything
         # goes wrong with person details below
-        details["emails"] = [
-            email["email"]
-            for email in user_record["emails"]["email"]
-        ]
+        details["emails"] = [email["email"] for email in user_record["emails"]["email"]]
 
         name = user_record.get("name", None)
         if name:

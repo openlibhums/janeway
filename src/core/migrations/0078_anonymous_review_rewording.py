@@ -4,7 +4,7 @@ from django.db import migrations
 SETTING_VALUES_TO_FIX = {
     "review_file_help": {
         "old": "<p>If you are undertaking a blind or double-blind review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>",
-        "new": "<p>If you are undertaking a single anonymous or double anonymous review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"
+        "new": "<p>If you are undertaking a single anonymous or double anonymous review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>",
     },
     "peer_review_info": {
         "old": "This journal operates a open/blind/double blind peer review policy.",
@@ -22,12 +22,11 @@ NAMES_TO_FIX = {
 
 
 def replace_settings(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
-    SettingValue = apps.get_model('core', 'SettingValue')
+    Setting = apps.get_model("core", "Setting")
+    SettingValue = apps.get_model("core", "SettingValue")
     for setting_name, values in SETTING_VALUES_TO_FIX.items():
         settings = SettingValue.objects.filter(
-            setting__name=setting_name,
-            value_en=values["old"]
+            setting__name=setting_name, value_en=values["old"]
         )
         settings.update(value_en=values["new"])
 
@@ -43,9 +42,8 @@ def replace_settings(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0077_merge_20221004_1031'),
+        ("core", "0077_merge_20221004_1031"),
     ]
 
     operations = [

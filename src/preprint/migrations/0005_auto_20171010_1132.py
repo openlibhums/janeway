@@ -7,35 +7,43 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0010_account_enable_public_profile'),
-        ('preprint', '0004_comment_date_time'),
+        ("core", "0010_account_enable_public_profile"),
+        ("preprint", "0004_comment_date_time"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='comment',
-            options={'ordering': ('-date_time', '-pk')},
+            name="comment",
+            options={"ordering": ("-date_time", "-pk")},
         ),
         migrations.RemoveField(
-            model_name='preprintversion',
-            name='manuscript_files',
+            model_name="preprintversion",
+            name="manuscript_files",
         ),
         migrations.AddField(
-            model_name='preprintversion',
-            name='galley',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='core.Galley'),
+            model_name="preprintversion",
+            name="galley",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="core.Galley"
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='reply_to',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='preprint.Comment'),
+            model_name="comment",
+            name="reply_to",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="preprint.Comment",
+            ),
         ),
         migrations.AlterField(
-            model_name='preprintversion',
-            name='preprint',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="preprintversion",
+            name="preprint",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
     ]

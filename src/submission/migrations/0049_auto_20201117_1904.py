@@ -7,45 +7,68 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0048_submissionconfiguration_submission_file_text'),
+        ("submission", "0048_submissionconfiguration_submission_file_text"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='section',
-            name='auto_assign_editors',
-            field=models.BooleanField(default=False, help_text='Articles submitted to this section will be automatically assigned to the editors and/or section editors selected above.'),
+            model_name="section",
+            name="auto_assign_editors",
+            field=models.BooleanField(
+                default=False,
+                help_text="Articles submitted to this section will be automatically assigned to the editors and/or section editors selected above.",
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='editors',
-            field=models.ManyToManyField(help_text='Editors assigned will be notified of submissions, overruling the notification settings for the journal.', to=settings.AUTH_USER_MODEL),
+            model_name="section",
+            name="editors",
+            field=models.ManyToManyField(
+                help_text="Editors assigned will be notified of submissions, overruling the notification settings for the journal.",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='indexing',
-            field=models.BooleanField(default=True, help_text='Whether this section is put forward for indexing'),
+            model_name="section",
+            name="indexing",
+            field=models.BooleanField(
+                default=True,
+                help_text="Whether this section is put forward for indexing",
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='is_filterable',
-            field=models.BooleanField(default=True, help_text='Allows filtering article search results by this section.'),
+            model_name="section",
+            name="is_filterable",
+            field=models.BooleanField(
+                default=True,
+                help_text="Allows filtering article search results by this section.",
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='section_editors',
-            field=models.ManyToManyField(help_text='Section editors assigned will be notified of submissions, overruling the notification settings for the journal.', related_name='section_editors', to=settings.AUTH_USER_MODEL),
+            model_name="section",
+            name="section_editors",
+            field=models.ManyToManyField(
+                help_text="Section editors assigned will be notified of submissions, overruling the notification settings for the journal.",
+                related_name="section_editors",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='sequence',
-            field=models.PositiveIntegerField(default=0, help_text='Determines the order in which the section is rendered Sections can also be reorder by drag-and-drop'),
+            model_name="section",
+            name="sequence",
+            field=models.PositiveIntegerField(
+                default=0,
+                help_text="Determines the order in which the section is rendered Sections can also be reorder by drag-and-drop",
+            ),
         ),
         migrations.AlterField(
-            model_name='sectiontranslation',
-            name='plural',
-            field=models.CharField(blank=True, help_text='Pluralised name for the section (e.g: Article -> Articles)', max_length=200, null=True),
+            model_name="sectiontranslation",
+            name="plural",
+            field=models.CharField(
+                blank=True,
+                help_text="Pluralised name for the section (e.g: Article -> Articles)",
+                max_length=200,
+                null=True,
+            ),
         ),
     ]

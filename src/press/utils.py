@@ -14,4 +14,4 @@ def get_navigation_items(press):
         content_type=content_type,
         object_id=press.pk,
         top_level_nav__isnull=True,
-    ).order_by('sequence')
+    ).order_by("sequence")

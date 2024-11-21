@@ -12,22 +12,20 @@ class Command(BaseCommand):
     help = "Tests the rendering of an article against the provided XSLFile"
 
     def add_arguments(self, parser):
-        """ Adds arguments to Django's management command-line parser.
+        """Adds arguments to Django's management command-line parser.
 
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
         parser.add_argument(
-            'xslfile_label',
-            help="The label of the XSLFile being tested"
+            "xslfile_label", help="The label of the XSLFile being tested"
         )
         parser.add_argument(
-            'article_id',
-            help="The article ID against which the test will be run"
+            "article_id", help="The article ID against which the test will be run"
         )
 
     def handle(self, *args, **options):
-        """ Compares the output
+        """Compares the output
 
         :param args: None
         :param options: None
@@ -35,8 +33,7 @@ class Command(BaseCommand):
         """
         try:
             article = models.Article.objects.get(pk=options["article_id"])
-            xsl_file = core_models.XSLFile.objects.get(
-                label=options["xslfile_label"])
+            xsl_file = core_models.XSLFile.objects.get(label=options["xslfile_label"])
         except models.Article.DoesNotExist:
             raise CommandError("Couldn't find the article")
 
@@ -48,20 +45,24 @@ class Command(BaseCommand):
         )
 
         if xml_galleys.exists():
-
             if xml_galleys.count() > 1:
-                print("Found multiple XML galleys for article {id}, "
-                      "returning first match".format(id=article.pk))
+                print(
+                    "Found multiple XML galleys for article {id}, "
+                    "returning first match".format(id=article.pk)
+                )
 
             xml_galley = xml_galleys[0]
         else:
             raise CommandError("Article doesn't have an XML Galley")
 
         old_render = str(xml_galley.render())
-        new_render = str(files.render_xml(
-            xml_galley.file, article,
-            xsl_path=xsl_file.file.path,
-        ))
+        new_render = str(
+            files.render_xml(
+                xml_galley.file,
+                article,
+                xsl_path=xsl_file.file.path,
+            )
+        )
 
         diffs = difflib.ndiff(old_render.splitlines(), new_render.splitlines())
         total_diffs = 0
@@ -69,5 +70,5 @@ class Command(BaseCommand):
             if diff.startswith("-") or diff.startswith("+"):
                 total_diffs += 1
                 print(diff)
-        print(80*"=")
+        print(80 * "=")
         print("Found %s diffs" % total_diffs)

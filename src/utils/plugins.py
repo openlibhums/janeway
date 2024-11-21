@@ -21,7 +21,7 @@ class Plugin:
     article_pk_in_handshake_url = False
     press_wide = False
 
-    kanban_card = '{plugin_name}/kanban_card.html'.format(
+    kanban_card = "{plugin_name}/kanban_card.html".format(
         plugin_name=plugin_name,
     )
 
@@ -30,7 +30,7 @@ class Plugin:
         plugin, created = cls.get_or_create_plugin_object()
 
         if not created and plugin.version != cls.version:
-            print('Plugin updated: {0} -> {1}'.format(cls.version, plugin.version))
+            print("Plugin updated: {0} -> {1}".format(cls.version, plugin.version))
             plugin.version = cls.version
             plugin.save()
 
@@ -45,10 +45,10 @@ class Plugin:
         plugin, created = models.Plugin.objects.get_or_create(
             name=cls.short_name,
             defaults={
-                'display_name': cls.display_name,
-                'version': cls.version,
-                'enabled': True,
-                'press_wide': cls.press_wide,
+                "display_name": cls.display_name,
+                "version": cls.version,
+                "enabled": True,
+                "press_wide": cls.press_wide,
             },
         )
 
@@ -61,11 +61,13 @@ class Plugin:
                 name=cls.short_name,
             )
         except models.Plugin.MultipleObjectsReturned:
-            plugin = models.Plugin.objects.filter(
-                name=cls.short_name,
-            ).order_by(
-                '-version'
-            ).first()
+            plugin = (
+                models.Plugin.objects.filter(
+                    name=cls.short_name,
+                )
+                .order_by("-version")
+                .first()
+            )
         except models.Plugin.DoesNotExist:
             return None
 

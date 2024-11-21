@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0059_alter_prepublicationchecklistitem_completed_by'),
+        ("journal", "0059_alter_prepublicationchecklistitem_completed_by"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='code',
-            field=models.CharField(help_text='Short acronym for the journal. Used as part of the journal URLin path mode and to uniquely identify the journal', max_length=40, unique=True),
+            model_name="journal",
+            name="code",
+            field=models.CharField(
+                help_text="Short acronym for the journal. Used as part of the journal URLin path mode and to uniquely identify the journal",
+                max_length=40,
+                unique=True,
+            ),
         ),
     ]

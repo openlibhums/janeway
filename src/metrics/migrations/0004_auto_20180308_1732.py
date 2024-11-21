@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
-        ('metrics', '0003_auto_20170921_0937'),
+        ("submission", "0019_auto_20171130_1115"),
+        ("metrics", "0003_auto_20170921_0937"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='altmetric',
-            name='pid',
+            model_name="altmetric",
+            name="pid",
             field=models.CharField(max_length=200),
         ),
         migrations.AlterUniqueTogether(
-            name='altmetric',
-            unique_together=set([('article', 'source', 'pid')]),
+            name="altmetric",
+            unique_together=set([("article", "source", "pid")]),
         ),
     ]

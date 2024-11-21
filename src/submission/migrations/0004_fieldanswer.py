@@ -7,19 +7,38 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0003_field'),
+        ("submission", "0003_field"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FieldAnswer',
+            name="FieldAnswer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer', models.TextField()),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
-                ('field', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Field')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("answer", models.TextField()),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "field",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Field",
+                    ),
+                ),
             ],
         ),
     ]

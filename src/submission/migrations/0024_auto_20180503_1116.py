@@ -7,15 +7,16 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0023_auto_20180503_1033'),
+        ("submission", "0023_auto_20180503_1033"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submissionconfiguration',
-            name='journal',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="submissionconfiguration",
+            name="journal",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Journal"
+            ),
         ),
     ]

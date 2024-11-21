@@ -7,15 +7,14 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0017_file_fields_for_the_last_time'),
-        ('core', '0019_adds_DomainAlias_journal_FK'),
+        ("journal", "0017_file_fields_for_the_last_time"),
+        ("core", "0019_adds_DomainAlias_journal_FK"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='domainalias',
-            name='site_id',
+            model_name="domainalias",
+            name="site_id",
         ),
     ]

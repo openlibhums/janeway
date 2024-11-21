@@ -10,12 +10,12 @@ from journal import models
 
 
 class NewIssue(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop("journal")
         super().__init__(*args, **kwargs)
         self.fields["issue_type"].queryset = models.IssueType.objects.filter(
-            journal=journal)
+            journal=journal
+        )
         if self.instance and self.instance.code:
             path = reverse(
                 "journal_collection_by_code_with_digits",
@@ -27,9 +27,18 @@ class NewIssue(forms.ModelForm):
     class Meta:
         model = models.Issue
         fields = (
-            'issue_title', 'volume', 'issue', 'date', 'issue_description',
-            'short_description', 'cover_image', 'large_image', 'issue_type',
-            'code', 'doi', 'isbn',
+            "issue_title",
+            "volume",
+            "issue",
+            "date",
+            "issue_description",
+            "short_description",
+            "cover_image",
+            "large_image",
+            "issue_type",
+            "code",
+            "doi",
+            "isbn",
         )
 
 
@@ -43,16 +52,16 @@ class IssueGalleyForm(core_forms.FileUploadForm):
 class SortForm(forms.Form):
     sort_field = forms.ChoiceField(
         choices=(
-            ('first_page', 'First Page'),
-            ('date_published', 'Date Published'),
-            ('title', 'Title, Alphabetically'),
-            ('article_number', 'Article Number'),
-            ('page_numbers', 'Page Numbers (Custom)'),
+            ("first_page", "First Page"),
+            ("date_published", "Date Published"),
+            ("title", "Title, Alphabetically"),
+            ("article_number", "Article Number"),
+            ("page_numbers", "Page Numbers (Custom)"),
         )
     )
     order = forms.ChoiceField(
         choices=(
-            ('dsc', 'Descending'),
-            ('asc', 'Ascending'),
+            ("dsc", "Descending"),
+            ("asc", "Ascending"),
         )
     )

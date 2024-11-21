@@ -14,8 +14,8 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('url')
-        parser.add_argument('auth_file')
+        parser.add_argument("url")
+        parser.add_argument("auth_file")
 
     def handle(self, *args, **options):
         """Imports a set of UP journal-level metadata into Janeway.

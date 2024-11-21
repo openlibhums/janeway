@@ -6,20 +6,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0048_merge_20220110_1933'),
+        ("journal", "0048_merge_20220110_1933"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='display_article_number',
-            field=models.BooleanField(default=False, help_text='Whether to display article numbers. Article numbers are distinct from article ID and can be set in Edit Metadata.'),
+            model_name="journal",
+            name="display_article_number",
+            field=models.BooleanField(
+                default=False,
+                help_text="Whether to display article numbers. Article numbers are distinct from article ID and can be set in Edit Metadata.",
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='display_article_page_numbers',
+            model_name="journal",
+            name="display_article_page_numbers",
             field=models.BooleanField(default=True),
         ),
     ]

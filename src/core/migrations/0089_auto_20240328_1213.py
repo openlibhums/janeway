@@ -8,10 +8,10 @@ def set_editorial_group_image_dispay(apps, schema):
     SettingValue = apps.get_model("core", "SettingValue")
 
     setting_values = SettingValue.objects.filter(
-        setting__name='enable_editorial_images',
+        setting__name="enable_editorial_images",
     )
     for sv in setting_values:
-        if sv.journal and sv.value in ['on', 'On']:
+        if sv.journal and sv.value in ["on", "On"]:
             EditorialGroup.objects.filter(
                 journal=sv.journal,
             ).update(
@@ -20,16 +20,18 @@ def set_editorial_group_image_dispay(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0088_merge_20240327_1910'),
+        ("core", "0088_merge_20240327_1910"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='editorialgroup',
-            name='display_profile_images',
-            field=models.BooleanField(default=False, help_text='Enable to display profile images for this group.'),
+            model_name="editorialgroup",
+            name="display_profile_images",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable to display profile images for this group.",
+            ),
         ),
         migrations.RunPython(
             set_editorial_group_image_dispay,

@@ -8,4 +8,4 @@ from django.apps import AppConfig
 
 
 class CopyeditingConfig(AppConfig):
-    name = 'copyediting'
+    name = "copyediting"

@@ -8,27 +8,34 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0056_auto_20210803_0906'),
+        ("submission", "0056_auto_20210803_0906"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='article',
+            name="article",
             managers=[
-                ('allarticles', django.db.models.manager.Manager()),
-                ('objects', submission.models.ArticleManager()),
+                ("allarticles", django.db.models.manager.Manager()),
+                ("objects", submission.models.ArticleManager()),
             ],
         ),
         migrations.AddField(
-            model_name='frozenauthor',
-            name='frozen_email',
-            field=models.EmailField(blank=True, max_length=254, null=True, verbose_name='Author Email'),
+            model_name="frozenauthor",
+            name="frozen_email",
+            field=models.EmailField(
+                blank=True, max_length=254, null=True, verbose_name="Author Email"
+            ),
         ),
         migrations.AddField(
-            model_name='frozenauthor',
-            name='frozen_orcid',
-            field=models.CharField(blank=True, help_text='ORCiD to be displayed when no account is associated with this author. It should be introduced in code format (e.g: 0000-0000-0000-000X)', max_length=40, null=True, verbose_name='ORCiD'),
+            model_name="frozenauthor",
+            name="frozen_orcid",
+            field=models.CharField(
+                blank=True,
+                help_text="ORCiD to be displayed when no account is associated with this author. It should be introduced in code format (e.g: 0000-0000-0000-000X)",
+                max_length=40,
+                null=True,
+                verbose_name="ORCiD",
+            ),
         ),
     ]

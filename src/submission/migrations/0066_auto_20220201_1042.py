@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0065_auto_20211221_1128'),
+        ("submission", "0065_auto_20211221_1128"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='institution',
+            model_name="frozenauthor",
+            name="institution",
             field=models.CharField(blank=True, max_length=1000, null=True),
         ),
     ]

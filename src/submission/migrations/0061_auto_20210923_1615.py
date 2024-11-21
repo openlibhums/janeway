@@ -23,13 +23,10 @@ def setup_display_emails(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0060_auto_20210923_1545'),
+        ("submission", "0060_auto_20210923_1545"),
     ]
 
     operations = [
-        migrations.RunPython(
-            setup_display_emails, migrations.RunPython.noop
-        ),
+        migrations.RunPython(setup_display_emails, migrations.RunPython.noop),
     ]

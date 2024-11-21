@@ -28,50 +28,50 @@ class TestModels(TestCase):
         ).first()
         self.license = sm.Licence.objects.create(
             journal=self.journal_one,
-            name='Test License',
-            short_name='Test',
-            url='https://janeway.systems',
+            name="Test License",
+            short_name="Test",
+            url="https://janeway.systems",
         )
 
         self.preprint_author = helpers.create_user(
-            username='repo_author@janeway.systems',
+            username="repo_author@janeway.systems",
         )
         self.preprint_one = helpers.create_preprint(
             self.repository,
             self.preprint_author,
             self.subject,
-            title='Preprint Number One',
+            title="Preprint Number One",
         )
         self.preprint_two = helpers.create_preprint(
             self.repository,
             self.preprint_author,
             self.subject,
-            title='Preprint Number Two',
+            title="Preprint Number Two",
         )
 
-    @override_settings(BASE_DIR='/tmp/')
+    @override_settings(BASE_DIR="/tmp/")
     def test_create_article(self):
         preprint_file = SimpleUploadedFile(
             "test1.txt",
-            b"these are the file contents!"  # note the b in front of the string [bytes]
+            b"these are the file contents!",  # note the b in front of the string [bytes]
         )
-        with mock.patch('core.file_system.JanewayFileSystemStorage.location', '/tmp/'):
+        with mock.patch("core.file_system.JanewayFileSystemStorage.location", "/tmp/"):
             preprint_one_version_file = rm.PreprintFile.objects.create(
                 preprint=self.preprint_one,
                 file=preprint_file,
-                original_filename='preprint_file.txt',
-                mime_type='text/plain',
+                original_filename="preprint_file.txt",
+                mime_type="text/plain",
                 size=10000,
             )
             preprint_one_version = rm.PreprintVersion.objects.create(
                 preprint=self.preprint_one,
                 version=1,
-                title='Preprint Number One',
+                title="Preprint Number One",
                 file=preprint_one_version_file,
             )
             article = self.preprint_one.create_article(
                 journal=self.journal_one,
-                workflow_stage='Unassigned',
+                workflow_stage="Unassigned",
                 journal_license=self.license,
                 journal_section=self.section,
             )
@@ -89,35 +89,34 @@ class TestModels(TestCase):
                 article.abstract,
             )
 
-
     def test_create_article_force(self):
         preprint_file = SimpleUploadedFile(
             "test1.txt",
-            b"these are the file contents!"  # note the b in front of the string [bytes]
+            b"these are the file contents!",  # note the b in front of the string [bytes]
         )
-        with mock.patch('core.file_system.JanewayFileSystemStorage.location', '/tmp/'):
+        with mock.patch("core.file_system.JanewayFileSystemStorage.location", "/tmp/"):
             preprint_one_version_file = rm.PreprintFile.objects.create(
                 preprint=self.preprint_one,
                 file=preprint_file,
-                original_filename='preprint_file.txt',
-                mime_type='text/plain',
+                original_filename="preprint_file.txt",
+                mime_type="text/plain",
                 size=10000,
             )
             preprint_one_version = rm.PreprintVersion.objects.create(
                 preprint=self.preprint_one,
                 version=1,
-                title='Preprint Number One',
+                title="Preprint Number One",
                 file=preprint_one_version_file,
             )
             article_one = self.preprint_one.create_article(
                 journal=self.journal_one,
-                workflow_stage='Unassigned',
+                workflow_stage="Unassigned",
                 journal_license=self.license,
                 journal_section=self.section,
             )
             article_two = self.preprint_one.create_article(
                 journal=self.journal_one,
-                workflow_stage='Unassigned',
+                workflow_stage="Unassigned",
                 journal_license=self.license,
                 journal_section=self.section,
                 force=True,

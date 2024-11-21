@@ -12,19 +12,19 @@ class Command(BaseCommand):
     help = "Copies, for any given journals, collection cover images into the large image attribute."
 
     def add_arguments(self, parser):
-        parser.add_argument('--journal_codes', nargs='+')
+        parser.add_argument("--journal_codes", nargs="+")
 
     def handle(self, *args, **options):
-        journal_codes = options.get('journal_codes')
+        journal_codes = options.get("journal_codes")
         print(journal_codes)
         journals = models.Journal.objects.filter(code__in=journal_codes)
 
         for journal in journals:
-            print('Processing {}'.format(journal.name))
+            print("Processing {}".format(journal.name))
             collections = models.Issue.objects.filter(
-                issue_type__code='collection',
+                issue_type__code="collection",
             )
             for collection in collections:
-                print('Processing {}'.format(collection))
+                print("Processing {}".format(collection))
                 collection.large_image = collection.cover_image
                 collection.save()

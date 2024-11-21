@@ -10,21 +10,23 @@ from core.homepage_elements.about import plugin_settings
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    if homepage_elements is not None and homepage_elements.filter(name='About').exists():
-
+    if (
+        homepage_elements is not None
+        and homepage_elements.filter(name="About").exists()
+    ):
         try:
             title = get_plugin_setting(
                 plugin_settings.get_self(),
-                'about_title',
+                "about_title",
                 request.journal,
             )
-            title_value = title.value if title.value else ''
+            title_value = title.value if title.value else ""
         except AttributeError:
-            title_value = _('About this Journal')
+            title_value = _("About this Journal")
 
         return {
-            'about_content': request.journal.description,
-            'title_value': title_value,
+            "about_content": request.journal.description,
+            "title_value": title_value,
         }
     else:
         return {}

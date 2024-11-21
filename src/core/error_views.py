@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 
 def handler404(request, *args, **argv):
-    template = '404.html'
+    template = "404.html"
     context = {}
     return render(
         request,
@@ -15,7 +15,7 @@ def handler404(request, *args, **argv):
 def handler500(request, *args, **argv):
     response = render(
         None,
-        '500.html',
+        "500.html",
     )
     response.status_code = 404
     return response

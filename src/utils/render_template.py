@@ -8,16 +8,14 @@ from django.template import Template, RequestContext, Context
 from utils import setting_handler
 
 
-def get_message_content(request, context, template, plugin=False, template_is_setting=False):
+def get_message_content(
+    request, context, template, plugin=False, template_is_setting=False
+):
     if plugin:
-        template = setting_handler.get_plugin_setting(
-            plugin,
-            template,
-            None
-        ).value
+        template = setting_handler.get_plugin_setting(plugin, template, None).value
     elif not template_is_setting:
         template = setting_handler.get_setting(
-            'email',
+            "email",
             template,
             request.journal,
         ).value
@@ -30,8 +28,7 @@ def get_message_content(request, context, template, plugin=False, template_is_se
     return html_content
 
 
-def get_requestless_content(context, journal, template, group_name='email'):
-
+def get_requestless_content(context, journal, template, group_name="email"):
     template = setting_handler.get_setting(group_name, template, journal).value
 
     template = Template(template)

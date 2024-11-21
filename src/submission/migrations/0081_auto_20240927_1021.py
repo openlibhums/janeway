@@ -10,15 +10,13 @@ from utils import forms
 
 
 def update_text_editor_comments(apps, schema_editor):
-    Article = apps.get_model('submission', 'Article')
+    Article = apps.get_model("submission", "Article")
     articles = Article.objects.all()
 
     for article in articles:
         if article.comments_editor:
             try:
-                forms.plain_text_validator(
-                    article.comments_editor
-                )
+                forms.plain_text_validator(article.comments_editor)
                 article.comments_editor = linebreaksbr(article.comments_editor)
             except ValidationError:
                 # these fields may have harmful content, clean it with bleach
@@ -29,14 +27,12 @@ def update_text_editor_comments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0080_frozen_author_bleach_20240507_1350'),
+        ("submission", "0080_frozen_author_bleach_20240507_1350"),
     ]
 
     operations = [
         migrations.RunPython(
-            update_text_editor_comments,
-            reverse_code=migrations.RunPython.noop
+            update_text_editor_comments, reverse_code=migrations.RunPython.noop
         ),
     ]

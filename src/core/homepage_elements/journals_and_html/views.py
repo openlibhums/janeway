@@ -15,12 +15,9 @@ from press import models as press_models
 def journals_and_html(request):
     html_setting, c = press_models.PressSetting.objects.get_or_create(
         press=request.press,
-        name='journals_and_html_content',
+        name="journals_and_html_content",
     )
-    form = forms.JournalsHTMLForm(
-        instance=request.press,
-        html_setting=html_setting
-    )
+    form = forms.JournalsHTMLForm(instance=request.press, html_setting=html_setting)
 
     if request.POST:
         form = forms.JournalsHTMLForm(
@@ -32,23 +29,13 @@ def journals_and_html(request):
             form.save()
             form.save_m2m()
 
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Saved.'
-            )
+            messages.add_message(request, messages.SUCCESS, "Saved.")
 
-            return redirect(
-                reverse(
-                    'home_settings_index'
-                )
-            )
+            return redirect(reverse("home_settings_index"))
 
-    template = 'journals_and_html.html'
+    template = "journals_and_html.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)
-
-

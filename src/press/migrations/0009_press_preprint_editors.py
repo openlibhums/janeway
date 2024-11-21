@@ -7,16 +7,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('press', '0008_auto_20171005_1158'),
+        ("press", "0008_auto_20171005_1158"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='preprint_editors',
+            model_name="press",
+            name="preprint_editors",
             field=models.ManyToManyField(to=settings.AUTH_USER_MODEL),
         ),
     ]

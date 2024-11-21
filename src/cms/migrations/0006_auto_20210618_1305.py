@@ -6,39 +6,38 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0005_auto_20210518_1619'),
+        ("cms", "0005_auto_20210518_1619"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='submissionitem',
-            options={'ordering': ('order', 'title')},
+            name="submissionitem",
+            options={"ordering": ("order", "title")},
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='text',
+            model_name="submissionitem",
+            name="text",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='text_cy',
+            model_name="submissionitem",
+            name="text_cy",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='text_de',
+            model_name="submissionitem",
+            name="text_de",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='text_en',
+            model_name="submissionitem",
+            name="text_en",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='text_fr',
+            model_name="submissionitem",
+            name="text_fr",
             field=models.TextField(blank=True, null=True),
         ),
     ]

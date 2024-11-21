@@ -7,16 +7,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0030_merge_20190405_1549'),
-        ('metrics', '0004_auto_20180308_1732'),
+        ("core", "0030_merge_20190405_1549"),
+        ("metrics", "0004_auto_20180308_1732"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='articleaccess',
-            name='country',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Country'),
+            model_name="articleaccess",
+            name="country",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="core.Country",
+            ),
         ),
     ]

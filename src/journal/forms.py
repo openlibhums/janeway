@@ -17,59 +17,62 @@ from journal import models as journal_models, logic
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
-        # Translators: Search order options
-        ('relevance', _('Relevance')),
-        ('title', _('Titles A-Z')),
-        ('-title', _('Titles Z-A')),
-        ('-date_published', _('Newest')),
-        ('date_published', _('Oldest')),
-      ]
+    # Translators: Search order options
+    ("relevance", _("Relevance")),
+    ("title", _("Titles A-Z")),
+    ("-title", _("Titles Z-A")),
+    ("-date_published", _("Newest")),
+    ("date_published", _("Oldest")),
+]
 
 
 class JournalForm(forms.ModelForm):
-
     class Meta:
         model = journal_models.Journal
-        fields = ('code', 'domain')
+        fields = ("code", "domain")
         help_texts = {
-            'domain': 'Using a custom domain requires configuring DNS. '
-                'The journal will always be available under the /code path',
+            "domain": "Using a custom domain requires configuring DNS. "
+            "The journal will always be available under the /code path",
         }
 
 
 class ContactForm(forms.ModelForm, CaptchaForm):
-
     def __init__(self, *args, **kwargs):
-        subject = kwargs.pop('subject', None)
-        contacts = kwargs.pop('contacts', None)
+        subject = kwargs.pop("subject", None)
+        contacts = kwargs.pop("contacts", None)
         super(ContactForm, self).__init__(*args, **kwargs)
 
         if subject:
-            self.fields['subject'].initial = subject
+            self.fields["subject"].initial = subject
 
         if contacts:
             contact_choices = []
             for contact in contacts:
-                contact_choices.append([contact.email, '{name}, {role}'.format(name=contact.name, role=contact.role)])
-            self.fields['recipient'].widget = forms.Select(choices=contact_choices)
+                contact_choices.append(
+                    [
+                        contact.email,
+                        "{name}, {role}".format(name=contact.name, role=contact.role),
+                    ]
+                )
+            self.fields["recipient"].widget = forms.Select(choices=contact_choices)
 
     class Meta:
         model = core_models.Contact
-        fields = ('recipient', 'sender', 'subject', 'body')
+        fields = ("recipient", "sender", "subject", "body")
 
 
 class ResendEmailForm(forms.Form):
-    to = forms.CharField(max_length=1000, help_text='Seperate email addresses with ;')
+    to = forms.CharField(max_length=1000, help_text="Seperate email addresses with ;")
     subject = forms.CharField(max_length=1000)
     body = forms.CharField(widget=TinyMCE)
 
     def __init__(self, *args, **kwargs):
-        log_entry = kwargs.pop('log_entry')
+        log_entry = kwargs.pop("log_entry")
         super(ResendEmailForm, self).__init__(*args, **kwargs)
 
-        self.fields['to'].initial = ';'.join(log_entry.to)
-        self.fields['subject'].initial = log_entry.subject
-        self.fields['body'].initial = mark_safe(log_entry.description)
+        self.fields["to"].initial = ";".join(log_entry.to)
+        self.fields["subject"].initial = log_entry.subject
+        self.fields["body"].initial = mark_safe(log_entry.description)
 
 
 class SearchForm(forms.Form):
@@ -87,25 +90,37 @@ class SearchForm(forms.Form):
             data = {k: v for k, v in data.items()}
         super().__init__(data, *args, **kwargs)
         if not settings.ENABLE_FULL_TEXT_SEARCH:
-            self.fields.pop('full_text', None)
+            self.fields.pop("full_text", None)
             self.fields["sort"].choices = SEARCH_SORT_OPTIONS[1:]
 
         if self.data and not self.has_filter:
             for search_filter in self.SEARCH_FILTERS:
                 self.data[search_filter] = "on"
-        self.label_suffix = ''
+        self.label_suffix = ""
 
-    article_search = forms.CharField(label=_('Search term'), min_length=3, max_length=100, required=False)
-    title = forms.BooleanField(initial=True, label=_('Search Titles'), required=False)
-    abstract = forms.BooleanField(initial=True, label=_('Search Abstract'), required=False)
-    authors = forms.BooleanField(initial=True, label=_('Search Authors'), required=False)
-    keywords = forms.BooleanField(initial=True, label=_("Search Keywords"), required=False)
-    full_text = forms.BooleanField(initial=True, label=_("Search Full Text"), required=False)
+    article_search = forms.CharField(
+        label=_("Search term"), min_length=3, max_length=100, required=False
+    )
+    title = forms.BooleanField(initial=True, label=_("Search Titles"), required=False)
+    abstract = forms.BooleanField(
+        initial=True, label=_("Search Abstract"), required=False
+    )
+    authors = forms.BooleanField(
+        initial=True, label=_("Search Authors"), required=False
+    )
+    keywords = forms.BooleanField(
+        initial=True, label=_("Search Keywords"), required=False
+    )
+    full_text = forms.BooleanField(
+        initial=True, label=_("Search Full Text"), required=False
+    )
     orcid = forms.BooleanField(label=_("Search ORCIDs"), required=False)
-    sort = forms.ChoiceField(label=_('Sort results by'), widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+    sort = forms.ChoiceField(
+        label=_("Sort results by"), widget=forms.Select, choices=SEARCH_SORT_OPTIONS
+    )
 
     def get_search_filters(self):
-        """ Generates a dictionary of search_filters from a search form"""
+        """Generates a dictionary of search_filters from a search form"""
         return {
             "full_text": self.cleaned_data["full_text"],
             "title": self.cleaned_data["title"],
@@ -114,7 +129,6 @@ class SearchForm(forms.Form):
             "keywords": self.cleaned_data["keywords"],
             "orcid": self.cleaned_data["orcid"],
         }
-
 
     @cached_property
     def has_filter(self):
@@ -128,25 +142,24 @@ class IssueDisplayForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-            'display_issue_volume',
-            'display_issue_number',
-            'display_issue_year',
-            'display_issue_title',
-            'display_article_number',
-            'display_article_page_numbers',
-            'display_issue_doi',
-            'display_issues_grouped_by_decade',
+            "display_issue_volume",
+            "display_issue_number",
+            "display_issue_year",
+            "display_issue_title",
+            "display_article_number",
+            "display_article_page_numbers",
+            "display_issue_doi",
+            "display_issues_grouped_by_decade",
         )
 
 
 class BasePrepubNotificationFormSet(forms.BaseFormSet):
-
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
         if index == 0:
-            kwargs['setting_name'] = 'author_publication'
+            kwargs["setting_name"] = "author_publication"
         elif index == 1:
-            kwargs['setting_name'] = 'peer_reviewer_pub_notification'
+            kwargs["setting_name"] = "peer_reviewer_pub_notification"
         return kwargs
 
 

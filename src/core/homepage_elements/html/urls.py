@@ -8,5 +8,5 @@ from core.homepage_elements.html import views
 
 urlpatterns = [
     # Featured Articles
-    re_path(r'^$', views.html_settings, name='html_settings'),
+    re_path(r"^$", views.html_settings, name="html_settings"),
 ]

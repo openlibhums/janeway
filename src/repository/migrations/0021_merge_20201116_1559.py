@@ -8,21 +8,24 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0018_auto_20201109_1024'),
-        ('repository', '0020_vq_title_abstracts'),
+        ("repository", "0018_auto_20201109_1024"),
+        ("repository", "0020_vq_title_abstracts"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='author',
+            name="author",
             options={},
         ),
         migrations.AlterField(
-            model_name='preprintauthor',
-            name='author',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                                    to='repository.Author'),
+            model_name="preprintauthor",
+            name="author",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="repository.Author",
+            ),
         ),
     ]

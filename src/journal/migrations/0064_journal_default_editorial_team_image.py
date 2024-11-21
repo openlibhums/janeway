@@ -7,16 +7,21 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0063_merge_20240327_1910'),
-        ('core', '0089_auto_20240328_1213')
+        ("journal", "0063_merge_20240327_1910"),
+        ("core", "0089_auto_20240328_1213"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='default_profile_image',
-            field=core.model_utils.SVGImageField(blank=True, help_text='A default image displayed on the profile and editorial team pages when the user has no set profile image.', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="default_profile_image",
+            field=core.model_utils.SVGImageField(
+                blank=True,
+                help_text="A default image displayed on the profile and editorial team pages when the user has no set profile image.",
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
     ]

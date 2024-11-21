@@ -8,19 +8,20 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0034_migrate_issue_types'),
-        ('core', '0037_journal_xsl_files'),
-
-        
+        ("journal", "0034_migrate_issue_types"),
+        ("core", "0037_journal_xsl_files"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='xsl',
-            field=models.ForeignKey(default=journal.models.default_xsl, on_delete=django.db.models.deletion.SET_DEFAULT, to='core.XSLFile'),
+            model_name="journal",
+            name="xsl",
+            field=models.ForeignKey(
+                default=journal.models.default_xsl,
+                on_delete=django.db.models.deletion.SET_DEFAULT,
+                to="core.XSLFile",
+            ),
             preserve_default=False,
         ),
     ]

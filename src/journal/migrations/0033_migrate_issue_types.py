@@ -14,31 +14,29 @@ def load_default_issue_types(apps, schema_editor):
     Journal = apps.get_model("journal", "Journal")
     journals = Journal.objects.all()
     with codecs.open(
-        os.path.join(settings.BASE_DIR, 'utils/install/issue_type.json'),
-        encoding='utf-8'
+        os.path.join(settings.BASE_DIR, "utils/install/issue_type.json"),
+        encoding="utf-8",
     ) as json_data:
         default_data = json.load(json_data)
 
         for journal in journals:
             for item in default_data:
                 default_dict = {
-                    'pretty_name': item['fields'].get('pretty_name'),
-                    'custom_plural': item['fields'].get('custom_plural'),
+                    "pretty_name": item["fields"].get("pretty_name"),
+                    "custom_plural": item["fields"].get("custom_plural"),
                 }
-                issue_type, created = IssueType.objects\
-                .get_or_create(
-                    journal=journal,
-                    code=item['fields']["code"],
-                    defaults=default_dict
+                issue_type, created = IssueType.objects.get_or_create(
+                    journal=journal, code=item["fields"]["code"], defaults=default_dict
                 )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0032_add_issue_type'),
+        ("journal", "0032_add_issue_type"),
     ]
 
     operations = [
-        migrations.RunPython(load_default_issue_types, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            load_default_issue_types, reverse_code=migrations.RunPython.noop
+        ),
     ]

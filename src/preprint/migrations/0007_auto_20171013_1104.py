@@ -7,29 +7,36 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0015_auto_20171013_1104'),
+        ("submission", "0015_auto_20171013_1104"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('preprint', '0006_preprintversion_date_time'),
+        ("preprint", "0006_preprintversion_date_time"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Subject',
+            name="Subject",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('slug', models.SlugField()),
-                ('editors', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
-                ('preprints', models.ManyToManyField(to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("slug", models.SlugField()),
+                ("editors", models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
+                ("preprints", models.ManyToManyField(to="submission.Article")),
             ],
             options={
-                'ordering': ('slug', 'pk'),
+                "ordering": ("slug", "pk"),
             },
         ),
         migrations.AlterModelOptions(
-            name='preprintversion',
-            options={'ordering': ('-date_time', '-id')},
+            name="preprintversion",
+            options={"ordering": ("-date_time", "-id")},
         ),
     ]

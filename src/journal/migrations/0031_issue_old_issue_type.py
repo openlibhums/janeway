@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 
 def preserve_issue_types(apps, schema_editor):
-    Issue = apps.get_model('journal', 'Issue')
+    Issue = apps.get_model("journal", "Issue")
 
     for issue in Issue.objects.all():
         issue.old_issue_type, issue.issue_type = issue.issue_type, None
@@ -14,7 +14,7 @@ def preserve_issue_types(apps, schema_editor):
 
 
 def restore_issue_types(apps, schema_editor):
-    Issue = apps.get_model('journal', 'Issue')
+    Issue = apps.get_model("journal", "Issue")
 
     for issue in Issue.objects.all():
         issue.issue_type, issue.old_issue_type = issue.old_issue_type, None
@@ -23,24 +23,30 @@ def restore_issue_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('journal', '0030_increase_journal_code_length'),
-        ('utils', '0011_upgrade_1_3_5'),
+        ("journal", "0030_increase_journal_code_length"),
+        ("utils", "0011_upgrade_1_3_5"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issue',
-            name='old_issue_type',
+            model_name="issue",
+            name="old_issue_type",
             field=models.CharField(
-                choices=[('Issue', 'Issue'), ('Collection', 'Collection')],
-                default='Issue', max_length=200,
+                choices=[("Issue", "Issue"), ("Collection", "Collection")],
+                default="Issue",
+                max_length=200,
                 null=True,
             ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='issue_type',
-            field=models.CharField(choices=[('Issue', 'Issue'), ('Collection', 'Collection')], default='Issue', max_length=200, null=True),
+            model_name="issue",
+            name="issue_type",
+            field=models.CharField(
+                choices=[("Issue", "Issue"), ("Collection", "Collection")],
+                default="Issue",
+                max_length=200,
+                null=True,
+            ),
         ),
         migrations.RunPython(
             preserve_issue_types,

@@ -6,30 +6,28 @@ from utils import migration_utils
 
 
 def migrate_null_values(apps, schema_editor):
-    model = apps.get_model('core', 'Account')
+    model = apps.get_model("core", "Account")
     fields = [
-        'biography',
-        'department',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'institution',
-        'salutation',
-        'signature',
-        'suffix',
+        "biography",
+        "department",
+        "first_name",
+        "middle_name",
+        "last_name",
+        "institution",
+        "salutation",
+        "signature",
+        "suffix",
     ]
     migration_utils.store_empty_strings(model, fields)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0094_alter_account_preferred_timezone'),
+        ("core", "0094_alter_account_preferred_timezone"),
     ]
 
     operations = [
         migrations.RunPython(
-            migrate_null_values,
-            reverse_code=migrations.RunPython.noop
+            migrate_null_values, reverse_code=migrations.RunPython.noop
         ),
     ]

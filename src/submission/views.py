@@ -47,7 +47,7 @@ def start(request, type=None):
     form = forms.ArticleStart(journal=request.journal)
 
     if not request.user.is_author(request):
-        request.user.add_account_role('author', request.journal)
+        request.user.add_account_role("author", request.journal)
 
     if request.POST:
         form = forms.ArticleStart(request.POST, journal=request.journal)
@@ -60,33 +60,30 @@ def start(request, type=None):
             new_article.article_agreement = logic.get_agreement_text(request.journal)
             new_article.save()
 
-            if type == 'preprint':
+            if type == "preprint":
                 preprint_models.Preprint.objects.create(article=new_article)
 
             if setting_handler.get_setting(
-                    'general',
-                    'user_automatically_author',
-                    request.journal,
+                "general",
+                "user_automatically_author",
+                request.journal,
             ).processed_value:
                 logic.add_user_as_author(request.user, new_article)
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_SUBMISSION_START,
-                **{'request': request, 'article': new_article}
+                **{"request": request, "article": new_article},
             )
 
             return redirect(
                 reverse(
-                    'submit_info',
-                    kwargs={
-                        'article_id': new_article.pk},
+                    "submit_info",
+                    kwargs={"article_id": new_article.pk},
                 ),
             )
 
-    template = 'admin/submission/start.html'
-    context = {
-        'form': form
-    }
+    template = "admin/submission/start.html"
+    context = {"form": form}
 
     return render(request, template, context)
 
@@ -103,9 +100,9 @@ def submit_submissions(request):
         stage=models.STAGE_UNSUBMITTED,
     )
 
-    template = 'admin/submission/submission_submissions.html'
+    template = "admin/submission/submission_submissions.html"
     context = {
-        'articles': articles,
+        "articles": articles,
     }
 
     return render(request, template, context)
@@ -135,10 +132,10 @@ def submit_funding(request, article_id):
     )
 
     if request.POST:
-        if 'next_step' in request.POST:
+        if "next_step" in request.POST:
             article.current_step = 5
             article.save()
-            return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+            return redirect(reverse("submit_review", kwargs={"article_id": article_id}))
 
         funder_form = forms.ArticleFundingForm(
             request.POST,
@@ -149,18 +146,18 @@ def submit_funding(request, article_id):
             funder_form.save()
             return redirect(
                 reverse(
-                    'submit_funding',
+                    "submit_funding",
                     kwargs={
-                        'article_id': article.pk,
-                    }
+                        "article_id": article.pk,
+                    },
                 )
             )
 
-    template = 'admin/submission/submit_funding.html'
+    template = "admin/submission/submit_funding.html"
     context = {
-        'article': article,
-        'additional_fields': additional_fields,
-        'funder_form': funder_form,
+        "article": article,
+        "additional_fields": additional_fields,
+        "funder_form": funder_form,
     }
 
     return render(request, template, context)
@@ -186,8 +183,8 @@ def submit_info(request, article_id):
         )
         additional_fields = models.Field.objects.filter(journal=request.journal)
         submission_summary = setting_handler.get_setting(
-            'general',
-            'submission_summary',
+            "general",
+            "submission_summary",
             request.journal,
         ).processed_value
 
@@ -218,16 +215,16 @@ def submit_info(request, article_id):
 
                 return redirect(
                     reverse(
-                        'submit_authors',
-                        kwargs={'article_id': article_id},
+                        "submit_authors",
+                        kwargs={"article_id": article_id},
                     ),
                 )
 
-    template = 'admin/submission//submit_info.html'
+    template = "admin/submission//submit_info.html"
     context = {
-        'article': article,
-        'form': form,
-        'additional_fields': additional_fields,
+        "article": article,
+        "form": form,
+        "additional_fields": additional_fields,
     }
 
     return render(request, template, context)
@@ -236,7 +233,7 @@ def submit_info(request, article_id):
 @staff_member_required
 def publisher_notes_order(request, article_id):
     if request.POST:
-        ids = request.POST.getlist('note[]')
+        ids = request.POST.getlist("note[]")
         ids = [int(_id) for _id in ids]
 
         article = models.Article.objects.get(
@@ -248,7 +245,7 @@ def publisher_notes_order(request, article_id):
             he.sequence = ids.index(he.pk)
             he.save()
 
-    return HttpResponse('Thanks')
+    return HttpResponse("Thanks")
 
 
 @login_required
@@ -270,30 +267,30 @@ def submit_authors(request, article_id):
     )
 
     if article.current_step < 2 and not request.user.is_staff:
-        return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+        return redirect(reverse("submit_info", kwargs={"article_id": article_id}))
 
     form = forms.AuthorForm()
     error, modal = None, None
 
-    if request.GET.get('add_self', None) == 'True':
+    if request.GET.get("add_self", None) == "True":
         new_author = logic.add_user_as_author(request.user, article)
         messages.add_message(
             request,
             messages.SUCCESS,
-            _('{author_name} added to the article.').format(
+            _("{author_name} added to the article.").format(
                 author_name=new_author.full_name(),
             ),
         )
         return redirect(
             reverse(
-                'submit_authors',
-                kwargs={'article_id': article_id},
+                "submit_authors",
+                kwargs={"article_id": article_id},
             )
         )
 
-    if request.POST and 'add_author' in request.POST:
+    if request.POST and "add_author" in request.POST:
         form = forms.AuthorForm(request.POST)
-        modal = 'author'
+        modal = "author"
 
         email = request.POST.get("email")
         author = None
@@ -307,29 +304,32 @@ def submit_authors(request, article_id):
             author = new_author
         else:
             messages.add_message(
-                request, messages.WARNING,
-                _('Errors found in the new author form'),
+                request,
+                messages.WARNING,
+                _("Errors found in the new author form"),
             )
 
         if author:
             logic.add_user_as_author(author, article)
             messages.add_message(
-                request, messages.SUCCESS,
-                _('{author_name} added to the article.').format(
+                request,
+                messages.SUCCESS,
+                _("{author_name} added to the article.").format(
                     author_name=author.full_name(),
                 ),
             )
-            return redirect(reverse(
-                'submit_authors', kwargs={'article_id': article_id}))
+            return redirect(
+                reverse("submit_authors", kwargs={"article_id": article_id})
+            )
 
-    elif request.POST and 'search_authors' in request.POST:
-        search = request.POST.get('author_search_text', None)
+    elif request.POST and "search_authors" in request.POST:
+        search = request.POST.get("author_search_text", None)
 
         if not search:
             messages.add_message(
                 request,
                 messages.WARNING,
-                _('An empty search is not allowed.'),
+                _("An empty search is not allowed."),
             )
         else:
             try:
@@ -340,24 +340,25 @@ def submit_authors(request, article_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    _('{author_name} added to the article.').format(
+                    _("{author_name} added to the article.").format(
                         author_name=search_author.full_name(),
                     ),
                 )
             except core_models.Account.DoesNotExist:
                 messages.add_message(
-                    request, messages.WARNING,
-                    _('No author found with those details.'),
+                    request,
+                    messages.WARNING,
+                    _("No author found with those details."),
                 )
 
-    elif request.POST and 'main-author' in request.POST:
-        correspondence_author = request.POST.get('main-author', None)
+    elif request.POST and "main-author" in request.POST:
+        correspondence_author = request.POST.get("main-author", None)
 
-        if correspondence_author == 'None':
+        if correspondence_author == "None":
             messages.add_message(
                 request,
                 messages.WARNING,
-                _('You must select a main author.'),
+                _("You must select a main author."),
             )
         else:
             author = core_models.Account.objects.get(pk=correspondence_author)
@@ -365,20 +366,19 @@ def submit_authors(request, article_id):
             article.current_step = 3
             article.save()
 
-            return redirect(reverse(
-                'submit_files', kwargs={'article_id': article_id}))
+            return redirect(reverse("submit_files", kwargs={"article_id": article_id}))
 
-    elif request.POST and 'authors[]' in request.POST:
+    elif request.POST and "authors[]" in request.POST:
         logic.save_author_order(request, article)
 
-        return HttpResponse('Complete')
+        return HttpResponse("Complete")
 
-    template = 'admin/submission//submit_authors.html'
+    template = "admin/submission//submit_authors.html"
     context = {
-        'error': error,
-        'article': article,
-        'form': form,
-        'modal': modal,
+        "error": error,
+        "article": article,
+        "form": form,
+        "modal": modal,
     }
 
     return render(request, template, context)
@@ -411,9 +411,7 @@ def edit_funder(request, article_id, funder_id):
     # If the user is not an editor/section editor/journal manager/staff
     # and the article is submitted we should raise PermissionDenied.
     if article.date_submitted and not request.user.has_an_editor_role(request):
-        raise PermissionDenied(
-            'This article has been submitted and cannot be edited.'
-        )
+        raise PermissionDenied("This article has been submitted and cannot be edited.")
 
     if request.POST:
         form = forms.ArticleFundingForm(
@@ -425,12 +423,12 @@ def edit_funder(request, article_id, funder_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Article funding information saved.',
+                "Article funding information saved.",
             )
             # The incoming link _should_ have a return value set to ensure
             # the user gets back to the right place.
-            if request.GET.get('return'):
-                return redirect(request.GET['return'])
+            if request.GET.get("return"):
+                return redirect(request.GET["return"])
 
             # If no return value is set we should try to work out where the
             # user should be sent to.
@@ -439,27 +437,27 @@ def edit_funder(request, article_id, funder_id):
                 # user is the owner, it's likely the user came from submission.
                 return redirect(
                     reverse(
-                        'submit_funding',
+                        "submit_funding",
                         kwargs={
-                            'article_id': article.pk,
-                        }
+                            "article_id": article.pk,
+                        },
                     )
                 )
             else:
                 return redirect(
                     reverse(
-                        'edit_metadata',
+                        "edit_metadata",
                         kwargs={
-                            'article_id': article.pk,
-                        }
+                            "article_id": article.pk,
+                        },
                     )
                 )
 
-    template = 'admin/submission/edit/funder.html'
+    template = "admin/submission/edit/funder.html"
     context = {
-        'article': article,
-        'funder': funder,
-        'form': form,
+        "article": article,
+        "funder": funder,
+        "form": form,
     }
     return render(
         request,
@@ -473,11 +471,7 @@ def edit_funder(request, article_id, funder_id):
 @article_edit_user_required
 def delete_funder(request, article_id, funder_id):
     """Allows submitting author to delete a funding object."""
-    article = get_object_or_404(
-        models.Article,
-        pk=article_id,
-        journal=request.journal
-    )
+    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
     article_funding = get_object_or_404(
         models.ArticleFunding,
         pk=funder_id,
@@ -486,25 +480,18 @@ def delete_funder(request, article_id, funder_id):
 
     article_funding.delete()
 
-    if request.GET.get('return'):
-        return redirect(request.GET['return'])
+    if request.GET.get("return"):
+        return redirect(request.GET["return"])
 
-    return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
+    return redirect(reverse("submit_funding", kwargs={"article_id": article_id}))
 
 
 @login_required
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
     """Allows submitting author to delete an author object."""
-    article = get_object_or_404(
-        models.Article,
-        pk=article_id,
-        journal=request.journal
-    )
-    author = get_object_or_404(
-        core_models.Account,
-        pk=author_id
-    )
+    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
+    author = get_object_or_404(core_models.Account, pk=author_id)
 
     article.authors.remove(author)
 
@@ -519,7 +506,7 @@ def delete_author(request, article_id, author_id):
     except models.ArticleAuthorOrder.DoesNotExist:
         pass
 
-    return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+    return redirect(reverse("submit_authors", kwargs={"article_id": article_id}))
 
 
 @login_required
@@ -552,26 +539,27 @@ def submit_files(request, article_id):
     configuration = request.journal.submissionconfiguration
 
     if article.current_step < 3 and not request.user.is_staff:
-        return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+        return redirect(reverse("submit_authors", kwargs={"article_id": article_id}))
 
     error, modal = None, None
 
     if request.POST:
-
-        if 'delete' in request.POST:
-            file_id = request.POST.get('delete')
-            file = get_object_or_404(core_models.File, pk=file_id, article_id=article.pk)
+        if "delete" in request.POST:
+            file_id = request.POST.get("delete")
+            file = get_object_or_404(
+                core_models.File, pk=file_id, article_id=article.pk
+            )
             file.delete()
             messages.add_message(
                 request,
                 messages.WARNING,
-                _('File deleted'),
+                _("File deleted"),
             )
-            return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+            return redirect(reverse("submit_files", kwargs={"article_id": article_id}))
 
-        if 'manuscript' in request.POST:
+        if "manuscript" in request.POST:
             ms_form = forms.FileDetails(request.POST)
-            uploaded_file = request.FILES.get('file')
+            uploaded_file = request.FILES.get("file")
             if logic.check_file(uploaded_file, request, ms_form):
                 if ms_form.is_valid():
                     new_file = files.save_file_to_article(
@@ -580,20 +568,20 @@ def submit_files(request, article_id):
                         request.user,
                     )
                     article.manuscript_files.add(new_file)
-                    new_file.label = ms_form.cleaned_data['label']
-                    new_file.description = ms_form.cleaned_data['description']
+                    new_file.label = ms_form.cleaned_data["label"]
+                    new_file.description = ms_form.cleaned_data["description"]
                     new_file.save()
                     return redirect(
-                        reverse('submit_files', kwargs={'article_id': article_id}),
+                        reverse("submit_files", kwargs={"article_id": article_id}),
                     )
                 else:
-                    modal = 'manuscript'
+                    modal = "manuscript"
             else:
-                modal = 'manuscript'
+                modal = "manuscript"
 
-        if 'data' in request.POST:
+        if "data" in request.POST:
             data_form = forms.FileDetails(request.POST)
-            uploaded_file = request.FILES.get('file')
+            uploaded_file = request.FILES.get("file")
             if data_form.is_valid() and uploaded_file:
                 new_file = files.save_file_to_article(
                     uploaded_file,
@@ -601,35 +589,39 @@ def submit_files(request, article_id):
                     request.user,
                 )
                 article.data_figure_files.add(new_file)
-                new_file.label = data_form.cleaned_data['label']
-                new_file.description = data_form.cleaned_data['description']
+                new_file.label = data_form.cleaned_data["label"]
+                new_file.description = data_form.cleaned_data["description"]
                 new_file.save()
-                return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+                return redirect(
+                    reverse("submit_files", kwargs={"article_id": article_id})
+                )
             else:
-                data_form.add_error(None, 'You must select a file.')
-                modal = 'data'
+                data_form.add_error(None, "You must select a file.")
+                modal = "data"
 
-        if 'next_step' in request.POST:
+        if "next_step" in request.POST:
             if article.manuscript_files.all().count() >= 1:
                 article.current_step = 4
                 article.save()
                 if configuration.funding:
-                    return redirect(reverse(
-                        'submit_funding', kwargs={'article_id': article_id}))
+                    return redirect(
+                        reverse("submit_funding", kwargs={"article_id": article_id})
+                    )
                 else:
-                    return redirect(reverse(
-                        'submit_review', kwargs={'article_id': article_id}))
+                    return redirect(
+                        reverse("submit_review", kwargs={"article_id": article_id})
+                    )
             else:
                 error = _("You must upload a manuscript file.")
 
     template = "admin/submission/submit_files.html"
 
     context = {
-        'article': article,
-        'error': error,
-        'ms_form': ms_form,
-        'data_form': data_form,
-        'modal': modal,
+        "article": article,
+        "error": error,
+        "ms_form": ms_form,
+        "data_form": data_form,
+        "modal": modal,
     }
 
     return render(request, template, context)
@@ -656,15 +648,15 @@ def submit_review(request, article_id):
     if article.current_step < 4 and not request.user.is_staff:
         return redirect(
             reverse(
-                'submit_info',
-                kwargs={'article_id': article_id},
+                "submit_info",
+                kwargs={"article_id": article_id},
             )
         )
     form = forms.SubmissionCommentsForm(
         instance=article,
     )
 
-    if request.POST and 'next_step' in request.POST:
+    if request.POST and "next_step" in request.POST:
         form = forms.SubmissionCommentsForm(
             request.POST,
             instance=article,
@@ -679,34 +671,33 @@ def submit_review(request, article_id):
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                **{'handshake_url': 'submit_review',
-                   'request': request,
-                   'article': article,
-                   'switch_stage': False}
+                **{
+                    "handshake_url": "submit_review",
+                    "request": request,
+                    "article": article,
+                    "switch_stage": False,
+                },
             )
 
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _('Article {title} submitted').format(
+                _("Article {title} submitted").format(
                     title=article.title,
                 ),
             )
 
-            kwargs = {'article': article,
-                      'request': request}
+            kwargs = {"article": article, "request": request}
             event_logic.Events.raise_event(
-                event_logic.Events.ON_ARTICLE_SUBMITTED,
-                task_object=article,
-                **kwargs
+                event_logic.Events.ON_ARTICLE_SUBMITTED, task_object=article, **kwargs
             )
 
-            return redirect(reverse('core_dashboard'))
+            return redirect(reverse("core_dashboard"))
 
     template = "admin/submission/submit_review.html"
     context = {
-        'article': article,
-        'form': form,
+        "article": article,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -731,8 +722,8 @@ def edit_metadata(request, article_id):
             journal=request.journal,
         )
         submission_summary = setting_handler.get_setting(
-            'general',
-            'submission_summary',
+            "general",
+            "submission_summary",
             request.journal,
         ).processed_value
         funder_form = forms.ArticleFundingForm(
@@ -747,23 +738,23 @@ def edit_metadata(request, article_id):
             editor_view=True,
         )
 
-        return_param = request.GET.get('return')
+        return_param = request.GET.get("return")
         reverse_url = create_language_override_redirect(
             request,
-            'edit_metadata',
-            {'article_id': article.pk},
-            query_strings={'return': return_param}
+            "edit_metadata",
+            {"article_id": article.pk},
+            query_strings={"return": return_param},
         )
 
         frozen_author, modal, author_form = None, None, forms.EditFrozenAuthor()
-        if request.GET.get('author'):
+        if request.GET.get("author"):
             frozen_author, modal = logic.get_author(request, article)
             author_form = forms.EditFrozenAuthor(instance=frozen_author)
-        elif request.GET.get('modal') == 'author':
-            modal = 'author'
+        elif request.GET.get("modal") == "author":
+            modal = "author"
 
         if request.POST:
-            if 'add_funder' in request.POST:
+            if "add_funder" in request.POST:
                 funder_form = forms.ArticleFundingForm(
                     request.POST,
                     article=article,
@@ -772,7 +763,7 @@ def edit_metadata(request, article_id):
                     funder_form.save()
                     return redirect(reverse_url)
 
-            if 'metadata' in request.POST:
+            if "metadata" in request.POST:
                 info_form = forms.EditArticleMetadata(
                     request.POST,
                     instance=article,
@@ -787,23 +778,21 @@ def edit_metadata(request, article_id):
                     messages.add_message(
                         request,
                         messages.SUCCESS,
-                        _('Metadata updated.'),
+                        _("Metadata updated."),
                     )
                     return redirect(reverse_url)
 
-            if 'mark_primary' in request.POST and frozen_author.author:
+            if "mark_primary" in request.POST and frozen_author.author:
                 article.correspondence_author = frozen_author.author
                 article.save()
                 frozen_author.display_email = True
                 frozen_author.save()
                 messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _('Primary author set.')
+                    request, messages.SUCCESS, _("Primary author set.")
                 )
                 return redirect(reverse_url)
 
-            if 'author' in request.POST:
+            if "author" in request.POST:
                 author_form = forms.EditFrozenAuthor(
                     request.POST,
                     instance=frozen_author,
@@ -816,14 +805,14 @@ def edit_metadata(request, article_id):
                     messages.add_message(
                         request,
                         messages.SUCCESS,
-                        _('Author {author_name} updated.').format(
+                        _("Author {author_name} updated.").format(
                             author_name=saved_author.full_name(),
                         ),
                     )
                     return redirect(reverse_url)
 
-            if 'delete' in request.POST:
-                frozen_author_id = request.POST.get('delete')
+            if "delete" in request.POST:
+                frozen_author_id = request.POST.get("delete")
                 frozen_author = get_object_or_404(
                     models.FrozenAuthor,
                     pk=frozen_author_id,
@@ -834,20 +823,20 @@ def edit_metadata(request, article_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    _('Frozen Author deleted.'),
+                    _("Frozen Author deleted."),
                 )
                 return redirect(reverse_url)
 
-    template = 'submission/edit/metadata.html'
+    template = "submission/edit/metadata.html"
     context = {
-        'article': article,
-        'funder_form': funder_form,
-        'info_form': info_form,
-        'author_form': author_form,
-        'modal': modal,
-        'frozen_author': frozen_author,
-        'additional_fields': additional_fields,
-        'return': return_param
+        "article": article,
+        "funder_form": funder_form,
+        "info_form": info_form,
+        "author_form": author_form,
+        "modal": modal,
+        "frozen_author": frozen_author,
+        "additional_fields": additional_fields,
+        "return": return_param,
     }
 
     return render(request, template, context)
@@ -858,14 +847,14 @@ def order_authors(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
 
     if request.POST:
-        ids = [int(_id) for _id in request.POST.getlist('authors[]')]
+        ids = [int(_id) for _id in request.POST.getlist("authors[]")]
 
         for author in article.frozenauthor_set.all():
             order = ids.index(author.pk)
             author.order = order
             author.save()
 
-    return HttpResponse('Thanks')
+    return HttpResponse("Thanks")
 
 
 @editor_user_required
@@ -882,33 +871,32 @@ def fields(request, field_id=None):
     form = forms.FieldForm(instance=field)
 
     if request.POST:
-
-        if 'save' in request.POST:
+        if "save" in request.POST:
             form = forms.FieldForm(request.POST, instance=field)
 
             if form.is_valid():
                 logic.save_field(request, form)
-                return redirect(reverse('submission_fields'))
+                return redirect(reverse("submission_fields"))
 
-        elif 'delete' in request.POST:
+        elif "delete" in request.POST:
             logic.delete_field(request)
-            return redirect(reverse('submission_fields'))
+            return redirect(reverse("submission_fields"))
 
-        elif 'order[]' in request.POST:
+        elif "order[]" in request.POST:
             logic.order_fields(request, fields)
-            return HttpResponse('Thanks')
+            return HttpResponse("Thanks")
 
-    template = 'admin/submission/manager/fields.html'
+    template = "admin/submission/manager/fields.html"
     context = {
-        'field': field,
-        'fields': fields,
-        'form': form,
+        "field": field,
+        "fields": fields,
+        "form": form,
     }
 
     return render(request, template, context)
 
 
-@role_can_access('licenses')
+@role_can_access("licenses")
 def licenses(request, license_pk=None):
     """
     Allows an editor to create, edit and delete license objects.
@@ -921,22 +909,17 @@ def licenses(request, license_pk=None):
 
     if license_pk and request.journal:
         license_obj = get_object_or_404(
-            models.Licence,
-            journal=request.journal,
-            pk=license_pk
+            models.Licence, journal=request.journal, pk=license_pk
         )
     elif license_pk and request.press:
         license_obj = get_object_or_404(
-            models.Licence,
-            press=request.press,
-            pk=license_pk
+            models.Licence, press=request.press, pk=license_pk
         )
 
     form = forms.LicenseForm(instance=license_obj)
 
-    if request.POST and 'save' in request.POST:
-        form = forms.LicenseForm(request.POST,
-                                 instance=license_obj)
+    if request.POST and "save" in request.POST:
+        form = forms.LicenseForm(request.POST, instance=license_obj)
 
         if form.is_valid():
             save_license = form.save(commit=False)
@@ -949,31 +932,31 @@ def licenses(request, license_pk=None):
             messages.add_message(
                 request,
                 messages.INFO,
-                _('License saved.'),
+                _("License saved."),
             )
-            return redirect(reverse('submission_licenses'))
+            return redirect(reverse("submission_licenses"))
 
-    elif 'order[]' in request.POST:
-        ids = [int(_id) for _id in request.POST.getlist('order[]')]
+    elif "order[]" in request.POST:
+        ids = [int(_id) for _id in request.POST.getlist("order[]")]
 
         for license in licenses:
             order = ids.index(license.pk)
             license.order = order
             license.save()
 
-        return HttpResponse('Thanks')
+        return HttpResponse("Thanks")
 
-    template = 'submission/manager/licenses.html'
+    template = "submission/manager/licenses.html"
     context = {
-        'license': license_obj,
-        'form': form,
-        'licenses': licenses,
+        "license": license_obj,
+        "form": form,
+        "licenses": licenses,
     }
 
     return render(request, template, context)
 
 
-@role_can_access('licenses')
+@role_can_access("licenses")
 def delete_license(request, license_pk):
     """
     Presents an interface to delete a license object.
@@ -982,30 +965,26 @@ def delete_license(request, license_pk):
     :return: HttpResponse or HttpRedirect
     """
     license_to_delete = get_object_or_404(
-        models.Licence,
-        pk=license_pk,
-        journal=request.journal
+        models.Licence, pk=license_pk, journal=request.journal
     )
-    license_articles = models.Article.objects.filter(
-        license=license_to_delete
-    )
+    license_articles = models.Article.objects.filter(license=license_to_delete)
 
-    if request.POST and 'delete' in request.POST:
+    if request.POST and "delete" in request.POST:
         messages.add_message(
             request,
             messages.INFO,
-            _('License {license_name} deleted.').format(
+            _("License {license_name} deleted.").format(
                 license_name=license_to_delete.name,
             ),
         )
         license_to_delete.delete()
 
-        return redirect(reverse('submission_licenses'))
+        return redirect(reverse("submission_licenses"))
 
-    template = 'submission/manager/delete_license.html'
+    template = "submission/manager/delete_license.html"
     context = {
-        'license': license_to_delete,
-        'license_articles': license_articles,
+        "license": license_to_delete,
+        "license_articles": license_articles,
     }
 
     return render(request, template, context)
@@ -1030,14 +1009,14 @@ def configurator(request):
             messages.add_message(
                 request,
                 messages.INFO,
-                _('Configuration updated.'),
+                _("Configuration updated."),
             )
-            return redirect(reverse('submission_configurator'))
+            return redirect(reverse("submission_configurator"))
 
-    template = 'submission/manager/configurator.html'
+    template = "submission/manager/configurator.html"
     context = {
-        'configuration': configuration,
-        'form': form,
+        "configuration": configuration,
+        "form": form,
     }
 
     return render(request, template, context)

@@ -14,14 +14,16 @@ TO = "{{ review_url }}"
 
 def replace_setting_urls(apps, schema_editor):
     try:
-        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-        settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
+        SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
+        settings = SettingValueTranslation.objects.filter(
+            master__setting__group__name="email"
+        )
         for s in settings:
             fix_url(s)
     except (LookupError, FieldError):
-        SettingValue = apps.get_model('core', 'SettingValue')
+        SettingValue = apps.get_model("core", "SettingValue")
         settings = SettingValue.objects.filter(
-            setting__group__name='email',
+            setting__group__name="email",
         )
         for s in settings:
             fix_url(s)
@@ -36,11 +38,12 @@ def fix_url(setting):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0048_add_article_details_to_review_assignment_email'),
+        ("core", "0048_add_article_details_to_review_assignment_email"),
     ]
 
     operations = [
-        migrations.RunPython(replace_setting_urls, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            replace_setting_urls, reverse_code=migrations.RunPython.noop
+        ),
     ]

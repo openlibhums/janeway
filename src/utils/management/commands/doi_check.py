@@ -23,7 +23,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', nargs='?', default=None)
+        parser.add_argument("journal_code", nargs="?", default=None)
 
     def handle(self, *args, **options):
         """Runs through articles and checks their DOIs resolve.
@@ -32,8 +32,10 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        if options.get('journal_code'):
-            journals = journal_models.Journal.objects.filter(code=options.get('journal_code'))
+        if options.get("journal_code"):
+            journals = journal_models.Journal.objects.filter(
+                code=options.get("journal_code")
+            )
         else:
             journals = journal_models.Journal.objects.all()
         request = cron_models.Request()
@@ -41,34 +43,38 @@ class Command(BaseCommand):
         for journal in journals:
             request.secure = journal.is_secure
 
-            print('Processing {0}'.format(journal.name))
+            print("Processing {0}".format(journal.name))
             articles = submission_models.Article.objects.filter(journal=journal)
 
             for article in articles:
-                doi = article.get_identifier('doi', object=True)
+                doi = article.get_identifier("doi", object=True)
 
                 if doi and doi.is_doi:
-                    print('Article {0} with DOI {1} processing.'.format(article.pk, doi))
+                    print(
+                        "Article {0} with DOI {1} processing.".format(article.pk, doi)
+                    )
 
                     should_resolve_to = article.url
                     resolves_to = requests.get(doi.get_doi_url())
 
                     if not should_resolve_to == resolves_to.url:
-                        print('Failure detected.')
+                        print("Failure detected.")
                         print(should_resolve_to, resolves_to.url)
 
                         o, c = ident_models.BrokenDOI.objects.get_or_create(
                             identifier=doi,
                             article=article,
-                            defaults={'checked': timezone.now(),
-                                      'resolves_to': resolves_to.url,
-                                      'expected_to_resolve_to': should_resolve_to}
+                            defaults={
+                                "checked": timezone.now(),
+                                "resolves_to": resolves_to.url,
+                                "expected_to_resolve_to": should_resolve_to,
+                            },
                         )
 
                         if c:
-                            print('This failure is new \n')
+                            print("This failure is new \n")
                         else:
-                            print('This failure has previously been detected \n')
+                            print("This failure has previously been detected \n")
                     else:
                         try:
                             ident_models.BrokenDOI.objects.get(identifier=doi).delete()
@@ -76,4 +82,4 @@ class Command(BaseCommand):
                             pass
 
                 else:
-                    print('Article {0} has no DOI, skipping \n'.format(article.pk))
+                    print("Article {0} has no DOI, skipping \n".format(article.pk))

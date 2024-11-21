@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0018_merge_20240315_1649'),
+        ("cms", "0018_merge_20240315_1649"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalpage',
-            name='display_toc',
-            field=models.BooleanField(default=False, help_text='When enabled this page will display a thinner reading pane with a table of contents side bar.', verbose_name='Display table of contents'),
+            model_name="historicalpage",
+            name="display_toc",
+            field=models.BooleanField(
+                default=False,
+                help_text="When enabled this page will display a thinner reading pane with a table of contents side bar.",
+                verbose_name="Display table of contents",
+            ),
         ),
         migrations.AddField(
-            model_name='page',
-            name='display_toc',
-            field=models.BooleanField(default=False, help_text='When enabled this page will display a thinner reading pane with a table of contents side bar.', verbose_name='Display table of contents'),
+            model_name="page",
+            name="display_toc",
+            field=models.BooleanField(
+                default=False,
+                help_text="When enabled this page will display a thinner reading pane with a table of contents side bar.",
+                verbose_name="Display table of contents",
+            ),
         ),
     ]

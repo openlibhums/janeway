@@ -9,15 +9,14 @@ def migrate_collections_navigation(apps, schema_editor):
     Journal = apps.get_model("journal", "Journal")
     IssueType = apps.get_model("journal", "IssueType")
     NavigationItem = apps.get_model("cms", "NavigationItem")
-    ContentType = apps.get_model('contenttypes', 'ContentType')
+    ContentType = apps.get_model("contenttypes", "ContentType")
     for journal in Journal.objects.all():
         if journal.nav_collections:
             issue_type = IssueType.objects.get(
                 journal=journal,
                 code="collection",
             )
-            content_type = ContentType.objects.get(
-                app_label="journal", model="Journal")
+            content_type = ContentType.objects.get(app_label="journal", model="Journal")
             defaults = {
                 "link_name": issue_type.pretty_name + "s",
                 "link": "/collections/%s" % (issue_type.code),
@@ -30,15 +29,13 @@ def migrate_collections_navigation(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0034_migrate_issue_types'),
-        ('cms', '0001_initial'),
+        ("journal", "0034_migrate_issue_types"),
+        ("cms", "0001_initial"),
     ]
 
     operations = [
         migrations.RunPython(
-            migrate_collections_navigation,
-            reverse_code=migrations.RunPython.noop
+            migrate_collections_navigation, reverse_code=migrations.RunPython.noop
         ),
     ]

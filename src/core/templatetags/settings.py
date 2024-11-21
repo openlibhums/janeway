@@ -16,7 +16,7 @@ def get_setting(journal, setting_name):
         ).processed_value
         return setting_value
     except models.Setting.DoesNotExist:
-        return ''
+        return ""
 
 
 @register.filter

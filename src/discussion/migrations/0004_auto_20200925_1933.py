@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('discussion', '0003_auto_20200821_1422'),
+        ("discussion", "0003_auto_20200821_1422"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='thread',
-            options={'ordering': ('-last_updated', 'pk')},
+            name="thread",
+            options={"ordering": ("-last_updated", "pk")},
         ),
     ]

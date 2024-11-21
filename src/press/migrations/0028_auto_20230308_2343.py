@@ -6,20 +6,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0027_auto_20220107_1219'),
+        ("press", "0027_auto_20220107_1219"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='description',
-            field=models.TextField(blank=True, help_text='This will appear in web search results and on social media when the press URL is shared', null=True, verbose_name='Publisher description'),
+            model_name="press",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                help_text="This will appear in web search results and on social media when the press URL is shared",
+                null=True,
+                verbose_name="Publisher description",
+            ),
         ),
         migrations.AlterField(
-            model_name='press',
-            name='footer_description',
-            field=models.TextField(blank=True, help_text='Additional HTML for the press footer.', null=True, verbose_name='Footer text'),
+            model_name="press",
+            name="footer_description",
+            field=models.TextField(
+                blank=True,
+                help_text="Additional HTML for the press footer.",
+                null=True,
+                verbose_name="Footer text",
+            ),
         ),
     ]

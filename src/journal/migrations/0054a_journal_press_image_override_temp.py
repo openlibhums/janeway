@@ -13,18 +13,18 @@ from submission import models
 
 
 def copy_press_image_override_temp(apps, schema_editor):
-    Journal = apps.get_model('journal', 'Journal')
+    Journal = apps.get_model("journal", "Journal")
     for journal in Journal.objects.all():
         if journal.press_image_override:
             file_path = os.path.join(
                 settings.BASE_DIR,
-                'files',
-                'journals',
+                "files",
+                "journals",
                 str(journal.pk),
                 str(journal.press_image_override.uuid_filename),
             )
             if os.path.isfile(file_path):
-                with open(file_path, 'rb') as file:
+                with open(file_path, "rb") as file:
                     image_file = ContentFile(file.read())
                     image_file.name = journal.press_image_override.original_filename
                     journal.press_image_override_temp.save(
@@ -34,16 +34,23 @@ def copy_press_image_override_temp(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0053_display_article_images_settings'),
+        ("journal", "0053_display_article_images_settings"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='press_image_override_temp',
-            field=core.model_utils.SVGImageField(blank=True, help_text='Replaces the press logo in the footer.', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="press_image_override_temp",
+            field=core.model_utils.SVGImageField(
+                blank=True,
+                help_text="Replaces the press logo in the footer.",
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
-        migrations.RunPython(copy_press_image_override_temp, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            copy_press_image_override_temp, reverse_code=migrations.RunPython.noop
+        ),
     ]

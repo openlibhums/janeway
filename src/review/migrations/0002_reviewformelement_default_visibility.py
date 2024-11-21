@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0001_initial'),
+        ("review", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reviewformelement',
-            name='default_visibility',
-            field=models.BooleanField(default=True, help_text='If true, this setting will be availableto the author automatically, if false it willbe hidden to the author by default.'),
+            model_name="reviewformelement",
+            name="default_visibility",
+            field=models.BooleanField(
+                default=True,
+                help_text="If true, this setting will be availableto the author automatically, if false it willbe hidden to the author by default.",
+            ),
         ),
     ]

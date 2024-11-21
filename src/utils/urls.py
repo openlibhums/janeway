@@ -10,8 +10,6 @@ from utils import views
 
 
 urlpatterns = [
-
     # Editor URLs
-    re_path(r'^mailgun_webhook', views.mailgun_webhook, name='mailgun_webhook'),
-
+    re_path(r"^mailgun_webhook", views.mailgun_webhook, name="mailgun_webhook"),
 ]

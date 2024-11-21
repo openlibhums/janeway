@@ -6,8 +6,8 @@ from django.urls import re_path
 from rss import views
 
 urlpatterns = [
-    re_path(r'^news/$', views.LatestNewsFeed(), name='rss_news'),
-    re_path(r'^articles/$', views.LatestArticlesFeed(), name='rss_articles'),
-    re_path(r'^preprints/$', views.LatestPreprintsFeed(), name='rss_preprints'),
-    re_path(r'^', views.LatestArticlesFeed(), name='rss_articles'),
+    re_path(r"^news/$", views.LatestNewsFeed(), name="rss_news"),
+    re_path(r"^articles/$", views.LatestArticlesFeed(), name="rss_articles"),
+    re_path(r"^preprints/$", views.LatestPreprintsFeed(), name="rss_preprints"),
+    re_path(r"^", views.LatestArticlesFeed(), name="rss_articles"),
 ]

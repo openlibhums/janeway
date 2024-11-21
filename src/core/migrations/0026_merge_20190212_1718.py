@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0025_merge_20190201_1533'),
-        ('core', '0025_fix_bad_journal_urls_in_template'),
+        ("core", "0025_merge_20190201_1533"),
+        ("core", "0025_fix_bad_journal_urls_in_template"),
     ]
 
-    operations = [
-    ]
+    operations = []

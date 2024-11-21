@@ -5,28 +5,27 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('comms', '0005_historicalnewsitem'),
+        ("comms", "0005_historicalnewsitem"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='historicalnewsitem',
-            name='support_copy_paste',
+            model_name="historicalnewsitem",
+            name="support_copy_paste",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='support_copy_paste',
+            model_name="newsitem",
+            name="support_copy_paste",
         ),
         migrations.AlterField(
-            model_name='historicalnewsitem',
-            name='body',
+            model_name="historicalnewsitem",
+            name="body",
             field=core.model_utils.JanewayBleachField(),
         ),
         migrations.AlterField(
-            model_name='newsitem',
-            name='body',
+            model_name="newsitem",
+            name="body",
             field=core.model_utils.JanewayBleachField(),
         ),
     ]

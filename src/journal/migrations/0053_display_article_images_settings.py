@@ -10,9 +10,8 @@ def update_setting_values(apps, schema_editor):
     Setting = apps.get_model("core", "Setting")
     SettingGroup = apps.get_model("core", "SettingGroup")
     SettingValue = apps.get_model("core", "SettingValue")
-    setting_group, _ = SettingGroup.objects.get_or_create(
-        name="article")
-    call_command('load_default_settings')
+    setting_group, _ = SettingGroup.objects.get_or_create(name="article")
+    call_command("load_default_settings")
 
     thumb_setting, c = Setting.objects.get_or_create(name="disable_article_thumbnails")
     large_image_setting = Setting.objects.get(name="disable_article_large_image")
@@ -31,11 +30,12 @@ def update_setting_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0052_add_fields_to_fixedpubcheckitems_and_issue'),
+        ("journal", "0052_add_fields_to_fixedpubcheckitems_and_issue"),
     ]
 
     operations = [
-        migrations.RunPython(update_setting_values, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_setting_values, reverse_code=migrations.RunPython.noop
+        ),
     ]

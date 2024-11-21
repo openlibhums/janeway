@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0021_auto_20190329_1202'),
+        ("press", "0021_auto_20190329_1202"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='disable_journals',
-            field=models.BooleanField(default=False, help_text='If enabled, the journals page will no longer render.'),
+            model_name="press",
+            name="disable_journals",
+            field=models.BooleanField(
+                default=False,
+                help_text="If enabled, the journals page will no longer render.",
+            ),
         ),
     ]

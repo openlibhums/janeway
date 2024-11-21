@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0035_update_revision_assignment_email'),
-        ('core', '0034_update_handshake_urls'),
+        ("core", "0035_update_revision_assignment_email"),
+        ("core", "0034_update_handshake_urls"),
     ]
 
-    operations = [
-    ]
+    operations = []

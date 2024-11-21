@@ -6,23 +6,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0009_merge_20180208_1443'),
+        ("journal", "0009_merge_20180208_1443"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='articleordering',
-            options={'ordering': ('order', 'section')},
+            name="articleordering",
+            options={"ordering": ("order", "section")},
         ),
         migrations.AlterModelOptions(
-            name='sectionordering',
-            options={'ordering': ('order', 'section')},
+            name="sectionordering",
+            options={"ordering": ("order", "section")},
         ),
         migrations.AddField(
-            model_name='journal',
-            name='contact_info',
-            field=models.TextField(blank=True, null=True, verbose_name='Contact Information'),
+            model_name="journal",
+            name="contact_info",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Contact Information"
+            ),
         ),
     ]

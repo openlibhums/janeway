@@ -7,19 +7,18 @@ import press.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0028_auto_20230308_2343'),
+        ("press", "0028_auto_20230308_2343"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='secondary_image',
+            model_name="press",
+            name="secondary_image",
             field=core.model_utils.SVGImageField(
                 blank=True,
-                help_text='Optional secondary logo for footer. '
-                          'Not implemented in all themes.',
+                help_text="Optional secondary logo for footer. "
+                "Not implemented in all themes.",
                 null=True,
                 storage=core.file_system.JanewayFileSystemStorage(),
                 upload_to=press.models.cover_images_upload_path,

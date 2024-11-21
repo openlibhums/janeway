@@ -9,10 +9,14 @@ from workflow import views
 
 
 urlpatterns = [
-    re_path(r'^article/(?P<article_id>\d+)/$',
+    re_path(
+        r"^article/(?P<article_id>\d+)/$",
         views.manage_article_workflow,
-        name='manage_article_workflow'),
-    re_path(r'^article/(?P<article_id>\d+)/move_to_next/$',
+        name="manage_article_workflow",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/move_to_next/$",
         views.move_to_next_workflow_element,
-        name='move_to_next_workflow_element'),
+        name="move_to_next_workflow_element",
+    ),
 ]

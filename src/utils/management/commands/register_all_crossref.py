@@ -18,7 +18,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code')
+        parser.add_argument("journal_code")
 
     def handle(self, *args, **options):
         """Calls the Crossref registration options
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         :return: None
         """
         journal = journal_models.Journal.objects.get(
-            code=options.get('journal_code'),
+            code=options.get("journal_code"),
         )
         articles = submission_models.Article.objects.filter(
             journal=journal,
@@ -36,21 +36,23 @@ class Command(BaseCommand):
         )
 
         for article in articles:
-            print('Handling article {0}'.format(article.pk))
+            print("Handling article {0}".format(article.pk))
             if article.is_published:
-                print('Article is published')
+                print("Article is published")
                 try:
-                    identifier = article.get_identifier('doi', object=True)
+                    identifier = article.get_identifier("doi", object=True)
 
                     if identifier and identifier.is_doi:
                         identifier.register()
                     else:
-                        identifier = identifier_logic.generate_crossref_doi_with_pattern(article)
+                        identifier = (
+                            identifier_logic.generate_crossref_doi_with_pattern(article)
+                        )
                         identifier.register()
                 except AttributeError as e:
-                    print('Error {0}'.format(e))
+                    print("Error {0}".format(e))
 
             else:
-                print('Article {} is not published.'.format(article.pk))
+                print("Article {} is not published.".format(article.pk))
 
             time.sleep(1)

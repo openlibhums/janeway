@@ -59,14 +59,14 @@ def index(request):
 
     template = "press/press_index.html"
     context = {
-        'homepage_elements': homepage_elements,
+        "homepage_elements": homepage_elements,
     }
 
     # call all registered plugin block hooks to get relevant contexts
-    for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        if hook.get('name') in homepage_element_names:
-            hook_module = plugin_loader.import_module(hook.get('module'))
-            function = getattr(hook_module, hook.get('function'))
+    for hook in settings.PLUGIN_HOOKS.get("yield_homepage_element_context", []):
+        if hook.get("name") in homepage_element_names:
+            hook_module = plugin_loader.import_module(hook.get("module"))
+            function = getattr(hook_module, hook.get("function"))
             element_context = function(request, homepage_elements)
 
             for k, v in element_context.items():
@@ -89,10 +89,9 @@ def sitemap(request):
         # if there is a repository we return the repository sitemap.
         return repository_views.sitemap(request)
 
-
     return core_views.sitemap(
         request,
-        ['sitemap.xml'],
+        ["sitemap.xml"],
     )
 
 
@@ -101,7 +100,7 @@ def robots(request):
     Serves a generated robots.txt.
     """
     try:
-        if settings.URL_CONFIG == 'domain' and request.journal or request.repository:
+        if settings.URL_CONFIG == "domain" and request.journal or request.repository:
             if request.journal and request.journal.domain:
                 return files.serve_robots_file(journal=request.journal)
             elif request.repository and request.repository.domain:
@@ -111,7 +110,7 @@ def robots(request):
                 raise Http404()
         return files.serve_robots_file()
     except FileNotFoundError:
-        logger.warning('Robots file not found.')
+        logger.warning("Robots file not found.")
         raise Http404()
 
 
@@ -126,7 +125,7 @@ def journals(request):
     template = "press/press_journals.html"
 
     context = {
-        'journals': request.press.public_journals,
+        "journals": request.press.public_journals,
     }
 
     return render(request, template, context)
@@ -141,11 +140,11 @@ def conferences(request):
     template = "press/press_journals.html"
 
     journal_objects = journal_models.Journal.objects.filter(
-            hide_from_press=False,
-            is_conference=True,
-    ).order_by('sequence')
+        hide_from_press=False,
+        is_conference=True,
+    ).order_by("sequence")
 
-    context = {'journals': journal_objects}
+    context = {"journals": journal_objects}
 
     return render(request, template, context)
 
@@ -165,46 +164,46 @@ def manager_index(request):
 
         if request.POST:
             form = journal_forms.JournalForm(request.POST)
-            modal = 'new_journal'
+            modal = "new_journal"
             if form.is_valid():
                 new_journal = form.save()
                 new_journal.sequence = request.press.next_journal_order()
                 new_journal.save()
-                call_command('install_plugins')
+                call_command("install_plugins")
                 install.update_issue_types(new_journal)
                 new_journal.setup_directory()
                 return redirect(
                     new_journal.site_url(
                         path=reverse(
-                            'core_edit_settings_group',
+                            "core_edit_settings_group",
                             kwargs={
-                                'display_group': 'journal',
-                            }
+                                "display_group": "journal",
+                            },
                         )
                     )
                 )
 
     support_message = core_logic.render_nested_setting(
-        'support_contact_message_for_staff',
-        'general',
+        "support_contact_message_for_staff",
+        "general",
         request,
-        nested_settings=[('support_email','general')],
+        nested_settings=[("support_email", "general")],
     )
     published_articles = submission_models.Article.objects.filter(
         stage=submission_models.STAGE_PUBLISHED,
         journal__isnull=False,
-    ).select_related('journal')[:50]
+    ).select_related("journal")[:50]
 
-    template = 'press/press_manager_index.html'
+    template = "press/press_manager_index.html"
     context = {
-        'journals': journal_models.Journal.objects.all().order_by('sequence'),
-        'form': form,
-        'modal': modal,
-        'published_articles': published_articles,
-        'version': version,
-        'repositories': models.Repository.objects.all(),
-        'url_config': settings.URL_CONFIG,
-        'support_message': support_message,
+        "journals": journal_models.Journal.objects.all().order_by("sequence"),
+        "form": form,
+        "modal": modal,
+        "published_articles": published_articles,
+        "version": version,
+        "repositories": models.Repository.objects.all(),
+        "url_config": settings.URL_CONFIG,
+        "support_message": support_message,
     }
 
     return render(request, template, context)
@@ -221,8 +220,7 @@ def edit_press(request):
 
     press = request.press
     form = forms.PressForm(
-        instance=press,
-        initial={'press_logo': press.thumbnail_image}
+        instance=press, initial={"press_logo": press.thumbnail_image}
     )
 
     if request.POST:
@@ -232,16 +230,19 @@ def edit_press(request):
 
             if press.default_carousel_image:
                 from core import logic as core_logic
-                core_logic.resize_and_crop(press.default_carousel_image.path, [750, 324], 'middle')
 
-            messages.add_message(request, messages.INFO, 'Press updated.')
+                core_logic.resize_and_crop(
+                    press.default_carousel_image.path, [750, 324], "middle"
+                )
 
-            return redirect(reverse('press_edit_press'))
+            messages.add_message(request, messages.INFO, "Press updated.")
 
-    template = 'press/edit_press.html'
+            return redirect(reverse("press_edit_press"))
+
+    template = "press/edit_press.html"
     context = {
-        'press': press,
-        'form': form,
+        "press": press,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -276,7 +277,7 @@ def serve_press_file(request, file_id):
     if file.article_id:
         raise Http404
 
-    path_parts = ('press',)
+    path_parts = ("press",)
 
     response = files.serve_any_file(
         request,
@@ -298,17 +299,13 @@ def journal_order(request):
 
     journals = journal_models.Journal.objects.all()
 
-    ids = [int(_id) for _id in request.POST.getlist('journal[]')]
+    ids = [int(_id) for _id in request.POST.getlist("journal[]")]
 
     for journal in journals:
         sequence = ids.index(journal.pk)
-        journal_models.Journal.objects.filter(
-            pk=journal.pk
-        ).update(
-            sequence=sequence
-        )
+        journal_models.Journal.objects.filter(pk=journal.pk).update(sequence=sequence)
 
-    return HttpResponse('Thanks')
+    return HttpResponse("Thanks")
 
 
 @staff_member_required
@@ -316,19 +313,19 @@ def journal_domain(request, journal_id):
     journal = get_object_or_404(journal_models.Journal, pk=journal_id)
 
     if request.POST:
-        new_domain = request.POST.get('domain', None)
+        new_domain = request.POST.get("domain", None)
 
         journal.domain = new_domain
         journal.save()
-        return redirect(reverse('core_manager_index'))
+        return redirect(reverse("core_manager_index"))
         if new_domain:
-            messages.add_message(request, messages.SUCCESS, 'Domain updated')
+            messages.add_message(request, messages.SUCCESS, "Domain updated")
         else:
-            messages.add_message(request, messages.WARNING, 'No domain set')
+            messages.add_message(request, messages.WARNING, "No domain set")
 
-    template = 'press/journal_domain.html'
+    template = "press/journal_domain.html"
     context = {
-        'journal': journal,
+        "journal": journal,
     }
 
     return render(request, template, context)
@@ -338,44 +335,47 @@ def journal_domain(request, journal_id):
 def merge_users(request):
     users = core_models.Account.objects.none()
 
-    get_from = request.GET.get('from')
-    get_to = request.GET.get('to')
+    get_from = request.GET.get("from")
+    get_to = request.GET.get("to")
 
     if request.POST:
         from_id = request.POST["from"]
         to_id = request.POST["to"]
         if from_id == to_id:
             messages.add_message(
-                request, messages.ERROR,
+                request,
+                messages.ERROR,
                 "Can't merge a user with itself",
             )
-            return redirect(reverse('merge_users'))
+            return redirect(reverse("merge_users"))
 
         try:
             from_acc = core_models.Account.objects.get(id=from_id)
             to_acc = core_models.Account.objects.get(id=to_id)
         except core_models.Account.DoesNotExist:
             messages.add_message(
-                request, messages.ERROR,
+                request,
+                messages.ERROR,
                 "Can't find users with ids %d, %d" % (from_id, to_id),
             )
         merge_models(from_acc, to_acc)
         messages.add_message(
-            request, messages.INFO,
+            request,
+            messages.INFO,
             "Merged %s into %s" % (from_acc.username, to_acc.username),
         )
-        return redirect(reverse('merge_users'))
+        return redirect(reverse("merge_users"))
 
     template = "press/merge_users.html"
     context = {
-        'users': users,
+        "users": users,
     }
     return render(request, template, context)
 
 
-@method_decorator(staff_member_required, name='dispatch')
+@method_decorator(staff_member_required, name="dispatch")
 class IdentifierManager(identifier_views.IdentifierManager):
-    template_name = 'core/manager/identifier_manager.html'
+    template_name = "core/manager/identifier_manager.html"
 
 
 @staff_member_required
@@ -387,22 +387,20 @@ def edit_press_journal_description(request, journal_id):
         journal_models.Journal,
         pk=journal_id,
     )
-    form = forms.PressJournalDescription(
-        journal=journal
-    )
+    form = forms.PressJournalDescription(journal=journal)
     if request.POST:
         fire_redirect = False
-        if 'clear' in request.POST:
+        if "clear" in request.POST:
             setting_handler.save_setting(
-                setting_group_name='general',
-                setting_name='press_journal_description',
+                setting_group_name="general",
+                setting_name="press_journal_description",
                 journal=journal,
-                value='',
+                value="",
             )
             messages.add_message(
                 request,
                 messages.INFO,
-                _('Description deleted.'),
+                _("Description deleted."),
             )
             fire_redirect = True
         else:
@@ -415,22 +413,22 @@ def edit_press_journal_description(request, journal_id):
                 messages.add_message(
                     request,
                     messages.INFO,
-                    _('Description saved.'),
+                    _("Description saved."),
                 )
                 fire_redirect = True
 
         if fire_redirect:
             return redirect(
                 reverse(
-                    'edit_press_journal_description',
-                    kwargs={'journal_id': journal.pk},
+                    "edit_press_journal_description",
+                    kwargs={"journal_id": journal.pk},
                 )
             )
     context = {
-        'journal': journal,
-        'form': form,
+        "journal": journal,
+        "form": form,
     }
-    template = 'press/edit_press_journal_description.html'
+    template = "press/edit_press_journal_description.html"
     return render(
         request,
         template,
@@ -438,6 +436,6 @@ def edit_press_journal_description(request, journal_id):
     )
 
 
-@method_decorator(staff_member_required, name='dispatch')
+@method_decorator(staff_member_required, name="dispatch")
 class AllUsers(BaseUserList):
     pass

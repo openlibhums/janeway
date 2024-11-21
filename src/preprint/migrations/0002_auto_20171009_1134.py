@@ -8,31 +8,56 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0014_auto_20171009_1028'),
+        ("submission", "0014_auto_20171009_1028"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('preprint', '0001_initial'),
+        ("preprint", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('body', models.TextField(verbose_name='Comment')),
-                ('is_reviewed', models.BooleanField(default=False)),
-                ('is_public', models.BooleanField(default=False)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('reply_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='preprint.Comment')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("body", models.TextField(verbose_name="Comment")),
+                ("is_reviewed", models.BooleanField(default=False)),
+                ("is_public", models.BooleanField(default=False)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "reply_to",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="preprint.Comment",
+                    ),
+                ),
             ],
         ),
         migrations.RemoveField(
-            model_name='doipurchase',
-            name='preprint',
+            model_name="doipurchase",
+            name="preprint",
         ),
         migrations.DeleteModel(
-            name='DOIPurchase',
+            name="DOIPurchase",
         ),
     ]

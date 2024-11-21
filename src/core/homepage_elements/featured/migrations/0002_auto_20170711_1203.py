@@ -7,24 +7,27 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('journal', '0001_initial'),
-        ('featured', '0001_initial'),
-        ('submission', '0001_initial'),
+        ("journal", "0001_initial"),
+        ("featured", "0001_initial"),
+        ("submission", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='featuredarticle',
-            name='article',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="featuredarticle",
+            name="article",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='featuredarticle',
-            name='journal',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="featuredarticle",
+            name="journal",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Journal"
+            ),
         ),
     ]

@@ -6,35 +6,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0066_article_issn_override'),
+        ("submission", "0066_article_issn_override"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='last_modified',
+            model_name="article",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='frozenauthor',
-            name='last_modified',
+            model_name="frozenauthor",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='licence',
-            name='last_modified',
+            model_name="licence",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='publishernote',
-            name='last_modified',
+            model_name="publishernote",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='section',
-            name='last_modified',
+            model_name="section",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

@@ -6,30 +6,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0069_delete_blank_keywords'),
+        ("submission", "0069_delete_blank_keywords"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='abstract_en_us',
-            field=models.TextField(blank=True, help_text='Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.', null=True),
+            model_name="article",
+            name="abstract_en_us",
+            field=models.TextField(
+                blank=True,
+                help_text="Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='article',
-            name='title_en_us',
-            field=models.CharField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_en_us",
+            field=models.CharField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AddField(
-            model_name='section',
-            name='name_en_us',
+            model_name="section",
+            name="name_en_us",
             field=models.CharField(max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='section',
-            name='plural_en_us',
-            field=models.CharField(blank=True, help_text='Pluralised name for the section (e.g: Article -> Articles)', max_length=200, null=True),
+            model_name="section",
+            name="plural_en_us",
+            field=models.CharField(
+                blank=True,
+                help_text="Pluralised name for the section (e.g: Article -> Articles)",
+                max_length=200,
+                null=True,
+            ),
         ),
     ]

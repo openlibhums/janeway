@@ -17,12 +17,12 @@ class Command(BaseCommand):
     help = "Tidies ArticleAccess objects into HistoricArticleAccess params."
 
     def add_arguments(self, parser):
-        """ Adds arguments to Django's management command-line parser.
+        """Adds arguments to Django's management command-line parser.
 
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('--dump_data', action='store_true', default=False)
+        parser.add_argument("--dump_data", action="store_true", default=False)
 
     def handle(self, *args, **options):
         """Tidies up access records into historic accesses after 24 months has passed (COUNTER).
@@ -33,22 +33,28 @@ class Command(BaseCommand):
         """
         date_to_tidy = timezone.now() - timedelta(weeks=104)
 
-        article_accesses = models.ArticleAccess.objects.filter(accessed__lte=date_to_tidy)
+        article_accesses = models.ArticleAccess.objects.filter(
+            accessed__lte=date_to_tidy
+        )
 
-        if options.get('dump_data') and article_accesses:
-            path = os.path.join(settings.BASE_DIR, 'files', 'data_backup', date_to_tidy.strftime('%Y-%m-%d %H:%M'))
+        if options.get("dump_data") and article_accesses:
+            path = os.path.join(
+                settings.BASE_DIR,
+                "files",
+                "data_backup",
+                date_to_tidy.strftime("%Y-%m-%d %H:%M"),
+            )
             if not os.path.exists(path):
                 os.makedirs(path)
-            write_path = os.path.join(path, 'article_accesses.json')
-            with open(write_path, 'w+', encoding="utf-8") as f:
+            write_path = os.path.join(path, "article_accesses.json")
+            with open(write_path, "w+", encoding="utf-8") as f:
                 data = serializers.serialize("json", article_accesses, indent=4)
                 f.write(data)
 
         for access in article_accesses:
-
-            if access.type == 'view':
+            if access.type == "view":
                 access.article.historicarticleaccess.add_one_view()
-            elif access.type == 'download':
+            elif access.type == "download":
                 access.article.historicarticleaccess.add_one_download()
 
             access.delete()

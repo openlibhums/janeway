@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 
 
 def migrate_relationship_to_fk(apps, schema_editor):
-    Article = apps.get_model('submission', 'Article')
+    Article = apps.get_model("submission", "Article")
     for article in Article.objects.all():
         for funder in article.funders.all():
             logger.debug(f"Adding FK to {funder.pk}")
@@ -18,21 +18,26 @@ def migrate_relationship_to_fk(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0075_auto_20240320_1518'),
+        ("submission", "0075_auto_20240320_1518"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='funder',
-            name='article',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.article'),
+            model_name="funder",
+            name="article",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="submission.article",
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='funders',
-            field=models.ManyToManyField(blank=True, related_name='funders', to='submission.Funder'),
+            model_name="article",
+            name="funders",
+            field=models.ManyToManyField(
+                blank=True, related_name="funders", to="submission.Funder"
+            ),
         ),
         migrations.RunPython(
             migrate_relationship_to_fk,

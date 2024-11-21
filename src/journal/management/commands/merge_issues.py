@@ -5,16 +5,18 @@ from journal.logic import merge_issues
 
 
 class Command(BaseCommand):
-    """ Merges the articles from a list of issues into the destination"""
+    """Merges the articles from a list of issues into the destination"""
 
     help = "Merges issues by moving the content from the issues to the "
     "destination issue and deletes the merged issues"
 
     def add_arguments(self, parser):
-        parser.add_argument('destination_id')
-        parser.add_argument('-i', '--issue-ids',
-                            nargs='+',
-                            )
+        parser.add_argument("destination_id")
+        parser.add_argument(
+            "-i",
+            "--issue-ids",
+            nargs="+",
+        )
 
     def handle(self, *args, **options):
         issue_ids = options["issue_ids"]
@@ -25,5 +27,3 @@ class Command(BaseCommand):
             issues = models.Issue.objects.filter(pk__in=issue_ids)
             destination = models.Issue.objects.get(pk=destination_id)
             merge_issues(destination, issues)
-
-

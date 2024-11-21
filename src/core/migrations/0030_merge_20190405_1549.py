@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0029_adds_default_case_for_setting_value'),
-        ('core', '0029_rename_setting'),
+        ("core", "0029_adds_default_case_for_setting_value"),
+        ("core", "0029_rename_setting"),
     ]
 
-    operations = [
-    ]
+    operations = []

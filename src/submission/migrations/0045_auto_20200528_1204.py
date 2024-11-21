@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0044_auto_20200526_1010'),
+        ("submission", "0044_auto_20200526_1010"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submissionconfiguration',
-            name='funding',
+            model_name="submissionconfiguration",
+            name="funding",
             field=models.BooleanField(default=False),
         ),
     ]

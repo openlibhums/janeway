@@ -5,11 +5,13 @@ from production.logic import get_galley_label_and_type
 
 
 def fix_untyped_galleys(apps, schema_editor):
-    """ Fixes galleys that haven't had a type set and linked metrics records"""
+    """Fixes galleys that haven't had a type set and linked metrics records"""
 
-    Galley = apps.get_model('core', 'Galley')
-    ArticleAccess = apps.get_model('metrics','ArticleAccess')
-    for galley in Galley.objects.filter(type="", file__isnull=False, article__isnull=False):
+    Galley = apps.get_model("core", "Galley")
+    ArticleAccess = apps.get_model("metrics", "ArticleAccess")
+    for galley in Galley.objects.filter(
+        type="", file__isnull=False, article__isnull=False
+    ):
         _, galley_type = get_galley_label_and_type(galley.file)
         galley.galley_type = galley_type
         galley.save()
@@ -21,12 +23,13 @@ def fix_untyped_galleys(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0087_merge_20240315_1649'),
-        ('metrics', '0010_auto_20230317_1534'),
+        ("core", "0087_merge_20240315_1649"),
+        ("metrics", "0010_auto_20230317_1534"),
     ]
 
     operations = [
-        migrations.RunPython(fix_untyped_galleys, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            fix_untyped_galleys, reverse_code=migrations.RunPython.noop
+        ),
     ]

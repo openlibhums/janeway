@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0071_merge_0070_auto_20230120_1546_0070_auto_20230208_1233'),
+        ("submission", "0071_merge_0070_auto_20230120_1546_0070_auto_20230208_1233"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='reviews_shared',
-            field=models.BooleanField(default=False, help_text='Marked true when an editor manually shares reviews with other reviewers using the decision helper page.'),
+            model_name="article",
+            name="reviews_shared",
+            field=models.BooleanField(
+                default=False,
+                help_text="Marked true when an editor manually shares reviews with other reviewers using the decision helper page.",
+            ),
         ),
     ]

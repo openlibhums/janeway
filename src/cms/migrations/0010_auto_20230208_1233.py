@@ -6,35 +6,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0009_mediafile'),
+        ("cms", "0009_mediafile"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='navigationitem',
-            name='link_name_en_us',
-            field=models.CharField(help_text='The text that will appear in the nav bar (e.g. “About” or “Research Integrity”)', max_length=100, null=True, verbose_name='Display name'),
+            model_name="navigationitem",
+            name="link_name_en_us",
+            field=models.CharField(
+                help_text="The text that will appear in the nav bar (e.g. “About” or “Research Integrity”)",
+                max_length=100,
+                null=True,
+                verbose_name="Display name",
+            ),
         ),
         migrations.AddField(
-            model_name='page',
-            name='content_en_us',
-            field=models.TextField(blank=True, help_text='The content of the page. For headings, we recommend using the Style dropdown (looks like a wand) and selecting a heading level from 2 to 6, as the display name field occupies the place of heading level 1. Note that copying and pasting from a word processor can produce unwanted results, but you can use Remove Font Style (looks like an eraser) to remove some unwanted formatting. To edit the page as HTML, turn on the Code View (<>).', null=True),
+            model_name="page",
+            name="content_en_us",
+            field=models.TextField(
+                blank=True,
+                help_text="The content of the page. For headings, we recommend using the Style dropdown (looks like a wand) and selecting a heading level from 2 to 6, as the display name field occupies the place of heading level 1. Note that copying and pasting from a word processor can produce unwanted results, but you can use Remove Font Style (looks like an eraser) to remove some unwanted formatting. To edit the page as HTML, turn on the Code View (<>).",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='page',
-            name='display_name_en_us',
-            field=models.CharField(help_text='Name of the page, in 100 characters or fewer, displayed in the nav and in the top-level heading on the page (e.g. “Research Integrity”).', max_length=100, null=True),
+            model_name="page",
+            name="display_name_en_us",
+            field=models.CharField(
+                help_text="Name of the page, in 100 characters or fewer, displayed in the nav and in the top-level heading on the page (e.g. “Research Integrity”).",
+                max_length=100,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='submissionitem',
-            name='text_en_us',
+            model_name="submissionitem",
+            name="text_en_us",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='submissionitem',
-            name='title_en_us',
+            model_name="submissionitem",
+            name="title_en_us",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

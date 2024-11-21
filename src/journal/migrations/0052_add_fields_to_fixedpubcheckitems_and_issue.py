@@ -15,8 +15,9 @@ from django.db import migrations, models
 
 SQL = "ALTER TABLE journal_issue ADD COLUMN cached_display_title varchar(300) NULL"
 
+
 def add_cached_display_title(apps, schema_editor):
-    """ Tries to add this column for installs affected by 22b1058
+    """Tries to add this column for installs affected by 22b1058
 
     https://github.com/birkbeckctp/janeway/commit/22b105843c9d030f43434813a6553f9d9361af6b
     This commit changed migration history, which has led installations to be in
@@ -32,7 +33,7 @@ def add_cached_display_title(apps, schema_editor):
         for installatations upgrading from 1.4.2.1 onto 1.4.3 (they would have
         missed the change above). New installations or installations coming
         directly from =<1.4.2 this will fail, so we handle the exception.
-   """
+    """
     cursor = connection.cursor()
     try:
         cursor.execute(SQL)
@@ -40,10 +41,10 @@ def add_cached_display_title(apps, schema_editor):
         # Column already exists
         pass
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('submission', '0050_support_ordered_keywords'),
+        ("submission", "0050_support_ordered_keywords"),
     ]
 
 
@@ -51,19 +52,27 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('journal', '0051_journal_is_archived'),
+        ("journal", "0051_journal_is_archived"),
     ]
 
     operations = [
-        migrations.RunPython(add_cached_display_title, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            add_cached_display_title, reverse_code=migrations.RunPython.noop
+        ),
         migrations.AddField(
-            model_name='fixedpubcheckitems',
-            name='select_open_reviews',
+            model_name="fixedpubcheckitems",
+            name="select_open_reviews",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='issue',
-            name='doi',
-            field=models.CharField(blank=True, help_text='The DOI (not URL) to be registered for the issue when registering articles that are part of this issue. If you have enabled issue autoregistration in your settings, this field should not be entered manually.', max_length=255, null=True, verbose_name='DOI'),
+            model_name="issue",
+            name="doi",
+            field=models.CharField(
+                blank=True,
+                help_text="The DOI (not URL) to be registered for the issue when registering articles that are part of this issue. If you have enabled issue autoregistration in your settings, this field should not be entered manually.",
+                max_length=255,
+                null=True,
+                verbose_name="DOI",
+            ),
         ),
     ]

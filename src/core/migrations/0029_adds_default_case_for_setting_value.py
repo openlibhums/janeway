@@ -7,24 +7,28 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0024_auto_20190304_0916'),
-        ('core', '0028_fix_bad_email_urls'),
+        ("journal", "0024_auto_20190304_0916"),
+        ("core", "0028_fix_bad_email_urls"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='settingvalue',
+            name="settingvalue",
             options={},
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='journal',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="settingvalue",
+            name="journal",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journal.Journal",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='settingvalue',
-            unique_together=set([('journal', 'setting')]),
+            name="settingvalue",
+            unique_together=set([("journal", "setting")]),
         ),
     ]

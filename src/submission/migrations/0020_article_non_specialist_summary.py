@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
+        ("submission", "0019_auto_20171130_1115"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='non_specialist_summary',
-            field=models.TextField(blank=True, help_text='A summary of the article for non specialists.', null=True),
+            model_name="article",
+            name="non_specialist_summary",
+            field=models.TextField(
+                blank=True,
+                help_text="A summary of the article for non specialists.",
+                null=True,
+            ),
         ),
     ]

@@ -44,7 +44,7 @@ def create_user(username, roles=None, journal=None, **attrs):
     if roles is None:
         roles = []
 
-    kwargs = {'username': username}
+    kwargs = {"username": username}
     try:
         user = core_models.Account.objects.get(email=username)
     except core_models.Account.DoesNotExist:
@@ -57,9 +57,7 @@ def create_user(username, roles=None, journal=None, **attrs):
             create_roles(roles)
             resolved_role = core_models.Role.objects.get(slug=role)
         core_models.AccountRole.objects.get_or_create(
-            user=user,
-            role=resolved_role,
-            journal=journal
+            user=user, role=resolved_role, journal=journal
         )
 
     for attr, value in attrs.items():
@@ -81,8 +79,8 @@ def create_roles(roles=None):
 
     for role in roles:
         core_models.Role.objects.get_or_create(
-            name=role.replace('-', ' ').capitalize(),
-            slug=role.lower().replace(' ', '-')
+            name=role.replace("-", " ").capitalize(),
+            slug=role.lower().replace(" ", "-"),
         )
 
 
@@ -99,8 +97,8 @@ def create_journals():
     journal_two = journal_models.Journal(code="TSA", domain="journal2.localhost")
     journal_two.save()
 
-    journal_one.name = 'Journal One'
-    journal_two.name = 'Journal Two'
+    journal_one.name = "Journal One"
+    journal_two.name = "Journal Two"
     update_issue_types(journal_one)
     update_issue_types(journal_two)
 
@@ -108,7 +106,9 @@ def create_journals():
 
 
 def create_press():
-    return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+    return press_models.Press.objects.create(
+        name="Press", domain="localhost", main_contact="a@b.com"
+    )
 
 
 def create_issue(journal, vol=0, number=0, articles=None):
@@ -116,15 +116,15 @@ def create_issue(journal, vol=0, number=0, articles=None):
         code="issue",
         journal=journal,
     )
-    issue_datetime = get_aware_datetime('2022-01-01')
+    issue_datetime = get_aware_datetime("2022-01-01")
     issue, created = journal_models.Issue.objects.get_or_create(
         journal=journal,
         issue=number,
         volume=vol,
         defaults={
-            'issue_title': ('Test Issue from Utils Testing Helpers'),
-            'issue_type': issue_type,
-            'date': issue_datetime,
+            "issue_title": ("Test Issue from Utils Testing Helpers"),
+            "issue_type": issue_type,
+            "date": issue_datetime,
         },
     )
     if articles:
@@ -155,8 +155,8 @@ def create_editor(journal, **kwargs):
 
 
 def create_section_editor(journal, **kwargs):
-    email = kwargs.pop('email', 'section_editor@example.com')
-    roles = ['section-editor']
+    email = kwargs.pop("email", "section_editor@example.com")
+    roles = ["section-editor"]
     se = create_user(email, roles=roles, journal=journal)
     se.is_active = True
     se.save()
@@ -164,8 +164,8 @@ def create_section_editor(journal, **kwargs):
 
 
 def create_peer_reviewer(journal, **kwargs):
-    email = kwargs.pop('email', 'peer_reviewer@example.com')
-    roles = ['reviewer']
+    email = kwargs.pop("email", "peer_reviewer@example.com")
+    roles = ["reviewer"]
     reviewer = create_user(email, roles=roles, journal=journal)
     reviewer.is_active = True
     reviewer.save()
@@ -173,15 +173,15 @@ def create_peer_reviewer(journal, **kwargs):
 
 
 def create_author(journal, **kwargs):
-    roles = kwargs.pop('roles', ['author'])
-    email = kwargs.pop('email', "authoruser@martineve.com")
+    roles = kwargs.pop("roles", ["author"])
+    email = kwargs.pop("email", "authoruser@martineve.com")
     attrs = {
         "first_name": "Author",
         "middle_name": "A",
         "last_name": "User",
         "institution": "Author institution",
         "department": "Author Department",
-        "biography": "Author test biography"
+        "biography": "Author test biography",
     }
     attrs.update(kwargs)
     author = create_user(
@@ -196,20 +196,19 @@ def create_author(journal, **kwargs):
 
 
 def create_article(journal, **kwargs):
-
     article = sm_models.Article.objects.create(
         journal=journal,
-        title='Test Article from Utils Testing Helpers',
-        article_agreement='Test Article',
+        title="Test Article from Utils Testing Helpers",
+        article_agreement="Test Article",
         section=create_section(journal),
     )
 
-    if kwargs.pop('with_author', False):
-        author_kwargs ={
-            'salutation': 'Dr.',
-            'name_suffix': 'Jr.',
-            'orcid': '1234-5678-9012-345X',
-            'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
+    if kwargs.pop("with_author", False):
+        author_kwargs = {
+            "salutation": "Dr.",
+            "name_suffix": "Jr.",
+            "orcid": "1234-5678-9012-345X",
+            "email": "{}{}".format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
         }
         author = create_author(journal, **author_kwargs)
         article.authors.add(author)
@@ -218,8 +217,8 @@ def create_article(journal, **kwargs):
         author.snapshot_self(article)
     else:
         article.save()
-    for k,v in kwargs.items():
-        setattr(article, k ,v)
+    for k, v in kwargs.items():
+        setattr(article, k, v)
         article.save()
     return article
 
@@ -230,7 +229,7 @@ def create_galley(article, file_obj=None, **kwargs):
             article_id=article.pk,
             label="file",
             is_galley=True,
-            uuid_filename="test.txt"
+            uuid_filename="test.txt",
         )
     galley = core_models.Galley.objects.create(
         article_id=article.pk,
@@ -243,9 +242,9 @@ def create_galley(article, file_obj=None, **kwargs):
 
 def create_section(journal, **kwargs):
     defaults = {
-        'number_of_reviewers': 2,
-        'name': 'Article',
-        'plural': 'Articles',
+        "number_of_reviewers": 2,
+        "name": "Article",
+        "plural": "Articles",
     }
     defaults.update(kwargs)
 
@@ -258,16 +257,16 @@ def create_section(journal, **kwargs):
 
 def create_submission(
     owner=None,
-    title='A Test Article',
-    abstract='A Test article abstract',
+    title="A Test Article",
+    abstract="A Test article abstract",
     journal_id=1,
     stage=sm_models.STAGE_UNASSIGNED,
     authors=None,
     **kwargs,
 ):
-
     section, _ = sm_models.Section.objects.get_or_create(
-        journal__id=journal_id, name="Article",
+        journal__id=journal_id,
+        name="Article",
     )
     article = sm_models.Article.objects.create(
         owner=owner,
@@ -276,7 +275,7 @@ def create_submission(
         journal_id=journal_id,
         stage=stage,
         section=section,
-        **kwargs
+        **kwargs,
     )
     if authors:
         article.authors.add(*authors)
@@ -285,8 +284,8 @@ def create_submission(
 
 
 def create_test_file(test_case, file):
-    label = 'Test File'
-    path_parts = ('articles', test_case.article_in_production.pk)
+    label = "Test File"
+    path_parts = ("articles", test_case.article_in_production.pk)
 
     file = files.save_file(
         test_case.request,
@@ -301,14 +300,14 @@ def create_test_file(test_case, file):
     return file, path_parts
 
 
-def create_repository(press, managers, subject_editors, domain='repo.domain.com'):
+def create_repository(press, managers, subject_editors, domain="repo.domain.com"):
     repository, c = repo_models.Repository.objects.get_or_create(
         press=press,
-        name='Test Repository',
-        short_name='testrepo',
-        object_name='Preprint',
-        object_name_plural='Preprints',
-        publisher='Test Publisher',
+        name="Test Repository",
+        short_name="testrepo",
+        object_name="Preprint",
+        object_name_plural="Preprints",
+        publisher="Test Publisher",
         live=True,
         domain=domain,
     )
@@ -317,8 +316,8 @@ def create_repository(press, managers, subject_editors, domain='repo.domain.com'
 
     subject, c = repo_models.Subject.objects.get_or_create(
         repository=repository,
-        name='Repo Subject',
-        slug='repo-subject',
+        name="Repo Subject",
+        slug="repo-subject",
         enabled=True,
     )
     subject.editors.add(
@@ -328,14 +327,14 @@ def create_repository(press, managers, subject_editors, domain='repo.domain.com'
     return repository, subject
 
 
-def create_preprint(repository, author, subject, title='This is a Test Preprint'):
+def create_preprint(repository, author, subject, title="This is a Test Preprint"):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
         owner=author,
         stage=repo_models.STAGE_PREPRINT_REVIEW,
         title=title,
-        abstract='This is a fake abstract.',
-        comments_editor='',
+        abstract="This is a fake abstract.",
+        comments_editor="",
         date_submitted=timezone.now(),
     )
     preprint.subject.add(
@@ -343,8 +342,8 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
     )
     file = repo_models.PreprintFile.objects.create(
         preprint=preprint,
-        original_filename='fake_file.pdf',
-        mime_type='application/pdf',
+        original_filename="fake_file.pdf",
+        mime_type="application/pdf",
         size=100,
     )
     preprint.submission_file = file
@@ -352,7 +351,7 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
         preprint=preprint,
         account=author,
         order=1,
-        affiliation='Made Up University',
+        affiliation="Made Up University",
     )
     return preprint
 
@@ -370,7 +369,7 @@ class Request(object):
         self.secure = False
         self.user = False
         self.FILES = None
-        self.META = {'REMOTE_ADDR': '127.0.0.1'}
+        self.META = {"REMOTE_ADDR": "127.0.0.1"}
         self.model_content_type = None
 
     def is_secure(self):
@@ -380,7 +379,7 @@ class Request(object):
             return True
 
     def get_host(self):
-        return 'testserver'
+        return "testserver"
 
 
 class activate_translation(ContextDecorator):
@@ -396,7 +395,6 @@ class activate_translation(ContextDecorator):
 
 
 class request_context(ContextDecorator):
-
     def __init__(self, request, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.request = request
@@ -410,10 +408,7 @@ class request_context(ContextDecorator):
 
 def create_review_form(journal):
     return review_models.ReviewForm.objects.create(
-        name="A Form",
-        intro="i",
-        thanks="t",
-        journal=journal
+        name="A Form", intro="i", thanks="t", journal=journal
     )
 
 
@@ -425,24 +420,24 @@ def create_round(article, round_number=1):
 
 
 def create_review_assignment(
-        journal=None,
-        article=None,
-        reviewer=None,
-        editor=None,
-        due_date=None,
-        review_form=None,
-        decision=None,
-        is_complete=False,
-        review_round=None,
-        review_file=None,
-    ):
+    journal=None,
+    article=None,
+    reviewer=None,
+    editor=None,
+    due_date=None,
+    review_form=None,
+    decision=None,
+    is_complete=False,
+    review_round=None,
+    review_file=None,
+):
     if not journal:
         journal, _journal_two = create_journals()
     if not article:
         article = create_submission(
             owner=create_regular_user(),
             journal_id=journal.pk,
-            stage=sm_models.STAGE_UNDER_REVIEW
+            stage=sm_models.STAGE_UNDER_REVIEW,
         )
     if not reviewer:
         reviewer = create_second_user(journal)
@@ -474,40 +469,37 @@ def create_review_assignment(
 
 def create_reminder(journal=None, reminder_type=None):
     from cron.models import Reminder
+
     if not journal:
         journal, _journal_two = create_journals()
     if not reminder_type:
-        reminder_type='review'
+        reminder_type = "review"
     reminder = Reminder.objects.create(
         journal=journal,
-        type='review',
-        run_type='before',
+        type="review",
+        run_type="before",
         days=3,
-        template_name='test_reminder_'+reminder_type,
-        subject='Test reminder subject',
+        template_name="test_reminder_" + reminder_type,
+        subject="Test reminder subject",
     )
 
     from utils import setting_handler
+
     setting_handler.create_setting(
-        'email',
+        "email",
         reminder.template_name,
-        'rich-text',
+        "rich-text",
         reminder.subject,
-        '',
-        is_translatable=True
+        "",
+        is_translatable=True,
     )
-    setting_handler.save_setting(
-        'email',
-        reminder.template_name,
-        journal,
-        'Test body'
-    )
+    setting_handler.save_setting("email", reminder.template_name, journal, "Test body")
 
     return reminder
 
 
 def create_editor_assignment(article, editor, **kwargs):
-    assignment_type = kwargs.get('assignment_type','editor')
+    assignment_type = kwargs.get("assignment_type", "editor")
     assignment, created = review_models.EditorAssignment.objects.get_or_create(
         article=article,
         editor=editor,
@@ -517,11 +509,11 @@ def create_editor_assignment(article, editor, **kwargs):
 
 
 def create_revision_request(article, editor, **kwargs):
-    note = kwargs.get('note', 'Test note')
-    decision = kwargs.get('decision', review_models.review_decision()[0][0])
+    note = kwargs.get("note", "Test note")
+    decision = kwargs.get("decision", review_models.review_decision()[0][0])
     if isinstance(decision, tuple):
         decision = decision[0]
-    date_due = kwargs.get('date_due', timezone.now() + datetime.timedelta(days=3))
+    date_due = kwargs.get("date_due", timezone.now() + datetime.timedelta(days=3))
     revision = review_models.RevisionRequest.objects.create(
         article=article,
         editor=editor,
@@ -533,19 +525,19 @@ def create_revision_request(article, editor, **kwargs):
 
 
 def create_copyeditor(journal, **kwargs):
-    username = kwargs.pop('username', 'copyeditor@example.com')
-    roles = kwargs.pop('roles', ['copyeditor'])
+    username = kwargs.pop("username", "copyeditor@example.com")
+    roles = kwargs.pop("roles", ["copyeditor"])
     return create_user(username, roles=roles, journal=journal, **kwargs)
 
 
 def create_copyedit_assignment(article, copyeditor, **kwargs):
-    editor = kwargs.get('editor', None)
-    assigned = kwargs.get('assigned', timezone.now() - datetime.timedelta(minutes=3))
-    notified = kwargs.get('notified', False)
-    decision = kwargs.get('decision', False)
-    date_decided = kwargs.get('date_decided', None)
-    copyeditor_completed = kwargs.get('copyeditor_completed', None)
-    copyedit_accepted = kwargs.get('copyedit_accepted', None)
+    editor = kwargs.get("editor", None)
+    assigned = kwargs.get("assigned", timezone.now() - datetime.timedelta(minutes=3))
+    notified = kwargs.get("notified", False)
+    decision = kwargs.get("decision", False)
+    date_decided = kwargs.get("date_decided", None)
+    copyeditor_completed = kwargs.get("copyeditor_completed", None)
+    copyedit_accepted = kwargs.get("copyedit_accepted", None)
 
     assignment = copyediting_models.CopyeditAssignment.objects.create(
         article=article,
@@ -567,22 +559,22 @@ def create_access_request(journal, user, role, **kwargs):
         journal=journal,
         user=user,
         role=role,
-        text='Automatic request as author added to an article.',
+        text="Automatic request as author added to an article.",
     )
     return access_request
 
 
 def create_news_item(content_type, object_id, **kwargs):
-    title = kwargs.get('title', 'Test title')
-    body = kwargs.get('body', 'Test body')
+    title = kwargs.get("title", "Test title")
+    body = kwargs.get("body", "Test body")
     posted_by = kwargs.get(
-        'posted_by',
+        "posted_by",
         create_user(
-            'news_author@example.org',
-            attrs={'first_name': 'News', 'last_name': 'Writer'}
-        )
+            "news_author@example.org",
+            attrs={"first_name": "News", "last_name": "Writer"},
+        ),
     )
-    tags = kwargs.get('tags', ['test tag 1', 'test tag 2'])
+    tags = kwargs.get("tags", ["test tag 1", "test tag 2"])
     item = comms_models.NewsItem.objects.create(
         content_type=content_type,
         object_id=object_id,
@@ -597,10 +589,10 @@ def create_news_item(content_type, object_id, **kwargs):
 
 
 def create_cms_page(content_type, object_id, **kwargs):
-    name = kwargs.get('name', 'test-name')
-    display_name = kwargs.get('display_name', 'Test display name')
-    content = kwargs.get('content', 'Test content')
-    is_markdown = kwargs.get('is_markdown', False)
+    name = kwargs.get("name", "test-name")
+    display_name = kwargs.get("display_name", "Test display name")
+    content = kwargs.get("content", "Test content")
+    is_markdown = kwargs.get("is_markdown", False)
 
     return cms_models.Page.objects.create(
         content_type=content_type,
@@ -613,9 +605,9 @@ def create_cms_page(content_type, object_id, **kwargs):
 
 
 def create_contact(content_type, object_id, **kwargs):
-    name = kwargs.get('name', 'Test Contact')
-    email = kwargs.get('email', 'contact@example.org')
-    role = kwargs.get('role', 'Test contact role')
+    name = kwargs.get("name", "Test Contact")
+    email = kwargs.get("email", "contact@example.org")
+    role = kwargs.get("role", "Test contact role")
     return core_models.Contacts.objects.create(
         content_type=content_type,
         object_id=object_id,
@@ -624,15 +616,16 @@ def create_contact(content_type, object_id, **kwargs):
         role=role,
     )
 
+
 def create_setting(
-        setting_group_name='test_group',
-        setting_name='test_setting',
-        setting_type='rich-text',
-        pretty_name='Test Setting',
-        description='A test setting.',
-        is_translatable=True,
-        default_value='Default setting value',
-    ):
+    setting_group_name="test_group",
+    setting_name="test_setting",
+    setting_type="rich-text",
+    pretty_name="Test Setting",
+    description="A test setting.",
+    is_translatable=True,
+    default_value="Default setting value",
+):
     return setting_handler.create_setting(
         setting_group_name,
         setting_name,

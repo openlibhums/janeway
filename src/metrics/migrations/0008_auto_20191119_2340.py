@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('metrics', '0007_articlelink_booklink'),
+        ("metrics", "0007_articlelink_booklink"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='articlelink',
-            name='year',
+            model_name="articlelink",
+            name="year",
             field=models.PositiveIntegerField(),
         ),
         migrations.AlterField(
-            model_name='booklink',
-            name='year',
+            model_name="booklink",
+            name="year",
             field=models.PositiveIntegerField(),
         ),
     ]

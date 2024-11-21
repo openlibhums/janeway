@@ -9,28 +9,28 @@ from utils import migration_utils
 
 def replace_author_review_setting(apps, schema_editor):
     values_to_replace = [
-        '{{journal.site_url}}{{ url }}',
-        '{{request.journal.site_url}}{{ url }}',
-        '{{ copyedit_review_url }}'
+        "{{journal.site_url}}{{ url }}",
+        "{{request.journal.site_url}}{{ url }}",
+        "{{ copyedit_review_url }}",
     ]
 
     migration_utils.update_translated_settings(
         apps,
-        setting_name='copyeditor_notify_author',
-        group_name='email',
+        setting_name="copyeditor_notify_author",
+        group_name="email",
         values_to_replace=values_to_replace,
         replacement_value="{{ author_copyedit_url }}",
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('copyediting', '0007_auto_20210120_1145'),
-        ('core', '0053_auto_20210629_0641'),
+        ("copyediting", "0007_auto_20210120_1145"),
+        ("core", "0053_auto_20210629_0641"),
     ]
 
     operations = [
-        migrations.RunPython(replace_author_review_setting,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            replace_author_review_setting, reverse_code=migrations.RunPython.noop
+        ),
     ]

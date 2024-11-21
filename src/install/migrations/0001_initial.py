@@ -9,7 +9,6 @@ from django.contrib.postgres.operations import CITextExtension
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [CITextExtension()]

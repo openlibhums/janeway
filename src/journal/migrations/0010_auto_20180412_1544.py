@@ -6,22 +6,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0009_merge_20180208_1443'),
+        ("journal", "0009_merge_20180208_1443"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='articleordering',
-            options={'ordering': ('order', 'section')},
+            name="articleordering",
+            options={"ordering": ("order", "section")},
         ),
         migrations.AlterModelOptions(
-            name='bannedips',
-            options={'verbose_name_plural': 'Banned IPs'},
+            name="bannedips",
+            options={"verbose_name_plural": "Banned IPs"},
         ),
         migrations.AlterModelOptions(
-            name='sectionordering',
-            options={'ordering': ('order', 'section')},
+            name="sectionordering",
+            options={"ordering": ("order", "section")},
         ),
     ]

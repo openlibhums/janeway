@@ -8,15 +8,19 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0027_auto_20180806_1005'),
+        ("submission", "0027_auto_20180806_1005"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=submission.models.article_media_upload),
+            model_name="article",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=submission.models.article_media_upload,
+            ),
         ),
     ]

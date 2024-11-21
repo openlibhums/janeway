@@ -10,6 +10,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for journal in journal_models.Journal.objects.all():
-            if hasattr(journal, 'submissionconfiguration'):
+            if hasattr(journal, "submissionconfiguration"):
                 journal.submissionconfiguration.subtitle = False
                 journal.submissionconfiguration.save()

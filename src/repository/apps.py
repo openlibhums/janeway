@@ -7,4 +7,4 @@ from django.apps import AppConfig
 
 
 class PreprintConfig(AppConfig):
-    name = 'repository'
+    name = "repository"

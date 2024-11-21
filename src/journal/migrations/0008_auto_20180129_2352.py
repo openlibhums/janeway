@@ -7,15 +7,14 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
-        ('journal', '0007_auto_20180129_2342'),
+        ("submission", "0019_auto_20171130_1115"),
+        ("journal", "0007_auto_20180129_2342"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='articleordering',
-            unique_together=set([('article', 'issue', 'section')]),
+            name="articleordering",
+            unique_together=set([("article", "issue", "section")]),
         ),
     ]

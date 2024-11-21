@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0018_journal_disable_html_downloads'),
+        ("journal", "0018_journal_disable_html_downloads"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='view_pdf_button',
-            field=models.BooleanField(default=False, help_text='Enables a "View PDF" link on article pages.'),
+            model_name="journal",
+            name="view_pdf_button",
+            field=models.BooleanField(
+                default=False, help_text='Enables a "View PDF" link on article pages.'
+            ),
         ),
     ]

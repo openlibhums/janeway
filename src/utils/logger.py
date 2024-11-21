@@ -1,12 +1,14 @@
 """
 Janeway logging utilities and main logger
 """
+
 import logging
 import threading
 
 
 class LogPrefix(object):
-    """ A logging prefix scoped for the current thread """
+    """A logging prefix scoped for the current thread"""
+
     _local = threading.local()
 
     @property
@@ -55,7 +57,8 @@ _prefix = LogPrefix()
 
 
 class PrefixedLoggerAdapter(logging.LoggerAdapter):
-    """ Adds the current prefix to the log line"""
+    """Adds the current prefix to the log line"""
+
     def process(self, msg, extra):
         return _prefix.do_prefix(msg), extra
 

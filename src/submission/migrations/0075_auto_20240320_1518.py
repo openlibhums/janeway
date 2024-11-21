@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0074_auto_20240212_1537'),
+        ("submission", "0074_auto_20240212_1537"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='funder',
-            name='funding_statement',
-            field=models.TextField(blank=True, help_text='Additional information regarding this funding entry'),
+            model_name="funder",
+            name="funding_statement",
+            field=models.TextField(
+                blank=True,
+                help_text="Additional information regarding this funding entry",
+            ),
         ),
         migrations.AlterField(
-            model_name='funder',
-            name='fundref_id',
-            field=models.CharField(blank=True, help_text='Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as https://dx.doi.org/10.13039/501100021082', max_length=500, null=True),
+            model_name="funder",
+            name="fundref_id",
+            field=models.CharField(
+                blank=True,
+                help_text="Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as https://dx.doi.org/10.13039/501100021082",
+                max_length=500,
+                null=True,
+            ),
         ),
     ]

@@ -8,29 +8,47 @@ import repository.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0008_auto_20200814_1433'),
+        ("repository", "0008_auto_20200814_1433"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='repositoryfield',
-            options={'ordering': ('order', 'name')},
+            name="repositoryfield",
+            options={"ordering": ("order", "name")},
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(location='/Users/ajrbyers/janeway/src/media'), upload_to=repository.models.preprint_file_upload),
+            model_name="preprint",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(
+                    location="/Users/ajrbyers/janeway/src/media"
+                ),
+                upload_to=repository.models.preprint_file_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='logo',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(location='/Users/ajrbyers/janeway/src/media'), upload_to=repository.models.repo_media_upload),
+            model_name="repository",
+            name="logo",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(
+                    location="/Users/ajrbyers/janeway/src/media"
+                ),
+                upload_to=repository.models.repo_media_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repositoryfield',
-            name='dc_metadata_type',
-            field=models.CharField(blank=True, help_text='If this field is to be output as a dc metadata field you can addthe type here.', max_length=255, null=True),
+            model_name="repositoryfield",
+            name="dc_metadata_type",
+            field=models.CharField(
+                blank=True,
+                help_text="If this field is to be output as a dc metadata field you can addthe type here.",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

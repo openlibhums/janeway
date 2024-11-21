@@ -22,27 +22,34 @@ def can_edit_file(request, user, file_object, article):
 
     # allow file editing when the user is a production manager and the piece is in production
     try:
-        production_assigned = production_models.ProductionAssignment.objects.get(article=article,)
+        production_assigned = production_models.ProductionAssignment.objects.get(
+            article=article,
+        )
 
-        if (user.is_production(request) and production_assigned.production_manager.pk == user.pk) and \
-                article.stage == submission_models.STAGE_TYPESETTING and file_object.is_galley:
+        if (
+            (
+                user.is_production(request)
+                and production_assigned.production_manager.pk == user.pk
+            )
+            and article.stage == submission_models.STAGE_TYPESETTING
+            and file_object.is_galley
+        ):
             return True
     except production_models.ProductionAssignment.DoesNotExist:
         pass
 
     # allow file editing when the user is the proofing manager for this article
     try:
-        proofing_models.ProofingAssignment.objects.get(proofing_manager=user,
-                                                       article=file_object.article)
+        proofing_models.ProofingAssignment.objects.get(
+            proofing_manager=user, article=file_object.article
+        )
         return True
     except proofing_models.ProofingAssignment.DoesNotExist:
         pass
 
     # Allow access to typesetters in production
     prod_task = production_models.TypesetTask.objects.filter(
-        typesetter=request.user,
-        assignment__article=article,
-        completed__isnull=True
+        typesetter=request.user, assignment__article=article, completed__isnull=True
     ).exists()
     if prod_task:
         return True
@@ -56,7 +63,6 @@ def can_edit_file(request, user, file_object, article):
 
     if correction_task:
         return True
-
 
     # deny access to all others
     return False
@@ -74,7 +80,7 @@ def can_view_file(request, user, file_object=None):
     if not file_object:
         return True
     # general conditions under which a file can be viewed
-    if file_object.privacy == 'public':
+    if file_object.privacy == "public":
         return True
 
     if user.is_anonymous:
@@ -90,23 +96,27 @@ def can_view_file(request, user, file_object=None):
 
     # allow file editing when the user is the proofing manager for this article
     try:
-        proofing_models.ProofingAssignment.objects.get(proofing_manager=user,
-                                                       article__pk=file_object.article_id,
-                                                       completed__isnull=True)
+        proofing_models.ProofingAssignment.objects.get(
+            proofing_manager=user,
+            article__pk=file_object.article_id,
+            completed__isnull=True,
+        )
         return True
     except proofing_models.ProofingAssignment.DoesNotExist:
         pass
 
     if file_object.article_id:
         if proofing_models.TypesetterProofingTask.objects.filter(
-                proofing_task__round__assignment__article__pk=file_object.article_id,
-                typesetter=request.user,
-                completed__isnull=True
+            proofing_task__round__assignment__article__pk=file_object.article_id,
+            typesetter=request.user,
+            completed__isnull=True,
         ).exists():
             return True
 
     try:
-        production_assigned = production_models.ProductionAssignment.objects.get(article=file_object.article)
+        production_assigned = production_models.ProductionAssignment.objects.get(
+            article=file_object.article
+        )
         typeset_assignments = production_assigned.active_typeset_tasks()
         typesetters = [task.typesetter for task in typeset_assignments]
 
@@ -131,8 +141,8 @@ def is_data_figure_file(file_object, article_object):
 def can_see_pii(request, article):
     # Before doing anything, check the setting is enabled:
     se_pii_filter_enabled = setting_handler.get_setting(
-        setting_group_name='permission',
-        setting_name='se_pii_filter',
+        setting_group_name="permission",
+        setting_name="se_pii_filter",
         journal=article.journal,
     ).processed_value
 

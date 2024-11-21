@@ -6,26 +6,24 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0052_auto_20210222_1845'),
+        ("submission", "0052_auto_20210222_1845"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='sectiontranslation',
+            name="sectiontranslation",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='sectiontranslation',
-            name='master',
+            model_name="sectiontranslation",
+            name="master",
         ),
         migrations.AlterModelManagers(
-            name='section',
-            managers=[
-            ],
+            name="section",
+            managers=[],
         ),
         migrations.DeleteModel(
-            name='SectionTranslation',
+            name="SectionTranslation",
         ),
     ]

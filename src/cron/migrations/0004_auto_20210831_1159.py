@@ -6,31 +6,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cron', '0003_auto_20171121_1115'),
+        ("cron", "0003_auto_20171121_1115"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reminder',
-            name='template_name',
+            model_name="reminder",
+            name="template_name",
             field=models.CharField(
                 help_text="The name of the email template. "
-                          "If it does not exist, you will be "
-                          "asked to create it. "
-                          "Should have no spaces.",
+                "If it does not exist, you will be "
+                "asked to create it. "
+                "Should have no spaces.",
                 max_length=100,
             ),
         ),
         migrations.AlterField(
-            model_name='reminder',
-            name='type',
-            field=models.CharField(choices=[('review', 'Review (Invited)'), ('accepted-review', 'Review (Accepted)'), ('revisions', 'Revision')], max_length=100),
+            model_name="reminder",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("review", "Review (Invited)"),
+                    ("accepted-review", "Review (Accepted)"),
+                    ("revisions", "Revision"),
+                ],
+                max_length=100,
+            ),
         ),
         migrations.AlterField(
-            model_name='sentreminder',
-            name='type',
-            field=models.CharField(choices=[('review', 'Review (Invited)'), ('accepted-review', 'Review (Accepted)'), ('revisions', 'Revision')], max_length=100),
+            model_name="sentreminder",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("review", "Review (Invited)"),
+                    ("accepted-review", "Review (Accepted)"),
+                    ("revisions", "Revision"),
+                ],
+                max_length=100,
+            ),
         ),
     ]

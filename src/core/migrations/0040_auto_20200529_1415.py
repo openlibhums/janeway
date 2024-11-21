@@ -6,19 +6,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0039_fix_reviewer_url'),
+        ("core", "0039_fix_reviewer_url"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='galley',
-            name='type',
-            field=models.CharField(choices=[('pdf', 'PDF'), ('epub', 'EPUB'), ('html', 'HTML'), ('xml', 'XML'), ('doc', 'Word (Doc)'), ('docx', 'Word (DOCX)'), ('odt', 'OpenDocument Text Document'), ('tex', 'LaTeX'), ('rtf', 'RTF'), ('other', 'Other'), ('image', 'Image')], max_length=100),
+            model_name="galley",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("pdf", "PDF"),
+                    ("epub", "EPUB"),
+                    ("html", "HTML"),
+                    ("xml", "XML"),
+                    ("doc", "Word (Doc)"),
+                    ("docx", "Word (DOCX)"),
+                    ("odt", "OpenDocument Text Document"),
+                    ("tex", "LaTeX"),
+                    ("rtf", "RTF"),
+                    ("other", "Other"),
+                    ("image", "Image"),
+                ],
+                max_length=100,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='account',
-            unique_together=set([('email', 'username')]),
+            name="account",
+            unique_together=set([("email", "username")]),
         ),
     ]

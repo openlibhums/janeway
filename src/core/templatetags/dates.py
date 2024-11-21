@@ -4,6 +4,7 @@ from django.utils import timezone
 
 register = template.Library()
 
+
 @register.simple_tag
 def offset_date(days=0, input_type="date"):
     """

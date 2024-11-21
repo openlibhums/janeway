@@ -6,25 +6,25 @@ from django.utils import timezone
 
 class Thread(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     preprint = models.ForeignKey(
-        'repository.Preprint',
+        "repository.Preprint",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     owner = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
     subject = models.CharField(
         max_length=300,
-        help_text=_('Max. 300 characters.'),
+        help_text=_("Max. 300 characters."),
     )
     started = models.DateTimeField(
         default=timezone.now,
@@ -34,7 +34,7 @@ class Thread(models.Model):
     )
 
     class Meta:
-        ordering = ('-last_updated', 'pk')
+        ordering = ("-last_updated", "pk")
 
     def __str__(self):
         return self.subject
@@ -47,9 +47,9 @@ class Thread(models.Model):
 
     def object_string(self):
         if self.article:
-            return 'article'
+            return "article"
         elif self.preprint:
-            return 'preprint'
+            return "preprint"
 
     def object_id(self):
         if self.article:
@@ -76,22 +76,22 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
     )
     owner = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-        related_name='posts',
+        related_name="posts",
     )
     posted = models.DateTimeField(
         default=timezone.now,
     )
     body = models.TextField()
     read_by = models.ManyToManyField(
-        'core.Account',
+        "core.Account",
         blank=True,
     )
 
     class Meta:
-        ordering = ('-posted', 'pk')
+        ordering = ("-posted", "pk")
 
     def user_has_read(self, user):
         if user in self.read_by.all():
@@ -100,6 +100,6 @@ class Post(models.Model):
 
     def display_date(self):
         if self.posted.date() == timezone.now().date():
-            return 'Today'
+            return "Today"
         else:
             return self.posted.date()

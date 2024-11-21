@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0010_auto_20170915_1146'),
+        ("submission", "0010_auto_20170915_1146"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='licence',
-            options={'ordering': ('order', 'name')},
+            name="licence",
+            options={"ordering": ("order", "name")},
         ),
     ]

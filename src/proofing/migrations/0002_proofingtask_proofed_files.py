@@ -6,16 +6,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0013_auto_20180207_1525'),
-        ('proofing', '0001_initial'),
+        ("core", "0013_auto_20180207_1525"),
+        ("proofing", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proofingtask',
-            name='proofed_files',
-            field=models.ManyToManyField(to='core.File'),
+            model_name="proofingtask",
+            name="proofed_files",
+            field=models.ManyToManyField(to="core.File"),
         ),
     ]

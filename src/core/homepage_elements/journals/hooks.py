@@ -20,13 +20,15 @@ def get_random_journals():
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    if homepage_elements is not None and homepage_elements.filter(name='Journals').exists():
-
+    if (
+        homepage_elements is not None
+        and homepage_elements.filter(name="Journals").exists()
+    ):
         if request.press.random_featured_journals:
             featured_journals = get_random_journals()
         else:
             featured_journals = request.press.featured_journals.all()
 
-        return {'featured_journals': sorted(featured_journals, key=lambda x: x.name)}
+        return {"featured_journals": sorted(featured_journals, key=lambda x: x.name)}
     else:
         return {}

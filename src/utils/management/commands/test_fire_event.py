@@ -21,7 +21,7 @@ def create_fake_request(user, journal=None, repository=None):
     request.FILES = None
     request.META = {}
 
-    request.META = {'REMOTE_ADDR': '127.0.0.1'}
+    request.META = {"REMOTE_ADDR": "127.0.0.1"}
     request.model_content_type = None
 
     if journal:
@@ -47,11 +47,11 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code')
-        parser.add_argument('user_id')
-        parser.add_argument('event_name')
-        parser.add_argument('--json_path',  nargs='?')
-        parser.add_argument('--json_string', nargs='?')
+        parser.add_argument("journal_code")
+        parser.add_argument("user_id")
+        parser.add_argument("event_name")
+        parser.add_argument("--json_path", nargs="?")
+        parser.add_argument("--json_string", nargs="?")
 
     def handle(self, *args, **options):
         """
@@ -77,11 +77,11 @@ class Command(BaseCommand):
         ]
 
         """
-        journal_code = options.get('journal_code')
-        user_id = options.get('user_id')
-        event_name = options.get('event_name')
-        json_path = options.get('json_path')
-        json_string = options.get('json_string', None)
+        journal_code = options.get("journal_code")
+        user_id = options.get("user_id")
+        event_name = options.get("event_name")
+        json_path = options.get("json_path")
+        json_string = options.get("json_string", None)
 
         user = core_models.Account.objects.get(pk=user_id)
         try:
@@ -92,40 +92,39 @@ class Command(BaseCommand):
             request = create_fake_request(user, repository=repository)
 
         if not json_path and not json_string:
-            exit('You must provide a json_path or json_string')
+            exit("You must provide a json_path or json_string")
 
         context = {
-            'request': request,
+            "request": request,
         }
 
         if not json_string:
             # Check the file exists, exit if not.
             if not os.path.isfile(json_path):
-                exit('File does not exist.')
+                exit("File does not exist.")
 
-            file = open(json_path, 'r')
+            file = open(json_path, "r")
             json_string = file.read()
 
         json_dict = json.loads(json_string)
 
         for row in json_dict:
-            row_type = row.get('type')
-            context_name = row.get('context_name')
+            row_type = row.get("type")
+            context_name = row.get("context_name")
 
-            if row_type == 'model':
-                app = row.get('app')
-                model = row.get('model')
-                pk = row.get('pk')
+            if row_type == "model":
+                app = row.get("app")
+                model = row.get("model")
+                pk = row.get("pk")
                 Model = apps.get_model(app, model)
                 obj = Model.objects.get(pk=pk)
                 context[context_name] = obj
 
-            elif row_type == 'variable':
-                var = row.get('var')
+            elif row_type == "variable":
+                var = row.get("var")
                 context[context_name] = var
 
         event_logic.Events.raise_event(
             event_name,
             **context,
         )
-

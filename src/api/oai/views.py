@@ -1,6 +1,7 @@
 """
 A django implementation of the OAI-PMH interface
 """
+
 from django.utils import timezone
 from django.views.generic.base import TemplateView
 
@@ -15,11 +16,11 @@ from xml.dom import minidom
 
 # We default `verb` to ListRecords for backwards compatibility.
 DEFAULT_ENDPOINT = "ListRecords"
-DEFAULT_METADATA_PREFIX = 'oai_dc'
+DEFAULT_METADATA_PREFIX = "oai_dc"
 
 
 def oai_view_factory(request, *args, **kwargs):
-    """ Maps an incoming OAI request to a django CB view
+    """Maps an incoming OAI request to a django CB view
     The OAI protocol uses a querystring parameter (verb) to determine
     the resource being queried. This is not supported by Django's URL
     router, so we do our own mapping here and pass this factory to the
@@ -42,7 +43,6 @@ def oai_view_factory(request, *args, **kwargs):
 
 
 class OAIListRecords(OAIPagedModelView):
-
     # default is OAI_DC
     template_name = "apis/OAI_ListRecords.xml"
     queryset = submission_models.Article.objects.all()
@@ -55,8 +55,10 @@ class OAIListRecords(OAIPagedModelView):
             queryset = queryset.filter(journal=self.request.journal)
         else:
             queryset = queryset.filter(journal__hide_from_press=False)
-        set_filter = self.request.GET.get('set')
-        issue_type_list = [issue_type.code for issue_type in journal_models.IssueType.objects.all()]
+        set_filter = self.request.GET.get("set")
+        issue_type_list = [
+            issue_type.code for issue_type in journal_models.IssueType.objects.all()
+        ]
 
         if set_filter:
             filter_parts = set_filter.split(":")
@@ -74,15 +76,17 @@ class OAIListRecords(OAIPagedModelView):
                     # Issue/Collection
                     try:
                         issue = journal_models.Issue.objects.get(
-                            journal__code=self.request.journal.code if self.request.journal else filter_parts[0],
-                            pk=filter_parts[2]
+                            journal__code=self.request.journal.code
+                            if self.request.journal
+                            else filter_parts[0],
+                            pk=filter_parts[2],
                         )
                         queryset = issue.articles.filter(
                             date_published__isnull=False,
                         )
                     except journal_models.Issue.DoesNotExist:
                         queryset = submission_models.Article.objects.none()
-                elif filter_parts[1] == 'section':
+                elif filter_parts[1] == "section":
                     # Section
                     queryset = queryset.filter(
                         section__pk=filter_parts[2],
@@ -106,7 +110,9 @@ class OAIListRecords(OAIPagedModelView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
         return context
 
 
@@ -118,7 +124,9 @@ class OAIGetRecord(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         context["article"] = self.get_article()
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
         context["jats"], context["stub"] = self.get_jats(context["article"])
         return context
 
@@ -134,16 +142,14 @@ class OAIGetRecord(TemplateView):
         # check if this is a JATS XML file
         try:
             if render_galley:
-                with open(render_galley.file.get_file_path(article),
-                          'r') as galley:
+                with open(render_galley.file.get_file_path(article), "r") as galley:
                     contents = galley.read()
 
-                    if 'DTD JATS' in contents:
+                    if "DTD JATS" in contents:
                         # assume this is a JATS XML file
                         # we need to strip the XML header, though
                         domified_xml = minidom.parseString(contents)
-                        return domified_xml.documentElement.toxml('utf-8'), \
-                               False
+                        return domified_xml.documentElement.toxml("utf-8"), False
         except:
             # a broad catch that lets us generate a stub if anything goes wrong
             pass
@@ -153,7 +159,7 @@ class OAIGetRecord(TemplateView):
     def get_article(self):
         id_param = self.request.GET.get("identifier")
         try:
-           _, site_code, id_type, identifier = id_param.split(":")
+            _, site_code, id_type, identifier = id_param.split(":")
         except (ValueError, AttributeError):
             raise exceptions.OAIBadArgument()
 
@@ -165,7 +171,8 @@ class OAIGetRecord(TemplateView):
                 )
             else:
                 article = Identifier.objects.get(
-                    id_type=id_type, identifier=identifier,
+                    id_type=id_type,
+                    identifier=identifier,
                     article__stage=submission_models.STAGE_PUBLISHED,
                 ).article
         except (
@@ -182,14 +189,16 @@ class OAIListIdentifiers(OAIListRecords):
 
 
 class OAIListMetadataFormats(TemplateView):
-    template_name = 'apis/OAI_ListMetadataFormats.xml'
-    content_type = 'application/xml'
+    template_name = "apis/OAI_ListMetadataFormats.xml"
+    content_type = "application/xml"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["metadata_formats"] = metadata_formats
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
         return context
 
 
@@ -199,7 +208,7 @@ class OAIIdentify(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['version'] = shared.current_version()
+        context["version"] = shared.current_version()
 
         articles = submission_models.Article.objects.all()
 
@@ -209,9 +218,11 @@ class OAIIdentify(TemplateView):
                 stage=submission_models.STAGE_PUBLISHED,
             )
 
-        context['earliest_article'] = articles.earliest('date_published')
+        context["earliest_article"] = articles.earliest("date_published")
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
 
         return context
 
@@ -237,22 +248,25 @@ class OAIListSets(TemplateView):
                 journal=self.request.journal,
             )
 
-        context['journals'] = journals
-        context['all_issues'] = all_issues
-        context['sections'] = sections
+        context["journals"] = journals
+        context["all_issues"] = all_issues
+        context["sections"] = sections
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
 
         return context
 
 
 class OAIErrorResponse(TemplateView):
-    """ Base Error response returned for raised OAI API errors
+    """Base Error response returned for raised OAI API errors
 
     Children should implement `error` as an instance of a OAIException.
     Dynamic resposne types can be generated by passing the `error` as an
     initkwarg to `OAIErrorResponse.as_view(**initkwargs)` as per django docs
     """
+
     template_name = "apis/OAI_error.xml"
     content_type = "application/xml"
     error = None
@@ -272,7 +286,9 @@ class OAIListPreprintRecords(OAIPagedModelView):
         queryset = super().get_queryset()
 
         if self.request.repository:
-            queryset = queryset.filter(repository=self.request.repository).order_by('date_published')
+            queryset = queryset.filter(repository=self.request.repository).order_by(
+                "date_published"
+            )
         return queryset
 
     def filter_is_published(self, qs):
@@ -284,9 +300,12 @@ class OAIListPreprintRecords(OAIPagedModelView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["verb"] = self.request.GET.get("verb", DEFAULT_ENDPOINT)
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
         context["is_preprints"] = self.request.repository
         return context
+
 
 class OAIGetPreprintRecord(OAIGetRecord):
     def get_context_data(self, *args, **kwargs):
@@ -300,7 +319,7 @@ class OAIGetPreprintRecord(OAIGetRecord):
     def get_article(self):
         id_param = self.request.GET.get("identifier")
         try:
-           _, site_code, id_type, identifier = id_param.split(":")
+            _, site_code, id_type, identifier = id_param.split(":")
         except (ValueError, AttributeError):
             raise exceptions.OAIBadArgument()
 
@@ -317,8 +336,10 @@ class OAIGetPreprintRecord(OAIGetRecord):
 
         return article
 
+
 class OAIListPreprintIdentifiers(OAIListPreprintRecords):
     template_name = "apis/OAI_ListIdentifiers.xml"
+
 
 class OAIPreprintIdentify(TemplateView):
     template_name = "apis/OAI_PreprintIdentify.xml"
@@ -326,7 +347,7 @@ class OAIPreprintIdentify(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['version'] = shared.current_version()
+        context["version"] = shared.current_version()
 
         articles = repo_models.Preprint.objects.all()
 
@@ -336,11 +357,14 @@ class OAIPreprintIdentify(TemplateView):
                 stage=submission_models.STAGE_PREPRINT_PUBLISHED,
             )
 
-        context['earliest_article'] = articles.earliest('date_published')
+        context["earliest_article"] = articles.earliest("date_published")
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
 
         return context
+
 
 class OAIListPreprintSets(TemplateView):
     template_name = "apis/OAI_ListSets.xml"
@@ -350,9 +374,12 @@ class OAIListPreprintSets(TemplateView):
         context = super().get_context_data(*args, **kwargs)
 
         context["verb"] = self.request.GET.get("verb")
-        context["metadataPrefix"] = self.request.GET.get("metadataPrefix", DEFAULT_METADATA_PREFIX)
+        context["metadataPrefix"] = self.request.GET.get(
+            "metadataPrefix", DEFAULT_METADATA_PREFIX
+        )
 
         return context
+
 
 PREPRINT_ROUTES = {
     "GetRecord": OAIGetPreprintRecord.as_view(),

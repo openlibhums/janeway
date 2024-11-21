@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0018_auto_20181123_2111'),
+        ("press", "0018_auto_20181123_2111"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='press',
-            name='is_secure',
-            field=models.BooleanField(default=False, help_text='If the site should redirect to HTTPS, mark this.'),
+            model_name="press",
+            name="is_secure",
+            field=models.BooleanField(
+                default=False,
+                help_text="If the site should redirect to HTTPS, mark this.",
+            ),
         ),
     ]

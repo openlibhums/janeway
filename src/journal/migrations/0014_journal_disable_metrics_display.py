@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0013_journal_nav_collections'),
+        ("journal", "0013_journal_nav_collections"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='disable_metrics_display',
+            model_name="journal",
+            name="disable_metrics_display",
             field=models.BooleanField(default=False),
         ),
     ]

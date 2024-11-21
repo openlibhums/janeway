@@ -6,20 +6,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0023_auto_20210811_1317'),
+        ("repository", "0023_auto_20210811_1317"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprintversion',
-            name='published_doi',
-            field=models.URLField(blank=True, help_text='Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx', max_length=255, null=True, verbose_name='Published Article DOI'),
+            model_name="preprintversion",
+            name="published_doi",
+            field=models.URLField(
+                blank=True,
+                help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
+                max_length=255,
+                null=True,
+                verbose_name="Published Article DOI",
+            ),
         ),
         migrations.AddField(
-            model_name='versionqueue',
-            name='published_doi',
-            field=models.URLField(blank=True, help_text='Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx', max_length=255, null=True, verbose_name='Published Article DOI'),
+            model_name="versionqueue",
+            name="published_doi",
+            field=models.URLField(
+                blank=True,
+                help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
+                max_length=255,
+                null=True,
+                verbose_name="Published Article DOI",
+            ),
         ),
     ]

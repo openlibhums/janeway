@@ -19,7 +19,7 @@ Changes from v1.3.8:
 
 
 def upgrade(apps, schema_editor):
-    """ Installs the latest default XSLT preserving the previous one
+    """Installs the latest default XSLT preserving the previous one
 
     Only runs if the previous version XSLT was installed.
     If it was, it relabels it (the old label had no version), installs
@@ -40,7 +40,7 @@ def upgrade(apps, schema_editor):
         except XSLFile.DoesNotExist:
             old_default = None
     xsl_path = os.path.join(settings.BASE_DIR, "transform/xsl/default.xsl")
-    with open(xsl_path, 'rb') as f:
+    with open(xsl_path, "rb") as f:
         xsl_file = ContentFile(f.read())
         xsl_file.name = "default.xsl"
 
@@ -60,12 +60,9 @@ def upgrade(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0049_fix_review_accept_acknowledgement_url'),
-        ('journal', '0041_issue_short_description'),
+        ("core", "0049_fix_review_accept_acknowledgement_url"),
+        ("journal", "0041_issue_short_description"),
     ]
 
-    operations = [
-        migrations.RunPython(upgrade, reverse_code=migrations.RunPython.noop)
-    ]
+    operations = [migrations.RunPython(upgrade, reverse_code=migrations.RunPython.noop)]

@@ -9,6 +9,7 @@ class Command(BaseCommand):
     """
     Fetches a backend article from a UP journal
     """
+
     help = "Fetches a backend editing article from a UP journal. Requires a journal code, a base url and an article id."
 
     def add_arguments(self, parser):
@@ -17,10 +18,10 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', default=None)
-        parser.add_argument('base_url', default=None)
-        parser.add_argument('auth_file', default=None)
-        parser.add_argument('--nuke', action='store_true', dest='nuke')
+        parser.add_argument("journal_code", default=None)
+        parser.add_argument("base_url", default=None)
+        parser.add_argument("auth_file", default=None)
+        parser.add_argument("--nuke", action="store_true", dest="nuke")
 
     def handle(self, *args, **options):
         """Fetches a backend article from UP.
@@ -29,15 +30,19 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        if options.get('nuke'):
-            management.call_command('nuke_import_cache')
+        if options.get("nuke"):
+            management.call_command("nuke_import_cache")
 
-        url = '{base_url}/jms/janeway/?request_type=in_editing'.format(base_url=options.get('base_url'))
+        url = "{base_url}/jms/janeway/?request_type=in_editing".format(
+            base_url=options.get("base_url")
+        )
         try:
-            journal = models.Journal.objects.get(code=options.get('journal_code'))
-            ojs_plugin_import_editing_articles(url,
-                                               journal,
-                                               auth_file=options.get('auth_file'),
-                                               base_url=options.get('base_url'))
+            journal = models.Journal.objects.get(code=options.get("journal_code"))
+            ojs_plugin_import_editing_articles(
+                url,
+                journal,
+                auth_file=options.get("auth_file"),
+                base_url=options.get("base_url"),
+            )
         except models.Journal.DoesNotExist:
-            print('Journal not found.')
+            print("Journal not found.")

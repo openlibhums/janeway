@@ -4,23 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0020_merge_20230510_1129'),
+        ("review", "0020_merge_20230510_1129"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='revisionrequest',
-            name='response_letter',
-            field=models.TextField(blank=True, help_text='You have the option to include a response letter for the reviewers, providing details about the changes you made to your manuscript or counter arguments.', null=True, verbose_name='Response Letter to Reviewers'),
+            model_name="revisionrequest",
+            name="response_letter",
+            field=models.TextField(
+                blank=True,
+                help_text="You have the option to include a response letter for the reviewers, providing details about the changes you made to your manuscript or counter arguments.",
+                null=True,
+                verbose_name="Response Letter to Reviewers",
+            ),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='author_note',
-            field=models.TextField(blank=True,
-                                   help_text="If you would like to include a cover letter for the editor providing changes you made to your revised manuscript, please add this above'",
-                                   null=True,
-                                   verbose_name='Covering Letter to Editor'),
+            model_name="revisionrequest",
+            name="author_note",
+            field=models.TextField(
+                blank=True,
+                help_text="If you would like to include a cover letter for the editor providing changes you made to your revised manuscript, please add this above'",
+                null=True,
+                verbose_name="Covering Letter to Editor",
+            ),
         ),
     ]

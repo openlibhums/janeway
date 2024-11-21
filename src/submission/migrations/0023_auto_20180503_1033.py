@@ -6,8 +6,8 @@ from django.db import migrations
 
 
 def create_submission_configuration(apps, schema_editor):
-    Journal = apps.get_model('journal', 'Journal')
-    Configuration = apps.get_model('submission', 'SubmissionConfiguration')
+    Journal = apps.get_model("journal", "Journal")
+    Configuration = apps.get_model("submission", "SubmissionConfiguration")
 
     journals = Journal.objects.all()
 
@@ -16,11 +16,12 @@ def create_submission_configuration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0022_submissionconfiguration'),
+        ("submission", "0022_submissionconfiguration"),
     ]
 
     operations = [
-        migrations.RunPython(create_submission_configuration, reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(
+            create_submission_configuration, reverse_code=migrations.RunPython.noop
+        )
     ]

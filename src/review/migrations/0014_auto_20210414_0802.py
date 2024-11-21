@@ -8,31 +8,54 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('review', '0013_auto_20210331_1052'),
+        ("review", "0013_auto_20210331_1052"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='decisiondraft',
-            name='editor',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='draft_editor', to=settings.AUTH_USER_MODEL),
+            model_name="decisiondraft",
+            name="editor",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="draft_editor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='decision',
-            field=models.CharField(choices=[('accept', 'Accept Without Revisions'), ('minor_revisions', 'Minor Revisions Required'), ('major_revisions', 'Major Revisions Required'), ('reject', 'Reject')], max_length=100, verbose_name='Draft Decision'),
+            model_name="decisiondraft",
+            name="decision",
+            field=models.CharField(
+                choices=[
+                    ("accept", "Accept Without Revisions"),
+                    ("minor_revisions", "Minor Revisions Required"),
+                    ("major_revisions", "Major Revisions Required"),
+                    ("reject", "Reject"),
+                ],
+                max_length=100,
+                verbose_name="Draft Decision",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='email_message',
-            field=models.TextField(blank=True, help_text='This is a draft of the email that will be sent to the author. Your editor will check this.', null=True, verbose_name='Draft Email to Author'),
+            model_name="decisiondraft",
+            name="email_message",
+            field=models.TextField(
+                blank=True,
+                help_text="This is a draft of the email that will be sent to the author. Your editor will check this.",
+                null=True,
+                verbose_name="Draft Email to Author",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='message_to_editor',
-            field=models.TextField(blank=True, help_text='This is the email that will be sent to the editor notifying them that you are logging your draft decision.', null=True, verbose_name='Email to Editor'),
+            model_name="decisiondraft",
+            name="message_to_editor",
+            field=models.TextField(
+                blank=True,
+                help_text="This is the email that will be sent to the editor notifying them that you are logging your draft decision.",
+                null=True,
+                verbose_name="Email to Editor",
+            ),
         ),
     ]

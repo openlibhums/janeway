@@ -6,30 +6,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0026_journal_keywords'),
+        ("journal", "0026_journal_keywords"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='display_issue_number',
+            model_name="journal",
+            name="display_issue_number",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='display_issue_title',
+            model_name="journal",
+            name="display_issue_title",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='display_issue_volume',
+            model_name="journal",
+            name="display_issue_volume",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='display_issue_year',
+            model_name="journal",
+            name="display_issue_year",
             field=models.BooleanField(default=True),
         ),
     ]

@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preprint', '0007_auto_20171013_1104'),
+        ("preprint", "0007_auto_20171013_1104"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subject',
-            name='slug',
+            model_name="subject",
+            name="slug",
             field=models.SlugField(blank=True),
         ),
     ]

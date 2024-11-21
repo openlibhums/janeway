@@ -8,7 +8,7 @@ from utils import setting_handler
 def get_initial_settings(journal, settings_to_get):
     settings = {}
     for setting in settings_to_get:
-        got = setting_handler.get_setting('general', setting, journal).value
+        got = setting_handler.get_setting("general", setting, journal).value
         settings[setting] = got
 
     return settings

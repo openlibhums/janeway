@@ -8,9 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils import models, setting_handler
 
-PLUGIN_NAME = 'HTML'
-DESCRIPTION = 'This is a homepage element that renders an HTML block'
-AUTHOR = 'Andy Byers'
+PLUGIN_NAME = "HTML"
+DESCRIPTION = "This is a homepage element that renders an HTML block"
+AUTHOR = "Andy Byers"
 VERSION = 1.0
 
 
@@ -32,27 +32,27 @@ def install():
         name=PLUGIN_NAME,
         version=VERSION,
         enabled=True,
-        display_name='HTML',
+        display_name="HTML",
         press_wide=True,
         homepage_element=True,
     )
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    plugin_group_name = "plugin:{plugin_name}".format(plugin_name=plugin.name)
     setting_group, c = core_models.SettingGroup.objects.get_or_create(
         name=plugin_group_name,
     )
     setting, c = core_models.Setting.objects.get_or_create(
-        name='html_block_content',
+        name="html_block_content",
         group=setting_group,
         defaults={
-            'pretty_name': 'HTML Block Content',
-            'types': 'rich-text',
-            'description': DESCRIPTION,
-            'is_translatable': True,
-        }
+            "pretty_name": "HTML Block Content",
+            "types": "rich-text",
+            "description": DESCRIPTION,
+            "is_translatable": True,
+        },
     )
     setting_handler.get_or_create_default_setting(
         setting,
-        default_value='<p>This element has no content.</p>',
+        default_value="<p>This element has no content.</p>",
     )
 
     # check whether this homepage element has
@@ -63,11 +63,12 @@ def install():
         content_type = ContentType.objects.get_for_model(journal)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='html_settings',
-            template_path='journal/homepage_elements/html_block.html',
+            configure_url="html_settings",
+            template_path="journal/homepage_elements/html_block.html",
             content_type=content_type,
             object_id=journal.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
 
@@ -77,22 +78,26 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='html_settings',
-            template_path='journal/homepage_elements/html_block.html',
+            configure_url="html_settings",
+            template_path="journal/homepage_elements/html_block.html",
             content_type=content_type,
             object_id=press.pk,
             has_config=True,
-            available_to_press=True)
+            available_to_press=True,
+        )
 
         element.save()
 
 
 def hook_registry():
     try:
-        return {'yield_homepage_element_context': {'module': 'core.homepage_elements.html.hooks',
-                                                   'function': 'yield_homepage_element_context',
-                                                   'name': PLUGIN_NAME,}
-                }
+        return {
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.html.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
+            }
+        }
     except OperationalError:
         # if we get here the database hasn't yet been created
         return {}

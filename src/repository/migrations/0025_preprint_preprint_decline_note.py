@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0024_auto_20210812_1304'),
+        ("repository", "0024_auto_20210812_1304"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprint',
-            name='preprint_decline_note',
+            model_name="preprint",
+            name="preprint_decline_note",
             field=models.TextField(blank=True, null=True),
         ),
     ]

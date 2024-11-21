@@ -7,30 +7,34 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0040_auto_20200529_1415'),
-        ('repository', '0007_auto_20200813_1156'),
+        ("core", "0040_auto_20200529_1415"),
+        ("repository", "0007_auto_20200813_1156"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprintaccess',
-            name='location',
+            model_name="preprintaccess",
+            name="location",
         ),
         migrations.AddField(
-            model_name='preprintaccess',
-            name='country',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Country'),
+            model_name="preprintaccess",
+            name="country",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="core.Country",
+            ),
         ),
         migrations.AddField(
-            model_name='preprintaccess',
-            name='identifier',
+            model_name="preprintaccess",
+            name="identifier",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='subject',
-            field=models.ManyToManyField(null=True, to='repository.Subject'),
+            model_name="preprint",
+            name="subject",
+            field=models.ManyToManyField(null=True, to="repository.Subject"),
         ),
     ]

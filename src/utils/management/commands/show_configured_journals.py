@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = "Shows configured journal URLs."
 
     def handle(self, *args, **options):
-        """ Show existing configuration of journals, press and sites.
+        """Show existing configuration of journals, press and sites.
 
         :param args: None
         :param options: None
@@ -26,4 +26,8 @@ class Command(BaseCommand):
 
         print("\nJournals:")
         for journal in journals:
-            print('Journal with ID {0} [{1}]: {2}'.format(journal.id, journal.name, journal.domain))
+            print(
+                "Journal with ID {0} [{1}]: {2}".format(
+                    journal.id, journal.name, journal.domain
+                )
+            )

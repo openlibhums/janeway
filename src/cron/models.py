@@ -26,7 +26,7 @@ class CronTask(models.Model):
     added = models.DateTimeField(default=timezone.now)
     run_at = models.DateTimeField(default=timezone.now)
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
@@ -56,10 +56,19 @@ class CronTask(models.Model):
                 task.delete()
 
     @staticmethod
-    def add_email_task(to, subject, html, request, article=None, run_at=timezone.now(), cc=None, bcc=None):
+    def add_email_task(
+        to,
+        subject,
+        html,
+        request,
+        article=None,
+        run_at=timezone.now(),
+        cc=None,
+        bcc=None,
+    ):
         task = CronTask()
 
-        task.task_type = 'email_message'
+        task.task_type = "email_message"
         task.run_at = run_at
 
         task.email_to = to
@@ -74,16 +83,16 @@ class CronTask(models.Model):
 
 
 REMINDER_CHOICES = (
-    ('review', 'Review (Invited)'),
-    ('accepted-review', 'Review (Accepted)'),
-    ('revisions', 'Revision'),
+    ("review", "Review (Invited)"),
+    ("accepted-review", "Review (Accepted)"),
+    ("revisions", "Revision"),
 )
 
 RUN_TYPE_CHOICES = (
     # Before the event
-    ('before', 'before the due date'),
+    ("before", "before the due date"),
     # After the event
-    ('after', 'after the due date'),
+    ("after", "after the due date"),
 )
 
 
@@ -95,22 +104,22 @@ class SentReminder(models.Model):
 
 class Reminder(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(
         help_text="The number of days before or "
-                  "after the due date this "
-                  "reminder should fire",
+        "after the due date this "
+        "reminder should fire",
     )
     template_name = models.CharField(
         max_length=100,
         help_text="The name of the email template. "
-                  "If it does not exist, you will be "
-                  "asked to create it. "
-                  "Should have no spaces.",
+        "If it does not exist, you will be "
+        "asked to create it. "
+        "Should have no spaces.",
     )
     subject = models.CharField(max_length=200)
 
@@ -134,9 +143,9 @@ class Reminder(models.Model):
         """
         date_time = None
 
-        if self.run_type == 'before':
+        if self.run_type == "before":
             date_time = timezone.now() + timedelta(days=self.days)
-        elif self.run_type == 'after':
+        elif self.run_type == "after":
             date_time = timezone.now() - timedelta(days=self.days)
 
         if date_time:
@@ -148,31 +157,39 @@ class Reminder(models.Model):
         model, objects, query = None, None, None
         from review import models as review_models
 
-        if self.type == 'review':
+        if self.type == "review":
             model = review_models.ReviewAssignment
-            query = (Q(date_declined__isnull=True) &
-                     Q(date_complete__isnull=True) &
-                     Q(date_accepted__isnull=True) &
-                     Q(article__stage__in=submission_models.REVIEW_STAGES))
-        elif self.type == 'accepted-review':
+            query = (
+                Q(date_declined__isnull=True)
+                & Q(date_complete__isnull=True)
+                & Q(date_accepted__isnull=True)
+                & Q(article__stage__in=submission_models.REVIEW_STAGES)
+            )
+        elif self.type == "accepted-review":
             model = review_models.ReviewAssignment
-            query = (Q(date_declined__isnull=True) &
-                     Q(date_complete__isnull=True) &
-                     Q(date_accepted__isnull=False) &
-                     Q(article__stage__in=submission_models.REVIEW_STAGES))
-        elif self.type == 'revisions':
+            query = (
+                Q(date_declined__isnull=True)
+                & Q(date_complete__isnull=True)
+                & Q(date_accepted__isnull=False)
+                & Q(article__stage__in=submission_models.REVIEW_STAGES)
+            )
+        elif self.type == "revisions":
             model = review_models.RevisionRequest
-            query = (Q(date_completed__isnull=True) &
-                     Q(article__stage__in=submission_models.REVIEW_STAGES))
+            query = Q(date_completed__isnull=True) & Q(
+                article__stage__in=submission_models.REVIEW_STAGES
+            )
 
         target_date = self.target_date()
         if target_date:
-            objects = model.objects.filter(date_due=target_date).filter(query, article__journal=self.journal)
+            objects = model.objects.filter(date_due=target_date).filter(
+                query, article__journal=self.journal
+            )
 
         return objects
 
     def send_reminder(self, test=False):
         from review import models as review_models
+
         objects = self.items_for_reminder()
         request = Request()
         request.journal = self.journal
@@ -187,29 +204,31 @@ class Reminder(models.Model):
             )
 
             # Create context early so qw can add the correct variable
-            context = {'journal': self.journal, 'article': item.article}
+            context = {"journal": self.journal, "article": item.article}
             # Check if the item is a ReviewAssignment or RevisionRequest
             if isinstance(item, review_models.ReviewAssignment):
                 to = item.reviewer.email
-                context['review_assignment'] = item
+                context["review_assignment"] = item
 
                 # get the review_url for the email context
                 review_url = review_logic.get_review_url(request, item)
-                context['review_url'] = review_url
+                context["review_url"] = review_url
 
             elif isinstance(item, review_models.RevisionRequest):
                 to = item.article.correspondence_author.email
-                context['revision'] = item
+                context["revision"] = item
 
                 # get the do_revisions url
-                do_revisions_url = request.journal.site_url(path=reverse(
-                    'do_revisions',
-                    kwargs={
-                        'article_id': item.article.pk,
-                        'revision_id': item.pk,
-                    }
-                ))
-                context['do_revisions_url'] = do_revisions_url
+                do_revisions_url = request.journal.site_url(
+                    path=reverse(
+                        "do_revisions",
+                        kwargs={
+                            "article_id": item.article.pk,
+                            "revision_id": item.pk,
+                        },
+                    )
+                )
+                context["do_revisions_url"] = do_revisions_url
 
             if not test and not sent_check and to:
                 message = render_template.get_requestless_content(
@@ -218,11 +237,11 @@ class Reminder(models.Model):
                     self.template_name,
                 )
                 log_dict = {
-                    'level': 'Info',
-                    'action_text': 'Automated reminder sent',
-                    'types': 'Automated Reminder',
-                    'target': item.article,
-                    'actor': None,
+                    "level": "Info",
+                    "action_text": "Automated reminder sent",
+                    "types": "Automated Reminder",
+                    "target": item.article,
+                    "actor": None,
                 }
                 notify_helpers.send_email_with_body_from_user(
                     request,
@@ -234,11 +253,17 @@ class Reminder(models.Model):
                 # Create a SentReminder object to ensure we don't do this more
                 # than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
-                logger.info('Reminder sent for {0}'.format(item))
+                logger.info("Reminder sent for {0}".format(item))
             elif test:
-                logger.info("[TEST] reminder for {} due on {}".format(item, item.date_due))
+                logger.info(
+                    "[TEST] reminder for {} due on {}".format(item, item.date_due)
+                )
             else:
-                logger.info('Reminder {0} for object {1} has already been sent'.format(self, item))
+                logger.info(
+                    "Reminder {0} for object {1} has already been sent".format(
+                        self, item
+                    )
+                )
 
 
 class Request(object):

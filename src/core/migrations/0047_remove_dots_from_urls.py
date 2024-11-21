@@ -14,14 +14,16 @@ URL_NAME_RE = r"url '(\w+)'"
 
 def replace_setting_urls(apps, schema_editor):
     try:
-        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-        settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
+        SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
+        settings = SettingValueTranslation.objects.filter(
+            master__setting__group__name="email"
+        )
         for setting in settings:
             setting.value = setting.value.replace("url }}.", "url }} ")
             setting.save()
     except (LookupError, FieldError):
         with translation.override(django_settings.LANGUAGE_CODE):
-            SettingValue = apps.get_model('core', 'SettingValue')
+            SettingValue = apps.get_model("core", "SettingValue")
             settings = SettingValue.objects.filter(setting__group__name="email")
             for setting in settings:
                 if setting.value:
@@ -30,11 +32,12 @@ def replace_setting_urls(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0046_delete_review_request_sent'),
+        ("core", "0046_delete_review_request_sent"),
     ]
 
     operations = [
-        migrations.RunPython(replace_setting_urls, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            replace_setting_urls, reverse_code=migrations.RunPython.noop
+        ),
     ]

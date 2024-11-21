@@ -6,25 +6,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0042_auto_20210310_1453'),
+        ("journal", "0042_auto_20210310_1453"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='is_remote',
-            field=models.BooleanField(default=False, help_text='When enabled the journal is marked as not hosted in Janeway.'),
+            model_name="journal",
+            name="is_remote",
+            field=models.BooleanField(
+                default=False,
+                help_text="When enabled the journal is marked as not hosted in Janeway.",
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='remote_submit_url',
-            field=models.URLField(blank=True, help_text='If the journal is remote you can link to its submission page.', null=True),
+            model_name="journal",
+            name="remote_submit_url",
+            field=models.URLField(
+                blank=True,
+                help_text="If the journal is remote you can link to its submission page.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='remote_view_url',
-            field=models.URLField(blank=True, help_text='If the journal is remote you can link to its home page.', null=True),
+            model_name="journal",
+            name="remote_view_url",
+            field=models.URLField(
+                blank=True,
+                help_text="If the journal is remote you can link to its home page.",
+                null=True,
+            ),
         ),
     ]

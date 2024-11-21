@@ -12,8 +12,7 @@ def featured_articles(request):
     form = forms.FeaturedForm(journal=request.journal)
 
     if request.POST:
-
-        if 'form' in request.POST:
+        if "form" in request.POST:
             form = forms.FeaturedForm(request.POST, journal=request.journal)
 
             if form.is_valid():
@@ -21,13 +20,13 @@ def featured_articles(request):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Settings saved.',
+                    "Settings saved.",
                 )
-                return redirect(reverse('popular_articles_setup'))
+                return redirect(reverse("popular_articles_setup"))
 
-    template = 'popular_setup.html'
+    template = "popular_setup.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)

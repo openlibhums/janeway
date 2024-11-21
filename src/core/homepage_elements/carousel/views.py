@@ -13,8 +13,8 @@ def settings_carousel(request):
         instance=request.site_type.carousel,
     )
 
-    if request.POST and 'cancel' in request.POST:
-        return redirect(reverse('core_manager_index'))
+    if request.POST and "cancel" in request.POST:
+        return redirect(reverse("core_manager_index"))
 
     if request.POST:
         home_form = forms.CarouselForm(
@@ -26,13 +26,15 @@ def settings_carousel(request):
 
         if home_form.is_valid():
             home_form.save(request=request)
-            return redirect(reverse('home_settings_index'))
+            return redirect(reverse("home_settings_index"))
 
-    template = 'carousel_setup.html'
+    template = "carousel_setup.html"
     context = {
-        'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
-                     models.SettingGroup.objects.all().order_by('name')],
-        'home_form': home_form
+        "settings": [
+            {group.name: models.Setting.objects.filter(group=group).order_by("name")}
+            for group in models.SettingGroup.objects.all().order_by("name")
+        ],
+        "home_form": home_form,
     }
 
     return render(request, template, context)

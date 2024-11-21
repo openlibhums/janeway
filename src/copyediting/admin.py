@@ -10,36 +10,64 @@ from copyediting import models
 
 
 class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('pk', '_article', 'copyeditor', 'editor', 'assigned',
-                    'decision', 'due', '_journal')
-    list_filter = ('article__journal', 'assigned', 'due', 'date_decided',
-                   'copyedit_reopened', 'decision')
-    search_fields = ('article__title', 'copyeditor__first_name',
-                     'copyeditor__last_name', 'copyeditor__email',
-                     'editor__first_name', 'editor__last_name',
-                     'editor__email', 'editor_note', 'copyeditor_note')
-    raw_id_fields = ('article', 'copyeditor', 'editor')
-    filter_horizontal = ('files_for_copyediting', 'copyeditor_files')
+    list_display = (
+        "pk",
+        "_article",
+        "copyeditor",
+        "editor",
+        "assigned",
+        "decision",
+        "due",
+        "_journal",
+    )
+    list_filter = (
+        "article__journal",
+        "assigned",
+        "due",
+        "date_decided",
+        "copyedit_reopened",
+        "decision",
+    )
+    search_fields = (
+        "article__title",
+        "copyeditor__first_name",
+        "copyeditor__last_name",
+        "copyeditor__email",
+        "editor__first_name",
+        "editor__last_name",
+        "editor__email",
+        "editor_note",
+        "copyeditor_note",
+    )
+    raw_id_fields = ("article", "copyeditor", "editor")
+    filter_horizontal = ("files_for_copyediting", "copyeditor_files")
 
-    inlines = [
-        admin_utils.AuthorReviewInline
-    ]
+    inlines = [admin_utils.AuthorReviewInline]
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'assigned',
-                    'assignment', '_journal')
-    list_filter = ('assignment__article__journal', 'assigned',
-                   'notified', 'date_decided', 'decision')
-    search_fields = ('assignment__article__title', 'author__first_name',
-                     'author__last_name', 'author__email',
-                     'assignment__editor_note', 'assignment__copyeditor_note')
-    raw_id_fields = ('author', 'assignment')
-    filter_horizontal = ('files_updated',)
-    exclude = ('files_updated',)
+    list_display = ("pk", "author", "assigned", "assignment", "_journal")
+    list_filter = (
+        "assignment__article__journal",
+        "assigned",
+        "notified",
+        "date_decided",
+        "decision",
+    )
+    search_fields = (
+        "assignment__article__title",
+        "author__first_name",
+        "author__last_name",
+        "author__email",
+        "assignment__editor_note",
+        "assignment__copyeditor_note",
+    )
+    raw_id_fields = ("author", "assignment")
+    filter_horizontal = ("files_updated",)
+    exclude = ("files_updated",)
 
     def _journal(self, obj):
-        return obj.assignment.article.journal.code if obj else ''
+        return obj.assignment.article.journal.code if obj else ""
 
 
 admin_list = [

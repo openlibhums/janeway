@@ -8,7 +8,7 @@ from django.db import migrations
 
 
 def fix_uuids(apps, schema_editor):
-    Account = apps.get_model('core', 'Account')
+    Account = apps.get_model("core", "Account")
 
     for account in Account.objects.all():
         account.uuid = uuid.uuid4()
@@ -16,9 +16,8 @@ def fix_uuids(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0008_auto_20170925_1129'),
+        ("core", "0008_auto_20170925_1129"),
     ]
 
     operations = [

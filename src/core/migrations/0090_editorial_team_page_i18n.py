@@ -4,22 +4,21 @@ from django.db import migrations
 
 
 def add_translations_to_db(apps, schema_editor):
-    SettingValue = apps.get_model('core', 'SettingValue')
+    SettingValue = apps.get_model("core", "SettingValue")
     svs_to_update = SettingValue.objects.filter(
-        setting__name='editorial_group_page_name',
+        setting__name="editorial_group_page_name",
     )
     for sv in svs_to_update:
-        sv.value_fr = 'Équipe éditoriale'
-        sv.value_de = 'Redaktionsteam'
-        sv.value_nl = 'Redactie'
-        sv.value_cy = 'Tîm Golygyddol'
+        sv.value_fr = "Équipe éditoriale"
+        sv.value_de = "Redaktionsteam"
+        sv.value_nl = "Redactie"
+        sv.value_cy = "Tîm Golygyddol"
         sv.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0089_auto_20240328_1213'),
+        ("core", "0089_auto_20240328_1213"),
     ]
 
     operations = [

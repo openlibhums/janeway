@@ -11,12 +11,12 @@ class Command(BaseCommand):
     help = "Synchronizes unspecified default settings to all journals."
 
     def add_arguments(self, parser):
-        """ Adds arguments to Django's management command-line parser.
+        """Adds arguments to Django's management command-line parser.
 
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', nargs='?', default=None)
+        parser.add_argument("journal_code", nargs="?", default=None)
 
     def handle(self, *args, **options):
         """Updates email settings for journals.
@@ -26,16 +26,16 @@ class Command(BaseCommand):
         :return: None
         """
 
-        translation.activate('en')
+        translation.activate("en")
         journals = journal_models.Journal.objects.all()
 
-        journal_code = options.get('journal_code', None)
+        journal_code = options.get("journal_code", None)
         if journal_code:
             try:
                 journals = [journal_models.Journal.objects.get(code=journal_code)]
             except journal_models.Journal.DoesNotExist:
                 journals = None
-                print('No journal with that code was found.')
+                print("No journal with that code was found.")
 
         if journals:
             print("Updated emails for {0} Journals:".format(len(journals)))

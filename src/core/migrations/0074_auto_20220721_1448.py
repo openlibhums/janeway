@@ -14,22 +14,22 @@ NEW_VALUE = 'Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are re
 
 
 def update_default_setting(apps, schema_editor):
-
     migration_utils.update_default_setting_values(
         apps,
-        setting_name='review_assignment',
-        group_name='email',
+        setting_name="review_assignment",
+        group_name="email",
         values_to_replace=[OLD_DEFAULT_VALUE, VARIANT_ONE, VARIANT_TWO],
         replacement_value=NEW_VALUE,
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0074_account_suffix'),
+        ("core", "0074_account_suffix"),
     ]
 
     operations = [
-        migrations.RunPython(update_default_setting, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_default_setting, reverse_code=migrations.RunPython.noop
+        ),
     ]

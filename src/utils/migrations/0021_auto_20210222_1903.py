@@ -6,39 +6,38 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0020_auto_20210222_1750'),
+        ("utils", "0020_auto_20210222_1750"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='pluginsetting',
-            name='plugin',
+            model_name="pluginsetting",
+            name="plugin",
         ),
         migrations.RemoveField(
-            model_name='pluginsettingvalue',
-            name='journal',
+            model_name="pluginsettingvalue",
+            name="journal",
         ),
         migrations.RemoveField(
-            model_name='pluginsettingvalue',
-            name='setting',
+            model_name="pluginsettingvalue",
+            name="setting",
         ),
         migrations.AlterUniqueTogether(
-            name='pluginsettingvaluetranslation',
+            name="pluginsettingvaluetranslation",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='pluginsettingvaluetranslation',
-            name='master',
+            model_name="pluginsettingvaluetranslation",
+            name="master",
         ),
         migrations.DeleteModel(
-            name='PluginSetting',
+            name="PluginSetting",
         ),
         migrations.DeleteModel(
-            name='PluginSettingValue',
+            name="PluginSettingValue",
         ),
         migrations.DeleteModel(
-            name='PluginSettingValueTranslation',
+            name="PluginSettingValueTranslation",
         ),
     ]

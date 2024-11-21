@@ -6,30 +6,30 @@ from django.db import migrations
 
 
 def replace_setting_name(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
 
     Setting.objects.filter(
-        name='mulit_page_editorial',
-        group__name='general',
-    ).update(name='multi_page_editorial')
+        name="mulit_page_editorial",
+        group__name="general",
+    ).update(name="multi_page_editorial")
 
 
 def undo_replace_setting_name(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
 
     Setting.objects.filter(
-        name='multi_page_editorial',
-        group__name='general',
-    ).update(name='mulit_page_editorial')
+        name="multi_page_editorial",
+        group__name="general",
+    ).update(name="mulit_page_editorial")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0028_fix_bad_email_urls'),
+        ("core", "0028_fix_bad_email_urls"),
     ]
 
     operations = [
-        migrations.RunPython(replace_setting_name,
-                             reverse_code=undo_replace_setting_name),
+        migrations.RunPython(
+            replace_setting_name, reverse_code=undo_replace_setting_name
+        ),
     ]

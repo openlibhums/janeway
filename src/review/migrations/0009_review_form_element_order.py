@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0008_reviewform_deleted'),
+        ("review", "0008_reviewform_deleted"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='reviewformelement',
-            options={'ordering': ('order', 'name')},
+            name="reviewformelement",
+            options={"ordering": ("order", "name")},
         ),
     ]

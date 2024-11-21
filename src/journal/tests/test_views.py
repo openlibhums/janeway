@@ -8,8 +8,8 @@ from django.utils import timezone
 
 from utils.testing import helpers
 
-class PublishedArticlesListViewTests(TestCase):
 
+class PublishedArticlesListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
@@ -17,7 +17,7 @@ class PublishedArticlesListViewTests(TestCase):
         cls.sections = []
         cls.articles = []
         thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
-        for section_name in ['Article', 'Review', 'Comment', 'Editorial']:
+        for section_name in ["Article", "Review", "Comment", "Editorial"]:
             section = helpers.create_section(
                 journal=cls.journal_one,
                 name=section_name,
@@ -27,9 +27,9 @@ class PublishedArticlesListViewTests(TestCase):
                 cls.articles.append(
                     helpers.create_article(
                         journal=cls.journal_one,
-                        title=f'{section_name} {num}',
+                        title=f"{section_name} {num}",
                         section=section,
-                        stage='Published',
+                        stage="Published",
                         date_published=thirty_days_ago,
                     )
                 )
@@ -39,32 +39,30 @@ class PublishedArticlesListViewTests(TestCase):
 
     def test_count_no_filters(self):
         data = {}
-        response = self.client.get('/articles/', data)
+        response = self.client.get("/articles/", data)
         self.assertIn(
-            f'60 results',
+            f"60 results",
             response.content.decode(),
         )
 
     def test_count_filtered_on_section(self):
-        data = {
-            'section__pk': self.sections[0].pk
-        }
-        response = self.client.get('/articles/', data)
+        data = {"section__pk": self.sections[0].pk}
+        response = self.client.get("/articles/", data)
         self.assertIn(
-            f'15 results',
+            f"15 results",
             response.content.decode(),
         )
 
     def test_counts_match_with_filters(self):
         data = {
-            'section__pk': self.sections[0].pk,
+            "section__pk": self.sections[0].pk,
         }
-        response = self.client.get('/articles/', data)
+        response = self.client.get("/articles/", data)
         self.assertIn(
-            f'15 results',
+            f"15 results",
             response.content.decode(),
         )
         self.assertIn(
-            f'Article (15)',
+            f"Article (15)",
             response.content.decode(),
         )

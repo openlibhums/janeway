@@ -7,24 +7,23 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0041_submission_stage_dynamic'),
+        ("submission", "0041_submission_stage_dynamic"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='primary_issue',
+            model_name="article",
+            name="primary_issue",
             field=models.ForeignKey(
-                to='journal.Issue',
+                to="journal.Issue",
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                help_text='You can only assign an issue '
-                          'that this article is part of. '
-                          'You can add this article to an '
-                          'issue from the Issue Manager.',
+                help_text="You can only assign an issue "
+                "that this article is part of. "
+                "You can add this article to an "
+                "issue from the Issue Manager.",
             ),
         ),
     ]

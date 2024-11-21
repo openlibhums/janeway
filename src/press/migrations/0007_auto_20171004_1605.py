@@ -6,20 +6,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0006_press_preprints_about'),
+        ("press", "0006_press_preprints_about"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='preprint_pdf_only',
-            field=models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.'),
+            model_name="press",
+            name="preprint_pdf_only",
+            field=models.BooleanField(
+                default=True,
+                help_text="Forces manuscript files to be PDFs for Preprints.",
+            ),
         ),
         migrations.AddField(
-            model_name='press',
-            name='preprint_start',
+            model_name="press",
+            name="preprint_start",
             field=models.TextField(blank=True, null=True),
         ),
     ]

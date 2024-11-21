@@ -6,22 +6,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def forwards_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
         Role.objects.get_or_create(
-            name='Reader',
-            slug='reader',
+            name="Reader",
+            slug="reader",
         )
 
     def reverse_func(apps, schema_editor):
         Role = apps.get_model("core", "Role")
         Role.objects.filter(
-            slug='reader',
+            slug="reader",
         ).delete()
 
     dependencies = [
-        ('core', '0074_auto_20220721_1448'),
+        ("core", "0074_auto_20220721_1448"),
     ]
 
     operations = [

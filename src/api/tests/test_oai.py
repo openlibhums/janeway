@@ -22,7 +22,6 @@ FROZEN_DATETIME_1976 = timezone.make_aware(timezone.datetime(1976, 1, 2, 0, 0, 0
 
 
 class TestOAIViews(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
@@ -36,11 +35,15 @@ class TestOAIViews(TestCase):
             authors=[cls.author],
         )
         cls.issue = helpers.create_issue(
-            journal=cls.journal, vol=1, number=1,
+            journal=cls.journal,
+            vol=1,
+            number=1,
             articles=[cls.article],
         )
-        cls.issue_2= helpers.create_issue(
-            journal=cls.journal, vol=1, number=2,
+        cls.issue_2 = helpers.create_issue(
+            journal=cls.journal,
+            vol=1,
+            number=2,
             articles=[cls.article],
         )
         cls.article.primary_issue = cls.issue
@@ -48,9 +51,7 @@ class TestOAIViews(TestCase):
 
     @classmethod
     def validate_oai_schema(cls, xml):
-        xml_schema = etree.XMLSchema(
-            "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
-        )
+        xml_schema = etree.XMLSchema("http://www.openarchives.org/OAI/2.0/oai_dc.xsd")
         xml_dom = etree.XML(xml)
         return xml_schema.validate(xml_dom)
 
@@ -58,23 +59,22 @@ class TestOAIViews(TestCase):
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_dc(self):
         expected = LIST_RECORDS_DATA_DC
-        response = self.client.get(reverse('OAI_list_records'), SERVER_NAME="testserver")
+        response = self.client.get(
+            reverse("OAI_list_records"), SERVER_NAME="testserver"
+        )
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_jats(self):
         expected = LIST_RECORDS_DATA_JATS
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         result = str(response.rendered_content)
         self.assertEqual(result.split(), expected.split())
 
@@ -83,7 +83,7 @@ class TestOAIViews(TestCase):
     def test_get_record_dc(self):
         expected = GET_RECORD_DATA_DC
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="oai_dc",
@@ -91,10 +91,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -103,7 +100,7 @@ class TestOAIViews(TestCase):
     def test_get_records_until(self):
         expected = GET_RECORD_DATA_UNTIL
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="oai_dc",
@@ -126,10 +123,7 @@ class TestOAIViews(TestCase):
             date_published="1977-01-01T17:00:00.000+0200",
             authors=[self.author],
         )
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -142,8 +136,7 @@ class TestOAIViews(TestCase):
         self.article.authors.add(author_2)
         self.article.snapshot_authors()
 
-
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="jats",
@@ -151,10 +144,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
 
         self.maxDiff = None
         self.assertEqual(str(response.rendered_content).split(), expected.split())
@@ -164,17 +154,14 @@ class TestOAIViews(TestCase):
     def test_list_identifiers_jats(self):
         expected = LIST_IDENTIFIERS_JATS
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListIdentifiers",
             metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
 
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
@@ -183,17 +170,14 @@ class TestOAIViews(TestCase):
     def test_identify_dc(self):
         expected = IDENTIFY_DATA_DC
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="Identify",
             metadataPrefix="oai_dc",
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertEqual(str(response.rendered_content).split(), expected.split())
 
     @override_settings(URL_CONFIG="domain")
@@ -201,7 +185,7 @@ class TestOAIViews(TestCase):
     def test_list_sets(self):
         section = sm_models.Section.objects.get(
             journal__code=self.journal.code,
-            name='Article',
+            name="Article",
         )
         expected = LIST_SETS_DATA_DC.format(
             journal_code=self.journal.code,
@@ -214,17 +198,14 @@ class TestOAIViews(TestCase):
             issue_two_title=self.issue_2.non_pretty_issue_identifier,
         )
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListSets",
             metadataPrefix="oai_dc",
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         result = str(response.rendered_content)
 
         self.assertEqual(result.split(), expected.split())
@@ -233,6 +214,7 @@ class TestOAIViews(TestCase):
     def test_oai_resumption_token_decode(self):
         expected = {"custom-param": "custom-value"}
         encoded = {"resumptionToken": urlencode(expected)}
+
         class TestView(OAIPaginationMixin):
             pass
 
@@ -243,7 +225,8 @@ class TestOAIViews(TestCase):
         request = RequestFactory().get("/api/oai", query_params)
         TestView.as_view()(request)
         self.assertEqual(
-            request.GET.get("custom-param"), expected["custom-param"],
+            request.GET.get("custom-param"),
+            expected["custom-param"],
             "Parameters not being encoded by resumptionToken correctly",
         )
 
@@ -265,17 +248,14 @@ class TestOAIViews(TestCase):
                 authors=[self.author],
             )
 
-        path = reverse('OAI_list_records')
+        path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
             metadataPrefix="jats",
             **custom_param,
         )
         query_string = urlencode(query_params)
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertTrue(
             expected_encoded in unquote_plus(response.context["resumption_token"]),
             "Query parameter has not been encoded into resumption_token",

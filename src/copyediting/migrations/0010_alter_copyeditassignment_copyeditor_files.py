@@ -4,16 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0099_alter_accountrole_options'),
-        ('copyediting', '0009_copyeditassignment_order'),
+        ("core", "0099_alter_accountrole_options"),
+        ("copyediting", "0009_copyeditassignment_order"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='copyeditassignment',
-            name='copyeditor_files',
-            field=models.ManyToManyField(blank=True, related_name='copyeditor_files', to='core.file'),
+            model_name="copyeditassignment",
+            name="copyeditor_files",
+            field=models.ManyToManyField(
+                blank=True, related_name="copyeditor_files", to="core.file"
+            ),
         ),
     ]

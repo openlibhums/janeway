@@ -8,24 +8,25 @@ NEW_VALUE = "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you 
 
 
 def replace_template(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
     settings = SettingValueTranslation.objects.filter(value=OLD_VALUE)
 
     for setting in settings:
         setting.value = NEW_VALUE
         setting.save()
 
+
 def reverse_code(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
     settings = SettingValueTranslation.objects.filter(value=NEW_VALUE)
     for setting in settings:
         setting.value = OLD_VALUE
         setting.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0033_set_default_xml_galley_xsl'),
+        ("core", "0033_set_default_xml_galley_xsl"),
     ]
 
     operations = [

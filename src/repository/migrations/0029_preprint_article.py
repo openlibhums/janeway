@@ -7,16 +7,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0068_merge_20220427_1042'),
-        ('repository', '0028_merge_20220223_1229'),
+        ("submission", "0068_merge_20220427_1042"),
+        ("repository", "0028_merge_20220223_1229"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprint',
-            name='article',
-            field=models.OneToOneField(blank=True, help_text='Linked article of this preprint.', null=True, on_delete=django.db.models.deletion.SET_NULL, to='submission.Article'),
+            model_name="preprint",
+            name="article",
+            field=models.OneToOneField(
+                blank=True,
+                help_text="Linked article of this preprint.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="submission.Article",
+            ),
         ),
     ]

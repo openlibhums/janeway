@@ -6,20 +6,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0023_fix_journal_base_url_from_settings'),
+        ("core", "0023_fix_journal_base_url_from_settings"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='first_name',
-            field=models.CharField(max_length=300, null=True, verbose_name='First name'),
+            model_name="account",
+            name="first_name",
+            field=models.CharField(
+                max_length=300, null=True, verbose_name="First name"
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='last_name',
-            field=models.CharField(max_length=300, null=True, verbose_name='Last name'),
+            model_name="account",
+            name="last_name",
+            field=models.CharField(max_length=300, null=True, verbose_name="Last name"),
         ),
     ]

@@ -4,7 +4,7 @@ from utils import importer
 
 
 class Command(BaseCommand):
-    """ Takes an OJS url and imports it into Janeway."""
+    """Takes an OJS url and imports it into Janeway."""
 
     help = "Takes an OJS url and pulls information into Janeway."
 
@@ -14,14 +14,16 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('url')
-        parser.add_argument('journal_id')
-        parser.add_argument('user_id')
-        parser.add_argument('--delete',
-                            action='store_true',
-                            dest='delete',
-                            default=False,
-                            help='Delete all articles and non-superusers in the database before import')
+        parser.add_argument("url")
+        parser.add_argument("journal_id")
+        parser.add_argument("user_id")
+        parser.add_argument(
+            "--delete",
+            action="store_true",
+            dest="delete",
+            default=False,
+            help="Delete all articles and non-superusers in the database before import",
+        )
 
     def handle(self, *args, **options):
         """Imports an OJS article into Janeway.

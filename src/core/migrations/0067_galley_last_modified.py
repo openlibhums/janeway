@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0066_merge_20220315_1535'),
+        ("core", "0066_merge_20220315_1535"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='galley',
-            name='last_modified',
+            model_name="galley",
+            name="last_modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.RenameField(
-            model_name='file',
-            old_name='date_modified',
-            new_name='last_modified',
+            model_name="file",
+            old_name="date_modified",
+            new_name="last_modified",
         ),
     ]

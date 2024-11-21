@@ -29,24 +29,24 @@ class GroupConcat(Aggregate):
 
     output_field = TextField()
 
-    def __init__(self, expression, separator=', ', distinct=False, **extra):
+    def __init__(self, expression, separator=", ", distinct=False, **extra):
         super().__init__(expression, distinct=distinct, **extra)
-        self.extra['separator'] = separator
+        self.extra["separator"] = separator
         self.vendor = connection.vendor
 
-        if self.vendor == 'postgresql':
-            self.function = 'STRING_AGG'
+        if self.vendor == "postgresql":
+            self.function = "STRING_AGG"
             self.template = "%(function)s(%(distinct)s%(expressions)s, '%(separator)s')"
-        elif self.vendor == 'mysql':
-            self.function = 'GROUP_CONCAT'
-            self.template = "%(function)s(%(distinct)s%(expressions)s SEPARATOR '%(separator)s')"
-        elif self.vendor == 'sqlite':
-            self.function = 'GROUP_CONCAT'
+        elif self.vendor == "mysql":
+            self.function = "GROUP_CONCAT"
+            self.template = (
+                "%(function)s(%(distinct)s%(expressions)s SEPARATOR '%(separator)s')"
+            )
+        elif self.vendor == "sqlite":
+            self.function = "GROUP_CONCAT"
             self.template = "%(function)s(%(expressions)s, '%(separator)s')"
-        elif self.vendor == 'mssql':
-            self.function = 'STRING_AGG'
+        elif self.vendor == "mssql":
+            self.function = "STRING_AGG"
             self.template = "%(function)s(%(expressions)s, '%(separator)s')"
         else:
-            raise NotImplementedError(
-                f"{self.vendor} is not supported for GroupConcat"
-            )
+            raise NotImplementedError(f"{self.vendor} is not supported for GroupConcat")

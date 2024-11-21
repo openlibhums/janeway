@@ -4,20 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0044_historicalrepository_review_submission_text_and_more'),
+        ("repository", "0044_historicalrepository_review_submission_text_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrepository',
-            name='display_public_metrics',
-            field=models.BooleanField(default=False, help_text='Enable this setting to display metrics publicly.'),
+            model_name="historicalrepository",
+            name="display_public_metrics",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable this setting to display metrics publicly.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='display_public_metrics',
-            field=models.BooleanField(default=False, help_text='Enable this setting to display metrics publicly.'),
+            model_name="repository",
+            name="display_public_metrics",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable this setting to display metrics publicly.",
+            ),
         ),
     ]

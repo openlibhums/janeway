@@ -6,20 +6,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0064_auto_20211215_1224'),
+        ("submission", "0064_auto_20211215_1224"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='frozen_biography',
-            field=models.TextField(blank=True, help_text="The author's biography at the time they published the linked article. For this article only, it overrides any main biography attached to the author's account. If Frozen Biography is left blank, any main biography for the account will be populated instead.", null=True, verbose_name='Frozen Biography'),
+            model_name="frozenauthor",
+            name="frozen_biography",
+            field=models.TextField(
+                blank=True,
+                help_text="The author's biography at the time they published the linked article. For this article only, it overrides any main biography attached to the author's account. If Frozen Biography is left blank, any main biography for the account will be populated instead.",
+                null=True,
+                verbose_name="Frozen Biography",
+            ),
         ),
         migrations.AlterModelManagers(
-            name='article',
-            managers=[
-            ],
+            name="article",
+            managers=[],
         ),
     ]

@@ -28,33 +28,31 @@ class Command(BaseCommand):
     help = "Sends out article/issue publication notifications to users in the reader role.."
 
     def add_arguments(self, parser):
-        """ Adds arguments to Django's management command-line parser.
+        """Adds arguments to Django's management command-line parser.
 
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', nargs='?', default=None)
+        parser.add_argument("journal_code", nargs="?", default=None)
 
     def handle(self, *args, **options):
-        journal_code = options.get('journal_code', None)
+        journal_code = options.get("journal_code", None)
         journals = journal_models.Journal.objects.all()
         if journal_code:
             journals = journals.filter(code=journal_code)
 
         for journal in journals:
             if setting_handler.get_setting(
-                setting_group_name='notifications',
-                setting_name='send_reader_notifications',
+                setting_group_name="notifications",
+                setting_name="send_reader_notifications",
                 journal=journal,
             ).value:
-                print('Sending notification for {}'.format(journal.name))
-                readers = journal.users_with_role('reader')
+                print("Sending notification for {}".format(journal.name))
+                readers = journal.users_with_role("reader")
                 bcc_list = [reader.email for reader in readers]
 
                 if bcc_list:
-                    print("Sending notifications to {}".format(
-                        ", ".join(bcc_list)
-                    ))
+                    print("Sending notifications to {}".format(", ".join(bcc_list)))
 
                 today = timezone.now().today().date()
                 start = timezone.now().replace(hour=0, minute=0, second=0)
@@ -67,39 +65,50 @@ class Command(BaseCommand):
                 )
                 if articles_published_today.exists():
                     context = {
-                        'articles': articles_published_today,
-                        'journal': journal,
+                        "articles": articles_published_today,
+                        "journal": journal,
                     }
 
                     html = render_template.get_requestless_content(
                         context=context,
                         journal=journal,
-                        template='reader_publication_notification',
+                        template="reader_publication_notification",
                     )
-                    html = html + "<p>You can unsubscribe from publication notifications on your profile page: {}</p>".format(
-                        journal.site_url(
-                            reverse(
-                                'core_edit_profile',
+                    html = (
+                        html
+                        + "<p>You can unsubscribe from publication notifications on your profile page: {}</p>".format(
+                            journal.site_url(
+                                reverse(
+                                    "core_edit_profile",
+                                )
                             )
                         )
                     )
 
                     notify_helpers.send_email_with_body_from_user(
                         request=create_fake_request(journal),
-                        subject=setting_handler.get_setting('email_subject', 'subject_reader_publication_notification', journal).value,
-                        to=setting_handler.get_setting('general', 'from_address', journal).value,
+                        subject=setting_handler.get_setting(
+                            "email_subject",
+                            "subject_reader_publication_notification",
+                            journal,
+                        ).value,
+                        to=setting_handler.get_setting(
+                            "general", "from_address", journal
+                        ).value,
                         body=html,
                         bcc=bcc_list,
                         log_dict={
-                            'level': 'Info',
-                            'action_text': 'Publication notification sent',
-                            'types': 'Publication Notification',
-                            'target': journal,
-                        }
+                            "level": "Info",
+                            "action_text": "Publication notification sent",
+                            "types": "Publication Notification",
+                            "target": journal,
+                        },
                     )
                 else:
                     print("No articles were published today.")
             else:
-                print('Reader publication notifications are not enabled for {}'.format(journal.name))
-
-
+                print(
+                    "Reader publication notifications are not enabled for {}".format(
+                        journal.name
+                    )
+                )

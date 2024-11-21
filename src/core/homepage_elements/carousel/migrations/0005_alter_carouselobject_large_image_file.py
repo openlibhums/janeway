@@ -5,16 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0078_auto_20230120_1546'),
-        ('carousel', '0004_auto_20211018_1747'),
+        ("core", "0078_auto_20230120_1546"),
+        ("carousel", "0004_auto_20211018_1747"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='carouselobject',
-            name='large_image_file',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.file'),
+            model_name="carouselobject",
+            name="large_image_file",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.file",
+            ),
         ),
     ]

@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0030_rename_readable_stages'),
+        ("submission", "0030_rename_readable_stages"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='field',
-            name='display',
-            field=models.BooleanField(default=False, help_text='Whether or not display this field in the article page'),
+            model_name="field",
+            name="display",
+            field=models.BooleanField(
+                default=False,
+                help_text="Whether or not display this field in the article page",
+            ),
         ),
     ]

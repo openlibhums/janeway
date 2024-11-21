@@ -6,15 +6,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0004_logentry_subject'),
+        ("utils", "0004_logentry_subject"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='logentry',
-            name='message_status',
-            field=models.CharField(choices=[('no_information', 'No Information'), ('accepted', 'Accepted'), ('delivered', 'Delivered'), ('failed', 'Failed')], default='no_information', max_length=255),
+            model_name="logentry",
+            name="message_status",
+            field=models.CharField(
+                choices=[
+                    ("no_information", "No Information"),
+                    ("accepted", "Accepted"),
+                    ("delivered", "Delivered"),
+                    ("failed", "Failed"),
+                ],
+                default="no_information",
+                max_length=255,
+            ),
         ),
     ]

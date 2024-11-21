@@ -9,22 +9,28 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0001_initial'),
+        ("submission", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='section',
+            name="section",
             managers=[
-                ('objects', django.db.models.manager.Manager()),
-                ('_plain_manager', django.db.models.manager.Manager()),
+                ("objects", django.db.models.manager.Manager()),
+                ("_plain_manager", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterField(
-            model_name='article',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/Users/ajrbyers/Code/janeway/src/media'), upload_to=submission.models.article_media_upload),
+            model_name="article",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/Users/ajrbyers/Code/janeway/src/media"
+                ),
+                upload_to=submission.models.article_media_upload,
+            ),
         ),
     ]

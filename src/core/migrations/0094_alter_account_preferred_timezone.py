@@ -5,15 +5,20 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0093_merge_0088_fix_untyped_galleys_0092_xslt_1-6-0'),
+        ("core", "0093_merge_0088_fix_untyped_galleys_0092_xslt_1-6-0"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='preferred_timezone',
-            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], max_length=300, null=True, verbose_name='Preferred Timezone'),
+            model_name="account",
+            name="preferred_timezone",
+            field=core.model_utils.DynamicChoiceField(
+                blank=True,
+                choices=[],
+                max_length=300,
+                null=True,
+                verbose_name="Preferred Timezone",
+            ),
         ),
     ]

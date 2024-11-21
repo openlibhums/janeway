@@ -6,15 +6,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('copyediting', '0003_auto_20180122_2211'),
+        ("copyediting", "0003_auto_20180122_2211"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='copyeditassignment',
-            name='decision',
-            field=models.CharField(blank=True, choices=[('accept', 'Accept'), ('decline', 'Decline'), ('cancelled', 'Cancelled')], max_length=20, null=True),
+            model_name="copyeditassignment",
+            name="decision",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("accept", "Accept"),
+                    ("decline", "Decline"),
+                    ("cancelled", "Cancelled"),
+                ],
+                max_length=20,
+                null=True,
+            ),
         ),
     ]

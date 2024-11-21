@@ -9,14 +9,14 @@ from django.utils import timezone
 
 def access_choices():
     return (
-        ('download', 'Download'),
-        ('view', 'View'),
+        ("download", "Download"),
+        ("view", "View"),
     )
 
 
 class ArticleAccess(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     type = models.CharField(max_length=20, choices=access_choices())
@@ -24,32 +24,36 @@ class ArticleAccess(models.Model):
     accessed = models.DateTimeField(default=timezone.now)
     galley_type = models.CharField(max_length=200, null=True, blank=True)
     country = models.ForeignKey(
-        'core.Country',
+        "core.Country",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
 
     class Meta:
-        verbose_name_plural = 'article access events'
+        verbose_name_plural = "article access events"
 
     def __str__(self):
-        return '[{0}] - {1} at {2}'.format(self.identifier, self.article.title, self.accessed)
+        return "[{0}] - {1} at {2}".format(
+            self.identifier, self.article.title, self.accessed
+        )
 
 
 class HistoricArticleAccess(models.Model):
     article = models.OneToOneField(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     views = models.PositiveIntegerField(default=0)
     downloads = models.PositiveIntegerField(default=0)
 
     class Meta:
-        verbose_name_plural = 'historic article access events'
+        verbose_name_plural = "historic article access events"
 
     def __str__(self):
-        return 'Article {0}, Views: {1}, Downloads: {2}'.format(self.article.title, self.views, self.downloads)
+        return "Article {0}, Views: {1}, Downloads: {2}".format(
+            self.article.title, self.views, self.downloads
+        )
 
     def add_one_view(self):
         views = self.views
@@ -74,14 +78,14 @@ class HistoricArticleAccess(models.Model):
 
 def object_types():
     return (
-        ('book', 'Book'),
-        ('article', 'Article'),
+        ("book", "Book"),
+        ("article", "Article"),
     )
 
 
 class AbstractForwardLink(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
@@ -102,9 +106,7 @@ class ArticleLink(AbstractForwardLink):
     issue = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return 'Article Link: {}'.format(
-            self.article_title
-        )
+        return "Article Link: {}".format(self.article_title)
 
 
 class BookLink(AbstractForwardLink):
@@ -114,31 +116,28 @@ class BookLink(AbstractForwardLink):
     component_number = models.TextField()
 
     def __str__(self):
-        return 'Book Link: {}'.format(
-            self.title
-        )
+        return "Book Link: {}".format(self.title)
 
 
 def alt_metric_choices():
     return (
-        ('twitter', 'Twitter'),
-        ('crossref', 'Crossref'),
-        ('datacite', 'DataCite'),
-        ('reddit', 'Reddit'),
-        ('reddit-links', 'Reddit Links'),
-        ('hypothesis', 'Hypothesis'),
-        ('newsfeed', 'News'),
-        ('stackexchange', 'Stack Exchange'),
-        ('web', 'Web'),
-        ('wikipedia', 'Wikipedia'),
-        ('wordpressdotcom', 'Wordpress'),
-
+        ("twitter", "Twitter"),
+        ("crossref", "Crossref"),
+        ("datacite", "DataCite"),
+        ("reddit", "Reddit"),
+        ("reddit-links", "Reddit Links"),
+        ("hypothesis", "Hypothesis"),
+        ("newsfeed", "News"),
+        ("stackexchange", "Stack Exchange"),
+        ("web", "Web"),
+        ("wikipedia", "Wikipedia"),
+        ("wordpressdotcom", "Wordpress"),
     )
 
 
 class AltMetric(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     source = models.CharField(max_length=30, choices=alt_metric_choices())
@@ -146,4 +145,4 @@ class AltMetric(models.Model):
     timestamp = models.DateTimeField()
 
     class Meta:
-        unique_together = ('article', 'source', 'pid')
+        unique_together = ("article", "source", "pid")

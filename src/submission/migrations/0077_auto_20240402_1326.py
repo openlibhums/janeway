@@ -4,18 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0076_auto_20240402_1301'),
+        ("submission", "0076_auto_20240402_1301"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Funder',
-            new_name='ArticleFunding',
+            old_name="Funder",
+            new_name="ArticleFunding",
         ),
         migrations.RemoveField(
-            model_name='article',
-            name='funders',
+            model_name="article",
+            name="funders",
         ),
     ]

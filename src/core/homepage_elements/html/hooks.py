@@ -10,11 +10,13 @@ logger = get_logger(__name__)
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    plugin = models.Plugin.objects.get(name='HTML')
+    plugin = models.Plugin.objects.get(name="HTML")
     try:
-        html_block_content = setting_handler.get_plugin_setting(plugin, 'html_block_content', request.journal).value
+        html_block_content = setting_handler.get_plugin_setting(
+            plugin, "html_block_content", request.journal
+        ).value
     except AttributeError as e:
         logger.exception(e)
-        html_block_content = '<p>This element has no content.</p>'
+        html_block_content = "<p>This element has no content.</p>"
 
-    return {'html_content': html_block_content}
+    return {"html_content": html_block_content}

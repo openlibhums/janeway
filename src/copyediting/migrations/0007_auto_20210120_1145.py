@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('copyediting', '0006_auto_20200117_1240'),
+        ("copyediting", "0006_auto_20200117_1240"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='authorreview',
-            name='files_updated',
-            field=models.ManyToManyField(blank=True, to='core.File', verbose_name='files_updated'),
+            model_name="authorreview",
+            name="files_updated",
+            field=models.ManyToManyField(
+                blank=True, to="core.File", verbose_name="files_updated"
+            ),
         ),
     ]

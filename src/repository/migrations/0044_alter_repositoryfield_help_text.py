@@ -5,7 +5,7 @@ from django.template.defaultfilters import striptags
 
 
 def strip_html_tags_from_repo_field_help_text(apps, schema_editor):
-    RepositoryField = apps.get_model('repository', 'RepositoryField')
+    RepositoryField = apps.get_model("repository", "RepositoryField")
 
     for field in RepositoryField.objects.all():
         field.help_text = striptags(field.help_text)
@@ -13,19 +13,18 @@ def strip_html_tags_from_repo_field_help_text(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0043_auto_20240402_1256'),
+        ("repository", "0043_auto_20240402_1256"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='repositoryfield',
-            name='help_text',
+            model_name="repositoryfield",
+            name="help_text",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.RunPython(
             strip_html_tags_from_repo_field_help_text,
             reverse_code=migrations.RunPython.noop,
-        )
+        ),
     ]

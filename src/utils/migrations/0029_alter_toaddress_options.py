@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0028_upgrade_1_4_4'),
+        ("utils", "0028_upgrade_1_4_4"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='toaddress',
-            options={'verbose_name_plural': 'to addresses'},
+            name="toaddress",
+            options={"verbose_name_plural": "to addresses"},
         ),
     ]

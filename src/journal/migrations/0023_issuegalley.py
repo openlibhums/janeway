@@ -7,19 +7,36 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0025_merge_20190201_1533'),
-        ('journal', '0022_journal_is_conference'),
+        ("core", "0025_merge_20190201_1533"),
+        ("journal", "0022_journal_is_conference"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='IssueGalley',
+            name="IssueGalley",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.File')),
-                ('issue', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='journal.Issue')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="core.File"
+                    ),
+                ),
+                (
+                    "issue",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to="journal.Issue"
+                    ),
+                ),
             ],
         ),
     ]

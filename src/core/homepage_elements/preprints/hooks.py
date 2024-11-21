@@ -11,8 +11,10 @@ from submission import models as submission_models
 
 
 def get_random_preprints():
-    preprints = submission_models.Article.preprints.filter(stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                                                           date_published__lte=timezone.now())
+    preprints = submission_models.Article.preprints.filter(
+        stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+        date_published__lte=timezone.now(),
+    )
     preprint_pks = [preprint.pk for preprint in preprints]
     random_preprints = list()
     random.shuffle(preprint_pks)
@@ -26,11 +28,14 @@ def get_random_preprints():
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    if homepage_elements is not None and homepage_elements.filter(name='Preprints').exists():
+    if (
+        homepage_elements is not None
+        and homepage_elements.filter(name="Preprints").exists()
+    ):
         if request.press.random_homepage_preprints:
-            return {'preprints': get_random_preprints()}
+            return {"preprints": get_random_preprints()}
         else:
             print(request.press.homepage_preprints.all())
-            return {'preprints': request.press.homepage_preprints.all()}
+            return {"preprints": request.press.homepage_preprints.all()}
     else:
         return {}

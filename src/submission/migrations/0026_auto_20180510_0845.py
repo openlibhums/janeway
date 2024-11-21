@@ -6,20 +6,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0025_auto_20180508_1138'),
+        ("submission", "0025_auto_20180508_1138"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submissionconfiguration',
-            name='section',
+            model_name="submissionconfiguration",
+            name="section",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='submissionconfiguration',
-            name='figures_data',
-            field=models.BooleanField(default=True, verbose_name='Figures and Data Files'),
+            model_name="submissionconfiguration",
+            name="figures_data",
+            field=models.BooleanField(
+                default=True, verbose_name="Figures and Data Files"
+            ),
         ),
     ]

@@ -7,27 +7,40 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('comms', '0001_initial'),
+        ("comms", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.CharField(max_length=255)),
             ],
         ),
         migrations.AlterField(
-            model_name='newsitem',
-            name='large_image_file',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='large_news_file', to='core.File'),
+            model_name="newsitem",
+            name="large_image_file",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="large_news_file",
+                to="core.File",
+            ),
         ),
         migrations.AddField(
-            model_name='newsitem',
-            name='tags',
-            field=models.ManyToManyField(related_name='tags', to='comms.Tag'),
+            model_name="newsitem",
+            name="tags",
+            field=models.ManyToManyField(related_name="tags", to="comms.Tag"),
         ),
     ]

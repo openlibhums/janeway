@@ -23,8 +23,8 @@ def create_past_reviewer_setting(apps, schema_editor):
         types="boolean",
         pretty_name="Display List of Reviewers from Past Review Rounds",
         description="When this setting is enabled the review assignment page "
-                    "will show a table of reviewers who have completed a "
-                    "review in past review rounds."
+        "will show a table of reviewers who have completed a "
+        "review in past review rounds.",
     )
     SettingValue.objects.create(
         setting=setting,
@@ -33,14 +33,12 @@ def create_past_reviewer_setting(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0088_merge_20240327_1910'),
+        ("core", "0088_merge_20240327_1910"),
     ]
 
     operations = [
         migrations.RunPython(
-            drop_past_reviewer_setting,
-            reverse_code=create_past_reviewer_setting
+            drop_past_reviewer_setting, reverse_code=create_past_reviewer_setting
         ),
     ]

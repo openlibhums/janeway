@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def journal_url(context, url_name=None, *args):
-    request = context.get('request')
+    request = context.get("request")
     if url_name is not None:
         path = reverse(url_name, args=args)
     else:
@@ -17,9 +17,10 @@ def journal_url(context, url_name=None, *args):
     else:
         return path
 
+
 @register.simple_tag(takes_context=True)
 def repository_url(context, url_name=None, *args):
-    request = context.get('request')
+    request = context.get("request")
     if url_name is not None:
         path = reverse(url_name, args=args)
     else:
@@ -30,9 +31,10 @@ def repository_url(context, url_name=None, *args):
     else:
         return path
 
+
 @register.simple_tag(takes_context=True)
 def site_url(context, url_name=None, *args):
-    request = context.get('request')
+    request = context.get("request")
     if url_name is not None:
         path = reverse(url_name, args=args)
     else:
@@ -61,5 +63,5 @@ def external_journal_url(journal, url_name=None, *args):
 
 @register.simple_tag(takes_context=True)
 def build_absolute_uri(context, relative_url, *args):
-    request = context.get('request')
+    request = context.get("request")
     return request.build_absolute_uri(relative_url)

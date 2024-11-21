@@ -7,20 +7,28 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0006_auto_20171113_1444'),
+        ("utils", "0006_auto_20171113_1444"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='importcacheentry',
-            name='date_time',
+            model_name="importcacheentry",
+            name="date_time",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='logentry',
-            name='message_status',
-            field=models.CharField(choices=[('no_information', 'No Information'), ('accepted', 'Sending'), ('delivered', 'Delivered'), ('failed', 'Failed')], default='no_information', max_length=255),
+            model_name="logentry",
+            name="message_status",
+            field=models.CharField(
+                choices=[
+                    ("no_information", "No Information"),
+                    ("accepted", "Sending"),
+                    ("delivered", "Delivered"),
+                    ("failed", "Failed"),
+                ],
+                default="no_information",
+                max_length=255,
+            ),
         ),
     ]

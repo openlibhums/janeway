@@ -16,9 +16,9 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code')
-        parser.add_argument('url')
-        parser.add_argument('auth_file')
+        parser.add_argument("journal_code")
+        parser.add_argument("url")
+        parser.add_argument("auth_file")
 
     def handle(self, *args, **options):
         """Imports a set of UP journal-level metadata into Janeway.
@@ -30,5 +30,10 @@ class Command(BaseCommand):
         users = importer.up.get_user_list(options.get("url"), options.get("auth_file"))
 
         for user in users:
-            call_command('import_jms_user', options.get("journal_code"), options.get('url'), user,
-                         options.get('auth_file'))
+            call_command(
+                "import_jms_user",
+                options.get("journal_code"),
+                options.get("url"),
+                user,
+                options.get("auth_file"),
+            )

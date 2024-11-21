@@ -8,8 +8,8 @@ from metrics.logic import get_iso_country_code
 
 
 def process_accesses(apps, schema_editor):
-    ArticleAccess = apps.get_model('metrics', 'ArticleAccess')
-    Country = apps.get_model('core', 'Country')
+    ArticleAccess = apps.get_model("metrics", "ArticleAccess")
+    Country = apps.get_model("core", "Country")
 
     accesses = ArticleAccess.objects.all()
 
@@ -31,12 +31,10 @@ def process_accesses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('metrics', '0005_articleaccess_country'),
+        ("metrics", "0005_articleaccess_country"),
     ]
 
     operations = [
-        migrations.RunPython(process_accesses,
-                             reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(process_accesses, reverse_code=migrations.RunPython.noop)
     ]

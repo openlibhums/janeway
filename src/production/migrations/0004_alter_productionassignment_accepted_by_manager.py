@@ -5,15 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('production', '0003_auto_20200529_1415'),
+        ("production", "0003_auto_20200529_1415"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='productionassignment',
-            name='accepted_by_manager',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='production.typesettask'),
+            model_name="productionassignment",
+            name="accepted_by_manager",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="production.typesettask",
+            ),
         ),
     ]

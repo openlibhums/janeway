@@ -8,22 +8,26 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0061_auto_20210923_1615'),
+        ("submission", "0061_auto_20210923_1615"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='article',
+            name="article",
             managers=[
-                ('allarticles', django.db.models.manager.Manager()),
-                ('objects', submission.models.ArticleManager()),
+                ("allarticles", django.db.models.manager.Manager()),
+                ("objects", submission.models.ArticleManager()),
             ],
         ),
         migrations.AddField(
-            model_name='article',
-            name='publication_title',
-            field=models.CharField(blank=True, help_text='Name of the publisher who published this article Only relevant to migrated articles from a different publisher', max_length=999, null=True),
+            model_name="article",
+            name="publication_title",
+            field=models.CharField(
+                blank=True,
+                help_text="Name of the publisher who published this article Only relevant to migrated articles from a different publisher",
+                max_length=999,
+                null=True,
+            ),
         ),
     ]

@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0005_logentry_message_status'),
+        ("utils", "0005_logentry_message_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='logentry',
-            name='number_status_checks',
+            model_name="logentry",
+            name="number_status_checks",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='logentry',
-            name='status_checks_complete',
+            model_name="logentry",
+            name="status_checks_complete",
             field=models.BooleanField(default=False),
         ),
     ]

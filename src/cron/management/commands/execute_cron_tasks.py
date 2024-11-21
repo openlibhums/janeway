@@ -19,8 +19,8 @@ class Command(BaseCommand):
         :return: None
         """
         print("Executing cron tasks now.")
-        call_command('send_digest_emails')
-        call_command('send_reminders')
-        call_command('poll_crossref')
-        call_command('clearsessions')
+        call_command("send_digest_emails")
+        call_command("send_reminders")
+        call_command("poll_crossref")
+        call_command("clearsessions")
         models.CronTask.run_tasks()

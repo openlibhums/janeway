@@ -6,21 +6,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('comms', '0002_auto_20170816_1050'),
-        ('carousel', '0002_auto_20170711_1203'),
+        ("comms", "0002_auto_20170816_1050"),
+        ("carousel", "0002_auto_20170711_1203"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='carousel',
-            name='news_articles',
-            field=models.ManyToManyField(blank=True, to='comms.NewsItem'),
+            model_name="carousel",
+            name="news_articles",
+            field=models.ManyToManyField(blank=True, to="comms.NewsItem"),
         ),
         migrations.AlterField(
-            model_name='carousel',
-            name='mode',
-            field=models.CharField(choices=[('off', 'Off'), ('latest', 'Latest Articles'), ('news', 'Latest News'), ('selected-articles', 'Selected Articles'), ('mixed', 'Latest Articles and News'), ('mixed-selected', 'Selected Articles and News')], default='Latest', max_length=200),
+            model_name="carousel",
+            name="mode",
+            field=models.CharField(
+                choices=[
+                    ("off", "Off"),
+                    ("latest", "Latest Articles"),
+                    ("news", "Latest News"),
+                    ("selected-articles", "Selected Articles"),
+                    ("mixed", "Latest Articles and News"),
+                    ("mixed-selected", "Selected Articles and News"),
+                ],
+                default="Latest",
+                max_length=200,
+            ),
         ),
     ]

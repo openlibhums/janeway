@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0043_auto_20210518_1616'),
+        ("journal", "0043_auto_20210518_1616"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='contact_info_nl',
-            field=models.TextField(blank=True, null=True, verbose_name='Contact Information'),
+            model_name="journal",
+            name="contact_info_nl",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Contact Information"
+            ),
         ),
     ]

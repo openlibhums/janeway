@@ -4,7 +4,7 @@ from utils import importer
 
 
 class Command(BaseCommand):
-    """ Takes a Ubiquity Press url and imports it into Janeway."""
+    """Takes a Ubiquity Press url and imports it into Janeway."""
 
     help = "Takes an UP url and pulls information into Janeway."
 
@@ -14,23 +14,30 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('url')
-        parser.add_argument('journal_id')
-        parser.add_argument('user_id')
-        parser.add_argument('--delete',
-                            action='store_true',
-                            dest='delete',
-                            default=False,
-                            help='Delete all articles and non-superusers in the database before import')
-        parser.add_argument('-u', '--update',
-                            action='store_true',
-                            dest='update',
-                            default=False,
-                            help='Updates metadata if the item already exists')
-        parser.add_argument("-i", "--import-type",
-                            choices=["article", "issue"],
-                            default="article",
-                            help="The type of structure to be imported",
+        parser.add_argument("url")
+        parser.add_argument("journal_id")
+        parser.add_argument("user_id")
+        parser.add_argument(
+            "--delete",
+            action="store_true",
+            dest="delete",
+            default=False,
+            help="Delete all articles and non-superusers in the database before import",
+        )
+        parser.add_argument(
+            "-u",
+            "--update",
+            action="store_true",
+            dest="update",
+            default=False,
+            help="Updates metadata if the item already exists",
+        )
+        parser.add_argument(
+            "-i",
+            "--import-type",
+            choices=["article", "issue"],
+            default="article",
+            help="The type of structure to be imported",
         )
 
     def handle(self, *args, **options):
@@ -46,4 +53,3 @@ class Command(BaseCommand):
             importer.import_issue_images(**options)
         else:
             self.sys.stderr("Unknown import type: %s" % options["import_type"])
-

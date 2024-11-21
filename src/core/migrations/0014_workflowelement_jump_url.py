@@ -6,16 +6,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0013_auto_20180207_1525'),
+        ("core", "0013_auto_20180207_1525"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='workflowelement',
-            name='jump_url',
-            field=models.CharField(default='core_dashboard', max_length=255),
+            model_name="workflowelement",
+            name="jump_url",
+            field=models.CharField(default="core_dashboard", max_length=255),
             preserve_default=False,
         ),
     ]

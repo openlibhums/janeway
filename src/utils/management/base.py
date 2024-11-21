@@ -13,7 +13,7 @@ from django.core.management.base import BaseCommand
 
 
 class ProfiledCommand(BaseCommand):
-    """ A base class for commands that can be profiled with --profile
+    """A base class for commands that can be profiled with --profile
     When the --profile flag is present, the command execution will be wrapped
     inside a profiler run. At the end of the command, the results of the
     profiler are printed to stdout and written to a temporary file. The file
@@ -21,7 +21,7 @@ class ProfiledCommand(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('--profile', action="store_true")
+        parser.add_argument("--profile", action="store_true")
 
     def execute(self, *args, **options):
         do_profile = options.pop("profile", False)
@@ -30,7 +30,7 @@ class ProfiledCommand(BaseCommand):
             profiler.enable()
             super().execute(*args, **options)
             profiler.disable()
-            s_io=io.StringIO()
+            s_io = io.StringIO()
             stats = pstats.Stats(profiler, stream=s_io).sort_stats("ncalls")
             stats.print_stats()
 
@@ -39,7 +39,7 @@ class ProfiledCommand(BaseCommand):
             command = os.path.basename(py_filename)
             stamp = time.time()
             filename = f"{command}-{stamp}.prof"
-            path = os.path.join(settings.BASE_DIR, 'files', 'temp', filename)
+            path = os.path.join(settings.BASE_DIR, "files", "temp", filename)
             profiler.dump_stats(path)
             print(f"Profiling written to: {path}")
         else:

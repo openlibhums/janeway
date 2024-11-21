@@ -9,31 +9,37 @@ import django.db.models.manager
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0004_auto_20170813_1302'),
-        ('core', '0003_load_countries'),
+        ("journal", "0004_auto_20170813_1302"),
+        ("core", "0003_load_countries"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='settingvalue',
-            options={'base_manager_name': '_plain_manager'},
+            name="settingvalue",
+            options={"base_manager_name": "_plain_manager"},
         ),
         migrations.AlterModelManagers(
-            name='settingvalue',
+            name="settingvalue",
             managers=[
-                ('objects', django.db.models.manager.Manager()),
-                ('_plain_manager', django.db.models.manager.Manager()),
+                ("objects", django.db.models.manager.Manager()),
+                ("_plain_manager", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterField(
-            model_name='account',
-            name='profile_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/Users/ajrbyers/Code/janeway/src/media'), upload_to=core.models.profile_images_upload_path),
+            model_name="account",
+            name="profile_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/Users/ajrbyers/Code/janeway/src/media"
+                ),
+                upload_to=core.models.profile_images_upload_path,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='accountrole',
-            unique_together=set([('journal', 'user', 'role')]),
+            name="accountrole",
+            unique_together=set([("journal", "user", "role")]),
         ),
     ]

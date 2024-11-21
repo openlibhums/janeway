@@ -14,16 +14,15 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('new_url')
+        parser.add_argument("new_url")
 
     def handle(self, *args, **options):
-        """ Moves your press to a new URL."
+        """Moves your press to a new URL."
 
         :param args: None
         :param options: Dictionary containing a 'new_url' string to which the press will be relocated
         :return: None
         """
         p = press_models.Press.get_press(None)
-        p.domain = options['new_url']
+        p.domain = options["new_url"]
         p.save()
-

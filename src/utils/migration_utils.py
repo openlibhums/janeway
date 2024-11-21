@@ -9,14 +9,16 @@ from django.utils import translation
 from django.db.models import Q
 
 
-def update_translated_settings(apps, setting_name, group_name, values_to_replace, replacement_value):
+def update_translated_settings(
+    apps, setting_name, group_name, values_to_replace, replacement_value
+):
     """
     Deprecated in 1.6, because it only works with an older translation
     setup that Janeway used to have.
     Gets a setting then iterates through available languages replacing a list of strings with a
     replacement string.
     """
-    SettingValue = apps.get_model('core', 'SettingValue')
+    SettingValue = apps.get_model("core", "SettingValue")
     languages = [lang[0] for lang in settings.LANGUAGES]
 
     setting_values = SettingValue.objects.filter(
@@ -26,7 +28,6 @@ def update_translated_settings(apps, setting_name, group_name, values_to_replace
 
     for setting_value in setting_values:
         for language in languages:
-
             with translation.override(language):
                 value = setting_value.value
 
@@ -73,9 +74,9 @@ def replace_strings_in_setting_values(
     :param languages: A list of language codes to check for old and new strings.
     """
     if not languages:
-        languages = ['en']
-    with translation.override('en'):
-        SettingValue = apps.get_model('core', 'SettingValue')
+        languages = ["en"]
+    with translation.override("en"):
+        SettingValue = apps.get_model("core", "SettingValue")
         setting_values = SettingValue.objects.filter(
             setting__name=setting_name,
             setting__group__name=group_name,
@@ -83,8 +84,8 @@ def replace_strings_in_setting_values(
 
         for setting_value in setting_values:
             for language in languages:
-                language_var = f'value_{language}'
-                value = getattr(setting_value, language_var, '')
+                language_var = f"value_{language}"
+                value = getattr(setting_value, language_var, "")
                 if not value:
                     continue
                 for old_string, new_string in replacements:
@@ -94,13 +95,15 @@ def replace_strings_in_setting_values(
                         setting_value.save()
 
 
-def update_default_setting_values(apps, setting_name, group_name, values_to_replace, replacement_value):
+def update_default_setting_values(
+    apps, setting_name, group_name, values_to_replace, replacement_value
+):
     """
     Updates the specified default setting value where it has not been edited.
     Accounts for translatable settings that use django-modeltranslation.
     """
-    with translation.override('en'):
-        SettingValue = apps.get_model('core', 'SettingValue')
+    with translation.override("en"):
+        SettingValue = apps.get_model("core", "SettingValue")
         setting_value = SettingValue.objects.filter(
             setting__name=setting_name,
             setting__group__name=group_name,
@@ -108,7 +111,7 @@ def update_default_setting_values(apps, setting_name, group_name, values_to_repl
         ).first()
 
         if setting_value:
-            language_var = "value_{}".format('en')
+            language_var = "value_{}".format("en")
             setattr(setting_value, language_var, replacement_value)
             setting_value.save()
 
@@ -127,7 +130,7 @@ def delete_setting(apps, setting_group_name, setting_name):
     """
     Used to delete a setting in migrations.
     """
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
     setting = Setting.objects.filter(
         group__name=setting_group_name,
         name=setting_name,
@@ -146,5 +149,5 @@ def store_empty_strings(model, fields):
     null=False
     """
     for field in fields:
-        query = Q((f'{field}__isnull', True))
-        model.objects.filter(query).update(**{field: ''})
+        query = Q((f"{field}__isnull", True))
+        model.objects.filter(query).update(**{field: ""})

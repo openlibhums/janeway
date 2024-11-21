@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0012_navigationitem_for_footer'),
+        ("cms", "0012_navigationitem_for_footer"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='navigationitem',
-            name='extend_to_journals',
+            model_name="navigationitem",
+            name="extend_to_journals",
             field=models.BooleanField(
                 default=False,
-                help_text='Whether this item should be '
-                          'extended to journal websites. '
-                          'Only implemented for footer links.',
+                help_text="Whether this item should be "
+                "extended to journal websites. "
+                "Only implemented for footer links.",
             ),
         ),
     ]

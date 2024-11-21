@@ -21,33 +21,34 @@ from utils.importers.up import get_input_value_by_name
 
 
 LOG_TYPES = [
-    ('Email', 'Email'),
-    ('PageView', 'PageView'),
-    ('EditorialAction', 'EditorialAction'),
-    ('Error', 'Error'),
-    ('Authentication', 'Authentication'),
-    ('Submission', 'Submission'),
-    ('Publication', 'Publication')
+    ("Email", "Email"),
+    ("PageView", "PageView"),
+    ("EditorialAction", "EditorialAction"),
+    ("Error", "Error"),
+    ("Authentication", "Authentication"),
+    ("Submission", "Submission"),
+    ("Publication", "Publication"),
 ]
 
 LOG_LEVELS = [
-    ('Error', 'Error'),
-    ('Debug', 'Debug'),
-    ('Info', 'Info'),
+    ("Error", "Error"),
+    ("Debug", "Debug"),
+    ("Info", "Info"),
 ]
 
 MESSAGE_STATUS = [
-    ('no_information', 'No Information'),
-    ('accepted', 'Sending'),
-    ('delivered', 'Delivered'),
-    ('failed', 'Failed'),
+    ("no_information", "No Information"),
+    ("accepted", "Sending"),
+    ("delivered", "Delivered"),
+    ("failed", "Failed"),
 ]
 
 EMAIL_RECIPIENT_FIELDS = [
-    ('to', 'To'),
-    ('cc', 'CC'),
-    ('bcc', 'BCC'),
+    ("to", "To"),
+    ("cc", "CC"),
+    ("bcc", "BCC"),
 ]
+
 
 class LogEntry(models.Model):
     types = models.CharField(max_length=255, null=True, blank=True)
@@ -55,41 +56,55 @@ class LogEntry(models.Model):
     subject = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     level = models.CharField(max_length=20, null=True, blank=True, choices=LOG_LEVELS)
-    actor = models.ForeignKey('core.Account', null=True, blank=True, related_name='actor', on_delete=models.SET_NULL)
+    actor = models.ForeignKey(
+        "core.Account",
+        null=True,
+        blank=True,
+        related_name="actor",
+        on_delete=models.SET_NULL,
+    )
     ip_address = models.GenericIPAddressField(null=True, blank=True)
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, related_name='content_type', null=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.SET_NULL, related_name="content_type", null=True
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    target = GenericForeignKey('content_type', 'object_id')
+    target = GenericForeignKey("content_type", "object_id")
 
     is_email = models.BooleanField(default=False)
     email_subject = models.TextField(blank=True, null=True)
     message_id = models.TextField(blank=True, null=True)
-    message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
+    message_status = models.CharField(
+        max_length=255, choices=MESSAGE_STATUS, default="no_information"
+    )
     number_status_checks = models.IntegerField(default=0)
     status_checks_complete = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = 'log entries'
+        verbose_name_plural = "log entries"
 
     def __str__(self):
-        return u'[{0}] {1} - {2} {3}'.format(self.types, self.date, self.subject, self.message_id)
+        return "[{0}] {1} - {2} {3}".format(
+            self.types, self.date, self.subject, self.message_id
+        )
 
     def __repr__(self):
-        return u'[{0}] {1} - {2} {3}'.format(self.types, self.date, self.subject, self.message_id)
+        return "[{0}] {1} - {2} {3}".format(
+            self.types, self.date, self.subject, self.message_id
+        )
 
     def message_status_class(self):
-        if self.message_status == 'delivered':
-            return 'green'
-        elif self.message_status == 'failed':
-            return 'red'
+        if self.message_status == "delivered":
+            return "green"
+        elif self.message_status == "failed":
+            return "red"
         else:
-            return 'amber'
+            return "amber"
 
     @property
     def to(self):
-        """ Deprecated in 1.6 because of ambiguity with cc and bcc fields.
-            Use addressee_emails instead.
+        """Deprecated in 1.6 because of ambiguity with cc and bcc fields.
+        Use addressee_emails instead.
         """
         return self.addressee_emails
 
@@ -103,48 +118,45 @@ class LogEntry(models.Model):
 
     @staticmethod
     def add_entry(
-            types,
-            description,
-            level,
-            actor=None,
-            request=None,
-            target=None,
-            is_email=False,
-            to=None,
-            message_id=None,
-            subject=None,
-            email_subject=None,
-            cc=None,
-            bcc=None
+        types,
+        description,
+        level,
+        actor=None,
+        request=None,
+        target=None,
+        is_email=False,
+        to=None,
+        message_id=None,
+        subject=None,
+        email_subject=None,
+        cc=None,
+        bcc=None,
     ):
-
         # When a user is not logged in request.user is a SimpleLazyObject
         # so we check if the actor is_anonymous.
         if actor is not None and actor.is_anonymous:
             actor = None
 
         kwargs = {
-            'types': types,
-            'description': description,
-            'level': level,
+            "types": types,
+            "description": description,
+            "level": level,
             # if no actor is supplied, assume anonymous
-            'actor': actor if actor else None,
-            'ip_address': get_ip_address(request),
-            'target': target,
-            'is_email': is_email,
-            'message_id': message_id,
-            'subject': subject,
-            'email_subject': email_subject,
+            "actor": actor if actor else None,
+            "ip_address": get_ip_address(request),
+            "target": target,
+            "is_email": is_email,
+            "message_id": message_id,
+            "subject": subject,
+            "email_subject": email_subject,
         }
         new_entry = LogEntry.objects.create(**kwargs)
 
-        for emails, field in [(to, 'to'), (cc, 'cc'), (bcc, 'bcc')]:
+        for emails, field in [(to, "to"), (cc, "cc"), (bcc, "bcc")]:
             if emails:
                 for email in emails:
                     Addressee.objects.create(
-                        log_entry=new_entry,
-                        email=email,
-                        field=field
+                        log_entry=new_entry, email=email, field=field
                     )
 
         return new_entry
@@ -190,7 +202,9 @@ class Version(models.Model):
     rollback = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return 'Version {number}, upgraded {date}'.format(number=self.number, date=self.date)
+        return "Version {number}, upgraded {date}".format(
+            number=self.number, date=self.date
+        )
 
 
 class Plugin(models.Model):
@@ -201,15 +215,14 @@ class Plugin(models.Model):
     display_name = models.CharField(max_length=200, blank=True, null=True)
     press_wide = models.BooleanField(default=False)
     homepage_element = models.BooleanField(
-        default=False,
-        help_text='Enable if the plugin is a homepage element.'
+        default=False, help_text="Enable if the plugin is a homepage element."
     )
 
     def __str__(self):
-        return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
+        return "[{0}] {1} - {2}".format(self.name, self.version, self.enabled)
 
     def __repr__(self):
-        return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
+        return "[{0}] {1} - {2}".format(self.name, self.version, self.enabled)
 
     def best_name(self, slug=False):
         if self.display_name:
@@ -224,15 +237,15 @@ class Plugin(models.Model):
 
 
 setting_types = (
-    ('rich-text', 'Rich Text'),
-    ('mini-html', 'Mini HTML'),
-    ('text', 'Plain Text'),
-    ('char', 'Characters'),
-    ('number', 'Number'),
-    ('boolean', 'Boolean'),
-    ('file', 'File'),
-    ('select', 'Select'),
-    ('json', 'JSON'),
+    ("rich-text", "Rich Text"),
+    ("mini-html", "Mini HTML"),
+    ("text", "Plain Text"),
+    ("char", "Characters"),
+    ("number", "Number"),
+    ("boolean", "Boolean"),
+    ("file", "File"),
+    ("select", "Select"),
+    ("json", "JSON"),
 )
 
 
@@ -255,7 +268,7 @@ class ImportCacheEntry(models.Model):
         super().delete(*args, **kwargs)
 
     @staticmethod
-    def fetch(url, up_auth_file='', up_base_url='', ojs_auth_file=''):
+    def fetch(url, up_auth_file="", up_base_url="", ojs_auth_file=""):
         try:
             cached = ImportCacheEntry.objects.get(url=url)
 
@@ -271,7 +284,7 @@ class ImportCacheEntry(models.Model):
             if not settings.SILENT_IMPORT_CACHE:
                 print("[CACHE] Using cached version of {0}".format(url))
 
-            with open(cached.on_disk, 'rb') as on_disk_file:
+            with open(cached.on_disk, "rb") as on_disk_file:
                 return on_disk_file.read(), cached.mime_type
 
         except (ImportCacheEntry.DoesNotExist, FileNotFoundError):
@@ -279,40 +292,53 @@ class ImportCacheEntry(models.Model):
                 print("[CACHE] Fetching remote version of {0}".format(url))
 
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
-                              'Chrome/39.0.2171.95 Safari/537.36'}
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/39.0.2171.95 Safari/537.36"
+            }
 
             # disable SSL checking
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
             # setup auth variables
             do_auth = False
-            username = ''
-            password = ''
+            username = ""
+            password = ""
 
             session = requests.Session()
 
             # first, check whether there's an auth file
-            if up_auth_file != '':
-                with open(up_auth_file, 'r', encoding="utf-8") as auth_in:
+            if up_auth_file != "":
+                with open(up_auth_file, "r", encoding="utf-8") as auth_in:
                     auth_dict = jason.loads(auth_in.read())
                     do_auth = True
-                    username = auth_dict['username']
-                    password = auth_dict['password']
+                    username = auth_dict["username"]
+                    password = auth_dict["password"]
 
             if do_auth:
                 # load the login page
-                auth_url = '{0}{1}'.format(up_base_url, '/login/')
-                fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
-                csrf_token = get_input_value_by_name(fetched.content, 'csrfmiddlewaretoken')
+                auth_url = "{0}{1}".format(up_base_url, "/login/")
+                fetched = session.get(
+                    auth_url, headers=headers, stream=True, verify=False
+                )
+                csrf_token = get_input_value_by_name(
+                    fetched.content, "csrfmiddlewaretoken"
+                )
 
-                post_dict = {'username': username, 'password': password, 'login': 'login',
-                             'csrfmiddlewaretoken': csrf_token}
-                fetched = session.post('{0}{1}'.format(up_base_url, '/login/'), data=post_dict,
-                                       headers={'Referer': auth_url,
-                                                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
-                                                              'Chrome/39.0.2171.95 Safari/537.36'
-                                                })
+                post_dict = {
+                    "username": username,
+                    "password": password,
+                    "login": "login",
+                    "csrfmiddlewaretoken": csrf_token,
+                }
+                fetched = session.post(
+                    "{0}{1}".format(up_base_url, "/login/"),
+                    data=post_dict,
+                    headers={
+                        "Referer": auth_url,
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/39.0.2171.95 Safari/537.36",
+                    },
+                )
                 if not settings.SILENT_IMPORT_CACHE:
                     print("[CACHE] Sending auth")
 
@@ -324,27 +350,27 @@ class ImportCacheEntry(models.Model):
                 resp += chunk
 
             # set the filename to a unique UUID4 identifier with the passed file extension
-            filename = '{0}'.format(uuid4())
+            filename = "{0}".format(uuid4())
 
             # set the path to save to be the sub-directory for the article
-            path = os.path.join(settings.BASE_DIR, 'files', 'import_cache')
+            path = os.path.join(settings.BASE_DIR, "files", "import_cache")
 
             # create the sub-folders as necessary
             if not os.path.exists(path):
                 os.makedirs(path, 0o0775)
 
-            with open(os.path.join(path, filename), 'wb') as f:
+            with open(os.path.join(path, filename), "wb") as f:
                 f.write(resp)
 
             ImportCacheEntry.objects.update_or_create(
                 url=url,
                 defaults=dict(
-                    mime_type=fetched.headers.get('content-type'),
-                    on_disk=os.path.join(path, filename)
+                    mime_type=fetched.headers.get("content-type"),
+                    on_disk=os.path.join(path, filename),
                 ),
             )
 
-            return resp, fetched.headers.get('content-type')
+            return resp, fetched.headers.get("content-type")
 
     def __str__(self):
         return self.url

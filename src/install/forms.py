@@ -9,14 +9,12 @@ from utils import setting_handler
 
 
 class JournalForm(forms.ModelForm):
-
     class Meta:
         model = journal_models.Journal
-        fields = ('code', 'description')
+        fields = ("code", "description")
 
 
 class JournalSettingsForm(forms.Form):
-
     journal_name = forms.CharField(label="Journal Name")
     publisher_name = forms.CharField(label="Publisher Name")
     publisher_url = forms.URLField(label="Publisher URL")
@@ -24,4 +22,6 @@ class JournalSettingsForm(forms.Form):
 
     def save(self, request, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            test = setting_handler.save_setting('general', setting_name, request.journal, setting_value)
+            test = setting_handler.save_setting(
+                "general", setting_name, request.journal, setting_value
+            )

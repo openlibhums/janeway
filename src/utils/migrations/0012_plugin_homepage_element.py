@@ -7,26 +7,27 @@ from django.db import migrations, models
 
 def fix_plugins(apps, schema_editor):
     plugin_names = [
-        'HTML',
-        'News',
+        "HTML",
+        "News",
     ]
-    Plugin = apps.get_model('utils', 'Plugin')
+    Plugin = apps.get_model("utils", "Plugin")
     plugins = Plugin.objects.filter(name__in=plugin_names).update(
         homepage_element=True,
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0011_upgrade_1_3_5'),
+        ("utils", "0011_upgrade_1_3_5"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='plugin',
-            name='homepage_element',
-            field=models.BooleanField(default=False, help_text='Enable if the plugin is a homepage element.'),
+            model_name="plugin",
+            name="homepage_element",
+            field=models.BooleanField(
+                default=False, help_text="Enable if the plugin is a homepage element."
+            ),
         ),
         migrations.RunPython(
             fix_plugins,
