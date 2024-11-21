@@ -69,20 +69,12 @@
         </div>
     </div>
 
-    {% if request.user.is_authenticated %}
-      {% comment %}
-        The way title-section is established below
-        breaks accessibility because if it is not used,
-        there is an empty h1. So, for the short-term, we exclude it from
-        public-facing account management pages.
-      {% endcomment %}
-      <section class="title">
-        <div class="row expanded column">
-            <h1>{% block title-section %}{% endblock %}</h1>
-            <p>{% block title-sub %}{% endblock %}</p>
-        </div>
-      </section>
-    {% endif %}
+    <section class="title">
+      <div class="row expanded column">
+          <h1>{% block title-section %}{% endblock %}</h1>
+          <p>{% block title-sub %}{% endblock %}</p>
+      </div>
+    </section>
 
     {% block body %}
     {% endblock body %}

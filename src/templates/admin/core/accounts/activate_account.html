@@ -10,12 +10,17 @@
   <li>{% trans "Activate Account" %}</li>
 {% endblock breadcrumbs %}
 
+{% block title-section %}
+  {% if account %}
+    {% trans "Activate Account" %}
+  {% else %}
+    {% trans "No account to activate" %}
+  {% endif %}
+{% endblock %}
+
 {% block form_content %}
   {% if account %}
-    <h2 class="text-center">
-      {% trans "Activate Account" %}
-    </h2>
-    {% include "admin/elements/forms/accessible_messages.html" with form=form %}
+    {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
     <p>{% blocktrans %}
       You can complete the activation process by clicking the button
       below.
@@ -24,9 +29,6 @@
       {% trans "Activate Account" %}
     </button>
   {% else %}
-    <h2 class="text-center">
-    {% trans "No account to activate" %}
-    </h2>
     <p>{% blocktrans %}
       Sorry, we could not find an account to activate, or your account is active
       already. You can check if it is active by attempting to log in.
