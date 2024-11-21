@@ -1,6 +1,6 @@
 Installation Guide
 ==================
-There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR. A Lando configuration is also included.
+There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR.
 
 Running Janeway with Docker and docker compose
 ----------------------------------------------
@@ -35,48 +35,6 @@ The Makefile can be configured with a number of variables to change the way in w
 
 If you want to install custom python libraries for development, you can drop them into the dev_requirements.txt file and run ``make rebuild``. Rebuilding the container takes some time, so it is also possible to install python libraries in development mode. When installed in this manner, the library is mounted as a volume into the janeway container when you first run `make rebuild` and  you will be able to make changes to the library without having to run ``make rebuild``. In order to install a library in development mode, copy the code to ``/path/to/janeway/lib/`` and run ``make rebuild`` once.
 
-
-Using Lando for a development environment (optional)
------------------------------------------------------------------
-
-`Lando <https://lando.dev/>`_ can be used to construct and manage a local a 
-development environment. Here are the steps required to get Janeway running on 
-your local machine, using Lando:
-
-.. note:: Lando comes bundled with Docker Desktop for MacOS, if you already have Docker 
-  Desktop installed on your Mac, don't re-install it. You should instead ensure you have the 
-  same (or newer) version as what is bundled with Lando.
-
-1. Make sure `Lando <https://lando.dev/>`_ is installed
-2. Optionally, copy ``dockerfiles/lando_local.env.example`` to ``dockerfiles/lando_local.env`` and customize as appropriate (the
-   database configuration is done with environment variables, so pay attention to 
-   ``dockerfiles/lando_local.env`` if it's important to you)
-3. ``lando poweroff`` (defensively ensure no other Lando environments are running, probably not necessary, but a good habit)
-4. ``lando rebuild``
-5. When you see the big "Boomshakala" message from Lando, you're ready to proceed
-6. ``lando manage check`` will confirm the installation is working, and notify you of any misconfigurations
-7. Revise your src/core/settings.py file as directed in the `Database Setup and Final Installation`_ instructions below
-8. ``lando logs -f`` will show you the log output from Janeway, though when you're getting started, `lando manage check` will help you find configuration errors much faster than sifting through log file output
-9. ``lando manage <command>`` will send commands to the src/core/manage.py script, run `lando manage -h` to see more info
-10. ``lando manage install_janeway`` will continue your installation of Janeway
-11. ``lando manage test`` will run the Janeway unit test suite
-12. ``lando python <command>`` will send Python commands to the appserver
-13. Browse to `http://localhost:8000` to see the site in action
-14. run ``lando`` to see what other Lando tooling commands are available.
-
-Lando Tooling
--------------
-
-* ``lando psql`` Drops into the PostgreSQL client running on the database service
-* ``lando db-import <file>`` Imports a dump file into the database service
-* ``lando ssh`` Drops into a shell on the application service, runs commands
-* ``lando start`` Starts the Janeway app
-* ``lando stop`` Stops the Janeway app
-* ``lando rebuild`` Rebuilds the Janeway app
-* ``lando restart`` Starts and stops the Janeway app, useful for forcing the app to use new configurations
-* ``lando destroy`` Removes all traces of the Janeway dev environment's containers, useful if you need to ensure a fresh start
-
-More Lando `tooling <https://docs.lando.dev/config/tooling.html>`_ can be added, if you need it.
 
 Native Install
 --------------
