@@ -239,17 +239,17 @@
                         {% trans "Share" %}
                     </h4>
                       {% with article.get_doi_url as doi_url%}
-                      {# IconA11y Semantic #}
+                      {# IconA11y Semantic - syntax updated #}
                         <a class="waves-effect waves-light btn btn-small facebook-bg"
                             href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
+                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i aria-hidden="true" class="fa fa-facebook"></i></a>
                         <a class="waves-effect waves-light btn btn-small twitter-bg twitter-x" 
                             href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
                             target="_blank" aria-label="{% trans 'Share on X' %}"><span aria-hidden="true">&#120143;</span></a>
-                        {# IconA11y Semantic #}
+                        {# IconA11y Semantic - syntax updated #}
                         <a class="waves-effect waves-light btn btn-small linkedin-bg"
                             href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
+                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i aria-hidden="true" class="fa fa-linkedin"></i></a></button>
                       {% endwith %}
 
                     {% if article.frozen_authors.count > 0 %}
@@ -270,9 +270,11 @@
                                 <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic #}
-                                <a itemprop="email" href="mailto:{{ author.email }}"
-                                   class="fa fa-envelope email-link"></a>{% endif %}
+                                {# IconA11y Semantic - syntax updated #}
+                                <a itemprop="email" href="mailto:{{ author.email }}">
+                                   <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                   <span class="sr-only">Email author.</span>
+                                </a>{% endif %}
                     {% endfor %}
                     {% endif %}
 
@@ -399,9 +401,14 @@
                     <h4>
                         {% trans "Licence" %}
                     </h4>
-                    <p>{{ article.license.name }} {% if article.license.url %}
-                        {# IconA11y Semantic #}
-                        <a rel="license" href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
+                    <p>{{ article.license.name }} 
+                        {% if article.license.url %}
+                            {# IconA11y Semantic - updated to aria-label on a tag #}
+                            <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
+                                <i aria-hidden="true" class="fa fa-external-link"></i>
+                            </a>
+                        {% endif %}
+                    </p>
 
                     {% if article.competing_interests %}
                     <div class="spacer">

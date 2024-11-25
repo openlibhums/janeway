@@ -30,8 +30,10 @@
                     <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
                     {% if request.user and request.user.is_staff or user_is_editor %}
                         <a href="{% url 'manage_issues_id' issue.pk %}">
-                            {# IconA11y Semantic #}
-                            <i class="fa fa-edit">&nbsp;</i></a>
+                            {# IconA11y Semantic - syntax updated #}
+                            <i aria-hidden="true" class="fa fa-edit">&nbsp;</i>
+                            <span class="sr-only">Edit Issue</span>
+                        </a>
                     {% endif %}
                 </div>
             </div>

@@ -5,7 +5,7 @@
     {% if orcid %}
         <p>
             ORCiD                            
-            {# IconA11y Semantic #}
+            {# IconA11y Semantic - alt text provided #}
             <a href="{{ orcid }}"><img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}"> {{ orcid }}</a>&nbsp;
             [<a href="{% url 'core_register' %}">remove</a>]
         </p>
