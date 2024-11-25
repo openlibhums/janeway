@@ -113,9 +113,9 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            {# IconA11y Decorative #}
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
-                                    class="fa fa-download"></span>
+                            {# IconA11y Decorative - syntax updated #}
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                                <i aria-hidden="true"  class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a>
                         </p>
@@ -159,8 +159,8 @@
                       </ul>
                     {% endif %}
 
-                    {# IconA11y Decorative #}
-                    <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
+                    {# IconA11y Decorative - syntax updated #}
+                    <a href="{% url 'repository_list' %}"><i aria-hidden="true"  class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
 
                 </small>
             </div>

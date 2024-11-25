@@ -44,16 +44,16 @@
         {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}
             <li>
                 <a href="{% url 'submission_start' %}" class="button">
-                    {# IconA11y Decorative #}
-                    <i class="fa fa-cloud-upload"></i> {% trans 'Start Submission' %}
+                    {# IconA11y Decorative - syntax updated #}
+                    <i aria-hidden="true" class="fa fa-cloud-upload"></i> {% trans 'Start Submission' %}
                 </a>
             </li>
         {% endif %}
         {% if request.journal.nav_review %}
             <li>
                 <a href="{% url 'become_reviewer' %}" class="button">
-                    {# IconA11y Decorative #}
-                    <i class="fa fa-trophy"></i> 
+                    {# IconA11y Decorative - syntax updated #}
+                    <i aria-hidden="true" class="fa fa-trophy"></i> 
                     {% trans 'Become a Reviewer' %}
                 </a>
             </li>

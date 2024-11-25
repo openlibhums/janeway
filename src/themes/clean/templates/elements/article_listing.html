@@ -42,21 +42,21 @@
                         <time datetime="{{ article.date_published|date:"Y-m-d" }}">{{ article.date_published|date:"Y-m-d" }} </time>
                     </span>
                     {% if article.issue %}
-                    {# IconA11y Decorative #}
-                    <span class="fa fa-book"></span>
+                    {# IconA11y Decorative - syntax updated #}
+                    <i aria-hidden="true" class="fa fa-book"></i>
                     <a href="{{ article.issue.url }}">
                         {{ article.issue_title }}
                     </a>
                     {% endif %}
                 </p>
                  {% if article.issues.count > 1 %}
-                  {# IconA11y Decorative #}
-                  <p><strong><span class="fa fa-info-circle"></span> {% trans 'Also a part of:'%}</strong></p>
+                  {# IconA11y Decorative - syntax updated #}
+                  <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
                   {% for other in article.issues.all %}
                   {% if other != article.issue %}
                   <p>
-                    {# IconA11y Decorative #}
-                    <span class="fa fa-book"></span>
+                    {# IconA11y Decorative - syntax updated #}
+                    <i aria-hidden="true" class="fa fa-book"></i>
                     <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
                     </a>
