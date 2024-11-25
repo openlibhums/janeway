@@ -79,7 +79,7 @@ def article_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 CREDIT_ROLE_CHOICES = [
-    ('conceptualization', 'Conceptualization'),
+    ('Conceptualization', 'Conceptualization'),
     ('Data Curation', 'Data Curation'),
     ('Formal Analysis', 'Formal Analysis'),
     ('Funding Acquisition', 'Funding Acquisition'),
@@ -92,7 +92,7 @@ CREDIT_ROLE_CHOICES = [
     ('Validation', 'Validation'),
     ('Visualization', 'Visualization'),
     ('Writing - Original Draft', 'Writing - Original Draft'),
-    ('Writing - Review Editing', 'Writing - Review & Editing'),
+    ('Writing - Review & Editing', 'Writing - Review & Editing'),
 ]
 
 SALUTATION_CHOICES = [
