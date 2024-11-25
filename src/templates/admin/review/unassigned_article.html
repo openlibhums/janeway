@@ -98,12 +98,20 @@
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>CRediT Roles</th>
                         <th>Primary?</th>
                     </tr>
                     {% for order in article.articleauthororder_set.all %}
                         <tr>
                             <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
                             <td>{{ order.author.email|se_can_see_pii:article }}</td>
+                            <td>
+                                {% for author, role in article.credit_roles.items %}
+                                    {% if author.pk == order.author.pk %}
+                                        {% for credit in role %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
                             <td>{% if order.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
