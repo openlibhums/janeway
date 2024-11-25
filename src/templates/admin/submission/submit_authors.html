@@ -68,6 +68,7 @@
                             <th></th>
                             <th>{% trans "Name" %}</th>
                             <th>{% trans "Email" %}</th>
+                            <th>{% trans "CRediT Roles" %}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -77,6 +78,30 @@
                                 <td><i class="fa fa-sort"></i></td>
                                 <td>{{ order.author.full_name }}</td>
                                 <td>{{ order.author.email }}</td>
+                                <td>
+                                    {% for author, role in article.credit_roles.items %}
+                                        {% if author.pk == order.author.pk %}
+                                            {% for credit in role %}<form style="display:inline-block" method="POST" id="remove_credit-{{order.author.pk}}-{{credit.pk}}" name="remove_credit-{{order.author.pk}}-{{credit.pk}}">{% csrf_token %}<input type="hidden" name="author" id="author" value="{{author.pk}}"/><input type="hidden" name="role" id="role" value="{{credit.pk}}"/><input type="hidden" name="remove_credit" id="remove_credit" value="remove_credit"><a href="#" onclick="document.getElementById('remove_credit-{{order.author.pk}}-{{credit.pk}}').submit();">{{ credit|title }}</a></form>{% if not forloop.last %}, {% endif %}{% endfor %}
+                                        {% endif %}
+                                    <br/>
+                                    {% endfor %}
+                                    <form method="POST">{% csrf_token %}
+                                        <div class="row" >
+                                            <div class="large-8 columns" style="vertical-align:middle;padding-left:0px">
+                                                <select class="form-control" id="credit-{{order.author.pk}}" name="credit-{{order.author.pk}}">
+                                                    <option value="None">---------</option>
+                                                    {% for role in all_roles %}
+                                                        <option value="{{ role.1 }}">{{ role.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="large-4 columns" style="vertical-align:middle">
+                                                <input type="hidden" name="author_id" id="author_id" value="{{ order.author.pk }}">
+                                                <input type="submit" name="add_credit" id="add_credit" value="Add" class="small success button"/>
+                                            </div>
+                                        </div>
+                                </form>
+                                </td>
                                 <td><a href="{% url 'delete_author' article.pk order.author.pk %}"><i
                                         class="fa fa-trash">
                                     &nbsp;</i></a></td>
