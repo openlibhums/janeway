@@ -61,6 +61,7 @@ from copyediting import models as copyediting_models
 from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
+from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
@@ -639,6 +640,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
             frozen_author.save()
             self.snapshot_affiliations(frozen_author)
 
+        # now update the CRediT records
+        credit_records = CreditRecord.objects.filter(article=article, author=self)
+
+        for credit_record in credit_records:
+            credit_record.frozen_author = frozen_author
+            credit_record.save()
+
         else:
             try:
                 order_object = article.articleauthororder_set.get(author=self)
@@ -657,6 +665,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
             )
             if created:
                 self.snapshot_affiliations(frozen_author)
+
+            # now update the CRediT records
+            credit_records = CreditRecord.objects.filter(article=article,
+                                                         author=self)
+
+            for credit_record in credit_records:
+                credit_record.frozen_author = frozen_author
+                credit_record.save()
 
     def frozen_author(self, article):
         try:

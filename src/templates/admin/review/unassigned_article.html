@@ -101,13 +101,13 @@
                         <th>CRediT Roles</th>
                         <th>Primary?</th>
                     </tr>
-                    {% for order in article.articleauthororder_set.all %}
+                    {% for order in article.frozenauthor_set.all %}
                         <tr>
                             <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
                             <td>{{ order.author.email|se_can_see_pii:article }}</td>
                             <td>
-                                {% for author, role in article.credit_roles.items %}
-                                    {% if author.pk == order.author.pk %}
+                                {% for author, role in article.credit_roles_frozen.items %}
+                                    {% if author == order %}
                                         {% for credit in role %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}
                                     {% endif %}
                                 {% endfor %}
