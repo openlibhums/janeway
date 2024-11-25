@@ -277,8 +277,6 @@ def submit_authors(request, article_id):
     form = forms.AuthorForm()
     error, modal = None, None
 
-    print(request.POST)
-
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_user_as_author(request.user, article)
         messages.add_message(
