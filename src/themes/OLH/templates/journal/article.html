@@ -519,6 +519,17 @@
                             {% endif %}
                         </div>
 
+                        {% if credit_roles|length > 0 %}
+                        <div class="section hide-for-small-only">
+                            <h3>{% trans "CRediT Roles" %}</h3>
+                            <ul>
+                            {% for author, roles in credit_roles.items %}
+                                <li>{{ author.full_name }}: <span class="credit">{% for credit in roles %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
