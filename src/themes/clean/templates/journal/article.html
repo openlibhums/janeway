@@ -345,6 +345,15 @@
                     {% else %}
                         <p> {% trans 'File Checksums are not available for this article.' %}</p>
                     {% endif %}
+
+                    {% if credit_roles|length > 0 %}
+                    <h2>{% trans 'CRediT Roles' %}</h2>
+                    <ul>
+                    {% for author, roles in credit_roles.items %}
+                        <li>{{ author.full_name }}: <span class="credit">{% for credit in roles %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
                 {% endif %}
             </div>
              {% if article_content %}
