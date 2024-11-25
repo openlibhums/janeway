@@ -37,16 +37,14 @@
             </a>
               <div id="carousel-buttons">
                 <button id="carousel-play" type="button" class="btn btn-secondary btn-sm">
-                  {# IconA11y Semantic #}
-                  <span class="fa fa-play">
-                    <span class="sr-only">{% trans 'Play' %}</span>
-                  </span>
+                  {# IconA11y Semantic - updated syntax #}
+                  <i aria-hidden="true" class="fa fa-play" ></i>
+                  <span class="sr-only">{% trans 'Play' %}</span>
                </button>
                 <button id="carousel-pause" type="button" class="btn btn-secondary btn-sm">
-                  {# IconA11y Semantic #}
-                  <span class="fa fa-pause">
-                    <span class="sr-only">{% trans 'Play' %}</span>
-                  </span>
+                  {# IconA11y Semantic - updated syntax #}
+                  <i aria-hidden="true" class="fa fa-pause" ></i>
+                  <span class="sr-only">{% trans 'Play' %}</span>
                 </button>
               </div>
         </div>
