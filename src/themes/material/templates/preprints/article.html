@@ -149,8 +149,8 @@
                             <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "APA Citation" %}</a>
                         </div>
 
-                        {# IconA11y Decorative #}
-                        <p><br/><a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
+                        {# IconA11y Decorative - syntax updated #}
+                        <p><br/><a href="{% url 'preprints_list' %}"><i aria-hidden="true" class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
                         </p>
                     </small>
                 </div>
