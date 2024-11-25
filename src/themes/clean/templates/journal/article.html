@@ -60,8 +60,8 @@
                                         <a itemprop="email" href="mailto:{{ author.email }}"
                                            class="fa fa-envelope email-link"
                                            > 
-                                           {# IconA11y Semantic #}
-                                           {% trans 'Contact' %}
+                                           {# IconA11y Semantic - but has adjacent text - text improved to make this decorative #}
+                                           {% trans 'Contact by email' %}
                                         </a>
                                     {% endif %}
                                 </span></span>
@@ -247,8 +247,10 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
-                    {# IconA11y Semantic #}
-                    <li>{% trans "Peer Reviewed" %} <span class="fa fa-check-circle"></span> </li>
+                    {# IconA11y Decorative - changed from Semantic as this is hidden when not used #}
+                        <li>{% trans "Peer Reviewed" %}
+                            <i aria-hidden="true" class="fa fa-check-circle"></i>
+                        </li>
                     {% endif %}
                     {% if article.license %}
                     <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"

@@ -139,8 +139,12 @@
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
-                            {# IconA11y Semantic #}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
+                            {# IconA11y Semantic - updated with aria-label in a tag #}
+                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" 
+                                aria-label="Downlaod Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}"
+                                >
+                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                            </a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
                         {% endfor %}

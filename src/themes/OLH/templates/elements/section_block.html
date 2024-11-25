@@ -24,33 +24,39 @@
             <td>
                 <strong>
                     {% if section.public_submissions %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        <span class="sr-only">{% trans 'yes' %}</span>
                     {% else %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-times" title="{% trans 'no' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
+                        <span class="sr-only">{% trans 'no' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        <span class="sr-only">{% trans 'yes' %}</span>
                     {% else %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-times" title="{% trans 'no' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
+                        <span class="sr-only">{% trans 'no' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.indexing %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
+                        <span class="sr-only">{% trans 'yes' %}</span>
                     {% else %}
-                        {# IconA11y Semantic #}
-                        <i class="fa fa-times" title="{% trans 'no' %}"></i>
+                        {# IconA11y Semantic - syntax updated #}
+                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
+                        <span class="sr-only">{% trans 'no' %}</span>
                     {% endif %}
                 </strong>
             </td>
