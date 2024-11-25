@@ -27,6 +27,7 @@ from security.decorators import (
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
+from submission.models import CreditRecord
 from utils import setting_handler
 from utils import shared as utils_shared
 from utils.decorators import GET_language_override
@@ -323,6 +324,15 @@ def submit_authors(request, article_id):
             return redirect(reverse(
                 'submit_authors', kwargs={'article_id': article_id}))
 
+    elif request.POST and 'add_credit' in request.POST:
+        # extract author ID
+        author_id = request.POST.get('author_id', None)
+
+        if author_id:
+            role = request.POST.get(f'credit-{author_id}', None)
+            CreditRecord.objects.get_or_create(role=role, author_id=author_id, article_id=article_id)
+
+
     elif request.POST and 'search_authors' in request.POST:
         search = request.POST.get('author_search_text', None)
 
@@ -350,6 +360,8 @@ def submit_authors(request, article_id):
                     request, messages.WARNING,
                     _('No author found with those details.'),
                 )
+    elif request.POST and 'remove_credit' in request.POST:
+        CreditRecord.objects.get(pk=request.POST.get('role')).delete()
 
     elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
@@ -374,12 +386,15 @@ def submit_authors(request, article_id):
 
         return HttpResponse('Complete')
 
+    all_roles = models.CREDIT_ROLE_CHOICES
+
     template = 'admin/submission//submit_authors.html'
     context = {
         'error': error,
         'article': article,
         'form': form,
         'modal': modal,
+        'all_roles': all_roles,
     }
 
     return render(request, template, context)

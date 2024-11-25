@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from collections import defaultdict
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
@@ -855,6 +856,19 @@ class Article(AbstractLastModifiedModel):
 
     class Meta:
         ordering = ('-date_published', 'title')
+
+    # credits
+    @property
+    def credit_roles(self):
+        records = CreditRecord.objects.filter(article=self).order_by('role')
+
+        credit_roles_return = defaultdict(list)
+
+        for record in records:
+            credit_roles_return[record.author].append(record)
+
+        credit_roles_return.default_factory = None
+        return credit_roles_return
 
     @property
     def safe_title(self):
@@ -2223,6 +2237,10 @@ class CreditRecord(AbstractLastModifiedModel):
 
     def __str__(self):
         return self.role
+
+    @staticmethod
+    def all_roles(self):
+        return CREDIT_ROLE_CHOICES
 
 
 class Section(AbstractLastModifiedModel):
