@@ -160,16 +160,16 @@
                                     <h5>
                                         {{ article.metrics.views }}
                                     </h5>
-                                    {# IconA11y Decorative #}
-                                    <p><i class="fa fa-eye"></i>{% trans "Views" %}</p>
+                                    {# IconA11y Decorative - syntax updated #}
+                                    <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
                                 {% if galleys %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.metrics.downloads }}
                                         </h5>
-                                        {# IconA11y Decorative #}
-                                        <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
+                                        {# IconA11y Decorative - syntax updated #}
+                                        <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.twitter %}
@@ -177,8 +177,8 @@
                                         <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
-                                        {# IconA11y Decorative #}
-                                        <p><i class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
+                                        {# IconA11y Decorative - syntax updated #}
+                                        <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
@@ -186,8 +186,8 @@
                                         <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
-                                        {# IconA11y Decorative #}
-                                        <p><i class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
+                                        {# IconA11y Decorative - syntax updated #}
+                                        <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
@@ -195,8 +195,8 @@
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
-                                        {# IconA11y Decorative #}
-                                        <p><i class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
+                                        {# IconA11y Decorative - syntax updated #}
+                                        <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
 
@@ -205,8 +205,8 @@
                                         <h5>
                                             {{ article.citation_count }}
                                         </h5>
-                                        {# IconA11y Decorative #}
-                                        <p><i class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
+                                        {# IconA11y Decorative - syntax updated #}
+                                        <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
                             </div>
@@ -425,8 +425,8 @@
                             {% trans "Peer Review" %}
                         </h4>
                         <p>
-                            {# IconA11y Decorative #}
-                            <i class="fa fa-check-circle-o" style="color: green"></i>
+                            {# IconA11y Decorative - syntax updated #}
+                            <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
                             {% trans "This article has been peer reviewed." %}
                         </p>
                             {% if journal_settings.general.open_peer_review %}
