@@ -254,9 +254,11 @@
                                 <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic #}
-                                <a itemprop="email" href="mailto:{{ author.email }}"
-                                   class="fa fa-envelope email-link"></a>{% endif %}
+                                {# IconA11y Semantic - syntax updated #}
+                                <a itemprop="email" href="mailto:{{ author.email }}">
+                                   <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                   <span class="sr-only">Email author.</span>
+                                </a>{% endif %}
                     {% endfor %}
                     {% endif %}
 
@@ -383,9 +385,14 @@
                     <h4>
                         {% trans "Licence" %}
                     </h4>
-                    <p>{{ article.license.name }} {% if article.license.url %}
-                        {# IconA11y Semantic #}
-                        <a rel="license" href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
+                    <p>{{ article.license.name }} 
+                        {% if article.license.url %}
+                            {# IconA11y Semantic - updated to aria-label on a tag #}
+                            <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
+                                <i aria-hidden="true" class="fa fa-external-link"></i>
+                            </a>
+                        {% endif %}
+                    </p>
 
                     {% if article.competing_interests %}
                     <div class="spacer">

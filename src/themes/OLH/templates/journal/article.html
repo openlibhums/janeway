@@ -33,8 +33,8 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                            {# IconA11y Semantic #}
-                            <a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>
+                            {# IconA11y Semantic - syntax update #}
+                            <a itemprop="email" href="mailto:{{ author.email }}" aria-label="Email author" class="fa fa-envelope email-link"></a>
                         {% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
@@ -84,10 +84,11 @@
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {# IconA11y Semantic #}
+                                            {# IconA11y Semantic - syntax updated #}
                                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                                 <a itemprop="email" href="mailto:{{ author.email }}"
-                                                    class="fa fa-envelope email-link">
+                                                    class="fa fa-envelope email-link"
+                                                    aria-label="Email author">
                                                 </a>
                                             {% endif %}</span></span>
                                     {% endfor %}
@@ -127,25 +128,27 @@
                                         <a href="{{ article.local_url }}print/" 
                                             aria-label="{% trans 'print article' %}"
                                             >
-                                            {# IconA11y Semantic #}
-                                            <i class="fa fa-print">&nbsp;</i>
+                                            {# IconA11y Semantic - updated syntax #}
+                                            <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
                                         </a>
                                     </li>
                                     <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
                                     <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}">
-                                                {# IconA11y Semantic #}
-                                                <i class="fa fa-envelope"></i>
+                                            <a href="mailto:{{ article.correspondence_author.email }}"
+                                                aria-label="email author"
+                                            >
+                                                {# IconA11y Semantic - updated via aria-label in a tag #}
+                                                <i aria-hidden="true" class="fa fa-envelope"></i>
                                             </a>
                                         </li>
                                     {% endif %}
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
                                         <a href="#" aria-label="{% trans 'Cite article' %}">
-                                            {# IconA11y Semantic #}
-                                            <i class="fa fa-comments">&nbsp;</i>
+                                            {# IconA11y Semantic - syntax updated #}
+                                            <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
                                         </a>
                                         <ul class="menu vertical">
                                             <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
@@ -183,10 +186,12 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic #}
+                                {# IconA11y Semantic - syntax updated #}
                                 <a itemprop="email" 
                                     href="mailto:{{ author.email }}" 
-                                    class="fa fa-envelope email-link">
+                                    aria-label="Email author"
+                                >
+                                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                 </a>
                             {% endif %}
                         </li>
@@ -346,8 +351,13 @@
                                                 </a>
                                                 {% endif %}
                                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                                    {# IconA11y Semantic #}
-                                                    <a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>
+                                                    {# IconA11y Semantic - syntax updated #}
+                                                    <a itemprop="email" 
+                                                        href="mailto:{{ author.email }}" 
+                                                        class="fa fa-envelope email-link"
+                                                        aria-label="Email author."
+                                                        >
+                                                    </a>
                                                 {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
                                             </li>

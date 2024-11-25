@@ -22,8 +22,10 @@
                                     {% if editor.profile_image %}{{ editor.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
                             {% if user.enable_public_profile %}
                                 <a href="{% url 'core_public_profile' editor.uuid %}"
-                                   class="btn-floating halfway-fab waves-effect waves-light red">
-                                   {# IconA11y Semantic #}
+                                   class="btn-floating halfway-fab waves-effect waves-light red"
+                                   aria-label="User profile"
+                                   >
+                                   {# IconA11y Semantic - updated with aria-label on a tag #}
                                    <i class="fa fa-user" aria-hidden="true"></i>
                                 </a>{% endif %}
                         </div>

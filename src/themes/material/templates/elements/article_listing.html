@@ -27,9 +27,9 @@
             </p>
             <p>
                 <span class="date">
-                    {# IconA11y Semantic #}
-                    <i class="fa fa-calendar"></i>
-                    {{ article.date_published|date:"Y-m-d" }}
+                    {# IconA11y Decorative - changed from Semantic using time tag #}
+                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                    <time datetime='{{ article.date_published|date:"Y-m-d}}'>{{ article.date_published|date:"Y-m-d" }}</time>
                 </span>
 
                 {% if article.issue %}

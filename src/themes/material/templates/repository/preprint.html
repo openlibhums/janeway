@@ -184,8 +184,10 @@
                         {% for version in preprint.preprintversion_set.all %}
                             {% if not version == preprint.current_version %}
                                 <li>
-                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
-                                        {# IconA11y Semantic #}
+                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
+                                        aria-label='Download Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}'
+                                    >
+                                        {# IconA11y Semantic - updated using aria-label on a tag #}
                                         <i class="fa fa-download">&nbsp;</i>
                                         Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
                                     </a>
