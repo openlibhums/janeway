@@ -347,7 +347,7 @@
                     {% endif %}
 
                     {% if credit_roles|length > 0 %}
-                    <h2>{% trans 'CRediT Roles' %}</h2>
+                    <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">ℹ️</a></h2>
                     <ul>
                     {% for author, roles in credit_roles.items %}
                         <li>{{ author.full_name }}: <span class="credit">{% for credit in roles %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></li>
