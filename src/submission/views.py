@@ -838,6 +838,19 @@ def edit_metadata(request, article_id):
                     )
                     return redirect(reverse_url)
 
+            if request.POST and 'remove_credit' in request.POST:
+                CreditRecord.objects.get(pk=request.POST.get('role')).delete()
+
+            if request.POST and 'add_credit' in request.POST:
+                # extract author ID
+                author_id = request.POST.get('author_id', None)
+
+                if author_id:
+                    role = request.POST.get(f'credit-{author_id}', None)
+                    CreditRecord.objects.get_or_create(role=role,
+                                                       frozen_author_id=author_id,
+                                                       article_id=article_id)
+
             if 'delete' in request.POST:
                 frozen_author_id = request.POST.get('delete')
                 frozen_author = get_object_or_404(
@@ -854,6 +867,8 @@ def edit_metadata(request, article_id):
                 )
                 return redirect(reverse_url)
 
+    all_roles = models.CREDIT_ROLE_CHOICES
+
     template = 'submission/edit/metadata.html'
     context = {
         'article': article,
@@ -863,7 +878,8 @@ def edit_metadata(request, article_id):
         'modal': modal,
         'frozen_author': frozen_author,
         'additional_fields': additional_fields,
-        'return': return_param
+        'return': return_param,
+        'all_roles': all_roles
     }
 
     return render(request, template, context)
