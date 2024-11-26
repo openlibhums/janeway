@@ -229,7 +229,8 @@ LANGUAGE_CHOICES = (
 
 # note: these types are constrained to those specified in the JATS NISO scheme,
 # rather than anything broader. This is to ensure compliance with OA
-# Switchboard deposits if that plugin is enabled.
+# Switchboard deposits if that plugin is enabled. The only exception is
+# "protocol", which they have added. #facepalm
 JATS_TYPE_CHOICES = (
     ("abstract", _("Abstract")),
     ("addendum", _("Addendum")),
