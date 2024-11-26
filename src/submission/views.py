@@ -330,7 +330,8 @@ def submit_authors(request, article_id):
 
         if author_id:
             role = request.POST.get(f'credit-{author_id}', None)
-            CreditRecord.objects.get_or_create(role=role, author_id=author_id, article_id=article_id)
+            if role != "None":
+                CreditRecord.objects.get_or_create(role=role, author_id=author_id, article_id=article_id)
 
 
     elif request.POST and 'search_authors' in request.POST:
@@ -847,9 +848,12 @@ def edit_metadata(request, article_id):
 
                 if author_id:
                     role = request.POST.get(f'credit-{author_id}', None)
-                    CreditRecord.objects.get_or_create(role=role,
-                                                       frozen_author_id=author_id,
-                                                       article_id=article_id)
+
+                    if role != "None":
+                        CreditRecord.objects.get_or_create(role=role,
+                                                           frozen_author_id=author_id,
+                                                           article_id=article_id)
+
 
             if 'delete' in request.POST:
                 frozen_author_id = request.POST.get('delete')
