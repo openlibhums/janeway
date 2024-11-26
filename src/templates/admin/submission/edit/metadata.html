@@ -146,6 +146,7 @@
                         <th>Display Email Link?</th>
                         <th>Institution</th>
                         <th>Correspondence Author</th>
+                        <th>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">ℹ️</a></th>
                         <th>Edit</th>
                         <th>Delete</th>
                     </tr>
@@ -160,6 +161,30 @@
                             <td>{{ f_author.institution|se_can_see_pii:article }}</td>
                             <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                 <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                            <td>
+                                {% for author, role in article.credit_roles_frozen.items %}
+                                        {% if author.pk == f_author.pk %}
+                                            {% for credit in role %}<form style="display:inline-block" method="POST" id="remove_credit-{{f_author.pk}}-{{credit.pk}}" name="remove_credit-{{f_author.pk}}-{{credit.pk}}">{% csrf_token %}<input type="hidden" name="role" id="role" value="{{credit.pk}}"/><input type="hidden" name="remove_credit" id="remove_credit" value="remove_credit"><a href="#" onclick="document.getElementById('remove_credit-{{f_author.pk}}-{{credit.pk}}').submit();">{{ credit|title }}</a></form>{% if not forloop.last %}, {% endif %}{% endfor %}
+                                {% endif %}
+                                    <br/>
+                                    {% endfor %}
+                                    <form method="POST">{% csrf_token %}
+                                        <div class="row" >
+                                            <div class="large-8 columns" style="vertical-align:middle;padding-left:0px">
+                                                <select class="form-control" id="credit-{{f_author.pk}}" name="credit-{{f_author.pk}}">
+                                                     <option value="None">---------</option>
+                                                    {% for role in all_roles %}
+                                                        <option value="{{ role.1 }}">{{ role.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="large-4 columns" style="vertical-align:middle">
+                                                <input type="hidden" name="author_id" id="author_id" value="{{ f_author.pk }}">
+                                                <input type="submit" name="add_credit" id="add_credit" value="Add" class="small success button"/>
+                                            </div>
+                                        </div>
+                                </form>
+                            </td>
                             <td>{% if can_see_pii %}
                               <a href="?author={{ f_author.pk }}&return={{ return }}"><i
                                     class="fa fa-edit">&nbsp;</i>Edit</a>
