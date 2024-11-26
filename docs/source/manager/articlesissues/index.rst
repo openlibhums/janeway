@@ -149,7 +149,7 @@ For each section you can supply:
 - Auto assign editors
     - Articles submitted to this section will be automatically assigned to any editors and/or section editors selected on the 'Editors' and/or 'Section Editors box above.
 - Default JATS article type
-    - The default JATS article type for this section, this is used by the OAI JATS output API. All articles that are submitted to this section will be assigned this article type at the time of submission. This can then be overridden and changed by editors for specific articles. Changing this setting will _not_ change the article type on any already-submitted articles.
+    - The default JATS article type for this section. It is used by the JATS encoder and exposed by any interface encoding article metadata to JATS (e.g. OAI-PMH). Articles can have their own article type set or they can leave this field blank and fall back to the default set for the article section.
 
 You can edit sections but you cannot delete a section when it would orphan an article. If you wish to remove a section first migrate all of the articles using that section to a different section then the delete button will become available.
 
