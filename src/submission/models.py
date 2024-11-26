@@ -227,44 +227,8 @@ LANGUAGE_CHOICES = (
     (u'znd', u'Zande languages'), (u'zap', u'Zapotec'), (u'zza', u'Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki'),
     (u'zen', u'Zenaga'), (u'zha', u'Zhuang; Chuang'), (u'zul', u'Zulu'), (u'zun', u'Zuni'))
 
-# note: these types are constrained to those specified in the JATS NISO scheme,
-# rather than anything broader. This is to ensure compliance with OA
-# Switchboard deposits if that plugin is enabled. The only exception is
-# "protocol", which they have added. #facepalm
-JATS_TYPE_CHOICES = (
-    ("abstract", _("Abstract")),
-    ("addendum", _("Addendum")),
-    ("announcement", _("Announcement")),
-    ("article-commentary", _("Article Commentary")),
-    ("book-review", _("Book Review")),
-    ("books-received", _("Books Received")),
-    ("brief-report", _("Brief Report")),
-    ("calendar", _("Calendar")),
-    ("case-report", _("Case Report")),
-    ("collection", _("Collection")),
-    ("correction", _("Correction")),
-    ("discussion", _("Discussion")),
-    ("dissertation", _("Dissertation")),
-    ("editorial", _("Editorial")),
-    ("in-brief", _("In-Brief")),
-    ("introduction", _("Introduction")),
-    ("letter", _("Letter")),
-    ("meeting-report", _("Meeting Report")),
-    ("news", _("News")),
-    ("obituary", _("Obituary")),
-    ("oration", _("Oration")),
-    ("partial-retraction", _("Partial Retraction")),
-    ("product-review", _("Product Review")),
-    ("protocol", _("Protocol")),
-    ("rapid-communication", _("Rapid Communication")),
-    ("reply", _("Reply")),
-    ("reprint", _("Reprint")),
-    ("research-article", _("Research Article")),
-    ("retraction", _("Retraction")),
-    ("review-article", _("Review Article")),
-    ("translation", _("Translation")),
-    ("other", _("Other")),
-)
+def get_jats_article_types():
+    return settings.JATS_ARTICLE_TYPES
 
 STAGE_UNSUBMITTED = 'Unsubmitted'
 STAGE_UNASSIGNED = 'Unassigned'
@@ -679,10 +643,11 @@ class Article(AbstractLastModifiedModel):
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
-    jats_article_type = models.CharField(max_length=255,
-                                         choices=JATS_TYPE_CHOICES,
-                                         blank=True, null=True,
-                                         help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.")
+    jats_article_type = DynamicChoiceField(max_length=255,
+                                           dynamic_choices=get_jats_article_types(),
+                                           choices=tuple(),
+                                           blank=True, null=True,
+                                           help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.")
     license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
 
@@ -2186,11 +2151,12 @@ class Section(AbstractLastModifiedModel):
                   " overruling the notification settings for the journal.",
         related_name='section_editors',
     )
-    jats_article_type = models.CharField(max_length=255,
-                                         choices=JATS_TYPE_CHOICES,
-                                         blank=True, null=True,
-                                         verbose_name="JATS default article type",
-                                         help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis. Changing this will not change any existing article's type.")
+    jats_article_type = DynamicChoiceField(max_length=255,
+                                           dynamic_choices=get_jats_article_types(),
+                                           choices=tuple(),
+                                           blank=True, null=True,
+                                           verbose_name="JATS default article type",
+                                           help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis. Changing this will not change any existing article's type.")
     auto_assign_editors = models.BooleanField(
         default=False,
         help_text="Articles submitted to this section will be automatically"
