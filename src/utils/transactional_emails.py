@@ -512,11 +512,18 @@ def send_article_decision(**kwargs):
 
     skip = kwargs['skip']
 
-    description = '{0}\'s article "{1}" has been {2}ed by {3}'.format(
-        article.correspondence_author.full_name(),
-        article.title,
+    decision_text = {
+        'accept': 'accepted',
+        'decline': 'declined',
+    }.get(
         decision,
-        request.user.full_name()
+        'processed',
+    )
+
+    description = (
+        f'{article.correspondence_author.full_name()}\'s article '
+        f'"{article.title}" has been {decision_text} by '
+        f'{request.user.full_name()}'
     )
 
     log_dict = {'level': 'Info',
