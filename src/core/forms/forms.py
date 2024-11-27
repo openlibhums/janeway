@@ -218,16 +218,13 @@ class EditAccountForm(forms.ModelForm):
         user.clean()
 
         posted_interests = self.cleaned_data['interests'].split(',')
+        user.interest.clear()
         for interest in posted_interests:
             if interest:
                 new_interest, _ = models.Interest.objects.get_or_create(
                     name=interest,
                 )
                 user.interest.add(new_interest)
-
-        for interest in user.interest.all():
-            if interest.name not in posted_interests:
-                user.interest.remove(interest)
 
         user.save()
 
