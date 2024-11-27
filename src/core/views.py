@@ -29,6 +29,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import mark_safe
 from django.utils import translation
 from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
@@ -2452,6 +2453,7 @@ class GenericFacetedListView(generic.ListView):
     This is a generic base class for creating filterable list views
     with Janeway models.
     """
+    form_class = forms.CBVFacetForm
     model = NotImplementedField
     template_name = NotImplementedField
 
@@ -2473,25 +2475,28 @@ class GenericFacetedListView(generic.ListView):
                 paginate_by = self.paginate_by
         return paginate_by
 
+    def get_facet_form(self, queryset):
+        GET_data = dict(self.request.GET.copy().lists())
+
+        for keyword, values in GET_data.items():
+            if keyword in self.facets:
+                if self.facets[keyword]['type'] in self.single_value_fields:
+                    GET_data[keyword] = values[0]
+
+        form = self.form_class(
+            GET_data,
+            queryset=queryset,
+            facets=self.facets,
+        )
+
+        return form
+
     def get_context_data(self, **kwargs):
         params_querydict = self.request.GET.copy()
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
-        facets = self.get_facets()
-
-        initial = dict(params_querydict.lists())
-
-        for keyword, value in initial.items():
-            if keyword in facets:
-                if facets[keyword]['type'] in self.single_value_fields:
-                    initial[keyword] = value[0]
-
-        context['facet_form'] = forms.CBVFacetForm(
-            queryset=queryset,
-            facets=facets,
-            initial=initial,
-        )
+        context['facet_form'] = self.get_facet_form(queryset)
 
         context['actions'] = self.get_actions()
 
@@ -2508,6 +2513,7 @@ class GenericFacetedListView(generic.ListView):
         return context
 
     def get_queryset(self, params_querydict=None):
+        self.facets = self.get_facets()
         if not params_querydict:
             params_querydict = self.request.GET.copy()
 
@@ -2518,11 +2524,20 @@ class GenericFacetedListView(generic.ListView):
         # Clear order_by, since it is handled separately
         params_querydict.pop('order_by', '')
 
+        facets = self.facets
         self.queryset = super().get_queryset()
-        q_stack = []
-        facets = self.get_facets()
+
         for facet in facets.values():
             self.queryset = self.queryset.annotate(**facet.get('annotations', {}))
+        self.queryset = self.queryset.filter(self.get_journal_filter_query())
+
+        # Validate params against form ahead of filtering
+        if params_querydict:
+            form = self.get_facet_form(self.queryset)
+            if not form.is_valid():
+                return self.queryset
+
+        q_stack = []
         for keyword, value_list in params_querydict.lists():
             # The following line prevents the user from passing any parameters
             # other than those specified in the facets.
@@ -2546,7 +2561,6 @@ class GenericFacetedListView(generic.ListView):
                 for predicate in predicates:
                     query |= Q(predicate)
                 q_stack.append(query)
-        q_stack.append(self.get_journal_filter_query())
         self.queryset = self.queryset.filter(*q_stack).distinct()
         return self.order_queryset(self.queryset)
 
