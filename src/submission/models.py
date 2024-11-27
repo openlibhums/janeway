@@ -647,7 +647,7 @@ class Article(AbstractLastModifiedModel):
                                                     dynamic_choices=get_jats_article_types(),
                                                     choices=tuple(),
                                                     blank=True, null=True,
-                                                    help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.",
+                                                    help_text="The type of article as per the JATS standard. This field allows you to override the default for the section.",
                                                     default=None)
 
     @property
@@ -2162,7 +2162,7 @@ class Section(AbstractLastModifiedModel):
                                            choices=tuple(),
                                            blank=True, null=True,
                                            verbose_name="JATS default article type",
-                                           help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis. Changing this will not change any existing article's type.")
+                                           help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis.")
     auto_assign_editors = models.BooleanField(
         default=False,
         help_text="Articles submitted to this section will be automatically"
