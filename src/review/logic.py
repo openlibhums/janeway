@@ -850,8 +850,11 @@ def process_reviewer_csv(path, request, article, form):
                 review_interests = []
 
             for term in review_interests:
-                interest, _ = core_models.Interest.objects.get_or_create(name=term)
-                reviewer.interest.add(interest)
+                if term:
+                    interest, _ = core_models.Interest.objects.get_or_create(
+                        name=term,
+                    )
+                    reviewer.interest.add(interest)
 
             # Add the reviewer role
             reviewer.add_account_role('reviewer', request.journal)
