@@ -598,7 +598,6 @@ class CBVFacetForm(forms.Form):
         self.id = 'facet_form'
         self.queryset = kwargs.pop('queryset')
         self.facets = kwargs.pop('facets')
-        self.fields = {}
 
         super().__init__(*args, **kwargs)
 
@@ -619,7 +618,7 @@ class CBVFacetForm(forms.Form):
                     choices.append((each.pk, label_with_count))
 
                 choices = sorted(choices, key=lambda x: x[1])
-                self.fields[facet_key] = forms.ChoiceField(
+                self.fields[facet_key] = forms.MultipleChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
                     required=False,
