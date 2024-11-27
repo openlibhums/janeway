@@ -257,7 +257,7 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
 class EditArticleMetadata(ArticleInfo):
     class Meta(ArticleInfo.Meta):
-        fields = ArticleInfo.Meta.fields + ('competing_interests', 'jats_article_type')
+        fields = ArticleInfo.Meta.fields + ('competing_interests', 'jats_article_type_override')
 
 
 class AuthorForm(forms.ModelForm):
