@@ -219,8 +219,11 @@ class EditAccountForm(forms.ModelForm):
 
         posted_interests = self.cleaned_data['interests'].split(',')
         for interest in posted_interests:
-            new_interest, c = models.Interest.objects.get_or_create(name=interest)
-            user.interest.add(new_interest)
+            if interest:
+                new_interest, _ = models.Interest.objects.get_or_create(
+                    name=interest,
+                )
+                user.interest.add(new_interest)
 
         for interest in user.interest.all():
             if interest.name not in posted_interests:
