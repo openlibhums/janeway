@@ -643,11 +643,17 @@ class Article(AbstractLastModifiedModel):
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
-    jats_article_type = DynamicChoiceField(max_length=255,
-                                           dynamic_choices=get_jats_article_types(),
-                                           choices=tuple(),
-                                           blank=True, null=True,
-                                           help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.")
+    jats_article_type_override = DynamicChoiceField(max_length=255,
+                                                    dynamic_choices=get_jats_article_types(),
+                                                    choices=tuple(),
+                                                    blank=True, null=True,
+                                                    help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.",
+                                                    default=None)
+
+    @property
+    def jats_article_type(self):
+        return self.jats_article_type_override or self.section.jats_article_type
+
     license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
 
