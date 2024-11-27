@@ -2495,6 +2495,15 @@ class GenericFacetedListView(generic.ListView):
         params_querydict = self.request.GET.copy()
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
+        form = self.get_facet_form(queryset)
+        if params_querydict and not form.is_valid():
+            messages.add_message(
+                self.request,
+                    messages.ERROR,
+                    mark_safe(_("The form did not validate: ")
+                    + (f"{form.errors}")
+                   ),
+                )
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
         context['facet_form'] = self.get_facet_form(queryset)
 
