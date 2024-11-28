@@ -24,9 +24,9 @@ copyright = '2018-2024 Birkbeck, University of London'
 author = 'Open Library of Humanities'
 
 # The short X.Y version
-version = '1.7.2'
+version = '1.7.3'
 # The full version, including alpha/beta/rc tags
-release = '1.7.2'
+release = '1.7.3'
 
 # -- General configuration ---------------------------------------------------
 
