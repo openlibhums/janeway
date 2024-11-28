@@ -257,6 +257,7 @@ LANGUAGES = (
     ('de', gettext('German')),
     ('nl', gettext('Dutch')),
     ('cy', gettext('Welsh')),
+    ('es', gettext('Spanish')),
 )
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
