@@ -57,11 +57,10 @@
                                                 itemprop="name">({{ author.institution }})</span></span>
                                     {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"
-                                           > 
-                                           {# IconA11y Semantic - but has adjacent text - text improved to make this decorative #}
+                                        <a itemprop="email" href="mailto:{{ author.email }}"> 
                                            {% trans 'Contact by email' %}
+                                           {# IconA11y Decorative #}
+                                           <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>
                                     {% endif %}
                                 </span></span>
@@ -118,7 +117,7 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
@@ -181,21 +180,24 @@
                     {% with article.get_doi_url as doi_url%}
                         <a class="waves-effect waves-light btn btn-small social-share-btn facebook-bg"
                             href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}">
-                            {# IconA11y Decorative - works on voiceover #}
+                            target="_blank">
+                            {# IconA11y Semantic #}
                             <i aria-hidden="true" class="fa fa-facebook"></i>
+                            <span class="sr-only">{% trans 'Share on Facebook' %}</span>
                         </a>
                         <a class="waves-effect waves-light btn btn-small social-share-btn twitter-x" 
                             href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}">
-                            {# IconA11y Decorative - works on voiceover #}
-                            <span aria-hidden="true">&#120143;</span>
+                            target="_blank">
+                            {# IconA11y Semantic #}
+                            <span aria-hidden="true"> &#120143;</span>
+                            <span class="sr-only">{% trans 'Share on X' %}</span>
                         </a> 
                         <a class="waves-effect waves-light btn btn-small social-share-btn linkedin-bg"
                             href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}">
-                            {# IconA11y Decorative - works on voiceover #}
+                            target="_blank">
+                            {# IconA11y Semantic #}
                             <i aria-hidden="true" class="fa fa-linkedin"></i>
+                            <span class="sr-only">{% trans 'Share on LinkedIn' %}</span>
                         </a>
                     {% endwith %}
                     <h2>{% trans "Downloads" %}</h2>
@@ -216,7 +218,7 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
-                                {# IconA11y Decorative - syntax updated #}
+                                {# IconA11y Decorative #}
                                 <i aria-hidden="true" class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -267,8 +269,8 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
-                    {# IconA11y Decorative - changed from Semantic as this is hidden when not used #}
                         <li>{% trans "Peer Reviewed" %}
+                            {# IconA11y Decorative #}
                             <i aria-hidden="true" class="fa fa-check-circle"></i>
                         </li>
                     {% endif %}

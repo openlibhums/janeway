@@ -19,10 +19,10 @@
                     <form method="POST" action="{% url 'repository_search' %}">
                         {% csrf_token %}
                         <div class="input-group">
-                            {# IconA11y Semantic - syntax updated #}
+                            {# IconA11y Semantic #}
                             <span class="input-group-label">
                                 <i aria-hidden=true class="fa fa-search"></i>
-                                <span class="sr-only">Search</span>
+                                <span class="sr-only">{% trans 'Search' %}</span>
                             </span>
                             <input class="input-group-field" type="search" name="search_term"
                                    placeholder="Search {{ request.repository.object_name_plural }}...">

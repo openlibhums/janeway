@@ -113,7 +113,7 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            {# IconA11y Decorative - syntax updated #}
+                            {# IconA11y Decorative #}
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
                                 <i aria-hidden="true"  class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
@@ -139,11 +139,11 @@
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
-                            {# IconA11y Semantic - updated with aria-label in a tag #}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" 
-                                aria-label="Downlaod Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}"
-                                >
-                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                            {# IconA11y Semantic #}
+                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
+                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
+                                <span class="sr-only">{% trans 'Download' %}</span>
+                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
                             </a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
@@ -158,9 +158,11 @@
                         <li>{% trans "Downloads" %}: {{ preprint.downloads.count }}</li>
                       </ul>
                     {% endif %}
-
-                    {# IconA11y Decorative - syntax updated #}
-                    <a href="{% url 'repository_list' %}"><i aria-hidden="true"  class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
+                    <a href="{% url 'repository_list' %}">
+                        {# IconA11y Decorative #}
+                        <i aria-hidden="true"  class="fa fa-arrow-left"></i> 
+                        {% trans "All Preprints" %}
+                    </a>
 
                 </small>
             </div>
