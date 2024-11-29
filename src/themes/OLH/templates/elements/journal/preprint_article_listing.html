@@ -5,8 +5,8 @@
                  data-equalizer-watch>
                 <p><small><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></small></p>
                 <p><small><i>{% for author in preprint.authors.all %}{{ author.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</i></small></p>
-                {# IconA11y Decorative - updated from Semantic via time tag #}
                 <p><small>
+                    {# IconA11y Date #}
                     <i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
                     <time datetime='{{ preprint.date_published|date:"Y-m-d" }}'>{{ preprint.date_published|date:"Y-m-d" }}</time>
                 </small></p>

@@ -33,8 +33,11 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                            {# IconA11y Semantic - syntax update #}
-                            <a itemprop="email" href="mailto:{{ author.email }}" aria-label="Email author" class="fa fa-envelope email-link"></a>
+                            {# IconA11y Semantic #}
+                            <a itemprop="email" href="mailto:{{ author.email }}" >
+                                <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                <span class="sr-only">{% trans 'Email author' %}.</span>
+                            </a>
                         {% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
@@ -84,11 +87,11 @@
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {# IconA11y Semantic - syntax updated #}
                                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                                <a itemprop="email" href="mailto:{{ author.email }}"
-                                                    class="fa fa-envelope email-link"
-                                                    aria-label="Email author">
+                                                <a itemprop="email" href="mailto:{{ author.email }}">
+                                                    {# IconA11y Semantic #}
+                                                    <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                                    <span class="sr-only">{% trans 'Email author' %}.</span>
                                                 </a>
                                             {% endif %}</span></span>
                                     {% endfor %}
@@ -125,30 +128,29 @@
                                     data-responsive-menu="dropdown">
                                     {% hook 'article_buttons' %}
                                     <li>
-                                        <a href="{{ article.local_url }}print/" 
-                                            aria-label="{% trans 'print article' %}"
-                                            >
-                                            {# IconA11y Semantic - updated syntax #}
+                                        <a href="{{ article.local_url }}print/" >
+                                            {# IconA11y Semantic #}
                                             <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
+                                            <span class="sr-only">{% trans 'Print article' %}</span>
                                         </a>
                                     </li>
                                     <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
                                     <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}"
-                                                aria-label="email author"
-                                            >
-                                                {# IconA11y Semantic - updated via aria-label in a tag #}
+                                            <a href="mailto:{{ article.correspondence_author.email }}" >
+                                                {# IconA11y Semantic #}
                                                 <i aria-hidden="true" class="fa fa-envelope"></i>
+                                                <span class="sr-only">{% trans 'Email author' %}</span>
                                             </a>
                                         </li>
                                     {% endif %}
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
-                                        <a href="#" aria-label="{% trans 'Cite article' %}">
-                                            {# IconA11y Semantic - syntax updated #}
+                                        <a href="#">
+                                            {# IconA11y Semantic #}
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
+                                            <span class="sr-only">{% trans 'Cite article' %}</span>
                                         </a>
                                         <ul class="menu vertical">
                                             <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
@@ -186,12 +188,12 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic - syntax updated #}
+                                {# IconA11y Semantic #}
                                 <a itemprop="email" 
                                     href="mailto:{{ author.email }}" 
-                                    aria-label="Email author"
                                 >
                                     <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                    <span class="sr-only">{% trans 'Email author' %}</span>
                                 </a>
                             {% endif %}
                         </li>
@@ -245,7 +247,7 @@
                                         </p>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_1">
-                                                {# IconA11y Decorative - syntax updated #}
+                                                {# IconA11y Decorative #}
                                                 <i aria-hidden="true" class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
@@ -351,12 +353,12 @@
                                                 </a>
                                                 {% endif %}
                                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                                    {# IconA11y Semantic - syntax updated #}
+                                                    {# IconA11y Semantic #}
                                                     <a itemprop="email" 
                                                         href="mailto:{{ author.email }}" 
-                                                        class="fa fa-envelope email-link"
-                                                        aria-label="Email author."
                                                         >
+                                                        <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                                        <span class="sr-only">{% trans 'Email author' %}</span>
                                                     </a>
                                                 {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
@@ -386,7 +388,7 @@
                                         </ul>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_2">
-                                                {# IconA11y Decorative - syntax updated #}
+                                                {# IconA11y Decorative #}
                                                 <i aria-hidden="true"  class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
