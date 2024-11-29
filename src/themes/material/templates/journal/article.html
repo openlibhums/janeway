@@ -160,14 +160,14 @@
                                     <h5>
                                         {{ article.metrics.views }}
                                     </h5>
-                                    {# IconA11y Decorative - syntax updated #}
+                                    {# IconA11y Decorative #}
                                     <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
                                 <div class="alm">
                                     <h5>
                                         {{ article.metrics.downloads }}
                                     </h5>
-                                    {# IconA11y Decorative - syntax updated #}
+                                    {# IconA11y Decorative #}
                                     <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
                                 </div>
                                 {% if article.metrics.alm.twitter %}
@@ -175,7 +175,7 @@
                                         <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
@@ -184,7 +184,7 @@
                                         <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
@@ -193,7 +193,7 @@
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
@@ -203,7 +203,7 @@
                                         <h5>
                                             {{ article.citation_count }}
                                         </h5>
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
@@ -237,17 +237,27 @@
                         {% trans "Share" %}
                     </h4>
                       {% with article.get_doi_url as doi_url%}
-                      {# IconA11y Semantic - syntax updated #}
                         <a class="waves-effect waves-light btn btn-small facebook-bg"
                             href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i aria-hidden="true" class="fa fa-facebook"></i></a>
+                            target="_blank">
+                            {# IconA11y Semantic #}
+                            <i aria-hidden="true" class="fa fa-facebook"></i>
+                            <span class="sr-only">{% trans 'Share on Facebook' %}</span>
+                        </a>
                         <a class="waves-effect waves-light btn btn-small twitter-bg twitter-x" 
                             href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}"><span aria-hidden="true">&#120143;</span></a>
-                        {# IconA11y Semantic - syntax updated #}
+                            target="_blank">
+                            {# IconA11y Semantic #}
+                            <span aria-hidden="true">&#120143;</span>
+                            <span class="sr-only">{% trans 'Share on X' %}</span>
+                        </a>
                         <a class="waves-effect waves-light btn btn-small linkedin-bg"
                             href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i aria-hidden="true" class="fa fa-linkedin"></i></a></button>
+                            target="_blank" >
+                            {# IconA11y Semantic #}
+                            <i aria-hidden="true" class="fa fa-linkedin"></i>
+                            <span class="sr-only">{% trans 'Share on LinkedIn' %}</span>
+                        </a>
                       {% endwith %}
 
                     {% if article.frozen_authors.count > 0 %}
@@ -268,10 +278,10 @@
                                 <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic - syntax updated #}
+                                {# IconA11y Semantic #}
                                 <a itemprop="email" href="mailto:{{ author.email }}">
                                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                                   <span class="sr-only">Email author.</span>
+                                   <span class="sr-only">{% trans "Email author" %}.</span>
                                 </a>{% endif %}
                     {% endfor %}
                     {% endif %}
@@ -401,7 +411,7 @@
                     </h4>
                     <p>{{ article.license.name }} 
                         {% if article.license.url %}
-                            {# IconA11y Semantic - updated to aria-label on a tag #}
+                            {# IconA11y Decorative #}
                             <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
                                 <i aria-hidden="true" class="fa fa-external-link"></i>
                             </a>
@@ -439,7 +449,7 @@
                             {% trans "Peer Review" %}
                         </h4>
                         <p>
-                            {# IconA11y Decorative - syntax updated #}
+                            {# IconA11y Decorative #}
                             <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
                             {% trans "This article has been peer reviewed." %}
                         </p>

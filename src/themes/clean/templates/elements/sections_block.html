@@ -16,27 +16,27 @@
             <td>{{ section.name }}</td>
             
             <td>{% if section.public_submissions %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true" class="fa fa-check"></i> {% trans 'Yes' %}
                 {% else %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-times"></i> {% trans 'No' %}
                 {% endif %}
             </td>
             <td>{% if section.number_of_reviewers > 0 %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-check"></i> {% trans 'Yes' %}
                 {% else %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-times"></i> {% trans 'No' %}
                 {% endif %}
             </td>
             
             <td>{% if section.indexing %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-check"></i> {% trans 'Yes' %}
                 {% else %}
-                    {# IconA11y Decorative - syntax updated #}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-times"></i> {% trans 'No' %}
                 {% endif %}
             </td>

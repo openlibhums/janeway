@@ -13,8 +13,8 @@
                             {% endif %}{% endfor %}</i></small>
                     </p>
                     <p>
-                        {# IconA11y Decorative - updated from Semantic using time tag #}
                         <small>
+                            {# IconA11y Date #}
                             <i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
                             <time datetime='{{ preprint.date_published|date:"Y-m-d" }}'>{{ preprint.date_published|date:"Y-m-d" }}</time>                   
                         </small>
