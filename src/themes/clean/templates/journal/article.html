@@ -57,11 +57,10 @@
                                                 itemprop="name">({{ author.institution }})</span></span>
                                     {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"
-                                           > 
-                                           {# IconA11y Semantic - but has adjacent text - text improved to make this decorative #}
+                                        <a itemprop="email" href="mailto:{{ author.email }}"> 
                                            {% trans 'Contact by email' %}
+                                           {# IconA11y Decorative #}
+                                           <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>
                                     {% endif %}
                                 </span></span>
@@ -118,7 +117,7 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        {# IconA11y Decorative - syntax updated #}
+                                        {# IconA11y Decorative #}
                                         <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
@@ -196,7 +195,7 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
-                                {# IconA11y Decorative - syntax updated #}
+                                {# IconA11y Decorative #}
                                 <i aria-hidden="true" class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -247,8 +246,8 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
-                    {# IconA11y Decorative - changed from Semantic as this is hidden when not used #}
                         <li>{% trans "Peer Reviewed" %}
+                            {# IconA11y Decorative #}
                             <i aria-hidden="true" class="fa fa-check-circle"></i>
                         </li>
                     {% endif %}

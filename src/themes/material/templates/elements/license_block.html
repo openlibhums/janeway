@@ -2,8 +2,9 @@
     {% for license in request.journal.licence_set.all %}
         {% if license.available_for_submission %}
             <li class="collection-item"><strong>{{ license }} - 
-                <a href="{{ license.url }}" aria-label="External link to more information about this license.">{% trans "More Information " %}
-                    {# IconA11y Decorative - changed from Semantic through use of aria label in a tag #}
+                <a href="{{ license.url }}" aria-label="{% trans 'External link to more information about this license.' %}">
+                    {% trans "More Information " %}
+                    {# IconA11y Decorative #}
                     <i aria-hidden="true" class="fa fa-external-link">&nbsp;</i>
                 </a></strong>
                 <br/><span class="help-text">{{ license.text }}</span>

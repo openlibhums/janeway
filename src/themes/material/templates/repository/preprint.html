@@ -55,7 +55,7 @@
                                 visible version.</p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                                class="waves-effect waves-light btn">
-                               {# IconA11y Decorative - syntax updated #}
+                               {# IconA11y Decorative #}
                                <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a>
@@ -133,7 +133,7 @@
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
-                                {# IconA11y Decorative - syntax updated #}
+                                {# IconA11y Decorative #}
                                 <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a></p>
@@ -184,11 +184,10 @@
                         {% for version in preprint.preprintversion_set.all %}
                             {% if not version == preprint.current_version %}
                                 <li>
-                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
-                                        aria-label='Download Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}'
-                                    >
-                                        {# IconA11y Semantic - updated using aria-label on a tag #}
+                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                                        {# IconA11y Semantic #}
                                         <i class="fa fa-download">&nbsp;</i>
+                                        <span class="sr-only">{% trans 'Download' %}</span>
                                         Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
                                     </a>
                                 </li>
