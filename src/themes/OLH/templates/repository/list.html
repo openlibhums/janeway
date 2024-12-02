@@ -36,7 +36,9 @@
                                 <p><span class="date">
                                     {# IconA11y Date #}
                                     <i aria-hidden="true" class="fa fa-calendar"></i>
-                                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">{{ preprint.date_published|date:"Y-m-d" }}</time>&nbsp;&nbsp;
+                                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
+                                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
+                                    </time>&nbsp;&nbsp;
                                     {# IconA11y Decorative #}
                                     <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
                                 <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
