@@ -110,8 +110,23 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 
 class PasswordResetForm(forms.Form):
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    password_1 = forms.CharField(
+        label=_('Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autofocus': True,
+                'autocomplete': 'new-password',
+            }
+        ),
+    )
+    password_2 = forms.CharField(
+        label=_('Repeat Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        ),
+    )
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -129,18 +144,36 @@ class GetResetTokenForm(forms.Form):
     """ A form that validates password reset email addresses"""
 
     email_address = forms.EmailField(
-        required=True, 
+        required=True,
         label=_("Email"),
-        widget=forms.EmailInput(attrs={"placeholder": "janeway@example.com"}),
+        widget=forms.EmailInput(
+            attrs={
+                'autofocus': True,
+            }
+        ),
     )
-    
+
 
 class RegistrationForm(forms.ModelForm, CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    password_1 = forms.CharField(
+        label=_('Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        )
+    )
+    password_2 = forms.CharField(
+        label=_('Repeat Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        )
+    )
     register_as_reader = forms.BooleanField(
         label='Register for Article Notifications',
         help_text=_('Check this box if you would like to receive notifications of new articles published in this journal'),
@@ -504,7 +537,15 @@ class QuickUserForm(forms.ModelForm):
 
 class LoginForm(CaptchaForm):
     user_name = forms.CharField(max_length=255, label="Email")
-    user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
+    user_pass = forms.CharField(
+        max_length=255,
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'current-password',
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         bad_logins = kwargs.pop('bad_logins', 0)
