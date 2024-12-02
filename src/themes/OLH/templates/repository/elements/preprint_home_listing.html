@@ -7,7 +7,9 @@
                 <p><small>{{ preprint.display_authors_compact }}</small></p>
                 {# IconA11y Date #}
                 <p><small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
-                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">{{ preprint.date_published|date:"Y-m-d" }}</time>
+                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
+                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
+                    </time>
                 </small></p>
             </div>
         </div>
