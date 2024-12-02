@@ -1,87 +1,73 @@
 {% load foundation %}
 {% load static %}
 
-<fieldset>
-  <legend>{% trans "Name" %}</legend>
-  <div class="flex wrap column-gap-2">
-    {% include "admin/elements/forms/field.html" with field=form.salutation %}
-    {% include "admin/elements/forms/field.html" with field=form.first_name %}
-    {% include "admin/elements/forms/field.html" with field=form.middle_name %}
-    {% include "admin/elements/forms/field.html" with field=form.last_name %}
-    {% include "admin/elements/forms/field.html" with field=form.suffix %}
-  </div>
-</fieldset>
+<h3 class="fs-3">{% trans "Name" %}</h3>
+<div class="flex wrap column-gap-2">
+  {% include "admin/elements/forms/field.html" with field=form.salutation %}
+  {% include "admin/elements/forms/field.html" with field=form.first_name %}
+  {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+  {% include "admin/elements/forms/field.html" with field=form.last_name %}
+  {% include "admin/elements/forms/field.html" with field=form.suffix %}
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans "Affiliations" %}</legend>
-  <div class="flex wrap column-gap-2">
-    {% include "admin/elements/forms/field.html" with field=form.department %}
-    {% include "admin/elements/forms/field.html" with field=form.institution %}
-    {% include "admin/elements/forms/field.html" with field=form.country %}
-  </div>
-</fieldset>
+<h3 class="fs-3">{% trans "Affiliations" %}</h3>
+<div class="flex wrap column-gap-2">
+  {% include "admin/elements/forms/field.html" with field=form.department %}
+  {% include "admin/elements/forms/field.html" with field=form.institution %}
+  {% include "admin/elements/forms/field.html" with field=form.country %}
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans "Social Media and Accounts" %}</legend>
-  <div class="flex wrap column-gap-2">
-    {% include "admin/elements/forms/field.html" with field=form.twitter %}
-    {% include "admin/elements/forms/field.html" with field=form.facebook %}
-    {% include "admin/elements/forms/field.html" with field=form.orcid %}
-    {% include "admin/elements/forms/field.html" with field=form.github %}
-    {% include "admin/elements/forms/field.html" with field=form.linkedin %}
-    {% include "admin/elements/forms/field.html" with field=form.website %}
-  </div>
-</fieldset>
+<h3 class="fs-3">{% trans "Social Media and Accounts" %}</h3>
+<div class="flex wrap column-gap-2">
+  {% include "admin/elements/forms/field.html" with field=form.twitter %}
+  {% include "admin/elements/forms/field.html" with field=form.facebook %}
+  {% include "admin/elements/forms/field.html" with field=form.orcid %}
+  {% include "admin/elements/forms/field.html" with field=form.github %}
+  {% include "admin/elements/forms/field.html" with field=form.linkedin %}
+  {% include "admin/elements/forms/field.html" with field=form.website %}
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans "Biography and Signature" %}</legend>
-  <div class="flex wrap column-gap-2">
-    <div class="max-w-24">
-      {% include "admin/elements/forms/field.html" with field=form.biography %}
-    </div>
-    <div class="max-w-24">
-      {% include "admin/elements/forms/field.html" with field=form.signature %}
-    </div>
+<h3 class="fs-3">{% trans "Biography and Signature" %}</h3>
+<div class="flex wrap column-gap-2">
+  <div class="max-w-24">
+    {% include "admin/elements/forms/field.html" with field=form.biography %}
   </div>
-</fieldset>
+  <div class="max-w-24">
+    {% include "admin/elements/forms/field.html" with field=form.signature %}
+  </div>
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans 'Review Interests' %}</legend>
-  <div>
-    <label class="show-for-sr" for="id_interests">
-      {% trans 'Review Interests' %}
-    </label>
-    <input
-      type="text"
-      id="id_interests"
-      name="interests"
-      value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
-    <p>{% trans "Hit Enter to add a new interest" %}.</p>
-  </div>
-</fieldset>
+<h3 class="fs-3">{% trans 'Review Interests' %}</h3>
+<div>
+  <label class="show-for-sr" for="id_interests">
+    {% trans 'Review Interests' %}
+  </label>
+  <input
+    type="text"
+    id="id_interests"
+    name="interests"
+    value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
+  <p>{% trans "Hit Enter to add a new interest" %}.</p>
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans 'Profile Image' %}</legend>
-  <div class="flex landscape-row portrait-column column-gap-3">
-    <div class="max-w-24">
-      {% if user_to_edit.profile_image %}
-        <img
-          src="{{ user_to_edit.profile_image.url }}"
-          class="thumbnail editorial-image">
-      {% else %}
-        <img
-          src="{% static "common/img/icons/users.png" %}"
-          class="thumbnail editorial-image">
-      {% endif %}
-    </div>
-    {% include "admin/elements/forms/field.html" with field=form.profile_image %}
+<h3 class="fs-3">{% trans 'Profile Image' %}</h3>
+<div class="flex landscape-row portrait-column column-gap-3">
+  <div class="max-w-24">
+    {% if user_to_edit.profile_image %}
+      <img
+        src="{{ user_to_edit.profile_image.url }}"
+        class="thumbnail editorial-image">
+    {% else %}
+      <img
+        src="{% static "common/img/icons/users.png" %}"
+        class="thumbnail editorial-image">
+    {% endif %}
   </div>
-</fieldset>
+  {% include "admin/elements/forms/field.html" with field=form.profile_image %}
+</div>
 <hr />
-<fieldset>
-  <legend>{% trans 'Options' %}</legend>
-  <div class="flex wrap column-gap-2">
-    {% include "admin/elements/forms/field.html" with field=form.enable_public_profile %}
-    {% include "admin/elements/forms/field.html" with field=form.preferred_timezone %}
-  </div>
-</fieldset>
+<h3 class="fs-3">{% trans 'Options' %}</h3>
+<div class="flex wrap column-gap-2">
+  {% include "admin/elements/forms/field.html" with field=form.enable_public_profile %}
+  {% include "admin/elements/forms/field.html" with field=form.preferred_timezone %}
+</div>
