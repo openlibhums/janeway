@@ -63,7 +63,7 @@
               published in this journal.
             {% endblocktrans %}</p>
             {% csrf_token %}
-            {% if reader %}
+            {% if user_is_reader %}
               <button name="unsubscribe" class="button secondary">
                 {% trans "Unsubscribe from Article Notifications" %}
               </button>

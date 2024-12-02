@@ -543,6 +543,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return False
 
+    def is_reader(self, request):
+        return self.check_role(request.journal, 'reader', staff_override=False)
+
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
             'name_prefix': self.name_prefix,
