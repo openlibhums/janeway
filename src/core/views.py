@@ -546,6 +546,7 @@ def edit_profile(request):
         'staff_group_membership_form': staff_group_membership_form,
         'user_to_edit': user,
         'send_reader_notifications': send_reader_notifications,
+        'user_is_reader': user.is_reader(request),
     }
 
     return render(request, template, context)
