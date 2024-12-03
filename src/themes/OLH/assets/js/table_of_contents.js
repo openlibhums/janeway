@@ -1,19 +1,27 @@
-$( document ).ready(function() {
-    
+$(document).ready(function () {
+
     if (!$("#toc")) {
         return;
     }
-    
+
     var newLine, link, title, linkid, toc, iter, js;
 
     iter = 0;
     toc = '';
 
     $("#main_article h2, #main_article h3").each(function () {
-
         link = $(this);
-        link.find('a').contents().unwrap();
-        title = link.html();
+
+        var clonedLink = link.clone();
+        clonedLink.find('a').each(function () {
+            if (!$(this).text().trim()) {
+                $(this).remove();
+            } else {
+                $(this).contents().unwrap();
+            }
+        });
+
+        title = clonedLink.html();
 
         if (!link.attr("id")) {
             link.attr('id', 'heading' + iter.toString());
@@ -27,13 +35,11 @@ $( document ).ready(function() {
 
         toc += newLine;
         iter++;
-
     });
 
-    if(iter==0){
+    if (iter === 0) {
         $("#toc-section").remove();
-    }
-    else{
+    } else {
         $("#toc").append(toc);
     }
 });
