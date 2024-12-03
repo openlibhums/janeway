@@ -674,6 +674,24 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 credit_record.frozen_author = frozen_author
                 credit_record.save()
 
+    def add_credit(self, credit_role_text, article):
+        record, _ = (
+            submission_models.CreditRecord.objects.get_or_create(
+                article=article, author=self, role=credit_role_text)
+        )
+
+        return record
+
+    def remove_credit(self, credit_role_text, article):
+        record, _ = (
+            submission_models.CreditRecord.objects.get_or_create(
+                article=article, author=self, role=credit_role_text)
+        )
+
+        record.delete()
+
+        return record
+
     def frozen_author(self, article):
         try:
             return submission_models.FrozenAuthor.objects.get(
