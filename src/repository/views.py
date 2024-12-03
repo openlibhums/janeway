@@ -50,20 +50,56 @@ from security.decorators import (
 logger = logger.get_logger(__name__)
 
 
-def repository_home(request):
-    """
-    Displays the preprints home page with search box and 6 latest
-    preprints publications
-    :param request: HttpRequest object
-    :return: HttpResponse
-    """
-    preprints = models.Preprint.objects.filter(
-        repository=request.repository,
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from repository import models
+
+
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from repository import models
+
+
+def repository_home(
+    request,
+    rou_code=None,
+):
+    repository = request.repository
+    selected_rou = None
+
+    if rou_code:
+        # Get the selected ROU
+        selected_rou = get_object_or_404(
+            models.RepositoryOrganisationUnit,
+            repository=repository,
+            code=rou_code,
+        )
+        # Fetch children of the selected ROU
+        rous = selected_rou.children.all()
+    else:
+        # Fetch top-level ROUs
+        rous = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        )
+
+    preprints_query = models.Preprint.objects.filter(
+        repository=repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED,
-    ).order_by('-date_published')[:6]
+    )
+
+    if selected_rou:
+        preprints_query = preprints_query.filter(
+            organisation_units=selected_rou,
+        )
+
+    preprints = preprints_query.order_by(
+        '-date_published',
+    )[:6]
+
     subjects = models.Subject.objects.filter(
-        repository=request.repository,
+        repository=repository,
     ).prefetch_related(
         'preprint_set',
     )
@@ -72,9 +108,16 @@ def repository_home(request):
     context = {
         'preprints': preprints,
         'subjects': subjects,
+        'rous': rous,
+        'selected_rou': selected_rou,
     }
+    return render(
+        request,
+        template,
+        context,
+    )
 
-    return render(request, template, context)
+
 
 
 def sitemap(request, subject_id=None):
@@ -2500,4 +2543,37 @@ def manage_review_recommendation(request, recommendation_id=None):
         request,
         template,
         context,
+    )
+
+
+def preprints_by_rou(request, rou_code):
+    # Get the ROU object
+    rou = get_object_or_404(
+        models.RepositoryOrganisationUnit,
+        repository=request.repository,
+        code=rou_code,
+    )
+
+    # Fetch preprints for the ROU
+    preprints = rou.preprints.all()
+
+    # Pagination setup
+    page = request.GET.get('page', 1)  # Default to page 1
+    paginator = Paginator(preprints, 10)  # Show 10 preprints per page
+
+    try:
+        preprints_page = paginator.page(page)
+    except PageNotAnInteger:
+        preprints_page = paginator.page(1)
+    except EmptyPage:
+        preprints_page = paginator.page(paginator.num_pages)
+
+    # Render the template
+    return render(
+        request,
+        'repository/list.html',
+        {
+            'preprints': preprints_page,
+            'rou': rou,
+        },
     )

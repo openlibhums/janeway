@@ -198,6 +198,18 @@ class ReviewRecommendationAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class RepositoryOrganisationUnitAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'repository', 'parent')
+    list_filter = ('repository__short_name',)
+    search_fields = (
+        'name',
+        'code',
+        'repository__name',
+        'repository__short_name',
+    )
+    raw_id_fields = ('repository', 'parent')
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.RepositoryRole, RepositoryRoleAdmin),
@@ -215,6 +227,7 @@ admin_list = [
     (models.VersionQueue, VersionQueueAdmin),
     (models.Review, ReviewAdmin),
     (models.ReviewRecommendation, ReviewRecommendationAdmin),
+    (models.RepositoryOrganisationUnit, RepositoryOrganisationUnitAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

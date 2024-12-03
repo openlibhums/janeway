@@ -321,6 +321,39 @@ class Repository(model_utils.AbstractSiteModel):
         )
 
 
+class RepositoryOrganisationUnit(models.Model):
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField()
+    code = models.SlugField(
+        max_length=50,
+        help_text='A unique code within the repository for URL generation.',
+    )
+    preprints = models.ManyToManyField(
+        'repository.Preprint',
+        blank=True,
+        related_name='organisation_units',
+        help_text='Preprints associated with this organisational unit.',
+    )
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='children',
+        help_text='Parent organisational unit, or leave blank if this is '
+                  'a top-level unit.',
+    )
+
+    def __str__(self):
+        return f'{self.repository.code}/{self.code} - {self.name}'
+
+    class Meta:
+        unique_together = ('repository', 'code')
+
+
 class RepositoryRole(models.Model):
     repository = models.ForeignKey(
         Repository,
