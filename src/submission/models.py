@@ -2103,6 +2103,37 @@ class FrozenAuthor(AbstractLastModifiedModel):
             frozen_author=self
         )
 
+    def credits(self, article):
+        """
+        Returns all the credit records for this frozen author on a given article
+        """
+        return CreditRecord.objects.filter(article=article, frozen_author=self)
+
+    def add_credit(self, credit_role_text, article):
+        """
+        Adds a credit role to the article for this frozen author
+        """
+        record, _ = (
+            CreditRecord.objects.get_or_create(
+                article=article, frozen_author=self, role=credit_role_text)
+        )
+
+        return record
+
+    def remove_credit(self, credit_role_text, article):
+        """
+        Removes a credit role from the article for this frozen author
+        """
+        try:
+            record, _ = (
+                CreditRecord.objects.get(
+                    article=article, frozen_author=self, role=credit_role_text)
+            )
+
+            record.delete()
+        except CreditRecord.DoesNotExist:
+            pass
+
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
