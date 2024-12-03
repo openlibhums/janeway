@@ -229,6 +229,105 @@ def view_ithenticate_report(request, article_id):
     return render(request, template, context)
 
 
+@editor_is_not_author
+@editor_user_required
+def add_editor_assignment(request, article_id):
+    """
+    Allow an editor to add a new editor assignment
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse
+    """
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+
+    editors = logic.get_editors_candidates(
+        article,
+        user=request.user,
+    )
+
+    form = forms.EditorAssignmentForm(
+        journal=request.journal,
+        article=article,
+        editors=editors
+    )
+
+    new_editor_form = core_forms.QuickUserForm()
+
+    if request.POST:
+
+        if 'assign' in request.POST:
+            # first check whether the user exists
+            new_editor_form = core_forms.QuickUserForm(request.POST)
+            try:
+                user = core_models.Account.objects.get(email=new_editor_form.data['email'])
+                user.add_account_role('section-editor', request.journal)
+            except core_models.Account.DoesNotExist:
+                user = None
+
+            if user:
+                return redirect(
+                    reverse(
+                        'add_editor_assignment',
+                        kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_editor_form.data['email'], 'id': str(user.pk)},)
+                )
+
+            valid = new_editor_form.is_valid()
+
+            if valid:
+                acc = logic.handle_editor_form(request, new_editor_form, 'section-editor')
+                return redirect(
+                    reverse(
+                        'add_editor_assignment', kwargs={'article_id': article.pk}
+                    ) + '?' + parse.urlencode({'user': new_editor_form.data['email'], 'id': str(acc.pk)}),
+                )
+            else:
+                form.modal = {'id': 'editor'}
+
+        else:
+            form = forms.EditorAssignmentForm(
+                request.POST,
+                journal=request.journal,
+                article=article,
+                editors=editors,
+            )
+            if form.is_valid() and form.is_confirmed():
+                editor_assignment = form.save(request=request, commit=False)
+                editor = editor_assignment.editor
+                assignment_type = editor_assignment.editor_type
+
+                if not editor.has_an_editor_role(request):
+                    messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
+                    return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+
+                _, created = logic.assign_editor(article, editor, assignment_type, request)
+                messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
+                if created and editor:
+                    return redirect(
+                        reverse(
+                            'review_assignment_notification',
+                            kwargs={'article_id': article_id, 'editor_id': editor.pk}
+                        ),
+                    )
+                else:
+                    messages.add_message(request, messages.WARNING,
+                                        '{0} is already an Editor on this article.'.format(editor.full_name()))
+
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))      
+
+    template = 'admin/review/add_editor_assignment.html'
+
+    context = {
+        'article': article,
+        'form': form,
+        'editors': editors.filter(accountrole__role__slug='editor'),
+        'section_editors': editors.filter(accountrole__role__slug='section-editor'),
+        'new_editor_form': new_editor_form,
+    }
+
+    return render(request, template, context)
+
+
 @senior_editor_user_required
 def assign_editor_move_to_review(request, article_id, editor_id, assignment_type):
     """Allows an editor to assign another editor to an article and moves to review."""
