@@ -275,4 +275,9 @@ urlpatterns = [
         views.send_user_email,
         name="send_user_email_preprint",
     ),
+    re_path(
+        r"^(?P<rou_code>[\w-]+)/$",
+        views.repository_home,
+        name="repository_home_by_rou",
+    ),
 ]
