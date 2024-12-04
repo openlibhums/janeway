@@ -5151,5 +5151,24 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Editors can invite other Editors or Section Editors to be assigned to an article.",
+            "is_translatable": false,
+            "name": "enable_invite_editor",
+            "pretty_name": "Enable Invite Editor",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
