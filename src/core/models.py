@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from decimal import Decimal
 import os
 import re
 import uuid
@@ -13,6 +14,8 @@ from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
 import warnings
+import tqdm
+import zipfile
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -51,6 +54,7 @@ from core.model_utils import (
 from review import models as review_models
 from copyediting import models as copyediting_models
 from repository import models as repository_models
+from utils.models import RORImportError
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
@@ -2092,6 +2096,82 @@ class Organization(models.Model):
         organization_name.save()
 
         return organization, created
+
+    @classmethod
+    def create_from_ror_record(cls, record):
+        """
+        Creates one organization object in Janeway from a ROR JSON record,
+        using version 2 of the ROR Schema.
+        See https://ror.readme.io/v2/docs/data-structure
+        """
+        organization, created = cls.objects.get_or_create(
+            ror=record.get('id', ''),
+        )
+        if record.get('status'):
+            organization.ror_status = record.get('status')
+        organization.save()
+        for name in record.get('names'):
+            kwargs = {}
+            kwargs['value'] = name.get('value', '')
+            if name.get('lang'):
+                kwargs['language'] = name.get('language', '')
+            if 'ror_display' in name.get('types'):
+                kwargs['ror_display_for'] = organization
+            if 'label' in name.get('types'):
+                kwargs['label_for'] = organization
+            if 'alias' in name.get('types'):
+                kwargs['alias_for'] = organization
+            if 'acronym' in name.get('types'):
+                kwargs['acronym_for'] = organization
+            OrganizationName.objects.get_or_create(**kwargs)
+        for location in record.get('locations'):
+            details = location.get('geonames_details', {})
+            country, created = Country.objects.get_or_create(
+                code=details.get('country_code', ''),
+            )
+            lat = Decimal(details.get('lat'))
+            lng = Decimal(details.get('lng'))
+            location, created = Location.objects.get_or_create(
+                name=details.get('name', ''),
+                country=country,
+                latitude=lat,
+                longitude=lng,
+                geonames_id=location.get('geonames_id'),
+            )
+            organization.locations.add(location)
+
+
+    @classmethod
+    def import_ror_batch(cls, ror_import, test_full_import=False):
+        """
+        Opens a previously downloaded data dump from
+        ROR's Zenodo endpoint, processes the records,
+        and records errors for exceptions raised during creation.
+        https://ror.readme.io/v2/docs/data-dump
+        """
+        num_errors_before = RORImportError.objects.count()
+        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('v2.json'):
+                    json_string = zip_ref.read(file_info).decode(encoding="utf-8")
+                    data = json.loads(json_string)
+                    if settings.DEBUG and not test_full_import:
+                        # Limit the import run during development by default
+                        data = data[:100]
+                    for item in tqdm.tqdm(data):
+                        try:
+                            cls.create_from_ror_record(item)
+                        except Exception as error:
+                            message = f'{error}\n{json.dumps(item)}'
+                            RORImportError.objects.create(
+                                ror_import=ror_import,
+                                message=message,
+                            )
+        num_errors_after = RORImportError.objects.count()
+        if num_errors_after > num_errors_before:
+            logger.warn(
+                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+            )
 
 
 class Affiliation(models.Model):
