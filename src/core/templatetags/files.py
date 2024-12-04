@@ -71,8 +71,8 @@ def file_type(article, file):
             galleyproofing__round__article=article,
         )
     except FieldError:
-        annotated_files = models.File.objects.none(
-            proofingtask__round__article=article,
+        annotated_files = models.File.objects.filter(
+            proofingtask__round__assignment__article=article,
         )
 
     for galley in article.galley_set.all():
