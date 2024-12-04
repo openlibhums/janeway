@@ -398,6 +398,50 @@ class AccessRequestAdmin(admin.ModelAdmin):
     date_hierarchy = ('requested')
 
 
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'ror', '_ror_display', '_custom_label',
+                    '_locations', 'ror_status')
+    list_display_links = ('pk', 'ror')
+    list_filter = ('ror_status', 'locations__country')
+    search_fields = ('pk', 'ror_display__value', 'custom_label__value', 'labels__value',
+                     'aliases__value', 'acronyms__value')
+    raw_id_fields = ('locations', )
+
+    def _ror_display(self, obj):
+        return obj.ror_display if obj and obj.ror_display else ''
+
+    def _locations(self, obj):
+        return '; '.join([str(l) for l in obj.locations.all()]) if obj else ''
+
+    def _custom_label(self, obj):
+        return obj.custom_label if obj and obj.custom_label else ''
+
+
+class OrganizationNameAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'value', 'language')
+    list_display_links = ('pk', 'value')
+    search_fields = ('pk', 'value')
+    raw_id_fields = ('ror_display_for', 'custom_label_for',
+                     'label_for', 'alias_for', 'acronym_for')
+
+    def _ror_display(self, obj):
+        return obj.ror_display if obj and obj.ror_display else ''
+
+    def _locations(self, obj):
+        return '; '.join([str(l) for l in obj.locations.all()]) if obj else ''
+
+    def _custom_label(self, obj):
+        return obj.custom_label if obj and obj.custom_label else ''
+
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'country', 'geonames_id')
+    list_display_links = ('pk', 'name')
+    list_filter = ('country',)
+    search_fields = ('pk', 'name', 'country__code', 'country__name',
+                     'geonames_id')
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -427,6 +471,9 @@ admin_list = [
     (models.Contacts, ContactsAdmin),
     (models.Contact, ContactAdmin),
     (models.AccessRequest, AccessRequestAdmin),
+    (models.Organization, OrganizationAdmin),
+    (models.OrganizationName, OrganizationNameAdmin),
+    (models.Location, LocationAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
