@@ -1,0 +1,85 @@
+{% comment %}
+This template is for an end user to edit their own account details.
+{% endcomment %}
+
+{% load foundation %}
+{% load static %}
+
+<fieldset>
+  <legend>{% trans "Name" %}</legend>
+  <div class="flex wrap gap-2">
+    {{ form.salutation|foundation }}
+    {{ form.first_name|foundation }}
+    {{ form.middle_name|foundation }}
+    {{ form.last_name|foundation }}
+    {{ form.suffix|foundation }}
+  </div>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans "Affiliations" %}</legend>
+  <div class="flex wrap gap-2">
+
+  </div>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans "Social Media and Accounts" %}</legend>
+  <div class="flex wrap gap-2">
+    {{ form.twitter|foundation }}
+    {{ form.facebook|foundation }}
+    {{ form.orcid|foundation }}
+    {{ form.github|foundation }}
+    {{ form.linkedin|foundation }}
+    {{ form.website|foundation }}
+  </div>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans 'Biography and Signature' %}</legend>
+  <div class="flex landscape-row portrait-column gap-2">
+    {{ form.biography|foundation }}
+    {{ form.signature|foundation }}
+  </div>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans 'Review Interests' %}</legend>
+  <div class="flex wrap gap-2">
+    <div>
+      <label class="show-for-sr" for="id_interests">
+        {% trans 'Review Interests' %}
+      </label>
+      <input
+        type="text"
+        id="id_interests"
+        name="interests"
+        value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
+    </div>
+  </div>
+  <p>{% trans "Hit Enter to add a new interest" %}.</p>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans 'Profile Image' %}</legend>
+  <div class="flex landscape-row portrait-column gap-3">
+    {% if user_to_edit.profile_image %}
+      <img
+        src="{{ user_to_edit.profile_image.url }}"
+        class="thumbnail editorial-image">
+    {% else %}
+      <img
+        src="{% static "common/img/icons/users.png" %}"
+        class="thumbnail editorial-image">
+    {% endif %}
+    {{ form.profile_image|foundation }}
+  </div>
+</fieldset>
+<hr>
+<fieldset>
+  <legend>{% trans 'Options' %}</legend>
+  <div class="flex wrap gap-2">
+    {{ form.enable_public_profile|foundation }}
+    {{ form.preferred_timezone|foundation }}
+  </div>
+</fieldset>

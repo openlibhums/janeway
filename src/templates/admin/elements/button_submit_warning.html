@@ -1,0 +1,16 @@
+{% comment %}
+A generic yellow submit button with a forward arrow icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'submit' }}"
+  class="button warning {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-arrow-right"></span>
+  {% if label %}
+    {{ label }}
+  {% else %}
+    {% trans "Submit" %}
+  {% endif %}
+</button>

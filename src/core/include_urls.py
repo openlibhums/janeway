@@ -118,6 +118,38 @@ urlpatterns = [
     re_path(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
     re_path(r'^manager/user/(?P<user_id>\d+)/history/$', core_views.user_history, name='core_user_history'),
 
+    ## Affiliations
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/organization/search/$',
+        core_views.OrganizationListView.as_view(),
+        name='organization_search'
+    ),
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/organization_name/create/$',
+        core_views.OrganizationNameCreateView.as_view(),
+        name='organization_name_create'
+    ),
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/organization_name/(?P<organization_name_id>\d+)/update/$',
+        core_views.OrganizationNameUpdateView.as_view(),
+        name='organization_name_update'
+    ),
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/organization/(?P<organization_id>\d+)/affiliation/create/$',
+        core_views.AffiliationCreateView.as_view(),
+        name='affiliation_create'
+    ),
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/affiliation/(?P<affiliation_id>\d+)/update/$',
+        core_views.AffiliationUpdateView.as_view(),
+        name='affiliation_update'
+    ),
+    re_path(
+        r'^manager/user/(?P<user_id>\d+)/affiliation/(?P<affiliation_id>\d+)/delete/$',
+        core_views.AffiliationDeleteView.as_view(),
+        name='affiliation_delete'
+    ),
+
     # Templates
     re_path(r'^manager/templates/$', core_views.email_templates, name='core_email_templates'),
 

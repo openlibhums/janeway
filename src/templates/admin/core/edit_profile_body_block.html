@@ -1,0 +1,119 @@
+{% load foundation %}
+{% load i18n roles %}
+{% user_has_role request 'reader' staff_override=False as reader %}
+
+<div class="row">
+  <div class="columns">
+    <div class="box">
+      <div class="title-area">
+        <h2>{% trans "Email Address" %}</h2>
+      </div>
+      <div class="callout warning">
+        <div><span class="fa fa-warning"></span></div>
+        {% blocktrans %}
+          <p>If you want to change your email address you may do so below,
+          however, you will be logged out and your account will be marked as
+          inactive until you follow the instructions in the verification email.
+          <strong>Note: </strong>
+          Changing your email address will also change your username as these
+          are one and the same.</p>
+        {% endblocktrans %}
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="flex wrap gap-2">
+          <div>
+            <label for="email_address">
+              {% trans 'Email Address' %}
+            </label>
+            <input
+                type="email"
+                name="email_address"
+                value="{{ request.user.email }}">
+          </div>
+        </div>
+        {% trans "Update Email Address" as update_email_address %}
+        {% include "elements/button_submit_warning.html" with label=update_email_address name="email" %}
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if request.journal and send_reader_notifications %}
+  <div class="row">
+    <div class="columns">
+      <div class="box">
+        <div class="title-area">
+          <h2>{% trans "Register for Article Notifications" %}</h2>
+        </div>
+        <form method="POST">
+          <p>
+            {% blocktrans %}Use the button below to register to receive notifications 
+            of new articles published in this journal {% endblocktrans %}
+          </p>
+          {% csrf_token %}
+          {% if reader %}
+            <button name="unsubscribe" class="warning button">
+              {% trans "Unsubscribe from Article Notifications" %}
+            </button>
+          {% else %}
+            <button name="subscribe" class="warning button">
+              {% trans "Subscribe to Article Notifications" %}
+            </button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<div class="row">
+  <div class="columns">
+    <div class="box">
+      <div class="title-area">
+        <h2>{% trans "Password" %}</h2>
+      </div>
+      <div class="callout info">
+        <p>{% blocktrans %}You can update your password by entering your existing
+        password plus your new password.{% endblocktrans %}</p>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="flex wrap gap-2">
+          <div>
+            <label for="current_password">{% trans "Current Password" %}</label>
+            <input type="password" name="current_password">
+          </div>
+          <div>
+            <label for="new_password_one">{% trans "New Password" %}</label>
+            <input type="password" name="new_password_one">
+          </div>
+          <div>
+            <label for="new_password_two">{% trans "Enter Password Again" %}</label>
+            <input type="password" name="new_password_two">
+          </div>
+        </div>
+        {% trans "Update Password" as update_password %}
+        {% include "elements/button_submit_warning.html" with name="change_password" label=update_password %}
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="columns">
+    <div class="box">
+      <div class="title-area">
+        <h2>{% trans "Profile Info" %}</h2>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row column log-in-form">
+          {% include "admin/core/account_form_user.html" with form=form %}
+          {% include "elements/button_save.html" with name="edit_profile" %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

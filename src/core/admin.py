@@ -400,11 +400,11 @@ class AccessRequestAdmin(admin.ModelAdmin):
 
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('pk', 'ror', '_ror_display', '_custom_label',
-                    '_locations', 'ror_status')
+                    'website', '_locations', 'ror_status')
     list_display_links = ('pk', 'ror')
     list_filter = ('ror_status', 'locations__country')
     search_fields = ('pk', 'ror_display__value', 'custom_label__value', 'labels__value',
-                     'aliases__value', 'acronyms__value')
+                     'aliases__value', 'acronyms__value', 'website', 'ror')
     raw_id_fields = ('locations', )
 
     def _ror_display(self, obj):
@@ -442,6 +442,40 @@ class LocationAdmin(admin.ModelAdmin):
                      'geonames_id')
 
 
+class AffiliationAdmin(admin.ModelAdmin):
+    list_display = ('pk', '_person', 'organization', 'title', 'department', 'start', 'end')
+    list_display_links = ('pk', '_person')
+    list_filter = ('start', 'end', 'organization__locations__country')
+    search_fields = (
+        'pk',
+        'title',
+        'department',
+        'organization__ror_display_for',
+        'organization__custom_label_for',
+        'organization__label_for',
+        'organization__alias_for',
+        'organization__acronym_for'
+        'account__first_name',
+        'account__last_name',
+        'account__email',
+        'frozen_author__first_name',
+        'frozen_author__last_name',
+        'frozen_author__frozen_email',
+        'preprint_author__account__first_name',
+        'preprint_author__account__last_name',
+        'preprint_author__account__email',
+    )
+    raw_id_fields = ('account', 'frozen_author',
+                     'preprint_author', 'organization')
+
+    def _person(self, obj):
+        if obj:
+            return obj.account or obj.frozen_author or obj.preprint_author
+        else:
+            return ''
+
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -474,6 +508,7 @@ admin_list = [
     (models.Organization, OrganizationAdmin),
     (models.OrganizationName, OrganizationNameAdmin),
     (models.Location, LocationAdmin),
+    (models.Affiliation, AffiliationAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
