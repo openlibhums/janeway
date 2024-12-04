@@ -267,6 +267,12 @@ REVIEW_STAGES = {
     STAGE_ACCEPTED,
 }
 
+EDITOR_REVIEW_STAGES = {
+    STAGE_UNASSIGNED,
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
+}
+
 # Stages used to determine if a review assignment is open
 REVIEW_ACCESSIBLE_STAGES = {
     STAGE_ASSIGNED,

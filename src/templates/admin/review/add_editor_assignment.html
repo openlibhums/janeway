@@ -29,6 +29,13 @@
                                 You can select an editor using the radio 
                                 buttons in the first column.
                             {% endblocktrans %}
+                            {% if journal_settings.general.enable_invite_editor %}
+                            {% blocktrans %}
+                                If you want to invite
+                                an editor you must complete the 
+                                section under <b>Set Options</b>.
+                            {% endblocktrans %}
+                            {% endif %}
                             {% blocktrans %}
                                 If you cannot find the editor you want in 
                                 this list you can use <b>Enroll Existing User</b> to 
@@ -77,6 +84,20 @@
                         &nbsp;
                     </div>
                 </div>
+                {% if journal_settings.general.enable_invite_editor %}
+                <div class="content">
+                    <div class="title-area">
+                        <h2>Set Options</h2>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-4 columns">{{ form.date_due|foundation }}</div>
+                        <div class="large-12 columns">
+                            <button class="button success" style="background-color: transparent;border: 1px solid;" name="invite" type="submit" id="invite">Invite Editor</button>
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             </div>        &nbsp;&nbsp;
         </form>

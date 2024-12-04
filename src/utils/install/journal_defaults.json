@@ -5170,5 +5170,176 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The default number of days before an editor assignment is due.",
+            "is_translatable": false,
+            "name": "default_editor_assignment_request_days",
+            "pretty_name": "Default Number of Days for Editor Assignment",
+            "type": "number"
+        },
+        "value": {
+            "default": "56"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "Editor Assignment Request"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Subject Editor Assignment Request",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors to request an editor assignment.",
+            "name": "subject_editor_assignment_request"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "Editor Assignment Acknowledgement"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Editor Assignment Accepted",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when they agree to be assigned to an article.",
+            "name": "subject_editor_assignment_accept_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "Editor Assignment Updated"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Editor Assignment Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when an editor or section editor accepts or declines an editor asignment request.",
+            "name": "subject_editor_assignment_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "Editor Assignment Declined"
+        },
+        "setting": {
+            "type": "text",
+            "pretty_name": "Editor Assignment Declination Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when they decline to be assigned to an article.",
+            "name": "subject_editor_assignment_decline_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors to request an editor assignment.",
+            "is_translatable": true,
+            "name": "editor_assignment_request",
+            "pretty_name": "Editor Assignment Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ editor_assignment.editor.full_name }},<br/><br/>We are requesting that you undertake an editor assignment of \"{{ article.safe_title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our editors is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the assignment: {{ review_unassigned_url }} <br/><br/>{{ article_details }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when another editor or section editor accepts or declines an editor assignment request.",
+            "is_translatable": true,
+            "name": "editor_assignment_acknowledgement",
+            "pretty_name": "Editor Assignment Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ editor_assignment.requesting_editor.full_name }},<br/><br/>This is a notification that the editor {{ editor_assignment.editor.full_name }} has responded to your editor assignment request for \" #{{ article.pk }}: {{ article.safe_title }}\" in {{ article.journal.name }} and have {{ editor_assignment_decision }} to perform the review. You can view more information on the journal site: {{ review_unassigned_url }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when they agree to be assigned in an article.",
+            "is_translatable": true,
+            "name": "editor_assignment_accept_acknowledgement",
+            "pretty_name": "Editor Assignment Acceptance Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ editor_assignment.editor.full_name }}, <br/><br/>Thank you for agreeing to be assigned in \"{{ article.safe_title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_unassigned_url }}  <br/><br/>Regards, <br/>{{ editor_assignment.requesting_editor.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when they decline to be assigned in an article.",
+            "is_translatable": true,
+            "name": "editor_assignment_decline_acknowledgement",
+            "pretty_name": "Editor Assignment Decline Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ editor_assignment.editor.full_name }}, \n\nThank you for letting us know that you are unable to participate in the editorial process of \"{{ article.safe_title }}\" in {{ article.journal.name }}.\n\n We are most grateful for your time.\n\nRegards,\n{{ editor_assignment.requesting_editor.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

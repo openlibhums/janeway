@@ -348,6 +348,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'default_review_days', journal),
             },
             {
+                'name': 'default_editor_assignment_request_days',
+                'object': setting_handler.get_setting('general', 'default_editor_assignment_request_days', journal),
+            },
+            {
                 'name': 'enable_save_review_progress',
                 'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
             },

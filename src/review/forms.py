@@ -140,24 +140,48 @@ class EditorAssignmentForm(core_forms.ConfirmableIfErrorsForm):
         self.journal = kwargs.pop('journal', None)
         self.article = kwargs.pop('article')
         self.editors = kwargs.pop('editors')
+        self.invite_editor = kwargs.pop('invite_editor', False)
 
         super(EditorAssignmentForm, self).__init__(*args, **kwargs)
+
+        default_due = setting_handler.get_setting(
+            'general',
+            'default_review_days',
+            self.journal,
+            create=True,
+        ).value
+
+        if default_due:
+            due_date = timezone.now() + timedelta(days=int(default_due))
+            self.fields['date_due'].initial = due_date
+            self.fields['date_due'].required = False
 
         if self.editors:
             self.fields['editor'].queryset = self.editors
 
     def clean(self):
         cleaned_data = super().clean()
+        if self.invite_editor and not cleaned_data.get('date_due'):
+            self.add_error('date_due', 'This field is required for inviting an editor.')
         return cleaned_data
 
     def save(self, commit=True, request=None):
         editor = self.cleaned_data['editor']
+        date_due = self.cleaned_data['date_due']
 
         if request:
-            editor_assignment = models.EditorAssignment(
-                article=self.article,
-                editor=editor,
-            )
+            if self.invite_editor:
+                editor_assignment = models.EditorAssignmentRequest(
+                    article=self.article,
+                    editor=editor,
+                    date_due=date_due,
+                )
+                editor_assignment.requesting_editor = request.user
+            else:
+                editor_assignment = models.EditorAssignment(
+                    article=self.article,
+                    editor=editor,
+                )
 
             if editor_assignment.editor.is_editor(request):
                 editor_assignment.editor_type = 'editor'

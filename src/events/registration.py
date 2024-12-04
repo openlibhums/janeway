@@ -21,6 +21,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACK
                                       transactional_emails.send_editor_assigned_acknowledgements)
 event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_MANUALLY_ASSIGNED,
                                       transactional_emails.send_editor_manually_assigned)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_REQUESTED_NOTIFICATION,
+                                      transactional_emails.send_editor_assignment_requested)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
         transactional_emails.send_editor_unassigned_notice)
 

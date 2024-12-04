@@ -140,19 +140,38 @@ def unassigned_article(request, article_id):
 
     current_editors = [assignment.editor.pk for assignment in
                        models.EditorAssignment.objects.filter(article=article)]
+
+    requested_editors = models.EditorAssignmentRequest.objects.filter(
+        Q(is_complete=False) &
+        Q(article__stage__in=submission_models.EDITOR_REVIEW_STAGES) &
+        Q(date_accepted__isnull=True) &
+        Q(date_declined__isnull=True)
+    )
+
+    exclude_editors = [
+        assignment.editor.pk 
+        for assignment in models.EditorAssignment.objects.filter(article=article)
+    ]
+
+    enable_invite_editor = setting_handler.get_setting('general', 'enable_invite_editor', request.journal).value
+    if enable_invite_editor:
+        exclude_editors = exclude_editors + [request.editor.pk for request in requested_editors]
+
     editors = core_models.AccountRole.objects.filter(
         role__slug='editor',
-        journal=request.journal).exclude(user__id__in=current_editors)
+        journal=request.journal
+    ).exclude(user__id__in=exclude_editors)
     section_editors = core_models.AccountRole.objects.filter(
         role__slug='section-editor',
         journal=request.journal
-    ).exclude(user__id__in=current_editors)
+    ).exclude(user__id__in=exclude_editors)
 
     template = 'review/unassigned_article.html'
     context = {
         'article': article,
         'editors': editors,
         'section_editors': section_editors,
+        'requested_editors': requested_editors,
     }
 
     return render(request, template, context)
@@ -284,6 +303,23 @@ def add_editor_assignment(request, article_id):
             else:
                 form.modal = {'id': 'editor'}
 
+        elif 'invite' in request.POST:
+            form = forms.EditorAssignmentForm(
+                request.POST,
+                journal=request.journal,
+                article=article,
+                editors=editors,
+                invite_editor=True
+            )
+            if form.is_valid() and form.is_confirmed():
+                editor_assignment = form.save(request=request)
+                article.save()
+                return redirect(
+                    reverse(
+                        'notify_invite_editor_assignment',
+                        kwargs={'article_id': article_id, 'editor_assignment_id': editor_assignment.id}
+                    )
+                )
         else:
             form = forms.EditorAssignmentForm(
                 request.POST,
@@ -313,7 +349,7 @@ def add_editor_assignment(request, article_id):
                     messages.add_message(request, messages.WARNING,
                                         '{0} is already an Editor on this article.'.format(editor.full_name()))
 
-                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))      
+                return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
 
     template = 'admin/review/add_editor_assignment.html'
 
@@ -1510,6 +1546,67 @@ def edit_review_answer(request, article_id, review_id, answer_id):
         'review': review,
         'answer': answer,
         'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_is_not_author
+@editor_user_required
+def notify_invite_editor(request, article_id, editor_assignment_id):
+    """
+    Allows the editor to send a notification to another invited editor
+    :param request: HttpRequest object
+    :param article_id: Articke PK
+    :param editor_id: EditorAssignmentRequest PK
+    :return: HttpResponse or HttpRedirect
+    """
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    editor_assignment_request = get_object_or_404(models.EditorAssignmentRequest, pk=editor_assignment_id)
+
+    email_context = logic.get_editor_notification_context(
+        request, article, request.user, editor_assignment_request)
+
+    form = core_forms.SettingEmailForm(
+        setting_name="editor_assignment_request",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.POST:
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name="editor_assignment_request",
+            email_context=email_context,
+            request=request,
+        )
+
+        if form.is_valid() or skip:
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'editor_assignment': editor_assignment_request,
+                'request': request,
+                'skip': skip,
+            }
+
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDITOR_REQUESTED_NOTIFICATION, **kwargs)
+
+            editor_assignment_request.date_requested = timezone.now()
+            editor_assignment_request.save()
+
+        return redirect(reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': article.pk},
+        ))
+
+    template = 'review/notify_invite_editor.html'
+    context = {
+        'article': article,
+        'editor': editor_assignment_request,
+        'form': form,
+        'assignment': editor_assignment_request,
     }
 
     return render(request, template, context)
