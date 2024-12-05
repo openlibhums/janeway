@@ -429,7 +429,7 @@ def get_settings_to_edit(display_group, journal, user):
 
     elif display_group == 'crossref':
         xref_settings = [
-            'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
+            'use_crossref', 'register_doi_at_acceptance', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
             'doi_pattern', 'doi_manager_action_maximum_size', 'title_doi', 'issue_doi_pattern', 'register_issue_dois'
         ]
@@ -452,7 +452,7 @@ def get_settings_to_edit(display_group, journal, user):
             'publisher_url', 'contact_info', 'privacy_policy_url', 'auto_signature',
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
-            'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
+            'use_ga_four', 'display_login_page_notice', 'login_page_notice',
             'display_register_page_notice', 'register_page_notice',
             'support_email', 'support_contact_message_for_staff',
             'from_address', 'replyto_address',
