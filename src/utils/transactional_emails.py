@@ -1328,7 +1328,7 @@ def send_prepub_notifications(**kwargs):
     article = kwargs['article']
     formset = kwargs['formset']
 
-    description = """
+    description = f"""
         {article.title} was set to be published {article.date_published}
         by {request.user.full_name()}
     """
