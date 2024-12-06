@@ -2,7 +2,7 @@
 {% load i18n foundation static %}
 
 {% block css %}
-  <link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+  <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block contextual_title %}
@@ -116,6 +116,29 @@
         </button>
       </form>
       {% include "admin/elements/forms/denotes_required.html" %}
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Affiliations" %}</h2>
+      </div>
+      <div class="flex direction-column gap-0-5 no-bottom-margin">
+        {% for affiliation in request.user.affiliations %}
+          <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+            {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
+            <div class="flex gap-0-5 items-center">
+              {% url 'core_affiliation_update' affiliation.pk as update_url %}
+              {% include "elements/a_edit.html" with href=update_url size="small" %}
+              {% url 'core_affiliation_delete' affiliation.pk as delete_url %}
+              {% include "elements/a_delete.html" with href=delete_url size="small" %}
+            </div>
+          </div>
+        {% endfor %}
+        <div>
+          {% url 'core_organization_search' as create_url %}
+          {% trans "Add affiliation" as add_affiliation %}
+          {% include "elements/a_create.html" with href=create_url size="small" label=add_affiliation %}
+        </div>
+      </div>
     </section>
     <section class="card padding-block-2 padding-inline-2">
       <div class="title-area">
