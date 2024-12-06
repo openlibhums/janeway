@@ -109,6 +109,13 @@ class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
     def _article(self, obj):
         return truncatewords_html(str(obj.article), 10) if obj else ''
 
+class CreditRecordAdmin(admin.ModelAdmin):
+    list_display = ('role', 'article', 'author', '_frozenauthor')
+    list_filter = ('article', 'author', 'role')
+    search_fields = ('role', 'article', 'author', '_frozenauthor')
+
+    def _frozenauthor(self, obj):
+        return truncatewords_html(str(obj.article), 10) if obj else ''
 
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'short_name', 'journal', 'url', '_text')
@@ -223,6 +230,7 @@ admin_list = [
     (models.Keyword, KeywordAdmin),
     (models.SubmissionConfiguration, SubmissionConfigAdmin),
     (models.ArticleAuthorOrder, ArticleAuthorOrderAdmin),
+    (models.CreditRecord, CreditRecordAdmin)
 ]
 
 [admin.site.register(*t) for t in admin_list]
