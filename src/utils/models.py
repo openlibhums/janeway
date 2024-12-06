@@ -466,12 +466,12 @@ class RORImport(models.Model):
 
     def delete_previous_download(self):
         if not self.previous_import:
-            logger.info('No previous import to remove.')
+            logger.debug('No previous import to remove.')
             return
         try:
             os.unlink(self.previous_import.zip_path)
         except FileNotFoundError:
-            logger.info('Previous import had no zip file.')
+            logger.debug('Previous import had no zip file.')
 
     def download_data(self):
         """
