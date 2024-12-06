@@ -1,9 +1,10 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.http import HttpRequest, QueryDict
-from django.forms import Form
+from django.forms import Form, ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
@@ -17,6 +18,7 @@ from core.model_utils import (
 from journal import models as journal_models
 from utils.testing import helpers
 from submission import models as submission_models
+from repository import models as repository_models
 
 FROZEN_DATETIME_20210101 = timezone.make_aware(timezone.datetime(2021, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_20210102 = timezone.make_aware(timezone.datetime(2021, 1, 2, 0, 0, 0))
@@ -396,4 +398,392 @@ class TestModelUtils(TestCase):
         self.assertIn(
             self.account,
             results,
+        )
+
+
+class TestOrganizationModels(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.repo_manager = helpers.create_user(
+            'xulz5vepggxdvo8ngirw@example.org'
+        )
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain='odhstswzfesoyhhjywzk.example.org',
+        )
+        cls.country_gb = models.Country.objects.create(
+            code='GB',
+            name='United Kingdom',
+        )
+        cls.location_london = models.Location.objects.create(
+            name='London',
+            country=cls.country_gb,
+            latitude=51.50853,
+            longitude=-0.12574,
+        )
+        cls.location_farnborough = models.Location.objects.create(
+            name='Farnborough',
+            country=cls.country_gb,
+            latitude=51.29,
+            longitude=-0.75,
+        )
+        cls.organization_bbk = models.Organization.objects.create(
+            ror='https://ror.org/02mb95055',
+        )
+        cls.name_bbk_uol = models.OrganizationName.objects.create(
+            value='Birkbeck, University of London',
+            language='en',
+            ror_display_for=cls.organization_bbk,
+            label_for=cls.organization_bbk,
+        )
+        cls.name_bbk_cy = models.OrganizationName.objects.create(
+            value='Birkbeck, Prifysgol Llundain',
+            language='cy',
+            label_for=cls.organization_bbk,
+        )
+        cls.name_bbk_custom = models.OrganizationName.objects.create(
+            value='Birkbeck',
+            custom_label_for=cls.organization_bbk,
+        )
+        cls.name_bbk_college = models.OrganizationName.objects.create(
+            value='Birkbeck College',
+            language='en',
+            alias_for=cls.organization_bbk,
+        )
+        cls.organization_bbk.locations.add(cls.location_london)
+        cls.organization_rae = models.Organization.objects.create(
+            ror='https://ror.org/0n7v1dg93',
+        )
+        cls.name_rae = models.OrganizationName.objects.create(
+            value='Royal Aircraft Establishment',
+            language='en',
+            label_for=cls.organization_rae,
+            ror_display_for=cls.organization_rae
+        )
+        cls.organization_rae.locations.add(cls.location_farnborough)
+        cls.organization_brp = models.Organization.objects.create(
+            ror='https://ror.org/0w7120h04',
+        )
+        cls.name_brp = models.OrganizationName.objects.create(
+            value='British Rubber Producers',
+            language='en',
+            label_for=cls.organization_brp,
+            ror_display_for=cls.organization_brp,
+        )
+        cls.kathleen_booth = helpers.create_user(
+            'ehqak6rxknzw35ih47oc@bbk.ac.uk',
+            first_name='Kathleen',
+            last_name='Booth',
+        )
+        cls.kathleen_booth_frozen = submission_models.FrozenAuthor.objects.create(
+            first_name='Kathleen',
+            last_name='Booth',
+            author=cls.kathleen_booth,
+            frozen_email='ehqak6rxknzw35ih47oc@bbk.ac.uk',
+        )
+        cls.preprint_one = helpers.create_preprint(
+            cls.repository,
+            cls.kathleen_booth,
+            cls.subject,
+            title='Preprint for testing affiliations',
+        )
+        cls.kathleen_booth_preprint, _created = repository_models.PreprintAuthor.objects.get_or_create(
+            preprint=cls.preprint_one,
+            account=cls.kathleen_booth,
+        )
+        cls.affiliation_lecturer = models.Affiliation.objects.create(
+            account=cls.kathleen_booth,
+            title='Lecturer',
+            department='Department of Numerical Automation',
+            organization=cls.organization_bbk,
+            is_primary=True,
+            start=date.fromisoformat('1952-01-01'),
+            end=date.fromisoformat('1962-12-31'),
+        )
+        cls.affiliation_lecturer_frozen = models.Affiliation.objects.create(
+            frozen_author=cls.kathleen_booth_frozen,
+            title='Lecturer',
+            department='Department of Numerical Automation',
+            organization=cls.organization_bbk,
+            is_primary=True,
+        )
+        cls.affiliation_lecturer_preprint = models.Affiliation.objects.create(
+            preprint_author=cls.kathleen_booth_preprint,
+            title='Lecturer',
+            department='Department of Numerical Automation',
+            organization=cls.organization_bbk,
+            is_primary=True,
+        )
+        cls.affiliation_scientist = models.Affiliation.objects.create(
+            account=cls.kathleen_booth,
+            department='Research Association',
+            organization=cls.organization_brp,
+        )
+        cls.affiliation_officer = models.Affiliation.objects.create(
+            account=cls.kathleen_booth,
+            title='Junior Scientific Officer',
+            organization=cls.organization_rae,
+            start=date.fromisoformat('1944-01-01'),
+        )
+        cls.t_s_eliot = helpers.create_user(
+            'gene8rahhnmmitlvqiz9@bbk.ac.uk',
+            first_name='Thomas',
+            middle_name='Stearns',
+            last_name='Eliot',
+        )
+
+        return super().setUpTestData()
+
+    def test_account_institution_getter(self):
+        self.assertEqual(
+            self.kathleen_booth.institution,
+            'Birkbeck, University of London, London, United Kingdom',
+        )
+
+    def test_frozen_author_institution_getter(self):
+        self.assertEqual(
+            self.kathleen_booth_frozen.institution,
+            'Birkbeck, University of London, London, United Kingdom',
+        )
+
+    def test_account_institution_setter_canonical_label(self):
+        self.t_s_eliot.institution = 'Birkbeck, University of London'
+        self.assertEqual(
+            self.organization_bbk,
+            self.t_s_eliot.affiliation(obj=True).organization,
+        )
+
+    def test_account_institution_setter_canonical_alias(self):
+        self.t_s_eliot.institution = 'Birkbeck College'
+        self.assertEqual(
+            self.organization_bbk,
+            self.t_s_eliot.affiliation(obj=True).organization,
+        )
+
+    def test_account_institution_setter_custom_overwrite(self):
+        self.t_s_eliot.institution = 'Birkbek'
+        misspelled_bbk = models.Organization.objects.get(
+            custom_label__value='Birkbek'
+        )
+        self.t_s_eliot.institution = 'Birkbck'
+        self.assertEqual(
+            misspelled_bbk,
+            self.t_s_eliot.affiliation(obj=True).organization,
+        )
+
+    def test_account_institution_setter_custom_value(self):
+        self.kathleen_booth.institution = 'Birkbeck McMillan'
+        bbk_mcmillan = models.Organization.objects.get(
+            custom_label__value='Birkbeck McMillan'
+        )
+        self.assertEqual(
+            bbk_mcmillan,
+            self.kathleen_booth.affiliation(obj=True).organization,
+        )
+
+    def test_frozen_author_institution_setter_custom_value(self):
+        self.kathleen_booth_frozen.institution = 'Birkbeck McMillan'
+        bbk_mcmillan = models.Organization.objects.get(
+            custom_label__value='Birkbeck McMillan'
+        )
+        self.assertEqual(
+            bbk_mcmillan,
+            self.kathleen_booth_frozen.affiliation(obj=True).organization,
+        )
+
+    def test_account_department_getter(self):
+        self.assertEqual(
+            self.kathleen_booth.department,
+            'Department of Numerical Automation',
+        )
+
+    def test_frozen_author_department_getter(self):
+        self.assertEqual(
+            self.kathleen_booth_frozen.department,
+            'Department of Numerical Automation',
+        )
+
+    def test_account_department_setter(self):
+        self.kathleen_booth.department = 'Computer Science'
+        self.assertEqual(
+            models.Affiliation.objects.get(department='Computer Science'),
+            self.kathleen_booth.affiliation(obj=True),
+        )
+
+    def test_account_department_setter_updates_existing_primary(self):
+        self.affiliation_lecturer.is_primary = True
+        self.affiliation_lecturer.save()
+        self.kathleen_booth.department = 'Computer Science'
+        self.affiliation_lecturer.refresh_from_db()
+        self.assertEqual(
+            self.affiliation_lecturer.department,
+            self.kathleen_booth.affiliation(obj=True).department,
+        )
+
+    def test_frozen_author_department_setter(self):
+        self.kathleen_booth_frozen.department = 'Computer Science'
+        self.assertEqual(
+            models.Affiliation.objects.get(department='Computer Science'),
+            self.kathleen_booth_frozen.affiliation(obj=True),
+        )
+
+    def test_organization_name_ror_display(self):
+        self.assertEqual(
+            self.organization_bbk.name,
+            self.name_bbk_uol,
+        )
+
+    def test_organization_name_label(self):
+        self.name_bbk_custom.delete()
+        self.name_bbk_uol.ror_display_for = None
+        self.name_bbk_uol.save()
+        self.organization_bbk.refresh_from_db()
+        self.assertEqual(
+            self.organization_bbk.name,
+            self.name_bbk_uol,
+        )
+        self.name_bbk_uol.delete()
+        self.organization_bbk.refresh_from_db()
+        self.assertEqual(
+            self.organization_bbk.name,
+            self.name_bbk_cy,
+        )
+
+    def test_organization_name_custom_label(self):
+        self.name_bbk_uol.delete()
+        self.organization_bbk.refresh_from_db()
+        self.assertEqual(
+            self.organization_bbk.name,
+            self.name_bbk_custom,
+        )
+
+    def test_ror_validation(self):
+        for invalid_ror in [
+            # URLValidator
+            '0v2w8z018',
+            'ror.org/0v2w8z018',
+             # validate_ror
+            'https://ror.org/0123456789',
+            'https://ror.org/0lu42o079',
+            'https://ror.org/abcdefghj',
+        ]:
+            with self.assertRaises(ValidationError):
+                org = models.Organization.objects.create(ror=invalid_ror)
+                org.clean_fields()
+
+    def test_account_affiliation_with_primary(self):
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
+        )
+
+    def test_account_affiliation_with_no_title(self):
+        self.affiliation_lecturer.title = ''
+        self.affiliation_lecturer.save()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
+        )
+
+    def test_account_affiliation_with_no_country(self):
+        self.location_london.country = None
+        self.location_london.save()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London',
+        )
+
+    def test_account_affiliation_with_no_location(self):
+        self.organization_bbk.locations.remove(self.location_london)
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Lecturer, Department of Numerical Automation, Birkbeck, University of London',
+        )
+
+    def test_account_affiliation_with_no_organization(self):
+        self.affiliation_lecturer.organization = None
+        self.affiliation_lecturer.save()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Lecturer, Department of Numerical Automation',
+        )
+
+    def test_account_affiliation_for_past_date(self):
+        year_1950 = date.fromisoformat('1950-01-01')
+        self.assertEqual(
+            self.kathleen_booth.affiliation(date=year_1950),
+            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
+        )
+
+    def test_account_affiliation_with_no_primary(self):
+        self.affiliation_lecturer.is_primary = False
+        self.affiliation_lecturer.save()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
+        )
+
+    def test_account_affiliation_with_no_dates_and_no_primary(self):
+        self.affiliation_lecturer.is_primary = False
+        self.affiliation_lecturer.start = None
+        self.affiliation_lecturer.end = None
+        self.affiliation_lecturer.save()
+        self.affiliation_officer.start = None
+        self.affiliation_officer.save()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
+        )
+
+    def test_account_affiliation_with_no_affiliations(self):
+        self.affiliation_lecturer.delete()
+        self.affiliation_officer.delete()
+        self.affiliation_scientist.delete()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(),
+            '',
+        )
+
+    def test_account_affiliation_obj_true(self):
+        self.affiliation_lecturer.delete()
+        self.assertEqual(
+            self.kathleen_booth.affiliation(obj=True),
+            self.affiliation_officer,
+        )
+
+    def test_frozen_author_affiliation(self):
+        self.assertEqual(
+            self.kathleen_booth_frozen.affiliation(obj=True),
+            self.affiliation_lecturer_frozen,
+        )
+
+    def test_preprint_author_affiliation_getter(self):
+        self.assertEqual(
+            self.kathleen_booth_preprint.affiliation,
+            str(self.affiliation_lecturer_preprint),
+        )
+
+    def test_preprint_author_affiliation_setter(self):
+        self.kathleen_booth_preprint.affiliation = 'Birkbeck McMillan'
+        self.kathleen_booth_preprint.refresh_from_db()
+        self.assertEqual(
+            str(self.kathleen_booth_preprint.affiliation),
+            'Birkbeck McMillan'
+        )
+
+    @patch('core.models.timezone.now')
+    def test_affiliation_is_current(self, now):
+        now.return_value = date.fromisoformat('1963-01-31')
+        self.assertFalse(self.affiliation_lecturer.is_current)
+        self.assertTrue(self.affiliation_scientist.is_current)
+        self.assertTrue(self.affiliation_officer.is_current)
+
+    def test_organization_location(self):
+        self.assertEqual(
+            self.organization_bbk.location,
+            self.location_london,
         )

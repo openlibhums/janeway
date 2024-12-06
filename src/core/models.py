@@ -3,7 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from decimal import Decimal
 import os
+import re
 import uuid
 import statistics
 import json
@@ -12,6 +14,8 @@ from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
 import warnings
+import tqdm
+import zipfile
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -26,7 +30,6 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
-from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
@@ -50,6 +53,8 @@ from core.model_utils import (
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
+from repository import models as repository_models
+from utils.models import RORImportError
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
@@ -274,18 +279,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Biography'),
     )
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(
-        max_length=1000,
-        blank=True,
-        verbose_name=_('Institution'),
-        validators=[plain_text_validator],
-    )
-    department = models.CharField(
-        max_length=300,
-        blank=True,
-        verbose_name=_('Department'),
-        validators=[plain_text_validator],
-    )
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
     linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
@@ -300,13 +293,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("Signature"),
     )
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(
-        Country,
-        null=True,
-        blank=True,
-        verbose_name=_('Country'),
-        on_delete=models.SET_NULL,
-    )
     preferred_timezone = DynamicChoiceField(
             max_length=300, null=True, blank=True,
             choices=tuple(),
@@ -413,13 +399,40 @@ class Account(AbstractBaseUser, PermissionsMixin):
         else:
             return 'N/A'
 
-    def affiliation(self):
-        if self.institution and self.department:
-            return "{}, {}".format(self.department, self.institution)
-        elif self.institution:
-            return self.institution
-        else:
-            return ''
+    def affiliation(self, obj=False, date=None):
+        return Affiliation.get_primary(account=self, obj=obj, date=date)
+
+    @property
+    def affiliations(self):
+        return Affiliation.objects.filter(account=self).order_by('-is_primary')
+
+    @property
+    def institution(self):
+        affil = self.affiliation(obj=True)
+        return str(affil.organization) if affil else ''
+
+    @institution.setter
+    def institution(self, value):
+        Affiliation.naive_get_or_create(value, account=self)
+
+    @property
+    def department(self):
+        affil = self.affiliation(obj=True)
+        return str(affil.department) if affil else ''
+
+    @department.setter
+    def department(self, value):
+        Affiliation.naive_set_primary_department(value, account=self)
+
+    @property
+    def country(self):
+        affil = self.affiliation(obj=True)
+        organization = affil.organization if affil else None
+        return str(organization.country) if organization else None
+
+    @country.setter
+    def country(self, value):
+        Affiliation.naive_set_primary_country(value, account=self)
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -1906,3 +1919,526 @@ def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
 
 hijack_started.connect(log_hijack_started)
 hijack_ended.connect(log_hijack_ended)
+
+
+class OrganizationName(models.Model):
+    value = models.CharField(
+        max_length=200,
+        verbose_name="Organization name",
+        blank=True,
+    )
+    ror_display_for = models.OneToOneField(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='ror_display',
+        blank=True,
+        null=True,
+    )
+    label_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='labels',
+        blank=True,
+        null=True,
+    )
+    custom_label_for = models.OneToOneField(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='custom_label',
+        blank=True,
+        null=True,
+    )
+    alias_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='aliases',
+        blank=True,
+        null=True,
+    )
+    acronym_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='acronyms',
+        blank=True,
+        null=True,
+    )
+    language = models.CharField(
+        max_length=10,
+        blank=True,
+        choices=submission_models.LANGUAGE_CHOICES,
+    )
+
+    def __str__(self):
+        return self.value or f'[Unnamed organization {self.pk}]'
+
+
+def validate_ror(url):
+    ror = os.path.split(url)[-1]
+    ror_regex = '^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
+    if not re.match(ror_regex, ror):
+        raise ValidationError(f'{ror} is not a valid ROR identifier')
+
+
+class Organization(models.Model):
+
+    class RORStatus(models.TextChoices):
+        ACTIVE = 'active', _('Active')
+        INACTIVE = 'inactive', _('Inactive')
+        WITHDRAWN = 'withdrawn', _('Withdrawn')
+        UNKNOWN = 'unknown', _('Unknown')
+
+    ror = models.URLField(
+        blank=True,
+        validators=[validate_ror],
+        verbose_name='ROR',
+        help_text='Research Organization Registry identifier (URL)',
+    )
+    ror_status = models.CharField(
+        blank=True,
+        max_length=10,
+        choices=RORStatus.choices,
+        default=RORStatus.UNKNOWN,
+    )
+    website = models.CharField(
+        blank=True,
+        max_length=500,
+    )
+    locations = models.ManyToManyField(
+        'Location',
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ror'],
+                condition=~models.Q(ror__exact=''),
+                name='filled_unique',
+            )
+        ]
+
+    def __str__(self):
+        elements = [
+            str(self.name) if self.name else '',
+            str(self.location) if self.location else '',
+        ]
+        return ', '.join([element for element in elements if element])
+
+    @property
+    def name(self):
+        """
+        Return the OrganizationName that ROR uses for display, or if none,
+        the first one that was manually entered, or if none
+        the first one designated by ROR as a label.
+        Can be expanded in future to support choosing a label by language.
+        """
+        try:
+            return self.ror_display
+        except Organization.ror_display.RelatedObjectDoesNotExist:
+            try:
+                return self.custom_label
+            except Organization.custom_label.RelatedObjectDoesNotExist:
+                return self.labels.first()
+
+    @property
+    def location(self):
+        """
+        Return the first location.
+        """
+        return self.locations.first() if self.locations else None
+
+    @property
+    def names(self):
+        """
+        All names.
+        """
+        return OrganizationName.objects.filter(
+            models.Q(ror_display_for=self) |
+            models.Q(custom_label_for=self) |
+            models.Q(label_for=self) |
+            models.Q(alias_for=self) |
+            models.Q(acronym_for=self),
+        )
+
+    @property
+    def also_known_as(self):
+        """
+        All names excluding the ROR display name.
+        """
+        return self.names.exclude(ror_display_for=self)
+
+    @classmethod
+    def naive_get_or_create(
+        cls,
+        value,
+        account=None,
+        frozen_author=None,
+    ):
+        """
+        Backwards-compatible API for finding a matching organization name.
+        Intended for use in batch importers where ROR data is not available.
+        Does not support ROR ids, ROR name types, or location data.
+        """
+        no_exact_match = (
+            cls.DoesNotExist or cls.MultipleObjectsReturned
+        )
+
+        # Is there a single exact match in the
+        # canonical name data from ROR (e.g. labels)?
+        try:
+            organization = cls.objects.get(labels__value=value)
+            created = False
+        except no_exact_match:
+            # Or maybe one in the past or alternate
+            # name data from ROR (e.g. aliases)?
+            try:
+                organization = cls.objects.get(aliases__value=value)
+                created = False
+            except no_exact_match:
+                # Or maybe an organization has already been
+                # entered without a ROR for this
+                # account / frozen author / preprint author?
+                try:
+                    organization = cls.objects.get(
+                        affiliation__account=account,
+                        affiliation__frozen_author=frozen_author,
+                        ror__exact='',
+                    )
+                    created = False
+                except no_exact_match:
+                    # Otherwise, create a naive, disconnected record
+                    organization = cls.objects.create()
+                    created = True
+
+        # Get or create a custom label
+        organization_name, _created = OrganizationName.objects.get_or_create(
+            custom_label_for=organization,
+        )
+        organization_name.value = value
+        organization_name.save()
+
+        return organization, created
+
+    @classmethod
+    def create_from_ror_record(cls, record):
+        """
+        Creates one organization object in Janeway from a ROR JSON record,
+        using version 2 of the ROR Schema.
+        See https://ror.readme.io/v2/docs/data-structure
+        """
+        organization, created = cls.objects.get_or_create(
+            ror=record.get('id', ''),
+        )
+        organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
+        for link in record.get('links', []):
+            if link.get('type') == 'website':
+                organization.website = link.get('value', '')
+                break
+        organization.save()
+
+        for name in record.get('names'):
+            kwargs = {}
+            kwargs['value'] = name.get('value', '')
+            if name.get('lang'):
+                kwargs['language'] = name.get('language', '')
+            if 'ror_display' in name.get('types'):
+                kwargs['ror_display_for'] = organization
+            if 'label' in name.get('types'):
+                kwargs['label_for'] = organization
+            if 'alias' in name.get('types'):
+                kwargs['alias_for'] = organization
+            if 'acronym' in name.get('types'):
+                kwargs['acronym_for'] = organization
+            OrganizationName.objects.get_or_create(**kwargs)
+
+        for location in record.get('locations'):
+            details = location.get('geonames_details', {})
+            country, created = Country.objects.get_or_create(
+                code=details.get('country_code', ''),
+            )
+            lat = Decimal(details.get('lat'))
+            lng = Decimal(details.get('lng'))
+            location, created = Location.objects.get_or_create(
+                name=details.get('name', ''),
+                country=country,
+                latitude=lat,
+                longitude=lng,
+                geonames_id=location.get('geonames_id'),
+            )
+            organization.locations.add(location)
+
+
+    @classmethod
+    def import_ror_batch(cls, ror_import, test_full_import=False):
+        """
+        Opens a previously downloaded data dump from
+        ROR's Zenodo endpoint, processes the records,
+        and records errors for exceptions raised during creation.
+        https://ror.readme.io/v2/docs/data-dump
+        """
+        num_errors_before = RORImportError.objects.count()
+        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('v2.json'):
+                    json_string = zip_ref.read(file_info).decode(encoding="utf-8")
+                    data = json.loads(json_string)
+                    if settings.DEBUG and not test_full_import:
+                        # Limit the import run during development by default
+                        data = data[:100]
+                    for item in tqdm.tqdm(data):
+                        try:
+                            cls.create_from_ror_record(item)
+                        except Exception as error:
+                            message = f'{error}\n{json.dumps(item)}'
+                            RORImportError.objects.create(
+                                ror_import=ror_import,
+                                message=message,
+                            )
+        num_errors_after = RORImportError.objects.count()
+        if num_errors_after > num_errors_before:
+            logger.warn(
+                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+            )
+
+
+class Affiliation(models.Model):
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    frozen_author = models.ForeignKey(
+        submission_models.FrozenAuthor,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    preprint_author = models.ForeignKey(
+        repository_models.PreprintAuthor,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    title = models.CharField(
+        blank=True,
+        max_length=300,
+        verbose_name=_('Title, position, or role'),
+    )
+    department = models.CharField(
+        blank=True,
+        max_length=300,
+        verbose_name=_('Department, unit, or team'),
+    )
+    organization = models.ForeignKey(
+        'Organization',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Each account can have one primary affiliation",
+    )
+    start = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Start date",
+    )
+    end = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="End date",
+        help_text="Leave empty for a current affiliation",
+    )
+
+    class Meta:
+        ordering = ['-pk']
+
+    def __str__(self):
+        elements = [
+            self.title,
+            self.department,
+            str(self.organization) if self.organization else '',
+        ]
+        return ', '.join([element for element in elements if element])
+
+
+    @property
+    def is_current(self):
+        if self.start and self.start > timezone.now():
+            return False
+        if self.end and self.end < timezone.now():
+            return False
+        return True
+
+    @classmethod
+    def keep_is_primary_unique(cls, obj):
+        if obj.is_primary:
+            cls.objects.filter(
+                is_primary=True,
+                account=obj.account,
+                frozen_author=obj.frozen_author,
+                preprint_author=obj.preprint_author,
+            ).exclude(
+                pk=obj.pk
+            ).update(
+                is_primary=False,
+            )
+
+    @classmethod
+    def get_primary(
+        cls,
+        account=None,
+        frozen_author=None,
+        preprint_author=None,
+        obj=False,
+        date=None,
+    ):
+        """
+        Get the primary affiliation, or if none,
+        the current affiliation with the most recent start date, or if none,
+        the affiliation with the highest pk, or if none,
+        an empty string.
+        :param obj: whether to return a Python object
+        :param date: the date relative to which to query
+        """
+        person = account or frozen_author or preprint_author
+        if not person:
+            return None if obj else ''
+        if not person.affiliation_set.exists():
+            return None if obj else ''
+        if date:
+            affils_with_at_least_one_date = person.affiliation_set.exclude(
+                start__isnull=True,
+                end__isnull=True,
+            )
+            if affils_with_at_least_one_date:
+                affil = affils_with_at_least_one_date.exclude(
+                    models.Q(start__gte=date) | models.Q(end__lte=date)
+                ).first()
+                return affil if obj else str(affil)
+        try:
+            affil = person.affiliation_set.get(is_primary=True)
+            return affil if obj else str(affil)
+        except Affiliation.DoesNotExist:
+            affil = person.affiliation_set.first()
+            return affil if obj else str(affil)
+
+    @classmethod
+    def naive_get_or_create(
+        cls,
+        value,
+        account=None,
+        frozen_author=None,
+        preprint_author=None,
+    ):
+        """
+        Backwards-compatible API for setting affiliation from unstructured text.
+        Intended for use in batch importers where ROR data is not available.
+        Does not support ROR ids, multiple affiliations, or start or end dates.
+        """
+        organization, created = Organization.naive_get_or_create(
+            value,
+            account=account,
+            frozen_author=frozen_author,
+        )
+
+        # Create or update the actual affiliation
+        affiliation, created = Affiliation.objects.get_or_create(
+            account=account,
+            frozen_author=frozen_author,
+            preprint_author=preprint_author,
+            organization=organization,
+        )
+        affiliation.is_primary = True
+        affiliation.save()
+        return affiliation, created
+
+    @classmethod
+    def naive_set_primary_department(
+        cls,
+        value,
+        account=None,
+        frozen_author=None,
+    ):
+        """
+        Backwards-compatible API for setting department names in isolation.
+        Intended for use in batch importers where ROR data is not available.
+        Does not support RORs or multiple affiliations.
+        """
+        affiliation, _created = Affiliation.objects.get_or_create(
+            account=account,
+            frozen_author=frozen_author,
+            is_primary=True,
+        )
+        affiliation.department = value
+        affiliation.save()
+
+    @classmethod
+    def naive_set_primary_country(
+        cls,
+        value,
+        account=None,
+        frozen_author=None,
+    ):
+        """
+        Backwards-compatible API for setting department names in isolation.
+        Intended for use in batch importers where ROR data is not available.
+        Does not support RORs or multiple affiliations.
+        """
+        affiliation, _created = Affiliation.objects.get_or_create(
+            account=account,
+            frozen_author=frozen_author,
+            is_primary=True,
+        )
+        if not affiliation.organization:
+            affiliation.organization = Organization.objects.create()
+
+        country_location, _created = Location.objects.get_or_create(
+            name='',
+            country=value,
+        )
+        affiliation.organization.locations.add(country_location)
+
+    def save(self, *args, **kwargs):
+        self.keep_is_primary_unique(self)
+        super().save(*args, **kwargs)
+
+
+class Location(models.Model):
+    name = models.CharField(
+        max_length=200,
+        help_text="City or place name",
+        blank=True,
+    )
+    country = models.ForeignKey(
+        Country,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+    )
+    geonames_id = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        elements = [
+            self.name if self.name else '',
+            str(self.country) if self.country else '',
+        ]
+        return ', '.join([element for element in elements if element])

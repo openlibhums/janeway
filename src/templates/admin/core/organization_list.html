@@ -1,0 +1,65 @@
+{% extends "admin/submission/submit_authors_base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block manage_authors %}
+  <div class="large-8 columns cbv_list">
+    <div class="title-area">
+      <h2>{% trans "Add affiliation for " %}{{ account.full_name }}</h2>
+    </div>
+    <form method="GET" id={{ facet_form.id }}>
+      <div class="input-group">
+        <label
+          for="{{ facet_form.q.id_for_label }}"
+          class="input-group-label">
+          {{ facet_form.q.label }}</label>
+        <input
+          id="{{ facet_form.q.id_for_label }}"
+          name="{{ facet_form.q.name }}"
+          class="input-group-field"
+          value="{{ facet_form.q.value|default:'' }}"
+          placeholder="e.g. birkbeck"
+          type="search">
+        <div class="input-group-button">
+          {% include "elements/button_search.html" %}
+        </div>
+      </div>
+    </form>
+    {% for organization in organization_list %}
+      <div class="callout">
+        <div class="flex space-between">
+          <div>
+            <h3 style="font-size: 1.5rem;">{{ organization.ror_display }}</h3>
+            {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
+            {% if organization.also_known_as %}
+              {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
+            {% endif %}
+            {% if organization.locations.count > 1 %}
+              {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
+            {% endif %}
+            {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.ror link=organization.ror %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
+          </div>
+          <div>
+            {% url 'affiliation_create' article.pk account.pk organization.pk as create_url %}
+            {% trans "Add affiliation" as add_affiliation %}
+            {% include "elements/a_create.html" with href=create_url label=add_affiliation %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p><strong>{% trans 'No organizations to display.' %}</strong></p>
+    {% endfor %}
+    <div class="callout">
+      <h3>Organization not found?</h3>
+      {% url 'organization_name_create' article.pk account.pk as create_url %}
+      {% trans "Create custom organization" as create_custom_organization %}
+      {% include "elements/a_create.html" with href=create_url label=create_custom_organization %}
+    </div>
+    {% if organization_list %}
+      {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+    {% endif %}
+  </div>
+  {% include "admin/core/affiliation_info.html" %}
+{% endblock manage_authors %}
