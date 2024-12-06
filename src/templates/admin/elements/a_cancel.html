@@ -1,0 +1,12 @@
+{% comment %}
+A generic dark blue cancel button with a cross icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-close"></span>
+  {% trans "Cancel" %}
+</a>
