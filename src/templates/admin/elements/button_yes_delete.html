@@ -1,0 +1,13 @@
+{% comment %}
+A generic red confirm delete button with a rubbish icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'yes_delete' }}"
+  class="button alert {{ size|default:'normal' }} no-bottom-margin"
+  type="submit">
+  <span class="fa fa-trash"></span>
+  {% trans "Yes, delete" %}
+</button>
