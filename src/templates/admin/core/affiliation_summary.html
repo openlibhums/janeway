@@ -1,0 +1,12 @@
+<div>
+  <div class="card padding-block-2 padding-inline-2">
+    <div class="title-area">
+      <h2>{% trans "Summary" %}</h2>
+    </div>
+    {% include "admin/elements/layout/key_value_above.html" with key="Account Name" value=account %}
+    {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
+    {% if organization %}
+      {% include "admin/elements/layout/key_value_above.html" with key="Organization" value=organization %}
+    {% endif %}
+  </div>
+</div>

@@ -945,3 +945,18 @@ class AccountRoleForm(forms.ModelForm):
     class Meta:
         model = models.AccountRole
         fields = '__all__'
+
+
+class AffiliationForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Affiliation
+        fields = '__all__'
+        widgets = {
+            'account': forms.HiddenInput,
+            'frozen_author': forms.HiddenInput,
+            'preprint_author': forms.HiddenInput,
+            'organization': forms.HiddenInput,
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+        }

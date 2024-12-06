@@ -1,0 +1,20 @@
+{% load static %}
+
+<div>
+  {% if affiliation.title_department %}
+    <span>{{ affiliation.title_department }},</span>
+  {% endif %}
+  {% if affiliation.organization.ror %}
+  <a href="{{ affiliation.organization.ror }}" target="_blank">
+    {{ affiliation.organization }}
+    <span class="show-for-sr">(opens in new tab)</span>
+    <img
+      src="{% static "admin/img/icons/ror-icon-rgb.svg" %}"
+      alt="ROR logo"
+      width="32"
+      height="auto">
+  </a>
+  {% else %}
+    {{ affiliation.organization }}
+  {% endif %}
+</div>
