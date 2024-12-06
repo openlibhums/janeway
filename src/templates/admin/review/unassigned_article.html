@@ -98,20 +98,12 @@
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>CRediT Roles <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">ℹ️</a></th>
                         <th>Primary?</th>
                     </tr>
-                    {% for order in article.frozenauthor_set.all %}
+                    {% for order in article.articleauthororder_set.all %}
                         <tr>
                             <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
                             <td>{{ order.author.email|se_can_see_pii:article }}</td>
-                            <td>
-                                {% for author, role in article.credit_roles_frozen.items %}
-                                    {% if author == order %}
-                                        {% for credit in role %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
                             <td>{% if order.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
