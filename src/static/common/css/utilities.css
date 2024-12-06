@@ -12,6 +12,10 @@
   &.items-start { align-items: flex-start; }
   &.items-center { align-items: center; }
 
+  /* Flex direction */
+  &.direction-row { flex-direction: row; }
+  &.direction-column { flex-direction: column; }
+
   /* Responsive flex direction */
   @media (orientation: portrait) {
     &.portrait-row { flex-direction: row; }
