@@ -411,6 +411,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return Affiliation.get_primary(account=self, obj=obj, date=date)
 
     @property
+    def affiliations(self):
+        return Affiliation.objects.filter(account=self).order_by('-is_primary')
+
+    @property
     def institution(self):
         affil = self.affiliation(obj=True)
         return str(affil.organization) if affil else ''
@@ -1988,7 +1992,6 @@ def validate_ror(url):
         raise ValidationError(f'{ror} is not a valid ROR identifier')
 
 
-
 class Organization(models.Model):
 
     class RORStatus(models.TextChoices):
@@ -2009,11 +2012,31 @@ class Organization(models.Model):
         choices=RORStatus.choices,
         default=RORStatus.UNKNOWN,
     )
+    website = models.CharField(
+        blank=True,
+        max_length=500,
+    )
     locations = models.ManyToManyField(
         'Location',
         blank=True,
         null=True,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ror'],
+                condition=~models.Q(ror__exact=''),
+                name='filled_unique',
+            )
+        ]
+
+    def __str__(self):
+        elements = [
+            str(self.name) if self.name else '',
+            str(self.location) if self.location else '',
+        ]
+        return ', '.join([element for element in elements if element])
 
     @property
     def name(self):
@@ -2031,19 +2054,32 @@ class Organization(models.Model):
             except Organization.custom_label.RelatedObjectDoesNotExist:
                 return self.labels.first()
 
-    def __str__(self):
-        elements = [
-            str(self.name) if self.name else '',
-            str(self.location) if self.location else '',
-        ]
-        return ', '.join([element for element in elements if element])
-
     @property
     def location(self):
         """
         Return the first location.
         """
         return self.locations.first() if self.locations else None
+
+    @property
+    def names(self):
+        """
+        All names.
+        """
+        return OrganizationName.objects.filter(
+            models.Q(ror_display_for=self) |
+            models.Q(custom_label_for=self) |
+            models.Q(label_for=self) |
+            models.Q(alias_for=self) |
+            models.Q(acronym_for=self),
+        )
+
+    @property
+    def also_known_as(self):
+        """
+        All names excluding the ROR display name.
+        """
+        return self.names.exclude(ror_display_for=self)
 
     @classmethod
     def naive_get_or_create(
@@ -2107,9 +2143,13 @@ class Organization(models.Model):
         organization, created = cls.objects.get_or_create(
             ror=record.get('id', ''),
         )
-        if record.get('status'):
-            organization.ror_status = record.get('status')
+        organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
+        for link in record.get('links', []):
+            if link.get('type') == 'website':
+                organization.website = link.get('value', '')
+                break
         organization.save()
+
         for name in record.get('names'):
             kwargs = {}
             kwargs['value'] = name.get('value', '')
@@ -2124,6 +2164,7 @@ class Organization(models.Model):
             if 'acronym' in name.get('types'):
                 kwargs['acronym_for'] = organization
             OrganizationName.objects.get_or_create(**kwargs)
+
         for location in record.get('locations'):
             details = location.get('geonames_details', {})
             country, created = Country.objects.get_or_create(
@@ -2211,18 +2252,29 @@ class Affiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
+        help_text="Each account can have one primary affiliation",
     )
     start = models.DateField(
         blank=True,
         null=True,
+        verbose_name="Start date",
     )
     end = models.DateField(
         blank=True,
         null=True,
+        verbose_name="End date",
+        help_text="Leave empty for a current affiliation",
     )
 
     class Meta:
         ordering = ['-pk']
+
+    def title_department(self):
+        elements = [
+            self.title,
+            self.department,
+        ]
+        return ', '.join([element for element in elements if element])
 
     def __str__(self):
         elements = [

@@ -9,9 +9,9 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0080_remove_frozenauthor_country_and_more'),
         ('repository', '0044_remove_preprintauthor_affiliation_and_more'),
-        ('core', '0096_update_review_ack_email'),
+        ('submission', '0080_remove_frozenauthor_country_and_more'),
+        ('core', '0099_alter_accountrole_options'),
     ]
 
     operations = [
@@ -32,6 +32,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('ror', models.URLField(blank=True, help_text='Research Organization Registry identifier (URL)', validators=[core.models.validate_ror], verbose_name='ROR')),
                 ('ror_status', models.CharField(blank=True, choices=[('active', 'Active'), ('inactive', 'Inactive'), ('withdrawn', 'Withdrawn'), ('unknown', 'Unknown')], default='unknown', max_length=10)),
+                ('website', models.CharField(blank=True, max_length=500)),
                 ('locations', models.ManyToManyField(blank=True, null=True, to='core.location')),
             ],
         ),
@@ -77,5 +78,9 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['-pk'],
             },
+        ),
+        migrations.AddConstraint(
+            model_name='organization',
+            constraint=models.UniqueConstraint(condition=models.Q(('ror__exact', ''), _negated=True), fields=('ror',), name='filled_unique'),
         ),
     ]

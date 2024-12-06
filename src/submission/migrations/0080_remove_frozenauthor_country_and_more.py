@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0079_merge_20240602_1739'),
+        ('submission', '0084_remove_article_jats_article_type_and_more'),
     ]
 
     operations = [

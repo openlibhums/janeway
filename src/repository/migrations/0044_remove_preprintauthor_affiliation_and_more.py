@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0043_auto_20240402_1256'),
+        ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
     ]
 
     operations = [
