@@ -1,0 +1,31 @@
+{% load bool_fa %}
+{% for proofing in round.galleyproofing_set.all %}
+    <div class="callout breakdown file">
+        <div class="callout-title">
+            <small><a class="pull-right" href="{% url 'admin:typesetting_galleyproofing_change' proofing.pk %}" target="_blank">Edit in Admin</a></small>
+            <h4>Proofreader #{{ forloop.counter }}: {{ proofing.proofreader.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' proofing.proofreader.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
+        </div>
+        <table class="table small">
+            <tr>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Manager</th>
+                <th>Notified</th>
+                <th>Due</th>
+                <th>Completed</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>{{ proofing.pk }}</td>
+                <td>{{ proofing.assigned }}</td>
+                <td>{{ proofing.manager.full_name }}</td>
+                <td>{{ proofing.notified|bool_fa }} {% if not proofing.notified %}&nbsp;&nbsp;<a href="{% url 'typesetting_notify_proofreader' round.article.pk proofing.pk %}"><span class="fa fa-send"></span></a>{% endif %}</td>
+                <td>{{ proofing.due|date:"Y-m-d" }}</td>
+                <td>{% if proofing.completed %}{{ proofing.completed }}{% else %}{{ proofing.completed|bool_fa }}{% endif %}</td>
+                <td>{{ proofing.status|capfirst }}</td>
+                <td><a href="{% url 'typesetting_manage_proofing_assignment' article.pk proofing.pk %}">Manage</a></td>
+            </tr>
+        </table>
+    </div>
+{% endfor %}

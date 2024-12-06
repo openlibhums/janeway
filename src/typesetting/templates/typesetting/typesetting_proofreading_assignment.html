@@ -1,0 +1,133 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load i18n %}
+
+{% block title %}Proofreading Assignments{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'typesetting_proofreading_assignments' %}">Proofreading Assignments</a></li>
+    <li>Proofreading {{ assignment.round.article.title|safe }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Proofreading {{ assignment.round.article.title|safe }}</h2>
+            </div>
+            <div class="content">
+                {{ journal_settings.general.typesetting_proofreader_guidelines|safe }}
+            <p><strong>Notes from the editors: </strong> </p>
+                    {{ assignment.task|safe }}
+
+
+                <br/><br/>
+                <p><strong>Editors: </strong> {% for editor_assignment in assignment.round.article.editors %}
+                    {{ editor_assignment.editor.full_name }} -
+                    {{ editor_assignment.editor.email }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="row expanded">
+                <div class="title-area">
+                    <h2>Files for Proofreading</h2>
+                </div>
+                <div class="content">
+                    <p>For XML or HTML files, we recommend you use the <em>View File</em> button to see what the file
+                        will look like.</p>
+                    <table class="table">
+                        <tr>
+                            <th>Label</th>
+                            <th>Filename</th>
+                            <th>View File</th>
+                            <th>Download File</th>
+                        </tr>
+                        {% for galley in galleys %}
+                            <tr>
+                                <td>{{ galley.label }}{% if galley in assignment.proofed_files.all %}
+                                    <span class="fa fa-check-circle"></span>{% endif %}</td>
+                                <td>{{ galley.file.original_filename }}</td>
+                                <td><a href="{% url 'typesetting_preview_galley' galley.article.pk galley.pk assignment.pk %}"
+                                       target="blank"> <span class="fa fa-eye"></span> View File</a></td>
+                                <td>
+                                    <a href="{% url 'typesetting_proofing_download' galley.article.pk assignment.pk galley.file.pk %}"><span
+                                            class="fa fa-download"></span> Download File</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <form method="POST" enctype="multipart/form-data" id="typesetting_proofreading">
+                    {% csrf_token %}
+                    <div class="title-area">
+                        <h2>Notes</h2>
+                    </div>
+                    <div class="content">
+                        <p>Please add any extra notes for the typesetter below, ensuring that you follow the guidelines
+                            above.</p>
+
+                        {{ form.notes|foundation }}
+                        <button class="success button">Save Notes</button>
+                    </div>
+                    <div class="title-area">
+                        <h2>Files</h2>
+                    </div>
+                    <div class="content">
+                        <p>You can upload any annotated files, notes or documents here.</p>
+                        <table class="scroll">
+                            <tr>
+                                <th>Label</th>
+                                <th>Filename</th>
+                                {% if proofing_manager %}
+                                    <th>Download</th>{% endif %}
+                            </tr>
+                            {% for file in assignment.annotated_files.all %}
+                                <tr>
+                                    <td>{{ file.label }}</td>
+                                    <td>{{ file.original_filename }}</td>
+                                    {% if proofing_manager %}
+                                        <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                                class="fa fa-download">&nbsp;</i></a></td>{% endif %}
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td>No files have been uploaded yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+
+                        <input name="file" type="file" class=""
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success" name="proofing_file"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+
+
+                    </div>
+
+                    <div class="title-area">
+                        <h2>Finishing Up</h2>
+                    </div>
+                    <div class="content">
+                        <p>When you have completed your notes and uploaded any annotated files, you can mark this task as complete using the button below. Note: Once you mark this task as complete you will not be able to return to this page.</p>
+                        <button class="button success float-right" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">{% trans "Mark Task as Complete" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="typesetting_proofreading" %}
+    {% endif %}
+
+{% endblock body %}
+
+{% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+{% endblock js %}

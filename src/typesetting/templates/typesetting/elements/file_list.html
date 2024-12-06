@@ -1,0 +1,79 @@
+{% load files %}
+
+<fieldset>
+    {% if checkboxes  %}
+        {% include "admin/core/widgets/select_all.html" %}
+    {% endif %}
+    <table id="file_list" class="scroll small">
+        <thead>
+            <tr>
+                <th>ID</th>
+                {% if checkboxes  %}
+                    <th>Select</th>
+                {% endif %}
+                <th>Label</th>
+                <th>Filename</th>
+                <th>Type</th>
+                <th>Modified</th>
+                <th>Owner</th>
+                <th>Download</th>
+                {% if options %}
+                    {% if request.user.is_staff or user_is_editor %}
+                        <th>Options</th>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+                <tr>
+                    <th><span id="file_{{ file.pk }}">{{ file.pk }}</span></th>
+                    {% if checkboxes  %}
+                        <td>
+                            <input
+                                id="file_input_{{ file.id }}"
+                                type="checkbox"
+                                name="{{ input_name|default:"files_to_typeset" }}"
+                                {% if form.cleaned_data %}
+                                    {% if file in form.cleaned_data.files_to_typeset %}
+                                        checked="checked" data-check="cleaned_data"
+                                    {% endif %}
+                                {% elif file in form.instance.files_to_typeset.all %}
+                                    checked="checked" data-check="files_to_typeset"
+                                {% elif not assignment and file.checked %}
+                                    checked="checked" data-check="checked"
+                                {% endif %}
+                                value="{{ file.id }}">
+                            <label for="file_{{ file.id }}">
+                                <span class="show-for-sr">Select file</span>
+                            </label>
+                        </td>
+                    {% endif %}
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename|truncatechars:40 }}</td>
+                    <td>{% file_type article file %}</td>
+                    <td>{{ file.last_modified }}</td>
+                    <td>{{ file.owner }}<br>{{ file.owner.email }}</td>
+                    <td>
+                        <a
+                            {% if assignment %}
+                                href="{% url 'typesetting_typesetter_download_file' assignment.pk file.pk %}"
+                            {% else %}
+                                href="{% url 'typesetting_download_file' article.pk file.pk %}"
+                            {% endif %}
+                            aria-label="download">
+                            <i class="fa fa-download">&nbsp;</i>
+                        </a>
+                    </td>
+                    {% if options %}
+                        {% if request.user.is_staff or user_is_editor %}
+                            <td><a data-open="transform-{{ file.pk }}">
+                                Options
+                            </a></td>
+                        {% endif %}
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</fieldset>
