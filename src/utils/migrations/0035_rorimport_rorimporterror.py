@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0034_rename_toaddress_addressee'),
+        ('utils', '0038_upgrade_1_7_2'),
     ]
 
     operations = [
