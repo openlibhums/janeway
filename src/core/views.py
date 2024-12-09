@@ -2456,7 +2456,7 @@ class GenericFacetedListView(generic.ListView):
     model = NotImplementedField
     template_name = NotImplementedField
 
-    paginate_by = '25'
+    paginate_by = 25
     facets = {}
 
     # These fields will receive a single initial value, not a list
@@ -2486,6 +2486,7 @@ class GenericFacetedListView(generic.ListView):
             GET_data,
             queryset=queryset,
             facets=self.facets,
+            journal_filter_query=self.get_journal_filter_query(),
         )
 
         return form
@@ -2504,7 +2505,7 @@ class GenericFacetedListView(generic.ListView):
                    ),
                 )
         context['paginate_by'] = params_querydict.get('paginate_by', self.paginate_by)
-        context['facet_form'] = self.get_facet_form(queryset)
+        context['facet_form'] = form
 
         context['actions'] = self.get_actions()
 
@@ -2569,6 +2570,7 @@ class GenericFacetedListView(generic.ListView):
                 for predicate in predicates:
                     query |= Q(predicate)
                 q_stack.append(query)
+        q_stack.append(self.get_journal_filter_query())
         self.queryset = self.queryset.filter(*q_stack).distinct()
         return self.order_queryset(self.queryset)
 
