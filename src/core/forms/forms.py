@@ -639,6 +639,7 @@ class CBVFacetForm(forms.Form):
         self.id = 'facet_form'
         self.queryset = kwargs.pop('queryset')
         self.facets = kwargs.pop('facets')
+        self.journal_filter_query = kwargs.pop('journal_filter_query', Q())
 
         super().__init__(*args, **kwargs)
 
@@ -654,7 +655,10 @@ class CBVFacetForm(forms.Form):
                 choices = []
                 for each in choice_queryset:
                     label = getattr(each, facet["choice_label_field"])
-                    count = self.queryset.filter(Q((facet_key, each.pk))).count()
+                    count = self.queryset.filter(
+                        Q((facet_key, each.pk)),
+                        self.journal_filter_query,
+                    ).count()
                     label_with_count = f'{label} ({count})'
                     choices.append((each.pk, label_with_count))
 
