@@ -1,0 +1,16 @@
+{% comment %}
+A generic green create button with a plus icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button success {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-plus"></span>
+  {% if label %}
+    {{ label }}
+  {% else %}
+    {% trans "Create" %}
+  {% endif %}
+</a>
