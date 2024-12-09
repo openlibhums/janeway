@@ -265,7 +265,12 @@
                             {% endif %}
                             {% for credit_author, credit_role in credit_roles.items %}
                                 {% if credit_author == author %}
-                                    [<span class="credit">{% for credit in credit_role %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>]
+                                    [<span class="credit">
+                                        {% for credit in credit_role %}
+                                            {{ credit|title }}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>]
                                 {% endif %}
                             {% endfor %}
                     {% endfor %}
