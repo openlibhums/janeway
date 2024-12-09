@@ -640,12 +640,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
             frozen_author.save()
             self.snapshot_affiliations(frozen_author)
 
-        # now update the CRediT records
-        credit_records = CreditRecord.objects.filter(article=article, author=self)
+            # now update the CRediT records
+            credit_records = CreditRecord.objects.filter(article=article,
+                                                         author=self)
 
-        for credit_record in credit_records:
-            credit_record.frozen_author = frozen_author
-            credit_record.save()
+            for credit_record in credit_records:
+                credit_record.frozen_author = frozen_author
+                credit_record.save()
 
         else:
             try:
