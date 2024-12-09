@@ -3,8 +3,11 @@ import os
 from django.core.management.base import BaseCommand
 
 from core import plugin_loader
+from utils.logger import get_logger
 
 from importlib import import_module
+
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -40,13 +43,13 @@ class Command(BaseCommand):
             )
 
         for plugin in plugin_dirs:
-            print('Checking plugin {0}'.format(plugin))
+            logger.debug('Checking plugin {0}'.format(plugin))
             plugin_module_name = "plugins.{0}.plugin_settings".format(plugin)
             plugin_settings = import_module(plugin_module_name)
             plugin_settings.install()
 
         for plugin in homepage_dirs:
-            print('Checking plugin {0}'.format(plugin))
+            logger.debug('Checking plugin {0}'.format(plugin))
             plugin_module_name = "core.homepage_elements.{0}.plugin_settings".format(plugin)
             plugin_settings = import_module(plugin_module_name)
             plugin_settings.install()
