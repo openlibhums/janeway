@@ -66,28 +66,32 @@ class SubmissionTests(TestCase):
 
         return journal_one
 
-    @staticmethod
-    def create_authors():
+    @classmethod
+    def create_authors(cls):
         author_1_data = {
+            'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Prof.',
             'first_name': 'Martin',
+            'middle_name': '',
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
         author_2_data = {
+            'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Sr.',
             'first_name': 'Mauro',
+            'middle_name': '',
             'last_name': 'Sanchez',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
+        author_1 = helpers.create_author(cls.journal_one, **author_1_data)
+        author_2 = helpers.create_author(cls.journal_one, **author_2_data)
 
         return author_1, author_2
 
@@ -105,12 +109,15 @@ class SubmissionTests(TestCase):
             journal=self.journal_one,
         )
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.journal_one = cls.create_journal()
+
     def setUp(self):
         """
         Setup the test environment.
         :return: None
         """
-        self.journal_one = self.create_journal()
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
         self.create_sections()
@@ -273,7 +280,9 @@ class SubmissionTests(TestCase):
 
         article.snapshot_authors()
         new_department = "New department"
-        article.frozen_authors().update(department=new_department)
+        for frozen in article.frozen_authors():
+            frozen.department = new_department
+            frozen.save()
         article.snapshot_authors(force_update=True)
         frozen = article.frozen_authors().all()[0]
 
@@ -576,15 +585,12 @@ class SubmissionTests(TestCase):
             "middle_name",
             "name_prefix",
             "suffix",
-            "institution",
-            "department",
         }):
             form = forms.AuthorForm(
                 {
                     'first_name': 'Andy',
                     'last_name': 'Byers',
                     'biography': 'Andy',
-                    'institution': 'Birkbeck, University of London',
                     'email': f'andy{i}@janeway.systems',
                     'orcid': 'https://orcid.org/0000-0003-2126-266X',
                     **{attr: harmful_string},
@@ -783,37 +789,44 @@ class ArticleSearchTests(TransactionTestCase):
 
         return journal_one
 
-    @staticmethod
-    def create_authors():
+    @classmethod
+    def create_authors(cls):
         author_1_data = {
+            'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Prof.',
             'first_name': 'Martin',
+            'middle_name': '',
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
         author_2_data = {
+            'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Sr.',
             'first_name': 'Mauro',
+            'middle_name': '',
             'last_name': 'Sanchez',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+        author_1 = helpers.create_author(cls.journal_one, **author_1_data)
+        author_2 = helpers.create_author(cls.journal_one, **author_2_data)
 
         return author_1, author_2
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.journal_one = cls.create_journal()
 
     def setUp(self):
         """
         Setup the test environment.
         :return: None
         """
-        self.journal_one = self.create_journal()
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
 

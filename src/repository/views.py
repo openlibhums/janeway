@@ -377,7 +377,7 @@ def repository_search(request, search_term=None):
                 Q(account__first_name__in=split_search_term) |
                 Q(account__middle_name__in=split_search_term) |
                 Q(account__last_name__in=split_search_term) |
-                Q(account__institution__icontains=search_term)
+                Q(account__affiliation__organization__labels__value__icontains=search_term)
             )
             &
             (

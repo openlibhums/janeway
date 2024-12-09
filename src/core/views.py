@@ -397,11 +397,6 @@ def register(request, orcid_token=None):
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
             initial["email"] = orcid_details["emails"][0]
-        if orcid_details.get("affiliation"):
-            initial['institution'] = orcid_details['affiliation']
-        if orcid_details.get("country"):
-            if models.Country.objects.filter(code=orcid_details['country']).exists():
-                initial["country"] = models.Country.objects.get(code=orcid_details['country'])
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -423,6 +418,10 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                if new_user.orcid:
+                    orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+                    if orcid_details.get("affiliation"):
+                        new_user.institution = orcid_details['affiliation']
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):

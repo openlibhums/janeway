@@ -574,8 +574,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'middle_name': self.middle_name,
             'last_name': self.last_name,
             'name_suffix': self.suffix,
-            'institution': self.institution,
-            'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
         }
 
@@ -584,6 +582,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         if frozen_author and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
+            frozen_author.institution = self.institution
+            frozen_author.department = self.department
             frozen_author.save()
 
         else:
@@ -597,11 +597,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
                     defaults={'order': order_integer}
                 )
 
-            submission_models.FrozenAuthor.objects.get_or_create(
+            frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
                 author=self,
                 article=article,
                 defaults=dict(order=order_object.order, **frozen_dict)
             )
+            if created:
+                frozen_author.institution = self.institution
+                frozen_author.department = self.department
+                frozen_author.save()
 
     def frozen_author(self, article):
         try:
@@ -2087,28 +2091,26 @@ class Organization(models.Model):
         value,
         account=None,
         frozen_author=None,
+        preprint_author=None,
     ):
         """
         Backwards-compatible API for finding a matching organization name.
-        Intended for use in batch importers where ROR data is not available.
+        Intended for use in batch importers where ROR data is not available
+        in the data being imported.
         Does not support ROR ids, ROR name types, or location data.
         """
-        no_exact_match = (
-            cls.DoesNotExist or cls.MultipleObjectsReturned
-        )
-
         # Is there a single exact match in the
         # canonical name data from ROR (e.g. labels)?
         try:
             organization = cls.objects.get(labels__value=value)
             created = False
-        except no_exact_match:
+        except cls.DoesNotExist or cls.MultipleObjectsReturned:
             # Or maybe one in the past or alternate
             # name data from ROR (e.g. aliases)?
             try:
                 organization = cls.objects.get(aliases__value=value)
                 created = False
-            except no_exact_match:
+            except cls.DoesNotExist or cls.MultipleObjectsReturned:
                 # Or maybe an organization has already been
                 # entered without a ROR for this
                 # account / frozen author / preprint author?
@@ -2116,11 +2118,12 @@ class Organization(models.Model):
                     organization = cls.objects.get(
                         affiliation__account=account,
                         affiliation__frozen_author=frozen_author,
+                        affiliation__preprint_author=preprint_author,
                         ror__exact='',
                     )
                     created = False
-                except no_exact_match:
-                    # Otherwise, create a naive, disconnected record
+                except cls.DoesNotExist or cls.MultipleObjectsReturned:
+                    # Otherwise, create a naive, disconnected record.
                     organization = cls.objects.create()
                     created = True
 
@@ -2363,17 +2366,24 @@ class Affiliation(models.Model):
             value,
             account=account,
             frozen_author=frozen_author,
+            preprint_author=preprint_author,
         )
 
-        # Create or update the actual affiliation
-        affiliation, created = Affiliation.objects.get_or_create(
-            account=account,
-            frozen_author=frozen_author,
-            preprint_author=preprint_author,
-            organization=organization,
-        )
-        affiliation.is_primary = True
-        affiliation.save()
+        # Create or update the actual affiliation if the associated
+        # account / frozen author / preprint author has been saved already
+        try:
+            affiliation, created = Affiliation.objects.get_or_create(
+                account=account,
+                frozen_author=frozen_author,
+                preprint_author=preprint_author,
+                organization=organization,
+            )
+            affiliation.is_primary = True
+            affiliation.save()
+        except ValueError:
+            logger.warn('The affiliation could not be created.')
+            affiliation = None
+            created = False
         return affiliation, created
 
     @classmethod
@@ -2388,13 +2398,18 @@ class Affiliation(models.Model):
         Intended for use in batch importers where ROR data is not available.
         Does not support RORs or multiple affiliations.
         """
-        affiliation, _created = Affiliation.objects.get_or_create(
-            account=account,
-            frozen_author=frozen_author,
-            is_primary=True,
-        )
-        affiliation.department = value
-        affiliation.save()
+        # Create or update an affiliation if the associated
+        # account / frozen author / preprint author has been saved already
+        try:
+            affiliation, _created = Affiliation.objects.get_or_create(
+                account=account,
+                frozen_author=frozen_author,
+                is_primary=True,
+            )
+            affiliation.department = value
+            affiliation.save()
+        except ValueError:
+            logger.warn('The department could not be set.')
 
     @classmethod
     def naive_set_primary_country(
