@@ -8,6 +8,9 @@ from django.http import HttpRequest
 from journal import models as journal_models
 from submission import models as submission_models
 from utils import notify_helpers, setting_handler, render_template
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def create_fake_request(journal):
@@ -47,12 +50,12 @@ class Command(BaseCommand):
                 setting_name='send_reader_notifications',
                 journal=journal,
             ).value:
-                print('Sending notification for {}'.format(journal.name))
+                logger.info('Sending notification for {}'.format(journal.name))
                 readers = journal.users_with_role('reader')
                 bcc_list = [reader.email for reader in readers]
 
                 if bcc_list:
-                    print("Sending notifications to {}".format(
+                    logger.info("Sending notifications to {}".format(
                         ", ".join(bcc_list)
                     ))
 
@@ -98,8 +101,8 @@ class Command(BaseCommand):
                         }
                     )
                 else:
-                    print("No articles were published today.")
+                    logger.info("No articles were published today.")
             else:
-                print('Reader publication notifications are not enabled for {}'.format(journal.name))
+                logger.info('Reader publication notifications are not enabled for {}'.format(journal.name))
 
 
