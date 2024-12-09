@@ -59,6 +59,9 @@
     {% include "admin/elements/forms/field.html" with field=form.captcha %}
   </div>
   <div class="flex wrap gap-1">
+    {% for hidden_field in form.hidden_fields %}
+      {{ hidden_field }}
+    {% endfor %}
     <button type="submit" class="button secondary">
       {% trans "Register" %}
     </button>
