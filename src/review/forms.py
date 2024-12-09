@@ -194,6 +194,19 @@ class EditorAssignmentForm(core_forms.ConfirmableIfErrorsForm):
         return editor_assignment
 
 
+class EditEditorAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = models.EditorAssignmentRequest
+        fields = ('date_due',)
+        widgets = {
+            'date_due': HTMLDateInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(EditEditorAssignmentForm, self).__init__(*args, **kwargs)
+
+
 class BulkReviewAssignmentForm(forms.ModelForm):
     template = forms.CharField(
         widget=TinyMCE,

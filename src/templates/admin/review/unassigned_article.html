@@ -257,6 +257,7 @@
                         <th>Email</th>
                         <th>Type</th>
                         <th>Date Due</th>
+                        <th></th>
                     </tr>
                     {% for assignment in requested_editors %}
                     <tr>
@@ -269,6 +270,7 @@
                         <td>{{ assignment.editor.email }}</td>
                         <td>{{ assignment.editor_type|capfirst }}</td>
                         <td>{{ assignment.date_due|date:"Y-m-d" }}</td>
+                        <td>{% include "admin/elements/review/editor_request_dropdown.html" %}</td>
                     </tr>
                     {% empty %}
                         <tr>

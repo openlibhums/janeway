@@ -1,0 +1,44 @@
+{% extends "admin/core/base.html" %}
+{% load settings %}
+
+{% block title %}Withdraw Editor Assignment Request{% endblock title %}
+{% block title-section %}Withdraw Editor Assignment Request{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/unassigned_base.html" %}
+    {% if article %}<li><a href="{% url 'review_unassigned_article' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
+    <li>Withdraw Editor Assignment Request</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <p>You are withdrawing an editor assignment by {{ assignment.editor.full_name }} from {{ article.safe_title }}. It was due
+                    on {{ assignment.date_due }}.</p>
+                <p>If you select Skip, the editor will not be notified.</p>
+
+                <div class="card">
+                    <div class="card-divider">
+                        <h4>To {{ assignment.editor.full_name }}</h4>
+                        <h5>From {{ request.user.full_name }}</h5>
+                    </div>
+                    {% url 'review_unassigned_article' article.pk as cancel_url %}
+                    {% include 'admin/elements/email_form.html' with form=form skip=1 cancel_url=cancel_url %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {{ block.super}}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
+{% endblock js %}

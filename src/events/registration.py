@@ -23,6 +23,10 @@ event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_MANUALLY_ASSI
                                       transactional_emails.send_editor_manually_assigned)
 event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_REQUESTED_NOTIFICATION,
                                       transactional_emails.send_editor_assignment_requested)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_REQUEST_REMINDED,
+                                      transactional_emails.send_editor_assignment_reminder)
+event_logic.Events.register_for_event(event_logic.Events.ON_EDITOR_REQUEST_WITHDRAWL,
+                                      transactional_emails.send_editor_assignment_withdrawl)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
         transactional_emails.send_editor_unassigned_notice)
 

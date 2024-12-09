@@ -30,6 +30,10 @@ class Events:
     # kwargs: editor_assignment, request, email_data, acknowledgement (true), skip (boolean)
     # raised when an editor decides to notify to another editor with a custom message or skipped the email
     ON_EDITOR_REQUESTED_NOTIFICATION = 'on_editor_requested_notification'
+    ON_EDITOR_REQUEST_REMINDED = 'on_editor_request_reminded'
+    # kwargs: review_assignment, request, user_message_content, skip (boolean)
+    # raised when an editor decides to notify the reviewer of a assignment withdrawl (or skip the notification)
+    ON_EDITOR_REQUEST_WITHDRAWL = 'on_editor_request_withdrawl'
 
     # kwargs: request, editor_assignment, user_message_content (will be blank), acknowledgement (false)
     # raised when an editor is assigned to an article

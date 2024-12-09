@@ -240,6 +240,69 @@ def send_reviewer_requested(**kwargs):
 
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
+
+def send_editor_assignment_reminder(**kwargs):
+    """
+    This function is called via the event handling framework and it reminds that a editor has been requested.
+    It is wired up in core/urls.py.
+    :param kwargs: a list of kwargs that includes editor_assignment, email_data, skip (boolean) and request
+    :return: None
+    """
+    email_data = kwargs["email_data"]
+    editor_assignment = kwargs['editor_assignment']
+    article = editor_assignment.article
+    request = kwargs['request']
+
+    description = 'An editor assignment request to "{0}" for user {1} was reminded'.format(
+        article.title,
+        editor_assignment.editor.full_name(),
+    )
+
+    log_dict = {'level': 'Info',
+                'action_text': description,
+                'types': 'Editor Assignment Reminder',
+                'target': article}
+
+    core_email.send_email(
+        editor_assignment.editor,
+        email_data,
+        request,
+        article=article,
+        log_dict=log_dict,
+    )
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+
+def send_editor_assignment_withdrawl(**kwargs):
+    editor_assignment = kwargs['editor_assignment']
+    request = kwargs['request']
+    email_data = kwargs['email_data']
+    article = editor_assignment.article
+    skip = kwargs.get('skip', True)
+
+    description = '{0}\'s editor assignment of "{1}" has been withdrawn by {2}'.format(
+        editor_assignment.editor.full_name(),
+        editor_assignment.article.title,
+        request.user.full_name(),
+    )
+    log_dict = {
+            'level': 'Info', 'action_text': description,
+            'types': 'Editor Assignment Withdrawl', 'target': editor_assignment.article,
+    }
+
+    if not skip:
+        core_email.send_email(
+            editor_assignment.editor,
+            email_data,
+            request,
+            article=article,
+            log_dict=log_dict,
+        )
+
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+
 def send_reviewer_requested_acknowledgements(**kwargs):
     """
     This function is called via the event handling framework and it notifies that a reviewer has been requested.

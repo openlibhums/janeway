@@ -917,6 +917,203 @@ def decline_review_request(request, assignment_id):
     return render(request, template, context)
 
 
+@senior_editor_user_required
+def edit_editor_assignment_request(request, assignment_id):
+    """
+    A view that allows a user to edit an editor assignment request.
+    :param request: Django's request object
+    :param assignment_id: EditorAssignmentRequest PK
+    :return: a rendered django template
+    """
+
+    assignment = get_object_or_404(
+        models.EditorAssignmentRequest, id=assignment_id
+    )
+
+    if assignment.date_complete:
+        messages.add_message(request, messages.WARNING, 'You cannot edit an editor assignment that is already complete.')
+        return redirect(reverse('review_unassigned_article', kwargs={'article_id': assignment.article.id}))
+
+    form = forms.EditEditorAssignmentForm(instance=assignment, journal=request.journal)
+
+    if request.POST:
+        form = forms.EditEditorAssignmentForm(request.POST, instance=assignment, journal=request.journal)
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, 'Editor Assignment updates.')
+            util_models.LogEntry.add_entry('Editor Assignment Deleted', 'Editor Assignment updated.', level='Info', actor=request.user,
+                                           request=request, target=assignment)
+            return redirect(reverse('review_unassigned_article', kwargs={'article_id': assignment.article.id}))
+
+    template = 'review/edit_editor_assignment.html'
+    context = {
+        'article': assignment.article,
+        'assignment': assignment,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@senior_editor_user_required
+def remind_editor_assignment_request(request, assignment_id):
+    """
+    Allows a senior editor to resent an editor assignment invite or manually send a reminder.
+    :param request: Django's request object
+    :param assignment_id: EditorAssignmentRequest PK
+    :return: HttpResponse or HttpRedirect
+    """
+
+    assignment = get_object_or_404(
+        models.EditorAssignmentRequest, id=assignment_id
+    )
+
+    email_context = logic.get_editor_notification_context(
+        request, assignment.article, request.user, assignment)
+
+    form = core_forms.SettingEmailForm(
+        setting_name="editor_assignment_reminder",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.POST:
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name="editor_assignment_reminder",
+            email_context=email_context,
+            request=request,
+        )
+
+        if form.is_valid():
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'editor_assignment': assignment,
+                'request': request,
+            }
+
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDITOR_REQUEST_REMINDED, **kwargs)
+
+        return redirect(reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': assignment.article.pk},
+        ))
+
+    template = 'review/notify_remind_editor.html'
+    context = {
+        'article': assignment.article,
+        'editor': assignment.editor,
+        'form': form,
+        'assignment': assignment,
+    }
+
+    return render(request, template, context)
+
+
+@senior_editor_user_required
+def withdraw_editor_assignment_request(request, assignment_id):
+    """
+    A view that allows a user to withdraw an editor assignment request.
+    :param request: Django's request object
+    :param assignment_id: EditorAssignmentRequest PK
+    :return:a rendered django template
+    """
+    assignment = get_object_or_404(
+        models.EditorAssignmentRequest, id=assignment_id
+    )
+
+    if assignment.date_complete:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot withdraw an editor assigment that is already complete.',
+        )
+        return redirect(reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': assignment.article.pk},
+        ))
+
+    email_context = {
+        'article': assignment.article,
+        'editor_assignment': assignment,
+        'editor': request.user,
+    }
+    form = core_forms.SettingEmailForm(
+            setting_name="editor_assignment_withdrawl",
+            email_context=email_context,
+            request=request,
+    )
+    if request.POST:
+        skip = request.POST.get("skip")
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name="editor_assignment_withdrawl",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid() or skip:
+            assignment.date_complete = timezone.now()
+            assignment.is_complete = True
+            assignment.save()
+
+            kwargs = {
+                'editor_assignment': assignment,
+                'request': request,
+                'email_data': form.as_dataclass(),
+                'skip': skip,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDITOR_REQUEST_WITHDRAWL,
+                **kwargs,
+            )
+
+            messages.add_message(request, messages.SUCCESS, 'Editor Assignment withdrawn')
+            return redirect(reverse(
+                'review_unassigned_article',
+                kwargs={'article_id': assignment.article.pk},
+            ))
+
+    template = 'review/withdraw_editor_assignment.html'
+    context = {
+        'article': assignment.article,
+        'assignment': assignment,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@senior_editor_user_required
+def delete_editor_assignment_request(request, assignment_id):
+    """
+    Delete an editor assignment request
+    :param request: the request object
+    :param assignment_id: the assignment ID to handle
+    :return: a context for a Django template
+    """
+
+    assignment = get_object_or_404(
+        models.EditorAssignmentRequest, id=assignment_id
+    )
+
+    assignment.delete()
+
+    util_models.LogEntry.add_entry(
+        types='EditorialAction',
+        description='Editor {0} unrequested from article {1}'
+            ''.format(assignment.editor.full_name(), assignment.article.id),
+        level='Info',
+        request=request,
+        target=assignment.article,
+    )
+
+    return redirect(reverse(
+        'review_unassigned_article', kwargs={'article_id': assignment.article.id}
+    ))
+
+
 @reviewer_user_for_assignment_required
 def suggest_reviewers(request, assignment_id):
     """
