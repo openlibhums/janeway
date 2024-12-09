@@ -13,8 +13,11 @@ from core import models as core_models
 from journal import models
 from press import models as press_models
 from utils import setting_handler
+from utils.logger import get_logger
 from submission import models as submission_models
 from cms import models as cms_models
+
+logger = get_logger(__name__)
 
 
 def update_settings(journal_object=None, management_command=False,
@@ -83,7 +86,7 @@ def update_settings(journal_object=None, management_command=False,
                 setting.editable_by.add(*roles)
 
             if management_command:
-                print('Parsed setting {0}'.format(item['setting'].get('name')))
+                logger.info('Parsed setting {0}'.format(item['setting'].get('name')))
 
 
 def load_permissions(file_path='utils/install/journal_defaults.json'):
