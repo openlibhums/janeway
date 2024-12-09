@@ -231,6 +231,7 @@
                     {% include "common/elements/altmetric_badges.html" with article=article %}
                     {% include "elements/journal/share.html" %}
                     {% if article.frozen_authors.count > 0 %}
+<<<<<<< HEAD
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
@@ -257,11 +258,15 @@
                                             <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
                                         </a>
                                      {% endif %}
-                                    {% for credit_author, credit_role in credit_roles.items %}
-                                        {% if credit_author == author %}
-                                            [<span class="credit">{% for credit in credit_role %}{{ credit|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>]
-                                        {% endif %}
-                                    {% endfor %}
+                            {% for credit_author, credit_role in credit_roles.items %}
+                                {% if credit_author == author %}
+                                    [<span class="credit">
+                                        {% for credit in credit_role %}
+                                            {{ credit|title }}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>]
+                                {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>    
