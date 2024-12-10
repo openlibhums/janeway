@@ -5151,5 +5151,24 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Articles can be related to preconfigured research topics from the journal, with the purpose of improving review assignments based on account matches.",
+            "is_translatable": false,
+            "name": "enable_study_topics",
+            "pretty_name": "Enable Research Topics",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
