@@ -1506,6 +1506,80 @@ class TaskCompleteEvents(models.Model):
         verbose_name_plural = 'task complete events'
 
 
+class TopicGroup(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'journal')
+        verbose_name_plural = 'study topic groups for articles and accounts'
+
+    def __str__(self):
+        return self.pretty_name
+
+    def topic_count(self):
+        return self.topics_set.all().count()
+
+
+class Topics(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    group = models.ForeignKey(
+        TopicGroup,
+        on_delete=models.CASCADE,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'journal', 'group')
+        verbose_name_plural = 'study topics for articles and accounts'
+
+    def __str__(self):
+        return self.pretty_name
+
+    def article_count(self):
+        return self.articletopic_set.all().count()
+
+    def account_count(self):
+        return self.accounttopic_set.all().count()
+
+
+class AccountTopic(models.Model):
+    PRIMARY = 'PR'
+    SECONDARY = 'SE'
+    TOPIC_TYPE_CHOICES = [
+        (PRIMARY, 'Primary'),
+        (SECONDARY, 'Secondary'),
+    ]
+
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topics, on_delete=models.CASCADE)
+    topic_type = models.CharField(
+        max_length=2,
+        choices=TOPIC_TYPE_CHOICES,
+        default=PRIMARY,
+    )
+
+    class Meta:
+        unique_together = ('account', 'topic')
+
+    def __str__(self):
+        return f"{self.account} - {self.topic} ({self.topic_type})"
+
+
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     press = models.ForeignKey(
