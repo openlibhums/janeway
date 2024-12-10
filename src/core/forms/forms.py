@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import re
 import uuid
 import json
 
@@ -494,6 +495,58 @@ class SectionForm(JanewayTranslationModelForm):
             self.fields['section_editors'].required = False
             self.fields['editors'].queryset = request.journal.users_with_role('editor')
             self.fields['editors'].required = False
+
+
+class TopicForm(forms.ModelForm):
+    class Meta:
+        model = models.Topics
+        fields = ['pretty_name', 'description', 'group']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+            'group': 'Topic Group',
+        }
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(TopicForm, self).__init__(*args, **kwargs)
+        if request:
+            self.fields['group'].queryset = request.journal.topic_groups()
+            self.fields['group'].label_from_instance = lambda obj: "%s" % obj.pretty_name
+
+
+class TopicGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.TopicGroup
+        fields = ['pretty_name', 'description']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TopicGroupForm, self).__init__(*args, **kwargs)
+
+    def formatted_name(self, pretty_name: str):
+        return re.sub(r'\s+', '_', re.sub(r'[()]', '', pretty_name)).lower()
+
+    def save(self, commit=True, request=None):
+        topic_group = super(TopicGroupForm, self).save(commit=False)
+        if request:
+            topic_group_pretty_name = topic_group.pretty_name
+            topic_group.journal = request.journal
+            topic_group.name = self.formatted_name(topic_group_pretty_name)
+        if commit:
+            topic_group.save()
+            default_topic_name = f'{topic_group_pretty_name} (others)'
+            models.Topics.objects.create(
+                pretty_name=default_topic_name,
+                name=self.formatted_name(default_topic_name),
+                journal=request.journal,
+                group=topic_group,
+                description='another topics'
+            )
+        return topic_group
 
 
 class QuickUserForm(forms.ModelForm):

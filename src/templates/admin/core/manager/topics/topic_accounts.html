@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{% trans 'Topics' %}{% endblock title %}
+{% block title-section %}{% trans 'Topics' %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
+    <li><a href="{% url 'core_manager_topics' %}">{% trans 'Topics' %}</a></li>
+    <li><a href="{% url 'core_manager_topic' topic.pk %}">{{ topic.pretty_name }} {% trans 'Accounts' %}</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{{ topic.pretty_name }} {% trans 'Accounts' %}</h2>
+                <a href="{% url 'core_manager_topics' %}" class="button">{% trans 'Back' %}</a>
+            </div>
+            <div class="content">
+                <p>
+                    {% trans 'Accounts that belong to the' %} <b>{{ topic.pretty_name }}</b> {% trans 'topic are listed below.' %}
+                </p>
+                <table class="small">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Username' %}</th>
+                            <th>{% trans 'First Name' %}</th>
+                            <th>{% trans 'Last Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th width="40%">{% trans 'Topics' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in topic.accounttopic_set.all %}
+                            <tr>
+                                <td>{{ account.account.username }}</td>
+                                <td>{{ account.account.first_name }}</td>
+                                <td>{{ account.account.last_name }}</td>
+                                <td>{{ account.account.email }}</td>
+                                <td>
+                                    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=account.account.topics_by_type %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">{% trans 'This topic has no accounts.' %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
