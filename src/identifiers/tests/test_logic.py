@@ -62,7 +62,8 @@ class TestLogic(TestCase):
         cls.article_one.license = submission_models.Licence.objects.filter(
             journal=cls.journal_one,
         ).first()
-        cls.article_one.page_numbers = '1-72'
+        cls.article_one.first_page = 1
+        cls.article_one.last_page = 72
         cls.article_one.save()
 
         cls.issue_five_three.save()
@@ -120,7 +121,8 @@ class TestLogic(TestCase):
         cls.article_six.license = submission_models.Licence.objects.filter(
             journal=cls.journal_two,
         ).first()
-        cls.article_six.page_numbers = '58-62'
+        cls.article_six.first_page = 58
+        cls.article_six.last_page = 62
         cls.article_six.save()
 
         cls.article_seven = helpers.create_article(cls.journal_two, with_author=True)
@@ -241,7 +243,8 @@ class TestLogic(TestCase):
             'doi': f'10.0000/TST.{self.article_published.id}',
             'id': self.article_published.id,
             'license': '',
-            'pages': self.article_published.page_numbers,
+            'first_page': self.article_published.first_page,
+            'last_page': self.article_published.last_page,
             'scheduled': True,
         }
 
@@ -265,7 +268,8 @@ class TestLogic(TestCase):
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
-            'pages': self.article_one.page_numbers,
+            'first_page': self.article_one.first_page,
+            'last_page': self.article_one.last_page,
             'scheduled': False,
         }
 
