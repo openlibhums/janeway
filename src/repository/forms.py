@@ -464,6 +464,8 @@ class RepositoryInitial(RepositoryBase):
             'theme',
             'display_public_metrics',
             'publisher',
+            'enable_comments',
+            'enable_invited_comments',
         )
         help_texts = {
             'domain': 'Using a custom domain requires configuring DNS. '
