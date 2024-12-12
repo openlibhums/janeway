@@ -341,6 +341,7 @@ def create_crossref_article_context(article, identifier=None):
         'license': article.license.url if article.license else '',
         'first_page': article.first_page,
         'last_page': article.last_page,
+        'other_pages': article.page_numbers,
         'scheduled': article.scheduled_for_publication,
     }
 
