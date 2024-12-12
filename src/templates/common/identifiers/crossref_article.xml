@@ -49,13 +49,16 @@
                     <year>{{ article.date_accepted.year }}</year>
                 </acceptance_date>
                 {% endif %}
-                {% if first_page or last_page %}
+                {% if first_page or last_page or other_pages %}
                     <pages>
                         {% if first_page %}
                             <first_page>{{ first_page }}</first_page>
                         {% endif %}
                         {% if last_page %}
                             <last_page>{{ last_page }}</last_page>
+                        {% endif %}
+                        {% if other_pages %}
+                            <other_pages>{{ other_pages }}</other_pages>
                         {% endif %}
                     </pages>
                 {% endif %}
