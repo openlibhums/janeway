@@ -2258,7 +2258,7 @@ class Affiliation(models.Model):
     )
 
     class Meta:
-        ordering = ['-pk']
+        ordering = ['is_primary', '-pk']
 
     def title_department(self):
         elements = [
@@ -2283,6 +2283,18 @@ class Affiliation(models.Model):
         if self.end and self.end < timezone.now():
             return False
         return True
+
+    @classmethod
+    def set_primary_if_first(cls, obj):
+        other_affiliations = cls.objects.filter(
+            account=obj.account,
+            frozen_author=obj.frozen_author,
+            preprint_author=obj.preprint_author,
+        ).exclude(
+            pk=obj.pk
+        ).exists()
+        if not other_affiliations:
+            obj.is_primary = True
 
     @classmethod
     def keep_is_primary_unique(cls, obj):
@@ -2426,6 +2438,7 @@ class Affiliation(models.Model):
         affiliation.organization.locations.add(country_location)
 
     def save(self, *args, **kwargs):
+        self.set_primary_if_first(self)
         self.keep_is_primary_unique(self)
         super().save(*args, **kwargs)
 

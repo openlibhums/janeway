@@ -787,3 +787,21 @@ class TestOrganizationModels(TestCase):
             self.organization_bbk.location,
             self.location_london,
         )
+
+    def test_set_primary_if_first_true(self):
+        first_affiliation, _created = models.Affiliation.objects.get_or_create(
+            account=self.t_s_eliot,
+            organization=self.organization_bbk,
+        )
+        self.assertTrue(first_affiliation.is_primary)
+
+    def test_set_primary_if_first_false(self):
+        _first_affiliation, _created = models.Affiliation.objects.get_or_create(
+            account=self.t_s_eliot,
+            organization=self.organization_bbk,
+        )
+        second_affiliation, _created = models.Affiliation.objects.get_or_create(
+            account=self.t_s_eliot,
+            organization=self.organization_rae,
+        )
+        self.assertFalse(second_affiliation.is_primary)
