@@ -36,7 +36,11 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
-from core.model_utils import NotImplementedField, search_model_admin
+from core.model_utils import (
+    NotImplementedField,
+    SafePaginator,
+    search_model_admin
+)
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -2455,7 +2459,7 @@ class GenericFacetedListView(generic.ListView):
     """
     model = NotImplementedField
     template_name = NotImplementedField
-
+    paginator_class = SafePaginator
     paginate_by = '25'
     facets = {}
 
