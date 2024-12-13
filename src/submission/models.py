@@ -78,22 +78,67 @@ def article_media_upload(instance, filename):
     path = "articles/{0}/".format(instance.pk)
     return os.path.join(path, filename)
 
-CREDIT_ROLE_CHOICES = [
-    ('Conceptualization', 'Conceptualization'),
-    ('Data Curation', 'Data Curation'),
-    ('Formal Analysis', 'Formal Analysis'),
-    ('Funding Acquisition', 'Funding Acquisition'),
-    ('Investigation', 'Investigation'),
-    ('Methodology', 'Methodology'),
-    ('Project Administration', 'Project Administration'),
-    ('Resources', 'Resources'),
-    ('Software', 'Software'),
-    ('Supervision', 'Supervision'),
-    ('Validation', 'Validation'),
-    ('Visualization', 'Visualization'),
-    ('Writing - Original Draft', 'Writing - Original Draft'),
-    ('Writing - Review & Editing', 'Writing - Review & Editing'),
-]
+
+CREDIT_ROLES = {
+    "Conceptualization": (
+        "Conceptualization",
+        "https://credit.niso.org/contributor-roles/conceptualization/",
+    ),
+    "Data Curation": (
+        "Data Curation",
+        "https://credit.niso.org/contributor-roles/data-curation/",
+    ),
+    "Formal Analysis": (
+        "Formal Analysis",
+        "https://credit.niso.org/contributor-roles/formal-analysis/",
+    ),
+    "Funding Acquisition": (
+        "Funding Acquisition",
+        "https://credit.niso.org/contributor-roles/funding-acquisition/",
+    ),
+    "Investigation": (
+        "Investigation",
+        "https://credit.niso.org/contributor-roles/investigation/",
+    ),
+    "Methodology": (
+        "Methodology",
+        "https://credit.niso.org/contributor-roles/methodology/",
+    ),
+    "Project Administration": (
+        "Project Administration",
+        "https://credit.niso.org/contributor-roles/project-administration/",
+    ),
+    "Resources": (
+        "Resources",
+        "https://credit.niso.org/contributor-roles/resources/",
+    ),
+    "Software": (
+        "Software",
+        "https://credit.niso.org/contributor-roles/software/",
+    ),
+    "Supervision": (
+        "Supervision",
+        "https://credit.niso.org/contributor-roles/supervision/",
+    ),
+    "Validation": (
+        "Validation",
+        "https://credit.niso.org/contributor-roles/validation/",
+    ),
+    "Visualization": (
+        "Visualization",
+        "https://credit.niso.org/contributor-roles/visualization/",
+    ),
+    "Writing - Original Draft": (
+        "Writing - Original Draft",
+        "https://credit.niso.org/contributor-roles/writing-original-draft/",
+    ),
+    "Writing - Review & Editing": (
+        "Writing - Review & Editing",
+        "https://credit.niso.org/contributor-roles/writing-review-editing/",
+    ),
+}
+
+CREDIT_ROLE_CHOICES = [(key, values[0]) for key, values in CREDIT_ROLES.items()]
 
 SALUTATION_CHOICES = [
     ('', '---'),
