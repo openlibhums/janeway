@@ -1,6 +1,6 @@
 {% load static %}
 
-<div>
+<div class="max-w-32">
   {% if affiliation.title_department %}
     <span>{{ affiliation.title_department }},</span>
   {% endif %}
@@ -16,5 +16,10 @@
   </a>
   {% else %}
     {{ affiliation.organization }}
+  {% endif %}
+  {% if affiliation.is_primary %}
+    <span class="label secondary">
+      Primary
+    </span>
   {% endif %}
 </div>
