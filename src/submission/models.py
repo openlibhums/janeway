@@ -928,6 +928,30 @@ class Article(AbstractLastModifiedModel):
         return credit_roles_return
 
     @property
+    def credit_roles_with_urls(self):
+        records = CreditRecord.objects.filter(article=self).order_by('role')
+
+        credit_roles_return = defaultdict(list)
+
+        for record in records:
+            credit_roles_return[record.author].append((record, CREDIT_ROLES[record.role][1]))
+
+        credit_roles_return.default_factory = None
+        return credit_roles_return
+
+    @property
+    def credit_roles_frozen_with_urls(self):
+        records = CreditRecord.objects.filter(article=self).order_by('role')
+
+        credit_roles_return = defaultdict(list)
+
+        for record in records:
+            credit_roles_return[record.frozen_author].append((record, CREDIT_ROLES[record.role][1]))
+
+        credit_roles_return.default_factory = None
+        return credit_roles_return
+
+    @property
     def safe_title(self):
         if self.title:
             return mark_safe(self.title)
