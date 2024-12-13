@@ -2014,6 +2014,7 @@ class Organization(models.Model):
     )
 
     class Meta:
+        ordering = ['ror_display__value']
         constraints = [
             models.UniqueConstraint(
                 fields=['ror'],
