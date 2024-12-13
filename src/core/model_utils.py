@@ -14,6 +14,7 @@ from bleach import clean
 from django import forms
 from django.apps import apps
 from django.contrib import admin
+from django.core.paginator import EmptyPage, Paginator
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -748,3 +749,18 @@ class DateTimePickerModelField(models.DateTimeField):
 @property
 def NotImplementedField(self):
     raise NotImplementedError
+
+
+class SafePaginator(Paginator):
+    """
+    A paginator for avoiding an uncaught exception
+    caused by passing a page parameter that is out of range.
+    """
+    def validate_number(self, number):
+        try:
+            return super().validate_number(number)
+        except EmptyPage:
+            if number > 1:
+                return self.num_pages
+            else:
+                raise
