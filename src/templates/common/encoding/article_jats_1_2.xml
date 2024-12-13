@@ -45,6 +45,15 @@
                     {% if author.is_correspondence_author %}
                     <email>{{ author.author.email }}</email>
                     {% endif %}
+                    {% for credit_frozen_author, roles in article.credit_roles_frozen_with_urls.items %}
+                        {% if credit_frozen_author.id == author.id %}
+                            {% for credit in roles %}
+                            <role vocab="credit" vocab-identifier="https://credit.niso.org/"
+                                  vocab-term="{{ credit.0|title }}"
+                                  vocab-term-identifier="{{ credit.1 }}">{{ credit.0|title}}</role>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
                 </contrib>
             {% endfor %}
