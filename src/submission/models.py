@@ -929,18 +929,36 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def credit_roles_frozen(self):
+        """
+        Returns a dictionary of frozen authors with their roles. The roles are
+        returned as a list of roles.
+        """
         return self._credit_roles(frozen=True, repository=False, url=False)
 
     @property
     def credit_roles(self):
+        """
+        Returns a dictionary of authors with their roles. The roles are
+        returned as a list of roles.
+        """
         return self._credit_roles(frozen=False, repository=False, url=False)
 
     @property
     def credit_roles_with_urls(self):
+        """
+        Returns a dictionary of authors with their roles. The roles are
+        returned as a tuple with the role name and the URL to NISO spec for
+        CRediT.
+        """
         return self._credit_roles(frozen=False, repository=False, url=True)
 
     @property
     def credit_roles_frozen_with_urls(self):
+        """
+        Returns a dictionary of frozen authors with their roles. The roles are
+        returned as a tuple with the role name and the URL to NISO spec for
+        CRediT.
+        """
         return self._credit_roles(frozen=True, repository=False, url=True)
 
     @property
