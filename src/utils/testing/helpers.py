@@ -62,6 +62,7 @@ def create_user(username, roles=None, journal=None, **attrs):
             journal=journal
         )
 
+    user.save()
     for attr, value in attrs.items():
         setattr(user, attr, value)
 
@@ -179,8 +180,6 @@ def create_author(journal, **kwargs):
         "first_name": "Author",
         "middle_name": "A",
         "last_name": "User",
-        "institution": "Author institution",
-        "department": "Author Department",
         "biography": "Author test biography"
     }
     attrs.update(kwargs)
@@ -190,6 +189,8 @@ def create_author(journal, **kwargs):
         journal=journal,
         **attrs,
     )
+    author.institution = "Author institution"
+    author.department = "Author Department"
     author.is_active = True
     author.save()
     return author
@@ -348,12 +349,14 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
         size=100,
     )
     preprint.submission_file = file
-    repo_models.PreprintAuthor.objects.create(
+    preprint_author = repo_models.PreprintAuthor.objects.create(
         preprint=preprint,
         account=author,
         order=1,
-        affiliation='Made Up University',
     )
+    preprint_author.save()
+    preprint_author.affiliation = 'Made Up University'
+    preprint_author.save()
     return preprint
 
 

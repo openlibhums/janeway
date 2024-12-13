@@ -15,11 +15,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, QueryDict
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -27,6 +28,7 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils import translation
@@ -34,7 +36,11 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
-from core.model_utils import NotImplementedField, search_model_admin
+from core.model_utils import (
+    NotImplementedField,
+    SafePaginator,
+    search_model_admin
+)
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -327,11 +333,6 @@ def register(request):
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
             initial["email"] = orcid_details["emails"][0]
-        if orcid_details.get("affiliation"):
-            initial['institution'] = orcid_details['affiliation']
-        if orcid_details.get("country"):
-            if models.Country.objects.filter(code=orcid_details['country']).exists():
-                initial["country"] = models.Country.objects.get(code=orcid_details['country'])
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -353,6 +354,10 @@ def register(request):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                if new_user.orcid:
+                    orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+                    if orcid_details.get("affiliation"):
+                        new_user.institution = orcid_details['affiliation']
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
@@ -2454,7 +2459,7 @@ class GenericFacetedListView(generic.ListView):
     """
     model = NotImplementedField
     template_name = NotImplementedField
-
+    paginator_class = SafePaginator
     paginate_by = '25'
     facets = {}
 
@@ -2775,3 +2780,153 @@ class BaseUserList(GenericFacetedListView):
                 messages.success(request, message)
 
         return super().post(request, *args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationListView(GenericFacetedListView):
+    """
+    Allows a user to search for an organization to add
+    as one of their own affiliations.
+    """
+
+    model = core_models.Organization
+    template_name = 'admin/core/organization_search.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        # Exclude user-created organizations from search results
+        return queryset.exclude(custom_label__isnull=False)
+
+    def get_facets(self):
+        return {
+            'q': {
+                'type': 'search',
+                'field_label': 'Search',
+            },
+        }
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationNameCreateView(SuccessMessageMixin, CreateView):
+    """
+    Allows a user to create a custom organization name
+    if they cannot find one in ROR data.
+    """
+
+    model = core_models.OrganizationName
+    fields = ['value']
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        return context
+
+    def form_valid(self, form):
+        organization_name = form.save()
+        organization = core_models.Organization.objects.create()
+        organization_name.custom_label_for = organization
+        organization_name.save()
+        return redirect(
+            reverse(
+                'affiliation_create',
+                kwargs={
+                    'user_id': self.kwargs.get('user_id'),
+                    'organization_id': organization.pk,
+                }
+            )
+        )
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationNameUpdateView(SuccessMessageMixin, UpdateView):
+    """
+    Allows a user to update a custom organization name.
+    """
+
+    model = core_models.OrganizationName
+    fields = ['value']
+    pk_url_kwarg = 'organization_name_id'
+    success_url = reverse_lazy('core_edit_profile')
+    success_message = _("Custom organization updated: %(value)s")
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class AffiliationCreateView(SuccessMessageMixin, CreateView):
+    """
+    Allows a user to create a new affiliation for themselves.
+    """
+
+    model = core_models.Affiliation
+    form_class = forms.AffiliationForm
+    success_url = reverse_lazy('core_edit_profile')
+    success_message = _("Affiliation created: %(organization)s")
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        organization_id = self.kwargs.get('organization_id')
+        context['organization'] = core_models.Organization.objects.get(
+            pk=organization_id
+        )
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['account'] = self.request.user
+        initial['organization'] = self.kwargs.get('organization_id')
+        return initial
+
+
+@method_decorator(login_required, name='dispatch')
+class AffiliationUpdateView(SuccessMessageMixin, UpdateView):
+    """
+    Allows a user to update one of their own affiliations.
+    """
+
+    model = core_models.Affiliation
+    pk_url_kwarg = 'affiliation_id'
+    form_class = forms.AffiliationForm
+    success_url = reverse_lazy('core_edit_profile')
+    success_message = _("Affiliation updated: %(organization)s")
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        affiliation_id = self.kwargs.get('affiliation_id')
+        context['affiliation'] = core_models.Affiliation.objects.get(
+            pk=affiliation_id
+        )
+        context['organization'] = context['affiliation'].organization
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class AffiliationDeleteView(SuccessMessageMixin, DeleteView):
+    """
+    Allows a user to delete one of their own affiliations.
+    """
+
+    model = core_models.Affiliation
+    pk_url_kwarg = 'affiliation_id'
+    success_url = reverse_lazy('core_edit_profile')
+    success_message = _("Affiliation deleted")
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        affiliation_id = self.kwargs.get('affiliation_id')
+        context['affiliation'] = core_models.Affiliation.objects.get(
+            pk=affiliation_id
+        )
+        context['organization'] = context['affiliation'].organization
+        return context
