@@ -521,7 +521,7 @@
 
                         {% if credit_roles|length > 0 %}
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">ℹ️</a></h3>
+                            <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
                             <ul>
                             {% for author, roles in credit_roles.items %}
                                 <li>
