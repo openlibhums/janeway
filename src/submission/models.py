@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from collections import defaultdict
+
+from attr.setters import frozen
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
@@ -903,53 +905,43 @@ class Article(AbstractLastModifiedModel):
         ordering = ('-date_published', 'title')
 
     # credits
-    @property
-    def credit_roles(self):
+    def _credit_roles(self, frozen=False, repository=False, url=False):
         records = CreditRecord.objects.filter(article=self).order_by('role')
 
         credit_roles_return = defaultdict(list)
 
         for record in records:
-            credit_roles_return[record.author].append(record)
+            if frozen:
+                if url:
+                    credit_roles_return[record.frozen_author].append(
+                        (record, CREDIT_ROLES[record.role][1]))
+                else:
+                    credit_roles_return[record.frozen_author].append(record)
+            else:
+                if url:
+                    credit_roles_return[record.author].append(
+                        (record, CREDIT_ROLES[record.role][1]))
+                else:
+                    credit_roles_return[record.author].append(record)
 
         credit_roles_return.default_factory = None
         return credit_roles_return
 
     @property
     def credit_roles_frozen(self):
-        records = CreditRecord.objects.filter(article=self).order_by('role')
+        return self._credit_roles(frozen=True, repository=False, url=False)
 
-        credit_roles_return = defaultdict(list)
-
-        for record in records:
-            credit_roles_return[record.frozen_author].append(record)
-
-        credit_roles_return.default_factory = None
-        return credit_roles_return
+    @property
+    def credit_roles(self):
+        return self._credit_roles(frozen=False, repository=False, url=False)
 
     @property
     def credit_roles_with_urls(self):
-        records = CreditRecord.objects.filter(article=self).order_by('role')
-
-        credit_roles_return = defaultdict(list)
-
-        for record in records:
-            credit_roles_return[record.author].append((record, CREDIT_ROLES[record.role][1]))
-
-        credit_roles_return.default_factory = None
-        return credit_roles_return
+        return self._credit_roles(frozen=False, repository=False, url=True)
 
     @property
     def credit_roles_frozen_with_urls(self):
-        records = CreditRecord.objects.filter(article=self).order_by('role')
-
-        credit_roles_return = defaultdict(list)
-
-        for record in records:
-            credit_roles_return[record.frozen_author].append((record, CREDIT_ROLES[record.role][1]))
-
-        credit_roles_return.default_factory = None
-        return credit_roles_return
+        return self._credit_roles(frozen=True, repository=False, url=True)
 
     @property
     def safe_title(self):
