@@ -6,6 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import re
 
 from django import forms
+from django.db import transaction
+from django_select2.forms import Select2MultipleWidget
 from django.utils.translation import gettext, gettext_lazy as _
 
 from submission import models
@@ -125,6 +127,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 license_queryset = license_queryset.filter(
                     available_for_submission=self.FILTER_PUBLIC_FIELDS,
                 )
+            
+            enable_study_topics = article.journal.get_setting(
+                'general',
+                'enable_study_topics',
+            )
+
             self.fields['section'].queryset = section_queryset
             self.fields['license'].queryset = license_queryset
 
@@ -142,6 +150,43 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
+            
+            if enable_study_topics:
+                topics_queryset = core_models.Topics.objects.filter(
+                    journal=article.journal,
+                ).order_by('group__pretty_name', 'pretty_name')
+
+                self.fields['primary_study_topic'] = forms.ModelChoiceField(
+                    queryset=topics_queryset,
+                    widget=forms.Select,
+                    required=True,
+                    label=_('Primary Research Topic'),
+                    initial=article.topics('PR').first(),
+                    help_text='Main research topic of the article',
+                )
+
+                self.fields['secondary_study_topic'] = forms.ModelMultipleChoiceField(
+                    queryset=topics_queryset,
+                    widget=Select2MultipleWidget,
+                    required=False,
+                    label=_('Secondary Research Topic'),
+                    initial=article.topics('SE'),
+                    help_text='Anothers research topics related to the article',
+                )
+
+                study_topic_choices = [('', '---------')] + [
+                    (
+                        group.pretty_name,
+                        [
+                            (topic.id, topic.pretty_name)
+                            for topic in core_models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                        ]
+                    )
+                    for group in core_models.TopicGroup.objects.all()
+                ]
+
+                self.fields['primary_study_topic'].choices = study_topic_choices
+                self.fields['secondary_study_topic'].choices = study_topic_choices
 
             # Pop fields based on journal.submissionconfiguration
             if journal and self.pop_disabled_fields:
@@ -233,6 +278,37 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
         if commit:
             article.save()
+
+            if article.journal.get_setting('general','enable_study_topics'):
+                selected_primary_topic = self.cleaned_data['primary_study_topic']
+                selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
+
+                existing_topics = models.ArticleTopic.objects.filter(article=article)
+
+                with transaction.atomic():
+
+                    for topic in selected_secondary_topics:
+                        models.ArticleTopic.objects.update_or_create(
+                            article=article,
+                            topic=topic,
+                            defaults={'topic_type': models.ArticleTopic.SECONDARY}
+                        )
+
+                    models.ArticleTopic.objects.update_or_create(
+                        article=article,
+                        topic=selected_primary_topic,
+                        defaults={'topic_type': models.ArticleTopic.PRIMARY}
+                    )
+
+                    for article_topic in existing_topics.filter(topic_type=models.ArticleTopic.PRIMARY):
+                        if article_topic.topic != selected_primary_topic:
+                            article_topic.delete()
+
+                    for article_topic in existing_topics.filter(topic_type=models.ArticleTopic.SECONDARY):
+                        if article_topic.topic not in selected_secondary_topics:
+                            article_topic.delete()
+
+                article.save()
 
         return article
 

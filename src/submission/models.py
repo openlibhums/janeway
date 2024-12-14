@@ -1372,6 +1372,23 @@ class Article(AbstractLastModifiedModel):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
 
+    def topics(self, topic_type=None):
+        if topic_type:
+            return core_models.Topics.objects.filter(articletopic__article=self, articletopic__topic_type=topic_type)
+        return core_models.Topics.objects.filter(articletopic__article=self)
+
+    def topics_by_type(self):
+        primary_topics = core_models.Topics.objects.filter(
+            articletopic__article=self, articletopic__topic_type=ArticleTopic.PRIMARY
+        )
+        secondary_topics = core_models.Topics.objects.filter(
+            articletopic__article=self, articletopic__topic_type=ArticleTopic.SECONDARY
+        )
+        return {
+            'primary': primary_topics,
+            'secondary': secondary_topics,
+        }
+
     @cache(7200)
     def altmetrics(self):
         alm = self.altmetric_set.all()
