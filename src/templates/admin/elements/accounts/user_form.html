@@ -33,6 +33,28 @@
         {{ form.country|foundation }}
     </div>
 </div>
+<div class="row">
+    <div class="large-12 columns" style="padding: 0;">
+        <div class="large-6 columns" style="margin-bottom: 16px;">
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <label for="id_topics">{% trans 'Primary Research Topics' %}</label>
+                    {{ form.primary_study_topic }}
+                </div>
+                <p class="help-text" style="padding: 0 16px;">{{ form.primary_study_topic.help_text}}</p>
+            </div>
+        </div>
+        <div class="large-6 columns" style="margin-bottom: 16px;">
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <label for="id_topics">{% trans 'Secondary Research Topics' %}</label>
+                    {{ form.secondary_study_topic }}
+                </div>
+                <p class="help-text" style="padding: 0 16px;">{{ form.secondary_study_topic.help_text}}</p>
+            </div>
+        </div>
+    </div>
+</div>
 <hr />
 <h5>Social Media and Accounts</h5>
 <div class="row">

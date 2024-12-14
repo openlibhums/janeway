@@ -8,6 +8,8 @@ import uuid
 import json
 
 from django import forms
+from django.db import transaction
+from django_select2.forms import Select2MultipleWidget
 from django.db.models import Q
 from django.forms.fields import Field
 from django.utils import timezone
@@ -203,6 +205,20 @@ class EditAccountForm(forms.ModelForm):
 
     interests = forms.CharField(required=False)
 
+    primary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Primary Research Topics')
+    )
+
+    secondary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Secondary Research Topics')
+    )
+
     class Meta:
         model = models.Account
         exclude = ('email', 'username', 'activation_code', 'email_sent',
@@ -212,8 +228,39 @@ class EditAccountForm(forms.ModelForm):
         widgets = {
             'biography': TinyMCE(),
             'signature': TinyMCE(),
+            'study_topic': Select2MultipleWidget,
         }
 
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(EditAccountForm, self).__init__(*args, **kwargs)
+        if self.journal:
+            topics_queryset = models.Topics.objects.filter(
+                journal=self.journal,
+            ).order_by('group__pretty_name', 'pretty_name')
+
+            self.fields['primary_study_topic'].queryset = topics_queryset
+            self.fields['secondary_study_topic'].queryset = topics_queryset
+
+            if 'instance' in kwargs:
+                account = kwargs['instance']
+
+                self.fields['primary_study_topic'].initial = account.topics('PR')
+                self.fields['secondary_study_topic'].initial = account.topics('SE')
+
+            study_topic_choices = [
+                (
+                    group.pretty_name,
+                    [
+                        (topic.id, topic.pretty_name)
+                        for topic in models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                    ]
+                )
+                for group in models.TopicGroup.objects.all()
+            ]
+            self.fields['primary_study_topic'].choices = study_topic_choices
+            self.fields['secondary_study_topic'].choices = study_topic_choices
+    
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
         user.clean()
@@ -231,6 +278,35 @@ class EditAccountForm(forms.ModelForm):
 
         if commit:
             user.save()
+
+            selected_primary_topic = set(self.cleaned_data['primary_study_topic'])
+            selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
+
+            existing_topics = models.AccountTopic.objects.filter(account=user)
+
+            with transaction.atomic():
+
+                for topic in selected_secondary_topics:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.SECONDARY}
+                    )
+
+                for topic in selected_primary_topic:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.PRIMARY}
+                    )
+
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.PRIMARY):
+                    if account_topic.topic not in selected_primary_topic:
+                        account_topic.delete()
+
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.SECONDARY):
+                    if account_topic.topic not in selected_secondary_topics:
+                        account_topic.delete()
 
         return user
 
