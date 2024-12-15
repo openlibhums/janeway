@@ -676,6 +676,7 @@ class Article(AbstractLastModifiedModel):
             "of interests in the publication of this "
             "article please state them here.",
     )
+    competing_interest_accounts = models.ManyToManyField('core.Account', through='ArticleAccountCI', blank=True, null=True, related_name='competing_interest_accounts')
     rights = JanewayBleachField(
         blank=True, null=True,
         help_text="A custom statement on the usage rights for this article"
@@ -1371,6 +1372,9 @@ class Article(AbstractLastModifiedModel):
     def issues_list(self):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
+
+    def competing_accounts(self):
+        return core_models.Account.objects.filter(articleaccountci__article=self)
 
     @cache(7200)
     def altmetrics(self):
@@ -2489,3 +2493,14 @@ def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 
 m2m_changed.connect(order_keywords, sender=Article.keywords.through)
+
+
+class ArticleAccountCI(models.Model):    
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    account = models.ForeignKey('core.Account', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('article', 'account')
+
+    def __str__(self):
+        return f"{self.article} - {self.account}"
