@@ -300,6 +300,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("Signature"),
     )
     interest = models.ManyToManyField('Interest', null=True, blank=True)
+    study_topic = models.ManyToManyField('Topics', through='AccountTopic', null=True, blank=True)
     country = models.ForeignKey(
         Country,
         null=True,

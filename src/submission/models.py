@@ -676,6 +676,7 @@ class Article(AbstractLastModifiedModel):
             "of interests in the publication of this "
             "article please state them here.",
     )
+    study_topic = models.ManyToManyField('core.Topics', through='ArticleTopic', blank=True, null=True, related_name='study_topics')
     rights = JanewayBleachField(
         blank=True, null=True,
         help_text="A custom statement on the usage rights for this article"
