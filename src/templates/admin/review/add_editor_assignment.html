@@ -41,6 +41,20 @@
                         </p>
                     </div>
 
+                    {% if journal_settings.general.enable_study_topics %}
+                    <div style="display: flex; gap:10px;">
+                        <span>
+                            <div class="switch tiny">
+                                <input class="autoSubmit switch-input" id="studyTopicSwitch" type="checkbox" name="view-study-topics" checked>
+                                <label class="switch-paddle" for="studyTopicSwitch">
+                                    <span class="show-for-sr">View Research Topics</span>
+                                </label>
+                            </div>
+                        </span>
+                        <p>View Research Topics</p>
+                    </div>
+                    {% endif %}
+
                     <table class="small scroll" id="editors">
                         <thead>
                         <tr>
@@ -49,7 +63,11 @@
                             <th>Email Address</th>
                             <th>Type</th>
                             <th>Active Assignments</th>
-                            <th>Interests</th>
+                            <th width="40%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
+                            <th width="40%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Research Topics</th>
+                            <th width="12%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                {% include "elements/info_tooltip.html" with label_text='Match Score' info_message='Account score based on research topic matches.' %}
+                            </th>
                         </tr>
                         </thead>
 
@@ -119,6 +137,9 @@
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
+    {% if journal_settings.general.enable_study_topics %}
+        {% include "elements/review/research_topic_switch.html" %}
+    {% endif %}
 
     <script lang="javascript">
     function getQueryStrings()

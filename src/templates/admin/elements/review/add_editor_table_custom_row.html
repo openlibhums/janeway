@@ -9,7 +9,13 @@
     <td>{{ editor.email }}</td>
     <td>{{ editor_type_label }}</td>
     <td>{{ editor.active_assignments_count|default_if_none:0 }}</td>
-    <td class="list-interests">
+    <td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
         {% for interest in editor.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </td>
+    <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+        {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=editor.topics_by_type %}
+    </td>
+    <td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+        {{ editor.total_topic_matches}}
     </td>
 </tr>
