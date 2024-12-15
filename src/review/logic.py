@@ -218,7 +218,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
-    ).annotate(
+    )
+    order_by = []
+
+    reviewers = reviewers.annotate(
         active_reviews_count=Subquery(
             active_reviews_count,
             output_field=IntegerField(),
@@ -231,7 +234,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
             default=False,
             output_field=BooleanField(),
         ),
+    ).annotate(
+        active_reviews_count=Coalesce(F('active_reviews_count'), Value(0)),
     )
+    order_by.append('active_reviews_count')
 
     if article.journal.get_setting('general', 'enable_suggested_reviewers'):
         article_keywords = [keyword.word for keyword in article.keywords.all()]
@@ -243,6 +249,80 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 output_field=BooleanField(),
             )
         )
+
+    if article.journal.get_setting('general', 'enable_study_topics'):
+        primary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        primary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        reviewers = reviewers.annotate(
+            primary_to_primary_matches=Subquery(
+                primary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            primary_to_secondary_matches=Subquery(
+                primary_to_secondary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_primary_matches=Subquery(
+                secondary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_secondary_matches=Subquery(
+                secondary_to_secondary_matches,
+                output_field=IntegerField(),
+            )
+        ).annotate(
+            primary_to_primary_matches_weighted=Coalesce(F('primary_to_primary_matches'), Value(0)) * 3,
+            primary_to_secondary_matches_weighted=Coalesce(F('primary_to_secondary_matches'), Value(0)) * 2,
+            secondary_to_primary_matches_weighted=Coalesce(F('secondary_to_primary_matches'), Value(0)) * 2,
+            secondary_to_secondary_matches_weighted=Coalesce(F('secondary_to_secondary_matches'), Value(0)) * 1,
+            total_topic_matches=(
+                F('primary_to_primary_matches_weighted') +
+                F('primary_to_secondary_matches_weighted') +
+                F('secondary_to_primary_matches_weighted') +
+                F('secondary_to_secondary_matches_weighted')
+            )
+        )
+        order_by.append('-total_topic_matches')
+
+    reviewers = reviewers.order_by(*order_by)
 
     return reviewers
 
