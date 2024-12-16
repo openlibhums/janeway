@@ -73,10 +73,8 @@
                     </div>
                 </li>
             {% else %}
-                {# IconA11y Decorative - untested #}
                 <li class="nav-item"><a href="{% url 'core_login' %}" class="nav-link"><i aria-hidden="true" class="fa fa-sign-in">
                     &nbsp;</i>{% trans 'Login' %}</a></li>
-                {# IconA11y Decorative - untested #}
                 <li class="nav-item"><a href="{% url 'core_register' %}" class="nav-link"><i aria-hidden="true" class="fa fa-user-plus">
                     &nbsp;</i>{% trans 'Register' %}</a></li>
             {% endif %}

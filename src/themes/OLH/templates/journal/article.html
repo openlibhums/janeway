@@ -30,7 +30,6 @@
                         </strong>
                         {% for author in article.frozen_authors.all %}
                         {{ author.full_name }}
-                            {# IconA11y ORCID #}
                             {% if author.orcid %}
                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="">
@@ -39,7 +38,6 @@
                             {% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                            {# IconA11y Email #}
                             <a itemprop="email" href="mailto:{{ author.email }}" >
                                 <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
                                 <span class="sr-only">{% trans 'Email ' %} {{ author.full_name }}.</span>
@@ -85,7 +83,6 @@
                                                 {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"
                                                 >
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
-                                            {# IconA11y ORCID #}
                                             {% if author.orcid %}
                                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
                                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="">
@@ -98,7 +95,6 @@
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
                                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                                 <a itemprop="email" href="mailto:{{ author.email }}">
-                                                    {# IconA11y Email #}
                                                     <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
                                                     <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                                 </a>
@@ -137,18 +133,15 @@
                               {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
                                 <li><a href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" >
-                                    {# IconA11y Semantic #}
                                     <i aria-hidden="true" class="fa fa-facebook"></i>
                                     <span class="sr-only">{% trans 'Share on Facebook' %}</span>
                                 </a></li>
                                 <li><a class= "twitter-x"
                                     href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" >
-                                    {# IconA11y Semantic #}
                                     <span aria-hidden="true"> &#120143;</span>
                                     <span class="sr-only">{% trans 'Share on X' %}</span>
                                 </a></li>
                                 <li><a href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank" >
-                                    {# IconA11y Semantic  #}
                                     <i aria-hidden="true" class="fa fa-linkedin"></i>
                                     <span class="sr-only">{% trans 'Share on LinkedIn' %}</span>
                                 </a></li>
@@ -162,7 +155,6 @@
                                     {% hook 'article_buttons' %}
                                     <li>
                                         <a href="{{ article.local_url }}print/" >
-                                            {# IconA11y Semantic #}
                                             <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Print article' %}</span>
                                         </a>
@@ -172,7 +164,6 @@
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
-                                                {# IconA11y Email #}
                                                 <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                                 <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                             </a>
@@ -181,7 +172,6 @@
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
                                         <a href="#">
-                                            {# IconA11y Semantic #}
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Cite article' %}</span>
                                         </a>
@@ -218,7 +208,6 @@
                         <ul>
                         {% for author in article.frozen_authors.all %}
                         <li>{{ author.full_name }}
-                            {# IconA11y ORCID #}
                             {% if author.orcid %}
                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="">
@@ -227,7 +216,6 @@
                             {% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Email #}
                                 <a itemprop="email" 
                                     href="mailto:{{ author.email }}" 
                                 >
@@ -286,7 +274,6 @@
                                         </p>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_1">
-                                                {# IconA11y Decorative #}
                                                 <i aria-hidden="true" class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
@@ -384,14 +371,12 @@
                                             <li>
                                                 {{ author.full_name }}
                                                 {% if author.orcid %}
-                                                {# IconA11y ORCID #}
                                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
                                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="">
                                                     <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
                                                 </a>
                                                 {% endif %}
                                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                                    {# IconA11y Email #}
                                                     <a itemprop="email" 
                                                         href="mailto:{{ author.email }}" 
                                                         >
@@ -424,7 +409,6 @@
                                         </ul>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_2">
-                                                {# IconA11y Decorative #}
                                                 <i aria-hidden="true"  class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
