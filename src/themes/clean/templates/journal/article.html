@@ -48,9 +48,11 @@
                                                                                             <a class="profilelink"
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
+                                    {# IconA11y ORCID #}
                                     {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
-                                    {% endif %}
+                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt=""></a>
+                                        <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                    </a>{% endif %}
                                     {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
@@ -59,7 +61,7 @@
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"> 
                                            {% trans 'Email' %} {{author.full_name}}.
-                                           {# IconA11y Decorative #}
+                                           {# IconA11y Email #}
                                            <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>
                                     {% endif %}
@@ -162,8 +164,12 @@
                     {% for author in article.frozen_authors.all %}
                         <li>
                             {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                            {# IconA11y ORCID #}
+                            {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                </a>
                             {% endif %}
                             {% if author.institution and author.institution != " " %}
                                 <span itemprop="worksFor" itemscope
