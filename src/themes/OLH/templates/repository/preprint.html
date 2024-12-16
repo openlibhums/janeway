@@ -113,7 +113,6 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            {# IconA11y Decorative #}
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
                                 <i aria-hidden="true"  class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
@@ -139,7 +138,6 @@
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
-                            {# IconA11y Semantic #}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
                                 <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                 <span class="sr-only">{% trans 'Download' %}</span>
@@ -159,7 +157,6 @@
                       </ul>
                     {% endif %}
                     <a href="{% url 'repository_list' %}">
-                        {# IconA11y Decorative #}
                         <i aria-hidden="true"  class="fa fa-arrow-left"></i> 
                         {% trans "All Preprints" %}
                     </a>

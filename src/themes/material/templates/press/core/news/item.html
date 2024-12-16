@@ -20,7 +20,6 @@
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}
                         <br />
-                        {# IconA11y Decorative #}
                         <h7>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
                         <p>{% for tag in news_item.tags.all %}
                             <a href="{% url 'core_news_list_tag' tag.text %}"

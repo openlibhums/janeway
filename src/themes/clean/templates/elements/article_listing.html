@@ -22,7 +22,6 @@
                 <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                     {% if article.is_remote %}
                     <h2 class="card-title article-title">
-                        {# IconA11y Semantic #}
                         <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
                         {{ article.title|safe }}&nbsp;
                         <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
@@ -37,14 +36,12 @@
                 </p>
                 <p class="card-text">
                     <span class="date">
-                        {# IconA11y Date #}
                         <i aria-hidden="true" class="fa fa-calendar"></i>
                         <time datetime="{{ article.date_published|date:"Y-m-d" }}">
                             <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
                         </time>
                     </span>
                     {% if article.issue %}
-                    {# IconA11y Decorative #}
                     <i aria-hidden="true" class="fa fa-book"></i>
                     <a href="{{ article.issue.url }}">
                         {{ article.issue_title }}
@@ -52,12 +49,10 @@
                     {% endif %}
                 </p>
                  {% if article.issues.count > 1 %}
-                  {# IconA11y Decorative #}
                   <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
                   {% for other in article.issues.all %}
                   {% if other != article.issue %}
                   <p>
-                    {# IconA11y Decorative #}
                     <i aria-hidden="true" class="fa fa-book"></i>
                     <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
