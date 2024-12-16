@@ -1,3 +1,7 @@
+:root {
+  --small-inline-margin: 0.625rem; /* as defined in app.css */
+}
+
 .small td {
     font-size: 0.8rem;
 }
@@ -951,4 +955,16 @@ ul.menu {
   color: var(--clr-black);
   border: 1px solid var(--clr-orcid);
   background-color: var(--clr-orcid-light);
+}
+
+.small-form {
+  display: grid;
+  grid-template-columns: min(calc(100vw - (2 * var(--small-inline-margin))), 24rem);
+  justify-content: center;
+}
+
+.large-form {
+  display: grid;
+  grid-template-columns: min(calc(100vw - (2 * var(--small-inline-margin))), 56rem);
+  justify-content: center;
 }
