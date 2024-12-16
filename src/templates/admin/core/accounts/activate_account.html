@@ -11,11 +11,13 @@
 {% endblock breadcrumbs %}
 
 {% block title-section %}
-  {% if account %}
-    {% trans "Activate Account" %}
-  {% else %}
-    {% trans "No account to activate" %}
-  {% endif %}
+  <div class="text-align-center">
+    {% if account %}
+      {% trans "Activate Account" %}
+    {% else %}
+      {% trans "No account to activate" %}
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block form_content %}

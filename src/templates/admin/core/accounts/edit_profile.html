@@ -14,128 +14,128 @@
 {% endblock breadcrumbs %}
 
 {% block title-section %}
-  {% trans "Edit Profile" %}
+  <div class="text-align-center">
+    {% trans "Edit Profile" %}
+  </div>
 {% endblock %}
 
 {% block body %}
-  <div class="grid">
+  <div class="large-form">
     {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
-    <div class="max-w-56">
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Change Your Email Address" %}</h2>
+      </div>
+      {% blocktrans %}
+        <p>If you want to change your email address you may do so below,
+        however, you will be logged out and your
+        account will be marked as inactive until you follow the
+        instructions in the verification email. <strong>Note: </strong>
+        Changing your email address will also change your username as these
+        are one and the same.</p>
+      {% endblocktrans %}
+      <p><strong>{% trans 'Current Email Address' %}:</strong>
+      {{ request.user.email }}</p>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="flex wrap column-gap-2">
+          <div>
+            <label for="email_address">
+              <strong>{% trans 'New Email Address' %}</strong>
+              <span aria-hidden="true">*</span>
+            </label>
+            <input type="email" name="email_address" required="true">
+          </div>
+        </div>
+        <button type="submit" name="email" class="button secondary">
+          {% trans "Update Email Address" %}
+        </button>
+      </form>
+      {% include "admin/elements/forms/denotes_required.html" %}
+    </section>
+    {% if request.journal and send_reader_notifications %}
       <section class="card padding-block-2 padding-inline-2">
         <div class="title-area">
-          <h2>{% trans "Change Your Email Address" %}</h2>
+          <h2>{% trans "Register for Article Notifications" %}</h2>
         </div>
-        {% blocktrans %}
-          <p>If you want to change your email address you may do so below,
-          however, you will be logged out and your
-          account will be marked as inactive until you follow the
-          instructions in the verification email. <strong>Note: </strong>
-          Changing your email address will also change your username as these
-          are one and the same.</p>
-        {% endblocktrans %}
-        <p><strong>{% trans 'Current Email Address' %}:</strong>
-        {{ request.user.email }}</p>
         <form method="POST">
+          <p>{% blocktrans %}
+            Use the button below to register to receive notifications of new articles
+            published in this journal.
+          {% endblocktrans %}</p>
           {% csrf_token %}
-          <div class="flex wrap column-gap-2">
-            <div>
-              <label for="email_address">
-                <strong>{% trans 'New Email Address' %}</strong>
-                <span aria-hidden="true">*</span>
-              </label>
-              <input type="email" name="email_address" required="true">
-            </div>
-          </div>
-          <button type="submit" name="email" class="button secondary">
-            {% trans "Update Email Address" %}
-          </button>
+          {% if user_is_reader %}
+            <button name="unsubscribe" class="button secondary">
+              {% trans "Unsubscribe from Article Notifications" %}
+            </button>
+          {% else %}
+            <button name="subscribe" class="button secondary">
+              {% trans "Subscribe to Article Notifications" %}
+            </button>
+          {% endif %}
         </form>
-        {% include "admin/elements/forms/denotes_required.html" %}
       </section>
-      {% if request.journal and send_reader_notifications %}
-        <section class="card padding-block-2 padding-inline-2">
-          <div class="title-area">
-            <h2>{% trans "Register for Article Notifications" %}</h2>
+    {% endif %}
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Update Password" %}</h2>
+      </div>
+      <p>{% blocktrans %}
+        You can update your password by entering your existing
+        password plus your new password.
+      {% endblocktrans %}</p>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="flex wrap column-gap-2">
+          <div>
+            <label for="current_password">
+              <strong>{% trans "Current Password" %}</strong>
+              <span aria-hidden="true">*</span>
+            </label>
+            <input type="password" name="current_password" required="true">
           </div>
-          <form method="POST">
-            <p>{% blocktrans %}
-              Use the button below to register to receive notifications of new articles
-              published in this journal.
-            {% endblocktrans %}</p>
-            {% csrf_token %}
-            {% if user_is_reader %}
-              <button name="unsubscribe" class="button secondary">
-                {% trans "Unsubscribe from Article Notifications" %}
-              </button>
-            {% else %}
-              <button name="subscribe" class="button secondary">
-                {% trans "Subscribe to Article Notifications" %}
-              </button>
-            {% endif %}
-          </form>
-        </section>
-      {% endif %}
-      <section class="card padding-block-2 padding-inline-2">
-        <div class="title-area">
-          <h2>{% trans "Update Password" %}</h2>
+          <div>
+            <label for="new_password_one">
+              <strong>{% trans "New Password" %}</strong>
+              <span aria-hidden="true">*</span>
+            </label>
+            <input type="password" name="new_password_one" required="true">
+          </div>
+          <div>
+            <label for="new_password_two">
+              <strong>{% trans "Enter Password Again" %}</strong>
+              <span aria-hidden="true">*</span>
+            </label>
+            <input type="password" name="new_password_two" required="true">
+          </div>
         </div>
-        <p>{% blocktrans %}
-          You can update your password by entering your existing
-          password plus your new password.
-        {% endblocktrans %}</p>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="flex wrap column-gap-2">
-            <div>
-              <label for="current_password">
-                <strong>{% trans "Current Password" %}</strong>
-                <span aria-hidden="true">*</span>
-              </label>
-              <input type="password" name="current_password" required="true">
-            </div>
-            <div>
-              <label for="new_password_one">
-                <strong>{% trans "New Password" %}</strong>
-                <span aria-hidden="true">*</span>
-              </label>
-              <input type="password" name="new_password_one" required="true">
-            </div>
-            <div>
-              <label for="new_password_two">
-                <strong>{% trans "Enter Password Again" %}</strong>
-                <span aria-hidden="true">*</span>
-              </label>
-              <input type="password" name="new_password_two" required="true">
-            </div>
-          </div>
+        <button
+          type="submit"
+          name="change_password"
+          class="button secondary">
+          {% trans "Update Password" %}
+        </button>
+      </form>
+      {% include "admin/elements/forms/denotes_required.html" %}
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans 'Profile Details' %}</h2>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include "admin/elements/accounts/user_form.html" %}
+        <div>
           <button
             type="submit"
-            name="change_password"
+            name="edit_profile"
             class="button secondary">
-            {% trans "Update Password" %}
+            {% trans "Save" %}
           </button>
-        </form>
-        {% include "admin/elements/forms/denotes_required.html" %}
-      </section>
-      <section class="card padding-block-2 padding-inline-2">
-        <div class="title-area">
-          <h2>{% trans 'Profile Details' %}</h2>
         </div>
-        <form method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
-          {% include "admin/elements/accounts/user_form.html" %}
-          <div>
-            <button
-              type="submit"
-              name="edit_profile"
-              class="button secondary">
-              {% trans "Save" %}
-            </button>
-          </div>
-          {% include "admin/elements/forms/denotes_required.html" %}
-        </form>
-      </section>
-    </div>
+        {% include "admin/elements/forms/denotes_required.html" %}
+      </form>
+    </section>
   </div>
 {% endblock body %}
 
