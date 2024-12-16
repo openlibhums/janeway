@@ -13,7 +13,7 @@
                             {% endif %}{% endfor %}</i></small>
                     </p>
                     <p>
-                        {# IconA11y Date #}
+                        {# IconA11y Date - untested #}
                         <small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
                             <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
                                 <span role="time"> {{ preprint.date_published|date:"Y-m-d" }}</span>

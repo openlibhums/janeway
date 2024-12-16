@@ -28,10 +28,10 @@
                         <span itemprop="name">({{ author.institution }})</span>
                     </span>
                 {% endif %}
-                {# IconA11y Semantic #}
+                {# IconA11y Semantic - untested #}
                 <a itemprop="email" href="mailto:{{ author.email }}">
                     <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                    <span class="sr-only">Email {{ author.full_name }} </span>
+                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}. </span>
                 </a>
             </span>
         </span>
