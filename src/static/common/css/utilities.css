@@ -122,3 +122,8 @@
 .fs-6 {
   line-height: 1.1;
 }
+
+/* Inline text alignment */
+.text-align-center {
+  text-align: center;
+}

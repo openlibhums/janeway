@@ -14,8 +14,8 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
-  <div class="grid">
-    <div class="padding-block-1 max-w-56">
+  <div class="large-form">
+    <div class="padding-block-1">
       <form method="POST">
         {% csrf_token %}
         {% include "admin/elements/forms/messages_in_callout.html" %}
