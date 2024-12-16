@@ -58,7 +58,7 @@
                                     {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"> 
-                                           {% trans 'Contact by email' %}
+                                           {% trans 'Email' %} {{author.full_name}}.
                                            {# IconA11y Decorative #}
                                            <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>

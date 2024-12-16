@@ -186,7 +186,7 @@
                                 <li>
                                     <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
                                         {# IconA11y Semantic #}
-                                        <i class="fa fa-download">&nbsp;</i>
+                                        <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                         <span class="sr-only">{% trans 'Download' %}</span>
                                         Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
                                     </a>

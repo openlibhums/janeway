@@ -36,7 +36,7 @@
                             {# IconA11y Semantic #}
                             <a itemprop="email" href="mailto:{{ author.email }}" >
                                 <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
-                                <span class="sr-only">{% trans 'Email author' %}.</span>
+                                <span class="sr-only">{% trans 'Email ' %} {{ author.full_name }}.</span>
                             </a>
                         {% endif %}
                         {% if not forloop.last %}, {% endif %}
@@ -91,7 +91,7 @@
                                                 <a itemprop="email" href="mailto:{{ author.email }}">
                                                     {# IconA11y Semantic #}
                                                     <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
-                                                    <span class="sr-only">{% trans 'Email author' %}.</span>
+                                                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                                 </a>
                                             {% endif %}</span></span>
                                     {% endfor %}
@@ -140,8 +140,8 @@
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
                                                 {# IconA11y Semantic #}
-                                                <i aria-hidden="true" class="fa fa-envelope"></i>
-                                                <span class="sr-only">{% trans 'Email author' %}</span>
+                                                <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                                <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                             </a>
                                         </li>
                                     {% endif %}
@@ -193,7 +193,7 @@
                                     href="mailto:{{ author.email }}" 
                                 >
                                     <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                                    <span class="sr-only">{% trans 'Email author' %}</span>
+                                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                 </a>
                             {% endif %}
                         </li>
@@ -358,7 +358,7 @@
                                                         href="mailto:{{ author.email }}" 
                                                         >
                                                         <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
-                                                        <span class="sr-only">{% trans 'Email author' %}</span>
+                                                        <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                                     </a>
                                                 {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
