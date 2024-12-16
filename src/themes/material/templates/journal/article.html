@@ -247,14 +247,22 @@
                     {% for author in article.frozen_authors.all %}
                             {% if not forloop.first %}<br/> {% endif %}
                             {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}"
-                                class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
+                            {# IconA11y ORCID #}
+                            {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}"
+                                    class=""
+                                    >
+                                <img src="{% static 'common/img/icons/orcid.png' %}" 
+                                    alt="">
+                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                </a>
+                            {% endif %}
                             {% if author.institution  and author.institution != " " %}
                                 <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity"></span>
                                 <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Semantic #}
+                                {# IconA11y Email #}
                                 <a itemprop="email" href="mailto:{{ author.email }}">
                                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                    <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
