@@ -160,7 +160,6 @@
                                     <h5>
                                         {{ article.metrics.views }}
                                     </h5>
-                                    {# IconA11y Decorative #}
                                     <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
                                 {% if galleys %}
@@ -168,7 +167,6 @@
                                         <h5>
                                             {{ article.metrics.downloads }}
                                         </h5>
-                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
                                     </div>
                                 {% endif %}
@@ -177,7 +175,6 @@
                                         <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
-                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
@@ -186,7 +183,6 @@
                                         <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
-                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
@@ -195,7 +191,6 @@
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
-                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
@@ -205,7 +200,6 @@
                                         <h5>
                                             {{ article.citation_count }}
                                         </h5>
-                                        {# IconA11y Decorative #}
                                         <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
@@ -247,7 +241,6 @@
                     {% for author in article.frozen_authors.all %}
                             {% if not forloop.first %}<br/> {% endif %}
                             {{ author.full_name }}
-                            {# IconA11y ORCID #}
                             {% if author.orcid %}
                                 <a href="https://orcid.org/{{ author.orcid }}"
                                     class=""
@@ -262,7 +255,6 @@
                                 <span itemprop="name">({{ author.institution }})</span>
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                {# IconA11y Email #}
                                 <a itemprop="email" href="mailto:{{ author.email }}">
                                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                    <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
@@ -395,7 +387,6 @@
                     </h4>
                     <p>{{ article.license.name }} 
                         {% if article.license.url %}
-                            {# IconA11y Decorative #}
                             <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
                                 <i aria-hidden="true" class="fa fa-external-link"></i>
                             </a>
@@ -433,7 +424,6 @@
                             {% trans "Peer Review" %}
                         </h4>
                         <p>
-                            {# IconA11y Decorative #}
                             <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
                             {% trans "This article has been peer reviewed." %}
                         </p>

@@ -28,12 +28,10 @@
                                     {% if not forloop.counter == article.authors.all|length|add:-1 %},
                                     {% endif %}{% endif %}{% endfor %}</p>
                             <p><span class="date">
-                                {# IconA11y Date #}
                                 <i aria-hidden="true" class="fa fa-calendar"></i> 
                                 <time datetime='{{ article.date_published|date:"Y-m-d" }}'>
                                     <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
                                 </time>
-                                {# IconA11y Decorative #}
                                 <i aria-hidden="true" class="fa fa-paperclip"></i> {{ article.get_subject_area }}
                         </div>
 

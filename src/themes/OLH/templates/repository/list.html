@@ -34,12 +34,10 @@
                                 <h2>{{ preprint.title|safe }}</h2>
                                 <p>{{ preprint.display_authors_compact }}</p>
                                 <p><span class="date">
-                                    {# IconA11y Date #}
                                     <i aria-hidden="true" class="fa fa-calendar"></i>
                                     <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
                                         <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
                                     </time>&nbsp;&nbsp;
-                                    {# IconA11y Decorative #}
                                     <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
                                 <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
                             </div>
@@ -69,7 +67,6 @@
                         <form method="POST" action="{% url 'repository_search' %}">
                             {% csrf_token %}
                             <div class="input-group">
-                                {# IconA11y Semantic #}
                                 <span class="input-group-label">
                                     <i aria-hidden="true" class="fa fa-search"></i>
                                     <span class="sr-only">{% trans 'Search' %}</span>

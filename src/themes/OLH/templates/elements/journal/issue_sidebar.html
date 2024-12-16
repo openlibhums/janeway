@@ -7,7 +7,6 @@
             <h3>{% trans 'Downloads' %}</h3>
             <p>
                 <a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}">
-                    {# IconA11y Decorative #}
                     <i aria-hidden="true"  class="fa fa-download">&nbsp</i>
                     {% trans "Download Issue" %} (PDF)
                 </a>
