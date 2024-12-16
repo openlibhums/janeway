@@ -48,7 +48,6 @@
                                                                                             <a class="profilelink"
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
-                                    {# IconA11y ORCID #}
                                     {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
                                         <img src="{% static 'common/img/icons/orcid.png' %}" alt=""></a>
                                         <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
@@ -61,7 +60,6 @@
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <a itemprop="email" href="mailto:{{ author.email }}"> 
                                            {% trans 'Email' %} {{author.full_name}}.
-                                           {# IconA11y Email #}
                                            <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>
                                     {% endif %}
@@ -119,7 +117,6 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        {# IconA11y Decorative #}
                                         <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
@@ -164,7 +161,6 @@
                     {% for author in article.frozen_authors.all %}
                         <li>
                             {{ author.full_name }}
-                            {# IconA11y ORCID #}
                             {% if author.orcid %}
                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
                                     <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
@@ -201,7 +197,6 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
-                                {# IconA11y Decorative #}
                                 <i aria-hidden="true" class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
@@ -253,7 +248,6 @@
                     {% endif %}
                     {% if article.peer_reviewed %}
                         <li>{% trans "Peer Reviewed" %}
-                            {# IconA11y Decorative #}
                             <i aria-hidden="true" class="fa fa-check-circle"></i>
                         </li>
                     {% endif %}
