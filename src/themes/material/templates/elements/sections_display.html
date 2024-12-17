@@ -1,25 +1,16 @@
+{# TableA11y superfluous paragraph tags, single row headings, but very ambiguous data, should be one row and one column headings #}
 <table class="striped responsive-table">
     <thead>
         <tr>
-            <th>
-                <p>{% trans "Section or article type" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Public Submissions" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Peer Reviewed" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Indexed" %}</p>
-            </th>
+            <th scope="col">{% trans "Section or article type" %}</th>
+            <th scope="col">{% trans "Public Submissions" %}</th>
+            <th scope="col">{% trans "Peer Reviewed" %}</th>
+            <th scope="col">{% trans "Indexed" %}</th>
     </thead>
     <tbody>
         {% for section in sections %}
         <tr>
-            <td>
-                <p>{{ section.name }}</p>
-            </td>
+            <th scope="row">{{ section.name }}</th>
             <td>
                 <strong>
                     {% if section.public_submissions %}
