@@ -1,56 +1,47 @@
 <h3>{% trans 'Sections' %}</h3>
+{# TableA11y superflous p tags, single row of headings, very ambiguous data -> single row and column headings and make icons screen-reader compatible #}
 <table>
     <thead>
         <tr>
-            <th>
-                <p>{% trans "Section or article type" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Public Submissions" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Peer Reviewed" %}</p>
-            </th>
-            <th>
-                <p>{% trans "Indexed" %}</p>
-            </th>
+            <th scope="col" >{% trans "Section or article type" %}</th>
+            <th scope="col" >{% trans "Public Submissions" %}</th>
+            <th scope="col" >{% trans "Peer Reviewed" %}</th>
+            <th scope="col" >{% trans "Indexed" %}</th>
     </thead>
     <tbody>
         {% for section in sections %}
         <tr>
-            <td>
-                <p>{{ section.name }}</p>
-            </td>
+            <th scope="row" >{{ section.name }}</th>
             <td>
                 <strong>
                     {% if section.public_submissions %}
-                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
-                        <span class="sr-only">{% trans 'yes' %}</span>
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'has public submissions' %}</span>
                     {% else %}
-                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
-                        <span class="sr-only">{% trans 'no' %}</span>
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'does not have public submissions' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
-                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
-                        <span class="sr-only">{% trans 'yes' %}</span>
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'is peer reviewed' %}</span>
                     {% else %}
-                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
-                        <span class="sr-only">{% trans 'no' %}</span>
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'is not peer reviewed' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.indexing %}
-                        <i aria-hidden="true" class="fa fa-check" title="{% trans 'yes' %}"></i>
-                        <span class="sr-only">{% trans 'yes' %}</span>
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'is indexed' %}</span>
                     {% else %}
-                        <i aria-hidden="true" class="fa fa-times" title="{% trans 'no' %}"></i>
-                        <span class="sr-only">{% trans 'no' %}</span>
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'is not indexed' %}</span>
                     {% endif %}
                 </strong>
             </td>

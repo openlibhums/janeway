@@ -303,52 +303,53 @@
                     {% if article.has_publication_details %}
                     <div class="section">
                         <h4>{% trans "Publication details" %}</h4>
+                        {# TableA11y header cells in first column, ambiguous data #}
                         <table class="sidebar-table">
                             {% if article.page_range %}
                             <tr>
-                                <th>{% trans "Pages" %}</th>
+                                <th scope="row" >{% trans "Pages" %}</th>
                                 <td>{{ article.page_range }}</td>
                             </tr>
                             {% endif %}
                             {% if article.article_number %}
                             <tr>
-                                <th>{% trans "Article No." %}</th>
+                                <th scope="row" >{% trans "Article No." %}</th>
                                 <td>{{ article.article_number }}</td>
                             </tr>
                             {% endif %}
                             {% if article.publisher_name %}
                             <tr>
-                                <th>{% trans "Publisher" %}</th>
+                                <th scope="row" >{% trans "Publisher" %}</th>
                                 <td>{{ article.publisher_name }}</td>
                             </tr>
                             {% endif %}
                             {% if article.publication_title %}
                             <tr>
-                                <th>{% trans "Publication" %}</th>
+                                <th scope="row" >{% trans "Publication" %}</th>
                                 <td>{{ article.publication_title }}</td>
                             </tr>
                             {% endif %}
                             {% if article.ISSN_override %}
                             <tr>
-                                <th>{% trans "Original ISSN" %}</th>
+                                <th scope="row" >{% trans "Original ISSN" %}</th>
                                 <td>{{ article.ISSN_override}}</td>
                             </tr>
                             {% endif %}
                             {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                                 <tr>
-                                    <th>{% trans "Submitted on" %}</th>
+                                    <th scope="row" >{% trans "Submitted on" %}</th>
                                     <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                                 </tr>
                             {% endif %}
                             {% if journal_settings.article.display_date_accepted and article.date_accepted %}
                                 <tr>
-                                    <th>{% trans "Accepted on" %}</th>
+                                    <th scope="row" >{% trans "Accepted on" %}</th>
                                     <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                                 </tr>
                             {% endif %}
                             {% if article.date_published or proofing %}
                             <tr>
-                                <th>{% trans "Published on" %}</th>
+                                <th scope="row" >{% trans "Published on" %}</th>
                                 <td id="article_date_published">
                                     {{ article.date_published|date:"Y-m-d" }}
                                 </td>
