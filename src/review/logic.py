@@ -483,7 +483,7 @@ def handle_decision_action(article, draft, request):
     }
 
     if draft.decision == ED.ACCEPT.value:
-        article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
+        article.accept_article(stage=submission_models.STAGE_ACCEPTED)
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_ACCEPTED,
             task_object=article,
