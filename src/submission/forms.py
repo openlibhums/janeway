@@ -172,11 +172,24 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 'abstract_required',
             )
 
+            enable_competing_interest_selections = article.journal.get_setting(
+                'general',
+                'enable_competing_interest_selections',
+            )
+
             if abstracts_required:
                 self.fields['abstract'].required = True
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
+
+            if enable_competing_interest_selections:
+                self.fields['competing_interest_accounts'] = forms.CharField(
+                    required=False,
+                    label=_('Conflict of Interest Accounts'),
+                    help_text='Search by email address or username',
+                    widget=forms.HiddenInput(),
+                )
 
             # Pop fields based on journal.submissionconfiguration
             if journal and self.pop_disabled_fields:
