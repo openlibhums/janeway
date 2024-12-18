@@ -324,6 +324,10 @@ def get_settings_to_edit(display_group, journal, user):
                     'general',
                     'hide_editors_from_authors', journal
                 ),
+            },
+            {
+                'name': 'enable_skip_send_email',
+                'object': setting_handler.get_setting('general', 'enable_skip_send_email', journal),
             }
         ]
         setting_group = 'general'
