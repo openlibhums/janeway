@@ -299,6 +299,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name=_("Signature"),
     )
+    competing_interest_domains = models.ManyToManyField('EmailDomainCI', null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(
         Country,
@@ -1899,6 +1900,16 @@ def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
         request=request,
         target=hijacked
     )
+
+
+class EmailDomainCI(models.Model):
+    name = models.CharField(max_length=250)
+
+    def __str__(self):
+        return u'%s' % self.name
+
+    def __repr__(self):
+        return u'%s' % self.name
 
 
 hijack_started.connect(log_hijack_started)
