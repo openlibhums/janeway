@@ -105,6 +105,13 @@
                     <i class="fa fa-file">&nbsp;</i> Published Articles
                 </a>
             </li>
+            {% if journal_settings.general.show_accepted_articles_archive %}
+            <li>
+                <a href="{% url 'manage_accepted_archive' %}">
+                    <i class="fa fa-archive">&nbsp;</i> Accepted Articles
+                </a>
+            </li>
+            {% endif %}
             <li>
                 <a href="{% url 'manage_rejected_archived_archive' %}">
                     <i class="fa fa-archive">&nbsp;</i> Archived Articles

@@ -686,6 +686,27 @@ class Journal(AbstractSiteModel):
             '-date_declined'
         )
 
+    def accepted_articles(self):
+        return submission_models.Article.objects.filter(
+            journal=self,
+            stage=submission_models.STAGE_ACCEPTED,
+        ).annotate(
+            frozen_authors=ExpressionWrapper(
+                db_functions.GroupConcat(
+                    Concat(
+                        Coalesce(F('frozenauthor__first_name'), Value('')),
+                        Value(' '),
+                        Coalesce(F('frozenauthor__middle_name'), Value('')),
+                        Value(' '),
+                        Coalesce(F('frozenauthor__last_name'), Value(''))
+                    ),
+                ),
+                output_field=TextField()
+            )
+        ).order_by(
+            '-date_accepted'
+        )
+
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(
         Journal,

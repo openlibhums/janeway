@@ -1807,6 +1807,23 @@ def rejected_archived_article_archive(request):
         context,
     )
 
+@editor_user_required
+def accepted_article_archive(request):
+    """
+    Allows the editor to view information about an article that has been accepted already in peer review process.
+    :param request: request object
+    :return: contextualised django template
+    """
+    template = 'journal/manage/accepted_article_archive.html'
+    context = {
+        'accepted_articles': request.journal.accepted_articles(),
+    }
+
+    return render(
+        request,
+        template,
+        context,
+    )
 
 @editor_user_required
 def manage_archive_article(request, article_id):
