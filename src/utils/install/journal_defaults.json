@@ -5520,5 +5520,24 @@
     "value": {
         "default": "Typesetting Assignment Cancelled"
         }
-  }
+  },
+     {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Whether or not to use CRediT for this journal",
+            "is_translatable": false,
+            "name": "use_credit",
+            "pretty_name": "Enable CRediT",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+     }
 ]
