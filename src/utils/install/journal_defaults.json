@@ -5165,6 +5165,10 @@
         },
         "value": {
             "default": "on"
-        }
+        },
+         "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
