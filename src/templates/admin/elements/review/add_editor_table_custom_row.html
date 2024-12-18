@@ -1,9 +1,13 @@
-<tr>
+<tr {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}style="color: #b9b9b9;"{% endif %}>
     <td>
-        <input type="radio" name="editor" value="{{ editor.id }}"
-            {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
-            {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
-        >
+        {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}
+            <span style="border-bottom: none;" data-tooltip tabindex="2" class="top" title="Account with conflict of interests.">&#10148;</span>
+        {% else %}
+            <input type="radio" name="editor" value="{{ editor.id }}"
+                {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
+                {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
+            >
+        {% endif %}
     </td>
     <td>{{ editor.full_name }}</td>
     <td>{{ editor.email }}</td>

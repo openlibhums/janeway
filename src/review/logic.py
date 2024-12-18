@@ -67,6 +67,32 @@ def get_editors(article, candidate_queryset, exclude_pks):
     )
     order_by = []
 
+    if article.journal.get_setting('general', 'enable_competing_interest_selections'):
+        conflicting_accounts = core_models.Account.objects.filter(
+            articleaccountci__article=article
+        ).values('pk')
+
+        author_domains = set()
+        for author in article.authors.all():
+            author_domains.update(domain.name for domain in author.competing_interest_domains.all())
+
+        conflicting_domain_accounts = {
+            editor.pk 
+            for editor in editors 
+            for domain in author_domains 
+            if editor.email.endswith(f"@{domain}") or editor.email.endswith(f".{domain}")
+        }
+
+        editors = editors.annotate(
+            has_conflict=Case(
+                When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                When(pk__in=conflicting_domain_accounts, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        order_by.append('has_conflict')
+
     editors = editors.annotate(
         active_assignments_count=Subquery(
             active_assignments_count,
@@ -146,7 +172,36 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
-    ).annotate(
+    )
+    order_by = []
+
+    if article.journal.get_setting('general', 'enable_competing_interest_selections'):
+        conflicting_accounts = core_models.Account.objects.filter(
+            articleaccountci__article=article
+        ).values('pk')
+
+        author_domains = set()
+        for author in article.authors.all():
+            author_domains.update(domain.name for domain in author.competing_interest_domains.all())
+
+        conflicting_domain_accounts = [
+            reviewer.pk 
+            for reviewer in reviewers 
+            for domain in author_domains 
+            if reviewer.email.endswith(f"@{domain}") or reviewer.email.endswith(f".{domain}")
+        ]
+
+        reviewers = reviewers.annotate(
+            has_conflict=Case(
+                When(pk__in=Subquery(conflicting_accounts), then=Value(True)),
+                When(pk__in=conflicting_domain_accounts, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        order_by.append('has_conflict')
+
+    reviewers = reviewers.annotate(
         active_reviews_count=Subquery(
             active_reviews_count,
             output_field=IntegerField(),
@@ -159,7 +214,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
             default=False,
             output_field=BooleanField(),
         ),
+    ).annotate(
+        active_reviews_count=Coalesce(F('active_reviews_count'), Value(0)),
     )
+    order_by.append('active_reviews_count')
 
     if article.journal.get_setting('general', 'enable_suggested_reviewers'):
         article_keywords = [keyword.word for keyword in article.keywords.all()]
@@ -171,6 +229,8 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 output_field=BooleanField(),
             )
         )
+
+    reviewers = reviewers.order_by(*order_by)
 
     return reviewers
 

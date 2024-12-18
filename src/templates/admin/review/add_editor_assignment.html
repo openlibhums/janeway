@@ -38,6 +38,13 @@
                                 they will not receive an account creation 
                                 email).
                             {% endblocktrans %}
+                            {% if journal_settings.general.enable_competing_interest_selections %}
+                            <p>
+                                Editors who have conflicts of interest with the article 
+                                or their authors, will appear with the &#10148; symbol and 
+                                cannot be selected.
+                            </p>
+                            {% endif %}
                         </p>
                     </div>
 
