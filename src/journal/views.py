@@ -481,15 +481,21 @@ def article(request, identifier_type, identifier):
     credit_roles = {}
     show_credit = False
 
-    for frozen_author in article_object.frozen_authors():
-        credit_role_qs = submission_models.CreditRecord.objects.filter(
-            article=article_object, frozen_author=frozen_author
-        ).order_by("role")
+    use_credit = setting_handler.get_setting(
+        "general", "use_credit",
+        journal=request.journal
+    )
 
-        credit_roles[frozen_author] = credit_role_qs
+    if use_credit:
+        for frozen_author in article_object.frozen_authors():
+            credit_role_qs = submission_models.CreditRecord.objects.filter(
+                article=article_object, frozen_author=frozen_author
+            ).order_by("role")
 
-        if len(credit_role_qs) > 0:
-            show_credit = True
+            credit_roles[frozen_author] = credit_role_qs
+
+            if len(credit_role_qs) > 0:
+                show_credit = True
 
     template = 'journal/article.html'
     context = {
