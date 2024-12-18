@@ -13,7 +13,9 @@ $(document).ready(function() {
       {% if sort and order %}"order": [[ {{ sort }}, "{{ order }}" ]],{% endif %}
       {% if sort_list %}"order": [{{ sort_list }}],{% endif %}
       {% if disable_ordering %}"ordering": false,{% endif %}
-      {% if page_length %}"pageLength": {{ page_length }},{% endif %}
+      {% if journal_settings.styling.table_default_page_length %}"pageLength": {{ journal_settings.styling.table_default_page_length }},
+      {% else %}{% if page_length %}"pageLength": {{ page_length }},{% endif %}
+      {% endif %}
     });
   });
 });
