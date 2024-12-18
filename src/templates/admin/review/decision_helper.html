@@ -14,6 +14,19 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
+<div class="box" style="margin-bottom: 0;" >
+    <ul class="tabs" data-tabs id="round-tabs">
+        {% for round in review_rounds %}
+            <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
+                    href="#tab{{ round.round_number }}"
+                    aria-selected="true">Round {{ round.round_number }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="tabs-content" data-tabs-content="round-tabs" style="background: none;">
+    {% for round in review_rounds %}
+    <div class="tabs-panel{% if forloop.first %} is-active{% endif %}" id="tab{{ round.round_number }}" style="padding:0;">
     <div class="box">
         <div class="row expanded">
             <div class="large-6 columns">
@@ -21,8 +34,10 @@
                 {% user_has_role request 'editor' as editor %}
                 <h2 style="color: #5bc0de;"><span class="fa fa-clipboard"></span> Reviewer Recommendations</h2>
                 <div class="bs-callout bs-callout-info">
-                    {% for decision, counter in decisions.items %}
+                    {% for decision, counter in round.decisions_count.items %}
                     <p><strong>{{ decision|capfirst }}</strong>: {{ counter }}</p>
+                    {% empty %}
+                    No Reviewer Decisions.
                     {% endfor %}
                 </div>
             </div>
@@ -80,9 +95,9 @@
         <div class="row expanded">
             <div class="large-6 columns">
                 <h2 class="success green"><i
-                        class="fa fa-check-square"></i> {{ complete_reviews.count }}
+                        class="fa fa-check-square"></i> {{ round.complete_reviews.count }}
                     completed reviews</h2>
-                {% for review in complete_reviews %}
+                {% for review in round.complete_reviews %}
                     <div class="bs-callout bs-callout-{% if review.for_author_consumption %}success{% else %}warning{% endif %}">
                         <h4>
                             #{{ review.pk }} {{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})
@@ -121,9 +136,9 @@
             </div>
             <div class="large-6 columns">
                 <h2 class="danger red"><i
-                        class="fa fa-exclamation-triangle"></i> {{ uncomplete_reviews.count }}
+                        class="fa fa-exclamation-triangle"></i> {{ round.uncomplete_reviews.count }}
                     uncompleted reviews </h2>
-                {% for review in uncomplete_reviews %}
+                {% for review in round.uncomplete_reviews %}
                     <div class="bs-callout {% if review.date_accepted %}bs-callout-warning{% else %}bs-callout-danger{% endif %}">
                         <h4>{{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})</h4>
                         <p>This review was assigned
@@ -140,6 +155,9 @@
             </div>
         </div>
     </div>
+    </div>
+{% endfor %}
+</div>
 
     {% for review in complete_reviews %}
     {% include "elements/review/decision_form_modal.html" with review=review %}
