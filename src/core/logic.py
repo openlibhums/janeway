@@ -340,6 +340,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'choices': review_models.review_visibilty()
             },
             {
+                'name': 'select_review_visibility',
+                'object': setting_handler.get_setting('general', 'select_review_visibility', journal),
+            },
+            {
                 'name': 'review_file_help',
                 'object': setting_handler.get_setting('general', 'review_file_help', journal),
             },
