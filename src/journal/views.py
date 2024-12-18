@@ -479,6 +479,25 @@ def article(request, identifier_type, identifier):
             file__mime_type='text/html',
         )
 
+    credit_roles = {}
+    show_credit = False
+
+    use_credit = setting_handler.get_setting(
+        "general", "use_credit",
+        journal=request.journal
+    )
+
+    if use_credit:
+        for frozen_author in article_object.frozen_authors():
+            credit_role_qs = submission_models.CreditRecord.objects.filter(
+                article=article_object, frozen_author=frozen_author
+            ).order_by("role")
+
+            credit_roles[frozen_author] = credit_role_qs
+
+            if len(credit_role_qs) > 0:
+                show_credit = True
+
     template = 'journal/article.html'
     context = {
         'article': article_object,
@@ -487,6 +506,8 @@ def article(request, identifier_type, identifier):
         'identifier': identifier,
         'article_content': content,
         'tables_in_galley': tables_in_galley,
+        'credit_roles': credit_roles,
+        'show_credit': show_credit,
     }
 
     return render(request, template, context)

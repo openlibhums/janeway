@@ -49,8 +49,8 @@
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
                                     {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                        <span style="background: url(https://orcid.org/sites/default/files/images/orcid_16x16.png) no-repeat;" class="orcid-img"></span>
-                                    </a>{% endif %}
+                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                                    {% endif %}
                                     {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
@@ -155,9 +155,9 @@
                     {% for author in article.frozen_authors.all %}
                         <li>
                             {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
-                                <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
-                            </a>{% endif %}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
+                                <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                            {% endif %}
                             {% if author.institution and author.institution != " " %}
                                 <span itemprop="worksFor" itemscope
                                         itemtype="http://schema.org/CollegeOrUniversity"><span
@@ -332,6 +332,23 @@
                         </ul>
                     {% else %}
                         <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                    {% endif %}
+
+                    {% show_credit %}
+                    <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
+                    <ul>
+                    {% for author, roles in credit_roles.items %}
+                        <li>
+                            {{ author.full_name }}:
+                            <span class="credit">
+                                {% for credit in roles %}
+                                    {{ credit|title }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                    </ul>
                     {% endif %}
                 {% endif %}
             </div>
