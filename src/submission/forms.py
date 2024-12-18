@@ -8,7 +8,7 @@ import re
 from django import forms
 from django.utils.translation import gettext, gettext_lazy as _
 
-from submission import models
+from submission import models, logic
 from core import models as core_models
 from identifiers import models as ident_models
 from review.logic import render_choices
@@ -69,6 +69,41 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
+
+        enable_competing_interest_selections = journal.get_setting(
+            'general',
+            'enable_competing_interest_selections',
+        )
+
+        if enable_competing_interest_selections:
+            self.fields['competing_interest_accounts'] = forms.CharField(
+                required=False,
+                label=_('Conflict of Interest Accounts'),
+                help_text='Search by email address or username',
+                widget=forms.HiddenInput(),
+            )
+
+    def save(self, commit=True, request=None):
+        article = super().save(commit=False)
+
+        if request:
+            article.owner = request.user
+            article.journal = request.journal
+            article.current_step = 1
+            article.article_agreement = logic.get_agreement_text(request.journal)
+
+        if commit:
+            article.save()
+
+            if article.journal.get_setting('general','enable_competing_interest_selections'):
+                competing_interest_account_ids = self.cleaned_data.get('competing_interest_accounts', '')
+                competing_interest_account_ids = competing_interest_account_ids.split(',') if competing_interest_account_ids else []
+                competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
+                article.competing_interest_accounts.set(competing_interest_accounts)
+
+            article.save()
+
+        return article
 
 
 class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):

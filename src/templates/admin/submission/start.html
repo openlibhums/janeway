@@ -10,7 +10,9 @@
 {% block title-sub %}
     {% trans "Please carefully read through the statements below before checking items" %}{% endblock %}
 {% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
+    {% include "elements/dual_listbox/dual_listbox_css.html" %}
+{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -70,6 +72,13 @@
                     <div class="title-area">
                         <h2>{% trans "Competing Interests" %}</h2>
                     </div>
+                    
+                    {% if journal_settings.general.enable_competing_interest_selections %}
+                        <p>{% trans "Search for users using the name. If an user is matched, they will be registered as a conflict of interest." %}</p>
+                        <p>{% trans "If you have any conflict of interests not already stated above, please state them in the text box." %}</p>
+                        {% include "elements/dual_listbox/dual_listbox.html" with list_of_members=journal.editorial_members %}
+                    {% endif %}
+            
                     <div class="content submission-content">
                         {{ form.competing_interests|foundation }}
                     </div>
@@ -82,3 +91,9 @@
     </article>
 
 {% endblock body %}
+
+{% block js %}
+{% if journal_settings.general.enable_competing_interest_selections %}
+    {% include "elements/dual_listbox/dual_listbox_js.html" %}
+{% endif %}
+{% endblock %}
