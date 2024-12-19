@@ -13,11 +13,9 @@
             <td>
                 <strong>
                     {% if section.public_submissions %}
-                        {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-check"></i>
                         <span class="sr-only">{% trans 'has public submissions' %}</span>
                     {% else %}
-                    {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-times"></i>
                         <span class="sr-only">{% trans 'does not have public submissions' %}</span>
                     {% endif %}
@@ -26,11 +24,9 @@
             <td>
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
-                        {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-check"></i>
                         <span class="sr-only">{% trans 'is peer reviewed' %}</span>
                     {% else %}
-                        {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-times"></i>
                         <span class="sr-only">{% trans 'is not peer reviewed' %}</span>
                     {% endif %}
@@ -39,11 +35,9 @@
             <td>
                 <strong>
                     {% if section.indexing %}
-                        {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-check"></i>
                         <span class="sr-only">{% trans 'is indexed' %}</span>
                     {% else %}
-                        {# IconA11y exMaterial Semantic #}
                         <i aria-hidden="true" class="fa fa-times"></i>
                         <span class="sr-only">{% trans 'is not indexed' %}</span>
                     {% endif %}
