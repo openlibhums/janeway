@@ -1,0 +1,60 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Articles in Typesetting{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "typesetting/breadcrumbs/typesetting_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Articles in Typesetting</h2>
+            {% if filter == 'me' %}<a class="button" href="{% url 'typesetting_articles' %}?filter=all">All Submissions</a>{% else %}<a class="button" href="{% url 'typesetting_articles' %}?filter=me">My Assignments</a>{% endif %}
+        </div>
+        <div class="content">
+            <table class="small scroll" id="unassigned">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th style="width: 25%">Title</th>
+                        <th>Submitted</th>
+                        <th>Main Author</th>
+                        <th>Editors</th>
+                        <th>Section</th>
+                        <th>Projected Issue</th>
+                        <th>Production Manager</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles_in_typesetting %}
+                    <tr>
+                        <td>{{ article.pk }}</td>
+                        <td>{{ article.safe_title }}</td>
+                        <td>{{ article.date_submitted }}</td>
+                        <td>{{ article.correspondence_author.full_name }}</td>
+                        <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                        <td>{{ article.section.name }}</td>
+                        <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
+                        <td>{% if article.typesettingclaim %}{{ article.typesettingclaim.editor.full_name }}{% else %}<a href="{% url 'typesetting_claim_article' article.pk 'claim' %}">Claim Article</a>{% endif %}</td>
+                        <td><a href="{% url 'typesetting_article' article.pk %}">View</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>No articles in this stage</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#unassigned" %}
+{% endblock js %}

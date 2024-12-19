@@ -161,6 +161,8 @@
             </div>
         {% endif %}
 
+        {% include "typesetting/elements/dashboard.html" %}
+
         {% for element in request.journal.workflow_plugin_elements %}
             {% if element.settings.dashboard_template %}
                 {% include element.settings.dashboard_template %}

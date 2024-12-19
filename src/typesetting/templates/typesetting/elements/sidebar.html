@@ -1,0 +1,62 @@
+<div class="box">
+    <div class="title-area">
+        <h2>Production Manager</h2>
+    </div>
+    <div class="content">
+        <p>
+            <small>
+                {% if article.typesettingclaim %}
+                    {{ article.typesettingclaim.editor.full_name }} is managing
+                    the typesetting stage for this article.
+                    {% if article.typesettingclaim.editor == request.user %}
+                        <a href="{% url 'typesetting_claim_article' article.pk 'unclaim' %}">Release Claim.</a>{% endif %}
+                {% else %}
+                    No one is managing typesetting for this article,
+                    <a href="{% url 'typesetting_claim_article' article.pk 'claim' %}">claim</a>.
+                {% endif %}
+            </small>
+        </p>
+    </div>
+    <div class="title-area">
+        <h2>Help</h2>
+    </div>
+    <div class="content">
+        <p>
+            <small>
+                To typeset an article for publication, complete the following steps:
+            </small>
+        </p>
+        <small>
+            <ol>
+                <li>Assign a typesetter.</li>
+                <li>Review the uploaded files.</li>
+                <li>If required, assign proofreader.</li>
+                <li>If required, ask the typesetter to make corrections.</li>
+                <li>Repeat steps 1-4 until no further changes are needed.</li>
+                <li>Once you’re happy with the final version, click ‘Typesetting complete’ to move the article to pre-publication.</li>
+            </ol>
+        </small>
+        <p>
+            <small>
+                As long as there are typeset files assigned, you can complete the
+                typesetting stage at any point.
+            </small>
+        </p>
+    </div>
+</div>
+<div class="box">
+    <div class="title-area">
+        <h2>Actions</h2>
+    </div>
+    <div class="content">
+        <ul class="menu vertical actions">
+            <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
+            </li>
+            <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
+            <li><a data-open="add_round"><i class="fa fa-plus-circle action-icon">&nbsp;</i> Start a new typesetting round</a></li>
+            <li><a data-open="complete" {% if not pending_tasks %}class="button success"{% endif %}><i class="fa fa-check action-icon">&nbsp;</i>Complete Typesetting</a></li>
+        </ul>
+    </div>
+</div>
+{% include "typesetting/elements/complete_typesetting.html" %}
+{% include "typesetting/elements/add_new_round.html" %}

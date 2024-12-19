@@ -1,0 +1,23 @@
+{% for proof in proofing_assignments %}
+    <div class="callout bs-callout-info">
+        <details>
+            <summary>
+                Comments from {{ proof.proofreader }} ({{ proof.proofreader.email }})
+            </summary>
+            <div style="padding-block: 1rem;">
+                {{ proof.notes|safe|default:"<p>No comments were provided.</p>"|safe }}
+                <p>Associated files:</p>
+                <ul>
+                    {% for file in proof.annotated_files.all %}
+                        <li>
+                             {{ file.original_filename }}
+                             (<a href="#file_{{ file.pk }}">file #{{ file.pk }}</a>)
+                        </li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </details>
+    </div>
+{% endfor %}

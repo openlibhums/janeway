@@ -1,0 +1,38 @@
+{% load bool_fa %}
+
+{% if round.typesettingassignment %}
+<div class="callout breakdown file">
+    <div class="callout-title">
+        {% if request.user.is_staff %}<small><a class="pull-right" href="{% url 'admin:typesetting_typesettingassignment_change' round.typesettingassignment.pk %}" target="_blank">Edit in Admin</a></small>{% endif %}
+        <h4>Typesetter: {{ round.typesettingassignment.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' round.typesettingassignment.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
+    </div>
+
+    <table class="table small">
+        <tr>
+            <th>ID</th>
+            <th>Created</th>
+            <th>Manager</th>
+            <th>Typesetter Notified</th>
+            <th>Due</th>
+            <th>Completed</th>
+            <th>Status</th>
+            {% if round.typesettingassignment.reviewed %}
+                <th>Manage</th>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>{{ round.typesettingassignment.pk }}</td>
+            <td>{{ round.typesettingassignment.assigned }}</td>
+            <td>{{ round.typesettingassignment.manager.full_name }}</td>
+            <td>{{ round.typesettingassignment.notified|bool_fa }} 
+                {% if not round.typesettingassignment.notified %}&nbsp;&nbsp;<a href="{% url 'typesetting_notify_typesetter' round.article.pk round.typesettingassignment.pk %}"><span class="fa fa-send"></span> Notify them</a>{% endif %}</td>
+            <td>{{ round.typesettingassignment.due|date:"Y-m-d" }}</td>
+            <td>{% if round.typesettingassignment.completed %}{{ round.typesettingassignment.completed }}{% else %}{{ round.typesettingassignment.completed|bool_fa }}{% endif %}</td>
+            <td>{{ round.typesettingassignment.status|capfirst }}</td>
+            {% if round.typesettingassignment.reviewed %}
+                <td><a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}">Manage</a></td>
+            {% endif %}
+        </tr>
+    </table>
+</div>
+{% endif %}

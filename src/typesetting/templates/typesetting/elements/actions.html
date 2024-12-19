@@ -1,0 +1,28 @@
+<div class="callout bs-callout-warning">
+
+    {% if not round.has_completed_proofing and round.typesettingassignment %}
+    <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
+    {% else %}
+        <span class="fa fa-exclamation-triangle"> {{ round.has_completed_proofing.count }} out of {{ round.galleyproofing_set.count }} proofing tasks completed.<br/><br/></span>
+        {% if not round.typesettingassignment %}
+            <br/><span class="fa fa-exclamation-triangle"> This round has not had a typesetter assigned.<br/><br/></span>
+        {% endif %}
+    {% endif %}
+
+    <div class="button-group">
+    {% if round.has_completed_proofing %}
+        <a data-open="add_round" class="alert button">Request Corrections</a>
+    {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
+        <a data-open="add_round" class="alert button">Request Corrections</a>
+    {% endif %}
+
+    {% if round.typesettingassignment and not round.typesettingassignment.reviewed %}
+    <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
+    {% elif not round.typesettingassignment %}
+    <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
+        Typesetter</a>
+    {% endif %}
+    <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="warning button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
+
+    </div>
+</div>
