@@ -15,10 +15,10 @@
                 <strong>
                     {% if section.public_submissions %}
                         <i aria-hidden="true" class="fa fa-check"></i>
-                        <span class="sr-only">{% trans 'has public submissions' %}</span>
+                        <span class="sr-only">{% trans 'Yes' %}</span>
                     {% else %}
                         <i aria-hidden="true" class="fa fa-times"></i>
-                        <span class="sr-only">{% trans 'does not have public submissions' %}</span>
+                        <span class="sr-only">{% trans 'No' %}</span>
                     {% endif %}
                 </strong>
             </td>
@@ -26,10 +26,10 @@
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
                         <i aria-hidden="true" class="fa fa-check"></i>
-                        <span class="sr-only">{% trans 'is peer reviewed' %}</span>
+                        <span class="sr-only">{% trans 'Yes' %}</span>
                     {% else %}
                         <i aria-hidden="true" class="fa fa-times"></i>
-                        <span class="sr-only">{% trans 'is not peer reviewed' %}</span>
+                        <span class="sr-only">{% trans 'No' %}</span>
                     {% endif %}
                 </strong>
             </td>
@@ -37,10 +37,10 @@
                 <strong>
                     {% if section.indexing %}
                         <i aria-hidden="true" class="fa fa-check"></i>
-                        <span class="sr-only">{% trans 'is indexed' %}</span>
+                        <span class="sr-only">{% trans 'Yes' %}</span>
                     {% else %}
                         <i aria-hidden="true" class="fa fa-times"></i>
-                        <span class="sr-only">{% trans 'is not indexed' %}</span>
+                        <span class="sr-only">{% trans 'No' %}</span>
                     {% endif %}
                 </strong>
             </td>
