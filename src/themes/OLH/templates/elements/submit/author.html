@@ -5,7 +5,7 @@
      data-animation-out="slide-out-down">
     <div class="card">
         <div class="card-divider">
-            <h4><i class="fa fa-user">&nbsp;</i>{% trans "Add New Author" %}</h4>
+            <h4><i aria-hidden="true"  class="fa fa-user">&nbsp;</i>{% trans "Add New Author" %}</h4>
         </div>
         <div class="card-section">
             <button class="close-button" data-close aria-label="Close reveal" type="button">
@@ -59,9 +59,9 @@
                         {{ form.email|foundation }}
                     </div>
                 </div>
-
-                <button class="success button pull-right" type="submit" name="add_author"><i class="fa fa-user">
-                    &nbsp;</i>{% trans "Add Author" %}
+                <button class="success button pull-right" type="submit" name="add_author">
+                    <i aria-hidden="true" class="fa fa-user"> &nbsp;</i>
+                    {% trans "Add Author" %}
                 </button>
             </form>
         </div>

@@ -29,7 +29,7 @@
                         href="#!"
                         data-target="account">
                         Account
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
@@ -52,7 +52,7 @@
                         href="#!"
                         data-target="dropdown1">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
@@ -64,7 +64,8 @@
             href="#!"
             data-target="nav-mobile"
             class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
     </div>
 </nav>

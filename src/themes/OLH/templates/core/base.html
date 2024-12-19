@@ -91,7 +91,8 @@
                     </div>
                     <div data-responsive-toggle="search-menu" data-hide-for="medium">
                         <a href="#" class="search-toggle" data-toggle>
-                            <i class="fa fa-search"></i>
+                            <i aria-hidden="true" class="fa fa-search"></i>
+                            <span class="sr-only">{% trans 'Search' %}</span>
                         </a>
                     </div>
                 </div>
@@ -150,7 +151,7 @@
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="input-group">
-                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
                                 <input type="hidden" name="sort" value="title">
 
