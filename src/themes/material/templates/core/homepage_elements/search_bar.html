@@ -8,7 +8,8 @@
         <form method="get" action="/search">
       {% endif %}
         <div class="input-field col l12">
-                <i class="material-icons prefix">search</i>
+                {# IconA11y exMaterial Decorative #}
+                <i aria-hidden="true" class="fa fa-search"></i>
                 <input id="article_search" type="text" class="validate" name="article_search">
                 <label for="article_search">Search</label>
         </div>

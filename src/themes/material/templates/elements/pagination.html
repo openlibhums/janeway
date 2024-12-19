@@ -14,7 +14,9 @@
                         {% with page_number=page_obj.previous_page_number %}
                             <a
                                 onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}')">
-                                <i class="material-icons">chevron_left</i>
+                                {# IconA11y exMaterial Semantic #}
+                                <i aria-hidden="true" class="fa fa-chevron-left" ></i>
+                                <span class="sr-only">{% trans 'Previous page.' %}</span>
                             </a>
                         {% endwith %}
                     </li>
@@ -40,7 +42,9 @@
                         {% with page_number=page_obj.next_page_number %}
                             <a
                                 onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}')">
-                                <i class="material-icons">chevron_right</i>
+                                {# IconA11y exMaterial Semantic #}
+                                <i aria-hidden="true" class="fa fa-chevron-right" ></i>
+                                <span class="sr-only">{% trans 'Next page.' %}</span>
                             </a>
                         {% endwith %}
                     </li>

@@ -13,27 +13,39 @@
             <td>
                 <strong>
                     {% if section.public_submissions %}
-                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                        {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'has public submissions' %}</span>
                     {% else %}
-                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                    {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'does not have public submissions' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.number_of_reviewers > 0 %}
-                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                        {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'is peer reviewed' %}</span>
                     {% else %}
-                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                        {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'is not peer reviewed' %}</span>
                     {% endif %}
                 </strong>
             </td>
             <td>
                 <strong>
                     {% if section.indexing %}
-                        <i class="material-icons" title="{% trans 'yes' %}">check</i>
+                        {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-check"></i>
+                        <span class="sr-only">{% trans 'is indexed' %}</span>
                     {% else %}
-                        <i class="material-icons" title="{% trans 'no' %}">close</i>
+                        {# IconA11y exMaterial Semantic #}
+                        <i aria-hidden="true" class="fa fa-times"></i>
+                        <span class="sr-only">{% trans 'is not indexed' %}</span>
                     {% endif %}
                 </strong>
             </td>
