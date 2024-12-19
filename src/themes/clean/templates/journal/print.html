@@ -29,8 +29,7 @@
                     </span>
                 {% endif %}
                 <a itemprop="email" href="mailto:{{ author.email }}">
-                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}. </span>
+                    {% trans 'Email' %} {{ author.full_name }}.
                 </a>
             </span>
         </span>
