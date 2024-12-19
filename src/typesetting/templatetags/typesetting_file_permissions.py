@@ -1,6 +1,6 @@
 from django import template
 
-from plugins.typesetting import security
+from typesetting import security
 
 register = template.Library()
 

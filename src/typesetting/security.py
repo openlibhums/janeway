@@ -4,7 +4,7 @@ from django.shortcuts import reverse, redirect, get_object_or_404, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
-from plugins.typesetting import models, plugin_settings
+from typesetting import models, plugin_settings
 from security.decorators import base_check, deny_access
 from submission import models as submission_models
 from core import models as core_models

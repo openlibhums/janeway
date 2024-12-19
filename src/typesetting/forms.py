@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core import models as core_models, forms as core_forms
 from core.model_utils import JanewayBleachFormField
-from plugins.typesetting import models
+from typesetting import models
 from utils.forms import HTMLDateInput
 
 

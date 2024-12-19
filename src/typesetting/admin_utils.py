@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck, University of London"
 
 from django.contrib import admin
-from plugins.typesetting import models as typesetting_models
+from typesetting import models as typesetting_models
 
 
 class TypesettingClaimInline(admin.TabularInline):

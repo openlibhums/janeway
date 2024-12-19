@@ -1,4 +1,4 @@
-from plugins.typesetting import plugin_settings
+from typesetting import plugin_settings
 from events import logic as events_logic
 
 
