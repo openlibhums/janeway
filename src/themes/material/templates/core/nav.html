@@ -50,9 +50,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}">
                             {{ item.link_name }}
-                            <i class="material-icons right">
-                                arrow_drop_down
-                            </i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% elif not item.for_footer %}
@@ -61,7 +59,7 @@
             {% endfor %}
 
             {% if request.journal.nav_review %}
-                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
+                <li><a href="{% url 'become_reviewer' %}"><i aria-hidden="true" class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
             {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
@@ -71,7 +69,7 @@
                         href="#!"
                         data-target="account">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
@@ -111,7 +109,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}-mobile">
                             {{ item.link_name }}
-                            <i class="material-icons right">arrow_drop_down</i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% else %}
@@ -126,7 +124,7 @@
                         href="#!"
                         data-target="dropdown1">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
@@ -138,7 +136,8 @@
             href="#!"
             data-target="nav-mobile"
             class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
     </div>
 </nav>
