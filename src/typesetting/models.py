@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 from core.model_utils import JanewayBleachField
-from plugins.typesetting import plugin_settings
+from typesetting import plugin_settings
 from utils import models as utils_models
 from utils import notify_helpers
 from events import logic as events_logic

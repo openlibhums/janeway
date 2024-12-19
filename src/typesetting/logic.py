@@ -17,8 +17,8 @@ from identifiers.models import DOI_RE
 from production import logic
 from utils import setting_handler, render_template
 
-from plugins.typesetting import models, plugin_settings
-from plugins.typesetting.notifications import notify
+from typesetting import models, plugin_settings
+from typesetting.notifications import notify
 
 
 def production_ready_files(article, file_objects=False):

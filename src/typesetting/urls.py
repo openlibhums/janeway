@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from plugins.typesetting import views
+from typesetting import views
 
 urlpatterns = [
     re_path(r'^manager/$',

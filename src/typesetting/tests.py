@@ -15,7 +15,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import reverse
 from django.conf import settings
 
-from plugins.typesetting import plugin_settings, models, security
+from typesetting import plugin_settings, models, security
 from submission import models as submission_models
 from utils import setting_handler
 from utils.shared import clear_cache

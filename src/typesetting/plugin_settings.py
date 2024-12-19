@@ -69,7 +69,7 @@ def hook_registry():
 
 def register_for_events():
     # Plugin modules can't be imported until plugin is loaded
-    from plugins.typesetting.notifications import emails
+    from typesetting.notifications import emails
 
     events_logic.Events.register_for_event(
         ON_TYPESETTING_ASSIGN_NOTIFICATION,

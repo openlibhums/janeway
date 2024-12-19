@@ -1,6 +1,6 @@
 from django import template
 
-from plugins.typesetting import models, plugin_settings
+from typesetting import models, plugin_settings
 from submission import models as submission_models
 
 register = template.Library()

@@ -1,6 +1,6 @@
 from django.template.loader import render_to_string
 
-from plugins.typesetting import models
+from typesetting import models
 
 
 def author_tasks(context):

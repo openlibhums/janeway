@@ -6,8 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
 
-from plugins.typesetting import admin_utils as typesetting_admin_utils
-from plugins.typesetting import models
+from typesetting import admin_utils as typesetting_admin_utils
+from typesetting import models
 from utils import admin_utils as utils_admin_utils
 
 

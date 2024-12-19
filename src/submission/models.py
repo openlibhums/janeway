@@ -241,6 +241,7 @@ STAGE_EDITOR_COPYEDITING = 'Editor Copyediting'
 STAGE_AUTHOR_COPYEDITING = 'Author Copyediting'
 STAGE_FINAL_COPYEDITING = 'Final Copyediting'
 STAGE_TYPESETTING = 'Typesetting'
+STAGE_TYPESETTING_PLUGIN = 'typesetting_plugin'
 STAGE_PROOFING = 'Proofing'
 STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
@@ -302,6 +303,7 @@ STAGE_CHOICES = [
     (STAGE_AUTHOR_COPYEDITING, 'Author Copyediting'),
     (STAGE_FINAL_COPYEDITING, 'Final Copyediting'),
     (STAGE_TYPESETTING, 'Typesetting'),
+    (STAGE_TYPESETTING_PLUGIN, 'typesetting_plugin'),
     (STAGE_PROOFING, 'Proofing'),
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
