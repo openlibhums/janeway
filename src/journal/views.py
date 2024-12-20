@@ -39,7 +39,7 @@ from core import (
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_best_galley, get_galley_content
+from journal.logic import get_best_galley
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -61,7 +61,7 @@ from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
 from events import logic as event_logic
-from repository import models as repo_models
+from typesetting import models as typesetting_models
 
 logger = get_logger(__name__)
 
@@ -2517,46 +2517,37 @@ def document_management(request, article_id):
             )
 
         if 'proofing' in request.POST:
-            from core import files as core_files
             file = request.FILES.get('proofing-file')
-            new_file = core_files.save_file_to_article(
+            new_file = files.save_file_to_article(
                 file,
                 document_article,
                 request.user,
                 label=label,
             )
-            try:
-                typesetting_models = import_module('plugins.typesetting.models')
-                rounds = typesetting_models.TypesettingRound.objects.filter(
+            rounds = typesetting_models.TypesettingRound.objects.filter(
+                article=document_article,
+            )
+            if rounds:
+                current_round = rounds.first()
+            else:
+                current_round = typesetting_models.TypesettingRound.objects.create(
                     article=document_article,
                 )
-                if rounds:
-                    current_round = rounds.first()
-                else:
-                    current_round = typesetting_models.TypesettingRound.objects.create(
-                        article=document_article,
-                    )
-                request.user.add_account_role('proofreader', request.journal)
-                proofing = typesetting_models.GalleyProofing.objects.create(
-                    round=current_round,
-                    manager=request.user,
-                    proofreader=request.user,
-                    due=timezone.now(),
-                    accepted=timezone.now(),
-                    completed=timezone.now(),
-                )
-                proofing.annotated_files.add(new_file)
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _('Proofing file uploaded.'),
-                )
-            except ModuleNotFoundError:
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _('Saved file.'),
-                )
+            request.user.add_account_role('proofreader', request.journal)
+            proofing = typesetting_models.GalleyProofing.objects.create(
+                round=current_round,
+                manager=request.user,
+                proofreader=request.user,
+                due=timezone.now(),
+                accepted=timezone.now(),
+                completed=timezone.now(),
+            )
+            proofing.annotated_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Proofing file uploaded.'),
+            )
 
         if 'supp' in request.POST:
             from production import logic as prod_logic
