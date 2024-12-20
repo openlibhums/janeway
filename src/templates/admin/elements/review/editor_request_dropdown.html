@@ -1,0 +1,26 @@
+<div class="button-group" style="margin-bottom: 0;">
+    <a class="button" data-toggle="review-dropdown-{{ review.pk }}" style="padding: 0.4rem"><i class="fa fa-cog"></i></a>
+</div>
+<div class="dropdown-pane {{ dropdown }}"
+     id="review-dropdown-{{ review.pk }}"
+     data-dropdown data-close-on-click="true"
+     data-alignment="bottom"
+     >
+    <ul class="menu vertical actions">
+        <li>
+            <a href="{% url 'edit_editor_assignment' assignment.pk %}"><i
+                    class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
+        </li>
+        {% if not assignment.is_complete %}
+            <li>
+                <a href="{% url 'remind_editor_assignment' assignment.pk %}">
+                    <i class="fa fa-clock-o action-icon"></i> Send Reminder
+                </a>
+            </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'withdraw_editor_assignment' assignment.id %}"><i
+                    class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a>
+        </li>
+    </ul>
+</div>

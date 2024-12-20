@@ -1,0 +1,33 @@
+<li class="list-group-item list-group-item-dashboard">
+    <div class="row expanded">
+        <div class="medium-9 columns">
+            <p class="submission">{{ assign_request.article.pk }} - {{ assign_request.article.title|truncatechars_html:200|safe }} ({{ assign_request.article.correspondence_author.last_name }})
+                <small>
+                </small>
+                <br/>
+                <small>
+                    A request for editor review has been made.<br/>
+                    Authors: {{ assign_request.article.author_list }}<br/>
+                    {% for editor in assign_request.article.editors %}{% if forloop.first %}Editors: {% endif %}{{ editor.editor.full_name }} (
+                        {% if editor.editor_type == 'section-editor' %}SE {% else %}E
+                        {% endif %}){% if not forloop.last %}, {% endif %}{% endfor %}
+                </small>
+            </p>
+        </div>
+        <div class="medium-3 columns">
+            <small>
+                <p>
+                    Section: {{ assign_request.article.section.name }}
+                    <br/>
+                    Stage: {{ assign_request.article.get_stage_display }}
+
+                </p>
+                <div class="button-group">
+                    <button class="button" data-open="request-{{ assign_request.pk }}">View Detail</button>
+                    <a class="button" href="{% url 'accept_editor_assignment' assign_request.pk %}">Accept Task</a>
+                    <a class="button secondary" href="{% url 'decline_editor_assignment' assign_request.pk %}">Decline Task</a>
+                </div>
+            </small>
+        </div>
+    </div>
+</li>
