@@ -1,4 +1,3 @@
-from typesetting import plugin_settings
 from events import logic as events_logic
 
 
@@ -11,7 +10,7 @@ def event_typesetting_assignment(request, assignment, message, skip):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_ASSIGN_NOTIFICATION,
+        events_logic.Events.ON_TYPESETTING_ASSIGN_NOTIFICATION,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -30,7 +29,7 @@ def event_decision_notification(assignment, request, note, decision):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_ASSIGN_DECISION,
+        events_logic.Events.ON_TYPESETTING_ASSIGN_DECISION,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -43,7 +42,7 @@ def event_typesetting_cancelled(assignment, request):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_ASSIGN_CANCELLED,
+        events_logic.Events.ON_TYPESETTING_ASSIGN_CANCELLED,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -56,7 +55,7 @@ def event_typesetting_deleted(assignment, request):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_ASSIGN_DELETED,
+        events_logic.Events.ON_TYPESETTING_ASSIGN_DELETED,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -69,7 +68,7 @@ def event_complete_notification(assignment, request):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_ASSIGN_COMPLETE,
+        events_logic.Events.ON_TYPESETTING_ASSIGN_COMPLETE,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -84,7 +83,7 @@ def galley_proofing_assignment(request, assignment, message, skip):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_PROOFREADER_ASSIGN_NOTIFICATION,
+        events_logic.Events.ON_PROOFREADER_ASSIGN_NOTIFICATION,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -98,7 +97,7 @@ def galley_proofing_cancel(request, assignment):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_PROOFREADER_ASSIGN_CANCELLED,
+        events_logic.Events.ON_PROOFREADER_ASSIGN_CANCELLED,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -112,7 +111,7 @@ def galley_proofing_reset(request, assignment):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_PROOFREADER_ASSIGN_RESET,
+        events_logic.Events.ON_PROOFREADER_ASSIGN_RESET,
         task_object=assignment.round.article,
         **kwargs,
     )
@@ -126,7 +125,7 @@ def galley_proofing_complete(request, assignment):
     }
 
     events_logic.Events.raise_event(
-        plugin_settings.ON_PROOFREADER_ASSIGN_COMPLETE,
+        events_logic.Events.ON_PROOFREADER_ASSIGN_COMPLETE,
         task_object=assignment.round.article,
         **kwargs,
     )
