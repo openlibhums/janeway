@@ -1,0 +1,25 @@
+{% load static %}
+{% load render_string %}
+<table class="scroll small">
+    <tr style="text-align: left">
+        <th>ID</th>
+        <th width="25%">Label</th>
+        <th>DOI</th>
+        <th>Download</th>
+    </tr>
+    {% for supp_file in supplementary_files %}
+        <tr>
+            <td>{{ supp_file.pk }}</td>
+            <td>{{ supp_file.label|truncatechars:40 }}</td>
+            <td>{{ supp_file.doi }}</td>
+            <td>
+                <a href="{% url 'typesetting_typesetter_download_file' assignment.pk supp_file.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+            </td>
+        {% empty %}
+        <tr>
+            <td colspan="10">No supplementary files have been shared by the editor.</td>
+        </tr>
+    {% endfor %}
+</table>
+<br />

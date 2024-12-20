@@ -1,0 +1,183 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load static %}
+
+
+{% block title %}Proofing Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Reviewing Proofing Assignment #{{ assignment.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{{ assignment.proofreader.full_name }}'s Proofing Assignment</h2>
+                    <a class="button" href="{% url 'admin:typesetting_galleyproofing_change' assignment.pk %}" target="_blank">Edit in Admin</a>
+                </div>
+                <div class="content">
+                    <table class="table small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Created</th>
+                            <th>Manager</th>
+                            <th>Notified</th>
+                            <th>Due</th>
+                            <th>Accepted</th>
+                            <th>Completed</th>
+                        </tr>
+                        <tr>
+                            <td>{{ assignment.pk }}</td>
+                            <td>{{ assignment.assigned }}</td>
+                            <td>{{ assignment.manager.full_name }}</td>
+                            <td>{{ assignment.notified|bool_fa }}</td>
+                            <td>{{ assignment.due }}</td>
+                            <td>{% if assignment.accepted %}{{ assignment.accepted }}{% else %}
+                                {{ assignment.accepted|bool_fa }}{% endif %}</td>
+                            <td>{% if assignment.completed %}{{ assignment.completed }}{% else %}
+                                {{ assignment.completed|bool_fa }}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="7">Current Status</th>
+                        </tr>
+                        <tr>
+                            <td colspan="7">
+                                {{ assignment.friendly_status }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Manage Proofing Assignment</h2>
+                </div>
+                <div class="content">
+                    {% if assignment.status == 'assigned' %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% include "admin/elements/forms/errors.html" with form=form %}
+
+                        {{ form|foundation }}
+
+                        <button name="save" class="button">Save</button>
+                        {% else %}
+                        <p>
+                            This assignment has been accepted, completed or cancelled and cannot now be edited.
+                        </p>
+                        {% endif %}
+                    </form>
+                </div>
+                {% if not assignment.status == 'cancelled' and not assignment.completed %}
+                <div class="title-area">
+                    <h2>Cancel Assignment</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <p>
+                            You can cancel this assignment at any time. A note will be sent to the proofreader.
+                        </p>
+                        <button name="action" value="cancel" class="alert button"><span class="fa fa-times-circle"></span> Cancel</button>
+                    </form>
+                </div>
+                <div class="title-area">
+                    <h2>Complete Assignment</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <p>
+                            You can mark this task as completed on behalf of the proofreader.
+                            <strong>Note: the proofreader will no longer have access to the proofreading interface.</strong>
+                        </p>
+                        <button name="action" value="complete" class="success button"><span class="fa fa-check"></span> Complete</button>
+                    </form>
+                </div>
+                {% endif %}
+                {% if assignment.status == 'cancelled' or assignment.completed and not assignment.accepted %}
+                    <div class="title-area">
+                        <h2>Reset Assignment</h2>
+                    </div>
+                    <div class="content">
+                        <p>If this assignment has been accidentally declined or cancelled prematurely you can reset the
+                            assignment here.</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <p>
+                                You can cancel this assignment at any time. A note will be sent to the proofreader.
+                            </p>
+                            <button name="action" value="reset" class="warning button"><span class="fa fa-repeat"></span> Reset</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Results</h2>
+                </div>
+                <div class="content">
+                    <p>Once the assignment is completed, the proofreader's response will be available below for you to review.</p>
+                </div>
+                {% if assignment.status == 'completed' %}
+                    <div class="title-area">
+                        <h2>Typeset Files Proofed</h2>
+                    </div>
+                    <div class="content">
+                        <ul>
+                            {% for galley in assignment.proofed_files.all %}
+                                <li>{{ galley }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="title-area">
+                        <h2>Notes</h2>
+                    </div>
+                    <div class="content">
+                        {{ assignment.notes|safe|linebreaksbr }}
+                        <br /><br />
+                    </div>
+
+                    <div class="title-area">
+                        <h2>Files</h2>
+                    </div>
+                    <div class="content">
+                        <p>
+                            Files uploaded by the proofreader.
+                        </p>
+                        {% for file in assignment.annotated_files.all %}
+                            <li><a href="{% url 'article_file_download' 'id' article.pk file.pk %}">{{ file }}</a></li>
+                        {% endfor %}
+                    </div>
+                {% elif assignment.status == 'cancelled' %}
+                <p>
+                    This assignment was cancelled.
+                </p>
+                {% else %}
+                <p>
+                        This assignment has not been completed.
+                </p>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+{% include "elements/jqte.html" %}
+{% endblock js %}

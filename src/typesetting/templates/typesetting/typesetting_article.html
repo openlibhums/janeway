@@ -1,0 +1,125 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-9 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Typesetting Article #{{ article.pk }}</h2>
+            </div>
+            <div class="content">
+                <ul class="tabs" data-tabs id="round-tabs">
+                    {% for round in rounds %}
+                        <li class="tabs-title {% if forloop.first %} is-active{% endif %}">
+                            <a href="#tab{{ round.round_number }}" aria-selected="true">Round {{ round.round_number }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="tabs-content" data-tabs-content="round-tabs">
+                    {% for round in rounds %}
+                        <div class="tabs-panel{% if forloop.first %} is-active{% endif %}" id="tab{{ round.round_number }}">
+                            {% if not round.typesettingassignment and not round.galleyproofing_set.exists %}
+                                {% include "typesetting/elements/no_typesetter.html" %}
+                            {% else %}
+                                {% include "typesetting/elements/typesetter.html" %}
+                                {% include "typesetting/elements/proofing.html" %}
+                                {% if forloop.first %}{% include "typesetting/elements/actions.html" %}{% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Files for Typesetting</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>Listed below are all the files that may be needed
+                    in typesetting, including reference files like
+                    pre-existing galleys and proofing files.
+                    You can manage these files with Document
+                    Management in the Actions box.</small>
+                </p>
+                {% include "typesetting/elements/file_list.html" with files=files options=True %}
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Galleys</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>Any typeset files (a.k.a. galleys) that have been
+                    uploaded either by editors or typesetters are listed
+                    below. All files below will be downloadable by article
+                    readers, so ensure that only the final ready-to-publish
+                    files are included.</small>
+                </p>
+                {% include "typesetting/elements/galleys.html" %}
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Optional Files</h2>
+            </div>
+          <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true" data-deep-link="true" data-update-history="true" data-deep-link-smudge="true" id="optional-files">
+            <li class="accordion-item{% if article.supplementary_files.exists %} is-active{% endif %}" data-accordion-item>
+                <a href="#supp-files" class="accordion-title"><h4>Supplementary files</h4></a>
+                <div class="accordion-content" data-tab-content id="supp-files">
+                    <p>
+                        <small>Data files that should be made available to the reader as a download link. You can also register a DOI for these files if you have DOI registration enabled</small>
+                        <small>(HTML/XML figures are always available for download and don't need to be added as supplementary files)</small>
+                    </p>
+                    {% include "typesetting/elements/supplementary_files.html" %}
+                </div>
+            </li>
+            <li class="accordion-item{% if article.source_files.exists %} is-active{% endif %}" data-accordion-item>
+                <a href="#source-files" class="accordion-title"><h4>Source Files</h4></a>
+                <div class="accordion-content" data-tab-content id="source-files">
+                    <p><small>
+                        Source Files are intermediate files uploaded by the typesetter, that are used to generate the final Typeset files (e.g. Adobe In Design files used to generate the PDF).
+                        Uploading these files (where available) is important in case any changes need to be made to the article in the future.
+                    </small></p>
+                    {% include "typesetting/elements/typesetter/source_files.html" %}
+
+                </div>
+            </ul>
+        </div>
+
+    </div>
+    <div class="large-3 columns">
+        {% include "typesetting/elements/sidebar.html" %}
+    </div>
+
+    {% for file in files %}
+        {% include "typesetting/elements/transform_modal.html" with article=article file=file request=request %}
+    {% endfor %}
+    {% include "elements/production/source_files_upload.html" %}
+    {% include "elements/production/new_supp_file.html" %}
+    {% include "typesetting/elements/choose_supp_file.html" %}
+    {% include "typesetting/elements/new_production_file.html" %}
+    {% include "admin/elements/summary_modal.html" %}
+    {% for supp_file in article.supplementary_files.all %}
+        {% include "typesetting/elements/supp_file_doi.html" with supp_file=supp_file %}
+        {% include "typesetting/elements/supp_file_label.html" with supp_file=supp_file %}
+    {% endfor %}
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#file_list" %}
+{% endblock js %}

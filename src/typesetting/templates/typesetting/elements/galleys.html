@@ -1,0 +1,88 @@
+{% load files %}
+{% load securitytags %}
+{% load static %}
+{% load render_string %}
+{% load bool_fa %}
+
+<table class="scroll small">
+    <tr>
+        <th>ID</th>
+        <th>Label</th>
+        <th>Filename</th>
+        <th>Public</th>
+        <th>Modified</th>
+        <th>Edit</th>
+        <th>Download</th>
+        <th>History</th>
+        <th>Preview</th>
+        <th>Figures</th>
+        <th>Delete</th>
+        {% if request.user.is_admin %}
+            <th>Admin</th>
+        {% endif %}
+    </tr>
+    {% for galley in galleys %}
+        {% can_edit_file galley.file galley.article as user_can_edit_file %}
+        <tr>
+            <th>{{ galley.pk }}</th>
+            <td>{{ galley.label }}</td>
+            <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+            <td>{{ galley.public|bool_fa }}</td>
+            <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
+            <td>
+                <a href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_article' article.pk %}"
+                   class="fa fa-edit"></a></td>
+            <td>
+                <a href="{% url 'typesetting_download_file' article.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+            </td>
+            <td>
+                {% if user_can_edit_file %}<a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+                        class="fa fa-history">
+                    &nbsp;</i></a>{% endif %}
+            </td>
+            <td>
+                <a href="{% url 'editor_preview_galley' article.pk  galley.pk %}"
+                   target="_blank">
+                    <i class="fa fa-eye">&nbsp;</i>
+                </a>
+            </td>
+            <td>
+                {% if galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                    Missing Figures
+                {% else %}
+                    N/a
+                {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{% url 'typesetting_delete_galley' galley.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" name="delete" value="{{ galley.file.pk }}"><i
+                        onclick="return confirm('Are you sure you want to delete this galley?');"
+                            class="fa fa-trash">
+                        &nbsp;</i>
+                    </button>
+                </form>
+            </td>
+            {% if request.user.is_admin %}
+                <td><a target="_blank"
+                       href="{% url 'admin:core_galley_change' galley.pk %}"><span
+                        class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
+                </td>{% endif %}
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="10">No typeset files have been uploaded.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% if not disable_upload %}
+    <div class="button-group">
+        <a class="float-right button success" data-open="uploadbox">
+            <span class="fa fa-cloud-upload"></span>
+            Upload New Typeset File
+        </a>
+    </div>
+    {% include "typesetting/elements/new_galley.html" %}
+{% endif %}
