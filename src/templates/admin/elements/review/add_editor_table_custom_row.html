@@ -1,0 +1,15 @@
+<tr>
+    <td>
+        <input type="radio" name="editor" value="{{ editor.id }}"
+            {% if editor.id == form.cleaned_data.editor.pk %}checked=True{% endif %}
+            {% if journal_settings.general.enable_competing_interest_selections and editor.has_conflict %}disabled{% endif %}
+        >
+    </td>
+    <td>{{ editor.full_name }}</td>
+    <td>{{ editor.email }}</td>
+    <td>{{ editor_type_label }}</td>
+    <td>{{ editor.active_assignments_count|default_if_none:0 }}</td>
+    <td class="list-interests">
+        {% for interest in editor.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </td>
+</tr>

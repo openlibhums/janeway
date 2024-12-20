@@ -132,6 +132,44 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
         return potential_errors
 
 
+class EditorAssignmentForm(core_forms.ConfirmableIfErrorsForm):
+    editor = forms.ModelChoiceField(queryset=None)
+    date_due = forms.DateField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        self.article = kwargs.pop('article')
+        self.editors = kwargs.pop('editors')
+
+        super(EditorAssignmentForm, self).__init__(*args, **kwargs)
+
+        if self.editors:
+            self.fields['editor'].queryset = self.editors
+
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
+
+    def save(self, commit=True, request=None):
+        editor = self.cleaned_data['editor']
+
+        if request:
+            editor_assignment = models.EditorAssignment(
+                article=self.article,
+                editor=editor,
+            )
+
+            if editor_assignment.editor.is_editor(request):
+                editor_assignment.editor_type = 'editor'
+            elif editor_assignment.editor.is_section_editor(request):
+                editor_assignment.editor_type = 'section-editor'
+
+        if commit:
+            editor_assignment.save()
+
+        return editor_assignment
+
+
 class BulkReviewAssignmentForm(forms.ModelForm):
     template = forms.CharField(
         widget=TinyMCE,
