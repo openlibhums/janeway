@@ -10,6 +10,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no"/>
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
