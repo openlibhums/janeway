@@ -781,7 +781,12 @@ def edit_metadata(request, article_id):
 
                 if info_form.is_valid():
                     info_form.save(request=request)
-                    info_form.save_m2m()
+                    if article.journal.get_setting('general','enable_competing_interest_selections'):
+                        competing_interest_account_ids = info_form.cleaned_data.get('competing_interest_accounts', '')
+                        competing_interest_account_ids = competing_interest_account_ids.split(',') if competing_interest_account_ids else []
+                        competing_interest_accounts = core_models.Account.objects.filter(id__in=competing_interest_account_ids)
+                        article.competing_interest_accounts.set(competing_interest_accounts)
+                        article.save()
                     messages.add_message(
                         request,
                         messages.SUCCESS,
