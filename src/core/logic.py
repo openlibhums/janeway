@@ -364,6 +364,10 @@ def get_settings_to_edit(display_group, journal, user):
                 'object': setting_handler.get_setting('general', 'draft_decisions', journal),
             },
             {
+                'name': 'enable_study_topics',
+                'object': setting_handler.get_setting('general', 'enable_study_topics', journal),
+            },
+            {
                 'name': 'default_review_form',
                 'object': setting_handler.get_setting('general', 'default_review_form', journal),
                 'choices': review_form_choices
@@ -423,6 +427,10 @@ def get_settings_to_edit(display_group, journal, user):
             {
                 'name': 'display_completed_reviews_in_additional_rounds_text',
                 'object': setting_handler.get_setting('general', 'display_completed_reviews_in_additional_rounds_text', journal),
+            },
+            {
+                'name': 'enable_custom_editor_assignment',
+                'object': setting_handler.get_setting('general', 'enable_custom_editor_assignment', journal),
             },
         ]
         setting_group = 'general'

@@ -1,0 +1,12 @@
+{% load static %}
+<script lang="javascript">
+    function study_topic_checked() {
+        let isChecked = $('#studyTopicSwitch').is(':checked');
+        $(".list-interests").toggle(!isChecked);
+        $(".list-study-topics").toggle(isChecked);
+    };
+
+    $('#studyTopicSwitch').change(function () {
+        study_topic_checked();
+    });
+</script>

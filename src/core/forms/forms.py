@@ -3,10 +3,13 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import re
 import uuid
 import json
 
 from django import forms
+from django.db import transaction
+from django_select2.forms import Select2MultipleWidget
 from django.db.models import Q
 from django.forms.fields import Field
 from django.utils import timezone
@@ -235,6 +238,20 @@ class EditAccountForm(forms.ModelForm):
 
     interests = forms.CharField(required=False)
 
+    primary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Primary Research Topics')
+    )
+
+    secondary_study_topic = forms.ModelMultipleChoiceField(
+        queryset=models.Topics.objects.none(),
+        widget=Select2MultipleWidget,
+        required=False,
+        label=_('Secondary Research Topics')
+    )
+
     class Meta:
         model = models.Account
         exclude = ('email', 'username', 'activation_code', 'email_sent',
@@ -244,8 +261,39 @@ class EditAccountForm(forms.ModelForm):
         widgets = {
             'biography': TinyMCE(),
             'signature': TinyMCE(),
+            'study_topic': Select2MultipleWidget,
         }
 
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(EditAccountForm, self).__init__(*args, **kwargs)
+        if self.journal:
+            topics_queryset = models.Topics.objects.filter(
+                journal=self.journal,
+            ).order_by('group__pretty_name', 'pretty_name')
+
+            self.fields['primary_study_topic'].queryset = topics_queryset
+            self.fields['secondary_study_topic'].queryset = topics_queryset
+
+            if 'instance' in kwargs:
+                account = kwargs['instance']
+
+                self.fields['primary_study_topic'].initial = account.topics('PR')
+                self.fields['secondary_study_topic'].initial = account.topics('SE')
+
+            study_topic_choices = [
+                (
+                    group.pretty_name,
+                    [
+                        (topic.id, topic.pretty_name)
+                        for topic in models.Topics.objects.filter(group=group).order_by('pretty_name') 
+                    ]
+                )
+                for group in models.TopicGroup.objects.all()
+            ]
+            self.fields['primary_study_topic'].choices = study_topic_choices
+            self.fields['secondary_study_topic'].choices = study_topic_choices
+    
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
         user.clean()
@@ -263,6 +311,35 @@ class EditAccountForm(forms.ModelForm):
 
         if commit:
             user.save()
+
+            selected_primary_topic = set(self.cleaned_data['primary_study_topic'])
+            selected_secondary_topics = set(self.cleaned_data['secondary_study_topic'])
+
+            existing_topics = models.AccountTopic.objects.filter(account=user)
+
+            with transaction.atomic():
+
+                for topic in selected_secondary_topics:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.SECONDARY}
+                    )
+
+                for topic in selected_primary_topic:
+                    models.AccountTopic.objects.update_or_create(
+                        account=user,
+                        topic=topic,
+                        defaults={'topic_type': models.AccountTopic.PRIMARY}
+                    )
+
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.PRIMARY):
+                    if account_topic.topic not in selected_primary_topic:
+                        account_topic.delete()
+
+                for account_topic in existing_topics.filter(topic_type=models.AccountTopic.SECONDARY):
+                    if account_topic.topic not in selected_secondary_topics:
+                        account_topic.delete()
 
         return user
 
@@ -527,6 +604,58 @@ class SectionForm(JanewayTranslationModelForm):
             self.fields['section_editors'].required = False
             self.fields['editors'].queryset = request.journal.users_with_role('editor')
             self.fields['editors'].required = False
+
+
+class TopicForm(forms.ModelForm):
+    class Meta:
+        model = models.Topics
+        fields = ['pretty_name', 'description', 'group']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+            'group': 'Topic Group',
+        }
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(TopicForm, self).__init__(*args, **kwargs)
+        if request:
+            self.fields['group'].queryset = request.journal.topic_groups()
+            self.fields['group'].label_from_instance = lambda obj: "%s" % obj.pretty_name
+
+
+class TopicGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.TopicGroup
+        fields = ['pretty_name', 'description']
+        labels = {
+            'pretty_name': 'Name',
+            'description': 'Description',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TopicGroupForm, self).__init__(*args, **kwargs)
+
+    def formatted_name(self, pretty_name: str):
+        return re.sub(r'\s+', '_', re.sub(r'[()]', '', pretty_name)).lower()
+
+    def save(self, commit=True, request=None):
+        topic_group = super(TopicGroupForm, self).save(commit=False)
+        if request:
+            topic_group_pretty_name = topic_group.pretty_name
+            topic_group.journal = request.journal
+            topic_group.name = self.formatted_name(topic_group_pretty_name)
+        if commit:
+            topic_group.save()
+            default_topic_name = f'{topic_group_pretty_name} (others)'
+            models.Topics.objects.create(
+                pretty_name=default_topic_name,
+                name=self.formatted_name(default_topic_name),
+                journal=request.journal,
+                group=topic_group,
+                description='another topics'
+            )
+        return topic_group
 
 
 class QuickUserForm(forms.ModelForm):

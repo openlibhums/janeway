@@ -89,6 +89,29 @@
                             {{ info_form.primary_issue|foundation }}
                         </div>
                     </div>
+                    {% if journal_settings.general.enable_study_topics %}
+                    <div class="large-12 columns" style="padding: 0;">
+                        <div class="large-3 columns" style="margin-bottom: 16px;">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="id_topics">{% trans 'Primary Research Topic' %}</label>
+                                    {{ info_form.primary_study_topic }}
+                                    <p class="help-text">{{ info_form.primary_study_topic.help_text}}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="large-9 columns" style="margin-bottom: 16px;">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="id_topics">{% trans 'Secondary Research Topics' %}</label>
+                                    {{ info_form.secondary_study_topic }}
+                                </div>
+                                <p class="help-text" style="padding: 0 16px;">{{ info_form.secondary_study_topic.help_text}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <div class="row expanded">
                         <div class="large-6 columns">
@@ -302,7 +325,8 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>
-
+    {{ info_form.media.css }}
+    {{ info_form.media.js }}
     <script type="text/javascript">
         $(document).ready(function () {
             $("#id_keywords").tagit(

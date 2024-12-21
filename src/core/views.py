@@ -438,7 +438,7 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
-    form = forms.EditAccountForm(instance=user)
+    form = forms.EditAccountForm(instance=user, journal=request.journal)
     send_reader_notifications = False
     if request.journal:
         send_reader_notifications = setting_handler.get_setting(
@@ -519,7 +519,7 @@ def edit_profile(request):
             )
 
         elif 'edit_profile' in request.POST:
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+            form = forms.EditAccountForm(request.POST, request.FILES, instance=user, journal=request.journal)
 
             if form.is_valid():
                 form.save()
@@ -1209,7 +1209,7 @@ def add_user(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    form = forms.EditAccountForm()
+    form = forms.EditAccountForm(journal=request.journal)
     registration_form = forms.AdminUserForm(active='add', request=request)
     return_url = request.GET.get('return', None)
     role = request.GET.get('role', None)
@@ -1233,7 +1233,8 @@ def add_user(request):
             form = forms.EditAccountForm(
                 request.POST,
                 request.FILES,
-                instance=new_user
+                instance=new_user,
+                journal=request.journal,
             )
 
             if form.is_valid():
@@ -1252,7 +1253,7 @@ def add_user(request):
         else:
             # If the registration form is not valid,
             # we need to add post data to the Edit form for display.
-            form = forms.EditAccountForm(request.POST)
+            form = forms.EditAccountForm(request.POST, journal=request.journal)
 
     template = 'core/manager/users/edit.html'
     context = {
@@ -1272,11 +1273,11 @@ def user_edit(request, user_id):
     :return: HttpResponse object
     """
     user = models.Account.objects.get(pk=user_id)
-    form = forms.EditAccountForm(instance=user)
+    form = forms.EditAccountForm(instance=user, journal=request.journal)
     registration_form = forms.AdminUserForm(instance=user, request=request)
 
     if request.POST:
-        form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+        form = forms.EditAccountForm(request.POST, request.FILES, instance=user, journal=request.journal)
         registration_form = forms.AdminUserForm(request.POST, instance=user, request=request)
 
         if form.is_valid() and registration_form.is_valid():
@@ -2151,6 +2152,207 @@ def section_articles(request, section_id):
     template = 'core/manager/sections/section_articles.html'
     context = {
         'section': section,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def topic_list(request):
+    """
+    Displays a list of the journals topics.
+    :praram request: HttpRequest object
+    :return: HttpResponse
+    """
+    topic_objects = core_models.Topics.objects.filter(
+        journal=request.journal,
+    )
+    topic_group_objects = core_models.TopicGroup.objects.filter(
+        journal=request.journal,
+    )
+
+    group_filter = request.GET.get('group_filter')
+    if group_filter:
+        topic_objects = topic_objects.filter(group_id=group_filter)
+
+    if request.POST and 'delete' in request.POST:
+        topic_id = request.POST.get('delete')
+        topic_to_delete = get_object_or_404(core_models.Topics, pk=topic_id)
+
+        if topic_to_delete.article_count() or topic_to_delete.account_count():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a topic related to articles or accounts. Remove articles and accounts'
+                    ' from the topic if you want to delete it.'
+                ),
+            )
+        else:
+            topic_to_delete.delete()
+        return redirect(reverse('core_manager_topics'))
+
+    if request.POST and 'delete_group' in request.POST:
+        topic_group_id = request.POST.get('delete_group')
+        topic_group_to_delete = get_object_or_404(core_models.TopicGroup, pk=topic_group_id)
+
+        if topic_group_to_delete.topic_count():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a group related to existing topic. Remove the topics'
+                    ' from the group if you want to delete it.'
+                ),
+            )
+        else:
+            topic_group_to_delete.delete()
+        return redirect(reverse('core_manager_topics'))
+
+    template = 'core/manager/topics/topic_list.html'
+    context = {
+        'topic_objects': topic_objects,
+        'topic_group_objects': topic_group_objects,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def manage_topic(request, topic_id=None):
+    """
+    Displays a list of topics, allows them to be added, edited and deleted.
+    :param request: HttpRequest object
+    :param section_id: Section object PK, optional
+    :return: HttpResponse object
+    """
+    topic = get_object_or_404(core_models.Topics, pk=topic_id,
+                                journal=request.journal) if topic_id else None
+    topics = core_models.Topics.objects.filter(journal=request.journal)
+
+    if topic:
+        form = forms.TopicForm(instance=topic, request=request)
+    else:
+        form = forms.TopicForm(request=request)
+
+    if request.POST:
+
+        if topic:
+            form = forms.TopicForm(request.POST, instance=topic, request=request)
+        else:
+            form = forms.TopicForm(request.POST, request=request)
+
+        if form.is_valid():
+            form_topic = form.save(commit=False)
+            topic_exists = core_models.Topics.objects.filter(
+                journal=request.journal,
+                pretty_name=form_topic.pretty_name,
+                group=form_topic.group
+            )
+
+            if topic_exists:
+                messages.add_message(request, messages.ERROR,
+                            '{0} is already exists in this journal for {1} group.'.format(form_topic.pretty_name, form_topic.group.pretty_name))
+                return redirect(reverse('core_manager_topic_add'))
+
+            form_topic.journal = request.journal
+            form_topic.name = form_topic.pretty_name.lower().replace(" ", "_")
+            form_topic.save()
+            form.save_m2m()
+            messages.add_message(request, messages.SUCCESS,
+                    '{0} topic saved'.format(form_topic.pretty_name))
+
+        return redirect(reverse('core_manager_topic_add'))
+
+    template = 'core/manager/topics/manage_topic.html'
+    context = {
+        'topics': topics,
+        'topic': topic,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def manage_topic_group(request, topic_group_id=None):
+    """
+    Displays a list of topic groups, allows them to be added, edited and deleted.
+    :param request: HttpRequest object
+    :param section_id: Section object PK, optional
+    :return: HttpResponse object
+    """
+    topic_group = get_object_or_404(core_models.TopicGroup, pk=topic_group_id,
+                                journal=request.journal) if topic_group_id else None
+    topic_groups = core_models.TopicGroup.objects.filter(journal=request.journal)
+
+    if topic_group:
+        form = forms.TopicGroupForm(instance=topic_group)
+    else:
+        form = forms.TopicGroupForm()
+
+    if request.POST:
+        if topic_group:
+            form = forms.TopicGroupForm(request.POST, instance=topic_group)
+        else:
+            form = forms.TopicGroupForm(request.POST)
+
+        if form.is_valid():
+            form_topic_group = form.save(commit=False, request=request)
+            topic_group_exists = core_models.TopicGroup.objects.filter(
+                journal=request.journal,
+                pretty_name=form_topic_group.pretty_name,
+            )
+
+            if topic_group_exists:
+                messages.add_message(request, messages.ERROR,
+                            '{0} is already exists in this journal'.format(form_topic_group.pretty_name))
+                return redirect(reverse('core_manager_topic_group_add'))
+
+            form.save(request=request)
+            form.save_m2m()
+
+            messages.add_message(request, messages.SUCCESS,
+                    '{0} topic group saved'.format(form_topic_group.pretty_name))
+
+        return redirect(reverse('core_manager_topic_group_add'))
+
+    template = 'core/manager/topics/manage_topic.html'
+    context = {
+        'topics': topic_groups,
+        'topic': topic_group,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def topic_accounts(request, topic_id):
+    """
+    Displays a list of accounts in a given topic.
+    """
+    topic = get_object_or_404(
+        core_models.Topics,
+        pk=topic_id,
+        journal=request.journal,
+    )
+    template = 'core/manager/topics/topic_accounts.html'
+    context = {
+        'topic': topic,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def topic_articles(request, topic_id):
+    """
+    Displays a list of articles in a given section.
+    """
+    topic = get_object_or_404(
+        core_models.Topics,
+        pk=topic_id,
+        journal=request.journal,
+    )
+    template = 'core/manager/topics/topic_articles.html'
+    context = {
+        'topic': topic,
     }
     return render(request, template, context)
 

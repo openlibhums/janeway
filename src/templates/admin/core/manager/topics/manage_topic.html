@@ -1,0 +1,45 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Topics{% endblock title %}
+{% block title-section %}Topics{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_topics' %}">Topics</a></li>
+    <li>{% if topic %}{% trans 'Editing Topics' %}: {{ topic.name }}{% else %}{% trans 'Add a Topic' %}{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if topic %}{% trans 'Editing Topics' %}: {{ topic.name }}{% else %}{% trans 'Add a Topic' %}{% endif %}</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">{% if topic %}Edit{% else %}Add{% endif %} Topics</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this topic?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock js %}
