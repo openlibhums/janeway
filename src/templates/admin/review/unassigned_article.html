@@ -89,6 +89,30 @@
             </div>
         </div>
 
+        {% if request.journal.submissionconfiguration.competing_interests and journal_settings.general.enable_competing_interest_selections %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>Competing Interest Accounts</h2>
+                </div>
+                <div class="content">
+                    <table class="hover stack scroll" id="unassigned">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                        </tr>
+                        {% for account in article.competing_accounts %}
+                            <tr>
+                                <td>{{ account.full_name }}</td>
+                                <td>{{ account.email }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4">No CI</td></tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
@@ -210,6 +234,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
+                {% if journal_settings.general.enable_custom_editor_assignment %}
+                    <a href="{% url 'add_editor_assignment' article.id %}" class="button">Add Editor</a>
+                {% endif %}
             </div>
             <div class="content">
                 <table class="scroll small" id="unassigned">
