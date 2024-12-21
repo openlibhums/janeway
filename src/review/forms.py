@@ -82,6 +82,10 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
             create=True,
         ).processed_value
 
+        select_review_visibility = self.journal.get_setting(
+            'general','select_review_visibility'
+        )
+
         if self.journal:
             self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=self.journal, deleted=False)
 
@@ -105,6 +109,9 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
             # Form should not be changed after request has been accepted
             self.fields['form'].initial = self.instance.form
             self.fields['form'].disabled = True
+        
+        if not select_review_visibility:
+            self.fields['visibility'].disabled = True
 
     def save(self, commit=True):
         review_assignment = super().save(commit=False)
