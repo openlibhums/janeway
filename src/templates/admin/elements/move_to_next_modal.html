@@ -25,10 +25,10 @@
                 <input type="hidden" name="current_stage" value="{{ article.stage }}">
                 <div class="button-group expanded">
                     <button class="success button" type="submit">
-                        {% trans "Move to next stage" %}
+                        {% trans "Move to" %} {{ article.next_workflow_element|capfirst }}
                     </button>
                     <button class="alert button" data-close type="button">
-                        {% trans "Not right now" %}
+                        {% trans "Keep in" %} {{ article.current_workflow_element|capfirst }}
                     </button>
                 </div>
             </form>
