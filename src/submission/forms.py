@@ -391,7 +391,7 @@ class EditFrozenAuthor(forms.ModelForm):
                 account = core_models.Account.objects.get(
                     username=obj.frozen_email.lower())
                 obj.author = account
-                obj.frozen_email = None
+                obj.frozen_email = ""  # linked account, don't store this value
             except core_models.Account.DoesNotExist:
                 pass
             obj.save()
