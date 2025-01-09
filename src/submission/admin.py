@@ -25,11 +25,11 @@ class ArticleFundingAdmin(admin.ModelAdmin):
 
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
-                    'frozen_email', 'frozen_orcid', 'institution', '_journal')
+                    'frozen_email', 'frozen_orcid', '_journal')
     list_filter = ('article__journal',)
     search_fields = ('frozen_email', 'frozen_orcid',
                      'first_name', 'last_name',
-                     'institution', 'frozen_biography', )
+                     'frozen_biography', )
     raw_id_fields = ('article', 'author',)
 
 
