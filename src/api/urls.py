@@ -15,6 +15,8 @@ router.register(r'preprints', views.PreprintViewSet, 'preprint')
 router.register(r'licences', views.LicenceViewSet, 'licence')
 router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 router.register(r'accounts', views.AccountViewSet, 'accounts')
+router.register(r'versions', views.VersionViewSet, 'versions')
+router.register(r'plugins', views.PluginViewSet, 'plugins')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -18,6 +18,7 @@ from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
 from repository import models as repository_models
+from utils import models as utils_models
 
 
 @api_view(['GET'])
@@ -155,6 +156,34 @@ class PreprintViewSet(viewsets.ModelViewSet):
         return repository_models.Preprint.objects.filter(repository=self.request.repository,
                                                          date_published__lte=timezone.now(),
                                                          stage=repository_models.STAGE_PREPRINT_PUBLISHED)
+
+
+@permission_classes((api_permissions.IsEditor, ))
+class VersionViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint for Janeway version data.
+    """
+    serializer_class = serializers.VersionSerializer
+    http_method_names = ["get"]
+
+    def get_queryset(self):
+        return utils_models.Version.objects.all().order_by(
+            '-date'
+        )
+
+
+@permission_classes((api_permissions.IsEditor, ))
+class PluginViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint for Janeway plugin version data.
+    """
+    serializer_class = serializers.PluginSerializer
+    http_method_names = ["get"]
+
+    def get_queryset(self):
+        return utils_models.Plugin.objects.all().order_by(
+            'name',
+        )
 
 
 def oai(request):

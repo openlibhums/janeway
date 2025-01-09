@@ -4,6 +4,7 @@ from core import models as core_models
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+from utils import models as utils_models
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -129,6 +130,7 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
             'salutation', 'orcid', 'is_active',
         )
 
+
 class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -137,6 +139,7 @@ class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
             'pk', 'first_name', 'middle_name', 'last_name',
             'salutation', 'orcid',
         )
+
 
 class AccountRoleSerializer(serializers.ModelSerializer):
 
@@ -160,10 +163,12 @@ class AccountRoleSerializer(serializers.ModelSerializer):
 
         return data
 
+
 class RepositoryFieldAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = repository_models.RepositoryFieldAnswer
         fields = ['pk', 'answer']
+
 
 class PreprintSerializer(serializers.ModelSerializer):
 
@@ -197,3 +202,26 @@ class PreprintSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+
+
+class VersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = utils_models.Version
+        fields = (
+            'number',
+            'date',
+            'rollback',
+        )
+
+
+class PluginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = utils_models.Plugin
+        fields = (
+            'name',
+            'version',
+            'date_installed',
+            'display_name',
+            'press_wide',
+            'homepage_element',
+        )
