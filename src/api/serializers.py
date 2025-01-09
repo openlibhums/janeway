@@ -208,9 +208,9 @@ class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = utils_models.Version
         fields = (
-            'number',
-            'date',
-            'rollback',
+            "number",
+            "date",
+            "rollback",
         )
 
 
@@ -218,10 +218,10 @@ class PluginSerializer(serializers.ModelSerializer):
     class Meta:
         model = utils_models.Plugin
         fields = (
-            'name',
-            'version',
-            'date_installed',
-            'display_name',
-            'press_wide',
-            'homepage_element',
+            "name",
+            "version",
+            "date_installed",
+            "display_name",
+            "press_wide",
+            "homepage_element",
         )

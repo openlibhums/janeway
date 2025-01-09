@@ -168,7 +168,7 @@ class VersionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return utils_models.Version.objects.all().order_by(
-            '-date'
+            "-date",
         )
 
 
@@ -182,7 +182,7 @@ class PluginViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return utils_models.Plugin.objects.all().order_by(
-            'name',
+            "name",
         )
 
 
