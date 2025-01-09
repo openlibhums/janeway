@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
+from django.http import Http404
 
 from comms import models, forms
 from core import files, logic as core_logic, models as core_models
@@ -138,14 +139,18 @@ def serve_news_file(request, identifier_type, identifier, file_id):
     :param file_id: the file ID to serve
     :return: a streaming response of the requested file or 404
     """
+    try:
+        new_item = models.NewsItem.objects.get(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+            pk=identifier
+        )
 
-    new_item = models.NewsItem.objects.get(
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-        pk=identifier
-    )
-
-    return new_item.serve_news_file()
+        return new_item.serve_news_file()
+    except models.NewsItem.DoesNotExist:
+        raise Http404(
+            f'No news item with ID {identifier} was found.',
+        )
 
 
 def news_list(request, tag=None, presswide=False):
