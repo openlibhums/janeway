@@ -3,6 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from collections import defaultdict
+
+from attr.setters import frozen
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
@@ -10,6 +13,7 @@ import os
 from dateutil import parser as dateparser
 from itertools import chain
 
+from django.db.models import SET_NULL
 from django.urls import reverse
 from django.db import (
     connection,
@@ -52,6 +56,7 @@ from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
+from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.forms import plain_text_validator
@@ -75,6 +80,67 @@ def article_media_upload(instance, filename):
     path = "articles/{0}/".format(instance.pk)
     return os.path.join(path, filename)
 
+
+CREDIT_ROLES = {
+    "Conceptualization": (
+        "Conceptualization",
+        "https://credit.niso.org/contributor-roles/conceptualization/",
+    ),
+    "Data Curation": (
+        "Data Curation",
+        "https://credit.niso.org/contributor-roles/data-curation/",
+    ),
+    "Formal Analysis": (
+        "Formal Analysis",
+        "https://credit.niso.org/contributor-roles/formal-analysis/",
+    ),
+    "Funding Acquisition": (
+        "Funding Acquisition",
+        "https://credit.niso.org/contributor-roles/funding-acquisition/",
+    ),
+    "Investigation": (
+        "Investigation",
+        "https://credit.niso.org/contributor-roles/investigation/",
+    ),
+    "Methodology": (
+        "Methodology",
+        "https://credit.niso.org/contributor-roles/methodology/",
+    ),
+    "Project Administration": (
+        "Project Administration",
+        "https://credit.niso.org/contributor-roles/project-administration/",
+    ),
+    "Resources": (
+        "Resources",
+        "https://credit.niso.org/contributor-roles/resources/",
+    ),
+    "Software": (
+        "Software",
+        "https://credit.niso.org/contributor-roles/software/",
+    ),
+    "Supervision": (
+        "Supervision",
+        "https://credit.niso.org/contributor-roles/supervision/",
+    ),
+    "Validation": (
+        "Validation",
+        "https://credit.niso.org/contributor-roles/validation/",
+    ),
+    "Visualization": (
+        "Visualization",
+        "https://credit.niso.org/contributor-roles/visualization/",
+    ),
+    "Writing - Original Draft": (
+        "Writing - Original Draft",
+        "https://credit.niso.org/contributor-roles/writing-original-draft/",
+    ),
+    "Writing - Review & Editing": (
+        "Writing - Review & Editing",
+        "https://credit.niso.org/contributor-roles/writing-review-editing/",
+    ),
+}
+
+CREDIT_ROLE_CHOICES = [(key, values[0]) for key, values in CREDIT_ROLES.items()]
 
 SALUTATION_CHOICES = [
     ('', '---'),
@@ -834,6 +900,63 @@ class Article(AbstractLastModifiedModel):
 
     class Meta:
         ordering = ('-date_published', 'title')
+
+    # credits
+    def _credit_roles(self, frozen=False, repository=False, url=False):
+        records = CreditRecord.objects.filter(article=self).order_by('role')
+
+        credit_roles_return = defaultdict(list)
+
+        for record in records:
+            if frozen:
+                if url:
+                    credit_roles_return[record.frozen_author].append(
+                        (record, CREDIT_ROLES[record.role][1]))
+                else:
+                    credit_roles_return[record.frozen_author].append(record)
+            else:
+                if url:
+                    credit_roles_return[record.author].append(
+                        (record, CREDIT_ROLES[record.role][1]))
+                else:
+                    credit_roles_return[record.author].append(record)
+
+        credit_roles_return.default_factory = None
+        return credit_roles_return
+
+    @property
+    def credit_roles_frozen(self):
+        """
+        Returns a dictionary of frozen authors with their roles. The roles are
+        returned as a list of roles.
+        """
+        return self._credit_roles(frozen=True, repository=False, url=False)
+
+    @property
+    def credit_roles(self):
+        """
+        Returns a dictionary of authors with their roles. The roles are
+        returned as a list of roles.
+        """
+        return self._credit_roles(frozen=False, repository=False, url=False)
+
+    @property
+    def credit_roles_with_urls(self):
+        """
+        Returns a dictionary of authors with their roles. The roles are
+        returned as a tuple with the role name and the URL to NISO spec for
+        CRediT.
+        """
+        return self._credit_roles(frozen=False, repository=False, url=True)
+
+    @property
+    def credit_roles_frozen_with_urls(self):
+        """
+        Returns a dictionary of frozen authors with their roles. The roles are
+        returned as a tuple with the role name and the URL to NISO spec for
+        CRediT.
+        """
+        return self._credit_roles(frozen=True, repository=False, url=True)
 
     @property
     def safe_title(self):
@@ -1927,7 +2050,6 @@ class Article(AbstractLastModifiedModel):
         ):
             return True
 
-
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(
         'submission.Article',
@@ -2027,6 +2149,37 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     def __str__(self):
         return self.full_name()
+
+    def credits(self, article):
+        """
+        Returns all the credit records for this frozen author on a given article
+        """
+        return CreditRecord.objects.filter(article=article, frozen_author=self)
+
+    def add_credit(self, credit_role_text, article):
+        """
+        Adds a credit role to the article for this frozen author
+        """
+        record, _ = (
+            CreditRecord.objects.get_or_create(
+                article=article, frozen_author=self, role=credit_role_text)
+        )
+
+        return record
+
+    def remove_credit(self, credit_role_text, article):
+        """
+        Removes a credit role from the article for this frozen author
+        """
+        try:
+            record, _ = (
+                CreditRecord.objects.get(
+                    article=article, frozen_author=self, role=credit_role_text)
+            )
+
+            record.delete()
+        except CreditRecord.DoesNotExist:
+            pass
 
     def full_name(self):
         if self.is_corporate:
@@ -2137,6 +2290,44 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 return order == 0
         else:
             return True
+
+
+class CreditRecord(AbstractLastModifiedModel):
+    """Represents a CRediT record for an article"""
+
+    class Meta:
+        verbose_name = 'CRediT record'
+        verbose_name_plural = 'CRediT records'
+
+    author = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    frozen_author = models.ForeignKey(FrozenAuthor,
+                                      blank=True,
+                                      null=True,
+                                      on_delete=SET_NULL)
+    preprint_author = models.ForeignKey(repository_models.PreprintAuthor,
+                                        blank=True,
+                                        null=True,
+                                        on_delete=SET_NULL)
+    article = models.ForeignKey(Article,
+                                blank=True,
+                                null=True,
+                                on_delete=SET_NULL)
+    role = models.CharField(max_length=100,
+                            blank=True,
+                            null=True,
+                            choices=CREDIT_ROLE_CHOICES)
+
+    def __str__(self):
+        return self.role
+
+    @staticmethod
+    def all_roles(self):
+        return CREDIT_ROLE_CHOICES
 
 
 class Section(AbstractLastModifiedModel):
