@@ -7,10 +7,17 @@
             <h4>{% trans "Workflow Info" %}</h4>
         </div>
         <div class="card-section">
-            <p>
-                <span class="fa fa-info-circle"></span>
-                {% trans 'This article may need to be moved to the next workflow stage.' %}
-            </p>
+          <p>
+            <span class="fa fa-info-circle"></span>
+            This article is currently in the
+            <strong>{{ article.current_workflow_element|capfirst }}
+              ({{ article.get_stage_display }})</strong> stage and may need to
+            be manually moved to the
+            <strong>{{ article.next_workflow_element|capfirst }}</strong>
+            stage.
+          </p>
+
+
         </div>
         <div class="card-section">
             <form method="post" action="{% url 'move_to_next_workflow_element' article.pk %}">
@@ -18,10 +25,10 @@
                 <input type="hidden" name="current_stage" value="{{ article.stage }}">
                 <div class="button-group expanded">
                     <button class="success button" type="submit">
-                        {% trans "Move to next stage" %}
+                        {% trans "Move to" %} {{ article.next_workflow_element|capfirst }}
                     </button>
                     <button class="alert button" data-close type="button">
-                        {% trans "Not right now" %}
+                        {% trans "Keep in" %} {{ article.current_workflow_element|capfirst }}
                     </button>
                 </div>
             </form>
