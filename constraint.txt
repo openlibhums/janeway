@@ -1,0 +1,2 @@
+# GHSA-8495-4g3g-x7pr
+aiohttp~=3.10.11
