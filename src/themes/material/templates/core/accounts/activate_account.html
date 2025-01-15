@@ -5,6 +5,7 @@
 
 {% load foundation %}
 {% load i18n %}
+{% load next_url %}
 
 {% block title %}{% trans 'Activate Account' %}{% endblock title %}
 
@@ -26,9 +27,15 @@
                     {% else %}
                         <span class="card-title">{% trans "Error" %}</span>
                         <p>
-                            {% trans "There was no inactive account with this activation code found. It is possible that your account is already active, you can check by attempting to " %}
-                            <a href="{% url 'core_login' %}">{% trans "login" %}</a>.
+                          {% blocktrans %}
+                            There was no inactive account with this activation code found. It
+                            is possible that your account is already active. You can check by
+                            attempting to log in.
+                          {% endblocktrans %}
                         </p>
+                        <a class="btn btn-primary" href="{% url_with_next 'core_login' %}">
+                          {% trans "Log in" %}
+                        </a>
                     {% endif %}
                 </div>
             </div>

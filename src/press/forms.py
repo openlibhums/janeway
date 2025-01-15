@@ -39,8 +39,6 @@ class PressForm(forms.ModelForm):
             'password_number',
             'password_upper',
             'password_length',
-            'password_reset_text',
-            'registration_text',
             'tracking_code',
             'disable_journals',
             'privacy_policy_url',
@@ -51,8 +49,6 @@ class PressForm(forms.ModelForm):
             ),
             'footer_description': TinyMCE(),
             'journal_footer_text': TinyMCE(),
-            'password_reset_text': TinyMCE(),
-            'registration_text': TinyMCE(),
             'description': TinyMCE(),
         }
 

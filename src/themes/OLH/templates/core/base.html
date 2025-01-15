@@ -5,6 +5,7 @@
 {% load i18n %}
 {% load roles %}
 {% load hooks %}
+{% load next_url %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -134,7 +135,16 @@
                             {% endif %}
                         </li>
                     {% else %}
-                        <li><p><a href="{% url 'core_login' %}">{% trans "Login" %} </a>|<a href="{% url 'core_register' %}"> {% trans "Register" %}</a></p></li>
+                      <li>
+                        <p>
+                          <a href="{% url_with_return 'core_login' %}">
+                            {% trans "Log in" %}
+                          </a> |
+                          <a href="{% url_with_return 'core_register' %}">
+                            {% trans "Register" %}
+                          </a>
+                        </p>
+                      </li>
                     {% endif %}
                 </ul>
             </div>
