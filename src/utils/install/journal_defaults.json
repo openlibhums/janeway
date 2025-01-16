@@ -667,6 +667,25 @@
             "name": "Identifiers"
         },
         "setting": {
+            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if `use_crossref` if off.",
+            "is_translatable": false,
+            "name": "register_doi_at_acceptance",
+            "pretty_name": "Register DOI at acceptance",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
             "description": "Whether or not to use Crossref's test server.",
             "is_translatable": false,
             "name": "crossref_test",
@@ -4706,7 +4725,7 @@
         "editable_by": [
             "journal-manager"
         ]
-    },  
+    },
     {
         "group": {
             "name": "general"
