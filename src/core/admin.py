@@ -71,6 +71,7 @@ class AccountAdmin(UserAdmin):
     raw_id_fields = ('interest',)
 
     inlines = [
+        admin_utils.AffiliationInline,
         admin_utils.AccountRoleInline,
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
