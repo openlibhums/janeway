@@ -9,9 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0044_remove_preprintauthor_affiliation_and_more'),
-        ('submission', '0080_remove_frozenauthor_country_and_more'),
         ('core', '0099_alter_accountrole_options'),
+        ('utils', '0035_rorimport_rorimporterror'),
     ]
 
     operations = [
@@ -35,18 +34,7 @@ class Migration(migrations.Migration):
                 ('website', models.CharField(blank=True, max_length=500)),
                 ('locations', models.ManyToManyField(blank=True, null=True, to='core.location')),
             ],
-        ),
-        migrations.RemoveField(
-            model_name='account',
-            name='country',
-        ),
-        migrations.RemoveField(
-            model_name='account',
-            name='department',
-        ),
-        migrations.RemoveField(
-            model_name='account',
-            name='institution',
+            options={'ordering': ['ror_display__value']},
         ),
         migrations.CreateModel(
             name='OrganizationName',
@@ -67,16 +55,16 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(blank=True, max_length=300, verbose_name='Title, position, or role')),
                 ('department', models.CharField(blank=True, max_length=300, verbose_name='Department, unit, or team')),
-                ('is_primary', models.BooleanField(default=False)),
-                ('start', models.DateField(blank=True, null=True)),
-                ('end', models.DateField(blank=True, null=True)),
+                ('is_primary', models.BooleanField(default=False, help_text='Each account can have one primary affiliation')),
+                ('start', models.DateField(blank=True, null=True, verbose_name='Start date')),
+                ('end', models.DateField(blank=True, null=True, help_text='Leave empty for a current affiliation', verbose_name='End date')),
                 ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
                 ('frozen_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.frozenauthor')),
                 ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.organization')),
                 ('preprint_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintauthor')),
             ],
             options={
-                'ordering': ['-pk'],
+                'ordering': ['is_primary', '-pk'],
             },
         ),
         migrations.AddConstraint(
