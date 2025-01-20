@@ -128,6 +128,10 @@ class PreprintAuthorAdmin(admin_utils.PreprintFKModelAdmin):
                      'account__email', 'account__orcid',
                      'account__first_name', 'account__last_name')
 
+    inlines = [
+        admin_utils.AffiliationInline,
+    ]
+
 
 class PreprintVersionAdmin(admin_utils.PreprintFKModelAdmin):
     list_display = ('pk', '_preprint', 'title', 'version', 'date_time',
