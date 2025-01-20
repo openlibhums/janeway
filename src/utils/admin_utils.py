@@ -303,6 +303,13 @@ class RORImportErrorInline(admin.TabularInline):
     readonly_fields = ('message',)
 
 
+class AffiliationInline(admin.TabularInline):
+    model = core_models.Affiliation
+    extra = 0
+    fields = ('title', 'department', 'organization',
+              'is_primary', 'start', 'end')
+
+
 class JournalFilterBase(admin.SimpleListFilter):
     """
     A base class for other journal filters

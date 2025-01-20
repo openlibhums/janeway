@@ -32,6 +32,10 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
                      'frozen_biography', )
     raw_id_fields = ('article', 'author',)
 
+    inlines = [
+        admin_utils.AffiliationInline,
+    ]
+
 
 class ArticleAdmin(admin_utils.JanewayModelAdmin):
     list_display = ('pk', 'title', 'correspondence_author',
