@@ -1932,6 +1932,31 @@ class Article(AbstractLastModifiedModel):
             return True
 
 
+class FrozenAuthorManager(models.Manager):
+
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Backwards-compatible override for affiliation-related kwargs
+        """
+        # check for deprecated fields related to affiliation
+        institution = kwargs.pop('institution', '')
+        department = kwargs.pop('department', '')
+        country = kwargs.pop('country', '')
+
+        frozen_author, created = super().get_or_create(defaults, **kwargs)
+
+        # create or update affiliation
+        if institution or department or country:
+            Affiliation.naive_get_or_create(
+                institution=institution,
+                department=department,
+                country=country,
+                frozen_author=frozen_author,
+            )
+
+        return frozen_author, created
+
+
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(
         'submission.Article',
@@ -2009,6 +2034,8 @@ class FrozenAuthor(AbstractLastModifiedModel):
         help_text=_("If checked, this authors email address link will be displayed on the article page.")
     )
 
+    objects = FrozenAuthorManager()
+
     class Meta:
         ordering = ('order', 'pk')
 
@@ -2022,7 +2049,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @institution.setter
     def institution(self, value):
-        core_models.Affiliation.naive_get_or_create(value, frozen_author=self)
+        core_models.Affiliation.naive_get_or_create(
+            institution=value,
+            frozen_author=self
+        )
 
     @property
     def department(self):
@@ -2031,7 +2061,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @department.setter
     def department(self, value):
-        core_models.Affiliation.naive_set_primary_department(value, frozen_author=self)
+        core_models.Affiliation.naive_set_primary_department(
+            value,
+            frozen_author=self,
+        )
 
     @property
     def country(self):
@@ -2041,7 +2074,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @country.setter
     def country(self, value):
-        Affiliation.naive_set_primary_country(value, frozen_author=self)
+        core_models.Affiliation.naive_get_or_create(
+            country=value,
+            frozen_author=self
+        )
 
     def full_name(self):
         if self.is_corporate:

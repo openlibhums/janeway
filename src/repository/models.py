@@ -898,6 +898,25 @@ class PreprintAuthorManager(models.Manager):
         return super().get_queryset().select_related('account')
 
 
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Backwards-compatible override for affiliation-related kwargs
+        """
+        # check for deprecated fields related to affiliation
+        affiliation = kwargs.pop('affiliation', '')
+
+        preprint_author, created = super().get_or_create(defaults, **kwargs)
+
+        # create or update affiliation
+        if affiliation:
+            Affiliation.naive_get_or_create(
+                institution=affiliation,
+                preprint_author=preprint_author,
+            )
+
+        return preprint_author, created
+
+
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey(
         'Preprint',
@@ -928,7 +947,10 @@ class PreprintAuthor(models.Model):
 
     @affiliation.setter
     def affiliation(self, value):
-        core_models.Affiliation.naive_get_or_create(value, preprint_author=self)
+        core_models.Affiliation.naive_get_or_create(
+            institution=value,
+            preprint_author=self,
+        )
 
     @property
     def full_name(self):

@@ -235,6 +235,28 @@ class AccountManager(BaseUserManager):
     def get_queryset(self):
         return AccountQuerySet(self.model)
 
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Backwards-compatible override for affiliation-related kwargs
+        """
+        # check for deprecated fields related to affiliation
+        institution = kwargs.pop('institution', '')
+        department = kwargs.pop('department', '')
+        country = kwargs.pop('country', '')
+
+        account, created = super().get_or_create(defaults, **kwargs)
+
+        # create or update affiliation
+        if institution or department or country:
+            Affiliation.naive_get_or_create(
+                institution=institution,
+                department=department,
+                country=country,
+                account=account,
+            )
+
+        return account, created
+
 
 class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
@@ -421,7 +443,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @institution.setter
     def institution(self, value):
-        Affiliation.naive_get_or_create(value, account=self)
+        Affiliation.naive_get_or_create(institution=value, account=self)
 
     @property
     def department(self):
@@ -440,7 +462,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @country.setter
     def country(self, value):
-        Affiliation.naive_set_primary_country(value, account=self)
+        Affiliation.naive_get_or_create(country=value, account=self)
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -2089,51 +2111,76 @@ class Organization(models.Model):
     @classmethod
     def naive_get_or_create(
         cls,
-        value,
+        institution='',
+        country='',
         account=None,
         frozen_author=None,
         preprint_author=None,
     ):
         """
-        Backwards-compatible API for finding a matching organization name.
+        Backwards-compatible API for finding a matching organization,
+        or creating one along with a location that just records country.
         Intended for use in batch importers where ROR data is not available
         in the data being imported.
-        Does not support ROR ids, ROR name types, or location data.
+        Does not support ROR ids, ROR name types, or geonames locations.
+
+        :type institution: str
+        :param country: ISO-3166-1 alpha-2 country code or Janeway Country object
+        :type country: str or core.models.Country
+        :type account: core.models.Account
+        :type frozen_author: submission.models.FrozenAuthor
+        :type preprint_author: repository.models.PreprintAuthor
         """
         # Is there a single exact match in the
         # canonical name data from ROR (e.g. labels)?
         try:
-            organization = cls.objects.get(labels__value=value)
+            organization = cls.objects.get(labels__value=institution)
             created = False
-        except cls.DoesNotExist or cls.MultipleObjectsReturned:
+        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
             # Or maybe one in the past or alternate
             # name data from ROR (e.g. aliases)?
             try:
-                organization = cls.objects.get(aliases__value=value)
+                organization = cls.objects.get(aliases__value=institution)
                 created = False
-            except cls.DoesNotExist or cls.MultipleObjectsReturned:
-                # Or maybe an organization has already been
+            except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                # Or maybe a primary affiliation has already been
                 # entered without a ROR for this
                 # account / frozen author / preprint author?
                 try:
                     organization = cls.objects.get(
+                        affiliation__is_primary=True,
                         affiliation__account=account,
                         affiliation__frozen_author=frozen_author,
                         affiliation__preprint_author=preprint_author,
                         ror__exact='',
                     )
                     created = False
-                except cls.DoesNotExist or cls.MultipleObjectsReturned:
+                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Otherwise, create a naive, disconnected record.
                     organization = cls.objects.create()
                     created = True
 
         # Get or create a custom label
-        organization_name, _created = OrganizationName.objects.get_or_create(
-            custom_label_for=organization,
-        )
-        organization_name.value = value
-        organization_name.save()
+        if institution:
+            organization_name, _created = OrganizationName.objects.get_or_create(
+                custom_label_for=organization,
+            )
+            organization_name.value = institution
+            organization_name.save()
+
+        # Set the country as a location
+        if country and not isinstance(country, Country):
+            try:
+                country = Country.objects.get(code=country)
+            except Country.DoesNotExist:
+                country = ''
+
+        if country:
+            location, _created = Location.objects.get_or_create(
+                name='',
+                country=country,
+            )
+            organization.locations.add(location)
 
         return organization, created
 
@@ -2370,7 +2417,9 @@ class Affiliation(models.Model):
     @classmethod
     def naive_get_or_create(
         cls,
-        value,
+        institution='',
+        department='',
+        country='',
         account=None,
         frozen_author=None,
         preprint_author=None,
@@ -2379,9 +2428,21 @@ class Affiliation(models.Model):
         Backwards-compatible API for setting affiliation from unstructured text.
         Intended for use in batch importers where ROR data is not available.
         Does not support ROR ids, multiple affiliations, or start or end dates.
+        When possible, include department and country to create unified records.
+        Only include one of author, frozen_author, or preprint_author.
+
+        :param institution: the uncontrolled organization name as a string
+        :type institution: str
+        :type department: str
+        :param country: ISO-3166-1 alpha-2 country code or Janeway Country object
+        :type country: str or core.models.Country
+        :type account: core.models.Account
+        :type frozen_author: submission.models.FrozenAuthor
+        :type preprint_author: repository.models.PreprintAuthor
         """
-        organization, created = Organization.naive_get_or_create(
-            value,
+        organization, _created = Organization.naive_get_or_create(
+            institution=institution,
+            country=country,
             account=account,
             frozen_author=frozen_author,
             preprint_author=preprint_author,
@@ -2395,6 +2456,7 @@ class Affiliation(models.Model):
                 frozen_author=frozen_author,
                 preprint_author=preprint_author,
                 organization=organization,
+                department=department,
             )
             affiliation.is_primary = True
             affiliation.save()
@@ -2413,8 +2475,9 @@ class Affiliation(models.Model):
     ):
         """
         Backwards-compatible API for setting department names in isolation.
-        Intended for use in batch importers where ROR data is not available.
-        Does not support RORs or multiple affiliations.
+        It is better to use Affiliation.naive_get_or_create where department
+        is set togther with institution and country.
+        Does not support ORCIDs, RORs or multiple affiliations.
         """
         # Create or update an affiliation if the associated
         # account / frozen author / preprint author has been saved already
@@ -2428,32 +2491,6 @@ class Affiliation(models.Model):
             affiliation.save()
         except ValueError:
             logger.warn('The department could not be set.')
-
-    @classmethod
-    def naive_set_primary_country(
-        cls,
-        value,
-        account=None,
-        frozen_author=None,
-    ):
-        """
-        Backwards-compatible API for setting department names in isolation.
-        Intended for use in batch importers where ROR data is not available.
-        Does not support RORs or multiple affiliations.
-        """
-        affiliation, _created = Affiliation.objects.get_or_create(
-            account=account,
-            frozen_author=frozen_author,
-            is_primary=True,
-        )
-        if not affiliation.organization:
-            affiliation.organization = Organization.objects.create()
-
-        country_location, _created = Location.objects.get_or_create(
-            name='',
-            country=value,
-        )
-        affiliation.organization.locations.add(country_location)
 
     def save(self, *args, **kwargs):
         self.set_primary_if_first(self)

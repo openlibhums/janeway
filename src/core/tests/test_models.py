@@ -419,6 +419,10 @@ class TestOrganizationModels(TestCase):
             code='GB',
             name='United Kingdom',
         )
+        cls.country_us = models.Country.objects.create(
+            code='US',
+            name='United States',
+        )
         cls.location_london = models.Location.objects.create(
             name='London',
             country=cls.country_gb,
@@ -805,3 +809,50 @@ class TestOrganizationModels(TestCase):
             organization=self.organization_rae,
         )
         self.assertFalse(second_affiliation.is_primary)
+
+    def test_affiliation_naive_get_or_create(self):
+        affiliation, _created = models.Affiliation.naive_get_or_create(
+            institution='Birkbeck Coll',
+            department='Computer Sci',
+            country='GB',
+        )
+        self.assertEqual(
+            models.Organization.objects.get(
+                custom_label__value='Birkbeck Coll'
+            ),
+            affiliation.organization,
+        )
+        self.assertEqual(
+            'Computer Sci',
+            affiliation.department,
+        )
+        self.assertIn(
+            models.Location.objects.get(
+                name='',
+                country__code='GB'
+            ),
+            affiliation.organization.locations.all(),
+        )
+
+    def test_account_manager_get_or_create(self):
+
+        kwargs = {
+            'first_name':'Michael',
+            'last_name':'Warner',
+            'email': 'twlwpky6omkqdsc40zlm@example.org',
+            'institution': 'Yale',
+            'department': 'English',
+            'country': 'US',
+        }
+        account, _created = models.Account.objects.get_or_create(**kwargs)
+        self.assertListEqual(
+            list(kwargs.values()),
+            [
+                account.first_name,
+                account.last_name,
+                account.email,
+                account.affiliation(obj=True).organization.custom_label.value,
+                account.affiliation(obj=True).department,
+                account.affiliation(obj=True).organization.locations.first().country.code,
+            ]
+        )
