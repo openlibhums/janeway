@@ -4,7 +4,19 @@ from django.db import migrations
 from django.db.models import Q
 
 
-def naive_create_organization(apps, old_institution=None):
+def get_or_create_location_with_country_only(apps, old_country=None):
+    if not old_country:
+        return None
+
+    Location = apps.get_model("core", "Location")
+    location, created = Location.objects.get_or_create(
+        name='',
+        country=old_country,
+    )
+    return location
+
+
+def create_organization(apps, old_institution=None, old_country=None):
     if not old_institution:
         return None
 
@@ -12,6 +24,9 @@ def naive_create_organization(apps, old_institution=None):
     OrganizationName = apps.get_model("core", "OrganizationName")
 
     organization = Organization.objects.create()
+    location = get_or_create_location_with_country_only(apps, old_country)
+    if location:
+        organization.locations.add(location)
     OrganizationName.objects.create(
         value=old_institution,
         custom_label_for=organization,
@@ -19,16 +34,17 @@ def naive_create_organization(apps, old_institution=None):
     return organization
 
 
-def naive_create_affiliation(
+def create_affiliation(
     apps,
     old_institution,
     old_department,
+    old_country,
     account=None,
     frozen_author=None,
     preprint_author=None,
 ):
     Affiliation = apps.get_model("core", "Affiliation")
-    organization = naive_create_organization(apps, old_institution)
+    organization = create_organization(apps, old_institution, old_country)
 
     # Create or update the actual affiliation if the associated
     # account / frozen author / preprint author has been saved already
@@ -52,10 +68,11 @@ def migrate_affiliation_institution(apps, schema_editor):
         ~Q(institution__exact='')
         | ~Q(department__exact='')
     ):
-        naive_create_affiliation(
+        create_affiliation(
             apps,
             account.institution,
             account.department,
+            account.country,
             account=account,
         )
 
@@ -63,20 +80,22 @@ def migrate_affiliation_institution(apps, schema_editor):
         ~Q(institution__exact='')
         | ~Q(department__exact='')
     ):
-        naive_create_affiliation(
+        create_affiliation(
             apps,
             frozen_author.institution,
             frozen_author.department,
+            frozen_author.country,
             frozen_author=frozen_author,
         )
 
     for preprint_author in PreprintAuthor.objects.filter(
         affiliation__isnull=True,
     ):
-        naive_create_affiliation(
+        create_affiliation(
             apps,
             preprint_author.affiliation,
             '',
+            None,
             preprint_author=preprint_author,
         )
 
