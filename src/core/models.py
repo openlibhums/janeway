@@ -2169,20 +2169,25 @@ class Organization(models.Model):
                 kwargs['acronym_for'] = organization
             OrganizationName.objects.get_or_create(**kwargs)
 
-        for location in record.get('locations'):
-            details = location.get('geonames_details', {})
-            country, created = Country.objects.get_or_create(
-                code=details.get('country_code', ''),
-            )
-            lat = Decimal(details.get('lat'))
-            lng = Decimal(details.get('lng'))
-            location, created = Location.objects.get_or_create(
-                name=details.get('name', ''),
-                country=country,
-                latitude=lat,
-                longitude=lng,
-                geonames_id=location.get('geonames_id'),
-            )
+        for record_location in record.get('locations'):
+            geonames_id = record_location.get('geonames_id')
+            if geonames_id:
+                location, created = Location.objects.get_or_create(
+                    geonames_id=geonames_id,
+                )
+            else:
+                location = Location.objects.create()
+                created = True
+            if created:
+                details = record_location.get('geonames_details', {})
+                location.name = details.get('name', '')
+                country, created = Country.objects.get_or_create(
+                    code=details.get('country_code', ''),
+                )
+                location.country = country
+                location.latitude = Decimal(details.get('lat'))
+                location.longitude = Decimal(details.get('lng'))
+                location.save()
             organization.locations.add(location)
 
 
