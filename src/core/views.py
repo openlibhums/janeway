@@ -2935,9 +2935,8 @@ class OrganizationNameCreateView(SuccessMessageMixin, CreateView):
         organization_name.save()
         return redirect(
             reverse(
-                'affiliation_create',
+                'core_affiliation_create',
                 kwargs={
-                    'user_id': self.kwargs.get('user_id'),
                     'organization_id': organization.pk,
                 }
             )
