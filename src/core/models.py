@@ -2143,17 +2143,17 @@ class Organization(models.Model):
         :type frozen_author: submission.models.FrozenAuthor
         :type preprint_author: repository.models.PreprintAuthor
         """
+
+        created = False
         # Is there a single exact match in the
         # canonical name data from ROR (e.g. labels)?
         try:
             organization = cls.objects.get(labels__value=institution)
-            created = False
         except (cls.DoesNotExist, cls.MultipleObjectsReturned):
             # Or maybe one in the past or alternate
             # name data from ROR (e.g. aliases)?
             try:
                 organization = cls.objects.get(aliases__value=institution)
-                created = False
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                 # Or maybe a primary affiliation has already been
                 # entered without a ROR for this
@@ -2166,7 +2166,6 @@ class Organization(models.Model):
                         affiliation__preprint_author=preprint_author,
                         ror__exact='',
                     )
-                    created = False
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Otherwise, create a naive, disconnected record.
                     organization = cls.objects.create()
