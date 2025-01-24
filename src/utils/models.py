@@ -7,6 +7,8 @@ import json
 import os
 from uuid import uuid4
 import requests
+import tqdm
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
@@ -492,6 +494,23 @@ class RORImport(models.Model):
                 self.delete_previous_download()
         except requests.RequestException as error:
             self.fail(error)
+
+    def filter_new_records(self, ror_data, organizations):
+        """
+        Finds new records from the data dump based on
+        ROR's last_modified time stamp.
+        """
+        timestamps = {}
+        for ror, ts in organizations.values_list("ror", "ror_record_timestamp"):
+            timestamps[ror] = ts
+        filtered_data = []
+        for record in tqdm.tqdm(ror_data, desc="Finding new or updated ROR records"):
+            ror = record.get("id", {})
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            timestamp = last_modified.get("date", "")
+            if ror and timestamp and timestamp > timestamps.get(ror, ''):
+                filtered_data.append(record)
+        return filtered_data
 
 
 class RORImportError(models.Model):

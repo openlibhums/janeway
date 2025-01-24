@@ -1989,8 +1989,8 @@ class OrganizationName(models.Model):
         related_name='custom_label',
         blank=True,
         null=True,
-        help_text="This name is a custom label entered by the end user."
-            "Just exists in Janeway, independent of ROR.",
+        help_text="This name is a custom label entered by the end user. "
+            "Only exists in Janeway, independent of ROR.",
     )
     alias_for = models.ForeignKey(
         'Organization',
@@ -2044,6 +2044,11 @@ class Organization(models.Model):
         max_length=10,
         choices=RORStatus.choices,
         default=RORStatus.UNKNOWN,
+    )
+    ror_record_timestamp = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text='The admin.last_modified.date string from ROR data',
     )
     website = models.CharField(
         blank=True,
@@ -2236,6 +2241,8 @@ class Organization(models.Model):
             ror=record.get('id', ''),
         )
         organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
+        last_modified = record.get("admin", {}).get("last_modified", {})
+        organization.ror_record_timestamp = last_modified.get("date", "")
         for link in record.get('links', []):
             if link.get('type') == 'website':
                 organization.website = link.get('value', '')
@@ -2278,25 +2285,26 @@ class Organization(models.Model):
                 location.save()
             organization.locations.add(location)
 
-
     @classmethod
-    def import_ror_batch(cls, ror_import, test_full_import=False):
+    def import_ror_batch(cls, ror_import, limit=0):
         """
         Opens a previously downloaded data dump from
         ROR's Zenodo endpoint, processes the records,
         and records errors for exceptions raised during creation.
         https://ror.readme.io/v2/docs/data-dump
         """
+        organizations = cls.objects.exclude(ror="")
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
             for file_info in zip_ref.infolist():
                 if file_info.filename.endswith('v2.json'):
                     json_string = zip_ref.read(file_info).decode(encoding="utf-8")
                     data = json.loads(json_string)
-                    if settings.DEBUG and not test_full_import:
-                        # Limit the import run during development by default
-                        data = data[:100]
-                    for item in tqdm.tqdm(data, desc="Importing ROR records"):
+                    data = ror_import.filter_new_records(data, organizations)
+                    if limit:
+                        data = data[:limit]
+                    description = f"Importing {len(data)} ROR records"
+                    for item in tqdm.tqdm(data, desc=description):
                         try:
                             cls.create_from_ror_record(item)
                         except Exception as error:
