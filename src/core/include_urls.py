@@ -137,27 +137,27 @@ urlpatterns = [
     ),
     re_path(
         r'^profile/organization_name/create/$',
-        core_views.OrganizationNameCreateView.as_view(),
+        core_views.organization_name_create,
         name='core_organization_name_create'
     ),
     re_path(
         r'^profile/organization_name/(?P<organization_name_id>\d+)/update/$',
-        core_views.OrganizationNameUpdateView.as_view(),
+        core_views.organization_name_update,
         name='core_organization_name_update'
     ),
     re_path(
         r'^profile/organization/(?P<organization_id>\d+)/affiliation/create/$',
-        core_views.AffiliationCreateView.as_view(),
+        core_views.affiliation_create,
         name='core_affiliation_create'
     ),
     re_path(
         r'^profile/affiliation/(?P<affiliation_id>\d+)/update/$',
-        core_views.AffiliationUpdateView.as_view(),
+        core_views.affiliation_update,
         name='core_affiliation_update'
     ),
     re_path(
         r'^profile/affiliation/(?P<affiliation_id>\d+)/delete/$',
-        core_views.AffiliationDeleteView.as_view(),
+        core_views.affiliation_delete,
         name='core_affiliation_delete'
     ),
 

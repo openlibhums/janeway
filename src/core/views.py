@@ -2913,121 +2913,177 @@ class OrganizationListView(GenericFacetedListView):
         }
 
 
-@method_decorator(login_required, name='dispatch')
-class OrganizationNameCreateView(SuccessMessageMixin, CreateView):
+@login_required
+def organization_name_create(request):
     """
     Allows a user to create a custom organization name
     if they cannot find one in ROR data.
     """
 
-    model = core_models.OrganizationName
-    fields = ['value']
+    form = forms.OrganizationNameForm()
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['account'] = self.request.user
-        return context
-
-    def form_valid(self, form):
-        organization_name = form.save()
-        organization = core_models.Organization.objects.create()
-        organization_name.custom_label_for = organization
-        organization_name.save()
-        return redirect(
-            reverse(
-                'core_affiliation_create',
-                kwargs={
-                    'organization_id': organization.pk,
-                }
+    if request.POST:
+        form = forms.OrganizationNameForm(request.POST)
+        if form.is_valid():
+            organization_name = form.save()
+            organization = core_models.Organization.objects.create()
+            organization_name.custom_label_for = organization
+            organization_name.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization created: %s") % organization_name,
             )
-        )
+            return redirect(
+                reverse(
+                    'core_affiliation_create',
+                    kwargs={
+                        'organization_id': organization.pk,
+                    }
+                )
+            )
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    template = 'admin/core/organizationname_form.html'
+    return render(request, template, context)
 
 
-@method_decorator(login_required, name='dispatch')
-class OrganizationNameUpdateView(SuccessMessageMixin, UpdateView):
+@login_required
+def organization_name_update(request, organization_name_id):
     """
     Allows a user to update a custom organization name.
     """
 
-    model = core_models.OrganizationName
-    fields = ['value']
-    pk_url_kwarg = 'organization_name_id'
-    success_url = reverse_lazy('core_edit_profile')
-    success_message = _("Custom organization updated: %(value)s")
+    organization_name = get_object_or_404(
+        core_models.OrganizationName,
+        pk=organization_name_id,
+        custom_label_for__affiliation__account=request.user,
+    )
+    form = forms.OrganizationNameForm(instance=organization_name)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['account'] = self.request.user
-        return context
+    if request.POST:
+        form = forms.OrganizationNameForm(
+            request.POST,
+            instance=organization_name,
+        )
+        if form.is_valid():
+            organization = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization updated: %s") % organization,
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/organizationname_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    return render(request, template, context)
 
 
-@method_decorator(login_required, name='dispatch')
-class AffiliationCreateView(SuccessMessageMixin, CreateView):
+@login_required
+def affiliation_create(request, organization_id):
     """
     Allows a user to create a new affiliation for themselves.
     """
 
-    model = core_models.Affiliation
-    form_class = forms.AffiliationForm
-    success_url = reverse_lazy('core_edit_profile')
-    success_message = _("Affiliation created: %(organization)s")
+    organization = core_models.Organization.objects.get(
+        pk=organization_id,
+    )
+    initial = {
+        'account': request.user,
+        'organization': organization_id,
+    }
+    form = forms.AffiliationForm(initial=initial)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['account'] = self.request.user
-        organization_id = self.kwargs.get('organization_id')
-        context['organization'] = core_models.Organization.objects.get(
-            pk=organization_id
-        )
-        return context
+    if request.POST:
+        form = forms.AffiliationForm(request.POST)
+        if form.is_valid():
+            affiliation = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation created: %s") % affiliation,
+            )
+            return redirect(reverse('core_edit_profile'))
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['account'] = self.request.user
-        initial['organization'] = self.kwargs.get('organization_id')
-        return initial
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'organization': organization,
+    }
+    return render(request, template, context)
 
 
-@method_decorator(login_required, name='dispatch')
-class AffiliationUpdateView(SuccessMessageMixin, UpdateView):
+@login_required
+def affiliation_update(request, affiliation_id):
     """
     Allows a user to update one of their own affiliations.
     """
 
-    model = core_models.Affiliation
-    pk_url_kwarg = 'affiliation_id'
-    form_class = forms.AffiliationForm
-    success_url = reverse_lazy('core_edit_profile')
-    success_message = _("Affiliation updated: %(organization)s")
+    affiliation = get_object_or_404(
+        core_models.Affiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['account'] = self.request.user
-        affiliation_id = self.kwargs.get('affiliation_id')
-        context['affiliation'] = core_models.Affiliation.objects.get(
-            pk=affiliation_id
-        )
-        context['organization'] = context['affiliation'].organization
-        return context
+    form = forms.AffiliationForm(instance=affiliation)
+
+    if request.POST:
+        form = forms.OrganizationNameForm(request.POST)
+        if form.is_valid():
+            affiliation = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation updated: %s") % affiliation,
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)
 
 
-@method_decorator(login_required, name='dispatch')
-class AffiliationDeleteView(SuccessMessageMixin, DeleteView):
+@login_required
+def affiliation_delete(request, affiliation_id):
     """
     Allows a user to delete one of their own affiliations.
     """
 
-    model = core_models.Affiliation
-    pk_url_kwarg = 'affiliation_id'
-    success_url = reverse_lazy('core_edit_profile')
-    success_message = _("Affiliation deleted")
+    affiliation = get_object_or_404(
+        core_models.Affiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
+    form = forms.ConfirmDeleteForm()
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['account'] = self.request.user
-        affiliation_id = self.kwargs.get('affiliation_id')
-        context['affiliation'] = core_models.Affiliation.objects.get(
-            pk=affiliation_id
-        )
-        context['organization'] = context['affiliation'].organization
-        return context
+    if request.POST:
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            affiliation.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation deleted: %s") % affiliation,
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_confirm_delete.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)

@@ -947,6 +947,13 @@ class AccountRoleForm(forms.ModelForm):
         fields = '__all__'
 
 
+class OrganizationNameForm(forms.ModelForm):
+
+    class Meta:
+        model = models.OrganizationName
+        fields = ('value',)
+
+
 class AffiliationForm(forms.ModelForm):
 
     class Meta:
@@ -960,3 +967,11 @@ class AffiliationForm(forms.ModelForm):
             'start': HTMLDateInput,
             'end': HTMLDateInput,
         }
+
+
+class ConfirmDeleteForm(forms.Form):
+    """
+    A generic form for use on confirm-delete pages
+    where a valid form with POST data means yes, delete.
+    """
+    pass
