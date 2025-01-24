@@ -435,6 +435,11 @@ class TestOrganizationModels(TestCase):
             latitude=51.29,
             longitude=-0.75,
         )
+        cls.location_uk_legacy = models.Location.objects.create(
+            # Before integrating ROR we used country-wide locations
+            # with no geonames ID or coordinates
+            country=cls.country_gb,
+        )
         cls.organization_bbk = models.Organization.objects.create(
             ror='https://ror.org/02mb95055',
         )
@@ -477,6 +482,14 @@ class TestOrganizationModels(TestCase):
             language='en',
             label_for=cls.organization_brp,
             ror_display_for=cls.organization_brp,
+        )
+        cls.organization_bbk_legacy = models.Organization.objects.create(
+            # Before integrating ROR we used institution names with no ROR IDs
+        )
+        cls.organization_bbk_legacy.locations.add(cls.location_uk_legacy)
+        cls.name_bbk_custom_legacy = models.OrganizationName.objects.create(
+            value='Birkbeck, University of London',
+            custom_label_for=cls.organization_bbk_legacy,
         )
         cls.kathleen_booth = helpers.create_user(
             'ehqak6rxknzw35ih47oc@bbk.ac.uk',
@@ -538,6 +551,16 @@ class TestOrganizationModels(TestCase):
             first_name='Thomas',
             middle_name='Stearns',
             last_name='Eliot',
+        )
+        cls.e_hobsbawm = helpers.create_user(
+            'dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        cls.affiliation_historian = models.Affiliation.objects.create(
+            account=cls.e_hobsbawm,
+            title='Historian',
+            organization=cls.organization_bbk_legacy,
         )
 
         return super().setUpTestData()
@@ -835,7 +858,6 @@ class TestOrganizationModels(TestCase):
         )
 
     def test_account_manager_get_or_create(self):
-
         kwargs = {
             'first_name':'Michael',
             'last_name':'Warner',
@@ -855,4 +877,16 @@ class TestOrganizationModels(TestCase):
                 account.affiliation(obj=True).department,
                 account.affiliation(obj=True).organization.locations.first().country.code,
             ]
+        )
+
+    def test_organization_deduplicate_to_ror_record(self):
+        self.organization_bbk_legacy.deduplicate_to_ror_record()
+        self.affiliation_historian.refresh_from_db()
+        self.assertNotEqual(
+            self.affiliation_historian.organization,
+            self.organization_bbk_legacy,
+        )
+        self.assertEqual(
+            self.affiliation_historian.organization,
+            self.organization_bbk,
         )

@@ -1972,6 +1972,7 @@ class OrganizationName(models.Model):
         related_name='ror_display',
         blank=True,
         null=True,
+        help_text="This name is a preferred ROR-provided display name.",
     )
     label_for = models.ForeignKey(
         'Organization',
@@ -1979,6 +1980,8 @@ class OrganizationName(models.Model):
         related_name='labels',
         blank=True,
         null=True,
+        help_text="This name is a preferred ROR-provided alternative, "
+            "often in a different language from the ROR display name.",
     )
     custom_label_for = models.OneToOneField(
         'Organization',
@@ -1986,6 +1989,8 @@ class OrganizationName(models.Model):
         related_name='custom_label',
         blank=True,
         null=True,
+        help_text="This name is a custom label entered by the end user."
+            "Just exists in Janeway, independent of ROR.",
     )
     alias_for = models.ForeignKey(
         'Organization',
@@ -1993,6 +1998,7 @@ class OrganizationName(models.Model):
         related_name='aliases',
         blank=True,
         null=True,
+        help_text="This name is a less preferred ROR-provided alternative.",
     )
     acronym_for = models.ForeignKey(
         'Organization',
@@ -2000,6 +2006,7 @@ class OrganizationName(models.Model):
         related_name='acronyms',
         blank=True,
         null=True,
+        help_text="This name is a ROR-provided acronym.",
     )
     language = models.CharField(
         max_length=10,
@@ -2184,6 +2191,40 @@ class Organization(models.Model):
 
         return organization, created
 
+    def deduplicate_to_ror_record(self):
+        """
+        Tries to merge with another organization that has ROR data,
+        if the custom label is an exact match with a preferred ROR label,
+        and if the country matches.
+        """
+        if self.ror:
+            logger.warning(
+                "Cannot deduplicate Organization {{self.id}}: ROR present"
+            )
+            return
+        if not self.custom_label:
+            logger.warning(
+                "Cannot deduplicate Organization {{self.id}}: No custom label"
+            )
+            return
+
+        if self.location:
+            matches = Organization.objects.filter(
+                labels__value=self.custom_label.value,
+                locations__country=self.location.country,
+            )
+        else:
+            matches = Organization.objects.filter(
+                labels=self.custom_label,
+            )
+        if matches.exists() and matches.count() == 1:
+            Affiliation.objects.filter(
+                organization=self,
+            ).update(
+                organization=matches.first(),
+            )
+            self.delete()
+
     @classmethod
     def create_from_ror_record(cls, record):
         """
@@ -2255,7 +2296,7 @@ class Organization(models.Model):
                     if settings.DEBUG and not test_full_import:
                         # Limit the import run during development by default
                         data = data[:100]
-                    for item in tqdm.tqdm(data):
+                    for item in tqdm.tqdm(data, desc="Importing ROR records"):
                         try:
                             cls.create_from_ror_record(item)
                         except Exception as error:
