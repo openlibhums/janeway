@@ -18,14 +18,22 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--test_full_import',
-            help='By default, the command only runs 100 records when DEBUG=True.'
-                 'Pass --test_full_import to import the entire dump in development.',
-            action='store_true',
+            "--limit",
+            help="The cap on the number of ROR records to process.",
+            default=0,
+            type=int,
         )
         return super().add_arguments(parser)
 
     def handle(self, *args, **options):
+        limit = options.get("limit", 0)
+        if not limit and settings.DEBUG:
+            limit = 100
+            logger.info(
+                f"Setting ROR import limit to {limit} while settings.DEBUG."
+                "Override by passing --limit to import_ror_data."
+            )
+
         ror_import = RORImport.objects.create()
         ror_import.get_records()
 
@@ -39,10 +47,9 @@ class Command(BaseCommand):
 
         # The data is all downloaded and ready to import.
         if ror_import.ongoing or settings.DEBUG:
-            test_full_import = options.get('test_full_import', False)
             Organization.import_ror_batch(
                 ror_import,
-                test_full_import=test_full_import,
+                limit=limit,
             )
 
         # The process did not error out, so it can be considered a success.
