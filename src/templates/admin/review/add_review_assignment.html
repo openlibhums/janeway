@@ -43,6 +43,13 @@
                             of this list and will show 'Yes' in the 'Has
                             Reviewed Article' column.
                         </p>
+                        {% if journal_settings.general.enable_competing_interest_selections %}
+                        <p>
+                            Reviewers who have conflicts of interest with the article 
+                            or their authors, will appear with the &#10148; symbol and 
+                            cannot be selected.
+                        </p>
+                        {% endif %}
                     </div>
 
                     <table class="small scroll" id="reviewers">
@@ -62,7 +69,7 @@
 
                         <tbody>
                         {% for reviewer in reviewers %}
-                            <tr>
+                            <tr {% if journal_settings.general.enable_competing_interest_selections and reviewer.has_conflict %}style="color: #b9b9b9;"{% endif %}>
                                 {% include "admin/elements/review/add_reviewer_table_row.html" with reviewer=reviewer %}
                             </tr>
                         {% empty %}

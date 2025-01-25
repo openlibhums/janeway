@@ -1,4 +1,13 @@
-<td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
+<td>
+    {% if journal_settings.general.enable_competing_interest_selections and reviewer.has_conflict %}
+        <span style="border-bottom: none;" data-tooltip tabindex="2" class="top" title="Account with conflict of interests.">&#10148;</span>
+    {% else %}
+        <input type="radio" name="reviewer" value="{{ reviewer.id }}"
+            {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}
+            {% if journal_settings.general.enable_competing_interest_selections and reviewer.has_conflict %}disabled{% endif %}
+        >
+    {% endif %}
+</td>
 <td>{{ reviewer.full_name }}</td>
 <td>{{ reviewer.email }}</td>
 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>

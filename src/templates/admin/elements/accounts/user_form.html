@@ -9,6 +9,13 @@
   {% include "admin/elements/forms/field.html" with field=form.last_name %}
   {% include "admin/elements/forms/field.html" with field=form.suffix %}
 </div>
+{% if journal_settings.general.enable_competing_interest_selections %}
+<div class="row">
+    <div class="large-12 columns">
+        {{ form.competing_interest_domains|foundation }}
+    </div>
+</div>
+{% endif %}
 <hr />
 <h3 class="fs-3">{% trans "Affiliations" %}</h3>
 <div class="flex wrap column-gap-2">
