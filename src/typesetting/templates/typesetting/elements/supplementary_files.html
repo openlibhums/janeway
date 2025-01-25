@@ -1,0 +1,61 @@
+{% load files %}
+{% load securitytags %}
+{% load static %}
+{% load render_string %}
+
+<table class="scroll small">
+    <tr style="text-align: left">
+        <th>ID</th>
+        <th>Label</th>
+        <th width="25%">Filename</th>
+        <th>Modified</th>
+        <th>Download</th>
+        <th>History</th>
+        <th>DOI</th>
+    </tr>
+    {% for supp in article.supplementary_files.all %}
+        {% can_edit_file supp.file supp.article as user_can_edit_file %}
+        <tr>
+            <td>{{ supp.pk }}</td>
+            <td>
+                {{ supp.label }}
+                &nbsp;<a data-open="edit_supp_label_{{supp.pk}}" article.pk supp.pk %}"><i
+                    class="fa fa-edit"></i></a>
+            </td>
+            <td>{{ supp.file.original_filename|truncatechars:40 }}</td>
+            <td>{{ supp.file.last_modified|date:"Y-m-d G:i" }}</td>
+            <td>
+                <a href="{% url 'typesetting_download_file' article.pk supp.file.pk %}"><i
+-                   class="fa fa-download">&nbsp;</i></a>
+            </td>
+            <td>
+                {% if user_can_edit_file %}<a href="{% url 'file_history' article.pk supp.file.pk %}?return={{ request.path|urlencode }}"><i
+                        class="fa fa-history">
+                    &nbsp;</i></a>{% endif %}
+            </td>
+            <td>
+                {% if supp.doi %}
+                    {{ supp.doi }}
+                    &nbsp;<a data-open="mint_doi_{{supp.pk}}" article.pk supp.pk %}"><i
+                        class="fa fa-refresh"></i></a>
+                {% else %}
+                    <a data-open="mint_doi_{{supp.pk}}" article.pk supp.pk %}">Mint DOI</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10">No supplementary files have been uploaded.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<div class="float-right">
+    <a class="button primary" data-open="choose-suppfile"><i
+        class="fa fa-cloud-upload">
+    &nbsp;</i>Choose from article documents</a>
+    <a class="button success" data-open="suppfile"><i
+        class="fa fa-cloud-upload">
+    &nbsp;</i>Upload a Supplementary File</a>
+</div>
+<br />

@@ -1,0 +1,74 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Typesetting Assignments{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Your Typesetting Assignments</h2>
+         </div>
+        <div class="content">
+            <table class="small scroll" id="tasks">
+                <thead>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Round</th>
+                    <th>Assigned</th>
+                    <th>Due</th>
+                    <th>Time to Due</th>
+                    <th></th>
+                </thead>
+                {% for assignment in active_assignments %}
+                <tbody>
+                    <td>{{ assignment.pk }}</td>
+                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.round }}</td>
+                    <td>{{ assignment.assigned }}</td>
+                    <td>{{ assignment.due|date:"Y-m-d" }}</td>
+                    <td>{{ assignment.time_to_due }}</td>
+                    <td><a href="{% url 'typesetting_assignment' assignment.pk %}">View Assignment</a></td>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Past Typesetting Assignments</h2>
+         </div>
+        <div class="content">
+            <table class="small scroll" id="completed_tasks">
+                <thead>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Round</th>
+                    <th>Assigned</th>
+                    <th>Completed/Cancelled</th>
+                </thead>
+                {% for assignment in past_assignments %}
+                <tbody>
+                    <td>{{ assignment.pk }}</td>
+                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.round }}</td>
+                    <td>{{ assignment.assigned }}</td>
+                    <td>{% if assignment.completed %}Completed: {{ assignment.completed }}{% else %}Cancelled: {{ assignment.cancelled }}{% endif %}</td>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#tasks" %}
+    {% include "elements/datatables.html" with target="#completed_tasks" %}
+{% endblock js %}

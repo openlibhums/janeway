@@ -8,11 +8,9 @@ from utils import transactional_emails, workflow_tasks
 from events import logic as event_logic
 from journal import logic as journal_logic
 from identifiers import logic as id_logic
+from typesetting.notifications import emails
 
 # wire up event notifications
-
-from events import logic as event_logic  # We always import this as event_logic
-
 # Submission
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       transactional_emails.send_submission_acknowledgement,
@@ -187,10 +185,67 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
 event_logic.Events.register_for_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
                                       workflow.workflow_element_complete)
 
+
+# Typesetting Events
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_ASSIGN_NOTIFICATION,
+    emails.send_typesetting_assign_notification,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_ASSIGN_DECISION,
+    emails.send_typesetting_assign_decision,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_ASSIGN_CANCELLED,
+    emails.send_typesetting_assign_cancelled,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_ASSIGN_DELETED,
+    emails.send_typesetting_assign_deleted,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_ASSIGN_COMPLETE,
+    emails.send_typesetting_assign_complete,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PROOFREADER_ASSIGN_NOTIFICATION,
+    emails.send_proofreader_assign_notification,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PROOFREADER_ASSIGN_CANCELLED,
+    emails.send_proofreader_assign_transaction_email,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PROOFREADER_ASSIGN_RESET,
+    emails.send_proofreader_assign_transaction_email,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PROOFREADER_ASSIGN_COMPLETE,
+    emails.send_proofreader_assign_transaction_email,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_TYPESETTING_COMPLETE,
+    emails.send_typesetting_complete,
+)
+
 # wire up the core task destroyer
-# N.B. this is critical to the operation of the task framework. It automatically tears down tasks that have registered
+# N.B. this is critical to the operation of the task framework.
+# It automatically tears down tasks that have registered
 # for event listeners
-event_logic.Events.register_for_event('destroy_tasks', core_models.Task.destroyer)
+event_logic.Events.register_for_event(
+    'destroy_tasks',
+    core_models.Task.destroyer,
+)
 
 event_logic.Events.register_for_event(
     event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,

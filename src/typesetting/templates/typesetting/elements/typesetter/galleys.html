@@ -1,0 +1,61 @@
+{% load files %}
+{% load roles %}
+{% load securitytags %}
+{% load static %}
+{% load render_string %}
+
+<table class="scroll small">
+    <tr style="text-align: left">
+        <th>ID</th>
+        <th>Label</th>
+        <th>Filename</th>
+        <th>Modified</th>
+        <th>Edit</th>
+        <th>Download</th>
+        <th>Preview</th>
+        <th>Figures</th>
+    </tr>
+    {% for galley in galleys %}
+        {% can_view_file galley.file as can_view_file_flag %}
+        {% can_edit_file galley.file article as can_edit_file_flag %}
+        {% can_view_file_history galley.file article as can_view_file_history_flag %}
+        {% user_has_role request 'typesetter' as user_is_typesetter %}
+        <tr>
+            <td>{{ galley.pk }}</td>
+            <td>{{ galley.label }}</td>
+            <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+            <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
+            <td>
+                <a class="button small" href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_assignment' assignment.pk %}">Edit</a></td>
+            <td>
+                <a href="{% url 'typesetting_typesetter_download_file' assignment.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+            </td>
+            <td>
+                <a href="{% url 'typesetting_preview_galley' article_id=article.pk galley_id=galley.pk assignment_id=assignment.pk %}"
+                   target="_blank">
+                    <i class="fa fa-eye">&nbsp;</i>
+                </a>
+            </td>
+            <td>
+                {% if galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                    Missing Figures
+                {% else %}
+                    N/a
+                {% endif %}
+            </td>
+        {% empty %}
+        <tr>
+            <td colspan="10">No typeset files have been uploaded.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% if not disable_upload %}
+<div class="button-group">
+    <a class="float-right button success" data-open="uploadbox">
+        <span class="fa fa-cloud-upload"></span>
+        Upload New Typeset File
+    </a>
+</div>
+{% endif %}

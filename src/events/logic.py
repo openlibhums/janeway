@@ -284,6 +284,18 @@ class Events:
     # raised when a user access request is evaluated by staff.
     ON_ACCESS_REQUEST_COMPLETE = 'on_access_request_complete'
 
+    # Typesetting Events
+    ON_TYPESETTING_COMPLETE = "on_typesetting_complete"
+    ON_TYPESETTING_ASSIGN_NOTIFICATION = "on_typesetting_assign_notification"
+    ON_TYPESETTING_ASSIGN_DECISION = "on_typesetting_assign_decision"
+    ON_TYPESETTING_ASSIGN_CANCELLED = "on_typesetting_assign_cancelled"
+    ON_TYPESETTING_ASSIGN_DELETED = "on_typesetting_assign_deleted"
+    ON_TYPESETTING_ASSIGN_COMPLETE = "on_typesetting_assign_complete"
+    ON_PROOFREADER_ASSIGN_NOTIFICATION = "on_proofreader_assign_notification"
+    ON_PROOFREADER_ASSIGN_CANCELLED = "on_proofreader_assign_cancelled"
+    ON_PROOFREADER_ASSIGN_RESET = "on_proofreader_assign_reset"
+    ON_PROOFREADER_ASSIGN_COMPLETE = "on_proofreader_assign_complete"
+
     DEPRECATED_EVENTS = {
         ON_AUTHOR_PUBLICATION,
     }
