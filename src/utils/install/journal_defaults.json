@@ -5132,5 +5132,24 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, allow choosing anonymity visibility for a new review assignment.",
+            "is_translatable": false,
+            "name": "select_review_visibility",
+            "pretty_name": "Select Review Visibility",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
