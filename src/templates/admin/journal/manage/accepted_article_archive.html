@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Accepted Articles{% endblock title %}
+{% block title-section %}Accepted Articles{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Accepted Articles</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <table class="small article_list scroll">
+                    <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>Title</td>
+                        <td>Date Accepted</td>
+                        <td>Authors</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in accepted_articles %}
+                        <tr>
+                            <td>{{ article.pk }}</td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                            <td>
+                              {% if article.stage == 'Accepted' %}
+                                {% if article.date_accepted %}
+                                  {{ article.date_accepted|date:"Y-m-d" }}
+                                {% else %}
+                                  No archive date recorded
+                                {% endif %}
+                              {% endif %}
+                            </td>
+                            <td>
+                              {{ article.frozen_authors }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".article_list" %}
+{% endblock %}

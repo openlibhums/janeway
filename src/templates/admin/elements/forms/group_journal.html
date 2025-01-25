@@ -80,6 +80,9 @@
     <p>You can use this setting to stop this journal being list on the Press' journals page.</p>
     {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
 
+    <p>If you want to allow the editor to view information about peer review accepted articles:</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.show_accepted_articles_archive %}
+
     <p>If you want to display a special message on the login page you can add it here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_login_page_notice %}
     {% include "admin/elements/forms/field.html" with field=edit_form.login_page_notice %}
