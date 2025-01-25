@@ -32,6 +32,7 @@ urlpatterns = [
     re_path(r'^unassigned/article/(?P<article_id>\d+)/notify/(?P<editor_id>\d+)/$', views.assignment_notification,
         name='review_assignment_notification'),
     re_path(r'^unassigned/article/(?P<article_id>\d+)/move/review/$', views.move_to_review, name='review_move_to_review'),
+    re_path(r'^article/(?P<article_id>\d+)/editor/add/$', views.add_editor_assignment, name='add_editor_assignment'),
     re_path(r'^article/(?P<article_id>\d+)/crosscheck/$', views.view_ithenticate_report, name='review_crosscheck'),
     re_path(r'^article/(?P<article_id>\d+)/move/(?P<decision>accept|decline|undecline)/$', views.review_decision,
         name='review_decision'),
