@@ -5132,5 +5132,24 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Editors can skip sending notification emails.",
+            "is_translatable": false,
+            "name": "enable_skip_send_email",
+            "pretty_name": "Enable Skip Send Email",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
