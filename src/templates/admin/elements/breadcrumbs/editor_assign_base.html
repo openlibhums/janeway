@@ -1,0 +1,2 @@
+<li><a href="{% url 'editor_assignment_requests' %}">Editor Assign Requests</a></li>
+{% if editor or assignment %}<li>Editor #{% if review %}{{ review.pk }}{% elif assignment %}{{ assignment.pk }}{% endif %}</li>{% endif %}

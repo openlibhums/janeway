@@ -32,6 +32,9 @@ urlpatterns = [
     re_path(r'^unassigned/article/(?P<article_id>\d+)/notify/(?P<editor_id>\d+)/$', views.assignment_notification,
         name='review_assignment_notification'),
     re_path(r'^unassigned/article/(?P<article_id>\d+)/move/review/$', views.move_to_review, name='review_move_to_review'),
+    re_path(r'^article/(?P<article_id>\d+)/editor/add/$', views.add_editor_assignment, name='add_editor_assignment'),
+    re_path(r'^article/(?P<article_id>\d+)/editor/invite/(?P<editor_assignment_id>\d+)/notify/$', views.notify_invite_editor,
+        name='notify_invite_editor_assignment'),
     re_path(r'^article/(?P<article_id>\d+)/crosscheck/$', views.view_ithenticate_report, name='review_crosscheck'),
     re_path(r'^article/(?P<article_id>\d+)/move/(?P<decision>accept|decline|undecline)/$', views.review_decision,
         name='review_decision'),
@@ -101,6 +104,13 @@ urlpatterns = [
         views.upload_review_file,
         name='upload_review_file'),
 
+    re_path(r'^requests/editor/$', views.editor_assignment_requests, name='editor_assignment_requests'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/accept/$', views.accept_editor_assignment_request, name='accept_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/decline/$', views.decline_editor_assignment_request, name='decline_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/delete/$', views.delete_editor_assignment_request, name='delete_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/edit/$', views.edit_editor_assignment_request, name='edit_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/withdraw/$', views.withdraw_editor_assignment_request, name='withdraw_editor_assignment'),
+    re_path(r'^requests/editor/(?P<assignment_id>\d+)/reminder/$', views.remind_editor_assignment_request, name='remind_editor_assignment'),
 
     re_path(r'^author/(?P<article_id>\d+)/$', views.author_view_reviews, name='review_author_view'),
 

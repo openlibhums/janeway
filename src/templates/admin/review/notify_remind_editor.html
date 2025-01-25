@@ -1,0 +1,49 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load settings %}
+
+
+{% block title %}Editor Assignment Reminders{% endblock title %}
+{% block title-section %}Editor Assignment Reminders{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+
+{% block css %}
+    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/unassigned_base.html" %}
+    {% if article %}<li><a href="{% url 'review_unassigned_article' article.pk %}">{{ article.safe_title }}</a></li>{% endif %}
+    <li>Send Editor Assignment Reminder</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Send Request Reminder</h2>
+            </div>
+            <div class="content">
+                <p>As this editor assignment has not been accepted, you can send a reminder to the editor asking them to undertake the request.</p>
+                <div class="card">
+                    <div class="card-divider">
+                        <h4>To {{ assignment.editor.full_name }}</h4>
+                        <h5>From {{ request.user.full_name }}</h5>
+                    </div>
+                </div>
+                {% include "admin/elements/email_form.html" with form=form skip=0 %}
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {{ block.super}}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+
+{% endblock js %}

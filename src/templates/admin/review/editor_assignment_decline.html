@@ -1,0 +1,20 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Decline to Editor Assignment Request{% endblock title %}
+{% block title-section %}Decline to Editor Assignment Request{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/editor_assign_base.html" %}
+    <li>Decline Editor Assignment Request</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <p>Thank you for letting us know that you are unable to participate in the editorial process for the article at this time.
+            </div>
+        </div>
+    </div>
+{% endblock %}

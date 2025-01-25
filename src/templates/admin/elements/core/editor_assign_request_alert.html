@@ -1,0 +1,8 @@
+<a href="{% url 'editor_assignment_requests' %}" class="button">
+    {% if assigned_articles_for_user_editor_request_count > 0 %}
+    &#10071;{{assigned_articles_for_user_editor_request_count}}
+    {% else %}
+    View
+    {% endif %}
+    Assign Requests
+</a>
