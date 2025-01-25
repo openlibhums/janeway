@@ -17,3 +17,6 @@
 <script src="{% static "common/js/tinymce/tinymce.min.js" %}"></script>
 {% endif %}
 <script src="{% static "django_tinymce/init_tinymce.js" %}"></script>
+
+{{ form.media.css }}
+{{ form.media.js }}

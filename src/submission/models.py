@@ -676,6 +676,7 @@ class Article(AbstractLastModifiedModel):
             "of interests in the publication of this "
             "article please state them here.",
     )
+    study_topic = models.ManyToManyField('core.Topics', through='ArticleTopic', blank=True, null=True, related_name='study_topics')
     rights = JanewayBleachField(
         blank=True, null=True,
         help_text="A custom statement on the usage rights for this article"
@@ -1371,6 +1372,23 @@ class Article(AbstractLastModifiedModel):
     def issues_list(self):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
+
+    def topics(self, topic_type=None):
+        if topic_type:
+            return core_models.Topics.objects.filter(articletopic__article=self, articletopic__topic_type=topic_type)
+        return core_models.Topics.objects.filter(articletopic__article=self)
+
+    def topics_by_type(self):
+        primary_topics = core_models.Topics.objects.filter(
+            articletopic__article=self, articletopic__topic_type=ArticleTopic.PRIMARY
+        )
+        secondary_topics = core_models.Topics.objects.filter(
+            articletopic__article=self, articletopic__topic_type=ArticleTopic.SECONDARY
+        )
+        return {
+            'primary': primary_topics,
+            'secondary': secondary_topics,
+        }
 
     @cache(7200)
     def altmetrics(self):
@@ -2489,3 +2507,26 @@ def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 
 m2m_changed.connect(order_keywords, sender=Article.keywords.through)
+
+
+class ArticleTopic(models.Model):
+    PRIMARY = 'PR'
+    SECONDARY = 'SE'
+    TOPIC_TYPE_CHOICES = [
+        (PRIMARY, 'Primary'),
+        (SECONDARY, 'Secondary'),
+    ]
+
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    topic = models.ForeignKey('core.Topics', on_delete=models.CASCADE)
+    topic_type = models.CharField(
+        max_length=2,
+        choices=TOPIC_TYPE_CHOICES,
+        default=PRIMARY,
+    )
+
+    class Meta:
+        unique_together = ('article', 'topic')
+
+    def __str__(self):
+        return f"{self.article} - {self.topic} ({self.topic_type})"
