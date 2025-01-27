@@ -589,6 +589,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_reader(self, request):
         return self.check_role(request.journal, 'reader', staff_override=False)
 
+    def snapshot_affiliations(self, frozen_author):
+        """
+        Delete any outdated affiliations on the frozen author and then
+        assign copies of account affiliations to the frozen author.
+        """
+        frozen_author.affiliations.delete()
+        for affiliation in self.affiliations:
+            affiliation.pk = None
+            affiliation.account = None
+            affiliation.frozen_author = frozen_author
+            affiliation.save()
+
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
             'name_prefix': self.name_prefix,
@@ -604,9 +616,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         if frozen_author and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
-            frozen_author.institution = self.institution
-            frozen_author.department = self.department
             frozen_author.save()
+            self.snapshot_affiliations(frozen_author)
 
         else:
             try:
@@ -625,9 +636,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 defaults=dict(order=order_object.order, **frozen_dict)
             )
             if created:
-                frozen_author.institution = self.institution
-                frozen_author.department = self.department
-                frozen_author.save()
+                self.snapshot_affiliations(frozen_author)
 
     def frozen_author(self, article):
         try:
@@ -2099,6 +2108,13 @@ class Organization(models.Model):
         Return the first location.
         """
         return self.locations.first() if self.locations else None
+
+    @property
+    def country(self):
+        """
+        Return the country of the first location.
+        """
+        return self.location.country if self.location else None
 
     @property
     def names(self):

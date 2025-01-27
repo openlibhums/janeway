@@ -844,12 +844,12 @@ def process_reviewer_csv(path, request, article, form):
                     'is_active': True,
                 }
             )
-            if row.get('department', ''):
-                reviewer.department = row.get('department', '')
-                reviewer.save()
-            if row.get('institution', ''):
-                reviewer.institution = row.get('institution', '')
-                reviewer.save()
+            if row.get('institution', '') or row.get('department', ''):
+                core_models.Affiliation.naive_get_or_create(
+                    institution=row.get('institution', ''),
+                    department=row.get('department', ''),
+                    account=reviewer,
+                )
 
             try:
                 review_interests = row.get('interests')

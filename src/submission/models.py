@@ -2170,6 +2170,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
         )
 
     @property
+    def affiliations(self):
+        return core_models.Affiliation.objects.filter(
+            frozen_author=self
+        ).order_by('-is_primary')
+
+    @property
     def is_correspondence_author(self):
         # early return if no email address available
         if (not self.author
