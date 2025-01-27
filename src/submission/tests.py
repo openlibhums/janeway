@@ -51,8 +51,8 @@ class SubmissionTests(TestCase):
         if not self.journal_one.submissionconfiguration:
             self.fail('Journal does not have a submissionconfiguration object.')
 
-    @staticmethod
-    def create_journal():
+    @classmethod
+    def create_journal(cls):
         """
         Creates a dummy journal for testing
         :return: a journal
@@ -95,32 +95,31 @@ class SubmissionTests(TestCase):
 
         return author_1, author_2
 
-    def create_sections(self):
-        self.section_1 = models.Section.objects.create(
+    @classmethod
+    def create_sections(cls):
+        cls.section_1 = models.Section.objects.create(
             name='Test Public Section',
-            journal=self.journal_one,
+            journal=cls.journal_one,
         )
-        self.section_2 = models.Section.objects.create(
+        cls.section_2 = models.Section.objects.create(
             name='Test Private Section',
             public_submissions=False,
-            journal=self.journal_one
+            journal=cls.journal_one
         )
-        self.section_3 = models.Section.objects.create(
-            journal=self.journal_one,
+        cls.section_3 = models.Section.objects.create(
+            journal=cls.journal_one,
         )
 
     @classmethod
     def setUpTestData(cls):
-        cls.journal_one = cls.create_journal()
-
-    def setUp(self):
         """
         Setup the test environment.
         :return: None
         """
-        self.editor = helpers.create_editor(self.journal_one)
-        self.press = helpers.create_press()
-        self.create_sections()
+        cls.journal_one = cls.create_journal()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.press = helpers.create_press()
+        cls.create_sections()
 
     def test_article_image_galley(self):
         article = models.Article.objects.create(
@@ -280,9 +279,9 @@ class SubmissionTests(TestCase):
 
         article.snapshot_authors()
         new_department = "New department"
-        for frozen in article.frozen_authors():
-            frozen.department = new_department
-            frozen.save()
+        for frozen_author in article.frozen_authors():
+            frozen_author.department = new_department
+            frozen_author.save()
         article.snapshot_authors(force_update=True)
         frozen = article.frozen_authors().all()[0]
 
@@ -789,8 +788,7 @@ class ArticleSearchTests(TransactionTestCase):
 
         return journal_one
 
-    @classmethod
-    def create_authors(cls):
+    def create_authors(self):
         author_1_data = {
             'email': 'one@example.org',
             'is_active': True,
@@ -813,20 +811,17 @@ class ArticleSearchTests(TransactionTestCase):
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = helpers.create_author(cls.journal_one, **author_1_data)
-        author_2 = helpers.create_author(cls.journal_one, **author_2_data)
+        author_1 = helpers.create_author(self.journal_one, **author_1_data)
+        author_2 = helpers.create_author(self.journal_one, **author_2_data)
 
         return author_1, author_2
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.journal_one = cls.create_journal()
 
     def setUp(self):
         """
         Setup the test environment.
         :return: None
         """
+        self.journal_one = self.create_journal()
         self.editor = helpers.create_editor(self.journal_one)
         self.press = helpers.create_press()
 
