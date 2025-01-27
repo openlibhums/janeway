@@ -2061,7 +2061,7 @@ class Organization(models.Model):
     )
     website = models.CharField(
         blank=True,
-        max_length=500,
+        max_length=2000,
     )
     locations = models.ManyToManyField(
         'Location',
@@ -2316,6 +2316,8 @@ class Organization(models.Model):
                     json_string = zip_ref.read(file_info).decode(encoding="utf-8")
                     data = json.loads(json_string)
                     data = ror_import.filter_new_records(data, organizations)
+                    if len(data) == 0:
+                        ror_import.status = ror_import.RORImportStatus.UNNECESSARY
                     if limit:
                         data = data[:limit]
                     description = f"Importing {len(data)} ROR records"
@@ -2323,7 +2325,7 @@ class Organization(models.Model):
                         try:
                             cls.create_from_ror_record(item)
                         except Exception as error:
-                            message = f'{error}\n{json.dumps(item)}'
+                            message = f'{type(error)}: {error}\n{json.dumps(item)}'
                             RORImportError.objects.create(
                                 ror_import=ror_import,
                                 message=message,

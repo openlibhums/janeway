@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('ror', models.URLField(blank=True, help_text='Research Organization Registry identifier (URL)', validators=[core.models.validate_ror], verbose_name='ROR')),
                 ('ror_status', models.CharField(blank=True, choices=[('active', 'Active'), ('inactive', 'Inactive'), ('withdrawn', 'Withdrawn'), ('unknown', 'Unknown')], default='unknown', max_length=10)),
                 ('ror_record_timestamp', models.CharField(blank=True, help_text='The admin.last_modified.date string from ROR data', max_length=10)),
-                ('website', models.CharField(blank=True, max_length=500)),
+                ('website', models.CharField(blank=True, max_length=2000)),
                 ('locations', models.ManyToManyField(blank=True, null=True, to='core.location')),
             ],
             options={'ordering': ['ror_display__value']},

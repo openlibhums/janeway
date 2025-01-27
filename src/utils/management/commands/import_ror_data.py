@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from utils.models import RORImport
 from core.models import Organization
@@ -39,19 +40,21 @@ class Command(BaseCommand):
 
         # The import is necessary.
         # Check we have the right copy of the data dump.
-        if ror_import.ongoing or settings.DEBUG:
+        if ror_import.ongoing:
             if not ror_import.previous_import:
                 ror_import.download_data()
             elif ror_import.previous_import.zip_path != ror_import.zip_path:
                 ror_import.download_data()
 
         # The data is all downloaded and ready to import.
-        if ror_import.ongoing or settings.DEBUG:
+        if ror_import.ongoing:
             Organization.import_ror_batch(
                 ror_import,
                 limit=limit,
             )
 
+        ror_import.stopped = timezone.now()
+        ror_import.save()
         # The process did not error out, so it can be considered a success.
         if ror_import.ongoing:
             ror_import.status = ror_import.RORImportStatus.SUCCESSFUL
