@@ -461,7 +461,7 @@ class RORImport(models.Model):
             self.records = response.json()
             self.save()
             if not self.new_download_needed:
-                self.status = self.RORImportStatus.UNNECESSARY
+                self.status = self.RORImportStatus.ONGOING
                 self.save()
         except requests.RequestException as error:
             self.fail(error)
