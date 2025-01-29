@@ -1,5 +1,5 @@
 {% extends "admin/core/small_form.html" %}
-{% load i18n foundation %}
+{% load i18n foundation next_url %}
 
 {% block contextual_title %}
   {% trans "Unregistered ORCiD" %}
@@ -35,18 +35,18 @@
   <div class="padding-block-1">
     <button
       type="submit"
-      formaction="{% url 'core_login' %}"
+      formaction="{% url_with_next 'core_login' %}"
       class="button secondary expanded">
       {% trans 'Log in' %}
     </button>
   </div>
   <p class="text-center">
-    <a href="{% url 'core_get_reset_token' %}">
+    <a href="{% url_with_next 'core_get_reset_token' %}">
       {% trans "Forgotten your password?" %}
     </a>
   </p>
   <p class="text-center">
-    <a href="{% url 'core_register' %}?token={{ token.token }}">
+    <a href="{% url_with_next 'core_register_with_orcid_token' orcid_token=token.token %}">
       {% trans "Register a new account" %}
     </a>
   </p>
