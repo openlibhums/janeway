@@ -1,5 +1,5 @@
 {% extends "admin/core/small_form.html" %}
-{% load static i18n orcid %}
+{% load static i18n orcid next_url %}
 
 {% block contextual_title %}
   {% trans "Log in" %}
@@ -19,7 +19,7 @@
   {% if settings.ENABLE_ORCID %}
     <div>
       <a
-        href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
+        href="{% url_with_next 'core_login_orcid' %}"
         class="button expanded orcid-button">
         <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">
         {% trans "Log in with ORCiD" %}
@@ -29,7 +29,7 @@
   {% if settings.ENABLE_OIDC %}
     <div>
       <a
-        href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
+        href="{% url_with_next 'oidc_authentication_init' %}"
         class="button secondary hollow expanded">
         {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
       </a>
@@ -47,12 +47,12 @@
     </button>
   </div>
   <p class="text-center">
-    <a href="{% url 'core_get_reset_token' %}">
+    <a href="{% url_with_next 'core_get_reset_token' %}">
       {% trans "Forgotten your password?" %}
     </a>
   </p>
   <p class="text-center">
-    <a href="{% url 'core_register' %}">
+    <a href="{% url_with_next 'core_register' %}">
       {% trans "Register a new account" %}
     </a>
   </p>
