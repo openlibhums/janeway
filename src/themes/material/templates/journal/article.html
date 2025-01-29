@@ -162,12 +162,14 @@
                                     </h5>
                                     <p><i class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
-                                <div class="alm">
-                                    <h5>
-                                        {{ article.metrics.downloads }}
-                                    </h5>
-                                    <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
-                                </div>
+                                {% if galleys %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.metrics.downloads }}
+                                        </h5>
+                                        <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
+                                    </div>
+                                {% endif %}
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
                                         <h5>
