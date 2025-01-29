@@ -56,6 +56,11 @@ urlpatterns = [
     re_path(r'^login/$', core_views.user_login, name='core_login'),
     re_path(r'^login/orcid/$', core_views.user_login_orcid, name='core_login_orcid'),
     re_path(r'^register/step/1/$', core_views.register, name='core_register'),
+    re_path(
+        r'^register/step/1/(?P<orcid_token>[\w-]+)/$',
+        core_views.register,
+        name='core_register_with_orcid_token'
+    ),
     re_path(r'^register/step/2/(?P<token>[\w-]+)/$', core_views.activate_account, name='core_confirm_account'),
     re_path(r'^register/step/orcid/(?P<token>[\w-]+)/$', core_views.orcid_registration, name='core_orcid_registration'),
     re_path(r'^reset/step/1/$', core_views.get_reset_token, name='core_get_reset_token'),
