@@ -233,26 +233,29 @@
                                 {% if article.is_published or proofing %}
                                     {% if not request.journal.disable_metrics_display %}
                                         <div class="top">
-                                            <div class="row">
-                                                <div class="large-{% if article.citation_count and not journal_settings.article.suppress_citations_metric %}4{% else %}6{% endif %} columns">
+                                            <div class="flex">
+                                                <div class="columns">
                                                     <p class="number">
                                                         {{ article.metrics.views }}
                                                         <span>{% trans "Views" %}</span>
                                                     </p>
                                                 </div>
-                                                <div class="large-{% if article.citation_count and not journal_settings.article.suppress_citations_metric %}4{% else %}6{% endif %} columns">
-                                                    <p class="number">
-                                                        {{ article.metrics.downloads }}
-                                                        <span>{% trans "Downloads" %}</span>
-                                                    </p>
-                                                </div>
+
+                                                {% if galleys %}
+                                                    <div class="columns">
+                                                        <p class="number">
+                                                            {{ article.metrics.downloads }}
+                                                            <span>{% trans "Downloads" %}</span>
+                                                        </p>
+                                                    </div>
+                                                {% endif %}
                                                 {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
-                                                <div class="large-4 columns">
-                                                    <p class="number">
-                                                        {{ article.citation_count }}
-                                                        <span>{% trans "Citations" %}</span>
-                                                    </p>
-                                                </div>
+                                                    <div class="columns">
+                                                        <p class="number">
+                                                            {{ article.citation_count }}
+                                                            <span>{% trans "Citations" %}</span>
+                                                        </p>
+                                                    </div>
                                                 {% endif %}
                                             </div>
                                         </div>

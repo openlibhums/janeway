@@ -288,7 +288,9 @@
                     <h2>{% trans "Metrics" %}</h2>
                     <ul>
                         <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
-                        <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        {% if galleys %}
+                            <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        {% endif %}
                         {% if article.metrics.alm.twitter %}
                             <li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
                         {% if article.metrics.alm.wikipedia %}
