@@ -921,9 +921,9 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def has_publication_details(self):
-        """Determines if an article has publication details override"""
+        """Determines if an article has any publication details"""
         display_date_submitted, display_date_accepted = self.publication_detail_settings(self.journal)
-        return(
+        return (
             self.page_range
             or self.article_number
             or self.publisher_name
@@ -931,6 +931,7 @@ class Article(AbstractLastModifiedModel):
             or self.ISSN_override
             or (display_date_submitted and self.date_submitted)
             or (display_date_accepted and self.date_accepted)
+            or self.date_published
         )
 
     @property
