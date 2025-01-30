@@ -56,7 +56,7 @@ class Loader(FileSystemLoader):
                 theme_setting = request.press.theme
 
         # allows servers in debug mode to override the theme with ?theme=name in the URL
-        if settings.DEBUG and request and request.GET.get('theme'):
+        if (settings.DEBUG or settings.IN_TEST_RUNNER) and request and request.GET.get('theme'):
             theme_setting = request.GET.get('theme')
 
         # order up the themes and return them with engine dirs
