@@ -129,8 +129,6 @@ class Press(AbstractSiteModel):
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
-    password_reset_text = JanewayBleachField(blank=True, null=True, default=press_text('reset'))
-    registration_text = JanewayBleachField(blank=True, null=True, default=press_text('registration'))
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
