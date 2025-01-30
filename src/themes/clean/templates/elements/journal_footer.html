@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load next_url %}
 <div class="row">
     <div class="col-md-6">
         <small><div class="text-left">
@@ -39,8 +40,9 @@
                 <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 {% if not request.user.is_authenticated %}
                   <li class="list-inline-item">
-                    <a href="{% url 'core_login' %}">
-                      {% trans 'Login' %}</a>
+                    <a href="{% url_with_return 'core_login' %}">
+                      {% trans 'Log in' %}
+                    </a>
                   </li>
                 {% endif %}
                 {% if journal_settings.general.switch_language %}

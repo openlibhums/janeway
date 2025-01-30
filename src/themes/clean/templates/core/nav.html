@@ -3,6 +3,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 <nav class="navbar navbar-dark navbar-expand-lg navbar-custom">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -100,8 +101,16 @@
                     </div>
                 </li>
             {% else %}
-                <li class="nav-item"><a href="{% url 'core_login' %}" class="nav-link">{% trans 'Login' %}</a></li>
-                <li class="nav-item"><a href="{% url 'core_register' %}" class="nav-link">{% trans 'Register' %}</a></li>
+                <li class="nav-item">
+                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                    {% trans 'Log in' %}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url_with_return 'core_register' %}" class="nav-link">
+                    {% trans 'Register' %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
 

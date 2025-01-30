@@ -1,6 +1,7 @@
 {% load static %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
+{% load next_url %}
 
 {% load hijack %}
 
@@ -50,7 +51,7 @@
                       <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
                     {% endif %}
                   {% else %}
-                    <li><a href="{% url 'core_login' %}">Log in</a></li>
+                    <li><a href="{% url_with_return 'core_login' %}">Log in</a></li>
                   {% endif %}
                 {% endblock breadcrumbs %}
               </ul>
