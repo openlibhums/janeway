@@ -3,6 +3,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
@@ -62,8 +63,16 @@
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url_with_return 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
 
@@ -110,8 +119,16 @@
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url_with_return 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
         <a
