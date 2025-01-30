@@ -88,7 +88,8 @@ def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
     # of the |urlencode template filter,
     # which is where many next URLs are created
     new_query_string = parsed_query.urlencode(safe="/") # Full percent-encoded query string
-    return parsed_url._replace(query=new_query_string).geturl()
+    final_url = parsed_url._replace(query=new_query_string).geturl()
+    return final_url
 
 
 def send_reset_token(request, reset_token):
