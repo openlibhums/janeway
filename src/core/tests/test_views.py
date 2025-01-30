@@ -21,6 +21,7 @@ class CoreViewTestsWithData(TestCase):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         helpers.create_roles(['author', 'editor', 'reviewer'])
+        cls.themes = ['clean', 'OLH', 'material']
         cls.user_email = 'sukv8golcvwervs0y7e5@example.org'
         cls.user_password = 'xUMXW1oXn2l8L26Kixi2'
         cls.user = core_models.Account.objects.create_user(
@@ -59,6 +60,9 @@ class CoreViewTestsWithData(TestCase):
 
         # The core_login url with encoded next url
         cls.core_login_with_next = '/login/?next=/target/page/%3Fa%3Db%26x%3Dy'
+
+        # The core_register url with encoded next url
+        cls.core_register_with_next = '/register/?next=/target/page/%3Fa%3Db%26x%3Dy'
 
     def setUp(self):
         self.client = Client()
@@ -537,3 +541,29 @@ class ActivateAccountTests(CoreViewTestsWithData):
             self.core_login_with_next,
             response.content.decode(),
         )
+
+
+class ReturnURLTests(CoreViewTestsWithData):
+    """
+    These tests check that the url_with_return
+    template tag is present in public-facing templates where
+    the user has an option to log in or register.
+    """
+
+    def test_journal_homepage_account_links_have_return(self):
+        for theme in self.themes:
+            response = self.client.get('/', data={'theme': theme})
+            content = response.content.decode()
+            self.assertIn('/login/?next=/', content)
+            self.assertNotIn('"/login/"', content)
+            self.assertIn('/register/step/1/?next=/', content)
+            self.assertNotIn('"/register/step/1/"', content)
+
+    def test_journal_submissions_account_links_have_return(self):
+        for theme in self.themes:
+            response = self.client.get('/submissions/', data={'theme': theme})
+            content = response.content.decode()
+            self.assertIn('/login/?next=/submissions/', content)
+            self.assertNotIn('"/login/"', content)
+            self.assertIn('/register/step/1/?next=/submissions/', content)
+            self.assertNotIn('"/register/step/1/"', content)

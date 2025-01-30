@@ -1,6 +1,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
@@ -72,8 +73,16 @@
                     <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
                     <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
                 {% else %}
-                    <li><a href="{% url 'core_login' %}">{% trans "Login" %}</a></li>
-                    <li><a href="{% url 'core_register' %}"> {% trans "Register" %}</a></li>
+                    <li>
+                      <a href="{% url_with_return 'core_login' %}">
+                        {% trans "Log in" %}
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{% url_with_return 'core_register' %}">
+                        {% trans "Register" %}
+                      </a>
+                    </li>
                 {% endif %}
             </ul>
         </li>
