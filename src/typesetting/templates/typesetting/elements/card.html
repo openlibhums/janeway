@@ -1,0 +1,19 @@
+<div class="card">
+    <div class="card-divider">
+        <h5>{{ article.pk }} - {{ article.title|safe }}</h5>
+    </div>
+    <div class="card-section">
+        Article is undergoing typesetting and proofing.
+        <div class="button-group">
+            <a class="button tiny" href="{% url 'typesetting_article' article.pk %}">View Article</a>
+        </div>
+    </div>
+    <div class="card-divider">
+        {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
+
+        {% for assignment in article.editors %}
+            {% include "elements/avatar.html" with user=assignment.editor role=assignment.editor_type %}
+        {% endfor %}
+
+    </div>
+</div>

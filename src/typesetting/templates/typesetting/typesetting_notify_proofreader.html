@@ -1,0 +1,51 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Notify Proofreader{% endblock title %}
+{% block title-section %}Notify Proofreader{% endblock %}}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Assign Proofreader</li>
+    <li>Notify Proofreader</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>4. Notify the Proofreader</h2>
+        </div>
+        <div class="content">
+            <p>You can send a message to the proofreader or skip it.</p>
+            <div class="card">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card-divider">
+                        <h4>To {{ assignment.proofreader.full_name }} {{ assignment.proofreader.email }}</h4>
+                        <h5>From {{ request.user.full_name }} {{ request.user.email }}</h5>
+                    </div>
+                    <div class="card-section">
+                         <p>Subject: <strong>{{ journal_settings.email_subject.subject_typesetting_notify_proofreader }}</strong></p>
+                        <textarea rows="10" name="message">{{ message|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
+                    </div>
+                    <div class="card-divider">
+                        <div class="button-group">
+                            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+	{% include "elements/jqte.html" %}
+{% endblock js %}

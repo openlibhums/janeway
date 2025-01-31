@@ -1,0 +1,70 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Proofreading Assignments{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>Proofreading Assignments</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Your Open Proofreading Assignments</h2>
+         </div>
+        <div class="content">
+            <p>This is your proofing assignment list.</p>
+            <table class="small scroll" id="tasks">
+                <thead>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Assigned</th>
+                    <th>Due</th>
+                    <th>Time to Due</th>
+                    <th></th>
+                </thead>
+                {% for assignment in active_assignments %}
+                <tbody>
+                    <td>{{ assignment.pk }}</td>
+                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.assigned }}</td>
+                    <td>{{ assignment.due|date:"Y-m-d" }}</td>
+                    <td>{{ assignment.time_to_due }}</td>
+                    {% if not assignment.completed %}
+                    <td><a href="{% url 'typesetting_proofreading_assignment' assignment.pk %}">View Assignment</a></td>
+                    {% endif %}
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="title-area">
+            <h2>Your Closed Proofreading Assignments</h2>
+         </div>
+        <div class="content">
+            <table class="small scroll" id="completed_tasks">
+                <thead>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Assigned</th>
+                    <th>Completed</th>
+                </thead>
+                {% for assignment in completed_assignments %}
+                <tbody>
+                    <td>{{ assignment.pk }}</td>
+                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.assigned }}</td>
+                    <td data-sort="{{ assignment.completed|date:"YYYYMMDDHMs" }}">{{ assignment.completed }}</td>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#tasks" %}
+    {% include "elements/datatables.html" with target="#completed_tasks" %}
+{% endblock js %}
