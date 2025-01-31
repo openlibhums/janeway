@@ -136,7 +136,7 @@ urlpatterns = [
         views.publish_article_check, name='publish_article_check'),
     re_path(
         r'^publish/article/(?P<article_id>\d+)/preview/$',
-        views.article_editor_preview,
+        views.article_preview,
         name='publish_article_preview',
     ),
 
