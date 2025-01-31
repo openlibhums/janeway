@@ -15,9 +15,6 @@ class PressViewTestsWithData(TestCase):
     def setUpTestData(cls):
         cls.press = helpers.create_press()
 
-    def setUp(self):
-        self.client = Client()
-
 
 class URLWithReturnTests(PressViewTestsWithData):
 

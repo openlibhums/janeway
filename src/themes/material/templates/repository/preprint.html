@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load bootstrap4 %}
+{% load next_url %}
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
@@ -76,7 +77,8 @@
                             </div>
                             <br/>
                         {% else %}
-                            <p>You must <a href="{% url 'core_login' %}">log in</a> to post a comment.</p>
+                            <p>You must <a href="{% url_with_return 'core_login' %}">log in</a>
+                            to post a comment.</p>
 
                         {% endif %}
                         <div class="divider"></div>
