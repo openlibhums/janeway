@@ -3,7 +3,7 @@ __author__ = "Andy Byers, Mauro Sanchez & Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
@@ -19,48 +19,52 @@ from dateutil import tz
 
 FROZEN_DATETIME = timezone.datetime(2024, 3, 25, 10, 0, tzinfo=tz.gettz("America/Chicago"))
 
-class TestModels(TestCase):
-    def setUp(self):
-        self.press = helpers.create_press()
-        self.press.save()
-        self.request = helpers.Request()
-        self.request.press = self.press
-        self.repo_manager = helpers.create_user(
+class TestViews(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.request = helpers.Request()
+        cls.request.press = cls.press
+        cls.repo_manager = helpers.create_user(
             'repo_manager@janeway.systems'
         )
-        self.repo_manager.is_active = True
-        self.repo_manager.save()
-        self.reviewer = helpers.create_user(
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.reviewer = helpers.create_user(
             'repo_reviewer@janeway.systems',
         )
-        self.repository, self.subject = helpers.create_repository(
-            self.press,
-            [self.repo_manager],
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
             [],
             domain='repo.test.com',
         )
-        install.load_settings(self.repository)
+        install.load_settings(cls.repository)
         role = cm.Role.objects.create(name='Reviewer', slug='reviewer')
         rm.RepositoryRole.objects.create(
-            repository=self.repository,
-            user=self.reviewer,
+            repository=cls.repository,
+            user=cls.reviewer,
             role=role,
         )
-        self.preprint_author = helpers.create_user(
+        cls.preprint_author = helpers.create_user(
             username='repo_author@janeway.systems',
         )
-        self.preprint_one = helpers.create_preprint(
-            self.repository,
-            self.preprint_author,
-            self.subject,
+        cls.preprint_one = helpers.create_preprint(
+            cls.repository,
+            cls.preprint_author,
+            cls.subject,
             title='Preprint Number One',
         )
-        self.recommendation, _ = rm.ReviewRecommendation.objects.get_or_create(
-            repository=self.repository,
+        cls.recommendation, _ = rm.ReviewRecommendation.objects.get_or_create(
+            repository=cls.repository,
             name='Accept',
         )
-        self.server_name = "repo.test.com"
+        cls.server_name = "repo.test.com"
         update_settings()
+
+    def setUp(self):
         clear_script_prefix()
 
     @override_settings(URL_CONFIG='domain')
@@ -315,3 +319,41 @@ class TestModels(TestCase):
         p = rm.Preprint.objects.get(pk=self.preprint_one.pk)
         self.assertIsNone(p.date_published)
         self.assertIsNone(p.date_accepted)
+
+    def test_repository_account_links_have_return(self):
+        for theme in ['clean', 'OLH', 'material']:
+            data = {
+                'theme': theme,
+            }
+            code = self.repository.short_name
+            response = self.client.get(f'/{code}/', data=data)
+            content = response.content.decode()
+            self.assertIn(f'/{code}/login/?next=', content)
+            self.assertNotIn(f'"/{code}/login/"', content)
+            self.assertIn(f'/{code}/register/step/1/?next=', content)
+            self.assertNotIn(f'"/{code}/register/step/1/"', content)
+
+    def test_view_preprint_account_links_have_return(self):
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        code = self.repository.short_name
+        self.client.force_login(self.repo_manager)
+        data = {
+            'accept': True,
+        }
+        manager_url = f'/{code}/repository/manager/{self.preprint_one.pk}/'
+        self.client.post(manager_url, data=data, follow=True)
+        self.client.logout()
+
+        # Only the material theme has a login URL in
+        # src/themes/material/templates/repository/preprint.html
+        for theme in ['material']:
+            data = {
+                'theme': theme,
+            }
+            view_preprint_url = f'/{code}/repository/view/{self.preprint_one.pk}/'
+            response = self.client.get(view_preprint_url, data=data)
+            content = response.content.decode()
+            self.assertIn(f'/{code}/login/?next=', content)
+            self.assertNotIn(f'"/{code}/login/"', content)
+            self.assertIn(f'/{code}/register/step/1/?next=', content)
+            self.assertNotIn(f'"/{code}/register/step/1/"', content)
