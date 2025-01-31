@@ -438,15 +438,15 @@ def article_base_view(
         request,
         identifier_type,
         identifier,
-        is_editor_preview=False,
+        is_preview=False,
 ):
     """Base view to handle article rendering logic.
 
     :param request: the request object
     :param identifier_type: the identifier type
     :param identifier: the identifier
-    :param is_editor_preview: flag to alter logic for editor preview
-    :return: rendered article template
+    :param is_preview: flag to alter logic for preview (boolean)
+    :return: HttpResponse object
     """
     article_object = submission_models.Article.get_article(
         request.journal,
@@ -476,7 +476,7 @@ def article_base_view(
             file__mime_type='text/html',
         )
 
-    if not is_editor_preview and not article_object.is_published:
+    if not is_preview and not article_object.is_published:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
@@ -494,28 +494,39 @@ def article_base_view(
     return render(request, 'journal/article.html', context)
 
 
-# View for regular article display
 @decorators.frontend_enabled
 @article_stage_accepted_or_later_required
 def article(request, identifier_type, identifier):
-    """Renders a publicly accessible article."""
+    """
+    Renders a publicly accessible article.
+
+    :param request: the request object
+    :param identifier_type: the identifier type [id, doi, pubid]
+    :param identifier: the identifier
+    :return: HttpResponse object
+    """
     return article_base_view(
         request=request,
         identifier_type=identifier_type,
         identifier=identifier,
-        is_editor_preview=False,
+        is_preview=False,
     )
 
 
-# View for editor preview of the article
-@editor_user_required
-def article_editor_preview(request, article_id):
-    """Renders an article preview for editors."""
+@production_user_or_editor_required
+def article_preview(request, article_id):
+    """
+    Renders an article preview for editors and production staff.
+
+    :param request: the request object
+    :param article_id: the Article object primary key
+    :return: HttpResponse object
+    """
     return article_base_view(
         request=request,
         identifier_type="id",
         identifier=article_id,
-        is_editor_preview=True,
+        is_preview=True,
     )
 
 
