@@ -695,7 +695,7 @@ class CBVFacetForm(forms.Form):
                     count = values_list.count(value)
                     label_with_count = f'{label} ({count})'
                     choices.append((value, label_with_count))
-                self.fields[facet_key] = forms.ChoiceField(
+                self.fields[facet_key] = forms.MultipleChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
                     required=False,
