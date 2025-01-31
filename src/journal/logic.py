@@ -146,7 +146,6 @@ def get_best_galley(article, galleys):
         except core_models.Galley.DoesNotExist:
             pass
         try:
-
             image_galley = galleys.get(
                 file__mime_type__in=files.IMAGE_MIMETYPES,
                 public=True,

@@ -89,21 +89,33 @@
         </div>
     {% endif %}
 
-    <div id="select_render_galleybox" class="box {% if article.fixedpubcheckitems.select_render_galley %}success{% else %}warning{% endif %} checklist">
+    <div id="preview_articlebox" class="box {% if article.fixedpubcheckitems.preview_article %}success{% else %}warning{% endif %} checklist">
         <div class="row">
             <div class="large-3 columns">
-                <i class="fa fa-file-o pub-icon">&nbsp;</i>
+                <i class="fa fa-eye pub-icon">&nbsp;</i>
             </div>
             <div class="large-9 columns">
-                <h2>Select a Galley for Rendering</h2>
-                <p>If you have HTML or XML galleys, you can select which one will render by default.</p>
+                <h2>Preview Article</h2>
+                <p>Review how the article will appear to readers by opening the preview.</p>
                 <div class="button-group">
-                    <input onclick="submit_check_item('fixed', 'select_render_galley', this)" type="checkbox" id="select_render_galley" {% if article.fixedpubcheckitems.select_render_galley %}checked="checked"{% endif %}><label class="toggle" for="select_render_galley">{% if article.fixedpubcheckitems.select_render_galley %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
-                    <a href="#" data-open="galley" class="button small success pub-button">Select Galley</a>
+                    <input
+                        onclick="submit_check_item('fixed', 'preview_article', this)"
+                        type="checkbox"
+                        id="preview_article"
+                        {% if article.fixedpubcheckitems.preview_article %}checked="checked"{% endif %}>
+                    <label class="toggle" for="preview_article">
+                        {% if article.fixedpubcheckitems.preview_article %}
+                            <s>Mark as Complete</s>
+                        {% else %}
+                            Mark as Complete
+                        {% endif %}
+                    </label>
+                    <a href="{% url 'publish_article_preview' article.pk %}" class="button small success pub-button">Open Preview</a>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div id="set_pub_datebox" class="box {% if article.fixedpubcheckitems.set_pub_date %}success{% else %}warning{% endif %} checklist">
         <div class="row">
@@ -267,8 +279,6 @@
             "url": "{% url 'publish_article_check' article.pk %}",
             "data": data,
             "success": function(data) {
-                console.log(item.id)
-                console.log(data)
                 if (data.id == true) {
                     $("label[for='" + item.id +"']").wrapInner("<s></s>");
                     $("#"+ item.id + "box").removeClass("warning");

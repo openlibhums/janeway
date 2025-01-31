@@ -698,8 +698,17 @@ class Article(AbstractLastModifiedModel):
     )
 
     # Galley
-    render_galley = models.ForeignKey('core.Galley', related_name='render_galley', blank=True, null=True,
-                                      on_delete=models.SET_NULL)
+    render_galley = models.ForeignKey(
+        'core.Galley',
+        related_name='render_galley',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Overrides the default galley rendered on the article "
+                  "landing page. The default order Janeway selects a galley "
+                  "to render is HTML, XML then any Image galleys. Other "
+                  "galley types will not be rendered.",
+    )
 
     # Dates
     date_started = models.DateTimeField(auto_now_add=True)
