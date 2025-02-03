@@ -27,7 +27,12 @@ from utils import (
     logic,
     migration_utils,
 )
-from utils.orcid import get_orcid_record_details, build_redirect_uri
+from utils.orcid import (
+    get_orcid_record_details,
+    build_redirect_uri,
+    encode_state,
+    decode_state,
+)
 
 from utils import install
 from utils.transactional_emails import *
@@ -1241,21 +1246,29 @@ class TestORCiDRecord(TestCase):
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
 
-    def test_redirect_uri(self):
-        press= helpers.create_press()
-        repo = helpers.create_repository(press, [], [])
-        self.assertEqual(build_redirect_uri(repo), "http://localhost/login/orcid/?state=login")
-        self.assertEqual(build_redirect_uri(repo, action="register"), "http://localhost/login/orcid/?state=register")
+    @mock.patch('utils.logic.get_current_request')
+    def test_redirect_uri(self, get_current_request):
+        press = helpers.create_press()
+        repo, _subject = helpers.create_repository(press, [], [])
+        request = helpers.Request()
+        request.site_type = repo
+        get_current_request.return_value = request
+        self.assertEqual(
+            build_redirect_uri(repo),
+            "http://repo.domain.com/login/orcid/"
+        )
 
 
 class URLLogicTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # The unicode string of a 'next' URL
-        cls.next_url = '/target/page/?a=b&x=y'
+        # The raw unicode string of a 'next' URL
+        cls.next_url_raw = '/target/page/?a=b&x=y'
         # The above string url-encoded with safe='/'
         cls.next_url_encoded = '/target/page/%3Fa%3Db%26x%3Dy'
+        # The unicode string url-encoded with safe=''
+        cls.next_url_encoded_no_safe = '%2Ftarget%2Fpage%2F%3Fa%3Db%26x%3Dy'
         # The above string prepended with 'next='
         cls.next_url_query_string = 'next=/target/page/%3Fa%3Db%26x%3Dy'
         # The core_login url with encoded next url
@@ -1263,7 +1276,7 @@ class URLLogicTests(TestCase):
 
     def test_build_url_query_as_querydict(self):
         querydict = QueryDict('a=b&a=c', mutable=True)
-        querydict.update({'next': self.next_url})
+        querydict.update({'next': self.next_url_raw})
         url = logic.build_url(
             'example.org',
             scheme='https',
@@ -1278,7 +1291,7 @@ class URLLogicTests(TestCase):
     def test_build_url_query_as_plain_dict(self):
         plain_dict = {
             'a': 'b',
-            'next': self.next_url,
+            'next': self.next_url_raw,
         }
         url = logic.build_url(
             'example.org',
@@ -1303,3 +1316,26 @@ class URLLogicTests(TestCase):
             url,
             'https://example.org/path/?a=b&a=c&next=/target/page/%3Fa%3Db%26x%3Dy',
         )
+
+    def test_add_query_parameters_to_url(self):
+        url = 'https://example.org/path/?a=b&a=c'
+        new_url = logic.add_query_parameters_to_url(
+            url,
+            {'next': self.next_url_raw},
+        )
+        self.assertEqual(
+            f'https://example.org/path/?a=b&a=c&{self.next_url_query_string}',
+            new_url,
+        )
+
+    def test_orcid_encode_state(self):
+        result = encode_state(self.next_url_raw, 'login')
+        expected = f'next={self.next_url_encoded_no_safe}&action=login'
+        self.assertEqual(result, expected)
+
+    def test_orcid_decode_state(self):
+        result = decode_state(
+            f'next={self.next_url_encoded_no_safe}&action=register'
+        )
+        expected = {'next': [self.next_url_raw], 'action':['register']}
+        self.assertDictEqual(result, expected)
