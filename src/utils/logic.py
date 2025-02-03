@@ -1,7 +1,7 @@
 import os
 import hashlib
 import hmac
-from urllib.parse import SplitResult, urlencode
+from urllib.parse import SplitResult, urlencode, urlparse, unquote
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -343,3 +343,33 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
 def get_janeway_patch_version():
     from janeway import __version__
     return f"{__version__.major}.{__version__.minor}.{__version__.patch}"
+
+
+def get_raw_next_url(next_url, request):
+    """
+    Get the next_url passed in or the 'next' on the request, as raw unicode.
+    :param next_url: an optional string with the path and query parts of
+                     a destination URL -- overrides any 'next' in request data
+    :param request: HttpRequest, optionally containing 'next' in GET or POST
+    """
+    if not next_url:
+        next_url = request.GET.get('next', '') or request.POST.get('next', '')
+    return unquote(next_url)
+
+
+def add_query_parameters_to_url(original_url, new_params):
+    """
+    Parse a URL string and then safely update the query parameters.
+    Then re-encode them into a query string and generate the final URL.
+    :param original_url: the raw URL to be updated
+    :param new_params: the dict or QueryDict of new query parameters to add
+    """
+    parsed_url = urlparse(original_url) # ParseResult
+    parsed_query = QueryDict(parsed_url.query, mutable=True) # mutable QueryDict
+    parsed_query.update(new_params)
+
+    # Treat / as safe to match the default behavior of
+    # tempalte filters such as |urlencode
+    new_query_string = parsed_query.urlencode(safe="/") # full percent-encoded query string
+    final_url = parsed_url._replace(query=new_query_string).geturl()
+    return final_url

@@ -9,6 +9,7 @@ from uuid import uuid4
 from django.test import Client, TestCase, override_settings
 
 from utils.testing import helpers
+from utils import orcid
 
 from core import models as core_models
 from core import views as core_views
@@ -54,6 +55,16 @@ class CoreViewTestsWithData(TestCase):
 
         # The unicode string url-encoded with safe=''
         cls.next_url_encoded_no_safe = '%2Ftarget%2Fpage%2F%3Fa%3Db%26x%3Dy'
+
+        # The unicode string url-encoded with safe=''
+        # two times
+        cls.next_url_doubly_encoded = '%252Ftarget%252Fpage%252F%253Fa%253Db%2526x%253Dy'
+
+        # The state parameter with action=login
+        cls.state_login = orcid.encode_state(cls.next_url_raw, 'login')
+
+        # The state parameter including login and the next URL
+        cls.state_register = orcid.encode_state(cls.next_url_raw, 'register')
 
         # next_url_encoded with its 'next' key
         cls.next_url_query_string = 'next=/target/page/%3Fa%3Db%26x%3Dy'
@@ -306,11 +317,22 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'next': self.next_url_raw,
         }
         response = self.client.get('/login/orcid/', data)
-        self.assertIn(self.next_url_encoded_no_safe, response.url)
+        self.assertIn(self.next_url_doubly_encoded, response.url)
 
     @patch('core.views.orcid.retrieve_tokens')
     @override_settings(ENABLE_ORCID=True)
-    def test_orcid_id_account_found_redirects_to_next(
+    def test_no_orcid_id_redirects_with_next(self, retrieve_tokens):
+        retrieve_tokens.return_value = None
+        data = {
+            'code': '12345',
+            'next': self.next_url_raw,
+        }
+        response = self.client.get('/login/orcid/', data, follow=True)
+        self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
+
+    @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(ENABLE_ORCID=True)
+    def test_action_login_account_found_redirects_to_next(
         self,
         retrieve_tokens,
     ):
@@ -325,7 +347,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @patch('core.views.orcid.get_orcid_record_details')
     @patch('core.views.orcid.retrieve_tokens')
     @override_settings(ENABLE_ORCID=True)
-    def test_orcid_id_no_account_matching_email_redirects_to_next(
+    def test_action_login_matching_email_redirects_to_next(
         self,
         retrieve_tokens,
         orcid_details,
@@ -338,7 +360,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
 
         data = {
             'code': '12345',
-            'state': self.next_url_raw,
+            'state': self.state_login,
         }
         response = self.client.get('/login/orcid/', data, follow=True)
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
@@ -346,7 +368,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @patch('core.views.orcid.get_orcid_record_details')
     @patch('core.views.orcid.retrieve_tokens')
     @override_settings(ENABLE_ORCID=True)
-    def test_orcid_id_no_account_no_matching_email_redirects_to_next(
+    def test_action_login_failure_redirects_with_next(
         self,
         retrieve_tokens,
         orcid_details,
@@ -357,7 +379,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details.return_value = {'emails': []}
         data = {
             'code': '12345',
-            'next': self.next_url_raw,
+            'state': self.state_login,
         }
         response = self.client.get('/login/orcid/', data, follow=True)
         self.assertIn(
@@ -367,14 +389,18 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
 
     @patch('core.views.orcid.retrieve_tokens')
     @override_settings(ENABLE_ORCID=True)
-    def test_no_orcid_id_retrieved_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = None
+    def test_action_register_redirects_with_next(self, retrieve_tokens):
+        retrieve_tokens.return_value = self.user_orcid_uri
         data = {
             'code': '12345',
             'next': self.next_url_raw,
+            'action': 'register',
         }
         response = self.client.get('/login/orcid/', data, follow=True)
-        self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
+        self.assertIn(
+            self.next_url_query_string,
+            response.redirect_chain[0][0],
+        )
 
 
 class GetResetTokenTests(CoreViewTestsWithData):
