@@ -149,29 +149,32 @@ def user_login(request):
 
     return render(request, template, context)
 
+
 def user_login_orcid(request):
     """
-    Allows a user to log in with their ORCiD account.
-    Redirects them to the Janeway login page if ORCID is not enabled.
-    Sends them to orcid.org for authorization if needed.
-    Logs them in when returned here with the right details.
-    If no Janeway account is found, it sends them to a decision page
-    (the view name is orcid_registration)
-    so they can take further steps.
-
-    This view also handles callback requests from the ORCiD
-    authentication system having to do with new account registration.
-    The user intent is signaled in the action kwarg on the request,
-    which can be 'login' or 'register'.
+    Allow a user to log in with their ORCiD account
+    or switch to registering if needed.
 
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    action = request.GET.get('state', 'login')
-    orcid_code = request.GET.get('code', '') or request.POST.get('code', '')
-    state = request.GET.get('state', '') or request.POST.get('state', '')
-    next_url = state or request.GET.get('next', '') or request.POST.get('next', '')
+    # First figure out what the user is trying to do (action) and where they want to
+    # be returned to in Janeway (next).
+    # This information may be encoded in a 'state' parameter that we get back from ORCiD
+    # or it may be in the generic request parameters.
+    state_string = request.GET.get('state', '')
+    state = orcid.decode_state(state_string)
+    if 'action' in state:
+        action = state.get('action', 'login')
+    else:
+        action = request.GET.get('action', 'login')
 
+    if 'next' in state:
+        next_url = state.get('next', '')
+    else:
+        next_url = request.GET.get('next', '')
+
+    # If ORCiD is not enabled, redirect the user to the regular Janeway login page.
     if not django_settings.ENABLE_ORCID:
         messages.add_message(
             request,
@@ -183,36 +186,63 @@ def user_login_orcid(request):
             logic.reverse_with_next('core_login', request, next_url=next_url)
         )
 
-    elif not orcid_code:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _('No authorisation code provided.'
-            'Please try again or log in with your username and password.')
-        )
+    # If the orcide code is missing, that means the user has not come from
+    # orcid.org, just from a Janeway link.
+    # Send them to orcid.org to authenticate first.
+    # Encode the next URL and the action via 'state',
+    # which the ORCiD auth system will pass back.
+    orcid_code = request.GET.get('code', '')
+    if not orcid_code:
         base = django_settings.ORCID_URL
         query_dict = {
             'client_id': django_settings.ORCID_CLIENT_ID,
             'response_type': 'code',
             'scope': '/authenticate',
             'redirect_uri': orcid.build_redirect_uri(request.site_type),
-            'state': next_url,
+            'state': orcid.encode_state(next_url, action),
         }
         orcid_login_url = f'{base}?{urlencode(query_dict)}'
         return redirect(orcid_login_url)
 
-    else:
-        orcid_id = orcid.retrieve_tokens(
-            orcid_code,
-            request.site_type,
-            action=action
+    # There is an orcid code, meaning the user has authenticated on orcid.org.
+    # Make another request to orcid.org to verify it.
+    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+
+    # If verification did not work, send them to the regular login page.
+    if not orcid_id:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Valid ORCiD not returned. '
+            'Please try again, or log in with your username and password.'
         )
-        if orcid_id:
-            try:
-                user = models.Account.objects.get(orcid=orcid_id)
-                if action == 'login':
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user)
+        return redirect(
+            logic.reverse_with_next('core_login', request, next_url=next_url)
+        )
+
+    # The verification worked.
+    # If the user wanted to log in, try to log them in.
+    if action == 'login':
+        try:
+            user = models.Account.objects.get(orcid=orcid_id)
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            if next_url:
+                return redirect(next_url)
+            elif request.journal:
+                return redirect(reverse('core_dashboard'))
+            else:
+                return redirect(reverse('website_index'))
+
+        except models.Account.DoesNotExist:
+            # Lookup ORCID email addresses
+            orcid_details = orcid.get_orcid_record_details(orcid_id)
+            for email in orcid_details.get("emails", []):
+                candidates = models.Account.objects.filter(email=email)
+                if candidates.exists():
+                    # Store ORCID for future authentication requests
+                    candidates.update(orcid=orcid_id)
+                    login(request, candidates.first())
                     if next_url:
                         return redirect(next_url)
                     elif request.journal:
@@ -220,55 +250,34 @@ def user_login_orcid(request):
                     else:
                         return redirect(reverse('website_index'))
 
-            except models.Account.DoesNotExist:
-                # Lookup ORCID email addresses
-                orcid_details = orcid.get_orcid_record_details(orcid_id)
-                for email in orcid_details.get("emails", []):
-                    candidates = models.Account.objects.filter(email=email)
-                    if candidates.exists():
-                        # Store ORCID for future authentication requests
-                        candidates.update(orcid=orcid_id)
-                        login(request, candidates.first())
-                        if next_url:
-                            return redirect(next_url)
-                        elif request.journal:
-                            return redirect(reverse('core_dashboard'))
-                        else:
-                            return redirect(reverse('website_index'))
-
-            # Prepare ORCID Token for registration and redirect
-            models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
-
-            if action == 'register':
-                return redirect(
-                    logic.reverse_with_next(
-                        'core_register_with_orcid_token',
-                        request,
-                        next_url=next_url,
-                        orcid_token=str(new_token.token),
-                    )
-                )
-            else:
-                # I.e. action='login'
-                return redirect(
-                    logic.reverse_with_next(
-                        'core_orcid_registration',
-                        request,
-                        next_url=next_url,
-                        token=str(new_token.token),
-                    )
-                )
-        else:
-            messages.add_message(
+        # If no account was found for login,
+        # then prepare an ORCiD token for registration.
+        # Then send the user to a decision page that tells them
+        # the ORCiD login did not work and they will need to register.
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_orcid_registration',
                 request,
-                messages.WARNING,
-                'Valid ORCiD not returned. '
-                'Please try again, or log in with your username and password.'
+                next_url=next_url,
+                token=str(new_token.token),
             )
-            return redirect(
-                logic.reverse_with_next('core_login', request, next_url=next_url)
+        )
+
+    # If the user wanted to register, send them to the registration page
+    # and pass along their orcid token so information can be pre-filled.
+    elif action == 'register':
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_register_with_orcid_token',
+                request,
+                next_url=next_url,
+                orcid_token=str(new_token.token),
             )
+        )
 
 
 @login_required

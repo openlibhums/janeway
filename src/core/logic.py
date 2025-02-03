@@ -30,22 +30,10 @@ from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
 from comms import models as comms_models
-from utils import shared
+from utils import shared, logic as utils_logic
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def get_raw_next_url(next_url, request):
-    """
-    Get the next_url passed in or the 'next' on the request, as raw unicode.
-    :param next_url: an optional string with the path and query parts of
-                     a destination URL -- overrides any 'next' in request data
-    :param request: HttpRequest, optionally containing 'next' in GET or POST
-    """
-    if not next_url:
-        next_url = request.GET.get('next', '') or request.POST.get('next', '')
-    return unquote(next_url)
 
 
 def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
@@ -70,7 +58,7 @@ def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
     else:
         reversed_url = reverse(url_name)
 
-    raw_next_url = get_raw_next_url(next_url, request)
+    raw_next_url = utils_logic.get_raw_next_url(next_url, request)
 
     if not raw_next_url:
         return reversed_url
@@ -79,16 +67,10 @@ def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
         # Avoid circular next URLs
         return reversed_url
 
-    # Parse the reversed URL string enough to safely update the query parameters.
-    # Then re-encode them into a query string and generate the final URL.
-    parsed_url = urlparse(reversed_url) # ParseResult
-    parsed_query = QueryDict(parsed_url.query, mutable=True) # mutable QueryDict
-    parsed_query.update({'next': raw_next_url})
-    # We treat / as safe to match the default behavior
-    # of the |urlencode template filter,
-    # which is where many next URLs are created
-    new_query_string = parsed_query.urlencode(safe="/") # Full percent-encoded query string
-    final_url = parsed_url._replace(query=new_query_string).geturl()
+    final_url = utils_logic.add_query_parameters_to_url(
+        reversed_url,
+        {'next': raw_next_url},
+    )
     return final_url
 
 
@@ -98,7 +80,7 @@ def send_reset_token(request, reset_token):
             'core_reset_password',
             kwargs={'token': reset_token.token},
         ),
-        query={'next': get_raw_next_url('', request)},
+        query={'next': utils_logic.get_raw_next_url('', request)},
     )
     context = {
         'reset_token': reset_token,
@@ -121,7 +103,7 @@ def get_confirm_account_url(request, user, next_url=''):
             'core_confirm_account',
             kwargs={'token': user.confirmation_code},
         ),
-        query={'next': get_raw_next_url(next_url, request)},
+        query={'next': utils_logic.get_raw_next_url(next_url, request)},
     )
 
 
