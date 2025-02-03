@@ -1662,7 +1662,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ site_name }}. You can confirm your account at the following link:</p><p><br/><a href=\"{{ core_confirm_account_url }}\">{{ core_confirm_account_url }}</a> <br/></p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ site_name }}. You can confirm your account at the following link:</p><p><a href=\"{{ core_confirm_account_url }}\">{{ core_confirm_account_url }}</a></p>"
         },
         "editable_by": [
             "editor",
@@ -2365,7 +2365,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: confirm account: {{ core_confirm_account_url }} </p><p>Regards,</p>"
+            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following ink:</p><p><a href=\"{{ core_confirm_account_url }}\">{{ core_confirm_account_url }}</a></p><p>Regards,</p>"
         },
         "editable_by": [
             "editor",
