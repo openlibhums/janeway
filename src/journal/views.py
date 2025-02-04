@@ -2524,30 +2524,39 @@ def document_management(request, article_id):
                 request.user,
                 label=label,
             )
-            rounds = typesetting_models.TypesettingRound.objects.filter(
-                article=document_article,
-            )
-            if rounds:
-                current_round = rounds.first()
-            else:
-                current_round = typesetting_models.TypesettingRound.objects.create(
+            if request.journal.element_in_workflow(
+                element_name='typesetting',
+            ):
+                rounds = typesetting_models.TypesettingRound.objects.filter(
                     article=document_article,
                 )
-            request.user.add_account_role('proofreader', request.journal)
-            proofing = typesetting_models.GalleyProofing.objects.create(
-                round=current_round,
-                manager=request.user,
-                proofreader=request.user,
-                due=timezone.now(),
-                accepted=timezone.now(),
-                completed=timezone.now(),
-            )
-            proofing.annotated_files.add(new_file)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Proofing file uploaded.'),
-            )
+                if rounds:
+                    current_round = rounds.first()
+                else:
+                    current_round = typesetting_models.TypesettingRound.objects.create(
+                        article=document_article,
+                    )
+                request.user.add_account_role('proofreader', request.journal)
+                proofing = typesetting_models.GalleyProofing.objects.create(
+                    round=current_round,
+                    manager=request.user,
+                    proofreader=request.user,
+                    due=timezone.now(),
+                    accepted=timezone.now(),
+                    completed=timezone.now(),
+                )
+                proofing.annotated_files.add(new_file)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Proofing file uploaded.'),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Saved file.'),
+                )
 
         if 'supp' in request.POST:
             from production import logic as prod_logic
