@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from typesetting import plugin_settings, models, logic, forms, security
+from typesetting import models, logic, forms, security
 from typesetting.notifications import notify
 from security import decorators
 from submission import models as submission_models
@@ -41,7 +41,7 @@ def typesetting_articles(request):
 
     articles_in_typesetting = submission_models.Article.objects.filter(
         journal=request.journal,
-        stage=plugin_settings.STAGE,
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
     )
 
     if article_filter and article_filter == 'me':
