@@ -15,7 +15,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import reverse
 from django.conf import settings
 
-from typesetting import plugin_settings, models, security
+from typesetting import models, security
 from submission import models as submission_models
 from utils import setting_handler
 from utils.shared import clear_cache
@@ -324,7 +324,7 @@ class TestTypesetting(TestCase):
         self.article_in_typesetting.date_published = timezone.now()
         self.article_in_typesetting.save()
         published = self.build_proofing_comparison_dict(True, 'OLH')
-        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.stage = submission_models.STAGE_TYPESETTING_PLUGIN
         self.article_in_typesetting.date_published = None
         self.article_in_typesetting.save()
         self.assertEqual(proofing, published)
@@ -342,7 +342,7 @@ class TestTypesetting(TestCase):
         self.article_in_typesetting.date_published = timezone.now()
         self.article_in_typesetting.save()
         published = self.build_proofing_comparison_dict(True, 'material')
-        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.stage = submission_models.STAGE_TYPESETTING_PLUGIN
         self.article_in_typesetting.date_published = None
         self.article_in_typesetting.save()
         self.assertEqual(proofing, published)
@@ -360,7 +360,7 @@ class TestTypesetting(TestCase):
         self.article_in_typesetting.date_published = timezone.now()
         self.article_in_typesetting.save()
         published = self.build_proofing_comparison_dict(True, 'clean')
-        self.article_in_typesetting.stage = plugin_settings.STAGE
+        self.article_in_typesetting.stage = submission_models.STAGE_TYPESETTING_PLUGIN
         self.article_in_typesetting.date_published = None
         self.article_in_typesetting.save()
         self.assertEqual(proofing, published)
@@ -414,7 +414,7 @@ class TestTypesetting(TestCase):
             owner=self.article_owner,
             title="A Test Article",
             abstract="An abstract",
-            stage=plugin_settings.STAGE,
+            stage=submission_models.STAGE_TYPESETTING_PLUGIN,
             journal_id=self.journal_one.id
         )
 
@@ -432,10 +432,10 @@ class TestTypesetting(TestCase):
 
         self.workflow_element = core_models.WorkflowElement.objects.create(
             journal=self.journal_one,
-            element_name='Typesetting Plugin',
+            element_name='Typesetting',
             handshake_url='dummy',
             jump_url='dummy',
-            stage=plugin_settings.STAGE,
+            stage=submission_models.STAGE_TYPESETTING_PLUGIN,
             article_url=True,
         )
 

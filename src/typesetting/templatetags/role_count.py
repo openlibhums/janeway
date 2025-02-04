@@ -1,6 +1,6 @@
 from django import template
 
-from typesetting import models, plugin_settings
+from typesetting import models
 from submission import models as submission_models
 
 register = template.Library()
@@ -34,5 +34,5 @@ def articles_in_stage_count(context):
 
     return submission_models.Article.objects.filter(
         journal=request.journal,
-        stage=plugin_settings.STAGE,
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
     ).count()

@@ -2,9 +2,8 @@ from functools import wraps
 
 from django.shortcuts import reverse, redirect, get_object_or_404, Http404
 from django.core.exceptions import PermissionDenied
-from django.contrib import messages
 
-from typesetting import models, plugin_settings
+from typesetting import models
 from security.decorators import base_check, deny_access
 from submission import models as submission_models
 from core import models as core_models
@@ -165,7 +164,7 @@ def can_manage_file(request, file_object):
         if not core_models.WorkflowLog.objects.filter(
             article__pk=file_object.article_id,
             article__journal=request.journal,
-            element__element_name=plugin_settings.PLUGIN_NAME,
+            element__element_name="typesetting",
         ).exists():
             return False
     else:
