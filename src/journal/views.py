@@ -2525,8 +2525,9 @@ def document_management(request, article_id):
                 request.user,
                 label=label,
             )
-            try:
-                typesetting_models = import_module('plugins.typesetting.models')
+            if request.journal.element_in_workflow(
+                element_name='typesetting',
+            ):
                 rounds = typesetting_models.TypesettingRound.objects.filter(
                     article=document_article,
                 )
@@ -2551,7 +2552,7 @@ def document_management(request, article_id):
                     messages.SUCCESS,
                     _('Proofing file uploaded.'),
                 )
-            except ModuleNotFoundError:
+            else:
                 messages.add_message(
                     request,
                     messages.SUCCESS,
