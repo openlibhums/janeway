@@ -17,7 +17,7 @@ from identifiers.models import DOI_RE
 from production import logic
 from utils import setting_handler, render_template
 
-from typesetting import models, plugin_settings
+from typesetting import models
 from typesetting.notifications import notify
 
 
@@ -234,10 +234,10 @@ def complete_typesetting(request, article):
     }
 
     event_logic.Events.raise_event(
-        plugin_settings.ON_TYPESETTING_COMPLETE,
+        event_logic.Events.ON_TYPESETTING_COMPLETE,
         task_object=article, **kwargs
     )
-    if request.journal.element_in_workflow(element_name='Typesetting Plugin'):
+    if request.journal.element_in_workflow(element_name='typesetting'):
         workflow_kwargs = {
             'handshake_url': 'typesetting_articles',
             'request': request,
