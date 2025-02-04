@@ -47,6 +47,10 @@ urlpatterns = [
     path('submit/', include('submission.urls')),
     path('transform/', include('transform.urls')),
     path('typesetting/', include('typesetting.urls')),
+    # As part of the typesetting plugin's merge to core we need to support
+    # its original url path. Note that the plugin loader will no longer load
+    # the typesetting plugin.
+    path('plugins/typesetting/', include('typesetting.urls')),
     path('utils/', include('utils.urls')),
     path('workflow/', include('workflow.urls')),
 
