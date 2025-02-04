@@ -7,6 +7,7 @@ import os
 
 EXCLUDED_PLUGIN_DIRS = ['__pycache__', 'typesetting']
 
+
 def load_plugin_apps(base_dir):
     path = os.path.join(base_dir, "plugins")
     root, dirs, files = next(os.walk(path))
