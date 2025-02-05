@@ -1595,7 +1595,7 @@ class Contact(models.Model):
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
     body = JanewayBleachField(verbose_name=_('Your message'))
-    client_ip = models.GenericIPAddressField()
+    client_ip = models.GenericIPAddressField(blank=True, null=True)
     date_sent = models.DateField(auto_now_add=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='contact_c_t',
@@ -1793,7 +1793,7 @@ class HomepageElement(models.Model):
 
 
 class LoginAttempt(models.Model):
-    ip_address = models.GenericIPAddressField()
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
     user_agent = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
 
