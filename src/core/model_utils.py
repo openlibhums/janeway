@@ -105,13 +105,13 @@ class AbstractSiteModel(models.Model):
             obj = cls.objects.get(domain=domain)
         return obj
 
-    def site_url(self, path=None, query=''):
+    def site_url(self, path='', query=''):
         # This is here to avoid circular imports
         from utils import logic
         return logic.build_url(
             netloc=self.domain,
             scheme=self._get_scheme(),
-            path=path or "",
+            path=path,
             query=query,
         )
 
