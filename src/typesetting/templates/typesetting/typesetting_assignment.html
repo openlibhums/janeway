@@ -1,0 +1,143 @@
+{% extends "admin/core/base.html" %}
+{% load bool_fa %}
+{% load static %}
+{% load foundation %}
+{% load settings %}
+
+{% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
+    <li>Typesetting {{ assignment.round.article.title|safe }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="row expanded">
+
+
+        <div class="columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Assignment Information</h2>
+                </div>
+                <p>
+                  {{ article.safe_title }} [<a href="#view-metadata">Skip to full metadata</a>]
+                </p>
+                <div class="content">
+                  <p><strong>Typesetting Guide</strong></p>
+                  <div class="callout bs-callout-info">
+                    {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
+                    {{ typesetting_guide|safe }}
+                  </div>
+                </div>
+                <div class="content">
+                    {% include "typesetting/elements/typesetter/info.html" %}
+                </div>
+                {% if not assignment.completed and not assignment.accepted and not assignment.cancelled %}
+                <div class="content">
+                    {% include "typesetting/elements/typesetter/agreement.html" %}
+                </div>
+                {% endif %}
+                <div class="title-area">
+                    <h2>Files to Use</h2>
+                </div>
+                <div class="content">
+                    <p><small>The following files have been selected
+                      for use or reference when
+                      generating the typeset articles.</small></p>
+                    {% include "typesetting/elements/file_list.html" with files=assignment.files_to_typeset.all input_name="files_to_typeset" %}
+                </div>
+                {% if supplementary_files %}
+                <div class="title-area">
+                    <h2>Supplementary Files</h2>
+                </div>
+                <div class="content">
+                    <p><small>The Editor has uploaded the following Supplementary files</small></p>
+                    {% include "typesetting/elements/typesetter/supplementary_files.html" %}
+                </div>
+                {% endif %}
+                {% if not assignment.cancelled %}
+                <div class="title-area">
+                    <h2>Upload Galleys</h2>
+                </div>
+                <div class="content">
+                  {% include "typesetting/elements/galleys_with_help_text.html" %}
+                </div>
+                <div class="title-area">
+                    <h2>Upload Source Files</h2>
+                </div>
+                <div class="content">
+                    <p><small>Source Files are intermediate files used to generate the final Typeset files (e.g. Adobe In Design files)</small></p>
+                    {% include "typesetting/elements/typesetter/source_files.html" %}
+
+                </div>
+                {% endif %}
+            </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Complete Typesetting</h2>
+                </div>
+                <div class="content">
+                    {% if assignment.cancelled %}
+                    <p>The editor has cancelled this typesetting task. No further changes can be made now</p>
+                    {% else %}
+                    {% if pending_corrections %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> Some typeset files have not been corrected yet</h4>
+                        <ul >
+                            {% for correction in pending_corrections %}
+                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p> You can edit to the typeset file by hitting 'Edit' on the typeset file, then you can upload a correction</p>
+                    </div>
+                    {% endif %}
+                    {% if missing_images %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> Some typeset files don't have their images uploaded</h4>
+                        <ul>
+                            {% for galley in missing_images %}
+                            <li><p>{{ galley }} - {{ galley.file }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p> You can add images to the typeset file by hitting 'Edit'. A menu will show you which images are missing</p>
+                    </div>
+                    {% endif %}
+
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <p><small>Once you are happy with the typeset files,
+                        you can mark this stage as complete, with an optional note.</small></p>
+                        {{ complete_form|foundation }}
+                        <button class="button" name="complete_typesetting">Complete Typesetting</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2 id="view-metadata">Metadata</h2>
+                </div>
+                <div class="content">
+                    {% include "typesetting/elements/typesetter/metadata.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% include "typesetting/elements/new_galley.html" with assignment=assignment %}
+    {% include "elements/production/source_files_upload.html" %}
+{% endblock body %}
+
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
+{% endblock %}

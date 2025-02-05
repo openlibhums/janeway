@@ -1,0 +1,83 @@
+{% load settings %}
+{% load foundation %}
+{% load static %}
+
+<div class="callout">
+    <div class="title-area">
+        <h2>1. Select a Typesetter</h2>
+    </div>
+    <div class="content">
+        <p>Who will you invite to complete this assignment?</p>
+        {% include "typesetting/elements/typesetter_list.html" with typesetters=typesetters %}
+    </div>
+</div>
+<div class="callout">
+    <div class="title-area">
+        <h2>2. Select Files</h2>
+        <a
+            href="{% url 'document_management' article.pk %}?return={{ request.path }}"
+            class="float-right"
+            target="_blank">
+            <i class="fa fa-file-archive-o">&nbsp;</i>
+            Document Management
+            <span class="show-for-sr">(opens in new tab)</span>
+        </a>
+    </div>
+    <div class="content">
+        <p>Which files will the typesetter need to access during this
+        round of typesetting?</p>
+        {% include "typesetting/elements/file_list.html" with checkboxes=True files=files input_name="files_to_typeset" %}
+        {% if galleys %}
+            <fieldset style="margin: 1rem;">
+                <legend>Which existing galleys need to be corrected?</legend>
+                {% include "admin/core/widgets/select_all.html" %}
+                {{ form.galleys_to_correct }}
+            </fieldset>
+        {% endif %}
+    </div>
+</div>
+<div class="callout">
+    <div class="title-area">
+        <h2>3. Set a Due Date</h2>
+    </div>
+    <div class="content">
+        <p>When will the assignment be due?</p>
+        {% include "admin/core/widgets/soon_date_buttons.html" with date_input_id=form.due.id_for_label input_type="date" %}
+        {{ form.due|foundation }}
+    </div>
+</div>
+<div class="callout">
+    <div class="title-area">
+        <h2>4. Define the Task</h2>
+    </div>
+    <div class="content">
+      <strong><span>Typesetting Guide</strong>
+        [<a
+          target="_blank"
+          aria-label="Edit typesetting guide"
+          href="{% url 'core_edit_setting' 'general' 'typesetting_guide' %}">
+          Edit
+        </a>]
+      </h3>
+      <div class="callout bs-callout-info">
+        {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
+        {{ typesetting_guide|safe }}
+      </div>
+    </div>
+    <div class="content">
+        {% if proofing_assignments %}
+            <p>Should the typesetter see the comments from proofreaders?</p>
+            {{ form.display_proof_comments|foundation }}
+            {% include "typesetting/elements/view_proofreading_comments.html" %}
+            <div class="callout bs-callout-info">
+                <p>Note: if proofreaders uploaded any files that typesetters should see,
+                you must give typesetters access to them in the files section
+                above.</p>
+            </div>
+        {% endif %}
+    </div>
+    <div class="content">
+      <p>Are there any other instructions for the typesetter?</p>
+      {{ form.task|foundation }}
+    </div>
+</div>
