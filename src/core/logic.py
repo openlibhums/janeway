@@ -36,15 +36,15 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
+def reverse_with_next(url_name, request, next_url='', args=None, kwargs=None):
     """
     Reverse a URL but keep the 'next' parameter that exists on the request
     or that the caller wants to introduce.
 
     The value of 'next' on the request, or the value of 'next_url',
-    can be in raw unicode, or it can have been percent-encoded one time.
+    should be in decoded form.
 
-    :param request: HttpRequest, optionally containing 'next' in GET or POST
+    :param request: HttpRequest, optionally containing 'next' in GET
     :param next_url: an optional string with the path and query parts of
                      a destination URL -- overrides any 'next' in request data
     :param args: args to pass to django.shortcuts.reverse, if no kwargs
@@ -58,18 +58,18 @@ def reverse_with_next(url_name, request, next_url='', *args, **kwargs):
     else:
         reversed_url = reverse(url_name)
 
-    raw_next_url = utils_logic.get_raw_next_url(next_url, request)
-
-    if not raw_next_url:
+    if not next_url:
+        next_url = request.GET.get('next', '')
+    if not next_url:
         return reversed_url
 
-    if reversed_url == raw_next_url:
+    if reversed_url == next_url:
         # Avoid circular next URLs
         return reversed_url
 
     final_url = utils_logic.add_query_parameters_to_url(
         reversed_url,
-        {'next': raw_next_url},
+        {'next': next_url},
     )
     return final_url
 
@@ -80,7 +80,7 @@ def send_reset_token(request, reset_token):
             'core_reset_password',
             kwargs={'token': reset_token.token},
         ),
-        query={'next': utils_logic.get_raw_next_url('', request)},
+        query={'next': request.GET.get('next', '')},
     )
     context = {
         'reset_token': reset_token,
@@ -98,12 +98,16 @@ def send_reset_token(request, reset_token):
 
 
 def get_confirm_account_url(request, user, next_url=''):
+    """
+    :param user: core.models.Account
+    :param next_url: decoded string form of next URL
+    """
     return request.site_type.site_url(
         reverse(
             'core_confirm_account',
             kwargs={'token': user.confirmation_code},
         ),
-        query={'next': utils_logic.get_raw_next_url(next_url, request)},
+        query={'next': next_url or request.GET.get('next', '')},
     )
 
 

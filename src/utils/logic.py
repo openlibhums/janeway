@@ -143,7 +143,7 @@ def replace_netloc_port(netloc, new_port):
     return ":".join((netloc.split(":")[0], new_port))
 
 
-def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
+def build_url(netloc, port=None, scheme=None, path="", query="", fragment=""):
     """ Builds a url given all its parts
     :netloc: string
     :port: int
@@ -173,7 +173,7 @@ def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
         scheme=scheme,
         netloc=netloc,
         path=path,
-        query=query or "",
+        query=query,
         fragment=fragment,
     ).geturl()
 
@@ -343,18 +343,6 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
 def get_janeway_patch_version():
     from janeway import __version__
     return f"{__version__.major}.{__version__.minor}.{__version__.patch}"
-
-
-def get_raw_next_url(next_url, request):
-    """
-    Get the next_url passed in or the 'next' on the request, as raw unicode.
-    :param next_url: an optional string with the path and query parts of
-                     a destination URL -- overrides any 'next' in request data
-    :param request: HttpRequest, optionally containing 'next' in GET or POST
-    """
-    if not next_url:
-        next_url = request.GET.get('next', '') or request.POST.get('next', '')
-    return unquote(next_url)
 
 
 def add_query_parameters_to_url(original_url, new_params):
