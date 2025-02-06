@@ -19,7 +19,15 @@
                     {% endif %}
                     value="{{ proofreader.id }}">
             </th>
-            <td>{{ proofreader.full_name }}</td>
+            <td>
+              {{ proofreader.full_name }}
+              {% if proofreader in article.authors.all %}
+                <div class="label secondary">
+                  <span class="fa fa-user"></span>
+                  Author
+                </div>
+              {% endif %}
+            </td>
             <td>{{ proofreader.email }}</td>
         </tr>
     {% empty %}
