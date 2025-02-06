@@ -132,7 +132,7 @@ def encode_state(next_url, orcid_action):
         querydict['next'] = next_url
     if orcid_action:
         querydict['action'] = orcid_action
-    encoded_state = querydict.urlencode()
+    encoded_state = querydict.urlencode(safe="/")
     return encoded_state
 
 

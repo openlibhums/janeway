@@ -67,7 +67,7 @@ def user_login(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
-    next_url = request.GET.get('next', '') or request.POST.get('next', '')
+    next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
         if next_url:
@@ -202,7 +202,7 @@ def user_login_orcid(request):
             'redirect_uri': orcid.build_redirect_uri(request.site_type),
             'state': orcid.encode_state(next_url, action),
         }
-        orcid_login_url = f'{base}?{urlencode(query_dict)}'
+        orcid_login_url = f'{base}?{urlencode(query_dict, safe="/")}'
         return redirect(orcid_login_url)
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
@@ -262,7 +262,7 @@ def user_login_orcid(request):
                 'core_orcid_registration',
                 request,
                 next_url=next_url,
-                token=str(new_token.token),
+                kwargs={'token': str(new_token.token)},
             )
         )
 
@@ -276,7 +276,7 @@ def user_login_orcid(request):
                 'core_register_with_orcid_token',
                 request,
                 next_url=next_url,
-                orcid_token=str(new_token.token),
+                kwargs={'orcid_token': str(new_token.token)},
             )
         )
 
@@ -391,7 +391,7 @@ def register(request, orcid_token=None):
     initial = {}
 
     token_obj = None
-    next_url = request.GET.get('next', '') or request.POST.get('next', '')
+    next_url = request.GET.get('next', '')
 
     if orcid_token:
         token_obj = get_object_or_404(models.OrcidToken, token=orcid_token)
@@ -495,7 +495,7 @@ def activate_account(request, token):
     except models.Account.DoesNotExist:
         account = None
 
-    if account and request.POST:
+    if account and request.method == 'POST':
         account.is_active = True
         account.confirmation_code = None
         account.save()

@@ -30,7 +30,10 @@ class TestLogic(TestCase):
         cls.inactive_user.clean()
         cls.inactive_user.save()
 
-        # The result of passing a URL through the |urlencode template filter
+        # A decoded next URL
+        cls.next_url_raw = '/target/page/?q=a'
+
+        # An encoded next URL
         cls.next_url_encoded = '/target/page/%3Fq%3Da'
 
     def test_render_nested_settings(self):
@@ -46,14 +49,7 @@ class TestLogic(TestCase):
     @patch('core.logic.reverse')
     def test_reverse_with_next_in_get_request(self, mock_reverse):
         mock_reverse.return_value = '/my/path/?my=params'
-        self.request.GET = {'next': self.next_url_encoded}
-        reversed_url = logic.reverse_with_next('/test/', self.request)
-        self.assertIn(self.next_url_encoded, reversed_url)
-
-    @patch('core.logic.reverse')
-    def test_reverse_with_next_in_post_request(self, mock_reverse):
-        mock_reverse.return_value = '/my/path/?my=params'
-        self.request.POST = {'next': self.next_url_encoded}
+        self.request.GET = {'next': self.next_url_raw}
         reversed_url = logic.reverse_with_next('/test/', self.request)
         self.assertIn(self.next_url_encoded, reversed_url)
 
@@ -63,7 +59,7 @@ class TestLogic(TestCase):
         reversed_url = logic.reverse_with_next(
             '/test/',
             self.request,
-            next_url=self.next_url_encoded,
+            next_url=self.next_url_raw,
         )
         self.assertIn(self.next_url_encoded, reversed_url)
 
@@ -77,7 +73,7 @@ class TestLogic(TestCase):
         url = logic.get_confirm_account_url(
             self.request,
             self.inactive_user,
-            next_url=self.next_url_encoded,
+            next_url=self.next_url_raw,
         )
         self.assertIn(
             f'/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={ self.next_url_encoded }',

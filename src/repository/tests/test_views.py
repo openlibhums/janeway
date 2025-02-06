@@ -337,21 +337,21 @@ class TestViews(TestCase):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
         code = self.repository.short_name
         self.client.force_login(self.repo_manager)
-        data = {
+        post_data = {
             'accept': True,
         }
         manager_url = f'/{code}/repository/manager/{self.preprint_one.pk}/'
-        self.client.post(manager_url, data=data, follow=True)
+        self.client.post(manager_url, data=post_data, follow=True)
         self.client.logout()
 
         # Only the material theme has a login URL in
         # src/themes/material/templates/repository/preprint.html
         for theme in ['material']:
-            data = {
+            get_data = {
                 'theme': theme,
             }
             view_preprint_url = f'/{code}/repository/view/{self.preprint_one.pk}/'
-            response = self.client.get(view_preprint_url, data=data)
+            response = self.client.get(view_preprint_url, data=get_data)
             content = response.content.decode()
             self.assertIn(f'/{code}/login/?next=', content)
             self.assertNotIn(f'"/{code}/login/"', content)
