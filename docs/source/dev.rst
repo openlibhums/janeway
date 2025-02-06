@@ -11,3 +11,5 @@ Information for developers
    dev/api
    dev/plugins
    dev/pii
+   dev/url-routing
+   dev/authentication-tokens
