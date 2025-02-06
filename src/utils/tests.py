@@ -1267,8 +1267,6 @@ class URLLogicTests(TestCase):
         cls.next_url_raw = '/target/page/?a=b&x=y'
         # The above string url-encoded with safe='/'
         cls.next_url_encoded = '/target/page/%3Fa%3Db%26x%3Dy'
-        # The unicode string url-encoded with safe=''
-        cls.next_url_encoded_no_safe = '%2Ftarget%2Fpage%2F%3Fa%3Db%26x%3Dy'
         # The above string prepended with 'next='
         cls.next_url_query_string = 'next=/target/page/%3Fa%3Db%26x%3Dy'
         # The core_login url with encoded next url
@@ -1330,12 +1328,12 @@ class URLLogicTests(TestCase):
 
     def test_orcid_encode_state(self):
         result = encode_state(self.next_url_raw, 'login')
-        expected = f'next={self.next_url_encoded_no_safe}&action=login'
+        expected = f'next={self.next_url_encoded}&action=login'
         self.assertEqual(result, expected)
 
     def test_orcid_decode_state(self):
         result = decode_state(
-            f'next={self.next_url_encoded_no_safe}&action=register'
+            f'next={self.next_url_encoded}&action=register'
         )
         expected = {'next': [self.next_url_raw], 'action':['register']}
         self.assertDictEqual(result, expected)
