@@ -2204,12 +2204,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
         Removes a credit role from the article for this frozen author
         """
         try:
-            record, _ = (
-                CreditRecord.objects.get(
-                    article=article, frozen_author=self, role=credit_role_text)
+            record = CreditRecord.objects.get(
+                article=article,
+                frozen_author=self,
+                role=credit_role_text,
             )
-
-            record.delete()
+            record.frozen_author = None
+            record.save()
         except CreditRecord.DoesNotExist:
             pass
 
