@@ -81,66 +81,22 @@ def article_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
-CREDIT_ROLES = {
-    "Conceptualization": (
-        "Conceptualization",
-        "https://credit.niso.org/contributor-roles/conceptualization/",
-    ),
-    "Data Curation": (
-        "Data Curation",
-        "https://credit.niso.org/contributor-roles/data-curation/",
-    ),
-    "Formal Analysis": (
-        "Formal Analysis",
-        "https://credit.niso.org/contributor-roles/formal-analysis/",
-    ),
-    "Funding Acquisition": (
-        "Funding Acquisition",
-        "https://credit.niso.org/contributor-roles/funding-acquisition/",
-    ),
-    "Investigation": (
-        "Investigation",
-        "https://credit.niso.org/contributor-roles/investigation/",
-    ),
-    "Methodology": (
-        "Methodology",
-        "https://credit.niso.org/contributor-roles/methodology/",
-    ),
-    "Project Administration": (
-        "Project Administration",
-        "https://credit.niso.org/contributor-roles/project-administration/",
-    ),
-    "Resources": (
-        "Resources",
-        "https://credit.niso.org/contributor-roles/resources/",
-    ),
-    "Software": (
-        "Software",
-        "https://credit.niso.org/contributor-roles/software/",
-    ),
-    "Supervision": (
-        "Supervision",
-        "https://credit.niso.org/contributor-roles/supervision/",
-    ),
-    "Validation": (
-        "Validation",
-        "https://credit.niso.org/contributor-roles/validation/",
-    ),
-    "Visualization": (
-        "Visualization",
-        "https://credit.niso.org/contributor-roles/visualization/",
-    ),
-    "Writing - Original Draft": (
-        "Writing - Original Draft",
-        "https://credit.niso.org/contributor-roles/writing-original-draft/",
-    ),
-    "Writing - Review & Editing": (
-        "Writing - Review & Editing",
-        "https://credit.niso.org/contributor-roles/writing-review-editing/",
-    ),
-}
-
-CREDIT_ROLE_CHOICES = [(key, values[0]) for key, values in CREDIT_ROLES.items()]
+CREDIT_ROLE_CHOICES = [
+    ("conceptualization", "Conceptualization"),
+    ("data-curation", "Data Curation"),
+    ("formal-analysis", "Formal Analysis"),
+    ("funding-acquisition", "Funding Acquisition"),
+    ("investigation", "Investigation"),
+    ("methodology", "Methodology"),
+    ("project-administration", "Project Administration"),
+    ("resources", "Resources"),
+    ("software", "Software"),
+    ("supervision", "Supervision"),
+    ("validation", "Validation"),
+    ("visualization", "Visualization"),
+    ("writing-original-draft", "Writing - Original Draft"),
+    ("writing-review-editing", "Writing - Review & Editing")
+]
 
 SALUTATION_CHOICES = [
     ('', '---'),
@@ -914,13 +870,15 @@ class Article(AbstractLastModifiedModel):
             if frozen:
                 if url:
                     credit_roles_return[record.frozen_author].append(
-                        (record, CREDIT_ROLES[record.role][1]))
+                        (record, record.uri)
+                    )
                 else:
                     credit_roles_return[record.frozen_author].append(record)
             else:
                 if url:
                     credit_roles_return[record.author].append(
-                        (record, CREDIT_ROLES[record.role][1]))
+                        (record, record.uri)
+                    )
                 else:
                     credit_roles_return[record.author].append(record)
 
@@ -2209,8 +2167,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 frozen_author=self,
                 role=credit_role_text,
             )
-            record.frozen_author = None
-            record.save()
+            record.delete()
         except CreditRecord.DoesNotExist:
             pass
 
@@ -2371,7 +2328,11 @@ class CreditRecord(AbstractLastModifiedModel):
                             choices=CREDIT_ROLE_CHOICES)
 
     def __str__(self):
-        return self.role
+        return self.get_role_display()
+
+    @property
+    def uri(self):
+        return f"https://credit.niso.org/contributor-roles/{self.role}/"
 
     @staticmethod
     def all_roles(self):
