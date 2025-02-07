@@ -625,19 +625,21 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def snapshot_credit(self, article, frozen_author):
         """
         Removes any old CRediT records from the frozen author,
-        and then assigns new CRediT records from author to frozen author.
+        then creates copies of author CRediT records for the frozen author.
         """
-        frozen_credit_records = CreditRecord.objects.filter(
+        CreditRecord.objects.filter(
             article=article,
             frozen_author=frozen_author,
-        )
-        frozen_credit_records.update(frozen_author=None)
+        ).delete()
 
-        author_credit_records = CreditRecord.objects.filter(
+        for credit_record in CreditRecord.objects.filter(
             article=article,
             author=self,
-        )
-        author_credit_records.update(frozen_author=frozen_author)
+        ):
+            credit_record.pk = None
+            credit_record.author = None
+            credit_record.frozen_author = frozen_author
+            credit_record.save()
 
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
@@ -706,8 +708,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 author=self,
                 role=credit_role_text,
             )
-            record.author = None
-            record.save()
+            record.delete()
         except submission_models.CreditRecord.DoesNotExist:
             pass
 
