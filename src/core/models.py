@@ -1971,7 +1971,7 @@ hijack_ended.connect(log_hijack_ended)
 
 class OrganizationName(models.Model):
     value = models.CharField(
-        max_length=200,
+        max_length=1000,
         verbose_name="Organization name",
         blank=True,
     )
