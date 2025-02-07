@@ -300,6 +300,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("Signature"),
     )
     interest = models.ManyToManyField('Interest', null=True, blank=True)
+    study_topic = models.ManyToManyField('Topics', through='AccountTopic', null=True, blank=True)
     country = models.ForeignKey(
         Country,
         null=True,
@@ -628,6 +629,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                                         last_name=self.last_name)[:30]
         return username.lower()
 
+    def topics(self, topic_type=None):
+        if topic_type:
+            return Topics.objects.filter(accounttopic__account=self, accounttopic__topic_type=topic_type)
+        return Topics.objects.filter(accounttopic__account=self)
+
+    def topics_by_type(self):
+        primary_topics = Topics.objects.filter(
+            accounttopic__account=self, accounttopic__topic_type=AccountTopic.PRIMARY
+        )
+        secondary_topics = Topics.objects.filter(
+            accounttopic__account=self, accounttopic__topic_type=AccountTopic.SECONDARY
+        )
+        return {
+            'primary': primary_topics,
+            'secondary': secondary_topics,
+        }
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
@@ -1507,6 +1524,80 @@ class TaskCompleteEvents(models.Model):
 
     class Meta:
         verbose_name_plural = 'task complete events'
+
+
+class TopicGroup(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'journal')
+        verbose_name_plural = 'study topic groups for articles and accounts'
+
+    def __str__(self):
+        return self.pretty_name
+
+    def topic_count(self):
+        return self.topics_set.all().count()
+
+
+class Topics(models.Model):
+    name = models.CharField(max_length=100)
+    pretty_name = models.CharField(max_length=100)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    group = models.ForeignKey(
+        TopicGroup,
+        on_delete=models.CASCADE,
+    )
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'journal', 'group')
+        verbose_name_plural = 'study topics for articles and accounts'
+
+    def __str__(self):
+        return self.pretty_name
+
+    def article_count(self):
+        return self.articletopic_set.all().count()
+
+    def account_count(self):
+        return self.accounttopic_set.all().count()
+
+
+class AccountTopic(models.Model):
+    PRIMARY = 'PR'
+    SECONDARY = 'SE'
+    TOPIC_TYPE_CHOICES = [
+        (PRIMARY, 'Primary'),
+        (SECONDARY, 'Secondary'),
+    ]
+
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topics, on_delete=models.CASCADE)
+    topic_type = models.CharField(
+        max_length=2,
+        choices=TOPIC_TYPE_CHOICES,
+        default=PRIMARY,
+    )
+
+    class Meta:
+        unique_together = ('account', 'topic')
+
+    def __str__(self):
+        return f"{self.account} - {self.topic} ({self.topic_type})"
 
 
 class EditorialGroup(models.Model):

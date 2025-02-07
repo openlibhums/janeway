@@ -23,15 +23,15 @@
                 </div>
                 <div class="content">
                     <div class="callout primary">
-                        <p> <span class="fa fa-info-circle"></span>
+                        <p><span class="fa fa-info-circle"></span>&nbsp;
                             {% blocktrans %}
                                 You can select a reviewer using the radio
                                 buttons in the first column and complete the
-                                section under 'Set Options'.
+                                section under <b>Set Options</b>.
                                 If you cannot find the reviewer you want in
-                                this list you can use 'Enroll Existing User' to
+                                this list you can use <b>Enroll Existing User</b> to
                                 search the database and give users the Reviewer
-                                role, or 'Add New Reviewer' to create a new
+                                role, or <b>Add New Reviewer</b> to create a new
                                 account for a reviewer (this process is silent,
                                 so they will not receive an account creation
                                 email).
@@ -40,10 +40,24 @@
                         <p>
                             Reviewers who have completed a review for this
                             article in a previous round will appear at the top
-                            of this list and will show 'Yes' in the 'Has
-                            Reviewed Article' column.
+                            of this list and will show <b>Yes</b> in the <b>Has
+                            Reviewed Article</b> column.
                         </p>
                     </div>
+
+                    {% if journal_settings.general.enable_study_topics %}
+                    <div style="display: flex; gap:10px;">
+                        <span>
+                            <div class="switch tiny">
+                                <input class="autoSubmit switch-input" id="studyTopicSwitch" type="checkbox" name="view-study-topics" checked>
+                                <label class="switch-paddle" for="studyTopicSwitch">
+                                    <span class="show-for-sr">View Research Topics</span>
+                                </label>
+                            </div>
+                        </span>
+                        <p>View Research Topics</p>
+                    </div>
+                    {% endif %}
 
                     <table class="small scroll" id="reviewers">
                         <thead>
@@ -52,8 +66,14 @@
                             <th>Name</th>
                             <th>Email Address</th>
                             <th>Active Reviews</th>
-                            <th width="30%">Interests</th>
-                            <th>Average Score</th>
+                            <th width="30%" class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>Interests</th>
+                            <th width="30%" class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>Research Topics</th>
+                            <th class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+                                {% include "elements/info_tooltip.html" with label_text='Match Score' info_message='Account score based on research topic matches.' %}
+                            </th>
+                            <th>
+                                {% include "elements/info_tooltip.html" with label_text='Average Score' info_message='Account score based on ratings.' %}
+                            </th>
                             <th>Last Review Completed</th>
                             <th>Has Reviewed Article</th>
                             {% if journal_settings.general.enable_suggested_reviewers %}<th>Suggested Reviewer</th>{% endif %}
@@ -132,6 +152,9 @@
     {% endif %}
     {% if form.modal %}
         {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+    {% if journal_settings.general.enable_study_topics %}
+        {% include "elements/review/research_topic_switch.html" %}
     {% endif %}
 
     <script lang="javascript">

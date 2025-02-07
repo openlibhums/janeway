@@ -89,6 +89,39 @@
             </div>
         </div>
 
+        {% if journal_settings.general.enable_study_topics %}
+        <div class="box">
+            <div class="title-area">
+                <h2>Research Topics</h2>
+            </div>
+            <div class="content">
+                <table class="hover stack scroll" id="unassigned">
+                    <tr>
+                        <th>Topic</th>
+                        <th>Type</th>
+                    </tr>
+                    {% for topic in article.topics_by_type.primary %}
+                        <tr>
+                            <td>{{ topic }}</td>
+                            <td>Primary</td>
+                        </tr>
+                    {% endfor %}
+                    {% for topic in article.topics_by_type.secondary %}
+                        <tr>
+                            <td>{{ topic }}</td>
+                            <td>Secondary</td>
+                        </tr>
+                    {% endfor %}
+                    {% if not article.topics %}
+                        <tr>
+                            <td colspan="4">No topics</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
@@ -210,6 +243,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
+                {% if journal_settings.general.enable_custom_editor_assignment %}
+                    <a href="{% url 'add_editor_assignment' article.id %}" class="button">Add Editor</a>
+                {% endif %}
             </div>
             <div class="content">
                 <table class="scroll small" id="unassigned">

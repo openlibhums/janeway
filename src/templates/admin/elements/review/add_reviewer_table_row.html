@@ -1,9 +1,21 @@
-<td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
+<td>
+    <input type="radio" name="reviewer" value="{{ reviewer.id }}"
+        {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}
+        {% if journal_settings.general.enable_competing_interest_selections and reviewer.has_conflict %}disabled{% endif %}
+    >
+</td>
 <td>{{ reviewer.full_name }}</td>
 <td>{{ reviewer.email }}</td>
 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
-<td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+<td class="list-interests" {% if journal_settings.general.enable_study_topics %} hidden {% else %} show {% endif %}>
+    {% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+</td>
+<td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+    {% include "admin/elements/review/assigned_topics_table.html" with topics_by_type=reviewer.topics_by_type %}
+</td>
+<td class="list-study-topics" {% if journal_settings.general.enable_study_topics %} show {% else %} hidden {% endif %}>
+    {{ reviewer.total_topic_matches}}
+</td>
 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
 <td>{% if reviewer.is_past_reviewer %}Yes{% else %}No{% endif %}</td>
-{% if journal_settings.general.enable_suggested_reviewers %}<td>{% if reviewer.is_suggested_reviewer %}Yes{% else %}No{% endif %}</td>{% endif %}

@@ -602,6 +602,12 @@ class Journal(AbstractSiteModel):
 
             default_review_form.elements.add(main_element)
 
+    def topic_groups(self):
+        return self.topicgroup_set.all()
+
+    def topics(self):
+        return self.study_topic.all()
+
     def archive_published_articles(self):
         # Subquery will attempt to grab a DOI for this article.
         doi_subquery = identifier_models.Identifier.objects.filter(

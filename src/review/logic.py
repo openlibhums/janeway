@@ -22,7 +22,10 @@ from django.db.models import (
     When,
     BooleanField,
     Value,
+    F,
+    Q,
 )
+from django.db.models.functions import Coalesce
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
 from django.db import IntegrityError
@@ -39,6 +42,143 @@ from review import models
 from review.const import EditorialDecisions as ED
 from events import logic as event_logic
 from submission import models as submission_models
+
+
+def get_editors(article, candidate_queryset, exclude_pks):
+    prefetch_editor_assignment = Prefetch(
+        'editor',
+        queryset=models.EditorAssignment.objects.filter(
+            article__journal=article.journal
+        )
+    )
+    active_assignments_count = models.EditorAssignment.objects.filter(
+        editor=OuterRef("id"),
+    ).values(
+        "editor_id",
+    ).annotate(
+        rev_count=Count("editor_id"),
+    ).values("rev_count")
+
+    editors = candidate_queryset.exclude(
+        pk__in=exclude_pks,
+    ).prefetch_related(
+        prefetch_editor_assignment,
+        'interest',
+    )
+    order_by = []
+
+    editors = editors.annotate(
+        active_assignments_count=Subquery(
+            active_assignments_count,
+            output_field=IntegerField(),
+        )
+    ).annotate(
+        active_assignments_count=Coalesce(F('active_assignments_count'), Value(0)),
+    )
+    order_by.append('active_assignments_count')
+    
+    if article.journal.get_setting('general','enable_study_topics'):
+        primary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        primary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        editors = editors.annotate(
+            primary_to_primary_matches=Subquery(
+                primary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            primary_to_secondary_matches=Subquery(
+                primary_to_secondary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_primary_matches=Subquery(
+                secondary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_secondary_matches=Subquery(
+                secondary_to_secondary_matches,
+                output_field=IntegerField(),
+            )
+        ).annotate(
+            primary_to_primary_matches_weighted=Coalesce(F('primary_to_primary_matches'), Value(0)) * 3,
+            primary_to_secondary_matches_weighted=Coalesce(F('primary_to_secondary_matches'), Value(0)) * 2,
+            secondary_to_primary_matches_weighted=Coalesce(F('secondary_to_primary_matches'), Value(0)) * 2,
+            secondary_to_secondary_matches_weighted=Coalesce(F('secondary_to_secondary_matches'), Value(0)) * 1,
+            total_topic_matches=(
+                F('primary_to_primary_matches_weighted') + 
+                F('primary_to_secondary_matches_weighted') + 
+                F('secondary_to_primary_matches_weighted') + 
+                F('secondary_to_secondary_matches_weighted')
+            )
+        )
+        order_by.append('-total_topic_matches')
+
+    editors = editors.order_by(*order_by)
+
+    return editors
+
+
+def get_editors_candidates(article, user=None, editors_to_exclude=None):
+    """ Builds a queryset of candidates for editor assignment requests for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    :param editors_to_exclude: queryset of Account objects
+    """
+
+    editors = article.editorassignment_set.all()
+    editor_pks_to_exclude = [assignment.editor.pk for assignment in editors]
+
+    if editors_to_exclude:
+        for editor in editors_to_exclude:
+            editor_pks_to_exclude.append(
+                editor.pk,
+            )
+
+    queryset_editor = article.journal.users_with_role('editor')
+    queryset_section_editor = article.journal.users_with_role('section-editor')
+
+    return get_editors(
+        article,
+        queryset_editor | queryset_section_editor,
+        editor_pks_to_exclude
+    )
+
 
 
 def get_reviewers(article, candidate_queryset, exclude_pks):
@@ -78,7 +218,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
-    ).annotate(
+    )
+    order_by = []
+
+    reviewers = reviewers.annotate(
         active_reviews_count=Subquery(
             active_reviews_count,
             output_field=IntegerField(),
@@ -91,7 +234,10 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
             default=False,
             output_field=BooleanField(),
         ),
+    ).annotate(
+        active_reviews_count=Coalesce(F('active_reviews_count'), Value(0)),
     )
+    order_by.append('active_reviews_count')
 
     if article.journal.get_setting('general', 'enable_suggested_reviewers'):
         article_keywords = [keyword.word for keyword in article.keywords.all()]
@@ -103,6 +249,80 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 output_field=BooleanField(),
             )
         )
+
+    if article.journal.get_setting('general', 'enable_study_topics'):
+        primary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        primary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.PRIMARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_primary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.PRIMARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        secondary_to_secondary_matches = core_models.AccountTopic.objects.filter(
+            account=OuterRef("id"),
+            topic_type=core_models.AccountTopic.SECONDARY,
+            topic__in=article.study_topic.filter(articletopic__topic_type=submission_models.ArticleTopic.SECONDARY)
+        ).values(
+            "account_id",
+        ).annotate(
+            match_count=Count("account_id"),
+        ).values("match_count")
+
+        reviewers = reviewers.annotate(
+            primary_to_primary_matches=Subquery(
+                primary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            primary_to_secondary_matches=Subquery(
+                primary_to_secondary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_primary_matches=Subquery(
+                secondary_to_primary_matches,
+                output_field=IntegerField(),
+            ),
+            secondary_to_secondary_matches=Subquery(
+                secondary_to_secondary_matches,
+                output_field=IntegerField(),
+            )
+        ).annotate(
+            primary_to_primary_matches_weighted=Coalesce(F('primary_to_primary_matches'), Value(0)) * 3,
+            primary_to_secondary_matches_weighted=Coalesce(F('primary_to_secondary_matches'), Value(0)) * 2,
+            secondary_to_primary_matches_weighted=Coalesce(F('secondary_to_primary_matches'), Value(0)) * 2,
+            secondary_to_secondary_matches_weighted=Coalesce(F('secondary_to_secondary_matches'), Value(0)) * 1,
+            total_topic_matches=(
+                F('primary_to_primary_matches_weighted') +
+                F('primary_to_secondary_matches_weighted') +
+                F('secondary_to_primary_matches_weighted') +
+                F('secondary_to_secondary_matches_weighted')
+            )
+        )
+        order_by.append('-total_topic_matches')
+
+    reviewers = reviewers.order_by(*order_by)
 
     return reviewers
 
@@ -624,6 +844,15 @@ def quick_assign(request, article, reviewer_user=None):
     else:
         for error in errors:
             messages.add_message(request, messages.WARNING, error)
+
+
+def handle_editor_form(request, new_editor_form, editor_type):
+    account = new_editor_form.save(commit=False)
+    account.is_active = True
+    account.save()
+    account.add_account_role(editor_type, request.journal)
+    messages.add_message(request, messages.INFO, 'A new account has been created.')
+    return account
 
 
 def handle_reviewer_form(request, new_reviewer_form):
