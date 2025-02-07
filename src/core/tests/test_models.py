@@ -268,6 +268,56 @@ class TestAccount(TestCase):
         )
 
 
+    def test_snapshot_credit_first_time(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+        author.add_credit('Conceptualization', self.article_one)
+        author.add_credit('Data Curation', self.article_one)
+
+        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
+            author=author,
+            article=self.article_one,
+        )
+        author.snapshot_credit(self.article_one, frozen_author)
+        frozen_author_credits = [
+            credit.role for credit in frozen_author.credits(self.article_one)
+        ]
+        self.assertIn('Conceptualization', frozen_author_credits)
+        self.assertIn('Data Curation', frozen_author_credits)
+
+
+    def test_snapshot_credit_force_update(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+        author.add_credit('Conceptualization', self.article_one)
+        author.add_credit('Data Curation', self.article_one)
+
+        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
+            author=author,
+            article=self.article_one,
+        )
+        # Initial snapshot
+        author.snapshot_credit(self.article_one, frozen_author)
+
+        # Change the author credits
+        author.remove_credit('Data Curation', self.article_one)
+        author.add_credit('Methodology', self.article_one)
+
+        # Snapshot again
+        author.snapshot_credit(self.article_one, frozen_author)
+
+        frozen_author_credits = [
+            credit.role for credit in frozen_author.credits(self.article_one)
+        ]
+        self.assertIn('Conceptualization', frozen_author_credits)
+        self.assertIn('Methodology', frozen_author_credits)
+        self.assertNotIn('Data Curation', frozen_author_credits)
+
+
 class TestSVGImageFormField(TestCase):
     def test_upload_svg_to_svg_image_form_field(self):
         svg_data = """

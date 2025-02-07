@@ -622,6 +622,23 @@ class Account(AbstractBaseUser, PermissionsMixin):
             affiliation.frozen_author = frozen_author
             affiliation.save()
 
+    def snapshot_credit(self, article, frozen_author):
+        """
+        Removes any old CRediT records from the frozen author,
+        and then assigns new CRediT records from author to frozen author.
+        """
+        frozen_credit_records = CreditRecord.objects.filter(
+            article=article,
+            frozen_author=frozen_author,
+        )
+        frozen_credit_records.update(frozen_author=None)
+
+        author_credit_records = CreditRecord.objects.filter(
+            article=article,
+            author=self,
+        )
+        author_credit_records.update(frozen_author=frozen_author)
+
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
             'name_prefix': self.name_prefix,
@@ -639,14 +656,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 setattr(frozen_author, k, v)
             frozen_author.save()
             self.snapshot_affiliations(frozen_author)
-
-            # now update the CRediT records
-            credit_records = CreditRecord.objects.filter(article=article,
-                                                         author=self)
-
-            for credit_record in credit_records:
-                credit_record.frozen_author = frozen_author
-                credit_record.save()
+            self.snapshot_credit(article, frozen_author)
 
         else:
             try:
@@ -666,14 +676,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             )
             if created:
                 self.snapshot_affiliations(frozen_author)
-
-            # now update the CRediT records
-            credit_records = CreditRecord.objects.filter(article=article,
-                                                         author=self)
-
-            for credit_record in credit_records:
-                credit_record.frozen_author = frozen_author
-                credit_record.save()
+            self.snapshot_credit(article, frozen_author)
 
     def credits(self, article):
         """
@@ -698,12 +701,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         Removes a CRediT role from the article for this user
         """
         try:
-            record, _ = (
-                submission_models.CreditRecord.objects.get(
-                    article=article, author=self, role=credit_role_text)
+            record = submission_models.CreditRecord.objects.get(
+                article=article,
+                author=self,
+                role=credit_role_text,
             )
-
-            record.delete()
+            record.author = None
+            record.save()
         except submission_models.CreditRecord.DoesNotExist:
             pass
 
