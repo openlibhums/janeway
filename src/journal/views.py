@@ -484,7 +484,7 @@ def article(request, identifier_type, identifier):
     use_credit = setting_handler.get_setting(
         "general", "use_credit",
         journal=request.journal
-    ).value
+    ).processed_value
 
     if use_credit:
         for frozen_author in article_object.frozen_authors():
