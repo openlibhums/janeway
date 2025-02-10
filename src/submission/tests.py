@@ -969,3 +969,29 @@ class ArticleFormTests(TestCase):
             form.fields,
             "'competing_interests' should NOT be present in EditorArticleInfoSubmit"
         )
+
+
+class CreditRecordTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article_one = helpers.create_article(cls.journal_one)
+        cls.author_one = helpers.create_author(cls.journal_one)
+        cls.article_one.authors.add(cls.author_one)
+        cls.article_one.correspondence_author = cls.author_one
+        cls.article_one.save()
+        cls.frozen_author_one = models.FrozenAuthor.objects.create(
+            author=cls.author_one,
+            article=cls.article_one,
+        )
+
+    def test_save_checks_exclusive_fields(self):
+        with self.assertRaises(ValidationError):
+            models.CreditRecord.objects.create(
+                author=self.author_one,
+                frozen_author=self.frozen_author_one,
+                article=self.article_one,
+                role='writing-original-draft',
+            )

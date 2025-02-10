@@ -22,7 +22,7 @@ from django.contrib.postgres.search import (
     SearchVectorField,
 )
 from django.core import validators
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import(
     connection,
     IntegrityError,
