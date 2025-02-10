@@ -186,7 +186,7 @@ def user_login_orcid(request):
             logic.reverse_with_next('core_login', request, next_url=next_url)
         )
 
-    # If the orcide code is missing, that means the user has not come from
+    # If the orcid code is missing, that means the user has not come from
     # orcid.org, just from a Janeway link.
     # Send them to orcid.org to authenticate first.
     # Encode the next URL and the action via 'state',
