@@ -20,7 +20,7 @@ from django.contrib.postgres.search import (
     SearchVectorField,
 )
 from django.core import validators
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import(
     connection,
     IntegrityError,
@@ -739,3 +739,26 @@ class DateTimePickerModelField(models.DateTimeField):
 @property
 def NotImplementedField(self):
     raise NotImplementedError
+
+
+def validate_exclusive_fields(obj, fields=None):
+    """
+    Checks that only one of several exclusive fields is populated.
+    For example, CreditRecord has author, frozen_author, and preprint_author,
+    but only one should be populated.
+    Call this function during the model's save method before the call to super.
+    """
+    if not fields:
+        raise ImproperlyConfigured(
+            'Pass a list of exclusive fields.',
+        )
+    populated_fields = set()
+    for field in fields:
+        if getattr(obj, field):
+            populated_fields.add(field)
+    if len(populated_fields) > 1:
+        data = {field: getattr(obj, field) for field in populated_fields}
+        raise ValidationError(
+            f'{obj} of type {obj._meta.model} was saved with ' \
+            f'more than one exclusive fields: {data}'
+        )
