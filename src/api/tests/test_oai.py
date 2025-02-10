@@ -28,13 +28,14 @@ class TestOAIViews(TestCase):
         cls.press = helpers.create_press()
         cls.journal, _ = helpers.create_journals()
         cls.author = helpers.create_author(cls.journal)
-
         cls.article = helpers.create_submission(
             journal_id=cls.journal.pk,
             stage=sm_models.STAGE_PUBLISHED,
             date_published="1986-07-12T17:00:00.000+0200",
             authors=[cls.author],
         )
+        cls.author.add_credit('data-curation', cls.article)
+        cls.author.add_credit('writing-original-draft', cls.article)
         cls.issue = helpers.create_issue(
             journal=cls.journal, vol=1, number=1,
             articles=[cls.article],
@@ -526,6 +527,18 @@ GET_RECORD_DATA_JATS = """
                             <given-names>Author A</given-names>
                         </name>
                         <email>authoruser@martineve.com</email>
+                        <role
+                            vocab="credit" vocab-identifier="https://credit.niso.org/"
+                            vocab-term="Data Curation"
+                            vocab-term-identifier="https://credit.niso.org/contributor-roles/data-curation/">
+                            Data Curation
+                        </role>
+                        <role
+                            vocab="credit" vocab-identifier="https://credit.niso.org/"
+                            vocab-term="Writing - Original Draft"
+                            vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">
+                            Writing - Original Draft
+                        </role>
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
                     <contrib contrib-type="author">
