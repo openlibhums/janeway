@@ -2338,6 +2338,11 @@ class CreditRecord(AbstractLastModifiedModel):
     def all_roles(self):
         return CREDIT_ROLE_CHOICES
 
+    def save(self, *args, **kwargs):
+        exclusive_fields = ['author', 'frozen_author', 'preprint_author']
+        model_utils.validate_exclusive_fields(self, fields=exclusive_fields)
+        super().save(*args, **kwargs)
+
 
 class Section(AbstractLastModifiedModel):
     journal = models.ForeignKey(
