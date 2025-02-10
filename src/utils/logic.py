@@ -352,12 +352,12 @@ def add_query_parameters_to_url(original_url, new_params):
     :param original_url: the raw URL to be updated
     :param new_params: the dict or QueryDict of new query parameters to add
     """
-    parsed_url = urlparse(original_url) # ParseResult
-    parsed_query = QueryDict(parsed_url.query, mutable=True) # mutable QueryDict
+    parsed_url = urlparse(original_url)
+    parsed_query = QueryDict(parsed_url.query, mutable=True)
     parsed_query.update(new_params)
 
     # Treat / as safe to match the default behavior of
-    # tempalte filters such as |urlencode
-    new_query_string = parsed_query.urlencode(safe="/") # full percent-encoded query string
+    # template filters such as |urlencode
+    new_query_string = parsed_query.urlencode(safe="/")
     final_url = parsed_url._replace(query=new_query_string).geturl()
     return final_url
