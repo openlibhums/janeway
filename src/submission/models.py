@@ -2308,20 +2308,20 @@ class CreditRecord(AbstractLastModifiedModel):
         'core.Account',
         blank=True,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     frozen_author = models.ForeignKey(FrozenAuthor,
                                       blank=True,
                                       null=True,
-                                      on_delete=SET_NULL)
+                                      on_delete=models.CASCADE)
     preprint_author = models.ForeignKey(repository_models.PreprintAuthor,
                                         blank=True,
                                         null=True,
-                                        on_delete=SET_NULL)
+                                        on_delete=models.CASCADE)
     article = models.ForeignKey(Article,
                                 blank=True,
                                 null=True,
-                                on_delete=SET_NULL)
+                                on_delete=models.CASCADE)
     role = models.CharField(max_length=100,
                             blank=True,
                             null=True,
