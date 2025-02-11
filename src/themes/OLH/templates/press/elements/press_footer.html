@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load next_url %}
+
 <div class="large-5 columns" data-equalizer-watch>
     <p>
 {{ press.footer_description|default:""|safe }}
@@ -12,6 +14,12 @@
       {% endif %}
         <li><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
-        {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">{% trans 'Login' %}</a></li>{% endif %}
+        {% if not request.user.is_authenticated %}
+          <li>
+            <a href="{% url 'core_login' %}">
+              {% trans 'Log in' %}
+            </a>
+          </li>
+        {% endif %}
     </ul>
 </div>

@@ -186,6 +186,7 @@ Once a typesetter or production manager has uploaded typeset files into Janeway 
 
 .. figure:: ../nstatic/typesetting/editor/typeset_files.png
    :class: with-border
+
 An XML typeset file with missing figure files.
 
 

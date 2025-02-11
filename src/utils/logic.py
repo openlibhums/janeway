@@ -1,8 +1,7 @@
 import os
 import hashlib
 import hmac
-from urllib.parse import SplitResult, quote_plus, urlencode
-from tqdm import tqdm
+from urllib.parse import SplitResult, urlencode, urlparse, unquote
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -144,7 +143,7 @@ def replace_netloc_port(netloc, new_port):
     return ":".join((netloc.split(":")[0], new_port))
 
 
-def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
+def build_url(netloc, port=None, scheme=None, path="", query="", fragment=""):
     """ Builds a url given all its parts
     :netloc: string
     :port: int
@@ -174,7 +173,7 @@ def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
         scheme=scheme,
         netloc=netloc,
         path=path,
-        query=query or "",
+        query=query,
         fragment=fragment,
     ).geturl()
 
@@ -344,3 +343,21 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
 def get_janeway_patch_version():
     from janeway import __version__
     return f"{__version__.major}.{__version__.minor}.{__version__.patch}"
+
+
+def add_query_parameters_to_url(original_url, new_params):
+    """
+    Parse a URL string and then safely update the query parameters.
+    Then re-encode them into a query string and generate the final URL.
+    :param original_url: the raw URL to be updated
+    :param new_params: the dict or QueryDict of new query parameters to add
+    """
+    parsed_url = urlparse(original_url)
+    parsed_query = QueryDict(parsed_url.query, mutable=True)
+    parsed_query.update(new_params)
+
+    # Treat / as safe to match the default behavior of
+    # template filters such as |urlencode
+    new_query_string = parsed_query.urlencode(safe="/")
+    final_url = parsed_url._replace(query=new_query_string).geturl()
+    return final_url

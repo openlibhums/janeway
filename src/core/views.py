@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+from urllib.parse import unquote, urlencode
 import pytz
 import time
 import warnings
@@ -65,12 +66,11 @@ def user_login(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
+    next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
-        if request.GET.get('next'):
-            return redirect(request.GET.get('next'))
-        else:
-            return redirect(reverse('website_index'))
+        return redirect(logic.get_post_auth_url(request))
+
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
 
@@ -88,10 +88,10 @@ def user_login(request):
         form = forms.LoginForm(request.POST, bad_logins=bad_logins)
 
         if form.is_valid():
-            user = request.POST.get('user_name').lower()
-            pawd = request.POST.get('user_pass')
+            username = request.POST.get('user_name').lower()
+            password = request.POST.get('user_pass')
 
-            user = authenticate(username=user, password=pawd)
+            user = authenticate(username=username, password=password)
 
             if user is not None:
                 login(request, user)
@@ -107,13 +107,8 @@ def user_login(request):
                         token_obj.delete()
                     except models.OrcidToken.DoesNotExist:
                         pass
+                return redirect(logic.get_post_auth_url(request))
 
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
-                elif request.journal:
-                    return redirect(reverse('core_dashboard'))
-                else:
-                    return redirect(reverse('website_index'))
             else:
 
                 empty_password_check = logic.no_password_check(request.POST.get('user_name').lower())
@@ -147,73 +142,125 @@ def user_login(request):
 
     return render(request, template, context)
 
+
 def user_login_orcid(request):
     """
-    Allows a user to login with ORCiD
+    Allow a user to log in with their ORCiD account
+    or switch to registering if needed.
+
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    orcid_code = request.GET.get('code', None)
-    action = request.GET.get('state', 'login')
-
-    if orcid_code and django_settings.ENABLE_ORCID:
-        orcid_id = orcid.retrieve_tokens(
-            orcid_code,
-            request.site_type,
-            action=action
-        )
-
-        if orcid_id:
-            try:
-                user = models.Account.objects.get(orcid=orcid_id)
-                if action == 'login':
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user)
-
-                    if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
-
-            except models.Account.DoesNotExist:
-                # Lookup ORCID email addresses
-                orcid_details = orcid.get_orcid_record_details(orcid_id)
-                for email in orcid_details.get("emails", []):
-                    candidates = models.Account.objects.filter(email=email)
-                    if candidates.exists():
-                        # Store ORCID for future authentication requests
-                        candidates.update(orcid=orcid_id)
-                        login(request, candidates.first())
-                        if request.GET.get('next'):
-                            return redirect(request.GET.get('next'))
-                        elif request.journal:
-                            return redirect(reverse('core_dashboard'))
-                        else:
-                            return redirect(reverse('website_index'))
-
-            # Prepare ORCID Token for registration and redirect
-            models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
-
-            if action == 'register':
-                return redirect(reverse('core_register') + f'?token={new_token.token}')
-            else:
-                return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                'Valid ORCiD not returned, please try again, or login with your username and password.'
-            )
-            return redirect(reverse('core_login'))
+    # First figure out what the user is trying to do (action) and where they want to
+    # be returned to in Janeway (next).
+    # This information may be encoded in a 'state' parameter that we get back from ORCiD
+    # or it may be in the generic request parameters.
+    state_string = request.GET.get('state', '')
+    state = orcid.decode_state(state_string)
+    if 'action' in state:
+        action = state.get('action', 'login')
     else:
+        action = request.GET.get('action', 'login')
+
+    if 'next' in state:
+        next_url = state.get('next', '')
+    else:
+        next_url = request.GET.get('next', '')
+
+    # If ORCiD is not enabled, redirect the user to the regular Janeway login page.
+    if not django_settings.ENABLE_ORCID:
         messages.add_message(
             request,
             messages.WARNING,
-            'No authorisation code provided, please try again or login with your username and password.')
-        return redirect(reverse('core_login'))
+            _('ORCID is not enabled.'
+            'Please log in with your username and password.')
+        )
+        return redirect(
+            logic.reverse_with_next('core_login', next_url)
+        )
+
+    # If the orcid code is missing, that means the user has not come from
+    # orcid.org, just from a Janeway link.
+    # Send them to orcid.org to authenticate first.
+    # Encode the next URL and the action via 'state',
+    # which the ORCiD auth system will pass back.
+    orcid_code = request.GET.get('code', '')
+    if not orcid_code:
+        base = django_settings.ORCID_URL
+        query_dict = {
+            'client_id': django_settings.ORCID_CLIENT_ID,
+            'response_type': 'code',
+            'scope': '/authenticate',
+            'redirect_uri': orcid.build_redirect_uri(request.site_type),
+            'state': orcid.encode_state(next_url, action),
+        }
+        orcid_login_url = f'{base}?{urlencode(query_dict, safe="/")}'
+        return redirect(orcid_login_url)
+
+    # There is an orcid code, meaning the user has authenticated on orcid.org.
+    # Make another request to orcid.org to verify it.
+    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+
+    # If verification did not work, send them to the regular login page.
+    if not orcid_id:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Valid ORCiD not returned. '
+            'Please try again, or log in with your username and password.'
+        )
+        return redirect(
+            logic.reverse_with_next('core_login', next_url)
+        )
+
+    # The verification worked.
+    # If the user wanted to log in, try to log them in.
+    if action == 'login':
+        try:
+            user = models.Account.objects.get(orcid=orcid_id)
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            return redirect(logic.get_post_auth_url(request, next_url=next_url))
+
+        except models.Account.DoesNotExist:
+            # Lookup ORCID email addresses
+            orcid_details = orcid.get_orcid_record_details(orcid_id)
+            for email in orcid_details.get("emails", []):
+                candidates = models.Account.objects.filter(email=email)
+                if candidates.exists():
+                    # Store ORCID for future authentication requests
+                    candidates.update(orcid=orcid_id)
+                    login(request, candidates.first())
+                    return redirect(
+                        logic.get_post_auth_url(request, next_url=next_url)
+                    )
+
+        # If no account was found for login,
+        # then prepare an ORCiD token for registration.
+        # Then send the user to a decision page that tells them
+        # the ORCiD login did not work and they will need to register.
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_orcid_registration',
+                next_url,
+                kwargs={'token': str(new_token.token)},
+            )
+        )
+
+    # If the user wanted to register, send them to the registration page
+    # and pass along their orcid token so information can be pre-filled.
+    elif action == 'register':
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_register_with_orcid_token',
+                next_url,
+                kwargs={'orcid_token': str(new_token.token)},
+            )
+        )
 
 
 @login_required
@@ -235,6 +282,7 @@ def get_reset_token(request):
     :return: HttpResponse object
     """
     new_reset_token = None
+    next_url = request.GET.get('next', '')
     form = forms.GetResetTokenForm()
 
     if request.POST:
@@ -251,9 +299,9 @@ def get_reset_token(request):
             try:
                 account = models.Account.objects.get(email__iexact=email_address)
                 logic.start_reset_process(request, account)
-                return redirect(reverse('core_login'))
+                return redirect(logic.reverse_with_next('core_login', next_url))
             except models.Account.DoesNotExist:
-                return redirect(reverse('core_login'))
+                return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/get_reset_token.html'
     context = {
@@ -266,11 +314,14 @@ def get_reset_token(request):
 
 def reset_password(request, token):
     """
-    Takes a reset token and checks if it is valid then allows a user to reset their password, adter it expires the token
+    Takes a reset token and checks if it is valid.
+    Then it allows a user to reset their password,
+    and finally it expires the token.
     :param request: HttpRequest
     :param token: string, PasswordResetToken.token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
     reset_token = get_object_or_404(models.PasswordResetToken, token=token, expired=False)
     form = forms.PasswordResetForm()
 
@@ -295,7 +346,7 @@ def reset_password(request, token):
             reset_token.expired = True
             reset_token.save()
             messages.add_message(request, messages.SUCCESS, 'Your password has been reset.')
-            return redirect(reverse('core_login'))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/reset_password.html'
     context = {
@@ -306,18 +357,28 @@ def reset_password(request, token):
     return render(request, template, context)
 
 
-def register(request):
+def register(request, orcid_token=None):
     """
-    Displays a form for users to register with the journal. If the user is registering on a journal we give them
+    Displays a form for users to register with the press or journal.
+    If the user is registering on a journal we give them
     the Author role.
+
+    An ORCiD token is passed when the user arrives here after they
+    tried to log in with ORCiD, but Janeway said "No account found,
+    would you like to register instead?"
+
     :param request: HttpRequest object
+    :param orcid_token: str UUID4 belonging to an active OrcidToken
     :return: HttpResponse object
     """
     context = {}
     initial = {}
-    token, token_obj = request.GET.get('token', None), None
-    if token:
-        token_obj = get_object_or_404(models.OrcidToken, token=token)
+
+    token_obj = None
+    next_url = request.GET.get('next', '')
+
+    if orcid_token:
+        token_obj = get_object_or_404(models.OrcidToken, token=orcid_token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
         # we use the full orcid uri for display
         context["orcid"] = orcid_details["uri"]
@@ -359,12 +420,8 @@ def register(request):
                     new_user.is_active = True
                     new_user.save()
                     login(request, new_user)
-                    if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
+                    return redirect(logic.get_post_auth_url(request))
+
             else:
                 new_user = form.save()
 
@@ -377,7 +434,7 @@ def register(request):
                 _('Your account has been created. Please follow the '
                 'instructions in the email that has been sent to you.'),
             )
-            return redirect(reverse('core_login'))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/register.html'
     context["form"] = form
@@ -386,6 +443,15 @@ def register(request):
 
 
 def orcid_registration(request, token):
+    """
+    Users arrive at this view when they have tried to log in
+    via ORCiD, but no suitable Janeway account was found.
+    The view suggests to them they might want to register a new
+    account instead, and gives them options.
+
+    :param request: HttpRequest object
+    :param token: str UUID4 belonging to active OrcidToken
+    """
     token = get_object_or_404(models.OrcidToken, token=token, expiry__gt=timezone.now())
 
     template = 'admin/core/accounts/orcid_registration.html'
@@ -404,12 +470,14 @@ def activate_account(request, token):
     :param token: string, Account.confirmation_token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
+
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
     except models.Account.DoesNotExist:
         account = None
 
-    if account and request.POST:
+    if account and request.method == 'POST':
         account.is_active = True
         account.confirmation_code = None
         account.save()
@@ -420,7 +488,7 @@ def activate_account(request, token):
             _('Account activated'),
         )
 
-        return redirect(reverse('core_login'))
+        return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/activate_account.html'
     context = {
@@ -460,7 +528,8 @@ def edit_profile(request):
             try:
                 validate_email(email_address)
                 try:
-                    logic.handle_email_change(request, email_address)
+                    next_url = reverse('core_edit_profile')
+                    logic.handle_email_change(request, email_address, next_url=next_url)
                     return redirect(reverse('website_index'))
                 except IntegrityError:
                     messages.add_message(

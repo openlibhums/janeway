@@ -3,11 +3,19 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 from contextlib import ContextDecorator
+from unittest.mock import Mock
+import datetime
 
+from django.http import HttpRequest
+from django.test.client import QueryDict
 from django.utils import translation, timezone
 from django.conf import settings
-import datetime
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from utils import template_override_middleware
+from django.template.engine import Engine
 
 from core import (
     middleware,
@@ -357,21 +365,29 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
     return preprint
 
 
-class Request(object):
+class Request(HttpRequest):
     """
-    A fake request class for sending emails outside of the
+    A fake request class for running tests outside of the
     client-server request loop.
     """
 
-    def __init__(self):
-        self.journal = None
-        self.site_type = None
-        self.port = 8000
-        self.secure = False
-        self.user = False
-        self.FILES = None
-        self.META = {'REMOTE_ADDR': '127.0.0.1'}
-        self.model_content_type = None
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.press = kwargs.get('press', None)
+        self.repository = kwargs.get('repository', None)
+        self.journal = kwargs.get('journal', None)
+        self.site_type = kwargs.get('site_type', None)
+        self.port = kwargs.get('port', 8000)
+        self.secure = kwargs.get('secure', False)
+        self.user = kwargs.get('user', None)
+        self.FILES = kwargs.get('FILES', None)
+        self.META = kwargs.get(
+            'META',
+            {'REMOTE_ADDR': '127.0.0.1'}
+        )
+        self.GET = QueryDict()
+        self.POST = QueryDict()
+        self.model_content_type = kwargs.get('model_content_type', None)
 
     def is_secure(self):
         if self.secure is False:
@@ -381,6 +397,21 @@ class Request(object):
 
     def get_host(self):
         return 'testserver'
+
+
+def get_request(**kwargs):
+    journal = kwargs.get('journal', None)
+    press = kwargs.get('press', None)
+    if journal:
+        journal_type = ContentType.objects.get_for_model(journal)
+        kwargs['model_content_type'] = journal_type
+        kwargs['site_type'] = journal
+    elif press:
+        press_type = ContentType.objects.get_for_model(press)
+        kwargs['model_content_type'] = press_type
+        kwargs['site_type'] = press
+    request = Request(**kwargs)
+    return request
 
 
 class activate_translation(ContextDecorator):

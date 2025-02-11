@@ -1,5 +1,5 @@
 {% extends "admin/core/small_form.html" %}
-{% load i18n foundation %}
+{% load i18n foundation next_url %}
 
 {% block contextual_title %}
   {% trans "Activate Account" %}
@@ -36,7 +36,7 @@
       already. You can check if it is active by attempting to log in.
     {% endblocktrans %}</p>
     <div>
-      <a class="button secondary expanded" href="{% url 'core_login' %}">
+      <a class="button secondary expanded" href="{% url_with_next 'core_login' %}">
         {% trans "Log in" %}
       </a>
     </div>
