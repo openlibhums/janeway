@@ -421,12 +421,8 @@ def register(request, orcid_token=None):
                     new_user.is_active = True
                     new_user.save()
                     login(request, new_user)
-                    if next_url:
-                        return redirect(next_url)
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
+                    return redirect(logic.get_post_auth_url(request))
+
             else:
                 new_user = form.save()
 
