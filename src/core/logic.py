@@ -36,17 +36,13 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def reverse_with_next(url_name, request, next_url='', args=None, kwargs=None):
+def reverse_with_next(url_name, next_url, args=None, kwargs=None):
     """
-    Reverse a URL but keep the 'next' parameter that exists on the request
-    or that the caller wants to introduce.
+    Reverse a URL but keep the 'next' parameter.
 
-    The value of 'next' on the request, or the value of 'next_url',
-    should be in decoded form.
+    The value of 'next_url' should be in decoded form.
 
-    :param request: HttpRequest, optionally containing 'next' in GET
-    :param next_url: an optional string with the path and query parts of
-                     a destination URL -- overrides any 'next' in request data
+    :param next_url: a string with the path and query parts of a destination URL
     :param args: args to pass to django.shortcuts.reverse, if no kwargs
     :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
     """
@@ -58,8 +54,6 @@ def reverse_with_next(url_name, request, next_url='', args=None, kwargs=None):
     else:
         reversed_url = reverse(url_name)
 
-    if not next_url:
-        next_url = request.GET.get('next', '')
     if not next_url:
         return reversed_url
 

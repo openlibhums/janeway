@@ -27,5 +27,6 @@ def orcid_redirect_uri(context, action="login"):
 @register.simple_tag(takes_context=True)
 def url_with_next_and_orcid_action(context, url_name, action="login"):
     request = context.get('request')
-    url = reverse_with_next(url_name, request)
+    next_url = request.GET.get('next', '')
+    url = reverse_with_next(url_name, next_url)
     return add_query_parameters_to_url(url, {'action': action})

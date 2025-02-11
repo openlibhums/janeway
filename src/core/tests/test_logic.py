@@ -46,18 +46,10 @@ class TestLogic(TestCase):
         self.assertEqual(expected_rendered_setting, rendered_setting)
 
     @patch('core.logic.reverse')
-    def test_reverse_with_next_in_get_request(self, mock_reverse):
-        mock_reverse.return_value = '/my/path/?my=params'
-        self.request.GET = {'next': self.next_url_raw}
-        reversed_url = logic.reverse_with_next('/test/', self.request)
-        self.assertIn(self.next_url_encoded, reversed_url)
-
-    @patch('core.logic.reverse')
     def test_reverse_with_next_in_kwarg(self, mock_reverse):
         mock_reverse.return_value = '/my/path/?my=params'
         reversed_url = logic.reverse_with_next(
             '/test/',
-            self.request,
             next_url=self.next_url_raw,
         )
         self.assertIn(self.next_url_encoded, reversed_url)
@@ -65,7 +57,7 @@ class TestLogic(TestCase):
     @patch('core.logic.reverse')
     def test_reverse_with_next_no_next(self, mock_reverse):
         mock_reverse.return_value = '/my/url/?my=params'
-        reversed_url = logic.reverse_with_next('/test/', self.request)
+        reversed_url = logic.reverse_with_next('/test/', '')
         self.assertEqual(mock_reverse.return_value, reversed_url)
 
     def test_get_confirm_account_url(self):
