@@ -833,6 +833,20 @@ class TestOrganizationModels(TestCase):
         )
         self.assertFalse(second_affiliation.is_primary)
 
+    def test_affiliation_save_checks_exclusive_fields(self):
+        with self.assertRaises(ValidationError):
+            models.Affiliation.objects.create(
+                account=self.kathleen_booth,
+                frozen_author=self.kathleen_booth_frozen,
+                organization=self.organization_bbk,
+            )
+        with self.assertRaises(ValidationError):
+            models.Affiliation.objects.create(
+                account=self.kathleen_booth,
+                preprint_author=self.kathleen_booth_preprint,
+                organization=self.organization_bbk,
+            )
+
     def test_affiliation_naive_get_or_create(self):
         affiliation, _created = models.Affiliation.naive_get_or_create(
             institution='Birkbeck Coll',
