@@ -465,37 +465,6 @@ class RegisterTests(CoreViewTestsWithData):
             'first_name': 'New',
             'last_name': 'User',
             'email': 'kjhsaqccxf7qfwirhqia@example.org',
-            'orcid': self.user_orcid,
-            'password_1': 'qsX1roLama3ADotEopfq',
-            'password_2': 'qsX1roLama3ADotEopfq',
-        }
-        path = f'/register/step/1/{self.orcid_token_uuid}/'
-        query = f'next={self.next_url_encoded}'
-        response = self.client.post(f'{path}?{query}', post_data, follow=True)
-        self.assertIn((self.next_url_raw, 302), response.redirect_chain)
-
-
-    @patch('core.views.orcid.get_orcid_record_details')
-    @patch('core.views.logic.password_policy_check')
-    @override_settings(CAPTCHA_TYPE='')
-    @override_settings(ENABLE_ORCID=True)
-    def test_register_orcid_form_valid_redirects_to_next(
-        self,
-        password_check,
-        get_orcid_details
-    ):
-        get_orcid_details.return_value = {
-            'first_name': 'New',
-            'last_name': 'User',
-            'emails': ['kjhsaqccxf7qfwirhqia@example.org'],
-            'orcid': self.user_orcid,
-            'uri': self.user_orcid_uri,
-        }
-        password_check.return_value = None
-        post_data = {
-            'first_name': 'New',
-            'last_name': 'User',
-            'email': 'kjhsaqccxf7qfwirhqia@example.org',
             'password_1': 'qsX1roLama3ADotEopfq',
             'password_2': 'qsX1roLama3ADotEopfq',
         }
