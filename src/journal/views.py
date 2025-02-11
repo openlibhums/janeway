@@ -433,16 +433,20 @@ def collection_by_code(request, collection_code):
     ))
 
 
-@decorators.frontend_enabled
 @article_exists
-@article_stage_accepted_or_later_required
-def article(request, identifier_type, identifier):
-    """ Renders an article.
+def article_base_view(
+        request,
+        identifier_type,
+        identifier,
+        is_preview=False,
+):
+    """Base view to handle article rendering logic.
 
-    :param request: the request associated with this call
+    :param request: the request object
     :param identifier_type: the identifier type
     :param identifier: the identifier
-    :return: a rendered template of the article
+    :param is_preview: flag to alter logic for preview (boolean)
+    :return: HttpResponse object
     """
     article_object = submission_models.Article.get_article(
         request.journal,
@@ -453,33 +457,31 @@ def article(request, identifier_type, identifier):
     content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
 
-    # check if there is a galley file attached that needs rendering
-    if article_object.is_published:
-        galley = get_best_galley(article_object, galleys)
-        if galley:
-            content = galley.file_content(recover=True)
-        else:
-            content = ''
-        tables_in_galley = logic.get_all_tables_from_html(content)
-        store_article_access(
-            request,
-            article_object,
-            "view",
-            galley.type if galley else None)
+    galley = get_best_galley(article_object, galleys)
+    if galley:
+        content = galley.file_content(recover=True)
     else:
+        content = ''
+
+    tables_in_galley = logic.get_all_tables_from_html(content)
+    store_article_access(
+        request,
+        article_object,
+        "view",
+        galley.type if galley else None,
+    )
+
+    if request.journal.disable_html_downloads:
+        galleys = galleys.exclude(
+            file__mime_type='text/html',
+        )
+
+    if not is_preview and not article_object.is_published:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
         ) + (article_object.abstract or "")
 
-
-    if request.journal.disable_html_downloads:
-        # exclude any HTML galleys.
-        galleys = galleys.exclude(
-            file__mime_type='text/html',
-        )
-
-    template = 'journal/article.html'
     context = {
         'article': article_object,
         'galleys': galleys,
@@ -489,7 +491,43 @@ def article(request, identifier_type, identifier):
         'tables_in_galley': tables_in_galley,
     }
 
-    return render(request, template, context)
+    return render(request, 'journal/article.html', context)
+
+
+@decorators.frontend_enabled
+@article_stage_accepted_or_later_required
+def article(request, identifier_type, identifier):
+    """
+    Renders a publicly accessible article.
+
+    :param request: the request object
+    :param identifier_type: the identifier type [id, doi, pubid]
+    :param identifier: the identifier
+    :return: HttpResponse object
+    """
+    return article_base_view(
+        request=request,
+        identifier_type=identifier_type,
+        identifier=identifier,
+        is_preview=False,
+    )
+
+
+@production_user_or_editor_required
+def article_preview(request, article_id):
+    """
+    Renders an article preview for editors and production staff.
+
+    :param request: the request object
+    :param article_id: the Article object primary key
+    :return: HttpResponse object
+    """
+    return article_base_view(
+        request=request,
+        identifier_type="id",
+        identifier=article_id,
+        is_preview=True,
+    )
 
 
 def article_from_identifier(request, identifier_type, identifier):

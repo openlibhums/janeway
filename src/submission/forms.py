@@ -257,7 +257,17 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
 class EditArticleMetadata(ArticleInfo):
     class Meta(ArticleInfo.Meta):
-        fields = ArticleInfo.Meta.fields + ('competing_interests', 'jats_article_type_override')
+        fields = ArticleInfo.Meta.fields + (
+            'competing_interests',
+            'jats_article_type_override',
+            'render_galley',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(EditArticleMetadata, self).__init__(*args, **kwargs)
+        if 'instance' in kwargs:
+            article = kwargs['instance']
+            self.fields['render_galley'].queryset = article.galley_set.all()
 
 
 class AuthorForm(forms.ModelForm):

@@ -97,6 +97,9 @@
                                 {{ info_form.jats_article_type_override }}
                             </div>
                         </div>
+                        <div class="large-6 columns">
+                          {{ info_form.render_galley|foundation }}
+                        </div>
                     </div>
                     {% if request.journal.submissionconfiguration.competing_interests %}
                         <div class="large-10 columns">

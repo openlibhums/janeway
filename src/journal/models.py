@@ -1323,7 +1323,7 @@ class FixedPubCheckItems(models.Model):
     select_issue = models.BooleanField(default=False)
     set_pub_date = models.BooleanField(default=False)
     send_notifications = models.BooleanField(default=False)
-    select_render_galley = models.BooleanField(default=False)
+    preview_article = models.BooleanField(default=False)
     select_article_image = models.BooleanField(default=False)
     select_open_reviews = models.BooleanField(default=False)
 
