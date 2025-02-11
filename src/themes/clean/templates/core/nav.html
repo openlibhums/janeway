@@ -102,12 +102,12 @@
                 </li>
             {% else %}
                 <li class="nav-item">
-                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                  <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans 'Log in' %}
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="{% url_with_return 'core_register' %}" class="nav-link">
+                  <a href="{% url 'core_register' %}" class="nav-link">
                     {% trans 'Register' %}
                   </a>
                 </li>

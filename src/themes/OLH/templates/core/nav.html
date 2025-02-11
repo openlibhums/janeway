@@ -74,12 +74,12 @@
                     <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
                 {% else %}
                     <li>
-                      <a href="{% url_with_return 'core_login' %}">
+                      <a href="{% url 'core_login' %}">
                         {% trans "Log in" %}
                       </a>
                     </li>
                     <li>
-                      <a href="{% url_with_return 'core_register' %}">
+                      <a href="{% url 'core_register' %}">
                         {% trans "Register" %}
                       </a>
                     </li>
