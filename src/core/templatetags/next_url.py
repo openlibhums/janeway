@@ -10,8 +10,7 @@ def url_with_next(context, url_name, *args, **kwargs):
     """
     A template tag to use instead of 'url' when you want
     the reversed URL to include the same 'next' parameter that
-    already exists in the GET or POST data of the request,
-    or you want to introduce a new next url by Django URL name.
+    already exists in the GET data of the request.
     """
     request = context.get('request')
     next_url = request.GET.get('next', '')
