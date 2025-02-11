@@ -16,7 +16,7 @@
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         {% if not request.user.is_authenticated %}
           <li>
-            <a href="{% url_with_return 'core_login' %}">
+            <a href="{% url 'core_login' %}">
               {% trans 'Log in' %}
             </a>
           </li>
