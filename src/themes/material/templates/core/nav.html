@@ -77,12 +77,12 @@
                 </li>
             {% else %}
                 <li>
-                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                  <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans "Log in" %}
                   </a>
                 </li>
                 <li>
-                  <a href="{% url_with_return 'core_register' %}">
+                  <a href="{% url 'core_register' %}">
                     {% trans "Register" %}
                   </a>
                 </li>
@@ -140,12 +140,12 @@
                 </li>
             {% else %}
                 <li>
-                  <a href="{% url_with_return 'core_login' %}" class="nav-link">
+                  <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans "Log in" %}
                   </a>
                 </li>
                 <li>
-                  <a href="{% url_with_return 'core_register' %}">
+                  <a href="{% url 'core_register' %}">
                     {% trans "Register" %}
                   </a>
                 </li>

@@ -137,10 +137,10 @@
                     {% else %}
                       <li>
                         <p>
-                          <a href="{% url_with_return 'core_login' %}">
+                          <a href="{% url 'core_login' %}">
                             {% trans "Log in" %}
                           </a> |
-                          <a href="{% url_with_return 'core_register' %}">
+                          <a href="{% url 'core_register' %}">
                             {% trans "Register" %}
                           </a>
                         </p>
