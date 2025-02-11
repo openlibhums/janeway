@@ -14,6 +14,7 @@ from bleach import clean
 from django import forms
 from django.apps import apps
 from django.contrib import admin
+from django.core.paginator import EmptyPage, Paginator
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -739,3 +740,38 @@ class DateTimePickerModelField(models.DateTimeField):
 @property
 def NotImplementedField(self):
     raise NotImplementedError
+
+
+class SafePaginator(Paginator):
+    """
+    A paginator for avoiding an uncaught exception
+    caused by passing a page parameter that is out of range.
+    """
+    def validate_number(self, number):
+        try:
+            return super().validate_number(number)
+        except EmptyPage:
+            if number > 1:
+                return self.num_pages
+            else:
+                raise
+
+
+def validate_exclusive_fields(obj, fields):
+    """
+    Checks that only one of several exclusive fields is populated.
+    For example, CreditRecord has author, frozen_author, and preprint_author,
+    but only one should be populated.
+    Call this function during the model's save method before the call to super.
+    :param fields: iterable of field names that should be exclusive
+    """
+    populated_fields = set()
+    for field in fields:
+        if getattr(obj, field):
+            populated_fields.add(field)
+    if len(populated_fields) > 1:
+        data = {field: getattr(obj, field) for field in populated_fields}
+        raise ValidationError(
+            f'{obj} of type {obj._meta.model} was saved with ' \
+            f'more than one exclusive fields: {data}'
+        )

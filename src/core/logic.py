@@ -868,7 +868,7 @@ def check_for_bad_login_attempts(request):
     time = timezone.now() - timedelta(minutes=10)
 
     attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address, timestamp__gte=time)
-    print(time, attempts.count())
+    logger.info(time, attempts.count())
     return attempts.count()
 
 

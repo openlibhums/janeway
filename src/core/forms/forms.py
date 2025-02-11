@@ -183,7 +183,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'department', 'institution', 'country', 'orcid',)
+                  'last_name', 'orcid',)
         widgets = {'orcid': forms.HiddenInput() }
 
     def __init__(self, *args, **kwargs):
@@ -532,7 +532,7 @@ class SectionForm(JanewayTranslationModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
+        fields = ('email', 'salutation', 'first_name', 'last_name',)
 
 
 class LoginForm(CaptchaForm):
@@ -940,3 +940,33 @@ class AccountRoleForm(forms.ModelForm):
     class Meta:
         model = models.AccountRole
         fields = '__all__'
+
+
+class OrganizationNameForm(forms.ModelForm):
+
+    class Meta:
+        model = models.OrganizationName
+        fields = ('value',)
+
+
+class AffiliationForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Affiliation
+        fields = '__all__'
+        widgets = {
+            'account': forms.HiddenInput,
+            'frozen_author': forms.HiddenInput,
+            'preprint_author': forms.HiddenInput,
+            'organization': forms.HiddenInput,
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+        }
+
+
+class ConfirmDeleteForm(forms.Form):
+    """
+    A generic form for use on confirm-delete pages
+    where a valid form with POST data means yes, delete.
+    """
+    pass

@@ -1,0 +1,12 @@
+{% comment %}
+A generic light blue edit button with a pencil icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-edit"></span>
+  {% trans "Edit" %}
+</a>

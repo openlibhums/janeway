@@ -62,6 +62,7 @@ def create_user(username, roles=None, journal=None, **attrs):
             journal=journal
         )
 
+    user.save()
     for attr, value in attrs.items():
         setattr(user, attr, value)
 
@@ -172,6 +173,28 @@ def create_peer_reviewer(journal, **kwargs):
     return reviewer
 
 
+def create_affiliation(
+    institution='',
+    department='',
+    account=None,
+    frozen_author=None,
+    preprint_author=None,
+):
+    organization = core_models.Organization.objects.create()
+    core_models.OrganizationName.objects.create(
+        value=institution,
+        custom_label_for=organization,
+    )
+    affiliation = core_models.Affiliation.objects.create(
+        organization=organization,
+        department=department,
+        account=account,
+        frozen_author=frozen_author,
+        preprint_author=preprint_author,
+    )
+    return affiliation
+
+
 def create_author(journal, **kwargs):
     roles = kwargs.pop('roles', ['author'])
     email = kwargs.pop('email', "authoruser@martineve.com")
@@ -179,8 +202,6 @@ def create_author(journal, **kwargs):
         "first_name": "Author",
         "middle_name": "A",
         "last_name": "User",
-        "institution": "Author institution",
-        "department": "Author Department",
         "biography": "Author test biography"
     }
     attrs.update(kwargs)
@@ -192,6 +213,11 @@ def create_author(journal, **kwargs):
     )
     author.is_active = True
     author.save()
+    create_affiliation(
+        institution="Author institution",
+        department="Author Department",
+        account=author,
+    )
     return author
 
 
@@ -348,11 +374,15 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
         size=100,
     )
     preprint.submission_file = file
-    repo_models.PreprintAuthor.objects.create(
+    preprint_author = repo_models.PreprintAuthor.objects.create(
         preprint=preprint,
         account=author,
         order=1,
-        affiliation='Made Up University',
+    )
+    preprint_author.save()
+    create_affiliation(
+        institution="Made Up University",
+        preprint_author=preprint_author,
     )
     return preprint
 
