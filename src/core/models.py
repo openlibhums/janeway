@@ -50,6 +50,7 @@ from core.model_utils import (
     PGCaseInsensitiveEmailField,
     SearchLookup,
     default_press_id,
+    validate_exclusive_fields,
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
@@ -2561,6 +2562,8 @@ class Affiliation(models.Model):
     def save(self, *args, **kwargs):
         self.set_primary_if_first(self)
         self.keep_is_primary_unique(self)
+        exclusive_fields = ['account', 'frozen_author', 'preprint_author']
+        validate_exclusive_fields(self, fields=exclusive_fields)
         super().save(*args, **kwargs)
 
 

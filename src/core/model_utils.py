@@ -764,3 +764,23 @@ class SafePaginator(Paginator):
                 return self.num_pages
             else:
                 raise
+
+
+def validate_exclusive_fields(obj, fields):
+    """
+    Checks that only one of several exclusive fields is populated.
+    For example, CreditRecord has author, frozen_author, and preprint_author,
+    but only one should be populated.
+    Call this function during the model's save method before the call to super.
+    :param fields: iterable of field names that should be exclusive
+    """
+    populated_fields = set()
+    for field in fields:
+        if getattr(obj, field):
+            populated_fields.add(field)
+    if len(populated_fields) > 1:
+        data = {field: getattr(obj, field) for field in populated_fields}
+        raise ValidationError(
+            f'{obj} of type {obj._meta.model} was saved with ' \
+            f'more than one exclusive fields: {data}'
+        )
