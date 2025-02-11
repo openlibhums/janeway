@@ -14,12 +14,8 @@ def url_with_next(context, url_name, *args, **kwargs):
     or you want to introduce a new next url by Django URL name.
     """
     request = context.get('request')
-    return reverse_with_next(
-        url_name,
-        request,
-        args=args,
-        kwargs=kwargs,
-    )
+    next_url = request.GET.get('next', '')
+    return reverse_with_next(url_name, next_url, args=args, kwargs=kwargs)
 
 
 @register.simple_tag(takes_context=True)
@@ -36,10 +32,4 @@ def url_with_return(context, url_name, *args, **kwargs):
         # This is the only way to refer to press URLs
         next_url = request.build_absolute_uri()
 
-    return reverse_with_next(
-        url_name,
-        request,
-        next_url=next_url,
-        args=args,
-        kwargs=kwargs,
-    )
+    return reverse_with_next(url_name, next_url, args=args, kwargs=kwargs)

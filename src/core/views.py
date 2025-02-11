@@ -177,7 +177,7 @@ def user_login_orcid(request):
             'Please log in with your username and password.')
         )
         return redirect(
-            logic.reverse_with_next('core_login', request, next_url=next_url)
+            logic.reverse_with_next('core_login', next_url)
         )
 
     # If the orcid code is missing, that means the user has not come from
@@ -211,7 +211,7 @@ def user_login_orcid(request):
             'Please try again, or log in with your username and password.'
         )
         return redirect(
-            logic.reverse_with_next('core_login', request, next_url=next_url)
+            logic.reverse_with_next('core_login', next_url)
         )
 
     # The verification worked.
@@ -245,8 +245,7 @@ def user_login_orcid(request):
         return redirect(
             logic.reverse_with_next(
                 'core_orcid_registration',
-                request,
-                next_url=next_url,
+                next_url,
                 kwargs={'token': str(new_token.token)},
             )
         )
@@ -259,8 +258,7 @@ def user_login_orcid(request):
         return redirect(
             logic.reverse_with_next(
                 'core_register_with_orcid_token',
-                request,
-                next_url=next_url,
+                next_url,
                 kwargs={'orcid_token': str(new_token.token)},
             )
         )
@@ -285,6 +283,7 @@ def get_reset_token(request):
     :return: HttpResponse object
     """
     new_reset_token = None
+    next_url = request.GET.get('next', '')
     form = forms.GetResetTokenForm()
 
     if request.POST:
@@ -301,9 +300,9 @@ def get_reset_token(request):
             try:
                 account = models.Account.objects.get(email__iexact=email_address)
                 logic.start_reset_process(request, account)
-                return redirect(logic.reverse_with_next('core_login', request))
+                return redirect(logic.reverse_with_next('core_login', next_url))
             except models.Account.DoesNotExist:
-                return redirect(logic.reverse_with_next('core_login', request))
+                return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/get_reset_token.html'
     context = {
@@ -323,6 +322,7 @@ def reset_password(request, token):
     :param token: string, PasswordResetToken.token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
     reset_token = get_object_or_404(models.PasswordResetToken, token=token, expired=False)
     form = forms.PasswordResetForm()
 
@@ -347,7 +347,7 @@ def reset_password(request, token):
             reset_token.expired = True
             reset_token.save()
             messages.add_message(request, messages.SUCCESS, 'Your password has been reset.')
-            return redirect(logic.reverse_with_next('core_login', request))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/reset_password.html'
     context = {
@@ -439,7 +439,7 @@ def register(request, orcid_token=None):
                 _('Your account has been created. Please follow the '
                 'instructions in the email that has been sent to you.'),
             )
-            return redirect(logic.reverse_with_next('core_login', request))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/register.html'
     context["form"] = form
@@ -475,6 +475,8 @@ def activate_account(request, token):
     :param token: string, Account.confirmation_token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
+
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
     except models.Account.DoesNotExist:
@@ -491,7 +493,7 @@ def activate_account(request, token):
             _('Account activated'),
         )
 
-        return redirect(logic.reverse_with_next('core_login', request))
+        return redirect(logic.reverse_with_next('core_login', next_url))
 
     template = 'admin/core/accounts/activate_account.html'
     context = {
