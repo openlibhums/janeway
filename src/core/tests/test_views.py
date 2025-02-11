@@ -459,26 +459,27 @@ class ActivateAccountTests(CoreViewTestsWithData):
 
 
 class ReturnURLTests(CoreViewTestsWithData):
-    """
-    These tests check that the url_with_return
-    template tag is present in public-facing templates where
-    the user has an option to log in or register.
-    """
 
-    def test_journal_homepage_account_links_have_return(self):
+    @override_settings(URL_CONFIG='path')
+    def test_site_nav_account_links_do_not_have_return(self):
+        """
+        Check that the url_with_return tag has *not* been used
+        in the site nav links for login and registration.
+        """
         for theme in self.themes:
             response = self.client.get('/', data={'theme': theme})
             content = response.content.decode()
-            self.assertIn('/login/?next=/', content)
-            self.assertNotIn('"/login/"', content)
-            self.assertIn('/register/step/1/?next=/', content)
-            self.assertNotIn('"/register/step/1/"', content)
+            self.assertNotIn('/login/?next=', content)
+            self.assertNotIn('/register/step/1/?next=', content)
 
+    @override_settings(URL_CONFIG='path')
     def test_journal_submissions_account_links_have_return(self):
+        """
+        Check that the url_with_return tag *has* been used
+        in the submission pathway.
+        """
         for theme in self.themes:
             response = self.client.get('/submissions/', data={'theme': theme})
             content = response.content.decode()
             self.assertIn('/login/?next=/submissions/', content)
-            self.assertNotIn('"/login/"', content)
             self.assertIn('/register/step/1/?next=/submissions/', content)
-            self.assertNotIn('"/register/step/1/"', content)

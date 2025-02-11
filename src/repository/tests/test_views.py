@@ -320,7 +320,12 @@ class TestViews(TestCase):
         self.assertIsNone(p.date_published)
         self.assertIsNone(p.date_accepted)
 
-    def test_repository_account_links_have_return(self):
+    @override_settings(URL_CONFIG='path')
+    def test_repo_nav_account_links_do_not_have_return(self):
+        """
+        Check that the url_with_return tag has *not* been used
+        in the site nav links for login and registration.
+        """
         for theme in ['clean', 'OLH', 'material']:
             data = {
                 'theme': theme,
@@ -328,12 +333,11 @@ class TestViews(TestCase):
             code = self.repository.short_name
             response = self.client.get(f'/{code}/', data=data)
             content = response.content.decode()
-            self.assertIn(f'/{code}/login/?next=', content)
-            self.assertNotIn(f'"/{code}/login/"', content)
-            self.assertIn(f'/{code}/register/step/1/?next=', content)
-            self.assertNotIn(f'"/{code}/register/step/1/"', content)
+            self.assertNotIn(f'/{code}/login/?next=', content)
+            self.assertNotIn(f'/{code}/register/step/1/?next=', content)
 
-    def test_view_preprint_account_links_have_return(self):
+    @override_settings(URL_CONFIG='path')
+    def test_view_preprint_comment_login_link_has_return(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
         code = self.repository.short_name
         self.client.force_login(self.repo_manager)
@@ -354,6 +358,3 @@ class TestViews(TestCase):
             response = self.client.get(view_preprint_url, data=get_data)
             content = response.content.decode()
             self.assertIn(f'/{code}/login/?next=', content)
-            self.assertNotIn(f'"/{code}/login/"', content)
-            self.assertIn(f'/{code}/register/step/1/?next=', content)
-            self.assertNotIn(f'"/{code}/register/step/1/"', content)
