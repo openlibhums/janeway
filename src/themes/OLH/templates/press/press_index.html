@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load i18n %}
+{% load next_url %}
 
 {% block page_title %}{% trans "Home" %}{% endblock page_title %}
 {% block title %}{{ press.name }}{% endblock title %}
@@ -8,6 +9,8 @@
 
 {% block body %}
 
+    <p><a href="{% url_with_return 'core_login' %}">Next URL Demo Login Link</a></p>
+    <p><a href="{% url_with_return 'core_register' %}">Next URL Demo Register Link</a></p>
     {% for element in homepage_elements %}
         {% include element.template_path %}
     {% endfor %}

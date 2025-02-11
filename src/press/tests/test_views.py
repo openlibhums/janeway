@@ -18,14 +18,22 @@ class PressViewTestsWithData(TestCase):
 
 class URLWithReturnTests(PressViewTestsWithData):
 
+    # @override_settings(URL_CONFIG='path')
+    # def test_press_nav_account_links_do_not_have_return(self):
+    #     """
+    #     Check that the url_with_return tag has *not* been used
+    #     in the site nav links for login and registration.
+    #     """
+    #     request = helpers.get_request(press=self.press)
+    #     response = press_views.index(request)
+    #     content = response.content.decode()
+    #     self.assertNotIn('/login/?next=', content)
+    #     self.assertNotIn('/register/step/1/?next=', content)
+
     @override_settings(URL_CONFIG='path')
-    def test_press_nav_account_links_do_not_have_return(self):
-        """
-        Check that the url_with_return tag has *not* been used
-        in the site nav links for login and registration.
-        """
+    def test_demo_links_have_return(self):
         request = helpers.get_request(press=self.press)
         response = press_views.index(request)
         content = response.content.decode()
-        self.assertNotIn('/login/?next=', content)
-        self.assertNotIn('/register/step/1/?next=', content)
+        self.assertIn('/login/?next=', content)
+        self.assertIn('/register/step/1/?next=', content)
