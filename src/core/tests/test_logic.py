@@ -6,7 +6,8 @@ __maintainer__ = "Open Library of Humanities"
 import uuid
 from mock import patch
 
-from django.test import TestCase
+from django.shortcuts import reverse
+from django.test import TestCase, override_settings
 
 from core import logic
 from utils.testing import helpers
@@ -18,12 +19,10 @@ class TestLogic(TestCase):
         cls.press = helpers.create_press()
         cls.press.save()
         cls.journal_one, cls.journal_two = helpers.create_journals()
-        cls.request = helpers.Request()
-        cls.request.press = cls.press
-        cls.request.journal = cls.journal_one
-        cls.request.site_type = cls.journal_one
-        cls.request.GET = {}
-        cls.request.POST = {}
+        cls.request = helpers.get_request(
+            press=cls.press,
+            journal=cls.journal_one,
+        )
         cls.inactive_user = helpers.create_user('zlwdi6frbtlh4gditdir@example.org')
         cls.inactive_user.is_active = False
         cls.inactive_user.confirmation_code = '8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55'
@@ -78,4 +77,50 @@ class TestLogic(TestCase):
         self.assertIn(
             f'/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={ self.next_url_encoded }',
             url,
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_get_post_auth_url_with_next(self):
+        self.request.GET['next'] = '/special/path/'
+        self.assertEqual(
+            logic.get_post_auth_url(self.request),
+            '/special/path/',
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_get_post_auth_url_with_journal(self):
+        self.assertEqual(
+            logic.get_post_auth_url(self.request),
+            reverse('core_dashboard'),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_get_post_auth_url_with_repository(self):
+        self.request.journal = None
+        self.repository, self.subject = helpers.create_repository(
+            self.press,
+            [],
+            [],
+        )
+        self.request.repository = self.repository
+        self.assertEqual(
+            logic.get_post_auth_url(self.request),
+            reverse('repository_dashboard'),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_get_post_auth_url_with_press(self):
+        self.request.journal = None
+        self.assertEqual(
+            logic.get_post_auth_url(self.request),
+            reverse('website_index'),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_get_post_auth_url_with_nothing(self):
+        self.request.journal = None
+        self.request.press = None
+        self.assertEqual(
+            logic.get_post_auth_url(self.request),
+            reverse('website_index'),
         )

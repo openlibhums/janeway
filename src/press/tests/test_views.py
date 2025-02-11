@@ -3,7 +3,7 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 
 from press import views as press_views
 from utils.testing import helpers
@@ -18,11 +18,14 @@ class PressViewTestsWithData(TestCase):
 
 class URLWithReturnTests(PressViewTestsWithData):
 
-    def test_press_account_links_have_return(self):
+    @override_settings(URL_CONFIG='path')
+    def test_press_nav_account_links_do_not_have_return(self):
+        """
+        Check that the url_with_return tag has *not* been used
+        in the site nav links for login and registration.
+        """
         request = helpers.get_request(press=self.press)
         response = press_views.index(request)
         content = response.content.decode()
-        self.assertIn('/login/?next=', content)
-        self.assertNotIn('"/login/"', content)
-        self.assertIn('/register/step/1/?next=', content)
-        self.assertNotIn('"/register/step/1/"', content)
+        self.assertNotIn('/login/?next=', content)
+        self.assertNotIn('/register/step/1/?next=', content)

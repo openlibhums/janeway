@@ -70,10 +70,8 @@ def user_login(request):
     next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
-        if next_url:
-            return redirect(next_url)
-        else:
-            return redirect(reverse('website_index'))
+        return redirect(logic.get_post_auth_url(request))
+
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
 
@@ -110,13 +108,8 @@ def user_login(request):
                         token_obj.delete()
                     except models.OrcidToken.DoesNotExist:
                         pass
+                return redirect(logic.get_post_auth_url(request))
 
-                if next_url:
-                    return redirect(next_url)
-                elif request.journal:
-                    return redirect(reverse('core_dashboard'))
-                else:
-                    return redirect(reverse('website_index'))
             else:
 
                 empty_password_check = logic.no_password_check(request.POST.get('user_name').lower())
@@ -228,12 +221,7 @@ def user_login_orcid(request):
             user = models.Account.objects.get(orcid=orcid_id)
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
-            if next_url:
-                return redirect(next_url)
-            elif request.journal:
-                return redirect(reverse('core_dashboard'))
-            else:
-                return redirect(reverse('website_index'))
+            return redirect(logic.get_post_auth_url(request, next_url=next_url))
 
         except models.Account.DoesNotExist:
             # Lookup ORCID email addresses
@@ -244,12 +232,9 @@ def user_login_orcid(request):
                     # Store ORCID for future authentication requests
                     candidates.update(orcid=orcid_id)
                     login(request, candidates.first())
-                    if next_url:
-                        return redirect(next_url)
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
+                    return redirect(
+                        logic.get_post_auth_url(request, next_url=next_url)
+                    )
 
         # If no account was found for login,
         # then prepare an ORCiD token for registration.
