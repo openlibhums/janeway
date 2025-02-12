@@ -461,3 +461,10 @@ header svg {
 .social-share-btn{
     border: 1px black solid;
 }
+
+#article blockquote {
+    background: #F0F0F0;
+    border-left: 10px solid #1C304A;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+}
