@@ -1793,7 +1793,7 @@ class HomepageElement(models.Model):
 
 
 class LoginAttempt(models.Model):
-    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField()
     user_agent = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
 
