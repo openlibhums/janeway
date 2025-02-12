@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.2/JATS-journalpublishing1.dtd">
+<!--<?xml-stylesheet type="text/xsl" href="article.xsl"?>-->
+<article article-type="research-article" dtd-version="1.2" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <front>
+        <journal-meta>
+            <journal-id journal-id-type="issn">0000-0000</journal-id>
+            <journal-title-group>
+                <journal-title>Journal Title</journal-title>
+            </journal-title-group>
+            <issn pub-type="epub">0000-0000</issn>
+            <publisher>
+                <publisher-name>Publisher Name</publisher-name>
+            </publisher>
+        </journal-meta>
+        <article-meta>
+            <article-id pub-id-type="doi">10.1234/test.1234</article-id>
+            <article-categories>
+                <subj-group>
+                    <subject>Subject</subject>
+                </subj-group>
+            </article-categories>
+            <title-group>
+                <article-title>Article Title</article-title>
+            </title-group>
+            <contrib-group>
+                <contrib contrib-type="author">
+                    <name>
+                        <surname>Surname</surname>
+                        <given-names>Given Name</given-names>
+                    </name>
+                    <email>email@example.org</email>
+                    <xref ref-type="aff" rid="aff-1">1</xref>
+                </contrib>
+            </contrib-group>
+            <aff id="aff-1"><label>1</label>Organization</aff>
+            <pub-date publication-format="electronic" date-type="pub" iso-8601-date="2023-01-01">
+                <day>01</day>
+                <month>01</month>
+                <year>2023</year>
+            </pub-date>
+            <pub-date pub-type="collection">
+                <year>2023</year>
+            </pub-date>
+            <volume>1</volume>
+            <issue>1</issue>
+            <fpage>1</fpage>
+            <lpage>100</lpage>
+            <permissions>
+                <copyright-statement>Copyright: &#x00A9; 2023 The Author(s)</copyright-statement>
+                <copyright-year>2023</copyright-year>
+                <license license-type="open-access" xlink:href="http://creativecommons.org/licenses/by/4.0/">
+                    <license-p>This is an open-access article distributed under the terms of the Creative Commons Attribution 4.0 International License (CC-BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited. See <uri xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</uri>.</license-p>
+                </license>
+            </permissions>
+            <self-uri xlink:href="http://www.example.org/articles/10.1234/test.1234/"/>
+            <abstract>
+                <p>Abstract</p>
+            </abstract>
+        </article-meta>
+    </front>
+    <body>
+        <sec>
+            <title>1 Introduction</title>
+            <p>Introduction</p>
+        </sec>
+        <sec>
+            <title>2 Section Title</title>
+            <p>Para</p>
+        </sec>
+        <sec>
+            <title>7 Conclusion</title>
+            <p>Conclusion</p>
+        </sec>
+    </body>
+    <back>
+    </back>
+</article>

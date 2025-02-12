@@ -1,0 +1,28 @@
+<p><strong>Typesetting Task</strong></p>
+<div class="callout bs-callout-success">
+  {{ assignment.task|safe|default:"<p>No task details were provided.</p>"|safe }}
+</div>
+<p><strong>Comments from Proofreaders</strong></p>
+{% if assignment.display_proof_comments and assignment.proofing_assignments_for_corrections.exists %}
+  {% include "typesetting/elements/view_proofreading_comments.html" %}
+{% else %}
+  <p>No comments to show.</p>
+{% endif %}
+
+<p><strong>Other Details</strong></p>
+<table class="table small">
+    <tr>
+        <th>ID</th>
+        <th>Created</th>
+        <th>Manager</th>
+        <th>Due</th>
+    </tr>
+    <tr>
+        <td>{{ assignment.pk }}</td>
+        <td>{{ assignment.assigned }}</td>
+        <td>{{ assignment.manager.full_name }} <a
+                onclick="return popitup('{% url 'send_user_email_article' assignment.typesetter.pk article.pk %}')"><i
+                class="fa fa-envelope">&nbsp;</i></a></td>
+        <td>{{ assignment.due }}</td>
+    </tr>
+</table>

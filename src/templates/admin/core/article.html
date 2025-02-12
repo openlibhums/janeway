@@ -102,6 +102,8 @@
                 <a class="small button" href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting Review assigned on {{ review.assigned|date:"Y-m-d" }}</a>
             {% endfor %}
 
+            {% include "typesetting/elements/author_tasks.html" %}
+
             {% hook 'core_article_tasks' %}
         </div>
     </div>
