@@ -229,21 +229,7 @@
             <div class="card">
                 <div class="card-content">
                     {% include "common/elements/altmetric_badges.html" with article=article %}
-                    <h4>
-                        {% trans "Share" %}
-                    </h4>
-                      {% with article.get_doi_url as doi_url%}
-                        <a class="waves-effect waves-light btn btn-small facebook-bg"
-                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
-                        <a class="waves-effect waves-light btn btn-small twitter-bg twitter-x" 
-                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a>
-                        <a class="waves-effect waves-light btn btn-small linkedin-bg"
-                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
-                      {% endwith %}
-
+                    {% include "elements/journal/share.html" %}
                     {% if article.frozen_authors.count > 0 %}
                     <div class="spacer">
                         <div class="divider"></div>
@@ -536,4 +522,5 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    <script src="{% static "common/js/clipboard.js" %}"></script>
 {% endblock %}
