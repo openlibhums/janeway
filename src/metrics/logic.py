@@ -311,3 +311,5 @@ def get_iso_country_code(ip):
         if ip == '127.0.0.1':
             return "GB"
         return 'OTHER'
+    except TypeError:
+        return None

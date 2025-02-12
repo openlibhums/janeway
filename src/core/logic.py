@@ -854,7 +854,8 @@ def get_ua_and_ip(request):
 def add_failed_login_attempt(request):
     user_agent, ip_address = get_ua_and_ip(request)
 
-    models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
+    if ip_address:
+        models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
 
 
 def clear_bad_login_attempts(request):
