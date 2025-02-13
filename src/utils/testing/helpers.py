@@ -70,7 +70,6 @@ def create_user(username, roles=None, journal=None, **attrs):
             journal=journal
         )
 
-    user.save()
     for attr, value in attrs.items():
         setattr(user, attr, value)
 

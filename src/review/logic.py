@@ -844,10 +844,15 @@ def process_reviewer_csv(path, request, article, form):
                     'is_active': True,
                 }
             )
-            if row.get('institution', '') or row.get('department', ''):
+            if (
+                row.get('institution')
+                or row.get('department')
+                or row.get('country')
+            ):
                 core_models.Affiliation.naive_get_or_create(
                     institution=row.get('institution', ''),
                     department=row.get('department', ''),
+                    country=row.get('country', ''),
                     account=reviewer,
                 )
 
