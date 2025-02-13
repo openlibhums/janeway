@@ -1974,7 +1974,6 @@ class OrganizationName(models.Model):
     value = models.CharField(
         max_length=1000,
         verbose_name="Organization name",
-        blank=True,
     )
     ror_display_for = models.OneToOneField(
         'Organization',
@@ -2025,7 +2024,7 @@ class OrganizationName(models.Model):
     )
 
     def __str__(self):
-        return self.value or f'[Unnamed organization {self.pk}]'
+        return self.value
 
 
 def validate_ror(url):
@@ -2192,9 +2191,8 @@ class Organization(models.Model):
         if institution:
             organization_name, _created = OrganizationName.objects.get_or_create(
                 custom_label_for=organization,
+                defaults={'value': institution},
             )
-            organization_name.value = institution
-            organization_name.save()
 
         # Set the country as a location
         if country and not isinstance(country, Country):
