@@ -93,6 +93,8 @@ def repo_media_upload(instance, filename):
 
 
 class Repository(model_utils.AbstractSiteModel):
+    AUTH_SUCCESS_URL = "repository_dashboard"
+
     press = models.ForeignKey(
         'press.Press',
         null=True,

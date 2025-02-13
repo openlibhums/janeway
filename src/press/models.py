@@ -67,6 +67,12 @@ def press_text(type):
 
 
 class Press(AbstractSiteModel):
+
+    # There is no dashboard at the press level, and the press-level
+    # manager can only be viewed if account.is_admin, so we
+    # go to the site index after a successful login.
+    AUTH_SUCCESS_URL = "website_index"
+
     name = models.CharField(max_length=600)
     thumbnail_image = models.ForeignKey(
         'core.File',

@@ -70,7 +70,9 @@ def user_login(request):
     next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
-        return redirect(logic.get_post_auth_url(request))
+        return redirect(
+            request.site_type.auth_success_url(next_url=next_url)
+        )
 
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
@@ -108,7 +110,9 @@ def user_login(request):
                         token_obj.delete()
                     except models.OrcidToken.DoesNotExist:
                         pass
-                return redirect(logic.get_post_auth_url(request))
+                return redirect(
+                    request.site_type.auth_success_url(next_url=next_url)
+                )
 
             else:
 
@@ -221,7 +225,9 @@ def user_login_orcid(request):
             user = models.Account.objects.get(orcid=orcid_id)
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
-            return redirect(logic.get_post_auth_url(request, next_url=next_url))
+            return redirect(
+                request.site_type.auth_success_url(next_url=next_url)
+            )
 
         except models.Account.DoesNotExist:
             # Lookup ORCID email addresses
@@ -233,7 +239,7 @@ def user_login_orcid(request):
                     candidates.update(orcid=orcid_id)
                     login(request, candidates.first())
                     return redirect(
-                        logic.get_post_auth_url(request, next_url=next_url)
+                        request.site_type.auth_success_url(next_url=next_url)
                     )
 
         # If no account was found for login,
@@ -421,7 +427,9 @@ def register(request, orcid_token=None):
                     new_user.is_active = True
                     new_user.save()
                     login(request, new_user)
-                    return redirect(logic.get_post_auth_url(request))
+                    return redirect(
+                        request.site_type.auth_success_url(next_url=next_url)
+                    )
 
             else:
                 new_user = form.save()
