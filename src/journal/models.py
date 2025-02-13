@@ -97,6 +97,8 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
+    AUTH_SUCCESS_URL = "core_dashboard"
+
     code = models.CharField(max_length=40, unique=True, help_text=gettext(
         'Short acronym for the journal. Used as part of the journal URL'
         'in path mode and to uniquely identify the journal'

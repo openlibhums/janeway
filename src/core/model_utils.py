@@ -44,6 +44,8 @@ from django.utils.functional import cached_property
 from django.utils import translation, timezone
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django.shortcuts import reverse
+
 from django_bleach.models import BleachField
 from django_bleach.forms import BleachField as BleachFormField
 
@@ -68,6 +70,7 @@ class AbstractSiteModel(models.Model):
         True: "https",
         False: "http",
     }
+    AUTH_SUCCESS_URL = "website_index"
 
     domain = models.CharField(
         max_length=255, unique=True, blank=True, null=True)
@@ -120,6 +123,12 @@ class AbstractSiteModel(models.Model):
         if settings.DEBUG is True:
             scheme = self.SCHEMES[False]
         return scheme
+
+    def auth_success_url(self, next_url=''):
+        """
+        Gets the standard redirect url for a successful authentication.
+        """
+        return next_url or reverse(self.AUTH_SUCCESS_URL)
 
 
 class PGCaseInsensitivedMixin():

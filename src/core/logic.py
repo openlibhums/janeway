@@ -1032,30 +1032,3 @@ def filter_articles_to_editor_assigned(request, articles):
     )
     assignment_article_pks = [assignment.article.pk for assignment in assignments]
     return articles.filter(pk__in=assignment_article_pks)
-
-
-def get_post_auth_url(request, next_url=''):
-    """
-    Gets the standard redirect url for a successful authentication.
-
-    For journals and repositories, it is safe to send any user
-    to the dashboard, regardless of their roles and permissions.
-
-    For the press level, there is no dashboard, and the press-level
-    manager can only be viewed if account.is_admin, so we
-    return the site index.
-
-    :param request: HTTPRequest
-    :param next_url: Optional override of 'next' on request
-    """
-    next_url = next_url or request.GET.get('next', '')
-    if next_url:
-        return next_url
-    elif request.journal:
-        return reverse('core_dashboard')
-    elif request.repository:
-        return reverse('repository_dashboard')
-    elif request.press:
-        return reverse('website_index')
-    else:
-        return reverse('website_index')
