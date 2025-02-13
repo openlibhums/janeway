@@ -2845,7 +2845,7 @@ def organization_name_create(request):
 
     form = forms.OrganizationNameForm()
 
-    if request.POST:
+    if request.method == 'POST':
         form = forms.OrganizationNameForm(request.POST)
         if form.is_valid():
             organization_name = form.save()
@@ -2876,7 +2876,8 @@ def organization_name_create(request):
 @login_required
 def organization_name_update(request, organization_name_id):
     """
-    Allows a user to update a custom organization name.
+    Allows a user to update a custom organization name
+    if it is tied to their account via an affiliation.
     """
 
     organization_name = get_object_or_404(
@@ -2886,7 +2887,7 @@ def organization_name_update(request, organization_name_id):
     )
     form = forms.OrganizationNameForm(instance=organization_name)
 
-    if request.POST:
+    if request.method == 'POST':
         form = forms.OrganizationNameForm(
             request.POST,
             instance=organization_name,
@@ -2923,7 +2924,7 @@ def affiliation_create(request, organization_id):
     }
     form = forms.AffiliationForm(initial=initial)
 
-    if request.POST:
+    if request.method == 'POST':
         form = forms.AffiliationForm(request.POST)
         if form.is_valid():
             affiliation = form.save()
@@ -2957,10 +2958,13 @@ def affiliation_update(request, affiliation_id):
 
     form = forms.AffiliationForm(instance=affiliation)
 
-    if request.POST:
-        form = forms.OrganizationNameForm(request.POST)
+    if request.method == 'POST':
+        form = forms.AffiliationForm(
+            request.POST,
+            instance=affiliation,
+        )
         if form.is_valid():
-            affiliation = form.save()
+            form.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -2991,7 +2995,7 @@ def affiliation_delete(request, affiliation_id):
     )
     form = forms.ConfirmDeleteForm()
 
-    if request.POST:
+    if request.method == 'POST':
         form = forms.ConfirmDeleteForm(request.POST)
         if form.is_valid():
             affiliation.delete()
