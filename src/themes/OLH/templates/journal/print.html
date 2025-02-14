@@ -23,8 +23,9 @@
             <span itemprop="worksFor" itemscope
                   itemtype="http://schema.org/CollegeOrUniversity"><span
                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-            <a itemprop="email" href="mailto:{{ author.email }}"
-               class="fa fa-envelope email-link"></a></span></span>
+            <a itemprop="email" href="mailto:{{ author.email }}">
+                {% trans 'Email' %} {{author.full_name}}.
+            </a></span></span>
     {% endfor %}
 
 <h2>{% trans "Abstract" %}</h2>

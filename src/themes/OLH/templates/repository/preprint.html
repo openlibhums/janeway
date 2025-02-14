@@ -113,8 +113,8 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
-                                    class="fa fa-download"></span>
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                                <i aria-hidden="true"  class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a>
                         </p>
@@ -138,7 +138,11 @@
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
+                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
+                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
+                                <span class="sr-only">{% trans 'Download' %}</span>
+                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                            </a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
                         {% endfor %}
@@ -152,8 +156,10 @@
                         <li>{% trans "Downloads" %}: {{ preprint.downloads.count }}</li>
                       </ul>
                     {% endif %}
-
-                    <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i> {% trans "All Preprints" %}</a>
+                    <a href="{% url 'repository_list' %}">
+                        <i aria-hidden="true"  class="fa fa-arrow-left"></i> 
+                        {% trans "All Preprints" %}
+                    </a>
 
                 </small>
             </div>
