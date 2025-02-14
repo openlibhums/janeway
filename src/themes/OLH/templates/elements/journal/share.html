@@ -2,11 +2,11 @@
   <div class="section">
     <h3>{% trans "Share" %}</h3>
     <div class="input-group">
+      <label for="share-link" class="sr-only">{% trans "Article URL" %}</label>
       <input
               id="share-link"
               class="input-group-field"
               type="text"
-              aria-label="{% trans "Article's sharing URL" %}"
               value="{{ share_url }}"
               readonly
       >

@@ -1,10 +1,10 @@
 <h4>{% trans "Share" %}</h4>
 {% with article.get_doi_url|default:article.url as share_url %}
   <div class="share-container">
+    <label for="share-link" class="sr-only">{% trans "Article URL" %}</label>
     <input
             id="share-link"
             type="text"
-            aria-label="{% trans "Article's sharing URL" %}"
             value="{{ share_url }}"
             readonly
     >
