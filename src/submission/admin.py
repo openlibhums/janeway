@@ -133,7 +133,7 @@ class CreditRecordAdmin(admin.ModelAdmin):
         'preprint_author__account__email',
     )
 
-    raw_id_fields = ('author', 'frozen_author', 'preprint_author')
+    raw_id_fields = ('article', 'author', 'frozen_author', 'preprint_author')
 
     def _article(self, obj):
         return truncatewords_html(obj.article, 6) if obj.article else ''
