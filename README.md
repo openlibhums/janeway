@@ -9,13 +9,13 @@ Janeway is written in Python (3.10+) and utilises the Django framework (4.2).
 # Installation instructions
 Developer installation [instructions are available in our documentation site](https://janeway.readthedocs.io/en/latest/dev/installation.html).
 
-A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
+A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/openlibhums/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
 
 ## Running Janeway with docker
 Janeway's development server can be run within a docker container, avoiding the need to install and run its dependencies from your machine. A docker compose file as well as a Makefile can be found at the root of the project wrapping the most common operations.
 Docker is compatible with multiple architectures and Operating systems, if you need help installing docker, have a look at the [docker documentation](https://docs.docker.com/install/).
 
-Simarly to the native installation, Janeway can be installed in a docker environment by running ``make install`` and following the installation steps described [above](https://github.com/BirkbeckCTP/janeway/wiki/Installation). As a result, a database volume will be populated under janeway/db/postgres-data
+Simarly to the native installation, Janeway can be installed in a docker environment by running ``make install`` and following the installation steps described [above](https://github.com/openlibhums/janeway/wiki/Installation). As a result, a database volume will be populated under janeway/db/postgres-data
 Once installation is completed, just type ``make janeway`` to run janeway with a postgres backend (default behaviour).
 
 If a change to the dependencies for Janeway is required, the Janeway container can be re-created with ``make rebuild``. The database volume will be preserved.
@@ -35,9 +35,9 @@ Uninstalling Janeway is as simple as running ``make uninstall`` which will delet
 
 # Current development
 
-What are we working on right now? For a high-level view, check out our [public roadmap](https://github.com/orgs/BirkbeckCTP/projects/21).
+What are we working on right now? For a high-level view, check out our [public roadmap](https://github.com/orgs/openlibhums/projects/21).
 
-You can get more detail by viewing our [project boards here on GitHub](https://github.com/orgs/BirkbeckCTP/projects). Open a project to see which issues it includes and what their status is. The status should be one of these:
+You can get more detail by viewing our [project boards here on GitHub](https://github.com/orgs/openlibhums/projects). Open a project to see which issues it includes and what their status is. The status should be one of these:
 
 - To Do -- we plan to do this and include it in this release
 - In Progress -- someone is working on it at this very moment!
@@ -64,7 +64,7 @@ If you wish to get in touch about Janeway, contact information is provided below
 Andy Byers, Director of Publishing Technology - a.byers@bbk.ac.uk
 
 # Major Releases
-All releases are listed on the [releases](https://github.com/BirkbeckCTP/janeway/releases) page.
+All releases are listed on the [releases](https://github.com/openlibhums/janeway/releases) page.
 
 
 # Geolocation
