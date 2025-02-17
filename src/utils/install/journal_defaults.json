@@ -5533,7 +5533,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": "on"
+            "default": ""
         },
         "editable_by": [
             "editor",
