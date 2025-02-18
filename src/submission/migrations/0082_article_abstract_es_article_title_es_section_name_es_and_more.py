@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0084_remove_article_jats_article_type_and_more'),
+        ('submission', '0081_auto_20240927_1021.py'),
     ]
 
     operations = [
