@@ -6,8 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0101_migrate_affiliation_institution'),
-        ('submission', '0084_remove_article_jats_article_type_and_more'),
+        ('core', '0104_migrate_affiliation_institution'),
+        ('submission', '0083_article_jats_article_type_override_and_more'),
     ]
 
     operations = [
