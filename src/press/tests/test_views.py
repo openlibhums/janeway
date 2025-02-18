@@ -32,8 +32,7 @@ class URLWithReturnTests(PressViewTestsWithData):
 
     @override_settings(URL_CONFIG='path')
     def test_demo_links_have_return(self):
-        request = helpers.get_request(press=self.press)
-        response = press_views.index(request)
+        response = self.client.get("/", SERVER_NAME=self.press.domain)
         content = response.content.decode()
         self.assertIn('/login/?next=', content)
         self.assertIn('/register/step/1/?next=', content)
