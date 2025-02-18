@@ -11,20 +11,10 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
-        ('submission', '0084_remove_article_jats_article_type_and_more'),
+        ('submission', '0083_article_jats_article_type_override_and_more'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='article',
-            name='jats_article_type_override',
-            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], default=None, help_text='The type of article as per the JATS standard. This field allows you to override the default for the section.', max_length=255, null=True),
-        ),
-        migrations.AlterField(
-            model_name='section',
-            name='jats_article_type',
-            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], help_text='The default JATS article type for articles in this section. This can be overridden on a per-article basis.', max_length=255, null=True, verbose_name='JATS default article type'),
-        ),
         migrations.CreateModel(
             name='CreditRecord',
             fields=[
