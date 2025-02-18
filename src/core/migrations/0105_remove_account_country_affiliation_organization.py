@@ -9,8 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0080_remove_frozenauthor_country_and_more'),
-        ('core', '0101_migrate_affiliation_institution'),
+        ('submission', '0083_article_jats_article_type_override_and_more'),
+        ('core', '0104_migrate_affiliation_institution'),
     ]
 
     operations = [

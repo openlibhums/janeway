@@ -9,8 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0099_alter_accountrole_options'),
-        ('utils', '0035_rorimport_rorimporterror'),
+        ('core', '0102_contact_ip_address_null'),
+        ('utils', '0040_rorimport_rorimporterror'),
     ]
 
     operations = [

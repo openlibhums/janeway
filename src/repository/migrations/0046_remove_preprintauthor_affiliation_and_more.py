@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0101_migrate_affiliation_institution'),
+        ('core', '0104_migrate_affiliation_institution'),
         ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
     ]
 
