@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='section',
             name='jats_article_type',
-            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis. Changing this will not change any existing article's type.", max_length=255, null=True, verbose_name='JATS default article type'),
+            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis.", max_length=255, null=True, verbose_name='JATS default article type'),
         ),
     ]

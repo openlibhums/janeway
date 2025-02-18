@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0099_alter_accountrole_options'),
+        ('core', '0101_delete_blank_keywords'),
     ]
 
     operations = [

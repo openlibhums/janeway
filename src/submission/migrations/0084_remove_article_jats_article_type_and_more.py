@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='article',
             name='jats_article_type_override',
-            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], default=None, help_text="The type of article as per the JATS standard. The initial state of this field is set by the submission section's article type.", max_length=255, null=True),
+            field=core.model_utils.DynamicChoiceField(blank=True, choices=[], default=None, help_text="The type of article as per the JATS standard. This field allows you to override the default for the section.", max_length=255, null=True),
         ),
     ]
