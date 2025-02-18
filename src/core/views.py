@@ -2995,14 +2995,13 @@ def affiliation_create(request, organization_id):
     organization = core_models.Organization.objects.get(
         pk=organization_id,
     )
-    initial = {
-        'account': request.user,
-        'organization': organization_id,
-    }
-    form = forms.AffiliationForm(initial=initial)
+    form = forms.AccountAffiliationForm(organization=organization)
 
     if request.method == 'POST':
-        form = forms.AffiliationForm(request.POST)
+        form = forms.AccountAffiliationForm(
+            request.POST,
+            organization=organization,
+        )
         if form.is_valid():
             affiliation = form.save()
             messages.add_message(
@@ -3033,12 +3032,16 @@ def affiliation_update(request, affiliation_id):
         account=request.user,
     )
 
-    form = forms.AffiliationForm(instance=affiliation)
+    form = forms.AccountAffiliationForm(
+        instance=affiliation,
+        organization=affiliation.organization,
+    )
 
     if request.method == 'POST':
-        form = forms.AffiliationForm(
+        form = forms.AccountAffiliationForm(
             request.POST,
             instance=affiliation,
+            organization=affiliation.organization,
         )
         if form.is_valid():
             form.save()

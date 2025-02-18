@@ -954,19 +954,32 @@ class OrganizationNameForm(forms.ModelForm):
         fields = ('value',)
 
 
-class AffiliationForm(forms.ModelForm):
+class AccountAffiliationForm(forms.ModelForm):
+    """
+    A form for account holders to edit their own affiliations.
+    Not intended for editing someone else's affiliations.
+    """
 
     class Meta:
         model = models.Affiliation
-        fields = '__all__'
+        fields = ('title', 'department', 'is_primary', 'start', 'end')
         widgets = {
-            'account': forms.HiddenInput,
-            'frozen_author': forms.HiddenInput,
-            'preprint_author': forms.HiddenInput,
-            'organization': forms.HiddenInput,
             'start': HTMLDateInput,
             'end': HTMLDateInput,
         }
+
+    def __init__(self, *args, **kwargs):
+        self.organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        affiliation = super().save(commit=False)
+        request = get_current_request()
+        affiliation.account = request.user
+        affiliation.organization = self.organization
+        if commit:
+            affiliation.save()
+        return affiliation
 
 
 class ConfirmDeleteForm(forms.Form):
