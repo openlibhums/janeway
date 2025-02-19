@@ -502,6 +502,12 @@ def get_settings_to_edit(display_group, journal, user):
                                                       'display_journal_title',
                                                       journal),
             },
+            {
+                'name': 'table_default_page_length',
+                'object': setting_handler.get_setting('styling',
+                                                      'table_default_page_length',
+                                                      journal),
+            },
         ]
         setting_group = 'styling'
     elif display_group == 'editorial':

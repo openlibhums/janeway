@@ -5151,5 +5151,24 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "Default page length for tables in the platform. If the value is 0, each table will have a custom length. To show all elements in all tables, use -1.",
+            "is_translatable": false,
+            "name": "table_default_page_length",
+            "pretty_name": "Table Default Page Length",
+            "type": "number"
+        },
+        "value": {
+            "default": "0"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
