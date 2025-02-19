@@ -1,0 +1,51 @@
+<div class="large-6 columns" style="margin-bottom: 16px;">
+    <input type="text" id="searchInput" placeholder="Search...">
+    <table id="availableMembers" class="small scroll selectable-table">
+        <thead>
+            <tr>
+                <th width="5%"></th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Affiliation" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in list_of_members %}
+            {% if not current_members or account not in current_members %}
+            <tr>
+                <td style="display: none;" class="id-column">{{ account.id }}</td>
+                <td width="5%"><i class="fa fa-plus" style="color: green;"></i></td>
+                <td>{{ account.full_name }}</td>
+                <td>{{ account.affiliation }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="help-text">{% trans "Search for users using the name. If an user is matched, they will be registered as a conflict of interest." %}</p>
+</div>
+<div class="large-6 columns">
+    <table id="selectedMembers" class="small scroll">
+        <thead>
+            <tr>
+                <th width="5%"></th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Affiliation" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody class="competing-interests-accounts-container">
+            {% if current_members %}
+            {% for account in current_members %}
+            <tr class="tag-selected" id="account-{{account.id}}">
+                <td width="5%"><i class="fa fa-minus" style="color: red;"></i></td>
+                <td style="display: none;" class="id-column">{{account.id}}</td>
+                <td>{{account.full_name}}</td>
+                <td>{{account.affiliation}}</td>
+                <td class="destroy-tag-selected"><a><i class="fa fa-trash">&nbsp;</i></a></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+<input type="hidden" name="competing_interest_accounts" id="selectedAccounts">

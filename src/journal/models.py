@@ -18,9 +18,11 @@ from django.db.models import (
     Subquery,
     Value,
     TextField,
+    Q,
     F,
     ExpressionWrapper,
-    DateTimeField
+    DateTimeField,
+    Count,
 )
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.signals import post_save, m2m_changed
@@ -486,6 +488,16 @@ class Journal(AbstractSiteModel):
     @cache(300)
     def editorial_groups(self):
         return core_models.EditorialGroup.objects.filter(journal=self)
+
+    def editorial_members(self):
+        return core_models.Account.objects.filter(
+            accountrole__journal=self,
+            is_active=True,
+        ).annotate(
+            role_count=Count('accountrole')
+        ).filter(
+            Q(role_count__gt=1) | ~Q(accountrole__role__slug='author')
+        ).distinct()
 
     @property
     def editor_emails(self):

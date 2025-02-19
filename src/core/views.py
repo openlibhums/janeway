@@ -439,7 +439,7 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
-    form = forms.EditAccountForm(instance=user)
+    form = forms.EditAccountForm(instance=user, journal=request.journal)
     send_reader_notifications = False
     if request.journal:
         send_reader_notifications = setting_handler.get_setting(
@@ -520,7 +520,7 @@ def edit_profile(request):
             )
 
         elif 'edit_profile' in request.POST:
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+            form = forms.EditAccountForm(request.POST, request.FILES, instance=user, journal=request.journal)
 
             if form.is_valid():
                 form.save()
@@ -1210,7 +1210,7 @@ def add_user(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    form = forms.EditAccountForm()
+    form = forms.EditAccountForm(journal=request.journal)
     registration_form = forms.AdminUserForm(active='add', request=request)
     return_url = request.GET.get('return', None)
     role = request.GET.get('role', None)
@@ -1234,7 +1234,8 @@ def add_user(request):
             form = forms.EditAccountForm(
                 request.POST,
                 request.FILES,
-                instance=new_user
+                instance=new_user,
+                journal=request.journal,
             )
 
             if form.is_valid():
@@ -1253,7 +1254,7 @@ def add_user(request):
         else:
             # If the registration form is not valid,
             # we need to add post data to the Edit form for display.
-            form = forms.EditAccountForm(request.POST)
+            form = forms.EditAccountForm(request.POST, journal=request.journal)
 
     template = 'core/manager/users/edit.html'
     context = {
@@ -1273,11 +1274,11 @@ def user_edit(request, user_id):
     :return: HttpResponse object
     """
     user = models.Account.objects.get(pk=user_id)
-    form = forms.EditAccountForm(instance=user)
+    form = forms.EditAccountForm(instance=user, journal=request.journal)
     registration_form = forms.AdminUserForm(instance=user, request=request)
 
     if request.POST:
-        form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+        form = forms.EditAccountForm(request.POST, request.FILES, instance=user, journal=request.journal)
         registration_form = forms.AdminUserForm(request.POST, instance=user, request=request)
 
         if form.is_valid() and registration_form.is_valid():

@@ -14,6 +14,9 @@
     {{ block.super }}
     {{ info_form.media }}
 {% endblock %}
+{% block css %}
+{% include "elements/dual_listbox/dual_listbox_css.html" %}
+{% endblock %}
 
 {% block body %}
     {% can_see_pii_tag article as can_see_pii %}
@@ -107,6 +110,12 @@
                       </div>
                     </div>
                     {% if request.journal.submissionconfiguration.competing_interests %}
+                        {% if journal_settings.general.enable_competing_interest_selections %}
+                        <div class="large-12 columns">
+                            <label style="padding: 0 16px;">{% trans 'Conflict of Interests' %}</label>
+                            {% include "elements/dual_listbox/dual_listbox.html" with list_of_members=journal.editorial_members current_members=article.competing_accounts %}
+                        </div>
+                        {% endif %}
                         <div class="large-10 columns">
                             {{ info_form.competing_interests|foundation }}
                         </div>
@@ -330,4 +339,5 @@
         }
     </script>
     {% include 'admin/elements/fundref/fundref.html' %}
+    {% include "elements/dual_listbox/dual_listbox_js.html" %}
 {% endblock js %}
