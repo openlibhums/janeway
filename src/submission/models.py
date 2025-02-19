@@ -2258,6 +2258,11 @@ class CreditRecord(AbstractLastModifiedModel):
     class Meta:
         verbose_name = 'CRediT record'
         verbose_name_plural = 'CRediT records'
+        constraints = [
+            model_utils.check_exclusive_fields_constraint(
+                ['author', 'frozen_author', 'preprint_author']
+            )
+        ]
 
     author = models.ForeignKey(
         'core.Account',
@@ -2292,11 +2297,6 @@ class CreditRecord(AbstractLastModifiedModel):
     @staticmethod
     def all_roles(self):
         return CREDIT_ROLE_CHOICES
-
-    def save(self, *args, **kwargs):
-        exclusive_fields = ['author', 'frozen_author', 'preprint_author']
-        model_utils.validate_exclusive_fields(self, fields=exclusive_fields)
-        super().save(*args, **kwargs)
 
 
 class Section(AbstractLastModifiedModel):
