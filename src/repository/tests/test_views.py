@@ -35,11 +35,12 @@ class TestViews(TestCase):
         cls.reviewer = helpers.create_user(
             'repo_reviewer@janeway.systems',
         )
+        cls.server_name = "repo.test.com"
         cls.repository, cls.subject = helpers.create_repository(
             cls.press,
             [cls.repo_manager],
             [],
-            domain='repo.test.com',
+            domain=cls.server_name,
         )
         install.load_settings(cls.repository)
         role = cm.Role.objects.create(name='Reviewer', slug='reviewer')
@@ -61,7 +62,6 @@ class TestViews(TestCase):
             repository=cls.repository,
             name='Accept',
         )
-        cls.server_name = "repo.test.com"
         update_settings()
 
     def setUp(self):
@@ -320,7 +320,7 @@ class TestViews(TestCase):
         self.assertIsNone(p.date_published)
         self.assertIsNone(p.date_accepted)
 
-    @override_settings(URL_CONFIG='path')
+    @override_settings(URL_CONFIG='domain')
     def test_repo_nav_account_links_do_not_have_return(self):
         """
         Check that the url_with_return tag has *not* been used
@@ -330,22 +330,29 @@ class TestViews(TestCase):
             data = {
                 'theme': theme,
             }
-            code = self.repository.short_name
-            response = self.client.get(f'/{code}/', data=data)
+            response = self.client.get(
+                '/',
+                data=data,
+                SERVER_NAME=self.server_name,
+            )
             content = response.content.decode()
-            self.assertNotIn(f'/{code}/login/?next=', content)
-            self.assertNotIn(f'/{code}/register/step/1/?next=', content)
+            self.assertNotIn('/login/?next=', content)
+            self.assertNotIn('/register/step/1/?next=', content)
 
-    @override_settings(URL_CONFIG='path')
+    @override_settings(URL_CONFIG='domain')
     def test_view_preprint_comment_login_link_has_return(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
-        code = self.repository.short_name
         self.client.force_login(self.repo_manager)
         post_data = {
             'accept': True,
         }
-        manager_url = f'/{code}/repository/manager/{self.preprint_one.pk}/'
-        self.client.post(manager_url, data=post_data, follow=True)
+        manager_url = f'/repository/manager/{self.preprint_one.pk}/'
+        self.client.post(
+            manager_url,
+            data=post_data,
+            follow=True,
+            SERVER_NAME=self.server_name,
+        )
         self.client.logout()
 
         # Only the material theme has a login URL in
@@ -354,7 +361,11 @@ class TestViews(TestCase):
             get_data = {
                 'theme': theme,
             }
-            view_preprint_url = f'/{code}/repository/view/{self.preprint_one.pk}/'
-            response = self.client.get(view_preprint_url, data=get_data)
+            view_preprint_url = f'/repository/view/{self.preprint_one.pk}/'
+            response = self.client.get(
+                view_preprint_url,
+                data=get_data,
+                SERVER_NAME=self.server_name,
+            )
             content = response.content.decode()
-            self.assertIn(f'/{code}/login/?next=', content)
+            self.assertIn('/login/?next=', content)
