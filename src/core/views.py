@@ -1123,7 +1123,9 @@ def role(request, slug):
 
     # Grab additional context for the reviewer page.
     if slug == 'reviewer':
-        account_roles = account_roles.prefetch_related(
+        account_roles = account_roles.filter(
+            user__is_active=True,
+        ).prefetch_related(
             'user__interest',
         ).annotate(
             total_assignments=Count(
@@ -1133,9 +1135,11 @@ def role(request, slug):
             last_completed_review=Subquery(
                 review_models.ReviewAssignment.objects.filter(
                     reviewer=OuterRef('user__pk'),
-                    is_complete=True,
+                    date_accepted__isnull=False,
                     date_complete__isnull=False,
                     article__journal=request.journal,
+                ).exclude(
+                    decision='withdrawn',
                 ).order_by('-date_complete').values('date_complete')[:1]
             ),
             average_score=Subquery(

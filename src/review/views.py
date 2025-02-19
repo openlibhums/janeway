@@ -1546,8 +1546,6 @@ def withdraw_review(request, article_id, review_id):
     )
 
     if request.POST:
-
-
         skip = request.POST.get("skip")
         form = core_forms.SettingEmailForm(
             request.POST, request.FILES,
@@ -1555,8 +1553,6 @@ def withdraw_review(request, article_id, review_id):
             email_context=email_context,
             request=request,
         )
-
-
         if form.is_valid() or skip:
             review.date_complete = timezone.now()
             review.decision = models.RD.DECISION_WITHDRAWN.value

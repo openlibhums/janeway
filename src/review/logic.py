@@ -44,15 +44,25 @@ from submission import models as submission_models
 
 def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
-        'reviewer',
+        "reviewer",
         queryset=models.ReviewAssignment.objects.filter(
-            article__journal=article.journal
-        ).exclude(date_complete__isnull=True).order_by("-date_complete")
+            article__journal=article.journal,
+            date_accepted__isnull=False,
+            date_complete__isnull=False,
+        ).exclude(
+            decision="withdrawn",
+        ).order_by("-date_complete"),
     )
+
     active_reviews_count = models.ReviewAssignment.objects.filter(
-        Q(date_complete__isnull=True) | Q(is_complete=True),
+        date_complete__isnull=True,
+        date_declined__isnull=True,
+        date_accepted__isnull=False,
+        is_complete=False,
         article__journal=article.journal,
         reviewer=OuterRef("id"),
+    ).exclude(
+        decision="withdrawn",
     ).values(
         "reviewer_id",
     ).annotate(
@@ -75,7 +85,9 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     )
 
     # TODO swap the below subqueries with filtered annotations on Django 2.0+
-    reviewers = candidate_queryset.exclude(
+    reviewers = candidate_queryset.filter(
+        is_active=True
+    ).exclude(
         pk__in=exclude_pks,
     ).prefetch_related(
         prefetch_review_assignment,
