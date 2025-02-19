@@ -969,13 +969,13 @@ class AccountAffiliationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.account = kwargs.pop('account', None)
         self.organization = kwargs.pop('organization', None)
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
         affiliation = super().save(commit=False)
-        request = get_current_request()
-        affiliation.account = request.user
+        affiliation.account = self.account
         affiliation.organization = self.organization
         if commit:
             affiliation.save()

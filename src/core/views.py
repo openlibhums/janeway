@@ -2918,11 +2918,15 @@ def affiliation_create(request, organization_id):
     organization = core_models.Organization.objects.get(
         pk=organization_id,
     )
-    form = forms.AccountAffiliationForm(organization=organization)
+    form = forms.AccountAffiliationForm(
+        account=request.user,
+        organization=organization,
+    )
 
     if request.method == 'POST':
         form = forms.AccountAffiliationForm(
             request.POST,
+            account=request.user,
             organization=organization,
         )
         if form.is_valid():
@@ -2957,6 +2961,7 @@ def affiliation_update(request, affiliation_id):
 
     form = forms.AccountAffiliationForm(
         instance=affiliation,
+        account=request.user,
         organization=affiliation.organization,
     )
 
@@ -2964,6 +2969,7 @@ def affiliation_update(request, affiliation_id):
         form = forms.AccountAffiliationForm(
             request.POST,
             instance=affiliation,
+            account=request.user,
             organization=affiliation.organization,
         )
         if form.is_valid():
