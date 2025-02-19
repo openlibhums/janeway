@@ -7,6 +7,7 @@ from dateutil import parser as dateparser
 from mock import Mock
 import os
 
+from django.db import IntegrityError
 from django.core.management import call_command
 from django.http import Http404
 from django.test import TestCase, TransactionTestCase
@@ -987,8 +988,8 @@ class CreditRecordTests(TestCase):
             article=cls.article_one,
         )
 
-    def test_save_checks_exclusive_fields(self):
-        with self.assertRaises(ValidationError):
+    def test_credit_record_has_exclusive_fields_constraint(self):
+        with self.assertRaises(IntegrityError):
             models.CreditRecord.objects.create(
                 author=self.author_one,
                 frozen_author=self.frozen_author_one,
