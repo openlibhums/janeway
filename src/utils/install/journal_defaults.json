@@ -5151,5 +5151,24 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Editors can be assigned to an article in a custom way.",
+            "is_translatable": false,
+            "name": "enable_custom_editor_assignment",
+            "pretty_name": "Enable Custom Editor Assignment",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
