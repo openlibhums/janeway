@@ -29,6 +29,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.db.models import Q
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
@@ -265,6 +266,12 @@ REVIEW_STAGES = {
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION,
     STAGE_ACCEPTED,
+}
+
+EDITOR_REVIEW_STAGES = {
+    STAGE_UNASSIGNED,
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
 }
 
 # Stages used to determine if a review assignment is open
@@ -1342,6 +1349,10 @@ class Article(AbstractLastModifiedModel):
         return [{'editor': assignment.editor, 'editor_type': assignment.editor_type, 'assignment': assignment} for
                 assignment in self.editorassignment_set.all()]
 
+    def senior_editors(self):
+        return [{'editor': assignment.editor, 'editor_type': assignment.editor_type, 'assignment': assignment} for
+                assignment in self.editorassignment_set.filter(editor_type='editor')]
+
     def section_editors(self, emails=False):
         editors = [assignment.editor for assignment in self.editorassignment_set.filter(editor_type='section-editor')]
 
@@ -1350,6 +1361,16 @@ class Article(AbstractLastModifiedModel):
 
         else:
             return editors
+
+    def requested_editors(self):
+        return [{'editor': assignment.editor, 'editor_type': assignment.editor_type, 'assignment': assignment} for
+                assignment in self.editorassignmentrequest_set.filter(
+                    Q(is_complete=False) &
+                    Q(article__stage__in=EDITOR_REVIEW_STAGES) &
+                    Q(date_accepted__isnull=True) &
+                    Q(date_declined__isnull=True)
+                )
+        ]
 
     def editor_emails(self):
         return [assignment.editor.email for assignment in self.editorassignment_set.all()]

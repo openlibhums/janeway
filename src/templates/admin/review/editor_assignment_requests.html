@@ -1,0 +1,45 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Editor Assign Requests{% endblock title %}
+{% block title-section %}Editor Assign Requests{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/editor_assign_base.html" %}
+{% endblock breadcrumbs %}
+
+{% load static %}
+{% load securitytags %}
+
+{% is_editor as editor %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+
+        <div class="row expanded">
+            {% include "admin/elements/no_stage.html" %}
+            <div class="{% if editor %}large-8{% else %}large-12{% endif %} columns end">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Assignment Requests List    </h2>
+                    </div>
+                    <div class="content" id="submission_list">
+                        <ul class="list-group list" id="list_container">
+                            {% for assign_request in new_requests %}
+                                {% include "elements/review/editor_assignment_list_element.html" %}
+                            {% empty %}
+                            No Requests
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for assignment_request in new_requests %}
+    {% include "admin/elements/review/editor_assignment_request_metadata.html" %}
+    {% endfor %}
+
+{% endblock %}

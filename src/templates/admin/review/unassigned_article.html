@@ -210,6 +210,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
+                {% if journal_settings.general.enable_custom_editor_assignment %}
+                    <a href="{% url 'add_editor_assignment' article.id %}" class="button">Add Editor</a>
+                {% endif %}
             </div>
             <div class="content">
                 <table class="scroll small" id="unassigned">
@@ -217,6 +220,9 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Type</th>
+                        {% if journal_settings.general.enable_invite_editor %}
+                            <th>Status</th>
+                        {% endif %}
                         <th></th>
                     </tr>
                     {% for assignment in article.editors %}
@@ -224,6 +230,9 @@
                             <td>{{ assignment.editor.full_name }}</td>
                             <td>{{ assignment.editor.email }}</td>
                             <td>{{ assignment.editor_type|capfirst }}</td>
+                            {% if journal_settings.general.enable_invite_editor %}
+                            <td>Assigned</td>
+                            {% endif %}
                             <td><a href="{% url 'review_unassign_editor' article.id assignment.editor.id %}">Remove</a>
                             </td>
                         </tr>
@@ -235,6 +244,43 @@
                 </table>
             </div>
         </div>
+
+        {% if journal_settings.general.enable_invite_editor and requested_editors %}
+        <div class="box">
+            <div class="title-area">
+                <h2>Editor Requests</h2>
+            </div>
+            <div class="content">
+                <table class="scroll small" id="unassigned">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Date Due</th>
+                        <th></th>
+                    </tr>
+                    {% for assignment in requested_editors %}
+                    <tr>
+                        <td>
+                            {{ assignment.editor.full_name }}&nbsp;
+                            <span data-tooltip title="Email editor."><a
+                                onclick="return popitup('{% url 'send_user_email_article' assignment.editor.id article.pk %}')"><span
+                                class="fa fa-envelope">&nbsp;</span></a></span>
+                        </td>
+                        <td>{{ assignment.editor.email }}</td>
+                        <td>{{ assignment.editor_type|capfirst }}</td>
+                        <td>{{ assignment.date_due|date:"Y-m-d" }}</td>
+                        <td>{% include "admin/elements/review/editor_request_dropdown.html" %}</td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No users requested</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="box">
             <div class="title-area">
