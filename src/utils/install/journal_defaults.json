@@ -5151,5 +5151,24 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If checked, allow the editor to view information about peer review accepted articles.",
+            "is_translatable": false,
+            "name": "show_accepted_articles_archive",
+            "pretty_name": "Show Accepted Articles Archive",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

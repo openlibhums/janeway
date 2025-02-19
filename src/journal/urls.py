@@ -164,6 +164,11 @@ urlpatterns = [
         views.rejected_archived_article_archive,
         name='manage_rejected_archived_archive',
     ),
+    re_path(
+        r'^manage/archive/accepted/$',
+        views.accepted_article_archive,
+        name='manage_accepted_archive',
+    ),
     re_path(r'^manage/archive/article/(?P<article_id>\d+)/$',
         views.manage_archive_article, name='manage_archive_article'),
 
