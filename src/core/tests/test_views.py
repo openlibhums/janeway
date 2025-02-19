@@ -68,12 +68,6 @@ class CoreViewTestsWithData(TestCase):
         # The core_login url with encoded next url
         cls.core_login_with_next = '/login/?next=/target/page/%3Fa%3Db%26x%3Dy'
 
-        # The core_register url with encoded next url
-        cls.core_register_with_next = '/register/?next=/target/page/%3Fa%3Db%26x%3Dy'
-
-    def setUp(self):
-        self.client = Client()
-
 
 class AccountManagementTemplateTests(CoreViewTestsWithData):
 
@@ -211,13 +205,10 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
         data = {}
         response = self.client.get(url, data)
         form = response.context['facet_form']
+        labels = [label for pk, label in form.fields['accountrole__role__pk'].choices]
         self.assertEqual(
-            form.fields['accountrole__role__pk'].choices,
-            [
-                (1, 'Author (30)'),
-                (2, 'Editor (1)'),
-                (3, 'Reviewer (1)'),
-            ]
+            labels,
+            ['Author (30)', 'Editor (1)', 'Reviewer (1)']
         )
 
     def test_get_queryset_foreign_key(self):
@@ -226,8 +217,9 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
         are included in queryset results.
         """
         url = '/user/all/'
+        reviewer_role = core_models.Role.objects.get(slug='reviewer')
         data = {
-            'accountrole__role__pk': 3, # filter to reviewers
+            'accountrole__role__pk': reviewer_role.pk,
         }
         response = self.client.get(url, data)
         self.assertEqual(len(response.context['account_list']), 1)
@@ -235,14 +227,22 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
 
 class UserLoginTests(CoreViewTestsWithData):
 
+    @override_settings(URL_CONFIG="domain")
     def test_is_authenticated_redirects_to_next(self):
         self.client.login(username=self.user_email, password=self.user_password)
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/', get_data, follow=True)
+        url = f'/login/?next={self.next_url_encoded}'
+        response = self.client.get(
+            url,
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
 
+    @override_settings(URL_CONFIG="domain")
     @patch('core.views.authenticate')
     def test_login_success_redirects_to_next(self, authenticate):
         authenticate.return_value = self.user
@@ -254,43 +254,63 @@ class UserLoginTests(CoreViewTestsWithData):
         response = self.client.post(url, post_data, follow=True)
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
 
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_OIDC=True)
     def test_oidc_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/', get_data)
+        response = self.client.get(
+            '/login/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/oidc/authenticate/?next={self.next_url_encoded}',
             response.content.decode(),
         )
 
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_orcid_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/', get_data)
+        response = self.client.get(
+            '/login/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/login/orcid/?next={self.next_url_encoded}',
             response.content.decode(),
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_forgot_password_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/', get_data)
+        response = self.client.get(
+            '/login/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/reset/step/1/?next={self.next_url_encoded}',
             response.content.decode(),
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_register_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/', get_data)
+        response = self.client.get(
+            '/login/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/register/step/1/?next={self.next_url_encoded}',
             response.content.decode(),
@@ -299,23 +319,35 @@ class UserLoginTests(CoreViewTestsWithData):
 
 class UserLoginOrcidTests(CoreViewTestsWithData):
 
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=False)
     def test_orcid_disabled_redirects_with_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(self.next_url_encoded, response.redirect_chain[0][0])
 
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_no_orcid_code_redirects_with_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/orcid/', get_data)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(self.next_url_doubly_encoded, response.url)
 
     @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_no_orcid_id_redirects_with_next(self, retrieve_tokens):
         retrieve_tokens.return_value = None
@@ -323,10 +355,16 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'code': '12345',
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
 
     @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_login_account_found_redirects_to_next(
         self,
@@ -337,11 +375,17 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'code': '12345',
             'next': self.next_url_raw,
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
 
     @patch('core.views.orcid.get_orcid_record_details')
     @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_login_matching_email_redirects_to_next(
         self,
@@ -358,11 +402,17 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'code': '12345',
             'state': self.state_login,
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
 
     @patch('core.views.orcid.get_orcid_record_details')
     @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_login_failure_redirects_with_next(
         self,
@@ -377,13 +427,19 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'code': '12345',
             'state': self.state_login,
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             self.next_url_query_string,
             response.redirect_chain[0][0],
         )
 
     @patch('core.views.orcid.retrieve_tokens')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_register_redirects_with_next(self, retrieve_tokens):
         retrieve_tokens.return_value = self.user_orcid_uri
@@ -392,7 +448,12 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             'next': self.next_url_raw,
             'action': 'register',
         }
-        response = self.client.get('/login/orcid/', get_data, follow=True)
+        response = self.client.get(
+            '/login/orcid/',
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             self.next_url_query_string,
             response.redirect_chain[0][0],
@@ -402,18 +463,24 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
 class GetResetTokenTests(CoreViewTestsWithData):
 
     @patch('core.views.logic.start_reset_process')
+    @override_settings(URL_CONFIG="domain")
     def test_start_reset_redirects_with_next(self, _start_reset):
         post_data = {
             'email_address': self.user_email,
         }
-        url = f'/reset/step/1/?next={self.next_url_encoded}'
-        response = self.client.post(url, post_data, follow=True)
+        response = self.client.post(
+            f'/reset/step/1/?next={self.next_url_encoded}',
+            post_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
 
 
 class ResetPasswordTests(CoreViewTestsWithData):
 
     @patch('core.views.logic.password_policy_check')
+    @override_settings(URL_CONFIG="domain")
     def test_reset_password_form_valid_redirects_with_next(self, password_check):
         password_check.return_value = None
         post_data = {
@@ -422,13 +489,19 @@ class ResetPasswordTests(CoreViewTestsWithData):
         }
         path = f'/reset/step/2/{self.reset_token.token}/'
         query = f'next={self.next_url_encoded}'
-        response = self.client.post(f'{path}?{query}', post_data, follow=True)
+        response = self.client.post(
+            f'{path}?{query}',
+            post_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
 
 
 class RegisterTests(CoreViewTestsWithData):
 
     @patch('core.views.logic.password_policy_check')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(CAPTCHA_TYPE='')
     @override_settings(ENABLE_ORCID=True)
     def test_register_email_form_valid_redirects_with_next(self, password_check):
@@ -440,12 +513,17 @@ class RegisterTests(CoreViewTestsWithData):
             'first_name': 'New',
             'last_name': 'User',
         }
-        url = f'/register/step/1/?next={self.next_url_encoded}'
-        response = self.client.post(url, post_data, follow=True)
+        response = self.client.post(
+            f'/register/step/1/?next={self.next_url_encoded}',
+            post_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
 
     @patch('core.views.orcid.get_orcid_record_details')
     @patch('core.views.logic.password_policy_check')
+    @override_settings(URL_CONFIG="domain")
     @override_settings(CAPTCHA_TYPE='')
     @override_settings(ENABLE_ORCID=True)
     def test_register_orcid_form_valid_redirects_to_next(
@@ -470,40 +548,58 @@ class RegisterTests(CoreViewTestsWithData):
         }
         path = f'/register/step/1/{self.orcid_token_uuid}/'
         query = f'next={self.next_url_encoded}'
-        response = self.client.post(f'{path}?{query}', post_data, follow=True)
+        response = self.client.post(
+            f'{path}?{query}',
+            post_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.next_url_raw, 302), response.redirect_chain)
 
 
 class OrcidRegistrationTests(CoreViewTestsWithData):
 
+    @override_settings(URL_CONFIG="domain")
     def test_login_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        orcid_registration_path = f'/register/step/orcid/{self.orcid_token_uuid}/'
-        response = self.client.get(orcid_registration_path, get_data)
+        response = self.client.get(
+            f'/register/step/orcid/{self.orcid_token_uuid}/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/login/?next={self.next_url_encoded}',
             response.content.decode(),
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_forgot_password_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
-        orcid_registration_path = f'/register/step/orcid/{self.orcid_token_uuid}/'
-        response = self.client.get(orcid_registration_path, get_data)
+        response = self.client.get(
+            f'/register/step/orcid/{self.orcid_token_uuid}/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/reset/step/1/?next={self.next_url_encoded}',
             response.content.decode(),
         )
 
+    @override_settings(URL_CONFIG="domain")
     def test_register_link_has_next(self):
         get_data = {
             'next': self.next_url_raw,
         }
         orcid_registration_path = f'/register/step/orcid/{self.orcid_token_uuid}/'
-        response = self.client.get(orcid_registration_path, get_data)
+        response = self.client.get(
+            orcid_registration_path,
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             f'/register/step/1/{self.orcid_token_uuid}/?next={self.next_url_encoded}',
             response.content.decode(),
@@ -513,20 +609,30 @@ class OrcidRegistrationTests(CoreViewTestsWithData):
 class ActivateAccountTests(CoreViewTestsWithData):
 
     @patch('core.views.models.Account.objects.get')
+    @override_settings(URL_CONFIG="domain")
     def test_activate_success_redirects_with_next(self, objects_get):
         objects_get.return_value = self.user
         post_data = {}
-        url = f'/register/step/2/12345/?next={self.next_url_encoded}'
-        response = self.client.post(url, post_data, follow=True)
+        response = self.client.post(
+            f'/register/step/2/12345/?next={self.next_url_encoded}',
+            post_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
 
     @patch('core.views.models.Account.objects.get')
+    @override_settings(URL_CONFIG="domain")
     def test_login_link_has_next(self, objects_get):
         objects_get.return_value = None
         get_data = {
             'next': self.next_url_raw,
         }
-        response = self.client.get('/register/step/2/12345/', get_data)
+        response = self.client.get(
+            '/register/step/2/12345/',
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
         self.assertIn(
             self.core_login_with_next,
             response.content.decode(),
@@ -535,26 +641,34 @@ class ActivateAccountTests(CoreViewTestsWithData):
 
 class ReturnURLTests(CoreViewTestsWithData):
 
-    @override_settings(URL_CONFIG='path')
+    @override_settings(URL_CONFIG='domain')
     def test_site_nav_account_links_do_not_have_return(self):
         """
         Check that the url_with_return tag has *not* been used
         in the site nav links for login and registration.
         """
         for theme in self.themes:
-            response = self.client.get('/', data={'theme': theme})
+            response = self.client.get(
+                '/',
+                data={'theme': theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
             content = response.content.decode()
             self.assertNotIn('/login/?next=', content)
             self.assertNotIn('/register/step/1/?next=', content)
 
-    @override_settings(URL_CONFIG='path')
+    @override_settings(URL_CONFIG='domain')
     def test_journal_submissions_account_links_have_return(self):
         """
         Check that the url_with_return tag *has* been used
         in the submission pathway.
         """
         for theme in self.themes:
-            response = self.client.get('/submissions/', data={'theme': theme})
+            response = self.client.get(
+                '/submissions/',
+                data={'theme': theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
             content = response.content.decode()
-            self.assertIn('/login/?next=/submissions/', content)
-            self.assertIn('/register/step/1/?next=/submissions/', content)
+            self.assertIn(f'/login/?next=/submissions/', content)
+            self.assertIn(f'/register/step/1/?next=/submissions/', content)

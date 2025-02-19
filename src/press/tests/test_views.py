@@ -18,14 +18,16 @@ class PressViewTestsWithData(TestCase):
 
 class URLWithReturnTests(PressViewTestsWithData):
 
-    @override_settings(URL_CONFIG='path')
+    @override_settings(URL_CONFIG='domain')
     def test_press_nav_account_links_do_not_have_return(self):
         """
         Check that the url_with_return tag has *not* been used
         in the site nav links for login and registration.
         """
-        request = helpers.get_request(press=self.press)
-        response = press_views.index(request)
+        response = self.client.get(
+            '/',
+            SERVER_NAME=self.press.domain,
+        )
         content = response.content.decode()
         self.assertNotIn('/login/?next=', content)
         self.assertNotIn('/register/step/1/?next=', content)

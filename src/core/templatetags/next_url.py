@@ -25,10 +25,5 @@ def url_with_return(context, url_name, *args, **kwargs):
     contains the full and query string path of the current request.
     """
     request = context.get('request')
-    if request.journal or request.repository:
-        next_url = request.get_full_path()
-    else:
-        # This is the only way to refer to press URLs
-        next_url = request.build_absolute_uri()
-
+    next_url = request.get_full_path()
     return reverse_with_next(url_name, next_url, args=args, kwargs=kwargs)
