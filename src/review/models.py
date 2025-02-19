@@ -287,7 +287,7 @@ class ReviewAssignment(models.Model):
                 'date': '',
                 'reminder': None,
             }
-        elif self.date_complete:
+        elif self.date_complete and self.date_accepted:
             return {
                 'code': 'complete',
                 'display': 'Complete',
@@ -323,6 +323,8 @@ class ReviewAssignment(models.Model):
     def request_decision_status(self):
         if self.decision == RD.DECISION_WITHDRAWN.value:
             return f'Withdrawn {self.date_complete.date()}'
+        elif self.date_complete and self.date_accepted:
+            return f'Complete {self.date_complete.date()}'
         elif self.date_accepted:
             return f'Accepted {self.date_accepted.date()}'
         elif self.date_declined:

@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block title-section %}User History{% endblock %}
-{% block title-sub %}Displays history objects that the user was involved with{% endblock %}
+{% block title-sub %}Displaying workflow history for {{ user.full_name }}{% endblock %}
 
 {% block body %}
     <div class="box">
@@ -52,14 +52,16 @@
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Due</th>
-                            <th>Complete</th>
+                            <th>Status</th>
                         </tr>
                         {% for assignment in review_assignments %}
                             <tr>
                                 <td>{{ assignment.article.safe_title }}</td>
                                 <td>{{ assignment.date_requested }}</td>
-                                <td>{{ assignment.date_due }}</td>
-                                <td>{{ assignment.date_complete }}</td>
+                                <td>{{ assignment.date_due|date:"Y-m-d" }}</td>
+                                <td>
+                                  {{ assignment.request_decision_status }}
+                                </td>
                             </tr>
                         {% empty %}
                             <tr>

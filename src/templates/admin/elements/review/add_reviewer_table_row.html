@@ -7,3 +7,12 @@
 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
 <td>{% if reviewer.is_past_reviewer %}Yes{% else %}No{% endif %}</td>
 {% if journal_settings.general.enable_suggested_reviewers %}<td>{% if reviewer.is_suggested_reviewer %}Yes{% else %}No{% endif %}</td>{% endif %}
+<td>
+  <a
+      href="{% url 'core_user_history' reviewer.pk %}"
+      target="_blank"
+  >
+    View History
+    <span class="sr-only">(opens in new tab)</span>
+  </a>
+</td>
