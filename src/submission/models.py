@@ -3,8 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from collections import defaultdict
-
 from attr.setters import frozen
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -861,63 +859,21 @@ class Article(AbstractLastModifiedModel):
         ordering = ('-date_published', 'title')
 
     # credits
-    def _credit_roles(self, frozen=False, repository=False, url=False):
-        records = CreditRecord.objects.filter(article=self).order_by('role')
-
-        credit_roles_return = defaultdict(list)
-
-        for record in records:
-            if frozen:
-                if url:
-                    credit_roles_return[record.frozen_author].append(
-                        (record, record.uri)
-                    )
-                else:
-                    credit_roles_return[record.frozen_author].append(record)
-            else:
-                if url:
-                    credit_roles_return[record.author].append(
-                        (record, record.uri)
-                    )
-                else:
-                    credit_roles_return[record.author].append(record)
-
-        credit_roles_return.default_factory = None
-        return credit_roles_return
-
-    @property
-    def credit_roles_frozen(self):
+    def authors_and_credits(self):
         """
-        Returns a dictionary of frozen authors with their roles. The roles are
-        returned as a list of roles.
+        Returns a dictionary of all frozen authors, or authors if frozen author
+        records do not exist, with any CRediT roles for the article.
+        Respects the normal author order and orders roles A-Z by slug.
+        :rtype: dict[Account | FrozenAuthor, QuerySet[CreditRecord]]
         """
-        return self._credit_roles(frozen=True, repository=False, url=False)
-
-    @property
-    def credit_roles(self):
-        """
-        Returns a dictionary of authors with their roles. The roles are
-        returned as a list of roles.
-        """
-        return self._credit_roles(frozen=False, repository=False, url=False)
-
-    @property
-    def credit_roles_with_urls(self):
-        """
-        Returns a dictionary of authors with their roles. The roles are
-        returned as a tuple with the role name and the URL to NISO spec for
-        CRediT.
-        """
-        return self._credit_roles(frozen=False, repository=False, url=True)
-
-    @property
-    def credit_roles_frozen_with_urls(self):
-        """
-        Returns a dictionary of frozen authors with their roles. The roles are
-        returned as a tuple with the role name and the URL to NISO spec for
-        CRediT.
-        """
-        return self._credit_roles(frozen=True, repository=False, url=True)
+        result = {}
+        if self.frozen_authors().exists():
+            for frozen_author in self.frozen_authors():
+                result[frozen_author] = frozen_author.credits()
+        else:
+            for author in self.authors.all():
+                result[author] = author.credits(article=self)
+        return result
 
     @property
     def safe_title(self):
@@ -2140,30 +2096,33 @@ class FrozenAuthor(AbstractLastModifiedModel):
             frozen_author=self
         )
 
-    def credits(self, article):
+    def credits(self):
         """
-        Returns all the credit records for this frozen author on a given article
+        Returns all the credit records for this frozen author
         """
-        return CreditRecord.objects.filter(article=article, frozen_author=self)
+        return CreditRecord.objects.filter(frozen_author=self)
 
-    def add_credit(self, credit_role_text, article):
+    def add_credit(self, credit_role_text):
         """
         Adds a credit role to the article for this frozen author
         """
         record, _ = (
             CreditRecord.objects.get_or_create(
-                article=article, frozen_author=self, role=credit_role_text)
+                article=self.article,
+                frozen_author=self,
+                role=credit_role_text,
+            )
         )
 
         return record
 
-    def remove_credit(self, credit_role_text, article):
+    def remove_credit(self, credit_role_text):
         """
         Removes a credit role from the article for this frozen author
         """
         try:
             record = CreditRecord.objects.get(
-                article=article,
+                article=self.article,
                 frozen_author=self,
                 role=credit_role_text,
             )
@@ -2308,6 +2267,7 @@ class CreditRecord(AbstractLastModifiedModel):
                 ['author', 'frozen_author', 'preprint_author']
             )
         ]
+        ordering = ["role"]
 
     author = models.ForeignKey(
         'core.Account',

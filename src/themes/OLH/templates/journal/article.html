@@ -519,24 +519,22 @@
                             {% endif %}
                         </div>
 
-                        {% if show_credit and credit_roles %}
-                        <div class="section hide-for-small-only">
+                        {% if journal_settings.general.use_credit %}
+                          <div class="section hide-for-small-only">
                             <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
                             <ul>
-                            {% for author, roles in credit_roles.items %}
-                                {% if roles %}
-                                  <li>
-                                    {{ author.full_name }}:
-                                    <span class="credit">
-                                        {% for credit in roles %}
-                                          {{ credit }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
-                                    </span>
-                                  </li>
-                                {% endif %}
-                            {% endfor %}
+                              {% for author, credit_records in article.authors_and_credits.items %}
+                                <li>
+                                  {{ author.full_name }}:
+                                  <span class="credit">
+                                    {% for record in credit_records %}
+                                      {{ record }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                  </span>
+                                </li>
+                              {% endfor %}
                             </ul>
-                        </div>
+                          </div>
                         {% endif %}
 
                         <div class="section hide-for-small-only">
