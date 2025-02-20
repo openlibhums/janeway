@@ -684,8 +684,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         """
         Returns the CRediT records for this user on a given article
         """
-        return submission_models.CreditRecord.objects.filter(article=article,
-                                                             author=self)
+        return submission_models.CreditRecord.objects.filter(
+            article=article,
+            author=self,
+        )
 
     def add_credit(self, credit_role_text, article):
         """

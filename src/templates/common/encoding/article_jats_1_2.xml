@@ -45,8 +45,8 @@
                     {% if author.is_correspondence_author %}
                     <email>{{ author.author.email }}</email>
                     {% endif %}
-                    {% for credit_record in article.creditrecord_set.all %}
-                        {% if credit_record.frozen_author == author %}
+                    {% if article.journal|setting:'use_credit' and author.credits %}
+                        {% for credit_record in author.credits %}
                             <role
                                 vocab="credit"
                                 vocab-identifier="https://credit.niso.org/"
@@ -54,8 +54,8 @@
                                 vocab-term-identifier="{{ credit_record.uri }}">
                                 {{ credit_record.get_role_display }}
                             </role>
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
                 </contrib>
             {% endfor %}

@@ -15,6 +15,7 @@ from lxml import etree
 from api.oai.base import OAIPaginationMixin
 from submission import models as sm_models
 from utils.testing import helpers
+from utils import setting_handler
 
 FROZEN_DATETIME_2012 = timezone.make_aware(timezone.datetime(2012, 1, 14, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 0, 0, 0))
@@ -143,7 +144,12 @@ class TestOAIViews(TestCase):
         self.article.authors.add(author_2)
         self.article.snapshot_authors()
 
-
+        setting_handler.save_setting(
+            "general",
+            "use_credit",
+            journal=self.journal,
+            value="on",
+        )
         path = reverse('OAI_list_records')
         query_params = dict(
             verb="GetRecord",

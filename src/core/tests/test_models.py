@@ -273,8 +273,8 @@ class TestAccount(TestCase):
         self.article_one.authors.add(author)
         self.article_one.correspondence_author = author
         self.article_one.save()
-        author.add_credit('Conceptualization', self.article_one)
-        author.add_credit('Data Curation', self.article_one)
+        author.add_credit('conceptualization', self.article_one)
+        author.add_credit('data-curation', self.article_one)
 
         frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
             author=author,
@@ -282,7 +282,7 @@ class TestAccount(TestCase):
         )
         author.snapshot_credit(self.article_one, frozen_author)
         frozen_author_credits = [
-            credit.role for credit in frozen_author.credits(self.article_one)
+            credit.get_role_display() for credit in frozen_author.credits()
         ]
         self.assertIn('Conceptualization', frozen_author_credits)
         self.assertIn('Data Curation', frozen_author_credits)
@@ -293,8 +293,8 @@ class TestAccount(TestCase):
         self.article_one.authors.add(author)
         self.article_one.correspondence_author = author
         self.article_one.save()
-        author.add_credit('Conceptualization', self.article_one)
-        author.add_credit('Data Curation', self.article_one)
+        author.add_credit('conceptualization', self.article_one)
+        author.add_credit('data-curation', self.article_one)
 
         frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
             author=author,
@@ -304,18 +304,27 @@ class TestAccount(TestCase):
         author.snapshot_credit(self.article_one, frozen_author)
 
         # Change the author credits
-        author.remove_credit('Data Curation', self.article_one)
-        author.add_credit('Methodology', self.article_one)
+        author.remove_credit('data-curation', self.article_one)
+        author.add_credit('methodology', self.article_one)
 
         # Snapshot again
         author.snapshot_credit(self.article_one, frozen_author)
 
         frozen_author_credits = [
-            credit.role for credit in frozen_author.credits(self.article_one)
+            credit.get_role_display() for credit in frozen_author.credits()
         ]
         self.assertIn('Conceptualization', frozen_author_credits)
         self.assertIn('Methodology', frozen_author_credits)
         self.assertNotIn('Data Curation', frozen_author_credits)
+
+    def test_credits(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        author.add_credit('conceptualization', self.article_one)
+        self.assertEqual(
+            author.credits(article=self.article_one).first().get_role_display(),
+            'Conceptualization',
+        )
 
 
 class TestSVGImageFormField(TestCase):

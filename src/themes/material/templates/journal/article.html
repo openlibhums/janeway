@@ -257,15 +257,15 @@
                                             <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
                                         </a>
                                      {% endif %}
-                            {% for credit_author, roles in credit_roles.items %}
-                                {% if credit_author == author and roles %}
-                                    [<span class="credit">
-                                        {% for credit in roles %}
-                                          {{ credit }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
-                                    </span>]
-                                {% endif %}
-                            {% endfor %}
+                                     {% if journal_settings.general.use_credit %}
+                                       [<span class="credit">
+                                         {% for credit_record in author.credits %}
+                                           {% for credit in roles %}
+                                             {{ credit }}{% if not forloop.last %}, {% endif %}
+                                           {% endfor %}
+                                         {% endfor %}
+                                       </span>]
+                                     {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>    

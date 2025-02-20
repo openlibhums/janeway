@@ -490,7 +490,7 @@ def article(request, identifier_type, identifier):
         for frozen_author in article_object.frozen_authors():
             credit_role_qs = submission_models.CreditRecord.objects.filter(
                 article=article_object, frozen_author=frozen_author
-            ).order_by("role")
+            )
 
             credit_roles[frozen_author] = credit_role_qs
 
