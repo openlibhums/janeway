@@ -50,7 +50,7 @@ def update_user_email_change(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0038_upgrade_1_7_2'),
+        ('utils', '0039_upgrade_1_7_4'),
     ]
 
     operations = [
