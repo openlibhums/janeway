@@ -151,6 +151,24 @@ class ReviewRound(models.Model):
         return cls.objects.get(article=article, round_number=latest_round)
 
 
+class CompletedReviewsManager(models.Manager):
+    """
+    This manager allows you to filter for reviews that were
+    completed by a human. It checks that:
+    1. The review was not declined
+    2. is_complete is True
+    3. A decision was made
+    4. That decision is not 'withdrawn'
+    """
+    def get_queryset(self):
+        return super(CompletedReviewsManager, self).get_queryset().filter(
+            date_declined__isnull=True,
+            is_complete=True,
+            decision__isnull=False,
+        ).exclude(
+            decision="withdrawn",
+        )
+
 class ReviewAssignment(models.Model):
     # FKs
     article = models.ForeignKey(
@@ -226,6 +244,10 @@ class ReviewAssignment(models.Model):
     permission_to_make_public = models.BooleanField(default=False,
                                                     help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.')
     display_public = models.BooleanField(default=False, help_text='Whether this review should be publicly displayed.')
+
+    # set the default and completed reviews managers
+    objects = models.Manager()
+    completed_reviews = CompletedReviewsManager()
 
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
