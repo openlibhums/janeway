@@ -12,16 +12,18 @@ from django.db.utils import OperationalError, ProgrammingError
 from packaging import version
 
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
+from core.plugin_installed_apps import EXCLUDED_PLUGIN_DIRS
 from janeway import __version__ as janeway_version
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
+
 
 
 def get_dirs(directory):
     path = os.path.join(settings.BASE_DIR, directory)
     root, dirs, files = next(os.walk(path))
 
-    dirs = [x for x in dirs if x != '__pycache__']
+    dirs = [x for x in dirs if x not in EXCLUDED_PLUGIN_DIRS]
 
     return dirs
 
