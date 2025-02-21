@@ -45,12 +45,8 @@ from submission import models as submission_models
 def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
         "reviewer",
-        queryset=models.ReviewAssignment.objects.filter(
+        queryset=models.ReviewAssignment.completed_reviews.filter(
             article__journal=article.journal,
-            date_accepted__isnull=False,
-            date_complete__isnull=False,
-        ).exclude(
-            decision="withdrawn",
         ).order_by("-date_complete"),
     )
 

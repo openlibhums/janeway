@@ -1133,13 +1133,9 @@ def role(request, slug):
                 filter=Q(user__reviewer__article__journal=request.journal),
             ),
             last_completed_review=Subquery(
-                review_models.ReviewAssignment.objects.filter(
-                    reviewer=OuterRef('user__pk'),
-                    date_accepted__isnull=False,
-                    date_complete__isnull=False,
+                review_models.ReviewAssignment.completed_reviews.filter(
                     article__journal=request.journal,
-                ).exclude(
-                    decision='withdrawn',
+                    reviewer=OuterRef('user__pk'),
                 ).order_by('-date_complete').values('date_complete')[:1]
             ),
             average_score=Subquery(
