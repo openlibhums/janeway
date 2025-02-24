@@ -973,6 +973,18 @@ class AccountAffiliationForm(forms.ModelForm):
         self.organization = kwargs.pop('organization', None)
         super().__init__(*args, **kwargs)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        query = Q(account=self.account, organization=self.organization)
+        for key, value in cleaned_data.items():
+            query &= Q((key, value))
+        if self._meta.model.objects.filter(query).exists():
+            self.add_error(
+                None,
+                "An affiliation with matching details already exists."
+            )
+        return cleaned_data
+
     def save(self, commit=True):
         affiliation = super().save(commit=False)
         affiliation.account = self.account
