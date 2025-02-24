@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             name='Organization',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ror', models.URLField(blank=True, help_text='Research Organization Registry identifier (URL)', validators=[core.models.validate_ror], verbose_name='ROR')),
+                ('ror_id', models.CharField(blank=True, help_text='Non-URI form of Research Organization Registry identifier', validators=[core.models.validate_ror_id], verbose_name='ROR')),
                 ('ror_status', models.CharField(blank=True, choices=[('active', 'Active'), ('inactive', 'Inactive'), ('withdrawn', 'Withdrawn'), ('unknown', 'Unknown')], default='unknown', max_length=10)),
                 ('ror_record_timestamp', models.CharField(blank=True, help_text='The admin.last_modified.date string from ROR data', max_length=10)),
                 ('website', models.CharField(blank=True, max_length=2000)),
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='organization',
-            constraint=models.UniqueConstraint(condition=models.Q(('ror__exact', ''), _negated=True), fields=('ror',), name='filled_unique'),
+            constraint=models.UniqueConstraint(condition=models.Q(('ror_id__exact', ''), _negated=True), fields=('ror_id',), name='filled_unique'),
         ),
         migrations.AddConstraint(
             model_name='affiliation',

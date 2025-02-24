@@ -33,5 +33,9 @@ class Migration(migrations.Migration):
                 ('message', models.TextField(blank=True)),
                 ('ror_import', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='utils.rorimport')),
             ],
+            options={
+                'verbose_name': 'ROR import error',
+                'verbose_name_plural': 'ROR import errors',
+            },
         ),
     ]

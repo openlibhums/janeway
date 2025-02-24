@@ -503,14 +503,14 @@ class RORImport(models.Model):
         ROR's last_modified time stamp.
         """
         timestamps = {}
-        for ror, ts in organizations.values_list("ror", "ror_record_timestamp"):
-            timestamps[ror] = ts
+        for ror_id, ts in organizations.values_list("ror_id", "ror_record_timestamp"):
+            timestamps[ror_id] = ts
         filtered_data = []
         for record in tqdm.tqdm(ror_data, desc="Finding new or updated ROR records"):
-            ror = record.get("id", {})
+            ror_id = os.path.split(record.get('id', ''))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
             timestamp = last_modified.get("date", "")
-            if ror and timestamp and timestamp > timestamps.get(ror, ''):
+            if ror_id and timestamp and timestamp > timestamps.get(ror_id, ''):
                 filtered_data.append(record)
         return filtered_data
 
@@ -523,3 +523,7 @@ class RORImportError(models.Model):
     message = models.TextField(
         blank=True,
     )
+
+    class Meta:
+        verbose_name = 'ROR import error'
+        verbose_name_plural = 'ROR import errors'

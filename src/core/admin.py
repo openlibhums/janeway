@@ -400,12 +400,12 @@ class AccessRequestAdmin(admin.ModelAdmin):
 
 
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'ror', '_ror_display', '_custom_label',
+    list_display = ('pk', 'ror_id', '_ror_display', '_custom_label',
                     'website', '_locations', 'ror_status')
-    list_display_links = ('pk', 'ror')
+    list_display_links = ('pk', 'ror_id')
     list_filter = ('ror_status', 'locations__country')
     search_fields = ('pk', 'ror_display__value', 'custom_label__value', 'labels__value',
-                     'aliases__value', 'acronyms__value', 'website', 'ror')
+                     'aliases__value', 'acronyms__value', 'website', 'ror_id')
     raw_id_fields = ('locations', )
 
     def _ror_display(self, obj):
