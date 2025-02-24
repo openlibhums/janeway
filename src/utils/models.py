@@ -358,13 +358,13 @@ class ImportCacheEntry(models.Model):
 
 class RORImport(models.Model):
     """
-    An record of an import of ROR organization data into Janeway.
+    A record of an import of ROR organization data into Janeway.
     """
     class RORImportStatus(models.TextChoices):
-        ONGOING = 'ongoing', 'Ongoing'
-        UNNECESSARY = 'unnecessary', 'Unnecessary'
-        SUCCESSFUL = 'successful', 'Successful'
-        FAILED = 'failed', 'Failed'
+        ONGOING = 'ongoing', _('Ongoing')
+        UNNECESSARY = 'unnecessary', _('Unnecessary')
+        SUCCESSFUL = 'successful', _('Successful')
+        FAILED = 'failed', _('Failed')
 
     started = models.DateTimeField(
         auto_now_add=True,
@@ -451,8 +451,8 @@ class RORImport(models.Model):
     def get_records(self):
         """
         Gets the manifest of available data and checks if it contains
-        anything new. If there is no new data, or if the previous import failed,
-        the import is marked as unnecessary.
+        anything new. If the previous import failed or there is new data,
+        the import is marked as ongoing.
         """
         records_url = 'https://zenodo.org/api/communities/ror-data/records?sort=newest'
         try:

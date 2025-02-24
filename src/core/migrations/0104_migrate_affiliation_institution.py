@@ -46,9 +46,7 @@ def create_affiliation(
     Affiliation = apps.get_model("core", "Affiliation")
     organization = create_organization(apps, old_institution, old_country)
 
-    # Create or update the actual affiliation if the associated
-    # account / frozen author / preprint author has been saved already
-    affiliation = Affiliation.objects.create(
+    affiliation, _created = Affiliation.objects.get_or_create(
         account=account,
         frozen_author=frozen_author,
         preprint_author=preprint_author,
