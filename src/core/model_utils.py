@@ -766,15 +766,18 @@ class SafePaginator(Paginator):
                 raise
 
 
-def check_exclusive_fields_constraint(fields):
+def check_exclusive_fields_constraint(fields, blank=True):
     """
     Checks that only one of several exclusive fields is populated.
     For example, CreditRecord has author, frozen_author, and preprint_author,
     but only one should be populated.
-    Set this as one of the constraints in a model's Meta.constraints
+    If blank=True, allows for all fields to be blank.
+    Set this as one of the constraints in a model's Meta.constraints.
     :param fields: iterable of field names that should be exclusive
     """
     main_query = models.Q()
+
+    # Do main validation
     for this_field in fields:
         query_piece = models.Q()
         query_piece &= Q((f'{this_field}__isnull', False))
@@ -782,6 +785,14 @@ def check_exclusive_fields_constraint(fields):
         for other_field in other_fields:
             query_piece &= Q((f'{other_field}__isnull', True))
         main_query |= Q(query_piece)
+
+    # Allow for all fields to be blank
+    if blank == True:
+        query_piece = models.Q()
+        for field in fields:
+            query_piece &= models.Q((f'{field}__isnull', True))
+            main_query |= query_piece
+
     constraint = models.CheckConstraint(
         check=main_query,
         name='exclusive_fields_constraint'
