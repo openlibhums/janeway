@@ -31,7 +31,7 @@ class Command(BaseCommand):
         if not limit and settings.DEBUG:
             limit = 100
             logger.info(
-                f"Setting ROR import limit to {limit} while settings.DEBUG."
+                f"Setting ROR import limit to {limit} while settings.DEBUG. "
                 "Override by passing --limit to import_ror_data."
             )
 
@@ -40,14 +40,14 @@ class Command(BaseCommand):
 
         # The import is necessary.
         # Check we have the right copy of the data dump.
-        if ror_import.ongoing:
+        if ror_import.is_ongoing:
             if not ror_import.previous_import:
                 ror_import.download_data()
             elif ror_import.previous_import.zip_path != ror_import.zip_path:
                 ror_import.download_data()
 
         # The data is all downloaded and ready to import.
-        if ror_import.ongoing:
+        if ror_import.is_ongoing:
             Organization.import_ror_batch(
                 ror_import,
                 limit=limit,
@@ -56,8 +56,8 @@ class Command(BaseCommand):
         ror_import.stopped = timezone.now()
         ror_import.save()
         # The process did not error out, so it can be considered a success.
-        if ror_import.ongoing:
-            ror_import.status = ror_import.RORImportStatus.SUCCESSFUL
+        if ror_import.is_ongoing:
+            ror_import.status = ror_import.RORImportStatus.IS_SUCCESSFUL
             ror_import.save()
 
-        logger.info(ror_import.status)
+        logger.info(f'Status: { ror_import.get_status_display() }')
