@@ -2855,7 +2855,8 @@ def organization_name_create(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Custom organization created: %s") % organization_name,
+                _("Custom organization created: %(organization name)s")
+                    % {"organization name": organization_name},
             )
             return redirect(
                 reverse(
@@ -2897,7 +2898,8 @@ def organization_name_update(request, organization_name_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Custom organization updated: %s") % organization,
+                _("Custom organization updated: %(organization name)s")
+                    % {"organization name": organization},
             )
             return redirect(reverse('core_edit_profile'))
 
@@ -2934,7 +2936,8 @@ def affiliation_create(request, organization_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Affiliation created: %s") % affiliation,
+                _("Affiliation created: %(affiliation)s")
+                    % {"affiliation": affiliation},
             )
             return redirect(reverse('core_edit_profile'))
 
@@ -2977,7 +2980,8 @@ def affiliation_update(request, affiliation_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Affiliation updated: %s") % affiliation,
+                _("Affiliation updated: %(affiliation)s")
+                    % {"affiliation": affiliation},
             )
             return redirect(reverse('core_edit_profile'))
 
@@ -3011,7 +3015,7 @@ def affiliation_delete(request, affiliation_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Affiliation deleted: %s") % affiliation,
+                _("Affiliation deleted: %s") % {"affiliation": affiliation},
             )
             return redirect(reverse('core_edit_profile'))
 
