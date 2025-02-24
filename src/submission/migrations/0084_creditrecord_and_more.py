@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='creditrecord',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('author__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('author__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('author__isnull', True), ('frozen_author__isnull', True)), _connector='OR'), name='exclusive_fields_constraint'),
+            constraint=models.CheckConstraint(check=models.Q(models.Q(('author__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('author__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('author__isnull', True), ('frozen_author__isnull', True)), ('author__isnull', True), models.Q(('author__isnull', True), ('frozen_author__isnull', True)), models.Q(('author__isnull', True), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'), name='exclusive_fields_constraint'),
         ),
     ]
