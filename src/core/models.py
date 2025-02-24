@@ -2090,7 +2090,7 @@ class Organization(models.Model):
     def name(self):
         """
         Return the OrganizationName that ROR uses for display, or if none,
-        the first one that was manually entered, or if none
+        the first one that was manually entered, or if none,
         the first one designated by ROR as a label.
         Can be expanded in future to support choosing a label by language.
         """
