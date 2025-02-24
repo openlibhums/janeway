@@ -56,7 +56,7 @@
                 {% if organization.also_known_as %}
                   {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
                 {% endif %}
-                {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.ror link=organization.ror %}
+                {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.uri link=organization.uri %}
                 {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
               </div>
               <div>

@@ -48,7 +48,7 @@ class CoreViewTestsWithData(TestCase):
         cls.user.save()
 
         cls.organization_bbk = core_models.Organization.objects.create(
-            ror='https://ror.org/02mb95055',
+            ror_id='02mb95055',
         )
         cls.name_bbk_uol = core_models.OrganizationName.objects.create(
             value='Birkbeck, University of London',

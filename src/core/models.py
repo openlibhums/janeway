@@ -2027,11 +2027,10 @@ class OrganizationName(models.Model):
         return self.value
 
 
-def validate_ror(url):
-    ror = os.path.split(url)[-1]
+def validate_ror_id(ror_id):
     ror_regex = '^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
-    if not re.match(ror_regex, ror):
-        raise ValidationError(f'{ror} is not a valid ROR identifier')
+    if not re.match(ror_regex, ror_id):
+        raise ValidationError(f'{ror_id} is not a valid ROR identifier')
 
 
 class Organization(models.Model):
@@ -2042,11 +2041,11 @@ class Organization(models.Model):
         WITHDRAWN = 'withdrawn', _('Withdrawn')
         UNKNOWN = 'unknown', _('Unknown')
 
-    ror = models.URLField(
+    ror_id = models.CharField(
         blank=True,
-        validators=[validate_ror],
+        validators=[validate_ror_id],
         verbose_name='ROR',
-        help_text='Research Organization Registry identifier (URL)',
+        help_text='Non-URI form of Research Organization Registry identifier',
     )
     ror_status = models.CharField(
         blank=True,
@@ -2073,8 +2072,8 @@ class Organization(models.Model):
         ordering = ['ror_display__value']
         constraints = [
             models.UniqueConstraint(
-                fields=['ror'],
-                condition=~models.Q(ror__exact=''),
+                fields=['ror_id'],
+                condition=~models.Q(ror_id__exact=''),
                 name='filled_unique',
             )
         ]
@@ -2085,6 +2084,10 @@ class Organization(models.Model):
             str(self.location) if self.location else '',
         ]
         return ', '.join([element for element in elements if element])
+
+    @property
+    def uri(self):
+        return f'https://ror.org/{self.ror_id}' if self.ror_id else ''
 
     @property
     def name(self):
@@ -2180,7 +2183,7 @@ class Organization(models.Model):
                         affiliation__account=account,
                         affiliation__frozen_author=frozen_author,
                         affiliation__preprint_author=preprint_author,
-                        ror__exact='',
+                        ror_id__exact='',
                     )
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Otherwise, create a naive, disconnected record.
@@ -2216,7 +2219,7 @@ class Organization(models.Model):
         if the custom label is an exact match with a preferred ROR label,
         and if the country matches.
         """
-        if self.ror:
+        if self.ror_id:
             logger.warning(
                 "Cannot deduplicate Organization {{self.id}}: ROR present"
             )
@@ -2252,7 +2255,7 @@ class Organization(models.Model):
         See https://ror.readme.io/v2/docs/data-structure
         """
         organization, created = cls.objects.get_or_create(
-            ror=record.get('id', ''),
+            ror_id=os.path.split(record.get('id', ''))[-1],
         )
         organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
         last_modified = record.get("admin", {}).get("last_modified", {})
@@ -2307,7 +2310,7 @@ class Organization(models.Model):
         and records errors for exceptions raised during creation.
         https://ror.readme.io/v2/docs/data-dump
         """
-        organizations = cls.objects.exclude(ror="")
+        organizations = cls.objects.exclude(ror_id="")
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
             for file_info in zip_ref.infolist():

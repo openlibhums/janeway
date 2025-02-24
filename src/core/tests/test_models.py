@@ -442,7 +442,7 @@ class TestOrganizationModels(TestCase):
             country=cls.country_gb,
         )
         cls.organization_bbk = models.Organization.objects.create(
-            ror='https://ror.org/02mb95055',
+            ror_id='02mb95055',
         )
         cls.name_bbk_uol = models.OrganizationName.objects.create(
             value='Birkbeck, University of London',
@@ -466,7 +466,7 @@ class TestOrganizationModels(TestCase):
         )
         cls.organization_bbk.locations.add(cls.location_london)
         cls.organization_rae = models.Organization.objects.create(
-            ror='https://ror.org/0n7v1dg93',
+            ror_id='0n7v1dg93',
         )
         cls.name_rae = models.OrganizationName.objects.create(
             value='Royal Aircraft Establishment',
@@ -476,7 +476,7 @@ class TestOrganizationModels(TestCase):
         )
         cls.organization_rae.locations.add(cls.location_farnborough)
         cls.organization_brp = models.Organization.objects.create(
-            ror='https://ror.org/0w7120h04',
+            ror_id='0w7120h04',
         )
         cls.name_brp = models.OrganizationName.objects.create(
             value='British Rubber Producers',
@@ -691,16 +691,14 @@ class TestOrganizationModels(TestCase):
 
     def test_ror_validation(self):
         for invalid_ror in [
-            # URLValidator
-            '0v2w8z018',
+            '0123456789',
+            '0lu42o079',
+            'abcdefghj',
             'ror.org/0v2w8z018',
-             # validate_ror
-            'https://ror.org/0123456789',
-            'https://ror.org/0lu42o079',
-            'https://ror.org/abcdefghj',
+            'https://ror.org/0v2w8z018',
         ]:
             with self.assertRaises(ValidationError):
-                org = models.Organization.objects.create(ror=invalid_ror)
+                org = models.Organization.objects.create(ror_id=invalid_ror)
                 org.clean_fields()
 
     def test_account_affiliation_with_primary(self):

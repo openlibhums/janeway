@@ -4,8 +4,8 @@
   {% if affiliation.title_department %}
     <span>{{ affiliation.title_department }},</span>
   {% endif %}
-  {% if affiliation.organization.ror %}
-  <a href="{{ affiliation.organization.ror }}" target="_blank">
+  {% if affiliation.organization.ror_id %}
+  <a href="{{ affiliation.organization.uri }}" target="_blank">
     {{ affiliation.organization }}
     <span class="show-for-sr">(opens in new tab)</span>
     <img
