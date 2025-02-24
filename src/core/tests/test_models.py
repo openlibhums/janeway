@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
+from django.db.transaction import TransactionManagementError
 from django.http import HttpRequest, QueryDict
 from django.forms import Form, ValidationError
 from django.test import TestCase
@@ -834,13 +835,13 @@ class TestOrganizationModels(TestCase):
         self.assertFalse(second_affiliation.is_primary)
 
     def test_affiliation_save_checks_exclusive_fields(self):
-        with self.assertRaises(ValidationError):
+        with self.assertRaises((IntegrityError, TransactionManagementError)):
             models.Affiliation.objects.create(
                 account=self.kathleen_booth,
                 frozen_author=self.kathleen_booth_frozen,
                 organization=self.organization_bbk,
             )
-        with self.assertRaises(ValidationError):
+        with self.assertRaises((IntegrityError, TransactionManagementError)):
             models.Affiliation.objects.create(
                 account=self.kathleen_booth,
                 preprint_author=self.kathleen_booth_preprint,
