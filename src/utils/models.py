@@ -442,6 +442,7 @@ class RORImport(models.Model):
         self.stopped = timezone.datetime.now()
         self.status = self.RORImportStatus.IS_FAILED
         self.save()
+        logger.exception(error)
         logger.error(error)
         RORImportError.objects.create(ror_import=self, messsage=error)
 
