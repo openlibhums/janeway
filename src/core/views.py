@@ -2994,7 +2994,8 @@ def affiliation_create(request, organization_id):
     Allows a user to create a new affiliation for themselves.
     """
 
-    organization = core_models.Organization.objects.get(
+    organization = get_object_or_404(
+        core_models.Organization,
         pk=organization_id,
     )
     form = forms.AccountAffiliationForm(
