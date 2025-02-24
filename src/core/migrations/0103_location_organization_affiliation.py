@@ -72,4 +72,8 @@ class Migration(migrations.Migration):
             model_name='organization',
             constraint=models.UniqueConstraint(condition=models.Q(('ror__exact', ''), _negated=True), fields=('ror',), name='filled_unique'),
         ),
+        migrations.AddConstraint(
+            model_name='affiliation',
+            constraint=models.CheckConstraint(check=models.Q(models.Q(('account__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('account__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('account__isnull', True), ('frozen_author__isnull', True)), _connector='OR'), name='exclusive_fields_constraint'),
+        ),
     ]
