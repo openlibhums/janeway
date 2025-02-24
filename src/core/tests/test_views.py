@@ -781,10 +781,7 @@ class AffiliationManagementTests(CoreViewTestsWithData):
         organization = core_models.Organization.objects.create()
 
         self.client.force_login(self.user)
-        post_data = {
-            'account': self.user.pk,
-            'organization': organization.pk,
-        }
+        post_data = { }
         url = f'/profile/organization/{organization.pk}/affiliation/create/'
         response = self.client.post(url, post_data, follow=True)
         self.assertIn(
@@ -799,20 +796,17 @@ class AffiliationManagementTests(CoreViewTestsWithData):
         self.assertTemplateUsed('admin/core/affiliation_update.html')
 
     def test_affiliation_update_post(self):
-        organization_umich = core_models.Organization.objects.create(
-            ror='https://ror.org/00jmfr291',
-        )
-
         self.client.force_login(self.user)
         post_data = {
-            'account': self.user.pk,
-            'organization': organization_umich.pk,
+            'title': 'New Job Title',
+            'department': 'New Department',
         }
         affil_id = self.affiliation.pk
         url = f'/profile/affiliation/{affil_id}/update/'
         response = self.client.post(url, post_data, follow=True)
         self.affiliation.refresh_from_db()
-        self.assertEqual(self.affiliation.organization, organization_umich)
+        self.assertEqual(self.affiliation.title, 'New Job Title')
+        self.assertEqual(self.affiliation.department, 'New Department')
 
     def test_affiliation_delete_get(self):
         self.client.force_login(self.user)
