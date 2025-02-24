@@ -362,10 +362,10 @@ class RORImport(models.Model):
     A record of an import of ROR organization data into Janeway.
     """
     class RORImportStatus(models.TextChoices):
-        ONGOING = 'ongoing', _('Ongoing')
-        UNNECESSARY = 'unnecessary', _('Unnecessary')
-        SUCCESSFUL = 'successful', _('Successful')
-        FAILED = 'failed', _('Failed')
+        IS_ONGOING = 'is_ongoing', _('Ongoing')
+        IS_UNNECESSARY = 'is_unnecessary', _('Unnecessary')
+        IS_SUCCESSFUL = 'is_successful', _('Successful')
+        IS_FAILED = 'is_failed', _('Failed')
 
     started = models.DateTimeField(
         auto_now_add=True,
@@ -376,7 +376,7 @@ class RORImport(models.Model):
     )
     status = models.CharField(
         choices=RORImportStatus.choices,
-        default=RORImportStatus.ONGOING,
+        default=RORImportStatus.IS_ONGOING,
     )
     records = models.JSONField(
         default=dict,
@@ -401,7 +401,7 @@ class RORImport(models.Model):
     def new_download_needed(self):
         if not self.previous_import:
             return True
-        elif self.previous_import.status == self.RORImportStatus.FAILED:
+        elif self.previous_import.status == self.RORImportStatus.IS_FAILED:
             return True
         elif not self.source_data_created or self.source_data_created > self.previous_import.started:
             return True
@@ -440,14 +440,14 @@ class RORImport(models.Model):
 
     def fail(self, error):
         self.stopped = timezone.datetime.now()
-        self.status = self.RORImportStatus.FAILED
+        self.status = self.RORImportStatus.IS_FAILED
         self.save()
         logger.error(error)
         RORImportError.objects.create(ror_import=self, messsage=error)
 
     @property
-    def ongoing(self):
-        return self.status == self.RORImportStatus.ONGOING
+    def is_ongoing(self):
+        return self.status == self.RORImportStatus.IS_ONGOING
 
     def get_records(self):
         """
@@ -462,7 +462,7 @@ class RORImport(models.Model):
             self.records = response.json()
             self.save()
             if not self.new_download_needed:
-                self.status = self.RORImportStatus.ONGOING
+                self.status = self.RORImportStatus.IS_ONGOING
                 self.save()
         except requests.RequestException as error:
             self.fail(error)

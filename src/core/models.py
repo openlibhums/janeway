@@ -2316,7 +2316,7 @@ class Organization(models.Model):
                     data = json.loads(json_string)
                     data = ror_import.filter_new_records(data, organizations)
                     if len(data) == 0:
-                        ror_import.status = ror_import.RORImportStatus.UNNECESSARY
+                        ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
                     if limit:
                         data = data[:limit]
                     description = f"Importing {len(data)} ROR records"
