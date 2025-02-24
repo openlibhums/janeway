@@ -249,7 +249,7 @@ class AccountManager(BaseUserManager):
 
         # create or update affiliation
         if institution or department or country:
-            Affiliation.naive_get_or_create(
+            Affiliation.get_or_create_without_ror(
                 institution=institution,
                 department=department,
                 country=country,
@@ -444,7 +444,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @institution.setter
     def institution(self, value):
-        Affiliation.naive_get_or_create(institution=value, account=self)
+        Affiliation.get_or_create_without_ror(institution=value, account=self)
 
     @property
     def department(self):
@@ -463,7 +463,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @country.setter
     def country(self, value):
-        Affiliation.naive_get_or_create(country=value, account=self)
+        Affiliation.get_or_create_without_ror(country=value, account=self)
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -2137,7 +2137,7 @@ class Organization(models.Model):
         return self.names.exclude(ror_display_for=self)
 
     @classmethod
-    def naive_get_or_create(
+    def get_or_create_without_ror(
         cls,
         institution='',
         country='',
@@ -2480,7 +2480,7 @@ class Affiliation(models.Model):
             return affil if obj else str(affil)
 
     @classmethod
-    def naive_get_or_create(
+    def get_or_create_without_ror(
         cls,
         institution='',
         department='',
@@ -2505,7 +2505,7 @@ class Affiliation(models.Model):
         :type frozen_author: submission.models.FrozenAuthor
         :type preprint_author: repository.models.PreprintAuthor
         """
-        organization, _created = Organization.naive_get_or_create(
+        organization, _created = Organization.get_or_create_without_ror(
             institution=institution,
             country=country,
             account=account,
@@ -2540,7 +2540,7 @@ class Affiliation(models.Model):
     ):
         """
         Backwards-compatible API for setting department names in isolation.
-        It is better to use Affiliation.naive_get_or_create where department
+        It is better to use Affiliation.get_or_create_without_ror where department
         is set togther with institution and country.
         Does not support ORCIDs, RORs or multiple affiliations.
         """

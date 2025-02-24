@@ -847,8 +847,8 @@ class TestOrganizationModels(TestCase):
                 organization=self.organization_bbk,
             )
 
-    def test_affiliation_naive_get_or_create(self):
-        affiliation, _created = models.Affiliation.naive_get_or_create(
+    def test_affiliation_get_or_create_without_ror(self):
+        affiliation, _created = models.Affiliation.get_or_create_without_ror(
             institution='Birkbeck Coll',
             department='Computer Sci',
             country='GB',

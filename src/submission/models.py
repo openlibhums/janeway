@@ -1947,7 +1947,7 @@ class FrozenAuthorManager(models.Manager):
 
         # create or update affiliation
         if institution or department or country:
-            Affiliation.naive_get_or_create(
+            Affiliation.get_or_create_without_ror(
                 institution=institution,
                 department=department,
                 country=country,
@@ -2049,7 +2049,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @institution.setter
     def institution(self, value):
-        core_models.Affiliation.naive_get_or_create(
+        core_models.Affiliation.get_or_create_without_ror(
             institution=value,
             frozen_author=self
         )
@@ -2074,7 +2074,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @country.setter
     def country(self, value):
-        core_models.Affiliation.naive_get_or_create(
+        core_models.Affiliation.get_or_create_without_ror(
             country=value,
             frozen_author=self
         )
