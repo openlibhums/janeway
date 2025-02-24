@@ -907,7 +907,7 @@ class PreprintAuthorManager(models.Manager):
 
         # create or update affiliation
         if affiliation:
-            Affiliation.naive_get_or_create(
+            Affiliation.get_or_create_without_ror(
                 institution=affiliation,
                 preprint_author=preprint_author,
             )
@@ -945,7 +945,7 @@ class PreprintAuthor(models.Model):
 
     @affiliation.setter
     def affiliation(self, value):
-        core_models.Affiliation.naive_get_or_create(
+        core_models.Affiliation.get_or_create_without_ror(
             institution=value,
             preprint_author=self,
         )
