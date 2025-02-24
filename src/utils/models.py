@@ -17,6 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
 from utils.logger import get_logger
 from utils.shared import get_ip_address
