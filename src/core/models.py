@@ -1671,7 +1671,17 @@ BASE_ELEMENTS = [
      'handshake_url': 'publish',
      'jump_url': 'publish_article',
      'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
-     'article_url': True}
+     'article_url': True},
+    {'name': 'production',
+     'handshake_url': 'production_list',
+     'jump_url': 'production_article',
+     'stage': submission_models.STAGE_TYPESETTING,
+     'article_url': False},
+    {'name': 'proofing',
+     'handshake_url': 'proofing_list',
+     'jump_url': 'proofing_article',
+     'stage': submission_models.STAGE_PROOFING,
+     'article_url': False},
 ]
 
 BASE_ELEMENT_NAMES = [
