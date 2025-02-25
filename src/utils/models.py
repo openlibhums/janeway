@@ -497,7 +497,8 @@ class RORImport(models.Model):
         except requests.RequestException as error:
             self.fail(error)
 
-    def filter_new_records(self, ror_data, existing_rors):
+    @staticmethod
+    def filter_new_records(ror_data, existing_rors):
         """
         Finds records from the data dump that are new to Janeway,
         either because no earlier ROR import put them in Janeway,
@@ -510,7 +511,8 @@ class RORImport(models.Model):
                 filtered_data.append(record)
         return filtered_data
 
-    def filter_updated_records(self, ror_data, existing_rors):
+    @staticmethod
+    def filter_updated_records(ror_data, existing_rors):
         """
         Finds records from the data dump that Janeway already has,
         but which have been modified by ROR since the last Janeway import.

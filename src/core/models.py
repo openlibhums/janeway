@@ -2136,9 +2136,14 @@ class OrganizationManager(models.Manager):
             ror_import.save()
 
         # Import new records
-        Location.objects.bulk_create_from_ror(new_records)
-        Organization.objects.bulk_create_from_ror(new_records)
-        OrganizationName.objects.bulk_create_from_ror(new_records)
+        if new_records:
+            Location.objects.bulk_create_from_ror(new_records)
+            Organization.objects.bulk_create_from_ror(new_records)
+            OrganizationName.objects.bulk_create_from_ror(new_records)
+
+        # Update modified records
+        if updated_records:
+            Location.objects.bulk_update_from_ror(new_records)
 
 
 def validate_ror_id(ror_id):
@@ -2692,7 +2697,7 @@ class LocationManager(models.Manager):
         """
         Bulk creates location objects for which a matching Geonames ID
         is not found in Janeway.
-        Defensively guards against duplicate locations because the input
+        Guards against duplicate locations because the input
         ror_records will only have been filtered
         at the organization level, not the location level.
         """
@@ -2703,7 +2708,7 @@ class LocationManager(models.Manager):
             country.code: country for country in Country.objects.all()
         }
         new_locations = []
-        description = f"Importing locations from {len(ror_records)} new records"
+        description = f"Importing new locations from {len(ror_records)} records"
         for record in tqdm.tqdm(ror_records, desc=description):
             for record_location in record.get('locations'):
                 geonames_id = record_location.get('geonames_id')
@@ -2722,6 +2727,55 @@ class LocationManager(models.Manager):
                     )
                     current_geonames_ids.add(geonames_id)
         return Location.objects.bulk_create(new_locations)
+
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates location objects for which a matching Geonames ID
+        is found in Janeway.
+        Also handles new location objects by calling Location.bulk_create_from_ror;
+        this is needed when a ROR record has been modified by the addition of
+        new locations.
+        """
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in self.all() if loc.geonames_id
+        }
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        locations_to_update = []
+        ror_records_with_new_loc = []
+        fields_to_update = set()
+        description = f"Updating locations from {len(ror_records)} modified records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if not geonames_id:
+                    break
+                if geonames_id in locations_by_geonames_id:
+                    details = record_location.get('geonames_details', {})
+                    location = locations_by_geonames_id[geonames_id]
+                    country = countries_by_code.get(
+                        details.get('country_code', '')
+                    )
+                    if location.name != details.get('name', ''):
+                        location.name = details.get('name', '')
+                        fields_to_update.add('name')
+                    if location.country != country:
+                        location.country = country
+                        fields_to_update.add('country')
+                    locations_to_update.append(location)
+                elif geonames_id not in locations_by_geonames_id:
+                    ror_records_with_new_loc.append(record)
+        if ror_records_with_new_loc:
+            Location.objects.bulk_create_from_ror(ror_records_with_new_loc)
+        if locations_to_update and fields_to_update:
+            updated_locations = Location.objects.bulk_update(
+                locations_to_update,
+                fields_to_update,
+            )
+        else:
+            updated_locations = []
+        return updated_locations
 
 
 class Location(models.Model):
