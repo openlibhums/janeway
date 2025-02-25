@@ -388,7 +388,7 @@ class RORImport(models.Model):
         verbose_name_plural = 'ROR imports'
 
     def __str__(self):
-        return f'{self.status} RORImport started { self.started }'
+        return f'{self.get_status_display()} RORImport started { self.started }'
 
     @property
     def previous_import(self):
@@ -444,7 +444,7 @@ class RORImport(models.Model):
         self.save()
         logger.exception(error)
         logger.error(error)
-        RORImportError.objects.create(ror_import=self, messsage=error)
+        RORImportError.objects.create(ror_import=self, message=error)
 
     @property
     def is_ongoing(self):
