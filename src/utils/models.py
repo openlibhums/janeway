@@ -497,20 +497,30 @@ class RORImport(models.Model):
         except requests.RequestException as error:
             self.fail(error)
 
-    def filter_new_records(self, ror_data, organizations):
+    def filter_new_records(self, ror_data, existing_rors):
         """
-        Finds new records from the data dump based on
-        ROR's last_modified time stamp.
+        Finds records from the data dump that are new to Janeway,
+        either because no earlier ROR import put them in Janeway,
+        or because they have been recently added to the dump by ROR.
         """
-        timestamps = {}
-        for ror_id, ts in organizations.values_list("ror_id", "ror_record_timestamp"):
-            timestamps[ror_id] = ts
         filtered_data = []
-        for record in tqdm.tqdm(ror_data, desc="Finding new or updated ROR records"):
+        for record in tqdm.tqdm(ror_data, desc="Finding new ROR records"):
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            if ror_id and ror_id not in existing_rors:
+                filtered_data.append(record)
+        return filtered_data
+
+    def filter_updated_records(self, ror_data, existing_rors):
+        """
+        Finds records from the data dump that Janeway already has,
+        but which have been modified by ROR since the last Janeway import.
+        """
+        filtered_data = []
+        for record in tqdm.tqdm(ror_data, desc="Finding updated ROR records"):
             ror_id = os.path.split(record.get('id', ''))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
             timestamp = last_modified.get("date", "")
-            if ror_id and timestamp and timestamp > timestamps.get(ror_id, ''):
+            if ror_id and timestamp and timestamp > existing_rors.get(ror_id, ''):
                 filtered_data.append(record)
         return filtered_data
 

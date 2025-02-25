@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
         # The data is all downloaded and ready to import.
         if ror_import.is_ongoing:
-            Organization.import_ror_batch(
+            Organization.objects.manage_ror_import(
                 ror_import,
                 limit=limit,
             )

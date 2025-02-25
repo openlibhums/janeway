@@ -1957,6 +1957,36 @@ hijack_started.connect(log_hijack_started)
 hijack_ended.connect(log_hijack_ended)
 
 
+class OrganizationNameManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organization_names = []
+        description = f"Importing org names from {len(ror_records)} new records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            for name in record.get('names'):
+                kwargs = {}
+                kwargs['value'] = name.get('value', '')
+                if name.get('lang'):
+                    kwargs['language'] = name.get('language', '')
+                if 'ror_display' in name.get('types'):
+                    kwargs['ror_display_for'] = organization
+                if 'label' in name.get('types'):
+                    kwargs['label_for'] = organization
+                if 'alias' in name.get('types'):
+                    kwargs['alias_for'] = organization
+                if 'acronym' in name.get('types'):
+                    kwargs['acronym_for'] = organization
+                organization_names.append(OrganizationName(**kwargs))
+        return OrganizationName.objects.bulk_create(organization_names)
+
+
 class OrganizationName(models.Model):
     value = models.CharField(
         max_length=1000,
@@ -2009,9 +2039,106 @@ class OrganizationName(models.Model):
         blank=True,
         choices=submission_models.LANGUAGE_CHOICES,
     )
+    objects = OrganizationNameManager()
 
     def __str__(self):
         return self.value
+
+
+class OrganizationManager(models.Manager):
+
+    def ror_ids_and_timestamps(self):
+        ror_ids_and_timestamps = {}
+        organizations = self.exclude(ror_id="")
+        for ror_id, ts in organizations.values_list("ror_id", "ror_record_timestamp"):
+            ror_ids_and_timestamps[ror_id] = ts
+        return ror_ids_and_timestamps
+
+    def bulk_create_from_ror(self, ror_records):
+        # Bulk create organizations
+        new_organizations = []
+        description = f"Importing organizations from {len(ror_records)} new records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            new_organizations.append(
+                Organization(
+                    ror_id=ror_id,
+                    ror_status=ror_status,
+                    ror_record_timestamp=last_modified.get("date", ""),
+                    website=website,
+                )
+            )
+        organizations = self.bulk_create(new_organizations)
+
+        # Add locations to the m2m field
+        location_ids_by_geonames_id = {
+            loc.geonames_id: loc.pk for loc in Location.objects.filter(
+                geonames_id__isnull=False,
+            )
+        }
+        organization_ids_by_ror_id = {
+            org.ror_id: org.pk for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organization_location_links = []
+        description = f"Linking locations from {len(ror_records)} new records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if geonames_id:
+                    location_id = location_ids_by_geonames_id[geonames_id]
+                    ror_id = os.path.split(record.get('id', ''))[-1]
+                    organization_id = organization_ids_by_ror_id[ror_id]
+                    organization_location_links.append(
+                        Organization.locations.through(
+                            organization_id=organization_id,
+                            location_id=location_id,
+                        )
+                    )
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links
+        )
+        return organizations
+
+    def manage_ror_import(self, ror_import, limit=0):
+        """
+        Opens a previously downloaded data dump from
+        ROR's Zenodo endpoint, processes the records,
+        and records errors for exceptions raised during creation.
+        https://ror.readme.io/v2/docs/data-dump
+        """
+        existing_rors = self.ror_ids_and_timestamps()
+        num_errors_before = RORImportError.objects.count()
+        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('v2.json'):
+                    string = zip_ref.read(file_info).decode()
+                    if limit:
+                        records = json.loads(string)[:limit]
+                    else:
+                        records = json.loads(string)
+                    break
+        new_records = ror_import.filter_new_records(records, existing_rors)
+        updated_records = ror_import.filter_updated_records(
+            records,
+            existing_rors,
+        )
+        if not new_records or not updated_records:
+            ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
+            ror_import.save()
+
+        # Import new records
+        Location.objects.bulk_create_from_ror(new_records)
+        Organization.objects.bulk_create_from_ror(new_records)
+        OrganizationName.objects.bulk_create_from_ror(new_records)
 
 
 def validate_ror_id(ror_id):
@@ -2054,6 +2181,7 @@ class Organization(models.Model):
         blank=True,
         null=True,
     )
+    objects = OrganizationManager()
 
     class Meta:
         ordering = ['ror_display__value']
@@ -2558,6 +2686,44 @@ class Affiliation(models.Model):
         super().save(*args, **kwargs)
 
 
+class LocationManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        """
+        Bulk creates location objects for which a matching Geonames ID
+        is not found in Janeway.
+        Defensively guards against duplicate locations because the input
+        ror_records will only have been filtered
+        at the organization level, not the location level.
+        """
+        current_geonames_ids = set(
+            loc.geonames_id for loc in self.all() if loc.geonames_id
+        )
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        new_locations = []
+        description = f"Importing locations from {len(ror_records)} new records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if geonames_id and geonames_id not in current_geonames_ids:
+                    details = record_location.get('geonames_details', {})
+                    new_locations.append(
+                        Location(
+                            geonames_id=geonames_id,
+                            name=details.get('name', ''),
+                            country=countries_by_code.get(
+                                details.get('country_code', '')
+                            ),
+                            latitude=Decimal(details.get('lat')),
+                            longitude=Decimal(details.get('lng')),
+                        )
+                    )
+                    current_geonames_ids.add(geonames_id)
+        return Location.objects.bulk_create(new_locations)
+
+
 class Location(models.Model):
     name = models.CharField(
         max_length=200,
@@ -2586,6 +2752,7 @@ class Location(models.Model):
         blank=True,
         null=True,
     )
+    objects = LocationManager()
 
     def __str__(self):
         elements = [
