@@ -924,7 +924,37 @@ class TestOrganizationManagers(TestCase):
             self.assertTrue(
                 models.Organization.objects.filter(ror_id=ror_id).exists()
             )
+
+    def test_organization_bulk_link_locations_from_ror_add(self):
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
         self.assertTrue(
+            models.Organization.objects.filter(
+                ror_id='00j1xwp39',
+                locations__geonames_id=2618425,
+            ).exists()
+        )
+
+    def test_organization_bulk_link_locations_from_ror_remove(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+
+        # Effectively remove a location while adding another
+        self.ror_records[0]["locations"][0]["geonames_id"] = 123456789
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        self.assertFalse(
             models.Organization.objects.filter(
                 ror_id='00j1xwp39',
                 locations__geonames_id=2618425,
@@ -934,6 +964,9 @@ class TestOrganizationManagers(TestCase):
     def test_organization_name_bulk_create_from_ror(self):
         models.Location.objects.bulk_create_from_ror(self.ror_records)
         models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
         models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
         for name in [
             'Korea Institute of Fusion Energy',
@@ -989,4 +1022,20 @@ class TestOrganizationManagers(TestCase):
         self.assertEqual(
             models.Location.objects.get(geonames_id=123456789).name,
             "Copenhagen 2"
+        )
+
+    def test_organization_bulk_update_from_ror(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+
+        # Change one thing about the organization but not its ROR id
+        self.ror_records[0]["admin"]["last_modified"]["date"] = "2025-01-01"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_update_from_ror(self.ror_records)
+        self.assertEqual(
+            models.Organization.objects.get(ror_id='00j1xwp39').ror_record_timestamp,
+            "2025-01-01"
         )

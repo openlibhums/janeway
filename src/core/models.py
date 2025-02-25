@@ -2054,8 +2054,50 @@ class OrganizationManager(models.Manager):
             ror_ids_and_timestamps[ror_id] = ts
         return ror_ids_and_timestamps
 
+    def bulk_link_locations_from_ror(self, ror_records):
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in Location.objects.filter(
+                geonames_id__isnull=False,
+            )
+        }
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related('locations')
+        }
+        organization_location_links = []
+        description = f"Linking locations from {len(ror_records)} new records"
+        for record in tqdm.tqdm(ror_records, desc=description):
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            janeway_geonames_ids = set([
+                loc.geonames_id for loc in organization.locations.all()
+            ])
+            ror_geonames_ids = set([
+                loc.get('geonames_id') for loc in record.get('locations', [])
+            ])
+
+            # Unlink locations that have been removed from the record.
+            # Do this without a bulk operation because it is likely to be uncommon.
+            for geonames_id in janeway_geonames_ids - ror_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization.locations.remove(location)
+
+            # Link locations that have been added to the record.
+            for geonames_id in ror_geonames_ids - janeway_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization_location_links.append(
+                    Organization.locations.through(
+                        organization_id=organization.pk,
+                        location_id=location.pk,
+                    )
+                )
+
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links
+        )
+
     def bulk_create_from_ror(self, ror_records):
-        # Bulk create organizations
         new_organizations = []
         description = f"Importing organizations from {len(ror_records)} new records"
         for record in tqdm.tqdm(ror_records, desc=description):
@@ -2075,38 +2117,53 @@ class OrganizationManager(models.Manager):
                     website=website,
                 )
             )
-        organizations = self.bulk_create(new_organizations)
+        return self.bulk_create(new_organizations)
 
-        # Add locations to the m2m field
-        location_ids_by_geonames_id = {
-            loc.geonames_id: loc.pk for loc in Location.objects.filter(
-                geonames_id__isnull=False,
-            )
-        }
-        organization_ids_by_ror_id = {
-            org.ror_id: org.pk for org in self.filter(
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates organizations from ROR records.
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
                 ~models.Q(ror_id__exact="")
             )
         }
-        organization_location_links = []
-        description = f"Linking locations from {len(ror_records)} new records"
+        organizations_to_update = []
+        fields_to_update = set()
+        description = f"Updating organizations from {len(ror_records)} modified records"
         for record in tqdm.tqdm(ror_records, desc=description):
-            for record_location in record.get('locations'):
-                geonames_id = record_location.get('geonames_id')
-                if geonames_id:
-                    location_id = location_ids_by_geonames_id[geonames_id]
-                    ror_id = os.path.split(record.get('id', ''))[-1]
-                    organization_id = organization_ids_by_ror_id[ror_id]
-                    organization_location_links.append(
-                        Organization.locations.through(
-                            organization_id=organization_id,
-                            location_id=location_id,
-                        )
-                    )
-        Organization.locations.through.objects.bulk_create(
-            organization_location_links
-        )
-        return organizations
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            timestamp=last_modified.get("date", "")
+            if organization.ror_record_timestamp != timestamp:
+                organization.ror_record_timestamp = timestamp
+                fields_to_update.add('ror_record_timestamp')
+
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            if organization.website != website:
+                organization.website = website
+                fields_to_update.add('website')
+
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            if organization.ror_status != ror_status:
+                organization.ror_status = ror_status
+                fields_to_update.add('ror_status')
+
+            organizations_to_update.append(organization)
+
+        if organizations_to_update and fields_to_update:
+            return Organization.objects.bulk_update(
+                organizations_to_update,
+                fields_to_update,
+            )
+        else:
+            return []
 
     def manage_ror_import(self, ror_import, limit=0):
         """
@@ -2139,11 +2196,14 @@ class OrganizationManager(models.Manager):
         if new_records:
             Location.objects.bulk_create_from_ror(new_records)
             Organization.objects.bulk_create_from_ror(new_records)
+            Organization.objects.bulk_link_locations_from_ror(new_records)
             OrganizationName.objects.bulk_create_from_ror(new_records)
 
         # Update modified records
         if updated_records:
-            Location.objects.bulk_update_from_ror(new_records)
+            Location.objects.bulk_update_from_ror(updated_records)
+            Organization.objects.bulk_update_from_ror(updated_records)
+            Organization.objects.bulk_link_locations_from_ror(updated_records)
 
 
 def validate_ror_id(ror_id):
@@ -2769,13 +2829,12 @@ class LocationManager(models.Manager):
         if ror_records_with_new_loc:
             Location.objects.bulk_create_from_ror(ror_records_with_new_loc)
         if locations_to_update and fields_to_update:
-            updated_locations = Location.objects.bulk_update(
+            return Location.objects.bulk_update(
                 locations_to_update,
                 fields_to_update,
             )
         else:
-            updated_locations = []
-        return updated_locations
+            return []
 
 
 class Location(models.Model):
