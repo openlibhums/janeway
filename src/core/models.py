@@ -1966,8 +1966,8 @@ class OrganizationNameManager(models.Manager):
             )
         }
         organization_names = []
-        description = f"Importing org names from {len(ror_records)} new records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(f"Importing names from {len(ror_records)} new records")
+        for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
             for name in record.get('names'):
@@ -1985,6 +1985,63 @@ class OrganizationNameManager(models.Manager):
                     kwargs['acronym_for'] = organization
                 organization_names.append(OrganizationName(**kwargs))
         return OrganizationName.objects.bulk_create(organization_names)
+
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Finds records where the names have changed,
+        deletes those names in Janeway,
+        and sends those records through OrganizationName.bulk_create_from_ror
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related(
+                "labels"
+            ).prefetch_related(
+                "aliases"
+            ).prefetch_related(
+                "acronyms"
+            )
+        }
+
+        ror_records_with_updated_names = []
+        org_name_pks_to_delete = set()
+        logger.debug(f"Updating names from {len(ror_records)} modified records")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            # Note that this set does not need to include ror_display
+            # because all ror_display values are also labels in the
+            # ROR schema
+            janeway_names = set()
+            for name in organization.labels.all():
+                janeway_names.add(name)
+            for name in organization.aliases.all():
+                janeway_names.add(name)
+            for name in organization.acronyms.all():
+                janeway_names.add(name)
+
+            janeway_name_values = set([name.value for name in janeway_names])
+
+            ror_name_values = set([
+                name.get('value') for name in record.get('names', [])
+            ])
+
+            # Delete and recreate all authority-controlled names
+            # when the names differ between Janeway and ROR.
+            if janeway_name_values.difference(ror_name_values):
+                org_name_pks_to_delete.update(
+                    [name.pk for name in janeway_names]
+                )
+                ror_records_with_updated_names.append(record)
+
+        self.filter(pk__in=org_name_pks_to_delete).delete()
+
+        if ror_records_with_updated_names:
+            return self.bulk_create_from_ror(ror_records_with_updated_names)
+        else:
+            return []
 
 
 class OrganizationName(models.Model):
@@ -2066,8 +2123,8 @@ class OrganizationManager(models.Manager):
             ).prefetch_related('locations')
         }
         organization_location_links = []
-        description = f"Linking locations from {len(ror_records)} new records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(f"Linking locations from {len(ror_records)} new records")
+        for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
             janeway_geonames_ids = set([
@@ -2099,8 +2156,10 @@ class OrganizationManager(models.Manager):
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
-        description = f"Importing organizations from {len(ror_records)} new records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(
+            f"Importing organizations from {len(ror_records)} new records"
+        )
+        for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
             website = ''
@@ -2130,8 +2189,10 @@ class OrganizationManager(models.Manager):
         }
         organizations_to_update = []
         fields_to_update = set()
-        description = f"Updating organizations from {len(ror_records)} modified records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(
+            f"Updating organizations from {len(ror_records)} modified records"
+        )
+        for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
 
@@ -2172,7 +2233,7 @@ class OrganizationManager(models.Manager):
         and records errors for exceptions raised during creation.
         https://ror.readme.io/v2/docs/data-dump
         """
-        existing_rors = self.ror_ids_and_timestamps()
+        logger.debug(f"Running ROR import with limit={limit}")
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
             for file_info in zip_ref.infolist():
@@ -2183,27 +2244,56 @@ class OrganizationManager(models.Manager):
                     else:
                         records = json.loads(string)
                     break
-        new_records = ror_import.filter_new_records(records, existing_rors)
-        updated_records = ror_import.filter_updated_records(
-            records,
-            existing_rors,
-        )
-        if not new_records or not updated_records:
-            ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
-            ror_import.save()
 
-        # Import new records
+        new_records = ror_import.filter_new_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
         if new_records:
-            Location.objects.bulk_create_from_ror(new_records)
-            Organization.objects.bulk_create_from_ror(new_records)
-            Organization.objects.bulk_link_locations_from_ror(new_records)
-            OrganizationName.objects.bulk_create_from_ror(new_records)
+            try:
+                Location.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_link_locations_from_ror(new_records)
+                OrganizationName.objects.bulk_create_from_ror(new_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
 
         # Update modified records
+        updated_records = ror_import.filter_updated_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
         if updated_records:
-            Location.objects.bulk_update_from_ror(updated_records)
-            Organization.objects.bulk_update_from_ror(updated_records)
-            Organization.objects.bulk_link_locations_from_ror(updated_records)
+            try:
+                Location.objects.bulk_update_from_ror(updated_records)
+                Organization.objects.bulk_update_from_ror(updated_records)
+                Organization.objects.bulk_link_locations_from_ror(
+                    updated_records
+                )
+                OrganizationName.objects.bulk_update_from_ror(updated_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
+
+        if not new_records and not updated_records:
+            ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
+        else:
+            ror_import.status = ror_import.RORImportStatus.IS_SUCCESSFUL
+        ror_import.stopped = timezone.now()
+        ror_import.save()
+
+        num_errors_after = RORImportError.objects.count()
+        if num_errors_after > num_errors_before:
+            logger.warn(
+                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+            )
 
 
 def validate_ror_id(ror_id):
@@ -2426,97 +2516,6 @@ class Organization(models.Model):
                 organization=matches.first(),
             )
             self.delete()
-
-    @classmethod
-    def create_from_ror_record(cls, record):
-        """
-        Creates one organization object in Janeway from a ROR JSON record,
-        using version 2 of the ROR Schema.
-        See https://ror.readme.io/v2/docs/data-structure
-        """
-        organization, created = cls.objects.get_or_create(
-            ror_id=os.path.split(record.get('id', ''))[-1],
-        )
-        organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
-        last_modified = record.get("admin", {}).get("last_modified", {})
-        organization.ror_record_timestamp = last_modified.get("date", "")
-        for link in record.get('links', []):
-            if link.get('type') == 'website':
-                organization.website = link.get('value', '')
-                break
-        organization.save()
-
-        for name in record.get('names'):
-            kwargs = {}
-            kwargs['value'] = name.get('value', '')
-            if name.get('lang'):
-                kwargs['language'] = name.get('language', '')
-            if 'ror_display' in name.get('types'):
-                kwargs['ror_display_for'] = organization
-            if 'label' in name.get('types'):
-                kwargs['label_for'] = organization
-            if 'alias' in name.get('types'):
-                kwargs['alias_for'] = organization
-            if 'acronym' in name.get('types'):
-                kwargs['acronym_for'] = organization
-            OrganizationName.objects.get_or_create(**kwargs)
-
-        for record_location in record.get('locations'):
-            geonames_id = record_location.get('geonames_id')
-            if geonames_id:
-                location, created = Location.objects.get_or_create(
-                    geonames_id=geonames_id,
-                )
-            else:
-                location = Location.objects.create()
-                created = True
-            if created:
-                details = record_location.get('geonames_details', {})
-                location.name = details.get('name', '')
-                country, created = Country.objects.get_or_create(
-                    code=details.get('country_code', ''),
-                )
-                location.country = country
-                location.latitude = Decimal(details.get('lat'))
-                location.longitude = Decimal(details.get('lng'))
-                location.save()
-            organization.locations.add(location)
-
-    @classmethod
-    def import_ror_batch(cls, ror_import, limit=0):
-        """
-        Opens a previously downloaded data dump from
-        ROR's Zenodo endpoint, processes the records,
-        and records errors for exceptions raised during creation.
-        https://ror.readme.io/v2/docs/data-dump
-        """
-        organizations = cls.objects.exclude(ror_id="")
-        num_errors_before = RORImportError.objects.count()
-        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
-            for file_info in zip_ref.infolist():
-                if file_info.filename.endswith('v2.json'):
-                    json_string = zip_ref.read(file_info).decode(encoding="utf-8")
-                    data = json.loads(json_string)
-                    data = ror_import.filter_new_records(data, organizations)
-                    if len(data) == 0:
-                        ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
-                    if limit:
-                        data = data[:limit]
-                    description = f"Importing {len(data)} ROR records"
-                    for item in tqdm.tqdm(data, desc=description):
-                        try:
-                            cls.create_from_ror_record(item)
-                        except Exception as error:
-                            message = f'{type(error)}: {error}\n{json.dumps(item)}'
-                            RORImportError.objects.create(
-                                ror_import=ror_import,
-                                message=message,
-                            )
-        num_errors_after = RORImportError.objects.count()
-        if num_errors_after > num_errors_before:
-            logger.warn(
-                f'ROR import errors logged: { num_errors_after - num_errors_before }'
-            )
 
 
 class Affiliation(models.Model):
@@ -2768,8 +2767,10 @@ class LocationManager(models.Manager):
             country.code: country for country in Country.objects.all()
         }
         new_locations = []
-        description = f"Importing new locations from {len(ror_records)} records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(
+            f"Importing new locations from {len(ror_records)} records"
+        )
+        for record in ror_records:
             for record_location in record.get('locations'):
                 geonames_id = record_location.get('geonames_id')
                 if geonames_id and geonames_id not in current_geonames_ids:
@@ -2805,8 +2806,10 @@ class LocationManager(models.Manager):
         locations_to_update = []
         ror_records_with_new_loc = []
         fields_to_update = set()
-        description = f"Updating locations from {len(ror_records)} modified records"
-        for record in tqdm.tqdm(ror_records, desc=description):
+        logger.debug(
+            f"Updating locations from {len(ror_records)} modified records"
+        )
+        for record in ror_records:
             for record_location in record.get('locations'):
                 geonames_id = record_location.get('geonames_id')
                 if not geonames_id:

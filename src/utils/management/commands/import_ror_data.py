@@ -30,7 +30,7 @@ class Command(BaseCommand):
         limit = options.get("limit", 0)
         if not limit and settings.DEBUG:
             limit = 100
-            logger.info(
+            logger.debug(
                 f"Setting ROR import limit to {limit} while settings.DEBUG. "
                 "Override by passing --limit to import_ror_data."
             )
@@ -45,6 +45,8 @@ class Command(BaseCommand):
                 ror_import.download_data()
             elif ror_import.previous_import.zip_path != ror_import.zip_path:
                 ror_import.download_data()
+            else:
+                logger.debug("The latest ROR data has already been downloaded")
 
         # The data is all downloaded and ready to import.
         if ror_import.is_ongoing:
@@ -52,12 +54,7 @@ class Command(BaseCommand):
                 ror_import,
                 limit=limit,
             )
-
-        ror_import.stopped = timezone.now()
-        ror_import.save()
-        # The process did not error out, so it can be considered a success.
-        if ror_import.is_ongoing:
-            ror_import.status = ror_import.RORImportStatus.IS_SUCCESSFUL
-            ror_import.save()
-
-        logger.info(f'Status: { ror_import.get_status_display() }')
+        logger.debug(
+            f'ROR import exited with status: '
+            f'{ ror_import.get_status_display() }'
+        )

@@ -1039,3 +1039,25 @@ class TestOrganizationManagers(TestCase):
             models.Organization.objects.get(ror_id='00j1xwp39').ror_record_timestamp,
             "2025-01-01"
         )
+
+    def test_organization_name_bulk_update_from_ror(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records,
+        )
+        models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
+
+        # Change one thing about the organization name but not its ROR id
+        self.ror_records[0]["names"][0]["value"] = "Copenhagen School of Design"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_update_from_ror(self.ror_records)
+        models.OrganizationName.objects.bulk_update_from_ror(self.ror_records)
+        organization = models.Organization.objects.get(ror_id='00j1xwp39')
+        self.assertEqual(
+            organization.ror_display.value,
+            "Copenhagen School of Design"
+        )

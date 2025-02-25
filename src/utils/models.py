@@ -456,6 +456,7 @@ class RORImport(models.Model):
         anything new. If the previous import failed or there is new data,
         the import is marked as ongoing.
         """
+        logger.debug("Checking for availability of new ROR data")
         records_url = 'https://zenodo.org/api/communities/ror-data/records?sort=newest'
         try:
             response = requests.get(records_url, timeout=settings.HTTP_TIMEOUT_SECONDS)
@@ -470,7 +471,6 @@ class RORImport(models.Model):
 
     def delete_previous_download(self):
         if not self.previous_import:
-            logger.debug('No previous import to remove.')
             return
         try:
             os.unlink(self.previous_import.zip_path)
@@ -482,6 +482,7 @@ class RORImport(models.Model):
         Downloads the current data dump from Zenodo.
         Then removes previous files to save space.
         """
+        logger.debug("Downloading new ROR data")
         try:
             response = requests.get(
                 self.download_link,
@@ -505,10 +506,14 @@ class RORImport(models.Model):
         or because they have been recently added to the dump by ROR.
         """
         filtered_data = []
-        for record in tqdm.tqdm(ror_data, desc="Finding new ROR records"):
+        for record in ror_data:
             ror_id = os.path.split(record.get('id', ''))[-1]
             if ror_id and ror_id not in existing_rors:
                 filtered_data.append(record)
+        if len(filtered_data) > 0:
+            logger.debug("New ROR records found")
+        else:
+            logger.debug("No new ROR records found")
         return filtered_data
 
     @staticmethod
@@ -518,12 +523,16 @@ class RORImport(models.Model):
         but which have been modified by ROR since the last Janeway import.
         """
         filtered_data = []
-        for record in tqdm.tqdm(ror_data, desc="Finding updated ROR records"):
+        for record in ror_data:
             ror_id = os.path.split(record.get('id', ''))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
             timestamp = last_modified.get("date", "")
             if ror_id and timestamp and timestamp > existing_rors.get(ror_id, ''):
                 filtered_data.append(record)
+        if len(filtered_data) > 0:
+            logger.debug("Updated ROR records found")
+        else:
+            logger.debug("No updated ROR records found")
         return filtered_data
 
 
