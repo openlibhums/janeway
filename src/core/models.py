@@ -1670,6 +1670,16 @@ BASE_ELEMENTS = [
      'jump_url': 'article_copyediting',
      'stage': submission_models.STAGE_EDITOR_COPYEDITING,
      'article_url': True},
+    {'name': 'typesetting',
+     'handshake_url': 'typesetting_articles',
+     'jump_url': 'typesetting_article',
+     'stage': submission_models.STAGE_TYPESETTING_PLUGIN,
+     'article_url': True},
+    {'name': 'prepublication',
+     'handshake_url': 'publish',
+     'jump_url': 'publish_article',
+     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
+     'article_url': True},
     {'name': 'production',
      'handshake_url': 'production_list',
      'jump_url': 'production_article',
@@ -1680,11 +1690,6 @@ BASE_ELEMENTS = [
      'jump_url': 'proofing_article',
      'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
-    {'name': 'prepublication',
-     'handshake_url': 'publish',
-     'jump_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
-     'article_url': True}
 ]
 
 BASE_ELEMENT_NAMES = [

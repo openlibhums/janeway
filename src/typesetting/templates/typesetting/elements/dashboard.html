@@ -1,0 +1,25 @@
+{% load roles %}
+{% load role_count %}
+{% user_has_role request 'typesetter' as typesetter %}
+{% user_has_role request 'proofreader' as proofreader %}
+{% user_has_role request 'editor' as editor %}
+{% user_has_role request 'production' as production %}
+
+{% typesetting_tasks_count as num_typesetting_tasks %}
+{% proofreading_tasks_count as num_proofreading_tasks %}
+{% articles_in_stage_count as num_articles_in_stage %}
+
+<div class="large-4 columns end" data-equalizer-watch>
+    <div class="box">
+        <div class="title-area">
+            <h2>Typesetting</h2>
+        </div>
+        <div class="content">
+            <div class="button-group stacked">
+                {% if editor or production %}<a href="{% url 'typesetting_articles' %}" class="button success">There {% if num_articles_in_stage == 1 %}is{% else %}are{% endif %} {{ num_articles_in_stage }} article{% if num_articles_in_stage != 1 %}s{% endif %} in Typesetting</a>{% endif %}
+                {% if typesetter %}<a href="{% url 'typesetting_assignments' %}" class="button alert">You have {{ num_typesetting_tasks }} Typesetting task{% if num_typesetting_tasks != 1 %}s{% endif %}</a>{% endif %}
+                {% if proofreader or is_author %}<a href="{% url 'typesetting_proofreading_assignments' %}" class="button warning">You have {{ num_proofreading_tasks }} Proofreading task{% if num_proofreading_tasks != 1 %}s{% endif %}</a>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<table class="scroll small" id="proofreader">
+    <thead>
+    <tr>
+        <th>Select</th>
+        <th>Name</th>
+        <th>Email Address</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for proofreader in proofreaders %}
+        <tr>
+            <th>
+                <input
+                    type="radio"
+                    name="proofreader"
+                    {% if form.cleaned_data.proofreader.id == proofreader.id or proofreader.id == assignment.proofreader.pk %}
+                        checked="checked"
+                    {% endif %}
+                    value="{{ proofreader.id }}">
+            </th>
+            <td>
+              {{ proofreader.full_name }}
+              {% if proofreader in article.authors.all %}
+                <div class="label secondary">
+                  <span class="fa fa-user"></span>
+                  Author
+                </div>
+              {% endif %}
+            </td>
+            <td>{{ proofreader.email }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="3">No suitable proofreaders.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

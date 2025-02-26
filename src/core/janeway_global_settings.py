@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'security',
     'submission',
     'transform',
+    'typesetting',
     'utils',
     'workflow',
 

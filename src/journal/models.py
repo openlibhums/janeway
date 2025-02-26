@@ -546,7 +546,10 @@ class Journal(AbstractSiteModel):
 
     def element_in_workflow(self, element_name):
         try:
-            element = core_models.WorkflowElement.objects.get(element_name=element_name, journal=self)
+            element = core_models.WorkflowElement.objects.get(
+                element_name=element_name,
+                journal=self,
+            )
             if element in self.workflow().elements.all():
                 return True
             else:

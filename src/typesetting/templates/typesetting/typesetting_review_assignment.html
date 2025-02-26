@@ -1,0 +1,178 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load static %}
+
+
+{% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Reviewing Assignment #{{ assignment.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="row expanded">
+    <div class="large-12 columns">
+      <div class="box">
+        <div class="title-area">
+          <h2>Typesetting worked on
+            by {{ assignment.typesetter.full_name }}</h2>
+          <a href="{% url 'typesetting_article' article.pk %}" class="button"><
+            Back</a>
+        </div>
+        <div class="content">
+          <table class="table small">
+            <tr>
+              <th>ID</th>
+              <th>Manager</th>
+              <th>Created</th>
+              <th>Due</th>
+              <th>Accepted</th>
+              <th>Completed</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>{{ assignment.pk }}</td>
+              <td>{{ assignment.manager.full_name }}</td>
+              <td>{{ assignment.assigned|date }}</td>
+              <td>{{ assignment.due|date }}</td>
+              <td>{{ assignment.accepted|date }}</td>
+              <td>{% if assignment.completed %}
+                {{ assignment.completed|date }}{% else %}
+                {{ assignment.completed|bool_fa }}{% endif %}</td>
+              <td>{{ assignment.status|capfirst }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="title-area">
+          <h2>Typesetting Task</h2>
+        </div>
+        <div class="content">
+          {{ assignment.task|safe|default:"No typesetting task was recorded." }}
+        </div>
+        {% if assignment.accepted %}
+        <div class="title-area">
+          <h2>Note from Typesetter</h2>
+        </div>
+        <div class="content">
+          {{ assignment.typesetter_note|safe|default:"No typesetter note was recorded." }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row expanded">
+    <div class="large-12 columns">
+      <div class="box">
+        <div class="title-area">
+          <h2>Files</h2>
+        </div>
+        <div class="content">
+          <p><small>These are the files that the typesetter was given access to during this round of typesetting.</small></p>
+          {% include "typesetting/elements/file_list.html" with files=assignment.files_to_typeset.all input_name="files_to_typeset" %}
+        </div>
+        <div class="content">
+          {% include "typesetting/elements/galleys_with_help_text.html" with disable_upload="y" %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+              <div class="title-area">
+                <h2>Manage Assignment</h2>
+              </div>
+              <div class="content">
+              <form id="review_assignment" method="POST">
+                {% csrf_token %}
+                {% include "elements/forms/errors.html" %}
+                {% if not assignment.accepted and not assignment.declined %}
+                  {% include 'typesetting/elements/typesetting_assignment_fields.html' %}
+                  <button
+                      class="button success"
+                      name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
+                      Save Changes
+                  </button>
+                  <button class="button alert" name="delete" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete Assignment</button>
+                {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
+                    {% if pending_corrections %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some typeset files</h4>
+                        <ul >
+                          {% for correction in pending_corrections %}
+                           {% if correction.galley %}
+                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</p></li>
+                           {% else %}
+                           <li><p>A file with label {{ correction.label }} has been deleted, if this is not expected, check that the typesetter has uploaded a new file <a class="button success small float-right" href={% url 'typesetting_delete_correction' correction.pk %}>Dismiss</a></p></li>
+                           {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <button class="button warning" name="reopen">Reopen Assignment</button>
+                    {% endif %}
+                    <div class="content">
+                        <p><small>Now that the typesetter has completed their task you can review the uploaded typeset files and make a decision about next steps. The typeset files for this article are listed below.</small></p>
+                        <div class="row expanded">
+                            <div class="large-6 columns">
+                                {{ decision_form }}
+                                <button name="decision" class="success button">Save Decision</button>
+                            </div>
+                            <div class="large-6 columns">
+                                <small>
+                                    <p>There are three possible decisions to finish a Typesetting assignment.</p>
+                                    <ul>
+                                        <li>Accept - Finishes this typesetting round.</li>
+                                        <li>Corrections Required - Finishes this typesetting round so you can request further typesetting be done.</li>
+                                        <li>Proofing Required - Allows you to assign proofreaders who can provide feedback.</li>
+                                    </ul>
+                                    <p>Please ensure you are ready to go ahead before making a decision.</p>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% elif assignment.accepted and assignment.completed and assignment.reviewed %}
+                    <p>This assignment has been reviewed and the review decision was: {{ assignment.get_review_decision_display }}</p>
+                {% elif assignment.accepted %}
+                 This assignment can no longer be edited since it has been accepted by the typesetter
+                {% elif assignment.declined %}
+                  <button class="button warning" name="reopen">Reopen Assignment</button>
+                {% endif %}
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Typeset Files</h2>
+                </div>
+                <div class="content">
+                    {% include "typesetting/elements/galleys.html" with disable_upload="y" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="review_assignment" %}
+    {% endif %}
+
+{% endblock body %}
+
+{% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+    {% include "elements/datatables.html" with target="#typesetter #file_list" %}
+{% endblock js %}

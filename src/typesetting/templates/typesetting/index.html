@@ -1,0 +1,22 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Typesetting plugin{% endblock title %}
+{% block title-section %}Typesetting Plugin is installed{{ galley.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+<div class="box">
+<p>The Typesetting plugin is currently installed.</p>
+<p>
+    To get started with the plugin, make sure it is enabled as part of your
+    journal's <a href="{% url 'core_journal_workflow' %}">configured workflow</a>
+</p>
+<p>
+    This plugin is inteded to replace the original production and proofing workflow elements
+</p>
+</div>
+{% endblock body %}
