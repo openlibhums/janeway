@@ -24,6 +24,13 @@ FROZEN_DATETIME_20210103 = timezone.make_aware(timezone.datetime(2021, 1, 3, 0, 
 
 
 class TestAccount(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article_one = helpers.create_article(cls.journal_one)
+
     def test_creation(self):
         data = {
             'email': 'test@test.com',
@@ -132,9 +139,7 @@ class TestAccount(TestCase):
         # Setup
         from_account = models.Account.objects.create(email="from@test.com")
         to_account = models.Account.objects.create(email="to@test.com")
-        press = helpers.create_press()
-        journal, _ = helpers.create_journals()
-        issue = journal_models.Issue.objects.create(journal=journal)
+        issue = journal_models.Issue.objects.create(journal=self.journal_one)
 
         # Issue editors have a custom through model
         issue_editor = journal_models.IssueEditor.objects.create(
@@ -154,13 +159,11 @@ class TestAccount(TestCase):
     def test_merge_accounts_o2m(self):
         """Test merging of o2m elements when merging two accounts"""
         # Setup
-        press = helpers.create_press()
-        journal, _ = helpers.create_journals()
         from_account = models.Account.objects.create(email="from@test.com")
         to_account = models.Account.objects.create(email="to@test.com")
         role = models.AccountRole.objects.create(
             user=from_account,
-            journal=journal,
+            journal=self.journal_one,
             role=models.Role.objects.create(name="t", slug="t"),
         )
 
@@ -176,19 +179,17 @@ class TestAccount(TestCase):
     def test_merge_accounts_o2m_unique(self):
         """Test merging of o2m unique elements of two accounts"""
         # Setup
-        press = helpers.create_press()
-        journal, _ = helpers.create_journals()
         from_account = models.Account.objects.create(email="from@test.com")
         to_account = models.Account.objects.create(email="to@test.com")
         role_obj = models.Role.objects.create(name="t", slug="t")
         role = models.AccountRole.objects.create(
             user=from_account,
-            journal=journal,
+            journal=self.journal_one,
             role=role_obj,
         )
         unique_violation = models.AccountRole.objects.create(
             user=to_account,
-            journal=journal,
+            journal=self.journal_one,
             role=role_obj
         )
 
@@ -210,6 +211,123 @@ class TestAccount(TestCase):
             last_name='Sky',
         )
         self.assertEqual('Sky', author.full_name())
+
+    def test_snapshot_self_first_time(self):
+        author = helpers.create_author(
+            self.journal_one,
+            first_name='Bob',
+        )
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+
+        author.snapshot_self(self.article_one)
+        self.assertEqual(
+            self.article_one.frozen_authors().first().first_name,
+            'Bob',
+        )
+
+    def test_snapshot_self_second_time_with_force_update(self):
+        author = helpers.create_author(
+            self.journal_one,
+            first_name='Bob',
+        )
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+
+        # Initial snapshot
+        author.snapshot_self(self.article_one)
+
+        # Change author name and re-snapshot with force update
+        author.first_name = 'Robert'
+        author.save()
+        author.snapshot_self(self.article_one, force_update=True)
+        self.assertEqual(
+            self.article_one.frozen_authors().first().first_name,
+            'Robert',
+        )
+
+
+    def test_snapshot_self_second_time_without_force_update(self):
+        author = helpers.create_author(
+            self.journal_one,
+            first_name='Bob',
+        )
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+
+        # Initial snapshot
+        author.snapshot_self(self.article_one)
+
+        # Change author name and re-snapshot with no force update
+        author.first_name = 'Robert'
+        author.save()
+        author.snapshot_self(self.article_one, force_update=False)
+        self.assertEqual(
+            self.article_one.frozen_authors().first().first_name,
+            'Bob',
+        )
+
+
+    def test_snapshot_credit_first_time(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+        author.add_credit('conceptualization', self.article_one)
+        author.add_credit('data-curation', self.article_one)
+
+        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
+            author=author,
+            article=self.article_one,
+        )
+        author.snapshot_credit(self.article_one, frozen_author)
+        frozen_author_credits = [
+            credit.get_role_display() for credit in frozen_author.credits()
+        ]
+        self.assertIn('Conceptualization', frozen_author_credits)
+        self.assertIn('Data Curation', frozen_author_credits)
+
+
+    def test_snapshot_credit_force_update(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        self.article_one.correspondence_author = author
+        self.article_one.save()
+        author.add_credit('conceptualization', self.article_one)
+        author.add_credit('data-curation', self.article_one)
+
+        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
+            author=author,
+            article=self.article_one,
+        )
+        # Initial snapshot
+        author.snapshot_credit(self.article_one, frozen_author)
+
+        # Change the author credits
+        author.remove_credit('data-curation', self.article_one)
+        author.add_credit('methodology', self.article_one)
+
+        # Snapshot again
+        author.snapshot_credit(self.article_one, frozen_author)
+
+        frozen_author_credits = [
+            credit.get_role_display() for credit in frozen_author.credits()
+        ]
+        self.assertIn('Conceptualization', frozen_author_credits)
+        self.assertIn('Methodology', frozen_author_credits)
+        self.assertNotIn('Data Curation', frozen_author_credits)
+
+    def test_credits(self):
+        author = helpers.create_author(self.journal_one)
+        self.article_one.authors.add(author)
+        author.add_credit('conceptualization', self.article_one)
+        self.assertEqual(
+            author.credits(article=self.article_one).first().get_role_display(),
+            'Conceptualization',
+        )
 
 
 class TestSVGImageFormField(TestCase):

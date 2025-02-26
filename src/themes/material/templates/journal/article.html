@@ -249,7 +249,17 @@
                             {% endif %}
                             {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                 <a itemprop="email" href="mailto:{{ author.email }}"
-                                   class="fa fa-envelope email-link"></a>{% endif %}
+                                   class="fa fa-envelope email-link"></a>
+                            {% endif %}
+                            {% if journal_settings.general.use_credit %}
+                              [<span class="credit">
+                                {% for credit_record in author.credits %}
+                                  {% for credit in roles %}
+                                    {{ credit }}{% if not forloop.last %}, {% endif %}
+                                  {% endfor %}
+                                {% endfor %}
+                              </span>]
+                            {% endif %}
                     {% endfor %}
                     {% endif %}
 
