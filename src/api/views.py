@@ -77,7 +77,8 @@ class AccountRoleViewSet(viewsets.ModelViewSet):
 
 @permission_classes((api_permissions.IsEditor, ))
 class CustomArticleLabelViewSet(viewsets.ModelViewSet):
-    """ API endpoint that allows viewing or editing article labels
+    """
+    API endpoint that allows viewing or editing article labels
     """
     queryset = submission_models.CustomArticleLabel.objects.all()
     serializer_class = serializers.CustomArticleLabelSerializer
@@ -85,7 +86,9 @@ class CustomArticleLabelViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.request.journal:
-            queryset = queryset.filter(article__journal=journal)
+            queryset = queryset.filter(
+                article__journal=self.request.journal,
+            )
 
         return queryset
 
