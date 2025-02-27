@@ -16,6 +16,6 @@ urlpatterns = [
         views.move_to_next_workflow_element,
         name='move_to_next_workflow_element'),
     re_path(r'^overview/$',
-        views.workflow_overview,
+        views.WorkflowOverview.as_view(),
         name='workflow_overview'),
 ]

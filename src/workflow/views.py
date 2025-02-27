@@ -1,14 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 
+from core import models as core_models
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
 from workflow import logic
 from utils import models as utils_models
 from events import logic as event_logic
+from journal.views import FacetedArticlesListView
 
 
 @has_journal
@@ -121,3 +125,20 @@ def workflow_overview(request):
     }
 
     return render(request, template, context)
+
+
+@method_decorator(has_journal, name='dispatch')
+@method_decorator(staff_member_required, name='dispatch')
+class WorkflowOverview(FacetedArticlesListView):
+    template = 'workflow/workflow_overview.html'
+
+    def get_facets(self):
+        facets = {
+            'workflowlog__element__pk': {
+                'type': 'foreign_key',
+                'model': core_models.WorkflowElement,
+                'field_label': 'Workflow element',
+                'choice_label_field': 'element_name',
+            },
+        }
+        return self.filter_facets_if_journal(facets)
