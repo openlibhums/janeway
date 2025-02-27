@@ -110,6 +110,11 @@ class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
         return truncatewords_html(str(obj.article), 10) if obj else ''
 
 
+class CustomArticleLabelAdmin(admin.ModelAdmin):
+    list_display = ('article', 'date_created', 'reminder_date', 'creator__email')
+    list_filter = ('article__stage', 'article__journal')
+    readonly_fields = ('date_created',)
+
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'short_name', 'journal', 'url', '_text')
     list_filter = ('journal', 'short_name', 'url')

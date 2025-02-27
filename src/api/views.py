@@ -18,6 +18,7 @@ from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
 from repository import models as repository_models
+from workflow import models as workflow_models
 
 
 @api_view(['GET'])
@@ -73,6 +74,24 @@ class AccountRoleViewSet(viewsets.ModelViewSet):
     """
     queryset = core_models.AccountRole.objects.filter()
     serializer_class = serializers.AccountRoleSerializer
+
+
+@permission_classes((api_permissions.IsEditor, ))
+class CustomArticleLabelViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows viewing or editing article labels
+    """
+    queryset = workflow_models.CustomArticleLabel.objects.all()
+    serializer_class = serializers.CustomArticleLabelSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.journal:
+            queryset = queryset.filter(
+                article__journal=self.request.journal,
+            )
+
+        return queryset
 
 
 class JournalViewSet(viewsets.ModelViewSet):
