@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0039_upgrade_1_7_4'),
+        ('utils', '0040_update_password_reset_links_in_settings'),
     ]
 
     operations = [

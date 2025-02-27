@@ -101,7 +101,7 @@ def migrate_affiliation_institution(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0103_location_organization_affiliation'),
+        ('core', '0104_location_organization_affiliation'),
     ]
 
     operations = [

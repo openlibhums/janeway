@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0105_remove_account_country_affiliation_organization'),
+        ('core', '0106_remove_account_country_affiliation_organization'),
     ]
 
     operations = [
