@@ -5,6 +5,7 @@ class CustomArticleLabel(models.Model):
     article = models.ForeignKey(
         'submission.Article',
         on_delete=models.CASCADE,
+        related_name="custom_label",
     )
     label = models.CharField(max_length=999, blank=False, null=False)
     text = models.TextField(blank=True, null=True)
@@ -19,8 +20,13 @@ class CustomArticleLabel(models.Model):
     )
 
 class CustomArticleActionDate(models.Model):
-    article = models.ForeignKey(
+    article = models.OneToOneField(
         'submission.Article',
         on_delete=models.CASCADE,
+        related_name="custom_next_date",
+        help_text=""
+            "A custom date for the editorial team to know when to act next on"
+            "an article."
+
     )
     next_date = models.DateField(default=timezone.now)
