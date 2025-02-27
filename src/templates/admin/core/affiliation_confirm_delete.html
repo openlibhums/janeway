@@ -1,0 +1,62 @@
+{% extends "admin/core/large_form.html" %}
+
+{% load i18n foundation %}
+
+{% block contextual_title %}
+  {% blocktrans with organization=affiliation.organization.name %}
+    Delete affiliation: {{ organization }}
+  {% endblocktrans %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% blocktrans with organization=affiliation.organization.name %}
+    Delete affiliation: {{ organization }}
+  {% endblocktrans %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% if request.user == account %}
+    <li>
+      <a href="{% url 'core_edit_profile' %}">
+        {% trans "Edit Profile" %}
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'core_affiliation_update' affiliation.pk %}">
+        {% trans "Edit Affiliation" %}
+      </a>
+    </li>
+    <li>
+      {% blocktrans with organization=affiliation.organization.name %}
+        Delete affiliation: {{ organization }}
+      {% endblocktrans %}
+    </li>
+  {% endif %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid max-w-80">
+    <div class="rummage-portal">
+      {% include "admin/core/affiliation_summary.html" %}
+      <section class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2>{% trans "Confirmation" %}</h2>
+        </div>
+        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          <p>{% blocktrans %}
+            Are you sure you want to delete the affiliation "{{ affiliation }}"?
+          {% endblocktrans %}</p>
+          {{ form }}
+          {% include "elements/button_yes_delete.html" %}
+          {% url 'core_edit_profile' as go_back_url %}
+          {% include "elements/a_no_go_back.html" with href=go_back_url %}
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock body %}
