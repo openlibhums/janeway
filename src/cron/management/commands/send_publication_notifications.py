@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 setting_name='send_reader_notifications',
                 journal=journal,
             ).value:
-                logger.info('Sending notification for {}'.format(journal.name))
+                self.stdout.write('Sending notification for {}'.format(journal.name))
                 readers = journal.users_with_role('reader')
                 bcc_list = [reader.email for reader in readers]
 
