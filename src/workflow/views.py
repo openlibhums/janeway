@@ -110,27 +110,10 @@ def move_to_next_workflow_element(request, article_id):
         **workflow_kwargs,
     )
 
-@has_journal
-def workflow_overview(request):
-    article_list = submission_models.Article.active_objects.all()
-
-    if request.journal:
-        article_list = article_list.filter(
-            journal=request.journal,
-        )
-
-    template = 'workflow/workflow_overview.html'
-    context = {
-        'article_list': article_list,
-    }
-
-    return render(request, template, context)
-
-
 @method_decorator(has_journal, name='dispatch')
 @method_decorator(staff_member_required, name='dispatch')
 class WorkflowOverview(FacetedArticlesListView):
-    template = 'workflow/workflow_overview.html'
+    template_name = 'admin/workflow/workflow_overview.html'
 
     def get_facets(self):
         facets = {
@@ -138,7 +121,7 @@ class WorkflowOverview(FacetedArticlesListView):
                 'type': 'foreign_key',
                 'model': core_models.WorkflowElement,
                 'field_label': 'Workflow element',
-                'choice_label_field': 'element_name',
+                'choice_label_field': 'display',
             },
         }
         return self.filter_facets_if_journal(facets)
