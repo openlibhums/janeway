@@ -125,3 +125,12 @@ class WorkflowOverview(FacetedArticlesListView):
             },
         }
         return self.filter_facets_if_journal(facets)
+
+    def get_order_by_choices(self):
+        return [
+            ('title', 'Title A-Z'),
+            ('section', 'Section A-Z'),
+            ('stage', 'Stage A-Z'),
+            ('custom_next_date__next_date', 'Action date ascending'),
+            ('-custom_next_date__next_date', 'Action date descending'),
+        ]
