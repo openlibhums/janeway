@@ -4,6 +4,7 @@ from core import models as core_models
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+from workflow import models as workflow_models
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -16,7 +17,7 @@ class LicenceSerializer(serializers.HyperlinkedModelSerializer):
 class CustomArticleLabelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = submission_models.CustomArticleLabel
+        model = workflow_models.CustomArticleLabel
         fields = ('article', 'label', 'text', 'date_created', 'reminder_date')
 
     def create(self, validated_data):

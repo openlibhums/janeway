@@ -18,6 +18,7 @@ from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
 from repository import models as repository_models
+from workflow import models as workflow_models
 
 
 @api_view(['GET'])
@@ -80,7 +81,7 @@ class CustomArticleLabelViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows viewing or editing article labels
     """
-    queryset = submission_models.CustomArticleLabel.objects.all()
+    queryset = workflow_models.CustomArticleLabel.objects.all()
     serializer_class = serializers.CustomArticleLabelSerializer
 
     def get_queryset(self):
