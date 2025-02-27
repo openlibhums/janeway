@@ -108,7 +108,7 @@ def move_to_next_workflow_element(request, article_id):
 
 @has_journal
 def workflow_overview(request):
-    articles = submission_models.Article.active_objects.all()
+    article_list = submission_models.Article.active_objects.all()
 
     if request.journal:
         article_list = article_list.filter(
