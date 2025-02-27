@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0084_alter_article_stage'),
+        ('submission', '0083_article_jats_article_type_override_and_more'),
         ('workflow', '0001_initial'),
     ]
 
