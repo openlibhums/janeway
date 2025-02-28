@@ -59,7 +59,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         # If using this form and there is an instance then this has
         # previously been checked as it is required.
-        if self.instance and 'submission_agreement' in self._meta.fields:
+        if self.instance.id and 'submission_agreement' in self._meta.fields:
             self.fields['submission_agreement'].initial = True
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
