@@ -24,11 +24,6 @@ def handle_uploaded_file(request, uploaded_file):
             "News Item",
             public=True,
         )
-        core_logic.resize_and_crop(
-            new_file.journal_path(request.journal),
-            [750, 324],
-            "middle",
-        )
     elif request.model_content_type.name == "press":
         new_file = files.save_file_to_press(
             request,
@@ -36,11 +31,6 @@ def handle_uploaded_file(request, uploaded_file):
             "News Item",
             "News Item",
             public=True,
-        )
-        core_logic.resize_and_crop(
-            new_file.press_path(),
-            [750, 324],
-            "middle",
         )
     else:
         return "Invalid content type for file upload."
