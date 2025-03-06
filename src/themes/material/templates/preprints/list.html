@@ -27,9 +27,12 @@
                                 {% if not forloop.last %}
                                     {% if not forloop.counter == article.authors.all|length|add:-1 %},
                                     {% endif %}{% endif %}{% endfor %}</p>
-                            <p><span class="date"><i
-                                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                                    class="fa fa-paperclip"></i> {{ article.get_subject_area }}
+                            <p><span class="date">
+                                <i aria-hidden="true" class="fa fa-calendar"></i> 
+                                <time datetime='{{ article.date_published|date:"Y-m-d" }}'>
+                                    <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                                </time>
+                                <i aria-hidden="true" class="fa fa-paperclip"></i> {{ article.get_subject_area }}
                         </div>
 
                     </div>
@@ -66,7 +69,7 @@
                                 <div class="form-group">
 
                                     <div class="input-field">
-                                        <i class="material-icons prefix">{% trans "search" %}</i>
+                                        <i aria-hidden="true" class="fa fa-search prefix" ></i>
                                         <input id="icon_prefix" type="text" class="validate" {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
                                         <label for="icon_prefix" class="">{% trans "Search Preprints" %}</label>
                                     </div>
