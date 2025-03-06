@@ -1,5 +1,6 @@
 FROM python:3.10
 ADD ./dockerfiles/janeway.sqlite3 /db/janeway.sqlite3
-RUN curl https://raw.githubusercontent.com/BirkbeckCTP/janeway/master/requirements.txt > /tmp/requirements.txt
-RUN pip3 install -r /tmp/requirements.txt
+RUN curl https://raw.githubusercontent.com/BirkbeckCTP/janeway/master/requirements.txt > /tmp/requirements.txt && \
+    curl https://raw.githubusercontent.com/BirkbeckCTP/janeway/master/constraints.txt > /tmp/constraints.txt
+    RUN pip3 install -r /tmp/requirements.txt -c /tmp/constraints.txt
 ENTRYPOINT ["/bin/bash"]
