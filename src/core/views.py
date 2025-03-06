@@ -329,11 +329,25 @@ def reset_password(request, token):
     :return: HttpResponse object
     """
     next_url = request.GET.get('next', '')
-    reset_token = get_object_or_404(models.PasswordResetToken, token=token, expired=False)
-    form = forms.PasswordResetForm()
-
+    reset_token = get_object_or_404(
+        models.PasswordResetToken,
+        token=token,
+    )
+    # if a token is found and it has expired, redirect away.
     if reset_token.has_expired():
-        raise Http404
+        messages.warning(
+            request,
+            _('The password reset token has expired. '
+              'Please request a new password reset token.'),
+        )
+        return redirect(
+            logic.reverse_with_next(
+                'core_get_reset_token',
+                next_url,
+            ),
+        )
+
+    form = forms.PasswordResetForm()
 
     if request.POST:
         form = forms.PasswordResetForm(request.POST)

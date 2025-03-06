@@ -3,16 +3,18 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from django.http import Http404
 from mock import patch
 from uuid import uuid4
 
-from django.test import Client, TestCase, override_settings
+from django.test import TestCase, override_settings
+from django.utils import timezone
+from django.urls import reverse
 
 from utils.testing import helpers
 from utils import orcid
 
 from core import models as core_models
-from core import views as core_views
 
 
 class CoreViewTestsWithData(TestCase):
@@ -41,9 +43,29 @@ class CoreViewTestsWithData(TestCase):
             orcid=cls.user_orcid_uri,
         )
         cls.reset_token_uuid = uuid4()
+        cls.expired_reset_token_uuid = uuid4()
+        cls.non_existent_reset_token_uuid = uuid4()
+        cls.reset_token_expires_after_use_uuid = uuid4()
+        cls.reset_token_weak_password_uuid = uuid4()
         cls.reset_token = core_models.PasswordResetToken.objects.create(
             account=cls.user,
             token=cls.reset_token_uuid,
+        )
+        cls.expired_token = core_models.PasswordResetToken.objects.create(
+            account=cls.user,
+            token=cls.expired_reset_token_uuid,
+            expiry=timezone.now() - timezone.timedelta(days=1),
+            expired=True,
+        )
+        cls.reset_token_expires_after_use = core_models.PasswordResetToken.objects.create(
+            account=cls.user,
+            token=cls.reset_token_expires_after_use_uuid,
+            expiry=timezone.now() + timezone.timedelta(days=1),
+        )
+        cls.reset_token_weak_password = core_models.PasswordResetToken.objects.create(
+            account=cls.user,
+            token=cls.reset_token_weak_password_uuid,
+            expiry=timezone.now() + timezone.timedelta(days=1),
         )
         cls.user.save()
 
@@ -496,6 +518,67 @@ class ResetPasswordTests(CoreViewTestsWithData):
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertIn((self.core_login_with_next, 302), response.redirect_chain)
+
+    def test_expired_reset_token_redirects(self):
+        url = reverse(
+            'core_reset_password',
+            kwargs={
+                'token': self.expired_reset_token_uuid,
+            }
+        )
+        response = self.client.get(url)
+        self.assertRedirects(
+            response,
+            reverse('core_get_reset_token'),
+            status_code=302,
+            fetch_redirect_response=False,
+        )
+
+    def test_invalid_reset_token_404(self):
+        url = reverse(
+            'core_reset_password',
+            kwargs={
+                'token': self.non_existent_reset_token_uuid,
+            }
+        )
+        response = self.client.get(url)
+        self.assertRaises(
+            Http404,
+        )
+
+    def test_reset_token_expires_after_use(self):
+        post_data = {
+            'password_1': 'NewStrongPassword123!',
+            'password_2': 'NewStrongPassword123!',
+        }
+        url = reverse(
+            'core_reset_password',
+            kwargs={'token': self.reset_token_expires_after_use.token}
+        )
+        self.client.post(url, post_data)
+
+        # Refresh from DB to get updated token state
+        self.reset_token_expires_after_use.refresh_from_db()
+
+        # Ensure the token is now expired
+        self.assertTrue(self.reset_token_expires_after_use.has_expired())
+
+    def test_reset_password_weak_password(self):
+        post_data = {
+            'password_1': 'weak',
+            'password_2': 'weak',
+        }
+        url = reverse(
+            'core_reset_password',
+            kwargs={'token': self.reset_token_weak_password.token}
+        )
+        response = self.client.post(url, post_data)
+
+        self.assertContains(
+            response,
+            "Your password should be 12 characters long",
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 class RegisterTests(CoreViewTestsWithData):
