@@ -4,6 +4,7 @@ from django.utils import timezone
 from journal.models import Journal
 from core.models import SettingValue
 from cms.models import Page, SubmissionItem
+from django.conf import settings
 
 IGNORED_SETTINGS = {"journal_name", "journal_issn", "print_issn"}
 
@@ -61,11 +62,18 @@ class Command(BaseCommand):
             if ignore_settings and setting_value.setting.name in IGNORED_SETTINGS:
                 continue
 
-            SettingValue.objects.update_or_create(
+            new_setting, _ = SettingValue.objects.update_or_create(
                 journal=to_journal,
                 setting=setting_value.setting,
                 defaults={"value": setting_value.value},
             )
+
+            # Copy translated fields
+            for lang_code, _ in settings.LANGUAGES:
+                translated_value = getattr(setting_value, f"value_{lang_code}", None)
+                if translated_value:
+                    setattr(new_setting, f"value_{lang_code}", translated_value)
+            new_setting.save()
 
         self.stdout.write(self.style.SUCCESS("Settings copied successfully."))
 
@@ -76,7 +84,7 @@ class Command(BaseCommand):
                                                  Journal))
 
         for page in existing_pages:
-            Page.objects.create(
+            new_page = Page.objects.create(
                 content_type=page.content_type,
                 object_id=to_journal.id,
                 name=page.name,
@@ -88,6 +96,14 @@ class Command(BaseCommand):
                 display_toc=page.display_toc,
             )
 
+            # Copy translated fields
+            for lang_code, _ in settings.LANGUAGES:
+                for field in ["display_name", "content"]:
+                    translated_value = getattr(page, f"{field}_{lang_code}", None)
+                    if translated_value:
+                        setattr(new_page, f"{field}_{lang_code}", translated_value)
+            new_page.save()
+
         self.stdout.write(self.style.SUCCESS("CMS pages copied successfully."))
 
         self.stdout.write(
@@ -96,7 +112,7 @@ class Command(BaseCommand):
         existing_submission_items = SubmissionItem.objects.filter(journal=from_journal)
 
         for item in existing_submission_items:
-            SubmissionItem.objects.update_or_create(
+            new_item, _ = SubmissionItem.objects.update_or_create(
                 journal=to_journal,
                 existing_setting=item.existing_setting,
                 defaults={
@@ -105,5 +121,13 @@ class Command(BaseCommand):
                     "order": item.order,
                 },
             )
+
+            # Copy translated fields
+            for lang_code, _ in settings.LANGUAGES:
+                for field in ["title", "text"]:
+                    translated_value = getattr(item, f"{field}_{lang_code}", None)
+                    if translated_value:
+                        setattr(new_item, f"{field}_{lang_code}", translated_value)
+            new_item.save()
 
         self.stdout.write(self.style.SUCCESS("Submission Items copied successfully."))
