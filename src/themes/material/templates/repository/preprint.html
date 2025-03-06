@@ -64,6 +64,7 @@
                         {% endif %}
                     </div>
                 {% endif %}
+                {% if request.repository.enable_comments %}
                 <div class="card">
                     <div class="card-content">
                         <span class="card-title">{% trans 'Add a Comment' %}</span>
@@ -122,6 +123,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 

@@ -191,6 +191,14 @@ class Repository(model_utils.AbstractSiteModel):
     decline = model_utils.JanewayBleachField(blank=True, null=True)
     accept_version = model_utils.JanewayBleachField(blank=True, null=True)
     decline_version = model_utils.JanewayBleachField(blank=True, null=True)
+    enable_comments = models.BooleanField(
+        default=True,
+        help_text='Enabling this will turn on the comment feature.',
+    )
+    enable_invited_comments = models.BooleanField(
+        default=True,
+        help_text='Enable to display the invited comments interface.',
+    )
     new_comment = model_utils.JanewayBleachField(blank=True, null=True)
     review_invitation = model_utils.JanewayBleachField(blank=True, null=True)
     review_helper = model_utils.JanewayBleachField(blank=True, null=True)
