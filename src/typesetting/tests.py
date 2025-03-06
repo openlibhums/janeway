@@ -458,7 +458,6 @@ class TestTypesetting(TestCase):
         self.test_file_name = 'test_galley.xml'
         self.test_file_path = os.path.join(
             settings.BASE_DIR,
-            'plugins',
             'typesetting',
             self.test_file_name,
         )
