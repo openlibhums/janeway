@@ -1766,7 +1766,9 @@
           <h2>References</h2>
         </xsl:if>
         <div id="reflist">
+          <ul>
             <xsl:apply-templates/>
+          </ul>
         </div>
     </xsl:template>
     <xsl:template match="ref-list/title">
@@ -1786,26 +1788,26 @@
   <!-- If ref/label, ref is a table row;
     If count(ref/citation) > 1, each citation is a table row -->
   <xsl:template match="ref">
-    <xsl:choose>
-      <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
-              <xsl:if test="label">
-                  <xsl:apply-templates select="label"/>
-              </xsl:if>
-            <xsl:apply-templates select="element-citation | nlm-citation"/>
-          </p>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{parent::*/@id}">
-                <xsl:if test="parent::ref/label">
-                  <xsl:apply-templates select="parent::ref/label"/>
+      <xsl:choose>
+        <xsl:when test="count(element-citation)=1">
+            <li id="{@id}">
+                <xsl:if test="label">
+                    <xsl:apply-templates select="label"/>
                 </xsl:if>
-                <xsl:apply-templates select="."/>
-            </p>
-        </xsl:for-each>
-      </xsl:otherwise>
-    </xsl:choose>
+              <xsl:apply-templates select="element-citation | nlm-citation"/>
+            </li>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
+              <li id="{parent::*/@id}">
+                  <xsl:if test="parent::ref/label">
+                    <xsl:apply-templates select="parent::ref/label"/>
+                  </xsl:if>
+                  <xsl:apply-templates select="."/>
+              </li>
+          </xsl:for-each>
+        </xsl:otherwise>
+      </xsl:choose>
   </xsl:template>
 
   <!-- becomes content of table cell, column 1-->

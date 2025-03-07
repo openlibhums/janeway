@@ -359,8 +359,14 @@ a:hover .article-title {
     width: 50%;
 }
 
-#reflist p {
+#reflist ul{
+  padding-left: 0 !important;
+}
+
+#reflist li {
     word-wrap: break-word;
+    list-style-type: none;
+    padding-bottom: 8px;
 }
 
 .issue-link {

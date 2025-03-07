@@ -1179,8 +1179,14 @@ button.list-group-item-danger.active:focus {
   word-wrap: break-word;
 }
 
-#reflist p {
-    word-wrap: break-word;
+#reflist ul{
+  padding-left: 0;
+}
+
+#reflist li {
+  word-wrap: break-word;
+  list-style-type: none;
+  padding-bottom: 8px;
 }
 
 .sidebar-item a sup {
