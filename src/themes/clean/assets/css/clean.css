@@ -461,3 +461,13 @@ header svg {
 .social-share-btn{
     border: 1px black solid;
 }
+
+#reflist ul{
+    padding-left: 0;
+}
+
+#reflist li {
+    word-wrap: break-word;
+    list-style-type: none;
+    padding-bottom: 8px;
+}
