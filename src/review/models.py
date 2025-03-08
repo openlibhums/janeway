@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from collections import Counter
+
 from django.db import models
 from django.utils import timezone
 from django.db.models import Max, Q, Value
@@ -127,6 +129,34 @@ class ReviewRound(models.Model):
         ).order_by(
             'decision',
         )
+
+    def complete_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_complete__isnull=False,
+        ).exclude(
+            decision='withdrawn',
+        )
+
+    def uncomplete_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=False,
+            date_complete__isnull=True,
+        ).union(
+            self.withdraw_reviews()
+        )
+
+    def withdraw_reviews(self):
+        return self.reviewassignment_set.filter(
+            decision='withdrawn',
+        )
+
+    def decisions_count(self):
+        reviews = self.reviewassignment_set.all()
+        decisions = Counter(
+            [review.get_decision_display() for review in reviews if review.decision]
+        )
+        return dict(decisions)
 
     @classmethod
     def latest_article_round(cls, article):
