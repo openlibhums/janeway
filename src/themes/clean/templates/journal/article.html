@@ -49,15 +49,21 @@
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
                                     {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
-                                    {% endif %}
+                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt=""></a>
+                                        <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                    </a>{% endif %}
                                     {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
-                                                itemprop="name">({{ author.institution }})</span></span>{% endif %}
+                                                itemprop="name">({{ author.institution }})</span></span>
+                                    {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}</a>{% endif %}</span></span>
+                                        <a itemprop="email" href="mailto:{{ author.email }}"> 
+                                           {% trans 'Email' %} {{author.full_name}}.
+                                           <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                        </a>
+                                    {% endif %}
+                                </span></span>
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -111,7 +117,7 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        <i class="fa fa-info"></i>
+                                        <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
                                 {% endif %}
@@ -155,8 +161,11 @@
                     {% for author in article.frozen_authors.all %}
                         <li>
                             {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                            {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                </a>
                             {% endif %}
                             {% if author.institution and author.institution != " " %}
                                 <span itemprop="worksFor" itemscope
@@ -188,7 +197,7 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
-                                <i class="fa fa-info"></i>
+                                <i aria-hidden="true" class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
                         {% endif %}
@@ -238,7 +247,9 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
-                    <li>{% trans "Peer Reviewed" %} <span class="fa fa-check-circle"></span> </li>
+                        <li>{% trans "Peer Reviewed" %}
+                            <i aria-hidden="true" class="fa fa-check-circle"></i>
+                        </li>
                     {% endif %}
                     {% if article.license %}
                     <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"

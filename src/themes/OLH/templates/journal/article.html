@@ -30,9 +30,19 @@
                         </strong>
                         {% for author in article.frozen_authors.all %}
                         {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
+                            {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                </a>
+                            {% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
-                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                            <a itemprop="email" href="mailto:{{ author.email }}" >
+                                <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                <span class="sr-only">{% trans 'Email ' %} {{ author.full_name }}.</span>
+                            </a>
+                        {% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
@@ -65,22 +75,30 @@
                                     {% endif %}
                                 </strong>
                                     {% for author in article.frozen_authors.all %}
-                                        <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                                itemtype="http://schema.org/Person"
-                                                                                                itemprop="author"
-                                                                                                href="#"
-                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
+                                        <span>{% if forloop.first == False %}, {% endif %}
+                                            <span itemscope
+                                                itemtype="http://schema.org/Person"
+                                                itemprop="author"
+                                                href="#"
+                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"
+                                                >
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
                                             {% if author.orcid %}
-                                              <a href="https://orcid.org/{{ author.orcid }}">
-                                                <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>
+                                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                                </a>
                                             {% endif %}
                                             {% if author.institution and author.institution != " " %}
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
-                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                                <a itemprop="email" href="mailto:{{ author.email }}">
+                                                    <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
+                                                </a>
+                                            {% endif %}</span></span>
                                     {% endfor %}
 
                             </div>
@@ -114,13 +132,28 @@
                                 <ul class="menu vertical medium-horizontal"
                                     data-responsive-menu="dropdown">
                                     {% hook 'article_buttons' %}
-                                    <li><a href="{{ article.local_url }}print/" aria-label="{% trans 'print article' %}"><i class="fa fa-print">&nbsp;</i></a></li>
+                                    <li>
+                                        <a href="{{ article.local_url }}print/" >
+                                            <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
+                                            <span class="sr-only">{% trans 'Print article' %}</span>
+                                        </a>
+                                    </li>
                                     <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
                                     <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                        <li>
+                                            <a href="mailto:{{ article.correspondence_author.email }}" >
+                                                <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                                <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
-                                        <a href="#" aria-label="{% trans 'Cite article' %}"><i class="fa fa-comments">&nbsp;</i></a>
+                                        <a href="#">
+                                            <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
+                                            <span class="sr-only">{% trans 'Cite article' %}</span>
+                                        </a>
                                         <ul class="menu vertical">
                                             <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
                                             <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
@@ -154,9 +187,21 @@
                         <ul>
                         {% for author in article.frozen_authors.all %}
                         <li>{{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo"></a>{% endif %}
+                            {% if author.orcid %}
+                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+                                </a>
+                            {% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
-                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                <a itemprop="email" 
+                                    href="mailto:{{ author.email }}" 
+                                >
+                                    <i aria-hidden="true" class="fa fa-envelope email-link"></i>
+                                    <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
+                                </a>
+                            {% endif %}
                         </li>
                         {% endfor %}
                         </ul>
@@ -208,7 +253,7 @@
                                         </p>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_1">
-                                                <i class="fa fa-info"></i>
+                                                <i aria-hidden="true" class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
                                         {% endif %}
@@ -309,11 +354,17 @@
                                                 {{ author.full_name }}
                                                 {% if author.orcid %}
                                                 <a href="https://orcid.org/{{ author.orcid }}" class="">
-                                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="orcid logo">
+                                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+                                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
                                                 </a>
                                                 {% endif %}
                                                 {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                                <a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>
+                                                    <a itemprop="email" 
+                                                        href="mailto:{{ author.email }}" 
+                                                        >
+                                                        <i aria-hidden="true" class="fa fa-envelope email-link" ></i>
+                                                        <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
+                                                    </a>
                                                 {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
                                             </li>
@@ -342,7 +393,7 @@
                                         </ul>
                                         {% if proofing %}
                                             <p id="note_to_proofreader_2">
-                                                <i class="fa fa-info"></i>
+                                                <i aria-hidden="true"  class="fa fa-info"></i>
                                                 Note to proofreader: Download links on this page begin to work when the article is published.
                                             </p>
                                         {% endif %} 

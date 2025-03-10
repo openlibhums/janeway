@@ -33,7 +33,7 @@
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}
                         <br />
-                        <h7>{% trans "Tags" %} <i class="fa fa-tags">&nbsp;</i></h7>
+                        <h7>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
                         <p>{% for tag in news_item.tags.all %}
                             <a href="{% url 'core_news_list_tag' tag.text %}"
                                class="button success tiny">{{ tag.text }}</a>
