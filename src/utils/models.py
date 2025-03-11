@@ -510,10 +510,7 @@ class RORImport(models.Model):
             ror_id = os.path.split(record.get('id', ''))[-1]
             if ror_id and ror_id not in existing_rors:
                 filtered_data.append(record)
-        if len(filtered_data) > 0:
-            logger.debug("New ROR records found")
-        else:
-            logger.debug("No new ROR records found")
+        logger.debug(f"{len(filtered_data)} new ROR records found")
         return filtered_data
 
     @staticmethod
@@ -529,10 +526,7 @@ class RORImport(models.Model):
             timestamp = last_modified.get("date", "")
             if ror_id and timestamp and timestamp > existing_rors.get(ror_id, ''):
                 filtered_data.append(record)
-        if len(filtered_data) > 0:
-            logger.debug("Updated ROR records found")
-        else:
-            logger.debug("No updated ROR records found")
+        logger.debug(f"{len(filtered_data)} updated ROR records found")
         return filtered_data
 
 

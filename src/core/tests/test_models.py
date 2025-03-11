@@ -553,16 +553,6 @@ class TestOrganizationModels(TestCase):
             middle_name='Stearns',
             last_name='Eliot',
         )
-        cls.e_hobsbawm = helpers.create_user(
-            'dp0dcbdgtzq4e7ml50fe@example.org',
-            first_name='Eric',
-            last_name='Hobsbawm',
-        )
-        cls.affiliation_historian = models.Affiliation.objects.create(
-            account=cls.e_hobsbawm,
-            title='Historian',
-            organization=cls.organization_bbk_legacy,
-        )
 
         return super().setUpTestData()
 
@@ -892,22 +882,38 @@ class TestOrganizationModels(TestCase):
             ]
         )
 
-    def test_organization_deduplicate_to_ror_record(self):
-        self.organization_bbk_legacy.deduplicate_to_ror_record()
-        self.affiliation_historian.refresh_from_db()
-        self.assertNotEqual(
-            self.affiliation_historian.organization,
-            self.organization_bbk_legacy,
-        )
-        self.assertEqual(
-            self.affiliation_historian.organization,
-            self.organization_bbk,
-        )
-
 class TestOrganizationManagers(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.country_gb = models.Country.objects.create(
+            code='GB',
+            name='United Kingdom',
+        )
+        cls.location_uk_legacy = models.Location.objects.create(
+            # Before integrating ROR we used country-wide locations
+            # with no geonames ID or coordinates
+            country=cls.country_gb,
+        )
+        cls.organization_turing_legacy = models.Organization.objects.create(
+            # Before integrating ROR we used institution names with no ROR IDs
+        )
+        cls.organization_turing_legacy.locations.add(cls.location_uk_legacy)
+        cls.name_turing_custom_legacy = models.OrganizationName.objects.create(
+            value='The Alan Turing Institute',
+            custom_label_for=cls.organization_turing_legacy,
+        )
+        cls.e_hobsbawm = helpers.create_user(
+            'dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        cls.affiliation_historian = models.Affiliation.objects.create(
+            account=cls.e_hobsbawm,
+            title='Historian',
+            organization=cls.organization_turing_legacy,
+        )
+
         cls.ror_records = helpers.get_ror_records()
 
     def test_location_bulk_create_from_ror(self):
@@ -1060,4 +1066,25 @@ class TestOrganizationManagers(TestCase):
         self.assertEqual(
             organization.ror_display.value,
             "Copenhagen School of Design"
+        )
+
+    def test_affiliation_deduplicate_to_ror(self):
+        # Set up ROR data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
+
+        # Run test
+        models.Affiliation.objects.deduplicate_to_ror()
+        self.affiliation_historian.refresh_from_db()
+        self.assertNotEqual(
+            self.affiliation_historian.organization,
+            self.organization_turing_legacy,
+        )
+        self.assertEqual(
+            self.affiliation_historian.organization,
+            models.Organization.objects.get(ror_id="035dkdb55"),
         )

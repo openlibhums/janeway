@@ -1966,15 +1966,17 @@ class OrganizationNameManager(models.Manager):
             )
         }
         organization_names = []
-        logger.debug(f"Importing names from {len(ror_records)} new records")
+        logger.debug(f"Importing names")
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
             for name in record.get('names'):
                 kwargs = {}
                 kwargs['value'] = name.get('value', '')
+
                 if name.get('lang'):
                     kwargs['language'] = name.get('language', '')
+
                 if 'ror_display' in name.get('types'):
                     kwargs['ror_display_for'] = organization
                 if 'label' in name.get('types'):
@@ -2006,7 +2008,7 @@ class OrganizationNameManager(models.Manager):
 
         ror_records_with_updated_names = []
         org_name_pks_to_delete = set()
-        logger.debug(f"Updating names from {len(ror_records)} modified records")
+        logger.debug(f"Updating names")
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2123,7 +2125,7 @@ class OrganizationManager(models.Manager):
             ).prefetch_related('locations')
         }
         organization_location_links = []
-        logger.debug(f"Linking locations from {len(ror_records)} new records")
+        logger.debug(f"Linking locations")
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2157,7 +2159,7 @@ class OrganizationManager(models.Manager):
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
         logger.debug(
-            f"Importing organizations from {len(ror_records)} new records"
+            f"Importing organizations"
         )
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
@@ -2190,7 +2192,7 @@ class OrganizationManager(models.Manager):
         organizations_to_update = []
         fields_to_update = set()
         logger.debug(
-            f"Updating organizations from {len(ror_records)} modified records"
+            f"Updating organizations"
         )
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
@@ -2313,7 +2315,7 @@ class Organization(models.Model):
     ror_id = models.CharField(
         blank=True,
         validators=[validate_ror_id],
-        verbose_name='ROR',
+        verbose_name='ROR identifier',
         help_text='Non-URI form of Research Organization Registry identifier',
     )
     ror_status = models.CharField(
@@ -2483,39 +2485,94 @@ class Organization(models.Model):
 
         return organization, created
 
-    def deduplicate_to_ror_record(self):
-        """
-        Tries to merge with another organization that has ROR data,
-        if the custom label is an exact match with a preferred ROR label,
-        and if the country matches.
-        """
-        if self.ror_id:
-            logger.warning(
-                "Cannot deduplicate Organization {{self.id}}: ROR present"
-            )
-            return
-        if not self.custom_label:
-            logger.warning(
-                "Cannot deduplicate Organization {{self.id}}: No custom label"
-            )
-            return
 
-        if self.location:
-            matches = Organization.objects.filter(
-                labels__value=self.custom_label.value,
-                locations__country=self.location.country,
-            )
-        else:
-            matches = Organization.objects.filter(
-                labels=self.custom_label,
-            )
-        if matches.exists() and matches.count() == 1:
-            Affiliation.objects.filter(
-                organization=self,
-            ).update(
-                organization=matches.first(),
-            )
-            self.delete()
+class AffiliationManager(models.Manager):
+
+    def deduplicate_to_ror(self, limit=None):
+        """
+        Attempts to match unstructured organization names
+        to ROR names and IDs.
+        Conservative, in that it only tolerates exact matches
+        between normalized (lowercased) strings, and does not
+        use country or other data to disambiguate globally ambigous names
+        like "Musuem of Modern Art".
+        This routine was about 33% effective in testing on live data.
+        """
+
+        # Identify names to deduplicate
+        uncontrolled_organizations = Organization.objects.filter(
+            ror_id='',
+            custom_label__isnull=False,
+        ).prefetch_related(
+            'custom_label'
+        )
+        num_before = uncontrolled_organizations.count()
+        logger.debug(f"Trying to deduplicate {num_before} organizations")
+        if limit:
+            uncontrolled_organizations = uncontrolled_organizations[:limit]
+
+        # Create mapping from unique canonical names to org objects
+        orgs_by_name = {}
+        ambiguous_names_in_ror = set()
+        ambiguous_names_in_db = set()
+        labels = OrganizationName.objects.filter(
+            label_for__isnull=False
+        ).prefetch_related(
+            'ror_display_for'
+        ).prefetch_related(
+            'label_for'
+        )
+        for name in labels:
+            norm_name = name.value.lower()
+            org = name.ror_display_for or name.label_for
+            if norm_name in orgs_by_name:
+                ambiguous_names_in_ror.add(norm_name)
+            else:
+                orgs_by_name[norm_name] = org
+
+        for name in ambiguous_names_in_ror:
+            orgs_by_name.pop(name)
+
+        # Identify the affiliations to update
+        affils_by_org_id = {}
+        for affil in Affiliation.objects.filter(
+            organization__isnull=False
+        ).prefetch_related('organization'):
+            org_id = affil.organization.pk
+            if org_id not in affils_by_org_id:
+                affils_by_org_id[org_id] = set()
+            affils_by_org_id[org_id].add(affil)
+
+        affiliations_to_update = []
+        orgs_to_delete = set()
+        for old_org in uncontrolled_organizations:
+            norm_name = old_org.custom_label.value.lower()
+            if norm_name in orgs_by_name:
+                orgs_to_delete.add(old_org.pk)
+                new_org = orgs_by_name[norm_name]
+                for affil in affils_by_org_id[old_org.pk]:
+                    affil.organization = new_org
+                    affiliations_to_update.append(affil)
+            elif norm_name in ambiguous_names_in_ror:
+                ambiguous_names_in_db.add(norm_name)
+
+        # Run the update and delete operations
+        self.bulk_update(affiliations_to_update, ['organization'], batch_size=3600)
+        Organization.objects.filter(pk__in=orgs_to_delete).delete()
+
+        # Report back to user
+        num_after = Organization.objects.filter(
+            ror_id='',
+            custom_label__isnull=False,
+        ).count()
+        deduplicated = num_before - num_after
+        logger.debug(
+            f"Matched {deduplicated} legacy or custom organization names with ROR ids."
+        )
+        logger.debug(
+            f'Could not match {len(ambiguous_names_in_db)} ambiguous names.'
+        )
+        # logger.debug(ambiguous_names_in_db)
 
 
 class Affiliation(models.Model):
@@ -2568,6 +2625,8 @@ class Affiliation(models.Model):
         verbose_name="End date",
         help_text="Leave empty for a current affiliation",
     )
+
+    objects = AffiliationManager()
 
     class Meta:
         constraints = [
@@ -2768,7 +2827,7 @@ class LocationManager(models.Manager):
         }
         new_locations = []
         logger.debug(
-            f"Importing new locations from {len(ror_records)} records"
+            f"Importing new locations"
         )
         for record in ror_records:
             for record_location in record.get('locations'):
@@ -2807,7 +2866,7 @@ class LocationManager(models.Manager):
         ror_records_with_new_loc = []
         fields_to_update = set()
         logger.debug(
-            f"Updating locations from {len(ror_records)} modified records"
+            f"Updating locations"
         )
         for record in ror_records:
             for record_location in record.get('locations'):
