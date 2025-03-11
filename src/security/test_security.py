@@ -4119,7 +4119,6 @@ class TestSecurity(TestCase):
             ),
             SERVER_NAME=self.repository.domain,
         )
-        print(response)
         self.assertEqual(
             response.status_code,
             200
