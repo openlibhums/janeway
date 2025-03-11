@@ -1,0 +1,64 @@
+{% extends "admin/core/base.html" %}
+
+{% load fqdn %}
+
+{% block title %}Workflow Overview{% endblock title %}
+{% block title-section %}Workflow Overview{% endblock %}
+{% block title-sub %}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+  <li>Workflow Overview</li>
+{% endblock %}
+
+{% block body %}
+
+  <div class="rummage-portal">
+    <div>
+      {% include "admin/elements/list_filters.html" %}
+    </div>
+    <div class="box">
+      <div class="title-area">
+        <h2>Articles</h2>
+      </div>
+      <div>
+        {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Section</th>
+            <th>Stage</th>
+            <th>Action Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for article in article_list %}
+            <tr>
+              <td>{{ article.pk }}</td>
+              <td>
+                  {% if article.stage and article.stage != 'Rejected' and article.stage != 'Published' %}
+                      <a href="{{ article.current_workflow_element_url }}" target="_blank">{{ article.title|safe }}</a>
+                  {% else %}
+                      <a href="{% url 'manage_archive_article' article.pk %}" target="_blank">{{ article.title|safe }}</a>
+                  {% endif %}
+              </td>
+              <td>{{ article.section.name }}</td>
+              <td>{{ article.stage }}</td>
+              <td>[Action Date]</td>
+              <td>[Status]</td>
+              <td>[Notes]</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+    </div>
+  </div>
+<div>
+{% endblock body %}

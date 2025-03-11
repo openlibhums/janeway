@@ -4,6 +4,7 @@ from core import models as core_models
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+from workflow import models as workflow_models
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -12,6 +13,20 @@ class LicenceSerializer(serializers.HyperlinkedModelSerializer):
         model = submission_models.Licence
         fields = ('name', 'short_name', 'text', 'url')
 
+
+class CustomArticleLabelSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = workflow_models.CustomArticleLabel
+        fields = ('article', 'label', 'text', 'date_created', 'reminder_date')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        instance = super().create(validated_data)
+        if request and request.user:
+            instance.creator = request.user
+            instance.save()
+        return instance
 
 class KeywordsSerializer(serializers.HyperlinkedModelSerializer):
 

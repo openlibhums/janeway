@@ -1743,6 +1743,10 @@ class WorkflowElement(models.Model):
         from core import workflow
         return workflow.workflow_plugin_settings(self)
 
+    @property
+    def display(self):
+        return self.element_name.capitalize()
+
     def __str__(self):
         return self.element_name
 
