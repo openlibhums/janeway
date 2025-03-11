@@ -28,12 +28,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         limit = options.get("limit", 0)
-        if not limit and settings.DEBUG:
-            limit = 100
-            logger.debug(
-                f"Setting ROR import limit to {limit} while settings.DEBUG. "
-                "Override by passing --limit to import_ror_data."
-            )
 
         ror_import = RORImport.objects.create()
         ror_import.get_records()

@@ -1966,7 +1966,7 @@ class OrganizationNameManager(models.Manager):
             )
         }
         organization_names = []
-        logger.debug(f"Importing names")
+        logger.debug(f"Importing organization names")
         for record in ror_records:
             ror_id = os.path.split(record.get('id', ''))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2507,7 +2507,7 @@ class AffiliationManager(models.Manager):
             'custom_label'
         )
         num_before = uncontrolled_organizations.count()
-        logger.debug(f"Trying to deduplicate {num_before} organizations")
+        logger.debug(f"Trying to match {num_before} organization names to ROR data")
         if limit:
             uncontrolled_organizations = uncontrolled_organizations[:limit]
 
@@ -2566,13 +2566,16 @@ class AffiliationManager(models.Manager):
             custom_label__isnull=False,
         ).count()
         deduplicated = num_before - num_after
+        percent_matched = round(100 * deduplicated / num_before, 0)
         logger.debug(
-            f"Matched {deduplicated} legacy or custom organization names with ROR ids."
+            f"Matched {deduplicated} "
+            f"organization names ({percent_matched})% to ROR records."
         )
-        logger.debug(
-            f'Could not match {len(ambiguous_names_in_db)} ambiguous names.'
-        )
-        # logger.debug(ambiguous_names_in_db)
+        if ambiguous_names_in_db:
+            logger.debug(
+                f'Could not match {len(ambiguous_names_in_db)} ambiguous names.'
+            )
+            logger.debug(ambiguous_names_in_db)
 
 
 class Affiliation(models.Model):
@@ -2827,7 +2830,7 @@ class LocationManager(models.Manager):
         }
         new_locations = []
         logger.debug(
-            f"Importing new locations"
+            f"Importing locations"
         )
         for record in ror_records:
             for record_location in record.get('locations'):
