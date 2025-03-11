@@ -904,6 +904,7 @@ class PreprintAuthorManager(models.Manager):
         """
         # check for deprecated fields related to affiliation
         affiliation = kwargs.pop('affiliation', '')
+        affiliation = defaults.pop('affiliation', '')
 
         preprint_author, created = super().get_or_create(defaults, **kwargs)
 

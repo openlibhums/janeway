@@ -1940,8 +1940,11 @@ class FrozenAuthorManager(models.Manager):
         """
         # check for deprecated fields related to affiliation
         institution = kwargs.pop('institution', '')
+        institution = defaults.pop('institution', '')
         department = kwargs.pop('department', '')
+        department = defaults.pop('department', '')
         country = kwargs.pop('country', '')
+        country = defaults.pop('country', '')
 
         frozen_author, created = super().get_or_create(defaults, **kwargs)
 
