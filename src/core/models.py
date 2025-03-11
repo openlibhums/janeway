@@ -2315,7 +2315,7 @@ class Organization(models.Model):
     ror_id = models.CharField(
         blank=True,
         validators=[validate_ror_id],
-        verbose_name='ROR identifier',
+        verbose_name='ROR ID',
         help_text='Non-URI form of Research Organization Registry identifier',
     )
     ror_status = models.CharField(
