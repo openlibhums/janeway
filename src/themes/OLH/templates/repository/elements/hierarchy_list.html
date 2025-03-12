@@ -1,0 +1,27 @@
+{% load i18n %}
+
+{% for item in hierarchy %}
+<li>
+  <div class="ou-tree-item {% if rou and item.unit == rou %}selected{% endif %}">
+    <svg class="ou-tree-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m9 18 6-6-6-6"></path>
+    </svg>
+
+    {% if rou and item.unit == rou %}
+    <span class="ou-tree-item-link">{{ item.unit.name }}</span>
+    {% else %}
+    <a href="{% url 'rou_hierarchy' item.unit.code %}" class="ou-tree-item-link">{{ item.unit.name }}</a>
+    {% endif %}
+
+    <span class="ou-tree-item-count">
+      ({{ item.preprint_count }} preprint{% if item.preprint_count != 1 %}s{% endif %})
+    </span>
+  </div>
+
+  {% if item.children %}
+  <ul>
+    {% include "repository/elements/hierarchy_list.html" with hierarchy=item.children %}
+  </ul>
+  {% endif %}
+</li>
+{% endfor %}
