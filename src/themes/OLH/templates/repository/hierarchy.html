@@ -1,0 +1,243 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+    {% if rou %}
+        {{ rou.name }} Hierarchy - {{ request.repository.name }}
+    {% else %}
+        {% trans "Organisational Units" %} - {{ request.repository.name }}
+    {% endif %}
+{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<style>
+/* All styles are scoped under the ou-container class to prevent conflicts */
+.ou-container {
+    .ou-block {
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      height: 100%;
+    }
+
+    .ou-info-box {
+      background-color: #EFF6FF;
+      border-left: 4px solid #3B82F6;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 2rem;
+    }
+
+    .ou-tree {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .ou-tree ul {
+      list-style: none;
+      padding-left: 0rem;
+      margin-top: 0.25rem;
+    }
+
+    .ou-tree-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+    }
+
+    .ou-tree-first-list {
+        margin-left: 0;
+    }
+
+    .ou-tree-item.selected {
+      background-color: #DBEAFE;
+      color: #1E40AF;
+      font-weight: 500;
+    }
+
+    .ou-tree-item-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 0.25rem;
+      color: #6B7280;
+    }
+
+    .ou-tree-item-link {
+      flex: 1;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .ou-tree-item-count {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .ou-selected-unit {
+      border-bottom: 1px solid #E5E7EB;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ou-selected-unit-count {
+      font-size: 0.875rem;
+      font-weight: normal;
+      color: #6B7280;
+      margin-left: 0.5rem;
+    }
+
+    .ou-preprints-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .ou-preprints-header-title {
+      flex: 1;
+    }
+
+    .ou-preprint-list {
+      border: 1px solid #E5E7EB;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .ou-preprint-item {
+      padding: 1rem;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .ou-preprint-item:last-child {
+      border-bottom: none;
+    }
+
+    .ou-preprint-item:hover {
+      background-color: #F9FAFB;
+    }
+
+    .ou-preprint-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .ou-preprint-meta-separator {
+      margin: 0 0.5rem;
+    }
+
+    .ou-preprint-abstract {
+        font-size: 0.9rem;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+{% block body %}
+<section id="content" class="ou-container">
+  <div class="row">
+    <div class="large-12 columns">
+      <h1>{{ request.repository.rou_default_name|safe }}</h1>
+
+      <div class="ou-info-box">
+          {{ page_text|safe }}
+      </div>
+
+      <div class="row">
+        <div class="medium-6 large-6 columns">
+          <div class="ou-block">
+              <h2>{% trans "Organisational Structure" %}</h2>
+
+            <ul class="ou-tree">
+              <li>
+                <div class="ou-tree-item {% if not rou %}selected{% endif %}">
+                  <a href="{% url 'rou_hierarchy' %}" class="ou-tree-item-link">{{ repository.name }} (All organisational units)</a>
+                </div>
+                <ul class="ou-tree-first-list">
+                  {% include "repository/elements/hierarchy_list.html" with hierarchy=hierarchy %}
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="medium-6 large-6 columns">
+          {% if rou %}
+          <div class="ou-block">
+            <div class="ou-selected-unit">
+              <h2>
+                {{ rou.name }}
+                <span class="ou-selected-unit-count">
+                  ({{ rou.preprint_count }} preprint{% if rou.preprint_count != 1 %}s{% endif %})
+                </span>
+              </h2>
+            </div>
+
+            {% if rou.latest_preprints %}
+                <h3>{% trans "Latest Preprints" %}</h3>
+                {% if rou.preprint_count > 10 %}
+                <a href="{% url 'repository_preprints_by_rou' rou.code %}">
+                  {% trans "View all preprints" %}
+                </a>
+                {% endif %}
+
+              <div class="ou-preprint-list">
+                {% for preprint in rou.latest_preprints %}
+                <div class="ou-preprint-item">
+                  <a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title }}</a>
+                  <div class="ou-preprint-meta">
+                    <span>{{ preprint.display_authors_compact }}</span>
+                    <span class="ou-preprint-meta-separator">•</span>
+                    <span>{{ preprint.date_published|date:"Y-m-d" }}</span>
+                  </div>
+                  {% if preprint.abstract %}
+                  <p class="ou-preprint-abstract">{{ preprint.abstract|truncatewords_html:30 }}</p>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="ou-card">
+            <h2>{% trans "Repository Overview" %}</h2>
+            <p>{% trans "Select an organizational unit from the hierarchy to view its details and preprints." %}</p>
+            {% if recent_preprints %}
+            <div class="ou-section" style="margin-top: 1.5rem;">
+              <div class="ou-preprints-header">
+                <h3 class="ou-preprints-header-title">{% trans "Recent Preprints" %}</h3>
+                <a href="{% url 'repository_list' %}">
+                  {% trans "View all preprints" %}&nbsp;<i class="fa fa-external-link"></i>
+                </a>
+              </div>
+
+              <div class="ou-preprint-list">
+                {% for preprint in recent_preprints %}
+                <div class="ou-preprint-item">
+                  <a href="{% url 'repository_preprint' preprint.pk %}" class="ou-preprint-title">{{ preprint.title }}</a>
+                  <div class="ou-preprint-meta">
+                    <span>{{ preprint.display_authors_compact }}</span>
+                    <span class="ou-preprint-meta-separator">•</span>
+                    <span>{{ preprint.date_published|date:"Y-m-d" }}</span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

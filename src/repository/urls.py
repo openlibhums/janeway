@@ -248,8 +248,23 @@ urlpatterns = [
         views.send_user_email, name='send_user_email_preprint'),
 
     re_path(
+        r"^hierarchy/(?P<rou_code>[\w-]+)/$",
+        views.rou_hierarchy_view,
+        name="rou_hierarchy",
+    ),
+    re_path(
+        r"^hierarchy/$",
+        views.rou_hierarchy_view,
+        name="rou_hierarchy",
+    ),
+    re_path(
         r'^(?P<rou_code>[\w-]+)/$',
         views.repository_home,
         name='repository_home_by_rou',
+    ),
+    re_path(
+        r'^(?P<rou_code>[\w-]+)/list$',
+        views.preprints_by_rou,
+            name='repository_preprints_by_rou',
     ),
 ]

@@ -119,6 +119,26 @@
                             </a>
                         </p>
                     {% endif %}
+                    {% with preprint.organisation_units.all as rous %}
+                        {% if rous %}
+                            <h2>
+                                {% if rous.count > 1 %}
+                                    {% trans "Units" %}
+                                {% else %}
+                                    {% trans "Unit" %}
+                                {% endif %}
+                            </h2>
+                            <ul>
+                                {% for rou in rous %}
+                                <li>
+                                    <a href="{% url 'repository_preprints_by_rou' rou.code %}">
+                                        {{ rou.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
                     <h2>{% trans "Metadata" %}</h2>
                     <ul>
                         <li>{% trans "Published" %}: {{ preprint.date_published|date:"Y-m-d" }}</li>

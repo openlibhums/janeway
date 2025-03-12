@@ -16,15 +16,35 @@
 {% block body %}
 <section id="content">
     <div class="row column">
+        {% if not selected_rou %}
         <div class="large-12 columns">
             <h1 class="text-center">
-                {% if selected_rou %}
-                    {{ selected_rou.name }}
-                {% else %}
-                    {{ request.repository.name }}
-                {% endif %}
+                {{ request.repository.name }}
             </h1>
         </div>
+        {% endif %}
+
+        {% if selected_rou %}
+            <div class="large-12 columns">
+                <h1 class="text-center">
+                    {{ selected_rou.name }}
+                </h1>
+                <ul class="inline-list text-center">
+                    <li>
+                        <a href="{% url 'repository_preprints_by_rou' selected_rou.code %}">
+                            View Unit's {{ request.repository.object_name_plural }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            Submit {{ request.repository.object_name }} to Unit
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if not selected_rou %}
         <div class="large-6 columns end large-offset-3">
             <div class="input-group">
                 <form method="POST" action="{% url 'repository_search' %}">
@@ -50,56 +70,53 @@
             </p>
           {% endif %}
         </div>
+        {% endif %}
 
         {% if preprints %}
         <div class="large-8 columns large-offset-2 end">
             <h2 class="text-center">
-                {% if selected_rou %}
-                    {% trans "Latest Preprints in" %} {{ selected_rou.name }}
-                {% else %}
-                    {% trans "Latest Preprints" %}
-                {% endif %}
+                {% trans "Latest" %} {{ request.repository.object_name_plural }}
             </h2>
             {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
         </div>
         {% endif %}
 
         {% if rous %}
-    <div class="large-8 columns large-offset-2 end">
-        <h2 class="text-center">
-            {% if selected_rou %}
-                {% trans 'Select Subunit of' %} {{ selected_rou.name }}
-            {% else %}
-                {% trans 'Select Organisational Unit' %}
-            {% endif %}
-        </h2>
-        {% if rous|length <= 5 %}
-          <div class="large-12 columns">
-            <div class="stacked button-group">
-              {% for rou in rous %}
-                <a href="{% url 'repository_home_by_rou' rou.code %}"
-                   class="button">{{ rou.name }}</a>
-              {% endfor %}
-            </div>
-          </div>
-        {% else %}
-          <div class="row">
-            {% for rou in rous %}
-              <div class="small-6 columns subjectbutton">
-                <a href="{% url 'repository_home_by_rou' rou.code %}"
-                   class="button expanded">{{ rou.name }}</a>
-              </div>
-              {% if forloop.counter|divisibleby:2 %}
+        <div class="large-8 columns large-offset-2 end">
+            <h2 class="text-center">
+                {% if selected_rou %}
+                    {% trans 'Select Sub-unit of' %} {{ selected_rou.name }}
+                {% else %}
+                    {% trans 'Select Organisational Unit' %}
+                {% endif %}
+            </h2>
+            {% if rous|length <= 5 %}
+              <div class="large-12 columns">
+                <div class="stacked button-group">
+                  {% for rou in rous %}
+                    <a href="{% url 'repository_home_by_rou' rou.code %}"
+                       class="button">{{ rou.name }}</a>
+                  {% endfor %}
                 </div>
-                <div class="row">
-              {% endif %}
-            {% endfor %}
-            </div>
-        {% endif %}
-      </div>
+              </div>
+            {% else %}
+              <div class="row">
+                {% for rou in rous %}
+                  <div class="small-6 columns subjectbutton">
+                    <a href="{% url 'repository_home_by_rou' rou.code %}"
+                       class="button expanded">{{ rou.name }}</a>
+                  </div>
+                  {% if forloop.counter|divisibleby:2 %}
+                    </div>
+                    <div class="row">
+                  {% endif %}
+                {% endfor %}
+                </div>
+            {% endif %}
+          </div>
           {% endif %}
 
-        {% if subjects %}
+        {% if subjects and not selected_rou %}
             <div class="large-8 columns large-offset-2 end">
                 <h2 class="text-center">{% trans 'Filter by Subject' %}</h2>
                 {% if subjects|length <= 5 %}

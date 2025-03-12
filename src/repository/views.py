@@ -4,13 +4,12 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from dateutil import tz
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -50,22 +49,13 @@ from security.decorators import (
 logger = logger.get_logger(__name__)
 
 
-from django.shortcuts import render, get_object_or_404
-from django.utils import timezone
-from repository import models
-
-
-from django.shortcuts import render, get_object_or_404
-from django.utils import timezone
-from repository import models
-
-
 def repository_home(
     request,
     rou_code=None,
 ):
     repository = request.repository
     selected_rou = None
+    rous = []
 
     if rou_code:
         # Get the selected ROU
@@ -74,7 +64,9 @@ def repository_home(
             repository=repository,
             code=rou_code,
         )
-        # Fetch children of the selected ROU
+        # Get all descendant ROUs
+        descendant_rous = selected_rou.get_descendants()
+        relevant_rous = [selected_rou] + descendant_rous
         rous = selected_rou.children.all()
     else:
         # Fetch top-level ROUs
@@ -82,42 +74,41 @@ def repository_home(
             repository=repository,
             parent__isnull=True,
         )
+        relevant_rous = []
 
+    # Filter preprints, ensuring they belong to the repository and are published
     preprints_query = models.Preprint.objects.filter(
         repository=repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED,
     )
 
-    if selected_rou:
+    if relevant_rous:
+        # Filter preprints that belong to the selected ROU or its sub-units
         preprints_query = preprints_query.filter(
-            organisation_units=selected_rou,
-        )
+            organisation_units__in=relevant_rous,
+        ).distinct()
 
-    preprints = preprints_query.order_by(
-        '-date_published',
-    )[:6]
+    # Limit to latest 6 preprints
+    preprints = preprints_query.order_by("-date_published")[:6]
 
+    # Fetch subjects related to the repository
     subjects = models.Subject.objects.filter(
         repository=repository,
-    ).prefetch_related(
-        'preprint_set',
-    )
+    ).prefetch_related("preprint_set")
 
-    template = 'repository/home.html'
+    template = "repository/home.html"
     context = {
-        'preprints': preprints,
-        'subjects': subjects,
-        'rous': rous,
-        'selected_rou': selected_rou,
+        "preprints": preprints,
+        "subjects": subjects,
+        "rous": rous,
+        "selected_rou": selected_rou,
     }
     return render(
         request,
         template,
         context,
     )
-
-
 
 
 def sitemap(request, subject_id=None):
@@ -2547,19 +2538,29 @@ def manage_review_recommendation(request, recommendation_id=None):
 
 
 def preprints_by_rou(request, rou_code):
-    # Get the ROU object
+    # Get the selected ROU
     rou = get_object_or_404(
         models.RepositoryOrganisationUnit,
         repository=request.repository,
         code=rou_code,
     )
 
-    # Fetch preprints for the ROU
-    preprints = rou.preprints.all()
+    # Get all descendant ROUs
+    descendant_rous = rou.get_descendants()
+    relevant_rous = [rou] + descendant_rous
+
+    # Fetch preprints associated with the selected ROU and its sub-units
+    preprints = models.Preprint.objects.filter(
+        organisation_units__in=relevant_rous,
+        date_published__lte=timezone.now(),
+        stage=models.STAGE_PREPRINT_PUBLISHED,
+    ).distinct().order_by(
+        "-date_published",
+    )
 
     # Pagination setup
-    page = request.GET.get('page', 1)  # Default to page 1
     paginator = Paginator(preprints, 10)  # Show 10 preprints per page
+    page = request.GET.get("page", 1)  # Default to page 1
 
     try:
         preprints_page = paginator.page(page)
@@ -2571,9 +2572,78 @@ def preprints_by_rou(request, rou_code):
     # Render the template
     return render(
         request,
-        'repository/list.html',
+        "repository/list.html",
         {
-            'preprints': preprints_page,
-            'rou': rou,
+            "preprints": preprints_page,
+            "rou": rou,
         },
     )
+
+
+def build_hierarchy(units):
+    """ Recursively builds a nested dictionary structure for hierarchy """
+    hierarchy = []
+    for unit in units:
+        children = unit.children.annotate(preprint_count=Count("preprints"))
+        latest_preprints = unit.preprints.order_by("-date_published")[:10]  # Get latest 10 preprints
+        hierarchy.append(
+            {
+                "unit": unit,
+                "preprint_count": unit.preprints.count(),
+                "latest_preprints": latest_preprints,  # Add latest preprints
+                "children": build_hierarchy(children),
+            }
+        )
+    return hierarchy
+
+def rou_hierarchy_view(request, rou_code=None):
+    repository = request.repository
+    selected_rou = None
+    hierarchy = []
+
+    if rou_code:
+        # Get the selected ROU
+        selected_rou = get_object_or_404(
+            models.RepositoryOrganisationUnit.objects.annotate(
+                preprint_count=Count("preprints")
+            ),
+            repository=repository,
+            code=rou_code,
+        )
+        # Fetch the latest 10 preprints for the selected ROU
+        selected_rou.latest_preprints = selected_rou.preprints.order_by(
+            "-date_published",
+        )[:10]
+
+        # Build hierarchy from the **top level down**
+        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        ).annotate(preprint_count=Count("preprints"))
+
+        hierarchy = build_hierarchy(top_level_units)
+
+    else:
+        # No ROU selected – Show **all top-level ROUs and their full hierarchy**
+        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        ).annotate(preprint_count=Count("preprints"))
+
+        hierarchy = build_hierarchy(top_level_units)
+
+    return render(
+        request,
+        "repository/hierarchy.html",
+        {
+            "rou": selected_rou,
+            "repository": repository,
+            "hierarchy": hierarchy,
+            "recent_preprints": models.Preprint.objects.filter(
+                repository=request.repository,
+                date_published__lte=timezone.now(),
+            ).order_by('-date_published')[:10],
+            "page_text": repository.render_setting(repository.rou_struct_page_text),
+        },
+    )
+

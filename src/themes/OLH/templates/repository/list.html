@@ -30,37 +30,38 @@
                         Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
                     {% elif subject %}
                         Filtering by Subject: {{ subject }}
-                    {% else %}
-                        There
-                        {% if preprints.paginator.count > 1 %}
-                            are {{ preprints.paginator.count }}
-                            {% if rou %}preprints{% else %}{{ request.repository.object_name_plural }}{% endif %}
-                            listed.
-                        {% elif preprints.paginator.count == 1 %}
-                            is 1
-                            {% if rou %}preprint{% else %}{{ request.repository.object_name }}{% endif %}
-                            listed.
-                        {% else %}
-                            are 0
-                            {% if rou %}preprints{% else %}{{ request.repository.object_name_plural }}{% endif %}
-                            listed.
-                        {% endif %}
                     {% endif %}
                 </p>
+                <p>
+                    There {% if preprints.paginator.count == 1 %}is{% else %}are{% endif %}
+                    {{ preprints.paginator.count }}
+                    {% if preprints.paginator.count == 1 %}
+                        {{ request.repository.object_name }}
+                    {% else %}
+                        {{ request.repository.object_name_plural }}
+                    {% endif %}
+                    listed{% if rou and rou.children.exists %}, including those from sub-units of {{ rou.name }}{% endif %}.
+                </p>
+
             </div>
             {% for preprint in preprints %}
                 <div class="box article">
-                    <a href="{% url 'repository_preprint' preprint.pk %}" class="box-link"></a>
+
                     <div class="clearfix">
                         <div class="large-12s columns end">
-                            <h2>{{ preprint.title|safe }}</h2>
+                            <h2><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></h2>
                             <p>{{ preprint.display_authors_compact }}</p>
                             <p>
                                 <span class="date">
                                     <i class="fa fa-calendar"></i>
                                     {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;
                                     <i class="fa fa-paperclip"></i>
-                                    {% include "common/repository/subject_display.html" %}
+                                    {% include "common/repository/subject_display.html" %}&nbsp;
+                                    <i class="fa fa-link"></i>
+                                    {% for rou in preprint.organisation_units.all %}
+                                    <a href="{% url 'repository_preprints_by_rou' rou.code %}">
+                                        {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
                                 </span>
                             </p>
                             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>

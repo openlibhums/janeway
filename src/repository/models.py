@@ -16,7 +16,7 @@ from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from django.http.request import split_domain_port
+from django.template import Template, Context
 from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
@@ -259,6 +259,17 @@ class Repository(model_utils.AbstractSiteModel):
         default=False,
         help_text='Enable this setting to display metrics publicly.'
     )
+    rou_default_name = models.CharField(
+        default="Organisational Units",
+        help_text="Default name for the organisation structure within this repository.",
+    )
+    rou_struct_page_text = model_utils.JanewayBleachField(
+        blank=True,
+        default="<p>This page provides an overview of the organisational structure "
+                "within {{ repository.name }}. You can navigate through the hierarchy "
+                "to explore different units and their associated preprints.</p>",
+        help_text="Text that displays on the organisational unit page.",
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -320,6 +331,18 @@ class Repository(model_utils.AbstractSiteModel):
             pk__in=reviewer_ids,
         )
 
+    def render_setting(self, setting_text):
+        """
+        Renders a repository setting string, replacing placeholders like
+        {{ repository.name }}.
+        """
+        if not setting_text:
+            return ""
+
+        template = Template(setting_text)
+        context = Context({"repository": self})  # Mimic request context
+        return template.render(context)
+
 
 class RepositoryOrganisationUnit(models.Model):
     repository = models.ForeignKey(
@@ -330,12 +353,6 @@ class RepositoryOrganisationUnit(models.Model):
     code = models.SlugField(
         max_length=50,
         help_text='A unique code within the repository for URL generation.',
-    )
-    preprints = models.ManyToManyField(
-        'repository.Preprint',
-        blank=True,
-        related_name='organisation_units',
-        help_text='Preprints associated with this organisational unit.',
     )
     parent = models.ForeignKey(
         'self',
@@ -352,6 +369,19 @@ class RepositoryOrganisationUnit(models.Model):
 
     class Meta:
         unique_together = ('repository', 'code')
+
+    def get_descendants(self):
+        """Returns all descendant ROUs recursively."""
+        descendants = list(self.children.all())  # Start with direct children
+        queue = list(descendants)
+
+        while queue:
+            parent = queue.pop()
+            children = list(parent.children.all())
+            descendants.extend(children)
+            queue.extend(children)
+
+        return descendants
 
 
 class RepositoryRole(models.Model):
@@ -527,6 +557,12 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         help_text='Linked article of this preprint.',
+    )
+    organisation_units = models.ManyToManyField(
+        "repository.RepositoryOrganisationUnit",
+        blank=True,
+        related_name="preprints",
+        help_text="The organisational units this preprint belongs to.",
     )
 
     def __str__(self):

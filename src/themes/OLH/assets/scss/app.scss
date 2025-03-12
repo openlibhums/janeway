@@ -1328,3 +1328,20 @@ button.list-group-item-danger.active:focus {
   text-decoration: underline;
 }
 
+.preprint-section {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa; /* Light grey background to separate preprints */
+    border-left: 3px solid #007bff; /* Blue left border for emphasis */
+}
+
+.preprint-list {
+    list-style-type: disc; /* Ensure preprints have bullet points */
+    padding-left: 1.5rem;  /* Proper indentation */
+    font-size: 0.9rem; /* Slightly smaller font for preprints */
+}
+
+.view-all-preprints {
+    margin-top: 0.5rem;
+    font-weight: bold;
+}
