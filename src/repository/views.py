@@ -423,7 +423,14 @@ def repository_preprint(request, preprint_id):
         repository=request.repository,
         date_published__lte=timezone.now(),
     )
-    comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
+    comments = models.Comment.objects.filter(preprint=preprint)
+
+    if not preprint.repository.enable_invited_comments:
+        comments = comments.exclude(review__isnull=False)
+
+    if not preprint.repository.enable_comments:
+        comments = comments.filter(review__isnull=False)
+
     form = forms.CommentForm(
         preprint=preprint,
         author=request.user,
