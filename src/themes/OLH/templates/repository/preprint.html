@@ -58,7 +58,7 @@
                             webkitallowfullscreen></iframe>
                 {% endif %}
 
-                {% if request.repository.enable_comments %}
+                {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
                   <h2>{% trans 'Comments' %}</h2>
                   {% if request.user.is_authenticated %}
                       <div>
