@@ -67,20 +67,21 @@
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
                 <div class="card">
                     <div class="card-content">
-                        <span class="card-title">{% trans 'Add a Comment' %}</span>
-                        {% if request.user.is_authenticated %}
-                            <div>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    {% bootstrap_form form %}
-                                    <button type="submit" class="btn btn-success">Add Comment</button>
-                                </form>
-                            </div>
-                            <br/>
-                        {% else %}
-                            <p>You must <a href="{% url_with_return 'core_login' %}">log in</a>
-                            to post a comment.</p>
-
+                        {% if request.repository.enable_comments %}
+                            <span class="card-title">{% trans 'Add a Comment' %}</span>
+                            {% if request.user.is_authenticated %}
+                                <div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {% bootstrap_form form %}
+                                        <button type="submit" class="btn btn-success">Add Comment</button>
+                                    </form>
+                                </div>
+                                <br/>
+                            {% else %}
+                                <p>You must <a href="{% url_with_return 'core_login' %}">log in</a>
+                                to post a comment.</p>
+                            {% endif %}
                         {% endif %}
                         <div class="divider"></div>
                         <br />

@@ -60,7 +60,7 @@
 
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
                   <h2>{% trans 'Comments' %}</h2>
-                  {% if request.user.is_authenticated %}
+                  {% if request.user.is_authenticated and request.repository.enable_comments %}
                       <div>
                           <form method="POST">
                               {% csrf_token %}
