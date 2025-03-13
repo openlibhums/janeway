@@ -560,14 +560,26 @@ def submit_files(request, article_id):
     if request.POST:
 
         if 'delete' in request.POST:
-            file_id = request.POST.get('delete')
-            file = get_object_or_404(core_models.File, pk=file_id, article_id=article.pk)
-            file.delete()
-            messages.add_message(
-                request,
-                messages.WARNING,
-                _('File deleted'),
-            )
+            with transaction.atomic():
+                file_id = request.POST.get('delete')
+                file = get_object_or_404(core_models.File, pk=file_id, article_id=article.pk)
+                file.delete()
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('File deleted'),
+                )
+
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_FILE_DELETE,
+                    **{
+                        'request': request,
+                        'file_id': file_id,
+                        'original_filename': file.original_filename,
+                        'article': article
+                    }
+                )
+            
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
 
         if 'manuscript' in request.POST:
@@ -575,18 +587,37 @@ def submit_files(request, article_id):
             uploaded_file = request.FILES.get('file')
             if logic.check_file(uploaded_file, request, ms_form):
                 if ms_form.is_valid():
-                    new_file = files.save_file_to_article(
-                        uploaded_file,
-                        article,
-                        request.user,
-                    )
-                    article.manuscript_files.add(new_file)
-                    new_file.label = ms_form.cleaned_data['label']
-                    new_file.description = ms_form.cleaned_data['description']
-                    new_file.save()
-                    return redirect(
-                        reverse('submit_files', kwargs={'article_id': article_id}),
-                    )
+                    try:
+                        with transaction.atomic():
+                            new_file = files.save_file_to_article(
+                                uploaded_file,
+                                article,
+                                request.user,
+                            )
+                            article.manuscript_files.add(new_file)
+                            new_file.label = ms_form.cleaned_data['label']
+                            new_file.description = ms_form.cleaned_data['description']
+                            new_file.save()
+
+                            event_logic.Events.raise_event(
+                                event_logic.Events.ON_ARTICLE_FILE_UPLOAD,
+                                **{
+                                    'request': request,
+                                    'file_id': new_file,
+                                    'original_filename': new_file.original_filename,
+                                    'file_type': 'manuscript',
+                                    'article': article
+                                }
+                            )
+
+                        return redirect(
+                            reverse('submit_files', kwargs={'article_id': article_id}),
+                        )
+                    except Exception as e:
+                        ms_form.add_error(None, str(e))
+                    
+
+
                 else:
                     modal = 'manuscript'
             else:
@@ -596,19 +627,34 @@ def submit_files(request, article_id):
             data_form = forms.FileDetails(request.POST)
             uploaded_file = request.FILES.get('file')
             if data_form.is_valid() and uploaded_file:
-                new_file = files.save_file_to_article(
-                    uploaded_file,
-                    article,
-                    request.user,
-                )
-                article.data_figure_files.add(new_file)
-                new_file.label = data_form.cleaned_data['label']
-                new_file.description = data_form.cleaned_data['description']
-                new_file.save()
-                return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
-            else:
-                data_form.add_error(None, 'You must select a file.')
-                modal = 'data'
+                try:
+                    with transaction.atomic():
+                        new_file = files.save_file_to_article(
+                            uploaded_file,
+                            article,
+                            request.user,
+                        )
+                        article.data_figure_files.add(new_file)
+                        new_file.label = data_form.cleaned_data['label']
+                        new_file.description = data_form.cleaned_data['description']
+                        new_file.save()
+
+                        event_logic.Events.raise_event(
+                            event_logic.Events.ON_ARTICLE_FILE_UPLOAD,
+                            **{
+                                'request': request,
+                                'file_id': new_file,
+                                'original_filename': new_file.original_filename,
+                                'file_type': 'data',
+                                'article': article
+                            }
+                        )
+
+                    return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+                except Exception as e:
+                    data_form.add_error(None, str(e))
+            data_form.add_error(None, 'You must select a file.')
+            modal = 'data'
 
         if 'next_step' in request.POST:
             if article.manuscript_files.all().count() >= 1:
