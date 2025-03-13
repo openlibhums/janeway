@@ -3,18 +3,20 @@
 {% load materializecss %}
 
 {% if facet_form.fields %}
-    <div class="card-panel">
-        <div class="row">
-            <div class="col s12">
-                <h3>Filter</h3>
-            </div>
-            <form method="GET" id={{ facet_form.id }}>
-                {{ facet_form|materializecss }}
+    <section aria-labelledby="filter-title">
+        <div class="card-panel">
+            <div class="row">
                 <div class="col s12">
-                    <button action="" class="btn" type="submit">Apply</button>
-                    <a href="{{ request.path }}" class="btn">{% trans 'Clear all' %}</a>
+                    <h3 id="filter-title">Filter</h3>
                 </div>
-            </form>
+                <form method="GET" id={{ facet_form.id }}>
+                    {{ facet_form|materializecss }}
+                    <div class="col s12">
+                        <button action="" class="btn" type="submit">Apply</button>
+                        <a href="{{ request.path }}" class="btn">{% trans 'Clear all' %}</a>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </section>
 {% endif %}
