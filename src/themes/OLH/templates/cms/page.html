@@ -5,7 +5,7 @@
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
 {% block body %}
-    <section id="content">
+    <section id="content" aria-labelledby="cms-title">
         <div class="row">
             <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
                 <h1 id="cms-title">{{ page.display_name }}</h1>
@@ -18,12 +18,14 @@
                 <aside class="medium-4 columns sticky-container hide-for-small-only">
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-anchor="content" data-sticky-on="large">
-                        <div class="section">
-                            <h3>{% trans "Table of Contents" %}</h3>
-                            <ul id="toc">
+                        <section aria-labelledby="toc-title">
+                            <div class="section">
+                                <h3 id="toc-title">{% trans "Table of Contents" %}</h3>
+                                <ul id="toc">
 
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
+                        </section>
                     </div>
                 </aside>
             {% endif %}

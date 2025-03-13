@@ -4,13 +4,13 @@
 {% load i18n %}
 {% load dates %}
 
-<section>
+<section aria-labelledby="news-title">
     <div class="row">
         <div class="col m12">
 
             <div class="card">
                 <div class="card-content no-bottom-padding">
-                    <span class="card-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</span>
+                    <h2 id="news-title" class="card-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
                 </div>
                 {% for item in news_items %}
                     {% if display_images %}

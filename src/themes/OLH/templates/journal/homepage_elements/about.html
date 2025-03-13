@@ -1,10 +1,10 @@
 {% load svg from press_url %}
 {% load i18n %}
 
-<section class="dark-primary-bg">
+<section class="dark-primary-bg" aria-labelledby="about-title">
     <div class="row" id="about_journal">
         <div class="large-12 columns">
-            <h2>{{ title_value|safe }}</h2>
+            <h2 id="about-title">{{ title_value|safe }}</h2>
             <p>{{ journal_settings.general.journal_description|safe }}</p>
         </div>
     </div>
