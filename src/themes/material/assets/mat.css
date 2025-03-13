@@ -293,9 +293,9 @@ a:hover .article-title {
     list-style-type: disc;
 }
 
-.toc-card {
-    position: fixed !important;
-    top: 1%;
+.toc-sticky{
+    position: sticky;
+    top: 0;
 }
 
 .wide-button {

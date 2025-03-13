@@ -17,7 +17,7 @@
 
 {% block body %}
 
-    <article>
+    <section>
     {% if not journal_settings.article.disable_article_large_image %}
         <section class="no-padding meta show-for-small-only">
             <div class="row">
@@ -283,7 +283,7 @@
                         </div>
                     </div>
                 </div>
-                <aside class="large-4 columns " data-sticky-container>
+                <section aria-label="{% trans 'Article Information' %}" class="large-4 columns " data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
                           data-anchor="content" data-sticky-on="large">
 
@@ -407,10 +407,12 @@
 
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">
-                            <h3>{% trans "Jump to" %}</h3>
-                            <ul id="toc">
+                            <section aria-labelledby="toc-title">
+                                <h3 id="toc-title">{% trans "Jump to" %}</h3>
+                                <ul id="toc">
 
-                            </ul>
+                                </ul>
+                            </section>
                         </div>
                         {% endif %}
 
@@ -478,10 +480,10 @@
                             {% endif %}
                         </div>
                     </div>
-                </aside>
+                </section>
             </div>
         </section>
-    </article>
+    </section>
 
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}

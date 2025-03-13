@@ -229,263 +229,269 @@
 
         <div class="col m4">
             <div class="card">
-                <div class="card-content">
-                    {% include "common/elements/altmetric_badges.html" with article=article %}
-                    {% include "elements/journal/share.html" %}
-                    {% if article.frozen_authors.exists %}
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                        <h4>
-                          {% blocktrans count counter=article.frozen_authors.count %}
-                            Author
-                          {% plural %}
-                            Authors
-                          {% endblocktrans %}
-                        </h4>
-                        <ul id="author-list">
-                            {% for author in article.frozen_authors.all %}
-                                <li>
-                                  {% include "common/elements/journal/article_author_display.html" %}
-                                     {% if journal_settings.general.use_credit and author.credits.exists %}
-                                       [<span class="credit">
-                                         {% for credit in author.credits %}
-                                           {{ credit }}{% if not forloop.last %}, {% endif %}
-                                         {% endfor %}
-                                       </span>]
-                                     {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>    
-                    {% endif %}
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    {% if article.is_published or proofing %}
-                        <h4>
-                            {% trans "Downloads" %}
-                        </h4>
-                        {% if galleys %}
-                            <ul>
-                                {% for galley in galleys %}
-                                    <li>
-                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            </li>
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            {% if proofing %}
-                                <p id="note_to_proofreader_2">
-                                    <i aria-hidden="true" class="fa fa-info-circle" ></i>
-                                    Note to proofreader: Download links on this page begin to work when the article is published.
-                                </p>
-                            {% endif %}
+                <section aria-label="{% trans 'Article Information' %}">
+                    <div class="card-content">
+                        {% include "common/elements/altmetric_badges.html" with article=article %}
+                        {% include "elements/journal/share.html" %}
+                        {% if article.frozen_authors.exists %}
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
-                        {% else %}
-                            <p> {% trans 'Downloads are not available for this article.' %}</p>
-                        {% endif %}
-                    {% endif %}
-
-                    {% include "elements/journal/article_issue_list.html" %}
-                     <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    {% if article.has_publication_details %}
-                    <div class="section">
-                        <h4>{% trans "Publication details" %}</h4>
-                        <table class="sidebar-table">
-                            {% if article.page_range %}
-                            <tr>
-                                <th scope="row" >{% trans "Pages" %}</th>
-                                <td>{{ article.page_range }}</td>
-                            </tr>
-                            {% endif %}
-                            {% if article.article_number %}
-                            <tr>
-                                <th scope="row" >{% trans "Article No." %}</th>
-                                <td>{{ article.article_number }}</td>
-                            </tr>
-                            {% endif %}
-                            {% if article.publisher_name %}
-                            <tr>
-                                <th scope="row" >{% trans "Publisher" %}</th>
-                                <td>{{ article.publisher_name }}</td>
-                            </tr>
-                            {% endif %}
-                            {% if article.publication_title %}
-                            <tr>
-                                <th scope="row" >{% trans "Publication" %}</th>
-                                <td>{{ article.publication_title }}</td>
-                            </tr>
-                            {% endif %}
-                            {% if article.ISSN_override %}
-                            <tr>
-                                <th scope="row" >{% trans "Original ISSN" %}</th>
-                                <td>{{ article.ISSN_override}}</td>
-                            </tr>
-                            {% endif %}
-                            {% if journal_settings.article.display_date_submitted and article.date_submitted %}
-                                <tr>
-                                    <th scope="row" >{% trans "Submitted on" %}</th>
-                                    <td>{{ article.date_submitted|date_human }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if journal_settings.article.display_date_accepted and article.date_accepted %}
-                                <tr>
-                                    <th scope="row" >{% trans "Accepted on" %}</th>
-                                    <td>{{ article.date_accepted|date_human }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if article.date_published or proofing %}
-                            <tr>
-                                <th scope="row" >{% trans "Published on" %}</th>
-                                <td id="article_date_published">
-                                    {{ article.date_published|date_human }}
-                                </td>
-                            </tr>
-                            {% endif %}
-                        </table>
-                    </div>
-                    <div class="spacer">
-                     <div class="divider"></div>
-                    </div>
-                    {% endif %}
-
-                    {% if article.supplementary_files.all %}
-                        <h4>{% trans "Supplementary Files" %}</h4>
-
-                        <ul>
-                            {% for file in article.supplementary_files.all %}
-                                <li><a href="{{ file.url }}">{{ file.label }}</a></li>
-                            {% endfor %}
-                        </ul>
-
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                    {% endif %}
-
-                    {% if journal_settings.general.submission_summary %}
-                        <h4>{% trans "Non Specialist Summary" %}</h4>
-                        <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                    {% endif %}
-                    <h4>
-                        {% trans "Licence" %}
-                    </h4>
-                    <p>{{ article.license.name }} 
-                        {% if article.license.url %}
-                            <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
-                                <i aria-hidden="true" class="fa fa-external-link"></i>
-                            </a>
-                        {% endif %}
-                    </p>
-
-                    {% if article.competing_interests %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-
-                    <h4>
-                        {% trans "Competing Interests" %}
-                    </h4>
-                    <p>{{ article.competing_interests|safe }}</p>
-                    {% endif %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-
-                    {% with article.get_doi_url as doi_url %}
-                    {% if doi_url %}
-                    <h4>{% trans "Identifiers" %}</h4>
-                    <ul>
-                        <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
-                    </ul>
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    {% endif %}
-                    {% endwith %}
-
-                    {% if article.peer_reviewed %}
-                        <h4>
-                            {% trans "Peer Review" %}
-                        </h4>
-                        <p>
-                            <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
-                            {% trans "This article has been peer reviewed." %}
-                        </p>
-                            {% if journal_settings.general.open_peer_review %}
-                                {% if article.public_reviews.count > 0 %}
-                                    <p>
-                                        {% for review in article.public_reviews %}
-                                            <button data-target="reviewmodal-{{ review.pk }}" class="btn modal-trigger">Review by {{ review.reviewer.full_name }}</button>
-                                        {% endfor %}<br/>
-                                    </p>
-                                {% endif %}
-                            {% endif %}
-                    {% endif %}
-
-                    {% if article.custom_fields %}
-                        {% for field in article.custom_fields %}
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                        <h4>{% trans field.field.name %}</h4>
-                          <p>{{ field.answer|safe }}</p>
-                        {% endfor %}
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                    {% endif %}
-
-                    {% if article.preprint and article.preprint.is_published %}
-                      <h4>{{ article.preprint.repository.object_name }}</h4>
-                      <p>This article is linked to
-                        a {{ article.preprint.repository.object_name }}
-                        in {{ article.preprint.repository.name }}.</p>
-                      <p>
-                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
-                      </p>
-                    {% endif %}
-
-                    {% if article.is_published or proofing %}
-                        <h4>
-                            {% trans "File Checksums" %} (MD5)
-                        </h4>
-                        {% if galleys %}
-                            <ul>
-                                {% for galley in galleys %}
+                            <h4>
+                                {% blocktrans count counter=article.frozen_authors.count %}
+                                    Author
+                                {% plural %}
+                                    Authors
+                                {% endblocktrans %}
+                            </h4>
+                            <ul id="author-list">
+                                {% for author in article.frozen_authors.all %}
                                     <li>
-                                        <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                        {% include "common/elements/journal/article_author_display.html" %}
+                                        {% if journal_settings.general.use_credit and author.credits.exists %}
+                                        [<span class="credit">
+                                            {% for credit in author.credits %}
+                                            {{ credit }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </span>]
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                            </ul>    
                         {% endif %}
-                    {% endif %}
-                </div>
+
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        {% if article.is_published or proofing %}
+                            <h4>
+                                {% trans "Downloads" %}
+                            </h4>
+                            {% if galleys %}
+                                <ul>
+                                    {% for galley in galleys %}
+                                        <li>
+                                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                            {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                </li>
+                                                <li>
+                                                    <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if proofing %}
+                                    <p id="note_to_proofreader_2">
+                                        <i aria-hidden="true" class="fa fa-info-circle" ></i>
+                                        Note to proofreader: Download links on this page begin to work when the article is published.
+                                    </p>
+                                {% endif %}
+                                <div class="spacer">
+                                    <div class="divider"></div>
+                                </div>
+                            {% else %}
+                                <p> {% trans 'Downloads are not available for this article.' %}</p>
+                            {% endif %}
+                        {% endif %}
+
+                        {% include "elements/journal/article_issue_list.html" %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        {% if article.has_publication_details %}
+                        <div class="section">
+                            <h4>{% trans "Publication details" %}</h4>
+                            <table class="sidebar-table">
+                                {% if article.page_range %}
+                                <tr>
+                                    <th scope="row" >{% trans "Pages" %}</th>
+                                    <td>{{ article.page_range }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if article.article_number %}
+                                <tr>
+                                    <th scope="row" >{% trans "Article No." %}</th>
+                                    <td>{{ article.article_number }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if article.publisher_name %}
+                                <tr>
+                                    <th scope="row" >{% trans "Publisher" %}</th>
+                                    <td>{{ article.publisher_name }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if article.publication_title %}
+                                <tr>
+                                    <th scope="row" >{% trans "Publication" %}</th>
+                                    <td>{{ article.publication_title }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if article.ISSN_override %}
+                                <tr>
+                                    <th scope="row" >{% trans "Original ISSN" %}</th>
+                                    <td>{{ article.ISSN_override}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                                    <tr>
+                                        <th scope="row" >{% trans "Submitted on" %}</th>
+                                        <td>{{ article.date_submitted|date_human }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if journal_settings.article.display_date_accepted and article.date_accepted %}
+                                    <tr>
+                                        <th scope="row" >{% trans "Accepted on" %}</th>
+                                        <td>{{ article.date_accepted|date_human }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if article.date_published or proofing %}
+                                <tr>
+                                    <th scope="row" >{% trans "Published on" %}</th>
+                                    <td id="article_date_published">
+                                        {{ article.date_published|date_human }}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        <div class="spacer">
+                        <div class="divider"></div>
+                        </div>
+                        {% endif %}
+
+                        {% if article.supplementary_files.all %}
+                            <h4>{% trans "Supplementary Files" %}</h4>
+
+                            <ul>
+                                {% for file in article.supplementary_files.all %}
+                                    <li><a href="{{ file.url }}">{{ file.label }}</a></li>
+                                {% endfor %}
+                            </ul>
+
+                            <div class="spacer">
+                                <div class="divider"></div>
+                            </div>
+                        {% endif %}
+
+                        {% if journal_settings.general.submission_summary %}
+                            <h4>{% trans "Non Specialist Summary" %}</h4>
+                            <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
+                            <div class="spacer">
+                                <div class="divider"></div>
+                            </div>
+                        {% endif %}
+                        <h4>
+                            {% trans "Licence" %}
+                        </h4>
+                        <p>{{ article.license.name }} 
+                            {% if article.license.url %}
+                                <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
+                                    <i aria-hidden="true" class="fa fa-external-link"></i>
+                                </a>
+                            {% endif %}
+                        </p>
+
+                        {% if article.competing_interests %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+
+                        <h4>
+                            {% trans "Competing Interests" %}
+                        </h4>
+                        <p>{{ article.competing_interests|safe }}</p>
+                        {% endif %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+
+                        {% with article.get_doi_url as doi_url %}
+                        {% if doi_url %}
+                        <h4>{% trans "Identifiers" %}</h4>
+                        <ul>
+                            <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                        </ul>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if article.peer_reviewed %}
+                            <h4>
+                                {% trans "Peer Review" %}
+                            </h4>
+                            <p>
+                                <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
+                                {% trans "This article has been peer reviewed." %}
+                            </p>
+                                {% if journal_settings.general.open_peer_review %}
+                                    {% if article.public_reviews.count > 0 %}
+                                        <p>
+                                            {% for review in article.public_reviews %}
+                                                <button data-target="reviewmodal-{{ review.pk }}" class="btn modal-trigger">Review by {{ review.reviewer.full_name }}</button>
+                                            {% endfor %}<br/>
+                                        </p>
+                                    {% endif %}
+                                {% endif %}
+                        {% endif %}
+
+                        {% if article.custom_fields %}
+                            {% for field in article.custom_fields %}
+                            <div class="spacer">
+                                <div class="divider"></div>
+                            </div>
+                            <h4>{% trans field.field.name %}</h4>
+                            <p>{{ field.answer|safe }}</p>
+                            {% endfor %}
+                            <div class="spacer">
+                                <div class="divider"></div>
+                            </div>
+                        {% endif %}
+
+                        {% if article.preprint and article.preprint.is_published %}
+                        <h4>{{ article.preprint.repository.object_name }}</h4>
+                        <p>This article is linked to
+                            a {{ article.preprint.repository.object_name }}
+                            in {{ article.preprint.repository.name }}.</p>
+                        <p>
+                            <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                        </p>
+                        {% endif %}
+
+                        {% if article.is_published or proofing %}
+                            <h4>
+                                {% trans "File Checksums" %} (MD5)
+                            </h4>
+                            {% if galleys %}
+                                <ul>
+                                    {% for galley in galleys %}
+                                        <li>
+                                            <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </section>
             </div>
+        </div>
+        <div class="col m4 toc-sticky">
             {% if article_content %}
-            <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
-                <div class="card-content" id="toc-section">
-                    <h4>
-                        {% trans "Table of Contents" %}
-                    </h4>
-                    <ul id="toc" class="section table-of-contents">
-                    </ul>
+                <div class="card hide-on-small-only" id="toc-card">
+                    <section aria-labelledby="toc-title">
+                        <div class="card-content" id="toc-section">
+                            <h4 id="toc-title">
+                                {% trans "Table of Contents" %}
+                            </h4>
+                            <ul id="toc" class="section table-of-contents">
+                            </ul>
+                        </div>
+                    </section>
                 </div>
-            </div>
             {% endif %}
         </div>
 
@@ -499,23 +505,7 @@
 
 {% block js %}
     <script src="{% static 'material/toc.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            $('.scrollspy').scrollSpy();
-        });
-        $(document).scroll(function () {
-            var infobar_y = document.querySelector('nav').offsetHeight
-                + document.querySelector('.card-image').offsetHeight
-                + document.querySelector('.m4').offsetHeight
-            var y = $(this).scrollTop();
-            if (y > infobar_y) {
-                $('#toc-card').fadeIn();
-            } else {
-                $('#toc-card').fadeOut();
-            }
 
-        });
-    </script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     <script>
         MathJax.Hub.Config({

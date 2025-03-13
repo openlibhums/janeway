@@ -4,11 +4,11 @@
 {% load i18n %}
 {% load dates %}
 
-<section>
+<section aria-labelledby="latest-news-title">
     <div class="row">
         <div class="large-12 columns">
             <div class="row column text-center">
-                <h2 class="title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
+                <h2 class="title" id="latest-news-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
             </div>
             <div class="row">
             {% for item in news_items %}
