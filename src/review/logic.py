@@ -849,7 +849,7 @@ def process_reviewer_csv(path, request, article, form):
                 or row.get('department')
                 or row.get('country')
             ):
-                core_models.Affiliation.get_or_create_without_ror(
+                core_models.ControlledAffiliation.get_or_create_without_ror(
                     institution=row.get('institution', ''),
                     department=row.get('department', ''),
                     country=row.get('country', ''),

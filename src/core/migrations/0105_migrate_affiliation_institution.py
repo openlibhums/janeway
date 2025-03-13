@@ -43,10 +43,10 @@ def create_affiliation(
     frozen_author=None,
     preprint_author=None,
 ):
-    Affiliation = apps.get_model("core", "Affiliation")
+    ControlledAffiliation = apps.get_model("core", "ControlledAffiliation")
     organization = create_organization(apps, old_institution, old_country)
 
-    affiliation, _created = Affiliation.objects.get_or_create(
+    affiliation, _created = ControlledAffiliation.objects.get_or_create(
         account=account,
         frozen_author=frozen_author,
         preprint_author=preprint_author,
@@ -87,7 +87,7 @@ def migrate_affiliation_institution(apps, schema_editor):
         )
 
     for preprint_author in PreprintAuthor.objects.filter(
-        affiliation__isnull=True,
+        controlledaffiliation__isnull=True,
     ):
         create_affiliation(
             apps,

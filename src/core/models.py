@@ -44,6 +44,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
     AbstractSiteModel,
+    AffiliationCompatibleQueryset,
     DynamicChoiceField,
     JanewayBleachField,
     JanewayBleachCharField,
@@ -179,12 +180,20 @@ class Country(models.Model):
         return self.name
 
 
-class AccountQuerySet(models.query.QuerySet):
+class AccountQuerySet(AffiliationCompatibleQueryset):
+
+    AFFILIATION_RELATED_NAME = 'account'
+
     def create(self, **kwargs):
+        affil_kwargs = self._pop_old_affiliation_lookups(kwargs)
+
         obj = self.model(**kwargs)
         obj.clean()
         self._for_write = True
         obj.save(force_insert=True, using=self.db)
+
+        if affil_kwargs:
+            self._create_affiliation(affil_kwargs, obj)
         return obj
 
 
@@ -235,31 +244,6 @@ class AccountManager(BaseUserManager):
 
     def get_queryset(self):
         return AccountQuerySet(self.model)
-
-    def get_or_create(self, defaults=None, **kwargs):
-        """
-        Backwards-compatible override for affiliation-related kwargs
-        """
-        # check for deprecated fields related to affiliation
-        institution = kwargs.pop('institution', '')
-        institution = defaults.pop('institution', '')
-        department = kwargs.pop('department', '')
-        department = defaults.pop('department', '')
-        country = kwargs.pop('country', '')
-        country = defaults.pop('country', '')
-
-        account, created = super().get_or_create(defaults, **kwargs)
-
-        # create or update affiliation
-        if institution or department or country:
-            Affiliation.get_or_create_without_ror(
-                institution=institution,
-                department=department,
-                country=country,
-                account=account,
-            )
-
-        return account, created
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
@@ -434,11 +418,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return 'N/A'
 
     def affiliation(self, obj=False, date=None):
-        return Affiliation.get_primary(account=self, obj=obj, date=date)
+        return ControlledAffiliation.get_primary(
+            account=self,
+            obj=obj,
+            date=date,
+        )
 
     @property
     def affiliations(self):
-        return Affiliation.objects.filter(account=self).order_by('-is_primary')
+        return ControlledAffiliation.objects.filter(account=self)
 
     @property
     def institution(self):
@@ -447,7 +435,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @institution.setter
     def institution(self, value):
-        Affiliation.get_or_create_without_ror(institution=value, account=self)
+        ControlledAffiliation.get_or_create_without_ror(
+            institution=value,
+            account=self,
+        )
 
     @property
     def department(self):
@@ -456,7 +447,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @department.setter
     def department(self, value):
-        Affiliation.naive_set_primary_department(value, account=self)
+        ControlledAffiliation.get_or_create_without_ror(
+            department=value,
+            account=self,
+        )
 
     @property
     def country(self):
@@ -466,7 +460,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @country.setter
     def country(self, value):
-        Affiliation.get_or_create_without_ror(country=value, account=self)
+        ControlledAffiliation.get_or_create_without_ror(
+            country=value,
+            account=self,
+        )
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -2182,36 +2179,38 @@ class Organization(models.Model):
                 # account / frozen author / preprint author?
                 try:
                     organization = cls.objects.get(
-                        affiliation__is_primary=True,
-                        affiliation__account=account,
-                        affiliation__frozen_author=frozen_author,
-                        affiliation__preprint_author=preprint_author,
+                        controlledaffiliation__is_primary=True,
+                        controlledaffiliation__account=account,
+                        controlledaffiliation__frozen_author=frozen_author,
+                        controlledaffiliation__preprint_author=preprint_author,
                         ror_id__exact='',
                     )
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                    # Otherwise, create a naive, disconnected record.
+                    # Otherwise, create a new, disconnected record.
                     organization = cls.objects.create()
                     created = True
 
-        # Get or create a custom label
-        if institution:
-            organization_name, _created = OrganizationName.objects.get_or_create(
-                custom_label_for=organization,
+        # Set custom label if organization is not controlled by ROR
+        if institution and not organization.ror_id:
+            organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={'value': institution},
+                custom_label_for=organization,
             )
 
-        # Set the country as a location
+        # Prep the country
         if country and not isinstance(country, Country):
             try:
                 country = Country.objects.get(code=country)
             except Country.DoesNotExist:
                 country = ''
 
-        if country:
+        # Set country data if organization is not controlled by ROR
+        if country and not organization.ror_id:
             location, _created = Location.objects.get_or_create(
                 name='',
                 country=country,
             )
+            organization.locations.clear()
             organization.locations.add(location)
 
         return organization, created
@@ -2243,7 +2242,7 @@ class Organization(models.Model):
                 labels=self.custom_label,
             )
         if matches.exists() and matches.count() == 1:
-            Affiliation.objects.filter(
+            ControlledAffiliation.objects.filter(
                 organization=self,
             ).update(
                 organization=matches.first(),
@@ -2342,7 +2341,14 @@ class Organization(models.Model):
             )
 
 
-class Affiliation(models.Model):
+class ControlledAffiliation(models.Model):
+    """
+    A model to record affiliations for authors and other actors in Janeway.
+    This model has authority control via the Organization model and its ties
+    to the Research Organization Registry.
+    Named ControlledAffiliation to avoid a name clash
+    with an old field named 'affiliation'.
+    """
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
@@ -2471,10 +2477,10 @@ class Affiliation(models.Model):
         person = account or frozen_author or preprint_author
         if not person:
             return None if obj else ''
-        if not person.affiliation_set.exists():
+        if not person.affiliations.exists():
             return None if obj else ''
         if date:
-            affils_with_at_least_one_date = person.affiliation_set.exclude(
+            affils_with_at_least_one_date = person.affiliations.exclude(
                 start__isnull=True,
                 end__isnull=True,
             )
@@ -2484,10 +2490,10 @@ class Affiliation(models.Model):
                 ).first()
                 return affil if obj else str(affil)
         try:
-            affil = person.affiliation_set.get(is_primary=True)
+            affil = person.affiliations.get(is_primary=True)
             return affil if obj else str(affil)
-        except Affiliation.DoesNotExist:
-            affil = person.affiliation_set.first()
+        except ControlledAffiliation.DoesNotExist:
+            affil = person.affiliations.first()
             return affil if obj else str(affil)
 
     @classmethod
@@ -2527,46 +2533,23 @@ class Affiliation(models.Model):
         # Create or update the actual affiliation if the associated
         # account / frozen author / preprint author has been saved already
         try:
-            affiliation, created = Affiliation.objects.get_or_create(
+            defaults = {
+                'organization': organization,
+            }
+            if department:
+                defaults['department'] = department
+            affiliation, created = ControlledAffiliation.objects.update_or_create(
+                defaults=defaults,
+                is_primary=True,
                 account=account,
                 frozen_author=frozen_author,
                 preprint_author=preprint_author,
-                organization=organization,
-                department=department,
             )
-            affiliation.is_primary = True
-            affiliation.save()
         except ValueError:
             logger.warn('The affiliation could not be created.')
             affiliation = None
             created = False
         return affiliation, created
-
-    @classmethod
-    def naive_set_primary_department(
-        cls,
-        value,
-        account=None,
-        frozen_author=None,
-    ):
-        """
-        Backwards-compatible API for setting department names in isolation.
-        It is better to use Affiliation.get_or_create_without_ror where department
-        is set togther with institution and country.
-        Does not support ORCIDs, RORs or multiple affiliations.
-        """
-        # Create or update an affiliation if the associated
-        # account / frozen author / preprint author has been saved already
-        try:
-            affiliation, _created = Affiliation.objects.get_or_create(
-                account=account,
-                frozen_author=frozen_author,
-                is_primary=True,
-            )
-            affiliation.department = value
-            affiliation.save()
-        except ValueError:
-            logger.warn('The department could not be set.')
 
     def save(self, *args, **kwargs):
         self.set_primary_if_first(self)

@@ -1932,32 +1932,8 @@ class Article(AbstractLastModifiedModel):
             return True
 
 
-class FrozenAuthorManager(models.Manager):
-
-    def get_or_create(self, defaults=None, **kwargs):
-        """
-        Backwards-compatible override for affiliation-related kwargs
-        """
-        # check for deprecated fields related to affiliation
-        institution = kwargs.pop('institution', '')
-        institution = defaults.pop('institution', '')
-        department = kwargs.pop('department', '')
-        department = defaults.pop('department', '')
-        country = kwargs.pop('country', '')
-        country = defaults.pop('country', '')
-
-        frozen_author, created = super().get_or_create(defaults, **kwargs)
-
-        # create or update affiliation
-        if institution or department or country:
-            Affiliation.get_or_create_without_ror(
-                institution=institution,
-                department=department,
-                country=country,
-                frozen_author=frozen_author,
-            )
-
-        return frozen_author, created
+class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
+    AFFILIATION_RELATED_NAME = 'frozen_author'
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
@@ -2037,7 +2013,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         help_text=_("If checked, this authors email address link will be displayed on the article page.")
     )
 
-    objects = FrozenAuthorManager()
+    objects = FrozenAuthorQueryset.as_manager()
 
     class Meta:
         ordering = ('order', 'pk')
@@ -2052,7 +2028,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @institution.setter
     def institution(self, value):
-        core_models.Affiliation.get_or_create_without_ror(
+        core_models.ControlledAffiliation.get_or_create_without_ror(
             institution=value,
             frozen_author=self
         )
@@ -2064,8 +2040,8 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @department.setter
     def department(self, value):
-        core_models.Affiliation.naive_set_primary_department(
-            value,
+        core_models.ControlledAffiliation.get_or_create_without_ror(
+            department=value,
             frozen_author=self,
         )
 
@@ -2077,7 +2053,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @country.setter
     def country(self, value):
-        core_models.Affiliation.get_or_create_without_ror(
+        core_models.ControlledAffiliation.get_or_create_without_ror(
             country=value,
             frozen_author=self
         )
@@ -2166,7 +2142,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.first_name
 
     def affiliation(self, obj=False, date=None):
-        return core_models.Affiliation.get_primary(
+        return core_models.ControlledAffiliation.get_primary(
             frozen_author=self,
             obj=obj,
             date=date,
@@ -2174,9 +2150,9 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def affiliations(self):
-        return core_models.Affiliation.objects.filter(
-            frozen_author=self
-        ).order_by('-is_primary')
+        return core_models.ControlledAffiliation.objects.filter(
+            frozen_author=self,
+        )
 
     @property
     def is_correspondence_author(self):

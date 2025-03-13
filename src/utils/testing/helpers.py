@@ -192,7 +192,7 @@ def create_affiliation(
         value=institution,
         custom_label_for=organization,
     )
-    affiliation = core_models.Affiliation.objects.create(
+    affiliation = core_models.ControlledAffiliation.objects.create(
         organization=organization,
         department=department,
         account=account,

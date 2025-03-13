@@ -303,8 +303,8 @@ class RORImportErrorInline(admin.TabularInline):
     readonly_fields = ('message',)
 
 
-class AffiliationInline(admin.TabularInline):
-    model = core_models.Affiliation
+class ControlledAffiliationInline(admin.TabularInline):
+    model = core_models.ControlledAffiliation
     extra = 0
     fields = ('title', 'department', 'organization',
               'is_primary', 'start', 'end')

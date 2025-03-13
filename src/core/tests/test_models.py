@@ -35,8 +35,6 @@ class TestAccount(TestCase):
             'salutation': 'Prof.',
             'first_name': 'Martin',
             'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
         }
 
         models.Account.objects.create(**data)
@@ -54,8 +52,6 @@ class TestAccount(TestCase):
             'salutation': 'Prof.',
             'first_name': 'Martin',
             'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
         }
         obj = models.Account.objects.create(**data)
         self.assertEquals(obj.username, email.lower())
@@ -69,8 +65,6 @@ class TestAccount(TestCase):
             'salutation': 'Prof.',
             'first_name': 'Martin',
             'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
         }
         form = forms.QuickUserForm(data=data)
         acc = form.save()
@@ -513,7 +507,7 @@ class TestOrganizationModels(TestCase):
             preprint=cls.preprint_one,
             account=cls.kathleen_booth,
         )
-        cls.affiliation_lecturer = models.Affiliation.objects.create(
+        cls.affiliation_lecturer = models.ControlledAffiliation.objects.create(
             account=cls.kathleen_booth,
             title='Lecturer',
             department='Department of Numerical Automation',
@@ -522,26 +516,26 @@ class TestOrganizationModels(TestCase):
             start=date.fromisoformat('1952-01-01'),
             end=date.fromisoformat('1962-12-31'),
         )
-        cls.affiliation_lecturer_frozen = models.Affiliation.objects.create(
+        cls.affiliation_lecturer_frozen = models.ControlledAffiliation.objects.create(
             frozen_author=cls.kathleen_booth_frozen,
             title='Lecturer',
             department='Department of Numerical Automation',
             organization=cls.organization_bbk,
             is_primary=True,
         )
-        cls.affiliation_lecturer_preprint = models.Affiliation.objects.create(
+        cls.affiliation_lecturer_preprint = models.ControlledAffiliation.objects.create(
             preprint_author=cls.kathleen_booth_preprint,
             title='Lecturer',
             department='Department of Numerical Automation',
             organization=cls.organization_bbk,
             is_primary=True,
         )
-        cls.affiliation_scientist = models.Affiliation.objects.create(
+        cls.affiliation_scientist = models.ControlledAffiliation.objects.create(
             account=cls.kathleen_booth,
             department='Research Association',
             organization=cls.organization_brp,
         )
-        cls.affiliation_officer = models.Affiliation.objects.create(
+        cls.affiliation_officer = models.ControlledAffiliation.objects.create(
             account=cls.kathleen_booth,
             title='Junior Scientific Officer',
             organization=cls.organization_rae,
@@ -558,7 +552,7 @@ class TestOrganizationModels(TestCase):
             first_name='Eric',
             last_name='Hobsbawm',
         )
-        cls.affiliation_historian = models.Affiliation.objects.create(
+        cls.affiliation_historian = models.ControlledAffiliation.objects.create(
             account=cls.e_hobsbawm,
             title='Historian',
             organization=cls.organization_bbk_legacy,
@@ -638,7 +632,9 @@ class TestOrganizationModels(TestCase):
     def test_account_department_setter(self):
         self.kathleen_booth.department = 'Computer Science'
         self.assertEqual(
-            models.Affiliation.objects.get(department='Computer Science'),
+            models.ControlledAffiliation.objects.get(
+                department='Computer Science',
+            ),
             self.kathleen_booth.affiliation(obj=True),
         )
 
@@ -655,7 +651,9 @@ class TestOrganizationModels(TestCase):
     def test_frozen_author_department_setter(self):
         self.kathleen_booth_frozen.department = 'Computer Science'
         self.assertEqual(
-            models.Affiliation.objects.get(department='Computer Science'),
+            models.ControlledAffiliation.objects.get(
+                department='Computer Science',
+            ),
             self.kathleen_booth_frozen.affiliation(obj=True),
         )
 
@@ -795,10 +793,9 @@ class TestOrganizationModels(TestCase):
 
     def test_preprint_author_affiliation_setter(self):
         self.kathleen_booth_preprint.affiliation = 'Birkbeck McMillan'
-        self.kathleen_booth_preprint.refresh_from_db()
-        self.assertEqual(
-            str(self.kathleen_booth_preprint.affiliation),
-            'Birkbeck McMillan'
+        self.assertIn(
+            'Birkbeck McMillan',
+            self.kathleen_booth_preprint.affiliation,
         )
 
     @patch('core.models.timezone.now')
@@ -815,18 +812,18 @@ class TestOrganizationModels(TestCase):
         )
 
     def test_set_primary_if_first_true(self):
-        first_affiliation, _created = models.Affiliation.objects.get_or_create(
+        first_affiliation, _created = models.ControlledAffiliation.objects.get_or_create(
             account=self.t_s_eliot,
             organization=self.organization_bbk,
         )
         self.assertTrue(first_affiliation.is_primary)
 
     def test_set_primary_if_first_false(self):
-        _first_affiliation, _created = models.Affiliation.objects.get_or_create(
+        _first_affiliation, _created = models.ControlledAffiliation.objects.get_or_create(
             account=self.t_s_eliot,
             organization=self.organization_bbk,
         )
-        second_affiliation, _created = models.Affiliation.objects.get_or_create(
+        second_affiliation, _created = models.ControlledAffiliation.objects.get_or_create(
             account=self.t_s_eliot,
             organization=self.organization_rae,
         )
@@ -834,20 +831,20 @@ class TestOrganizationModels(TestCase):
 
     def test_affiliation_save_checks_exclusive_fields(self):
         with self.assertRaises((IntegrityError, TransactionManagementError)):
-            models.Affiliation.objects.create(
+            models.ControlledAffiliation.objects.create(
                 account=self.kathleen_booth,
                 frozen_author=self.kathleen_booth_frozen,
                 organization=self.organization_bbk,
             )
         with self.assertRaises((IntegrityError, TransactionManagementError)):
-            models.Affiliation.objects.create(
+            models.ControlledAffiliation.objects.create(
                 account=self.kathleen_booth,
                 preprint_author=self.kathleen_booth_preprint,
                 organization=self.organization_bbk,
             )
 
     def test_affiliation_get_or_create_without_ror(self):
-        affiliation, _created = models.Affiliation.get_or_create_without_ror(
+        affiliation, _created = models.ControlledAffiliation.get_or_create_without_ror(
             institution='Birkbeck Coll',
             department='Computer Sci',
             country='GB',
@@ -870,14 +867,43 @@ class TestOrganizationModels(TestCase):
             affiliation.organization.locations.all(),
         )
 
-    def test_account_manager_get_or_create(self):
+    def test_account_queryset_deprecated_fields(self):
         kwargs = {
-            'first_name':'Michael',
-            'last_name':'Warner',
             'email': 'twlwpky6omkqdsc40zlm@example.org',
             'institution': 'Yale',
             'department': 'English',
             'country': 'US',
+        }
+        with self.assertWarns(DeprecationWarning):
+            models.Account.objects.create(**kwargs)
+
+    def test_frozen_author_queryset_deprecated_fields(self):
+        kwargs = {
+            'frozen_email': 'twlwpky6omkqdsc40zlm@example.org',
+            'institution': 'Yale',
+            'department': 'English',
+            'country': 'US',
+        }
+        with self.assertWarns(DeprecationWarning):
+            submission_models.FrozenAuthor.objects.create(**kwargs)
+
+    def test_preprint_author_queryset_deprecated_fields(self):
+        kwargs = {
+            'preprint': self.preprint_one,
+            'account': self.t_s_eliot,
+            'affiliation': 'Birkbeck',
+        }
+        with self.assertWarns(DeprecationWarning):
+            repository_models.PreprintAuthor.objects.create(**kwargs)
+
+    def test_account_queryset_get_or_create(self):
+        kwargs = {
+            'first_name': 'Michael',
+            'last_name': 'Warner',
+            'email': 'twlwpky6omkqdsc40zlm@example.org',
+            'institution': 'Yale',
+            'department': 'English',
+            'country': self.country_us,
         }
         account, _created = models.Account.objects.get_or_create(**kwargs)
         self.assertListEqual(
@@ -888,7 +914,192 @@ class TestOrganizationModels(TestCase):
                 account.email,
                 account.affiliation(obj=True).organization.custom_label.value,
                 account.affiliation(obj=True).department,
-                account.affiliation(obj=True).organization.locations.first().country.code,
+                account.affiliation(obj=True).organization.locations.first().country,
+            ]
+        )
+
+    def test_frozen_author_queryset_get_or_create(self):
+        kwargs = {
+            'first_name': 'Michael',
+            'last_name': 'Warner',
+            'frozen_email': 'twlwpky6omkqdsc40zlm@example.org',
+            'institution': 'Yale',
+            'department': 'English',
+            'country': self.country_us,
+        }
+        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
+            **kwargs
+        )
+        self.assertListEqual(
+            list(kwargs.values()),
+            [
+                frozen_author.first_name,
+                frozen_author.last_name,
+                frozen_author.frozen_email,
+                frozen_author.affiliation(obj=True).organization.custom_label.value,
+                frozen_author.affiliation(obj=True).department,
+                frozen_author.affiliation(obj=True).organization.locations.first().country,
+            ]
+        )
+
+    def test_preprint_author_queryset_get_or_create(self):
+        kwargs = {
+            'preprint': self.preprint_one,
+            'account': self.t_s_eliot,
+            'affiliation': 'Birkbeck',
+        }
+        preprint_author, _ = repository_models.PreprintAuthor.objects.get_or_create(
+            **kwargs
+        )
+        self.assertListEqual(
+            list(kwargs.values()),
+            [
+                preprint_author.preprint,
+                preprint_author.account,
+                preprint_author.affiliation,
+            ]
+        )
+
+    def test_account_queryset_get(self):
+        self.assertTrue(
+            models.Account.objects.get(
+                institution__contains='Birkbeck, Prifysgol Llundain',
+            )
+        )
+
+    def test_frozen_author_queryset_get(self):
+        self.assertTrue(
+            submission_models.FrozenAuthor.objects.get(
+                institution__contains='Birkbeck, Prifysgol Llundain',
+            )
+        )
+
+    def test_preprint_author_queryset_get(self):
+        self.assertTrue(
+            repository_models.PreprintAuthor.objects.get(
+                affiliation__contains='Birkbeck, Prifysgol Llundain',
+            )
+        )
+
+    def test_account_queryset_filter(self):
+        self.assertTrue(
+            models.Account.objects.filter(
+                first_name='Kathleen',
+                last_name='Booth',
+                email='ehqak6rxknzw35ih47oc@bbk.ac.uk',
+                institution__contains='Birk',
+                department__iendswith='numerical automation',
+                country__code='GB',
+            ).exists()
+        )
+
+    def test_frozen_author_queryset_filter(self):
+        self.assertTrue(
+            submission_models.FrozenAuthor.objects.filter(
+                first_name='Kathleen',
+                last_name='Booth',
+                frozen_email='ehqak6rxknzw35ih47oc@bbk.ac.uk',
+                institution__contains='Birk',
+                department__iendswith='numerical automation',
+                country__code='GB',
+            ).exists()
+        )
+
+    def test_preprint_author_queryset_filter(self):
+        self.assertTrue(
+            repository_models.PreprintAuthor.objects.filter(
+                preprint=self.preprint_one,
+                account=self.kathleen_booth,
+                affiliation__contains='Birkbeck',
+            ).exists()
+        )
+
+    def test_account_queryset_update_or_create(self):
+        kwargs = {
+            'first_name': 'Michael',
+            'last_name': 'Warner',
+            'email': 'twlwpky6omkqdsc40zlm@example.org',
+            'institution': 'Yale',
+            'department': 'English',
+            'country': self.country_us,
+        }
+        account, _created = models.Account.objects.update_or_create(
+            **kwargs,
+        )
+        self.assertListEqual(
+            list(kwargs.values()),
+            [
+                account.first_name,
+                account.last_name,
+                account.email,
+                account.affiliation(obj=True).organization.custom_label.value,
+                account.affiliation(obj=True).department,
+                account.affiliation(obj=True).organization.locations.first().country,
+            ]
+        )
+
+    def test_frozen_author_queryset_update_or_create_with_defaults(self):
+        kwargs = {
+            'first_name': 'Eric',
+            'last_name': 'Hobsbawm',
+        }
+        defaults = {
+            'institution': 'Yale',
+            'department': 'English',
+            'country': self.country_us,
+        }
+        frozen_author, _ = submission_models.FrozenAuthor.objects.update_or_create(
+            defaults=defaults,
+            **kwargs,
+        )
+        self.assertListEqual(
+            list(kwargs.values()) + list(defaults.values()),
+            [
+                frozen_author.first_name,
+                frozen_author.last_name,
+                frozen_author.affiliation(obj=True).organization.custom_label.value,
+                frozen_author.affiliation(obj=True).department,
+                frozen_author.affiliation(obj=True).organization.locations.first().country,
+            ]
+        )
+
+    def test_preprint_author_queryset_update_or_create_with_defaults(self):
+        kwargs = {
+            'account': self.e_hobsbawm,
+            'preprint': self.preprint_one,
+        }
+        defaults = {
+            'affiliation': 'Yale',
+        }
+        preprint_author, _ = repository_models.PreprintAuthor.objects.update_or_create(
+            defaults=defaults,
+            **kwargs,
+        )
+        self.assertEqual(self.e_hobsbawm, preprint_author.account)
+        self.assertIn('Yale', preprint_author.affiliation)
+
+    def test_account_queryset_update_or_create_with_defaults(self):
+        kwargs = {
+            'first_name': 'Eric',
+            'last_name': 'Hobsbawm',
+        }
+        defaults = {
+            'institution': 'Yale',
+            'department': 'English',
+            'country': self.country_us,
+        }
+        account, _created = models.Account.objects.update_or_create(
+            defaults=defaults,
+            **kwargs,
+        )
+        self.assertListEqual(
+            list(kwargs.values()) + list(defaults.values()),
+            [
+                account.first_name,
+                account.last_name,
+                account.affiliation(obj=True).organization.custom_label.value,
+                account.affiliation(obj=True).department,
+                account.affiliation(obj=True).organization.locations.first().country,
             ]
         )
 

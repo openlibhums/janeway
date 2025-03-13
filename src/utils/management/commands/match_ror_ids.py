@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from utils.models import RORImport
-from core.models import Affiliation, Organization
+from core.models import ControlledAffiliation, Organization
 from utils.logger import get_logger
 from django.utils import timezone
 from datetime import timedelta
@@ -39,6 +39,6 @@ class Command(BaseCommand):
                 "or pass --ignore_missing_import."
             )
             return
-        uncontrolled_organizations = Organization.objects.filter(ror='')
+        uncontrolled_organizations = Organization.objects.filter(ror_id='')
         for organization in uncontrolled_organizations:
             organization.deduplicate_to_ror_record()

@@ -129,7 +129,7 @@ class PreprintAuthorAdmin(admin_utils.PreprintFKModelAdmin):
                      'account__first_name', 'account__last_name')
 
     inlines = [
-        admin_utils.AffiliationInline,
+        admin_utils.ControlledAffiliationInline,
     ]
 
 

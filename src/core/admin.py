@@ -71,7 +71,7 @@ class AccountAdmin(UserAdmin):
     raw_id_fields = ('interest',)
 
     inlines = [
-        admin_utils.AffiliationInline,
+        admin_utils.ControlledAffiliationInline,
         admin_utils.AccountRoleInline,
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
@@ -443,7 +443,7 @@ class LocationAdmin(admin.ModelAdmin):
                      'geonames_id')
 
 
-class AffiliationAdmin(admin.ModelAdmin):
+class ControlledAffiliationAdmin(admin.ModelAdmin):
     list_display = ('pk', '_person', 'organization',
                     'title', 'department', 'start', 'end')
     list_display_links = ('pk', '_person')
@@ -509,7 +509,7 @@ admin_list = [
     (models.Organization, OrganizationAdmin),
     (models.OrganizationName, OrganizationNameAdmin),
     (models.Location, LocationAdmin),
-    (models.Affiliation, AffiliationAdmin),
+    (models.ControlledAffiliation, ControlledAffiliationAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

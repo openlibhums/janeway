@@ -33,7 +33,7 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article', 'author',)
 
     inlines = [
-        admin_utils.AffiliationInline,
+        admin_utils.ControlledAffiliationInline,
     ]
 
 

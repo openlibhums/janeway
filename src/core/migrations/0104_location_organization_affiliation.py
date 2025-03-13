@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Affiliation',
+            name='ControlledAffiliation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(blank=True, max_length=300, verbose_name='Title, position, or role')),
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(condition=models.Q(('ror_id__exact', ''), _negated=True), fields=('ror_id',), name='filled_unique'),
         ),
         migrations.AddConstraint(
-            model_name='affiliation',
+            model_name='controlledaffiliation',
             constraint=models.CheckConstraint(check=models.Q(models.Q(('account__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('account__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('account__isnull', True), ('frozen_author__isnull', True)), ('account__isnull', True), models.Q(('account__isnull', True), ('frozen_author__isnull', True)), models.Q(('account__isnull', True), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'), name='exclusive_fields_constraint'),
         ),
     ]

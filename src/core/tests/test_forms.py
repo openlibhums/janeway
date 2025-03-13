@@ -32,7 +32,7 @@ class CoreFormTests(TestCase):
             ror_display_for=cls.organization_bbk,
             label_for=cls.organization_bbk,
         )
-        cls.affiliation = core_models.Affiliation.objects.create(
+        cls.affiliation = core_models.ControlledAffiliation.objects.create(
             account=cls.user,
             organization=cls.organization_bbk,
         )

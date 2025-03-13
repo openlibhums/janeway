@@ -594,8 +594,8 @@ class Preprint(models.Model):
             preprint=self,
             defaults={'order': self.next_author_order()},
         )
-        for affiliation in user.affiliation_set.all():
-            core_models.Affiliation.objects.get_or_create(
+        for affiliation in user.affiliations.all():
+            core_models.ControlledAffiliation.objects.get_or_create(
                 preprint_author=preprint_author,
                 title=affiliation.title,
                 department=affiliation.department,
@@ -893,29 +893,13 @@ class PreprintAccess(models.Model):
         verbose_name_plural = 'preprint access records'
 
 
+class PreprintAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
+    AFFILIATION_RELATED_NAME = 'preprint_author'
+
+
 class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('account')
-
-
-    def get_or_create(self, defaults=None, **kwargs):
-        """
-        Backwards-compatible override for affiliation-related kwargs
-        """
-        # check for deprecated fields related to affiliation
-        affiliation = kwargs.pop('affiliation', '')
-        affiliation = defaults.pop('affiliation', '')
-
-        preprint_author, created = super().get_or_create(defaults, **kwargs)
-
-        # create or update affiliation
-        if affiliation:
-            Affiliation.get_or_create_without_ror(
-                institution=affiliation,
-                preprint_author=preprint_author,
-            )
-
-        return preprint_author, created
+        return PreprintAuthorQueryset(self.model).select_related('account')
 
 
 class PreprintAuthor(models.Model):
@@ -944,12 +928,18 @@ class PreprintAuthor(models.Model):
 
     @property
     def affiliation(self):
-        return core_models.Affiliation.get_primary(preprint_author=self)
+        return core_models.ControlledAffiliation.get_primary(preprint_author=self)
 
     @affiliation.setter
     def affiliation(self, value):
-        core_models.Affiliation.get_or_create_without_ror(
+        core_models.ControlledAffiliation.get_or_create_without_ror(
             institution=value,
+            preprint_author=self,
+        )
+
+    @property
+    def affiliations(self):
+        return core_models.ControlledAffiliation.objects.filter(
             preprint_author=self,
         )
 

@@ -2961,7 +2961,7 @@ def organization_name_update(request, organization_name_id):
     organization_name = get_object_or_404(
         core_models.OrganizationName,
         pk=organization_name_id,
-        custom_label_for__affiliation__account=request.user,
+        custom_label_for__controlledaffiliation__account=request.user,
     )
     form = forms.OrganizationNameForm(instance=organization_name)
 
@@ -3035,7 +3035,7 @@ def affiliation_update(request, affiliation_id):
     """
 
     affiliation = get_object_or_404(
-        core_models.Affiliation,
+        core_models.ControlledAffiliation,
         pk=affiliation_id,
         account=request.user,
     )
@@ -3080,7 +3080,7 @@ def affiliation_delete(request, affiliation_id):
     """
 
     affiliation = get_object_or_404(
-        core_models.Affiliation,
+        core_models.ControlledAffiliation,
         pk=affiliation_id,
         account=request.user,
     )

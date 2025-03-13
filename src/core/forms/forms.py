@@ -961,7 +961,7 @@ class AccountAffiliationForm(forms.ModelForm):
     """
 
     class Meta:
-        model = models.Affiliation
+        model = models.ControlledAffiliation
         fields = ('title', 'department', 'is_primary', 'start', 'end')
         widgets = {
             'start': HTMLDateInput,

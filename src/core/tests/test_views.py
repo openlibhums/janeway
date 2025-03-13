@@ -56,7 +56,7 @@ class CoreViewTestsWithData(TestCase):
             ror_display_for=cls.organization_bbk,
             label_for=cls.organization_bbk,
         )
-        cls.affiliation = core_models.Affiliation.objects.create(
+        cls.affiliation = core_models.ControlledAffiliation.objects.create(
             account=cls.user,
             organization=cls.organization_bbk,
         )
@@ -691,7 +691,7 @@ class ReturnURLTests(CoreViewTestsWithData):
             self.assertIn(f'/register/step/1/?next=/submissions/', content)
 
 
-class AffiliationManagementTests(CoreViewTestsWithData):
+class ControlledAffiliationManagementTests(CoreViewTestsWithData):
 
     def test_organization_list_view_get(self):
         self.client.force_login(self.user)
@@ -736,7 +736,7 @@ class AffiliationManagementTests(CoreViewTestsWithData):
             value='University of Finsbury',
             custom_label_for=organization,
         )
-        affiliation = core_models.Affiliation.objects.create(
+        affiliation = core_models.ControlledAffiliation.objects.create(
             account=self.user,
             organization=organization,
         )
@@ -752,7 +752,7 @@ class AffiliationManagementTests(CoreViewTestsWithData):
             value='University of Finsbury',
             custom_label_for=organization,
         )
-        affiliation = core_models.Affiliation.objects.create(
+        affiliation = core_models.ControlledAffiliation.objects.create(
             account=self.user,
             organization=organization,
         )
@@ -820,5 +820,5 @@ class AffiliationManagementTests(CoreViewTestsWithData):
         affil_id = self.affiliation.pk
         url = f'/profile/affiliation/{affil_id}/delete/'
         response = self.client.post(url, post_data, follow=True)
-        with self.assertRaises(core_models.Affiliation.DoesNotExist):
-            core_models.Affiliation.objects.get(pk=affil_id)
+        with self.assertRaises(core_models.ControlledAffiliation.DoesNotExist):
+            core_models.ControlledAffiliation.objects.get(pk=affil_id)
