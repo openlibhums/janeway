@@ -23,7 +23,9 @@
                                 <figcaption class="orbit-caption">
                                     <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                                     <h3>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
-                                    {% if request.site_type.code == 'press' and carousel_item.stage %}<p>Published in: {{ carousel_item.journal.name }}</p>{% endif %}
+                                    {% if request.site_type.code == 'press' and carousel_item.stage %}
+                                        <p>{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
+                                    {% endif %}
                                 </figcaption>
                             </li>
                         {% endfor %}
