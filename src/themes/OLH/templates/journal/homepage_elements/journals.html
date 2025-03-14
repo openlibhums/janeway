@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<section>
+<section aria-labelledby="featured-journals-title">
     <div class="row column text-center">
-        <h2 class="title">{% trans "Featured Journals" %}</h2>
+        <h2 id="featured-journals-title" class="title">{% trans "Featured Journals" %}</h2>
     </div>
     <div class="row">
         {% for current_journal in featured_journals %}

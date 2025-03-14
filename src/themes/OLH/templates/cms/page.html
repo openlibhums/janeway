@@ -5,7 +5,7 @@
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
 {% block body %}
-    <section id="content">
+    <section id="content" aria-labelledby="cms-title">
         <div class="row">
             <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
                 <h1 id="cms-title">{{ page.display_name }}</h1>

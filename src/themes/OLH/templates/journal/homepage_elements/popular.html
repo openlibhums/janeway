@@ -1,9 +1,9 @@
 {% load static %}
 {% load i18n %}
 
-<section>
+<section aria-labelledby="popular-articles-title">
     <div class="row column text-center">
-        <h2 class="title">{% trans 'Most Popular Articles' %}</h2>
+        <h2 id="popular-articles-title" class="title">{% trans 'Most Popular Articles' %}</h2>
     </div>
     <div class="row" data-equalizer data-equalize-on="medium">
         {% for article in popular_articles %}
