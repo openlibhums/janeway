@@ -2038,8 +2038,9 @@ class OrganizationName(models.Model):
 
 
 def validate_ror_id(ror_id):
-    ror_regex = '^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
-    if not re.match(ror_regex, ror_id):
+    ror_regex = r'^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
+    prog = re.compile(ror_regex)
+    if not prog.match(ror_id):
         raise ValidationError(f'{ror_id} is not a valid ROR identifier')
 
 

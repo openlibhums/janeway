@@ -844,23 +844,35 @@ class AffiliationCompatibleQueryset(models.query.QuerySet):
         Checks for old affiliation-related field names on queryset lookups
         and remaps them to new names for get() and filter() methods.
         """
-        backwards_keys = {
-            # Account and FrozenAuthor had 'institution'
-            '^institution': 'controlledaffiliation__organization__labels__value',
-            # PreprintAuthor had 'affiliation'
-            '^affiliation': 'controlledaffiliation__organization__labels__value',
-            # Account and FrozenAuthor had 'department'
-            '^department': 'controlledaffiliation__department',
-            # Account and FrozenAuthor had 'country'
-            '^country': 'controlledaffiliation__organization__locations__country',
-        }
+        backwards_keys = (
+            (
+                # Account and FrozenAuthor had 'institution'
+                re.compile(r'^institution'),
+                'controlledaffiliation__organization__labels__value',
+            ),
+            (
+                # PreprintAuthor had 'affiliation'
+                re.compile(r'^affiliation'),
+                'controlledaffiliation__organization__labels__value',
+            ),
+            (
+                # Account and FrozenAuthor had 'department'
+                re.compile(r'^department'),
+                'controlledaffiliation__department',
+            ),
+            (
+                # Account and FrozenAuthor had 'country'
+                re.compile(r'^country'),
+                'controlledaffiliation__organization__locations__country',
+            )
+        )
         old_lookups = []
         new_kwargs = {}
         for lookup in kwargs.keys():
-            for pattern, replacement in backwards_keys.items():
-                if re.match(pattern, lookup):
+            for prog, replacement in backwards_keys:
+                if prog.match(lookup):
                     old_lookups.append(lookup)
-                    new_lookup = re.sub(pattern, replacement, lookup)
+                    new_lookup = prog.sub(replacement, lookup)
                     new_kwargs[new_lookup] = kwargs[lookup]
         for lookup in old_lookups:
             kwargs.pop(lookup)
