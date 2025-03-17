@@ -15,7 +15,7 @@
 
 {% block body %}
 
-    <article>
+    <section>
     {% if not journal_settings.article.disable_article_large_image %}
         <section class="no-padding meta show-for-small-only">
             <div class="row">
@@ -537,7 +537,7 @@
                 </aside>
             </div>
         </section>
-    </article>
+    </section>
 
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}

@@ -142,12 +142,14 @@
                 {% endif %}
 
                 {% if article_content %}
-                    <div itemprop="articleBody" id="main_article">
-                        {{ article_content|safe }}
-                        <div id="article_footer_block">
-                        {% hook 'article_footer_block' %}
+                    <article>
+                        <div itemprop="articleBody" id="main_article">
+                            {{ article_content|safe }}
+                            <div id="article_footer_block">
+                            {% hook 'article_footer_block' %}
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 {% endif %}
             </div>
         </div>
