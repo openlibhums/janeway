@@ -18,15 +18,16 @@
         </div>
         {% if page.display_toc %}
             <div class="col m3 hide-on-small-and-down">
-                <div class="card toc-card" id="toc-card"
-                     style="display: none;">
-                    <div class="card-content">
-                        <h4>
-                            {% trans "Table of Contents" %}
-                        </h4>
-                        <ul id="toc" class="section table-of-contents">
-                        </ul>
-                    </div>
+                <div class="card toc-card" id="toc-card" style="display: none;">
+                    <section aria-labelledby="toc-title">
+                        <div class="card-content">
+                            <h4 id="toc-title">
+                                {% trans "Table of Contents" %}
+                            </h4>
+                            <ul id="toc" class="section table-of-contents">
+                            </ul>
+                        </div>
+                    </section>
                 </div>
             </div>
         {% endif %}

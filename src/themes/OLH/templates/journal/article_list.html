@@ -6,7 +6,7 @@
 {% block title %}{% trans "Articles" %}{% endblock %}
 
 {% block body %}
-    <section id="content">
+    <section id="content" aria-labelledby="articles-title">
         <div class="row">
             <div class="large-8 columns border-right">
                 <aside class="hide-for-large">
@@ -19,7 +19,7 @@
                         </li>
                     </ul>
                 </aside>
-                <h1>{% trans "Articles" %}</h1>
+                <h1 id="articles-title">{% trans "Articles" %}</h1>
                 {% include "common/elements/sorting.html" with form_id=facet_form.id %}
                 {% for article in article_list %}
                     {% include "elements/journal/box_article.html" with article=article %}
