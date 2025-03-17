@@ -479,10 +479,12 @@
 
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">
-                            <h3>{% trans "Jump to" %}</h3>
-                            <ul id="toc">
+                            <section aria-labelledby="toc-title">
+                                <h3 id="toc-title">{% trans "Jump to" %}</h3>
+                                <ul id="toc">
 
-                            </ul>
+                                </ul>
+                            </section>
                         </div>
                         {% endif %}
 

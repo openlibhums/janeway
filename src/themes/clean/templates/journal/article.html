@@ -339,8 +339,10 @@
             </div>
              {% if article_content %}
                 <div class="sticky-top" id="toc-section">
-                    <h2>{% trans "Table of Contents" %}</h2>
-                    <ul id="toc" class="table-of-contents"></ul>
+                    <section aria-labelledby="toc-title">
+                        <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                        <ul id="toc" class="table-of-contents"></ul>
+                    </section>
                 </div>
              {% endif %}
         </div>
