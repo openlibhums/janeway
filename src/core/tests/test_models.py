@@ -421,14 +421,10 @@ class TestOrganizationModels(TestCase):
         cls.location_london = models.Location.objects.create(
             name='London',
             country=cls.country_gb,
-            latitude=51.50853,
-            longitude=-0.12574,
         )
         cls.location_farnborough = models.Location.objects.create(
             name='Farnborough',
             country=cls.country_gb,
-            latitude=51.29,
-            longitude=-0.75,
         )
         cls.location_uk_legacy = models.Location.objects.create(
             # Before integrating ROR we used country-wide locations

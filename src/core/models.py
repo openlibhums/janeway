@@ -2311,8 +2311,6 @@ class Organization(models.Model):
                     code=details.get('country_code', ''),
                 )
                 location.country = country
-                location.latitude = Decimal(details.get('lat'))
-                location.longitude = Decimal(details.get('lng'))
                 location.save()
             organization.locations.add(location)
 
@@ -2570,18 +2568,6 @@ class Location(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-    )
-    latitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        blank=True,
-        null=True,
-    )
-    longitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        blank=True,
-        null=True,
     )
     geonames_id = models.IntegerField(
         blank=True,
