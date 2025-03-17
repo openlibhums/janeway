@@ -51,8 +51,8 @@ class SubmissionTests(TestCase):
         if not self.journal_one.submissionconfiguration:
             self.fail('Journal does not have a submissionconfiguration object.')
 
-    @classmethod
-    def create_journal(cls):
+    @staticmethod
+    def create_journal():
         """
         Creates a dummy journal for testing
         :return: a journal
