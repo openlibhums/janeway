@@ -2023,7 +2023,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def institution(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         return str(affil.organization) if affil else ''
 
     @institution.setter
@@ -2035,7 +2035,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def department(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         return str(affil.department) if affil else ''
 
     @department.setter
@@ -2047,7 +2047,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def country(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         organization = affil.organization if affil else None
         return str(organization.country) if organization else None
 
@@ -2108,7 +2108,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        return self.affiliation()
+        return self.affiliation
 
     @property
     def biography(self):
@@ -2141,11 +2141,21 @@ class FrozenAuthor(AbstractLastModifiedModel):
         else:
             return self.first_name
 
-    def affiliation(self, obj=False, date=None):
+    def affiliation(self):
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a method.
+        Different from repository.models.Preprint.affiliation,
+        which is a property.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
+
+    def primary_affiliation(self, as_object=True):
         return core_models.ControlledAffiliation.get_primary(
-            frozen_author=self,
-            obj=obj,
-            date=date,
+            affiliated_object=self,
+            as_object=as_object,
         )
 
     @property

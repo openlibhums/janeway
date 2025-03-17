@@ -928,13 +928,28 @@ class PreprintAuthor(models.Model):
 
     @property
     def affiliation(self):
-        return core_models.ControlledAffiliation.get_primary(preprint_author=self)
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a property.
+        Different from core.models.Account.affiliation
+        and submission.models.FrozenAuthor.affiliation,
+        which are methods.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
 
     @affiliation.setter
     def affiliation(self, value):
         core_models.ControlledAffiliation.get_or_create_without_ror(
             institution=value,
             preprint_author=self,
+        )
+
+    def primary_affiliation(self, as_object=True):
+        return core_models.ControlledAffiliation.get_primary(
+            affiliated_object=self,
+            as_object=as_object,
         )
 
     @property

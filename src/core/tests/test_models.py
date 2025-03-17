@@ -576,14 +576,14 @@ class TestOrganizationModels(TestCase):
         self.t_s_eliot.institution = 'Birkbeck, University of London'
         self.assertEqual(
             self.organization_bbk,
-            self.t_s_eliot.affiliation(obj=True).organization,
+            self.t_s_eliot.primary_affiliation().organization,
         )
 
     def test_account_institution_setter_canonical_alias(self):
         self.t_s_eliot.institution = 'Birkbeck College'
         self.assertEqual(
             self.organization_bbk,
-            self.t_s_eliot.affiliation(obj=True).organization,
+            self.t_s_eliot.primary_affiliation().organization,
         )
 
     def test_account_institution_setter_custom_overwrite(self):
@@ -594,7 +594,7 @@ class TestOrganizationModels(TestCase):
         self.t_s_eliot.institution = 'Birkbck'
         self.assertEqual(
             misspelled_bbk,
-            self.t_s_eliot.affiliation(obj=True).organization,
+            self.t_s_eliot.primary_affiliation().organization,
         )
 
     def test_account_institution_setter_custom_value(self):
@@ -604,7 +604,7 @@ class TestOrganizationModels(TestCase):
         )
         self.assertEqual(
             bbk_mcmillan,
-            self.kathleen_booth.affiliation(obj=True).organization,
+            self.kathleen_booth.primary_affiliation().organization,
         )
 
     def test_frozen_author_institution_setter_custom_value(self):
@@ -614,7 +614,7 @@ class TestOrganizationModels(TestCase):
         )
         self.assertEqual(
             bbk_mcmillan,
-            self.kathleen_booth_frozen.affiliation(obj=True).organization,
+            self.kathleen_booth_frozen.primary_affiliation().organization,
         )
 
     def test_account_department_getter(self):
@@ -635,7 +635,7 @@ class TestOrganizationModels(TestCase):
             models.ControlledAffiliation.objects.get(
                 department='Computer Science',
             ),
-            self.kathleen_booth.affiliation(obj=True),
+            self.kathleen_booth.primary_affiliation(),
         )
 
     def test_account_department_setter_updates_existing_primary(self):
@@ -645,7 +645,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.refresh_from_db()
         self.assertEqual(
             self.affiliation_lecturer.department,
-            self.kathleen_booth.affiliation(obj=True).department,
+            self.kathleen_booth.primary_affiliation().department,
         )
 
     def test_frozen_author_department_setter(self):
@@ -654,7 +654,7 @@ class TestOrganizationModels(TestCase):
             models.ControlledAffiliation.objects.get(
                 department='Computer Science',
             ),
-            self.kathleen_booth_frozen.affiliation(obj=True),
+            self.kathleen_booth_frozen.primary_affiliation(),
         )
 
     def test_organization_name_ror_display(self):
@@ -701,7 +701,7 @@ class TestOrganizationModels(TestCase):
 
     def test_account_affiliation_with_primary(self):
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
         )
 
@@ -709,7 +709,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.title = ''
         self.affiliation_lecturer.save()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
         )
 
@@ -717,14 +717,14 @@ class TestOrganizationModels(TestCase):
         self.location_london.country = None
         self.location_london.save()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London',
         )
 
     def test_account_affiliation_with_no_location(self):
         self.organization_bbk.locations.remove(self.location_london)
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Lecturer, Department of Numerical Automation, Birkbeck, University of London',
         )
 
@@ -732,22 +732,15 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.organization = None
         self.affiliation_lecturer.save()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Lecturer, Department of Numerical Automation',
-        )
-
-    def test_account_affiliation_for_past_date(self):
-        year_1950 = date.fromisoformat('1950-01-01')
-        self.assertEqual(
-            self.kathleen_booth.affiliation(date=year_1950),
-            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
         )
 
     def test_account_affiliation_with_no_primary(self):
         self.affiliation_lecturer.is_primary = False
         self.affiliation_lecturer.save()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
         )
 
@@ -759,7 +752,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_officer.start = None
         self.affiliation_officer.save()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
         )
 
@@ -768,26 +761,26 @@ class TestOrganizationModels(TestCase):
         self.affiliation_officer.delete()
         self.affiliation_scientist.delete()
         self.assertEqual(
-            self.kathleen_booth.affiliation(),
+            self.kathleen_booth.primary_affiliation(as_object=False),
             '',
         )
 
     def test_account_affiliation_obj_true(self):
         self.affiliation_lecturer.delete()
         self.assertEqual(
-            self.kathleen_booth.affiliation(obj=True),
+            self.kathleen_booth.primary_affiliation(),
             self.affiliation_officer,
         )
 
     def test_frozen_author_affiliation(self):
         self.assertEqual(
-            self.kathleen_booth_frozen.affiliation(obj=True),
+            self.kathleen_booth_frozen.primary_affiliation(),
             self.affiliation_lecturer_frozen,
         )
 
     def test_preprint_author_affiliation_getter(self):
         self.assertEqual(
-            self.kathleen_booth_preprint.affiliation,
+            self.kathleen_booth_preprint.primary_affiliation(as_object=False),
             str(self.affiliation_lecturer_preprint),
         )
 
@@ -795,7 +788,7 @@ class TestOrganizationModels(TestCase):
         self.kathleen_booth_preprint.affiliation = 'Birkbeck McMillan'
         self.assertIn(
             'Birkbeck McMillan',
-            self.kathleen_booth_preprint.affiliation,
+            self.kathleen_booth_preprint.primary_affiliation(as_object=False),
         )
 
     @patch('core.models.timezone.now')
@@ -912,9 +905,9 @@ class TestOrganizationModels(TestCase):
                 account.first_name,
                 account.last_name,
                 account.email,
-                account.affiliation(obj=True).organization.custom_label.value,
-                account.affiliation(obj=True).department,
-                account.affiliation(obj=True).organization.locations.first().country,
+                account.primary_affiliation().organization.custom_label.value,
+                account.primary_affiliation().department,
+                account.primary_affiliation().organization.locations.first().country,
             ]
         )
 
@@ -936,9 +929,9 @@ class TestOrganizationModels(TestCase):
                 frozen_author.first_name,
                 frozen_author.last_name,
                 frozen_author.frozen_email,
-                frozen_author.affiliation(obj=True).organization.custom_label.value,
-                frozen_author.affiliation(obj=True).department,
-                frozen_author.affiliation(obj=True).organization.locations.first().country,
+                frozen_author.primary_affiliation().organization.custom_label.value,
+                frozen_author.primary_affiliation().department,
+                frozen_author.primary_affiliation().organization.locations.first().country,
             ]
         )
 
@@ -956,7 +949,7 @@ class TestOrganizationModels(TestCase):
             [
                 preprint_author.preprint,
                 preprint_author.account,
-                preprint_author.affiliation,
+                preprint_author.primary_affiliation(as_object=False),
             ]
         )
 
@@ -1032,9 +1025,9 @@ class TestOrganizationModels(TestCase):
                 account.first_name,
                 account.last_name,
                 account.email,
-                account.affiliation(obj=True).organization.custom_label.value,
-                account.affiliation(obj=True).department,
-                account.affiliation(obj=True).organization.locations.first().country,
+                account.primary_affiliation().organization.custom_label.value,
+                account.primary_affiliation().department,
+                account.primary_affiliation().organization.locations.first().country,
             ]
         )
 
@@ -1057,9 +1050,9 @@ class TestOrganizationModels(TestCase):
             [
                 frozen_author.first_name,
                 frozen_author.last_name,
-                frozen_author.affiliation(obj=True).organization.custom_label.value,
-                frozen_author.affiliation(obj=True).department,
-                frozen_author.affiliation(obj=True).organization.locations.first().country,
+                frozen_author.primary_affiliation().organization.custom_label.value,
+                frozen_author.primary_affiliation().department,
+                frozen_author.primary_affiliation().organization.locations.first().country,
             ]
         )
 
@@ -1097,9 +1090,9 @@ class TestOrganizationModels(TestCase):
             [
                 account.first_name,
                 account.last_name,
-                account.affiliation(obj=True).organization.custom_label.value,
-                account.affiliation(obj=True).department,
-                account.affiliation(obj=True).organization.locations.first().country,
+                account.primary_affiliation().organization.custom_label.value,
+                account.primary_affiliation().department,
+                account.primary_affiliation().organization.locations.first().country,
             ]
         )
 

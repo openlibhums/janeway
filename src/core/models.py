@@ -417,11 +417,21 @@ class Account(AbstractBaseUser, PermissionsMixin):
         else:
             return 'N/A'
 
-    def affiliation(self, obj=False, date=None):
+    def affiliation(self):
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a method.
+        Different from repository.models.Preprint.affiliation,
+        which is a property.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
+
+    def primary_affiliation(self, as_object=True):
         return ControlledAffiliation.get_primary(
-            account=self,
-            obj=obj,
-            date=date,
+            affiliated_object=self,
+            as_object=as_object,
         )
 
     @property
@@ -430,7 +440,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def institution(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         return str(affil.organization) if affil else ''
 
     @institution.setter
@@ -442,7 +452,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def department(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         return str(affil.department) if affil else ''
 
     @department.setter
@@ -454,7 +464,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def country(self):
-        affil = self.affiliation(obj=True)
+        affil = self.primary_affiliation()
         organization = affil.organization if affil else None
         return str(organization.country) if organization else None
 
@@ -2460,41 +2470,24 @@ class ControlledAffiliation(models.Model):
     @classmethod
     def get_primary(
         cls,
-        account=None,
-        frozen_author=None,
-        preprint_author=None,
-        obj=False,
-        date=None,
+        affiliated_object,
+        as_object=True,
     ):
         """
         Get the primary affiliation, or if none,
         the current affiliation with the most recent start date, or if none,
         the affiliation with the highest pk, or if none,
         an empty string.
-        :param obj: whether to return a Python object
-        :param date: the date relative to which to query
+        :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
+        :param as_object: whether to return a Python object
         """
-        person = account or frozen_author or preprint_author
-        if not person:
-            return None if obj else ''
-        if not person.affiliations.exists():
-            return None if obj else ''
-        if date:
-            affils_with_at_least_one_date = person.affiliations.exclude(
-                start__isnull=True,
-                end__isnull=True,
-            )
-            if affils_with_at_least_one_date:
-                affil = affils_with_at_least_one_date.exclude(
-                    models.Q(start__gte=date) | models.Q(end__lte=date)
-                ).first()
-                return affil if obj else str(affil)
+        if not affiliated_object.affiliations.exists():
+            return None if as_object else ''
         try:
-            affil = person.affiliations.get(is_primary=True)
-            return affil if obj else str(affil)
+            affil = affiliated_object.affiliations.get(is_primary=True)
         except ControlledAffiliation.DoesNotExist:
-            affil = person.affiliations.first()
-            return affil if obj else str(affil)
+            affil = affiliated_object.affiliations.first()
+        return affil if as_object else str(affil)
 
     @classmethod
     def get_or_create_without_ror(
