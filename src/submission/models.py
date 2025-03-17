@@ -86,6 +86,7 @@ SALUTATION_CHOICES = [
     ('Mr', 'Mr'),
 ]
 
+# This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (
     (u'eng', u'English'), (u'abk', u'Abkhazian'), (u'ace', u'Achinese'), (u'ach', u'Acoli'), (u'ada', u'Adangme'),
     (u'ady', u'Adyghe; Adygei'), (u'aar', u'Afar'), (u'afh', u'Afrihili'), (u'afr', u'Afrikaans'),

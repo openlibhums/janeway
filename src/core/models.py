@@ -13,6 +13,8 @@ from datetime import timedelta
 from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
+from iso639 import Lang
+from iso639.exceptions import InvalidLanguageValue
 import warnings
 import tqdm
 import zipfile
@@ -2283,8 +2285,12 @@ class Organization(models.Model):
         for name in record.get('names'):
             kwargs = {}
             kwargs['value'] = name.get('value', '')
-            if name.get('lang'):
-                kwargs['language'] = name.get('language', '')
+            lang_pt1 = name.get('lang', '')
+            if lang_pt1:
+                try:
+                    kwargs['language'] = Lang(lang_pt1).pt2t
+                except InvalidLanguageValue as e:
+                    logger.debug(e)
             if 'ror_display' in name.get('types'):
                 kwargs['ror_display_for'] = organization
             if 'label' in name.get('types'):

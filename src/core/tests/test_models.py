@@ -436,13 +436,13 @@ class TestOrganizationModels(TestCase):
         )
         cls.name_bbk_uol = models.OrganizationName.objects.create(
             value='Birkbeck, University of London',
-            language='en',
+            language='eng',
             ror_display_for=cls.organization_bbk,
             label_for=cls.organization_bbk,
         )
-        cls.name_bbk_cy = models.OrganizationName.objects.create(
+        cls.name_bbk_cym = models.OrganizationName.objects.create(
             value='Birkbeck, Prifysgol Llundain',
-            language='cy',
+            language='cym',
             label_for=cls.organization_bbk,
         )
         cls.name_bbk_custom = models.OrganizationName.objects.create(
@@ -672,7 +672,7 @@ class TestOrganizationModels(TestCase):
         self.organization_bbk.refresh_from_db()
         self.assertEqual(
             self.organization_bbk.name,
-            self.name_bbk_cy,
+            self.name_bbk_cym,
         )
 
     def test_organization_name_custom_label(self):
@@ -682,6 +682,14 @@ class TestOrganizationModels(TestCase):
             self.organization_bbk.name,
             self.name_bbk_custom,
         )
+
+    def test_organization_name_language(self):
+        name_in_german = models.OrganizationName.objects.create(
+            value='Birkbeck in German',
+            language='deu',
+            label_for=self.organization_bbk,
+        )
+        self.assertEqual(name_in_german.get_language_display(), 'German')
 
     def test_ror_validation(self):
         for invalid_ror in [
