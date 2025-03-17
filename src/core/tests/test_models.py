@@ -860,6 +860,22 @@ class TestOrganizationModels(TestCase):
             affiliation.organization.locations.all(),
         )
 
+    def test_affiliation_get_or_create_without_ror_value_error(self):
+        unsaved_frozen_author = submission_models.FrozenAuthor()
+        affil, _ = models.ControlledAffiliation.get_or_create_without_ror(
+            institution='Birkbeck College',
+            frozen_author=unsaved_frozen_author,
+        )
+        self.assertEqual(affil, None)
+
+    def test_affiliation_get_or_create_without_ror_integrity_error(self):
+        affil, _ = models.ControlledAffiliation.get_or_create_without_ror(
+            institution='Birkbeck College',
+            account=self.kathleen_booth,
+            frozen_author=self.kathleen_booth_frozen,
+        )
+        self.assertEqual(affil, None)
+
     def test_account_queryset_deprecated_fields(self):
         kwargs = {
             'email': 'twlwpky6omkqdsc40zlm@example.org',

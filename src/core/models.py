@@ -23,6 +23,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.core.exceptions import ValidationError
 from django.db import (
     connection,
+    IntegrityError,
     models,
     transaction,
 )
@@ -2347,7 +2348,7 @@ class Organization(models.Model):
                             )
         num_errors_after = RORImportError.objects.count()
         if num_errors_after > num_errors_before:
-            logger.warn(
+            logger.warning(
                 f'ROR import errors logged: { num_errors_after - num_errors_before }'
             )
 
@@ -2524,23 +2525,30 @@ class ControlledAffiliation(models.Model):
             preprint_author=preprint_author,
         )
 
+        defaults = {
+            'organization': organization,
+        }
+        if department:
+            defaults['department'] = department
+        kwargs = {
+            'is_primary': True,
+            'account': account,
+            'frozen_author': frozen_author,
+            'preprint_author': preprint_author,
+        }
+
         # Create or update the actual affiliation if the associated
         # account / frozen author / preprint author has been saved already
         try:
-            defaults = {
-                'organization': organization,
-            }
-            if department:
-                defaults['department'] = department
             affiliation, created = ControlledAffiliation.objects.update_or_create(
                 defaults=defaults,
-                is_primary=True,
-                account=account,
-                frozen_author=frozen_author,
-                preprint_author=preprint_author,
+                **kwargs,
             )
-        except ValueError:
-            logger.warn('The affiliation could not be created.')
+        except (ValueError, IntegrityError):
+            logger.warning(
+                f'The affiliation could not be created '
+                f'with defaults {defaults} and kwargs {kwargs}.'
+            )
             affiliation = None
             created = False
         return affiliation, created

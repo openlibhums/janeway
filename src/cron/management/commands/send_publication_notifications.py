@@ -55,9 +55,10 @@ class Command(BaseCommand):
                 bcc_list = [reader.email for reader in readers]
 
                 if bcc_list:
-                    logger.info("Sending notifications to {}".format(
+                    msg = "Sending notifications to {}".format(
                         ", ".join(bcc_list)
-                    ))
+                    )
+                    self.stdout.write(msg)
 
                 today = timezone.now().today().date()
                 start = timezone.now().replace(hour=0, minute=0, second=0)
@@ -101,8 +102,9 @@ class Command(BaseCommand):
                         }
                     )
                 else:
-                    logger.info("No articles were published today.")
+                    self.stdout.write("No articles were published today.")
             else:
-                logger.info('Reader publication notifications are not enabled for {}'.format(journal.name))
+                msg = 'Reader publication notifications are not enabled for {}'.format(journal.name)
+                self.stdout.write(msg)
 
 
