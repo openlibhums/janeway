@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import warnings
 
 from bs4 import BeautifulSoup
+import pypandoc
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -287,3 +288,35 @@ def save_author_order(request, article):
         if not c:
             author_order.order = order
             author_order.save()
+
+
+def get_article_csl_json_for_article(article):
+    authors = []
+    for frozen_author in article.frozenauthor_set.all():
+        if frozen_author.is_corporate:
+            author = {
+                'literal': author.corporate_name
+            }
+            authors.append(frozen_author)
+            continue
+
+
+        author = {}
+        author['family'] = frozen_author.last_name
+        if frozen_author.name_prefix:
+            given = f'{frozen_author.name_prefix} {frozen_author.given_names}'
+        else:
+            given = frozen_author.given_names()
+        author['given'] = given
+        author['suffix'] = frozen_author.name_suffix
+        authors.append(author)
+
+    csl_json = [
+        {
+            "id": article.get_doi_url() or article.url,
+            "type": "article",
+            "title": article.title,
+            "authors": authors,
+        }
+    ]
+    return csl_json

@@ -7,8 +7,10 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
 import os
+import json
 from dateutil import parser as dateparser
 from itertools import chain
+import pypandoc
 
 from django.urls import reverse
 from django.db import (
@@ -52,6 +54,7 @@ from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
+from submission import logic
 from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.forms import plain_text_validator
@@ -846,8 +849,28 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def how_to_cite(self):
+        # This method should be cached at least,
+        # or maybe the citation should be stored in the db
         if self.custom_how_to_cite:
             return self.custom_how_to_cite
+
+        csl = logic.get_article_csl_json_for_article(self)
+        json_string = json.dumps(csl)
+        extra_args = [
+            '--citeproc',
+            # '--csl=chicago-note-bibliography',
+            # Passing arbitrary styles will require local XML files,
+            # so we'd need
+            # to create a Python on this fork:
+            # https://github.com/openlibhums/csl-styles
+        ]
+        return pypandoc.convert_text(
+            json_string,
+            to='html5',
+            format='csljson',
+            extra_args=extra_args,
+        )
+
 
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
@@ -2445,6 +2468,24 @@ class SubmissionConfiguration(models.Model):
             article.license = self.default_license
 
         article.save()
+
+
+class CitationStyleLanguage(models.Model):
+    normalized_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=_('The name of the CSL XML document'),
+    )
+    display_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=_('The title from the CSL XML document'),
+    )
+    csl_id = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=_('The URI ID from the CSL XML document'),
+    )
 
 
 # Signals

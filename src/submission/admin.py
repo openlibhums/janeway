@@ -209,6 +209,11 @@ class ArticleAuthorOrderAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ('article', 'author')
 
 
+class CitationStyleLanguageAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'normalized_name')
+    search_fields = ('display_name', 'normalized_name', 'csl_id')
+
+
 admin_list = [
     (models.ArticleFunding, ArticleFundingAdmin),
     (models.Article, ArticleAdmin),
@@ -223,6 +228,7 @@ admin_list = [
     (models.Keyword, KeywordAdmin),
     (models.SubmissionConfiguration, SubmissionConfigAdmin),
     (models.ArticleAuthorOrder, ArticleAuthorOrderAdmin),
+    (models.CitationStyleLanguage, CitationStyleLanguageAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
