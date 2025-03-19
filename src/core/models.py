@@ -188,13 +188,19 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
     AFFILIATION_RELATED_NAME = 'account'
 
     def create(self, **kwargs):
+        # Remove kwargs pointing to deprecated fields so they
+        # can be handled by AffiliationCompatibleQueryset methods
         affil_kwargs = self._pop_old_affiliation_lookups(kwargs)
 
+        # We overload this method to call .clean here and
+        # ensure emails are normalized prior to insertion
         obj = self.model(**kwargs)
         obj.clean()
         self._for_write = True
         obj.save(force_insert=True, using=self.db)
 
+        # Handle the deprecated fields using
+        # AffiliationCompatibleQueryset methods
         if affil_kwargs:
             self._create_affiliation(affil_kwargs, obj)
         return obj
