@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0105_migrate_affiliation_institution'),
-        ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
+        ('repository', '0046_historicalrepository_enable_comments_and_more'),
     ]
 
     operations = [
