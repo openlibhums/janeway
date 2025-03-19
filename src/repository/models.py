@@ -599,10 +599,18 @@ class Preprint(models.Model):
     def add_user_as_author(self, user):
         preprint_author, created = PreprintAuthor.objects.get_or_create(
             account=user,
-            affiliation=user.institution,
             preprint=self,
             defaults={'order': self.next_author_order()},
         )
+        for affiliation in user.affiliations.all():
+            core_models.ControlledAffiliation.objects.get_or_create(
+                preprint_author=preprint_author,
+                title=affiliation.title,
+                department=affiliation.department,
+                organization=affiliation.is_primary,
+                start=affiliation.start,
+                end=affiliation.end,
+            )
 
         return created
 
@@ -893,9 +901,13 @@ class PreprintAccess(models.Model):
         verbose_name_plural = 'preprint access records'
 
 
+class PreprintAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
+    AFFILIATION_RELATED_NAME = 'preprint_author'
+
+
 class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('account')
+        return PreprintAuthorQueryset(self.model).select_related('account')
 
 
 class PreprintAuthor(models.Model):
@@ -909,7 +921,6 @@ class PreprintAuthor(models.Model):
         on_delete=models.SET_NULL,
     )
     order = models.PositiveIntegerField(default=0)
-    affiliation = models.TextField(blank=True, null=True)
 
     objects = PreprintAuthorManager()
 
@@ -921,6 +932,38 @@ class PreprintAuthor(models.Model):
         return '{author} linked to {preprint}'.format(
             author=self.account.full_name() if self.account else '',
             preprint=self.preprint.title,
+        )
+
+    @property
+    def affiliation(self):
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a property.
+        Different from core.models.Account.affiliation
+        and submission.models.FrozenAuthor.affiliation,
+        which are methods.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
+
+    @affiliation.setter
+    def affiliation(self, value):
+        core_models.ControlledAffiliation.get_or_create_without_ror(
+            institution=value,
+            preprint_author=self,
+        )
+
+    def primary_affiliation(self, as_object=True):
+        return core_models.ControlledAffiliation.get_primary(
+            affiliated_object=self,
+            as_object=as_object,
+        )
+
+    @property
+    def affiliations(self):
+        return core_models.ControlledAffiliation.objects.filter(
+            preprint_author=self,
         )
 
     @property
@@ -957,6 +1000,9 @@ class PreprintAuthor(models.Model):
 
 
 class Author(models.Model):
+    """
+    Deprecated. Please use PreprintAuthor instead.
+    """
     email_address = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
@@ -968,6 +1014,10 @@ class Author(models.Model):
         null=True,
         verbose_name=_('ORCID')
     )
+
+    def __init__(self, *args, **kwargs):
+        raise DeprecationWarning('Use PreprintAuthor instead.')
+        super().__init__(*args, **kwargs)
 
     @property
     def full_name(self):

@@ -9,11 +9,13 @@ from contextlib import contextmanager
 from io import BytesIO
 import re
 import sys
+import warnings
 from bleach import clean
 
 from django import forms
 from django.apps import apps
 from django.contrib import admin
+from django.core.paginator import EmptyPage, Paginator
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
     SearchVector as DjangoSearchVector,
@@ -28,6 +30,7 @@ from django.db import(
     ProgrammingError,
     transaction,
 )
+
 from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
 from django.db.models.functions import Coalesce, Greatest
@@ -748,3 +751,159 @@ class DateTimePickerModelField(models.DateTimeField):
 @property
 def NotImplementedField(self):
     raise NotImplementedError
+
+
+class SafePaginator(Paginator):
+    """
+    A paginator for avoiding an uncaught exception
+    caused by passing a page parameter that is out of range.
+    """
+    def validate_number(self, number):
+        try:
+            return super().validate_number(number)
+        except EmptyPage:
+            if number > 1:
+                return self.num_pages
+            else:
+                raise
+
+
+def check_exclusive_fields_constraint(fields, blank=True):
+    """
+    Checks that only one of several exclusive fields is populated.
+    For example, CreditRecord has author, frozen_author, and preprint_author,
+    but only one should be populated.
+    If blank=True, allows for all fields to be blank.
+    Set this as one of the constraints in a model's Meta.constraints.
+    :param fields: iterable of field names that should be exclusive
+    """
+    main_query = models.Q()
+
+    # Do main validation
+    for this_field in fields:
+        query_piece = models.Q()
+        query_piece &= Q((f'{this_field}__isnull', False))
+        other_fields = [field for field in fields if field != this_field]
+        for other_field in other_fields:
+            query_piece &= Q((f'{other_field}__isnull', True))
+        main_query |= Q(query_piece)
+
+    # Allow for all fields to be blank
+    if blank == True:
+        query_piece = models.Q()
+        for field in fields:
+            query_piece &= models.Q((f'{field}__isnull', True))
+            main_query |= query_piece
+
+    constraint = models.CheckConstraint(
+        check=main_query,
+        name='exclusive_fields_constraint'
+    )
+    return constraint
+
+
+# Regex for use by AffiliationCompatibleQueryset
+AFFILIATION_COMPATIBLE_PATTERNS = (
+    (
+        # Account and FrozenAuthor had 'institution'
+        re.compile(r'^institution'),
+        'controlledaffiliation__organization__labels__value',
+    ),
+    (
+        # PreprintAuthor had 'affiliation'
+        re.compile(r'^affiliation'),
+        'controlledaffiliation__organization__labels__value',
+    ),
+    (
+        # Account and FrozenAuthor had 'department'
+        re.compile(r'^department'),
+        'controlledaffiliation__department',
+    ),
+    (
+        # Account and FrozenAuthor had 'country'
+        re.compile(r'^country'),
+        'controlledaffiliation__organization__locations__country',
+    )
+)
+
+
+class AffiliationCompatibleQueryset(models.query.QuerySet):
+    """
+    The Account, FrozenAuthor, PreprintAuthor models used to have
+    fields like 'institution', 'affiliation', 'department', and 'country'.
+    When we migrated this data to the ControlledAffiliation model, we preserved
+    the old fields via this queryset class. It maps the old lookups to
+    new ones to provide what the caller expects on most single-instance methods.
+    Bulk methods are not supported.
+    """
+
+    # The field name on ControlledAffiliation that refers to this queryset's model
+    AFFILIATION_RELATED_NAME = NotImplementedField
+
+    def _warn_old_lookups_used(self, old_lookups):
+        object_name = self.model._meta.object_name
+        warnings.warn(
+            f'Deprecated fields were called on {object_name}: '
+            f'{old_lookups}',
+            DeprecationWarning,
+        )
+
+    def _pop_old_affiliation_lookups(self, kwargs):
+        """
+        Pops old affiliation-related lookups off queryset kwargs so they
+        can be handled separately in custom create() and update() methods.
+        """
+        old_kwargs = {
+            'institution': kwargs.pop('institution', '') or kwargs.pop('affiliation', ''),
+            'department': kwargs.pop('department', ''),
+            'country': kwargs.pop('country', ''),
+        }
+        # Filter out empty fields
+        used_kwargs = {k: v for k, v in old_kwargs.items() if v}
+        if used_kwargs:
+            self._warn_old_lookups_used(list(used_kwargs.keys()))
+        return used_kwargs
+
+    def _remap_old_affiliation_lookups(self, kwargs):
+        """
+        Checks for old affiliation-related field names on queryset lookups
+        and remaps them to new names for get() and filter() methods.
+        """
+        old_lookups = []
+        new_kwargs = {}
+        for lookup in kwargs.keys():
+            for prog, replacement in AFFILIATION_COMPATIBLE_PATTERNS:
+                if prog.match(lookup):
+                    old_lookups.append(lookup)
+                    new_lookup = prog.sub(replacement, lookup)
+                    new_kwargs[new_lookup] = kwargs[lookup]
+        for lookup in old_lookups:
+            kwargs.pop(lookup)
+        if old_lookups:
+            self._warn_old_lookups_used(old_lookups)
+        kwargs.update(new_kwargs)
+        return kwargs
+
+    def _create_affiliation(self, affil_kwargs, obj):
+        affil_kwargs[self.AFFILIATION_RELATED_NAME] = obj
+        many_to_one = self.model._meta.fields_map['controlledaffiliation']
+        ControlledAffiliation = many_to_one.related_model
+        affiliation, _ = ControlledAffiliation.get_or_create_without_ror(
+            **affil_kwargs
+        )
+        return affiliation
+
+    def get(self, *args, **kwargs):
+        kwargs = self._remap_old_affiliation_lookups(kwargs)
+        return super().get(*args, **kwargs)
+
+    def create(self, **kwargs):
+        affil_kwargs = self._pop_old_affiliation_lookups(kwargs)
+        obj = super().create(**kwargs)
+        if affil_kwargs:
+            self._create_affiliation(affil_kwargs, obj)
+        return obj
+
+    def filter(self, *args, **kwargs):
+        kwargs = self._remap_old_affiliation_lookups(kwargs)
+        return super().filter(*args, **kwargs)

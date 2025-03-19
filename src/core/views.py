@@ -16,11 +16,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, QueryDict
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -28,6 +29,7 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
@@ -36,7 +38,11 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
-from core.model_utils import NotImplementedField, search_model_admin
+from core.model_utils import (
+    NotImplementedField,
+    SafePaginator,
+    search_model_admin
+)
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
@@ -395,11 +401,6 @@ def register(request, orcid_token=None):
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
             initial["email"] = orcid_details["emails"][0]
-        if orcid_details.get("affiliation"):
-            initial['institution'] = orcid_details['affiliation']
-        if orcid_details.get("country"):
-            if models.Country.objects.filter(code=orcid_details['country']).exists():
-                initial["country"] = models.Country.objects.get(code=orcid_details['country'])
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -421,6 +422,10 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                if new_user.orcid:
+                    orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+                    if orcid_details.get("affiliation"):
+                        new_user.institution = orcid_details['affiliation']
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
@@ -2533,7 +2538,7 @@ class GenericFacetedListView(generic.ListView):
     form_class = forms.CBVFacetForm
     model = NotImplementedField
     template_name = NotImplementedField
-
+    paginator_class = SafePaginator
     paginate_by = 25
     facets = {}
 
@@ -2877,3 +2882,227 @@ class BaseUserList(GenericFacetedListView):
                 messages.success(request, message)
 
         return super().post(request, *args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationListView(GenericFacetedListView):
+    """
+    Allows a user to search for an organization to add
+    as one of their own affiliations.
+    """
+
+    model = core_models.Organization
+    template_name = 'admin/core/organization_search.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        # Exclude user-created organizations from search results
+        return queryset.exclude(custom_label__isnull=False)
+
+    def get_facets(self):
+        return {
+            'q': {
+                'type': 'search',
+                'field_label': 'Search',
+            },
+        }
+
+
+@login_required
+def organization_name_create(request):
+    """
+    Allows a user to create a custom organization name
+    if they cannot find one in ROR data.
+    """
+
+    form = forms.OrganizationNameForm()
+
+    if request.method == 'POST':
+        form = forms.OrganizationNameForm(request.POST)
+        if form.is_valid():
+            organization_name = form.save()
+            organization = core_models.Organization.objects.create()
+            organization_name.custom_label_for = organization
+            organization_name.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization created: %(organization)s")
+                    % {"organization": organization_name},
+            )
+            return redirect(
+                reverse(
+                    'core_affiliation_create',
+                    kwargs={
+                        'organization_id': organization.pk,
+                    }
+                )
+            )
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    template = 'admin/core/organizationname_form.html'
+    return render(request, template, context)
+
+
+@login_required
+def organization_name_update(request, organization_name_id):
+    """
+    Allows a user to update a custom organization name
+    if it is tied to their account via an affiliation.
+    """
+
+    organization_name = get_object_or_404(
+        core_models.OrganizationName,
+        pk=organization_name_id,
+        custom_label_for__controlledaffiliation__account=request.user,
+    )
+    form = forms.OrganizationNameForm(instance=organization_name)
+
+    if request.method == 'POST':
+        form = forms.OrganizationNameForm(
+            request.POST,
+            instance=organization_name,
+        )
+        if form.is_valid():
+            organization = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization updated: %(organization)s")
+                    % {"organization": organization},
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/organizationname_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_create(request, organization_id):
+    """
+    Allows a user to create a new affiliation for themselves.
+    """
+
+    organization = get_object_or_404(
+        core_models.Organization,
+        pk=organization_id,
+    )
+    form = forms.AccountAffiliationForm(
+        account=request.user,
+        organization=organization,
+    )
+
+    if request.method == 'POST':
+        form = forms.AccountAffiliationForm(
+            request.POST,
+            account=request.user,
+            organization=organization,
+        )
+        if form.is_valid():
+            affiliation = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation created: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'organization': organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_update(request, affiliation_id):
+    """
+    Allows a user to update one of their own affiliations.
+    """
+
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
+
+    form = forms.AccountAffiliationForm(
+        instance=affiliation,
+        account=request.user,
+        organization=affiliation.organization,
+    )
+
+    if request.method == 'POST':
+        form = forms.AccountAffiliationForm(
+            request.POST,
+            instance=affiliation,
+            account=request.user,
+            organization=affiliation.organization,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation updated: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_delete(request, affiliation_id):
+    """
+    Allows a user to delete one of their own affiliations.
+    """
+
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
+    form = forms.ConfirmDeleteForm()
+
+    if request.method == 'POST':
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            affiliation.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation deleted: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_confirm_delete.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)

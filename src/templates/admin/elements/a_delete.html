@@ -1,0 +1,12 @@
+{% comment %}
+A generic red delete button with rubbish icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button alert {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-trash"></span>
+  {% trans "Delete" %}
+</a>

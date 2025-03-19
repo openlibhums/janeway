@@ -1,0 +1,84 @@
+{% extends "admin/core/large_form.html" %}
+
+{% load i18n static %}
+
+{% block contextual_title %}
+  {% trans "Add Affiliation" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Add Affiliation" %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% if request.user == account %}
+    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+    <li>{% trans "Add Affiliation" %}</li>
+  {% endif %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid max-w-80">
+    <div class="rummage-portal">
+      {% include "admin/core/affiliation_summary.html" %}
+      <section class="card padding-block-2 padding-inline-2">
+        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+        <form method="GET" id={{ facet_form.id }}>
+          <div class="title-area">
+            <h2>{% trans "Search for organization" %}</h2>
+          </div>
+          <div class="input-group">
+            <label
+              for="{{ facet_form.q.id_for_label }}"
+              class="input-group-label">
+              {{ facet_form.q.label }}</label>
+            <input
+              id="{{ facet_form.q.id_for_label }}"
+              name="{{ facet_form.q.name }}"
+              class="input-group-field"
+              value="{{ facet_form.q.value|default:'' }}"
+              placeholder="e.g. birkbeck"
+              type="search">
+            <div class="input-group-button">
+              <button type="submit" class="button">
+                <span class="fa fa-search"></span>
+                Search
+              </button>
+            </div>
+          </div>
+        </form>
+        {% for organization in organization_list %}
+          <div class="callout">
+            <div class="flex space-between">
+              <div>
+                <h3>{{ organization.ror_display }}</h3>
+                {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
+                {% if organization.also_known_as %}
+                  {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
+                {% endif %}
+                {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.uri link=organization.uri %}
+                {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
+              </div>
+              <div>
+                {% url 'core_affiliation_create' organization.pk as create_url %}
+                {% trans "Add affiliation" as add_affiliation %}
+                {% include "elements/a_create.html" with href=create_url label=add_affiliation %}
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <p><strong>{% trans 'No organizations to display.' %}</strong></p>
+        {% endfor %}
+        <div class="callout">
+          <h3>Organization not found?</h3>
+          {% url 'core_organization_name_create' as create_url %}
+          {% trans "Create custom organization" as create_custom_organization %}
+          {% include "elements/a_create.html" with href=create_url label=create_custom_organization %}
+        </div>
+        {% if organization_list %}
+          {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+        {% endif %}
+      </section>
+    </div>
+  </div>
+{% endblock body %}

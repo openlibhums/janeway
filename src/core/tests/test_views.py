@@ -47,6 +47,20 @@ class CoreViewTestsWithData(TestCase):
         )
         cls.user.save()
 
+        cls.organization_bbk = core_models.Organization.objects.create(
+            ror_id='02mb95055',
+        )
+        cls.name_bbk_uol = core_models.OrganizationName.objects.create(
+            value='Birkbeck, University of London',
+            language='en',
+            ror_display_for=cls.organization_bbk,
+            label_for=cls.organization_bbk,
+        )
+        cls.affiliation = core_models.ControlledAffiliation.objects.create(
+            account=cls.user,
+            organization=cls.organization_bbk,
+        )
+
         # The raw unicode string of a 'next' URL
         cls.next_url_raw = '/target/page/?a=b&x=y'
 
@@ -67,6 +81,9 @@ class CoreViewTestsWithData(TestCase):
 
         # The core_login url with encoded next url
         cls.core_login_with_next = '/login/?next=/target/page/%3Fa%3Db%26x%3Dy'
+
+    def setUp(self):
+        self.client = Client()
 
 
 class AccountManagementTemplateTests(CoreViewTestsWithData):
@@ -672,3 +689,136 @@ class ReturnURLTests(CoreViewTestsWithData):
             content = response.content.decode()
             self.assertIn(f'/login/?next=/submissions/', content)
             self.assertIn(f'/register/step/1/?next=/submissions/', content)
+
+
+class ControlledAffiliationManagementTests(CoreViewTestsWithData):
+
+    def test_organization_list_view_get(self):
+        self.client.force_login(self.user)
+        url = '/profile/organization/search/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/organization_list.html')
+
+    def test_organization_list_view_post(self):
+        self.client.force_login(self.user)
+        get_data = {
+            'q': 'London',
+        }
+        url = f'/profile/organization/search/'
+        response = self.client.get(url, get_data)
+        content = response.content.decode()
+        self.assertIn(self.name_bbk_uol.value, content)
+
+    def test_organization_name_create_get(self):
+        self.client.force_login(self.user)
+        url = '/profile/organization_name/create/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/organization_name_create.html')
+
+    def test_organization_name_create_post(self):
+        self.client.force_login(self.user)
+        post_data = {
+            'value': 'University of Finsbury',
+        }
+        url = '/profile/organization_name/create/'
+        self.client.post(url, post_data, follow=True)
+        try:
+            core_models.Organization.objects.get(
+                custom_label__value='University of Finsbury',
+            )
+        except core_models.Organization.DoesNotExist:
+            self.fail()
+
+    def test_organization_name_update_get(self):
+        # Set up custom org with affiliation
+        organization = core_models.Organization.objects.create()
+        organization_name = core_models.OrganizationName.objects.create(
+            value='University of Finsbury',
+            custom_label_for=organization,
+        )
+        affiliation = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=organization,
+        )
+        self.client.force_login(self.user)
+        url = f'/profile/organization_name/{organization_name.pk}/update/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/affiliation_name_update.html')
+
+    def test_organization_name_update_post(self):
+        # Set up custom org with affiliation
+        organization = core_models.Organization.objects.create()
+        organization_name = core_models.OrganizationName.objects.create(
+            value='University of Finsbury',
+            custom_label_for=organization,
+        )
+        affiliation = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=organization,
+        )
+
+        # Run test
+        self.client.force_login(self.user)
+        url = f'/profile/organization_name/{organization_name.pk}/update/'
+        post_data = {
+            'value': 'University of Finsbury Park',
+        }
+        self.client.post(url, post_data, follow=True)
+        organization_name.refresh_from_db()
+        self.assertEqual(
+            organization_name.value,
+            'University of Finsbury Park',
+        )
+
+    def test_affiliation_create_get(self):
+        organization = core_models.Organization.objects.create()
+        self.client.force_login(self.user)
+        url = f'/profile/organization/{organization.pk}/affiliation/create/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/affiliation_create.html')
+
+    def test_affiliation_create_post(self):
+        organization = core_models.Organization.objects.create()
+
+        self.client.force_login(self.user)
+        post_data = { }
+        url = f'/profile/organization/{organization.pk}/affiliation/create/'
+        response = self.client.post(url, post_data, follow=True)
+        self.assertIn(
+            organization,
+            [affil.organization for affil in self.user.affiliations]
+        )
+
+    def test_affiliation_update_get(self):
+        self.client.force_login(self.user)
+        url = f'/profile/affiliation/{self.affiliation.pk}/update/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/affiliation_update.html')
+
+    def test_affiliation_update_post(self):
+        self.client.force_login(self.user)
+        post_data = {
+            'title': 'New Job Title',
+            'department': 'New Department',
+        }
+        affil_id = self.affiliation.pk
+        url = f'/profile/affiliation/{affil_id}/update/'
+        response = self.client.post(url, post_data, follow=True)
+        self.affiliation.refresh_from_db()
+        self.assertEqual(self.affiliation.title, 'New Job Title')
+        self.assertEqual(self.affiliation.department, 'New Department')
+
+    def test_affiliation_delete_get(self):
+        self.client.force_login(self.user)
+        url = f'/profile/affiliation/{self.affiliation.pk}/delete/'
+        self.client.get(url, {})
+        self.assertTemplateUsed('admin/core/affiliation_confirm_delete.html')
+
+    def test_affiliation_delete_post(self):
+        self.client.force_login(self.user)
+        post_data = {}
+        affil_id = self.affiliation.pk
+        url = f'/profile/affiliation/{affil_id}/delete/'
+        response = self.client.post(url, post_data, follow=True)
+        with self.assertRaises(core_models.ControlledAffiliation.DoesNotExist):
+            core_models.ControlledAffiliation.objects.get(pk=affil_id)

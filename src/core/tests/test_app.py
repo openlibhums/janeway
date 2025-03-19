@@ -206,7 +206,6 @@ class CoreTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Campbell")
         self.assertContains(response, "Kasey")
-        self.assertContains(response, "Elk Valley University")
         self.assertContains(response, "campbell@evu.edu")
         self.assertNotContains(response, "Register with ORCiD")
         self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")

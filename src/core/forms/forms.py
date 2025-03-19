@@ -183,7 +183,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'department', 'institution', 'country', 'orcid',)
+                  'last_name', 'orcid',)
         widgets = {'orcid': forms.HiddenInput() }
 
     def __init__(self, *args, **kwargs):
@@ -532,7 +532,7 @@ class SectionForm(JanewayTranslationModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
+        fields = ('email', 'salutation', 'first_name', 'last_name',)
 
 
 class LoginForm(CaptchaForm):
@@ -945,3 +945,58 @@ class AccountRoleForm(forms.ModelForm):
     class Meta:
         model = models.AccountRole
         fields = '__all__'
+
+
+class OrganizationNameForm(forms.ModelForm):
+
+    class Meta:
+        model = models.OrganizationName
+        fields = ('value',)
+
+
+class AccountAffiliationForm(forms.ModelForm):
+    """
+    A form for account holders to edit their own affiliations.
+    Not intended for editing someone else's affiliations.
+    """
+
+    class Meta:
+        model = models.ControlledAffiliation
+        fields = ('title', 'department', 'is_primary', 'start', 'end')
+        widgets = {
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.account = kwargs.pop('account', None)
+        self.organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        query = Q(account=self.account, organization=self.organization)
+        for key, value in cleaned_data.items():
+            query &= Q((key, value))
+        if self._meta.model.objects.filter(query).exists():
+            self.add_error(
+                None,
+                "An affiliation with matching details already exists."
+            )
+        return cleaned_data
+
+    def save(self, commit=True):
+        affiliation = super().save(commit=False)
+        affiliation.account = self.account
+        affiliation.organization = self.organization
+        if commit:
+            affiliation.save()
+        return affiliation
+
+
+class ConfirmDeleteForm(forms.Form):
+    """
+    A generic form for use on confirm-delete pages
+    where a valid form with POST data means yes, delete.
+    """
+    pass

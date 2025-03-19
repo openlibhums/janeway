@@ -28,7 +28,7 @@
         {% csrf_token %}
         {% include "elements/forms/errors.html" %}
         {{ form|foundation }}
-        <button class="success button"><i class="fa fa-save"></i> Save</button>
+        {% include "elements/button_save.html" %}
     </form>
 </div>
 {% endblock body %}

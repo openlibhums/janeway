@@ -86,6 +86,7 @@ SALUTATION_CHOICES = [
     ('Mr', 'Mr'),
 ]
 
+# This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (
     (u'eng', u'English'), (u'abk', u'Abkhazian'), (u'ace', u'Achinese'), (u'ach', u'Acoli'), (u'ada', u'Adangme'),
     (u'ady', u'Adyghe; Adygei'), (u'aar', u'Afar'), (u'afh', u'Afrihili'), (u'afr', u'Afrikaans'),
@@ -1932,6 +1933,10 @@ class Article(AbstractLastModifiedModel):
             return True
 
 
+class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
+    AFFILIATION_RELATED_NAME = 'frozen_author'
+
+
 class FrozenAuthor(AbstractLastModifiedModel):
     article = models.ForeignKey(
         'submission.Article',
@@ -1974,16 +1979,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
         validators=[plain_text_validator],
 )
 
-    institution = models.CharField(
-        max_length=1000,
-        blank=True,
-        validators=[plain_text_validator],
-)
-    department = models.CharField(
-        max_length=300,
-        blank=True,
-        validators=[plain_text_validator],
-    )
     frozen_biography = JanewayBleachField(
         blank=True,
         verbose_name=_('Frozen Biography'),
@@ -1994,13 +1989,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     " for the account will be populated instead."
                    ),
     )
-    country = models.ForeignKey(
-        'core.Country',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-
     order = models.PositiveIntegerField(default=1)
 
     is_corporate = models.BooleanField(
@@ -2026,11 +2014,50 @@ class FrozenAuthor(AbstractLastModifiedModel):
         help_text=_("If checked, this authors email address link will be displayed on the article page.")
     )
 
+    objects = FrozenAuthorQueryset.as_manager()
+
     class Meta:
         ordering = ('order', 'pk')
 
     def __str__(self):
         return self.full_name()
+
+    @property
+    def institution(self):
+        affil = self.primary_affiliation()
+        return str(affil.organization) if affil else ''
+
+    @institution.setter
+    def institution(self, value):
+        core_models.ControlledAffiliation.get_or_create_without_ror(
+            institution=value,
+            frozen_author=self
+        )
+
+    @property
+    def department(self):
+        affil = self.primary_affiliation()
+        return str(affil.department) if affil else ''
+
+    @department.setter
+    def department(self, value):
+        core_models.ControlledAffiliation.get_or_create_without_ror(
+            department=value,
+            frozen_author=self,
+        )
+
+    @property
+    def country(self):
+        affil = self.primary_affiliation()
+        organization = affil.organization if affil else None
+        return str(organization.country) if organization else None
+
+    @country.setter
+    def country(self, value):
+        core_models.ControlledAffiliation.get_or_create_without_ror(
+            country=value,
+            frozen_author=self
+        )
 
     def full_name(self):
         if self.is_corporate:
@@ -2082,7 +2109,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        return self.affiliation()
+        return self.affiliation
 
     @property
     def biography(self):
@@ -2116,12 +2143,27 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.first_name
 
     def affiliation(self):
-        if self.institution and self.department:
-            return "{}, {}".format(self.department, self.institution)
-        elif self.institution:
-            return self.institution
-        else:
-            return ''
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a method.
+        Different from repository.models.Preprint.affiliation,
+        which is a property.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
+
+    def primary_affiliation(self, as_object=True):
+        return core_models.ControlledAffiliation.get_primary(
+            affiliated_object=self,
+            as_object=as_object,
+        )
+
+    @property
+    def affiliations(self):
+        return core_models.ControlledAffiliation.objects.filter(
+            frozen_author=self,
+        )
 
     @property
     def is_correspondence_author(self):

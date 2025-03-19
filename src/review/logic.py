@@ -834,11 +834,6 @@ def process_reviewer_csv(path, request, article, form):
         reader = csv.DictReader(csv_file)
         reviewers = []
         for row in reader:
-            try:
-                country = core_models.Country.objects.get(code=row.get('country'))
-            except core_models.Country.DoesNotExist:
-                country = None
-
             reviewer, created = core_models.Account.objects.get_or_create(
                 email=row.get('email_address'),
                 defaults={
@@ -846,12 +841,20 @@ def process_reviewer_csv(path, request, article, form):
                     'first_name': row.get('firstname', ''),
                     'middle_name': row.get('middlename', ''),
                     'last_name': row.get('lastname', ''),
-                    'department': row.get('department', ''),
-                    'institution': row.get('institution', ''),
-                    'country': country,
                     'is_active': True,
                 }
             )
+            if (
+                row.get('institution')
+                or row.get('department')
+                or row.get('country')
+            ):
+                core_models.ControlledAffiliation.get_or_create_without_ror(
+                    institution=row.get('institution', ''),
+                    department=row.get('department', ''),
+                    country=row.get('country', ''),
+                    account=reviewer,
+                )
 
             try:
                 review_interests = row.get('interests')

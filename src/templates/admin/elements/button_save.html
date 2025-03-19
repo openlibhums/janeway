@@ -1,0 +1,13 @@
+{% comment %}
+A generic green save button with floppy disk icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'save' }}"
+  class="button success {{ size|default:'normal' }} no-bottom-margin"
+  type="submit">
+  <span class="fa fa-save"></span>
+  {% trans "Save" %}
+</button>

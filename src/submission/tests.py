@@ -66,54 +66,60 @@ class SubmissionTests(TestCase):
 
         return journal_one
 
-    @staticmethod
-    def create_authors():
+    @classmethod
+    def create_authors(cls):
         author_1_data = {
+            'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Prof.',
             'first_name': 'Martin',
+            'middle_name': '',
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
         author_2_data = {
+            'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Sr.',
             'first_name': 'Mauro',
+            'middle_name': '',
             'last_name': 'Sanchez',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
+        author_1 = helpers.create_author(cls.journal_one, **author_1_data)
+        author_2 = helpers.create_author(cls.journal_one, **author_2_data)
 
         return author_1, author_2
 
-    def create_sections(self):
-        self.section_1 = models.Section.objects.create(
+    @classmethod
+    def create_sections(cls):
+        cls.section_1 = models.Section.objects.create(
             name='Test Public Section',
-            journal=self.journal_one,
+            journal=cls.journal_one,
         )
-        self.section_2 = models.Section.objects.create(
+        cls.section_2 = models.Section.objects.create(
             name='Test Private Section',
             public_submissions=False,
-            journal=self.journal_one
+            journal=cls.journal_one
         )
-        self.section_3 = models.Section.objects.create(
-            journal=self.journal_one,
+        cls.section_3 = models.Section.objects.create(
+            journal=cls.journal_one,
         )
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         """
         Setup the test environment.
         :return: None
         """
-        self.journal_one = self.create_journal()
-        self.editor = helpers.create_editor(self.journal_one)
-        self.press = helpers.create_press()
-        self.create_sections()
+        cls.journal_one = cls.create_journal()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.press = helpers.create_press()
+        cls.create_sections()
 
     def test_article_image_galley(self):
         article = models.Article.objects.create(
@@ -273,7 +279,9 @@ class SubmissionTests(TestCase):
 
         article.snapshot_authors()
         new_department = "New department"
-        article.frozen_authors().update(department=new_department)
+        for frozen_author in article.frozen_authors():
+            frozen_author.department = new_department
+            frozen_author.save()
         article.snapshot_authors(force_update=True)
         frozen = article.frozen_authors().all()[0]
 
@@ -576,15 +584,12 @@ class SubmissionTests(TestCase):
             "middle_name",
             "name_prefix",
             "suffix",
-            "institution",
-            "department",
         }):
             form = forms.AuthorForm(
                 {
                     'first_name': 'Andy',
                     'last_name': 'Byers',
                     'biography': 'Andy',
-                    'institution': 'Birkbeck, University of London',
                     'email': f'andy{i}@janeway.systems',
                     'orcid': 'https://orcid.org/0000-0003-2126-266X',
                     **{attr: harmful_string},
@@ -783,28 +788,31 @@ class ArticleSearchTests(TransactionTestCase):
 
         return journal_one
 
-    @staticmethod
-    def create_authors():
+    def create_authors(self):
         author_1_data = {
+            'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Prof.',
             'first_name': 'Martin',
+            'middle_name': '',
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
         author_2_data = {
+            'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
             'salutation': 'Sr.',
             'first_name': 'Mauro',
+            'middle_name': '',
             'last_name': 'Sanchez',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
+        author_1 = helpers.create_author(self.journal_one, **author_1_data)
+        author_2 = helpers.create_author(self.journal_one, **author_2_data)
 
         return author_1, author_2
 

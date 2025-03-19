@@ -1,0 +1,47 @@
+{% extends "admin/core/large_form.html" %}
+
+{% load i18n static foundation %}
+
+{% block contextual_title %}
+  {% trans "Custom organization" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Custom organization" %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% if request.user == account %}
+    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+    <li>
+      <a href="{% url 'core_organization_search' %}">
+        {% trans "Add Affiliation" %}
+      </a>
+    </li>
+    <li>{% trans "Custom organization" %}</li>
+  {% endif %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid max-w-80">
+    <div class="rummage-portal">
+      {% include "admin/core/affiliation_summary.html" %}
+      <section class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2>{% trans "Custom name" %}</h2>
+        </div>
+        <form method="post">
+          {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+          {% csrf_token %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          {% include "admin/elements/forms/field.html" with field=form.value %}
+          {% include "elements/button_save.html" %}
+          {% url 'core_edit_profile' as cancel_url %}
+          {% include "elements/a_cancel.html" with href=cancel_url %}
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock body %}

@@ -1,0 +1,83 @@
+{% extends "admin/core/large_form.html" %}
+
+{% load i18n static foundation %}
+
+{% block contextual_title %}
+  {% blocktrans with organization=organization.name %}
+    Affiliation details for {{ organization }}
+  {% endblocktrans %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% blocktrans with organization=organization.name %}
+    Affiliation details for {{ organization }}
+  {% endblocktrans %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% if request.user == account %}
+    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+    {% if not affiliation %}
+      <li>
+        <a href="{% url 'core_organization_search' %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
+    <li>{% blocktrans with organization=organization.name %}
+      Affiliation details for {{ organization }}
+    {% endblocktrans %}</li>
+  {% endif %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid max-w-64">
+    <div class="rummage-portal">
+      {% include "admin/core/affiliation_summary.html" %}
+      <section class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2>
+            {% trans "Affiliation details" %}
+          </h2>
+        </div>
+        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+        {% blocktrans with organization=organization.name %}
+          <p>Enter optional affiliation details, and select Save to create the affiliation.</p>
+        {% endblocktrans %}
+        {% if organization.custom_label %}
+          <div class="flex gap-1">
+            {% include "admin/elements/layout/key_value_above.html" with key="Custom organization" value=organization.custom_label %}
+            {% if affiliation %}
+              <div>
+                {% url 'core_organization_name_update' organization.custom_label.pk as edit_url %}
+                {% include "elements/a_edit.html" with href=edit_url size="small" %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          <div class="grid auto">
+            {% include "admin/elements/forms/field.html" with field=form.title %}
+            {% include "admin/elements/forms/field.html" with field=form.department %}
+          </div>
+          <div class="grid auto">
+            {% include "admin/elements/forms/field.html" with field=form.start %}
+            {% include "admin/elements/forms/field.html" with field=form.end %}
+            {% include "admin/elements/forms/field.html" with field=form.is_primary %}
+          </div>
+          {% include "elements/button_save.html" %}
+          {% if affiliation %}
+            {% url 'core_affiliation_delete' affiliation.pk as delete_url %}
+            {% include "elements/a_delete.html" with href=delete_url %}
+          {% endif %}
+          {% url 'core_edit_profile' as cancel_url %}
+          {% include "elements/a_cancel.html" with href=cancel_url %}
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock body %}

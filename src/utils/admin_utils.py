@@ -297,6 +297,19 @@ class NewsItemInline(admin.TabularInline):
     raw_id_fields = ('newsitem',)
 
 
+class RORImportErrorInline(admin.TabularInline):
+    model = core_models.RORImportError
+    extra = 0
+    readonly_fields = ('message',)
+
+
+class ControlledAffiliationInline(admin.TabularInline):
+    model = core_models.ControlledAffiliation
+    extra = 0
+    fields = ('title', 'department', 'organization',
+              'is_primary', 'start', 'end')
+
+
 class JournalFilterBase(admin.SimpleListFilter):
     """
     A base class for other journal filters
