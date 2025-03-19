@@ -802,6 +802,31 @@ def check_exclusive_fields_constraint(fields, blank=True):
     return constraint
 
 
+# Regex for use by AffiliationCompatibleQueryset
+AFFILIATION_COMPATIBLE_PATTERNS = (
+    (
+        # Account and FrozenAuthor had 'institution'
+        re.compile(r'^institution'),
+        'controlledaffiliation__organization__labels__value',
+    ),
+    (
+        # PreprintAuthor had 'affiliation'
+        re.compile(r'^affiliation'),
+        'controlledaffiliation__organization__labels__value',
+    ),
+    (
+        # Account and FrozenAuthor had 'department'
+        re.compile(r'^department'),
+        'controlledaffiliation__department',
+    ),
+    (
+        # Account and FrozenAuthor had 'country'
+        re.compile(r'^country'),
+        'controlledaffiliation__organization__locations__country',
+    )
+)
+
+
 class AffiliationCompatibleQueryset(models.query.QuerySet):
     """
     The Account, FrozenAuthor, PreprintAuthor models used to have
@@ -844,32 +869,10 @@ class AffiliationCompatibleQueryset(models.query.QuerySet):
         Checks for old affiliation-related field names on queryset lookups
         and remaps them to new names for get() and filter() methods.
         """
-        backwards_keys = (
-            (
-                # Account and FrozenAuthor had 'institution'
-                re.compile(r'^institution'),
-                'controlledaffiliation__organization__labels__value',
-            ),
-            (
-                # PreprintAuthor had 'affiliation'
-                re.compile(r'^affiliation'),
-                'controlledaffiliation__organization__labels__value',
-            ),
-            (
-                # Account and FrozenAuthor had 'department'
-                re.compile(r'^department'),
-                'controlledaffiliation__department',
-            ),
-            (
-                # Account and FrozenAuthor had 'country'
-                re.compile(r'^country'),
-                'controlledaffiliation__organization__locations__country',
-            )
-        )
         old_lookups = []
         new_kwargs = {}
         for lookup in kwargs.keys():
-            for prog, replacement in backwards_keys:
+            for prog, replacement in AFFILIATION_COMPATIBLE_PATTERNS:
                 if prog.match(lookup):
                     old_lookups.append(lookup)
                     new_lookup = prog.sub(replacement, lookup)
