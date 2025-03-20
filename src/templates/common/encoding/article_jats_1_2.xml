@@ -45,7 +45,7 @@
                     {% if author.is_correspondence_author %}
                     <email>{{ author.author.email }}</email>
                     {% endif %}
-                    {% if article.journal|setting:'use_credit' and author.credits %}
+                    {% if article.journal|setting:'use_credit' and author.credits.exists %}
                         {% for credit_record in author.credits %}
                             <role
                                 vocab="credit"
