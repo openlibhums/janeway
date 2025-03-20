@@ -375,6 +375,7 @@ class RORImport(models.Model):
         null=True,
     )
     status = models.CharField(
+        max_length=20,
         choices=RORImportStatus.choices,
         default=RORImportStatus.IS_ONGOING,
     )
