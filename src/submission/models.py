@@ -2264,7 +2264,8 @@ class CreditRecord(AbstractLastModifiedModel):
         verbose_name_plural = 'CRediT records'
         constraints = [
             model_utils.check_exclusive_fields_constraint(
-                ['author', 'frozen_author', 'preprint_author']
+                'credit_record',
+                ['author', 'frozen_author', 'preprint_author'],
             )
         ]
         ordering = ["role"]

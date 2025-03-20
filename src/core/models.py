@@ -2480,7 +2480,8 @@ class ControlledAffiliation(models.Model):
     class Meta:
         constraints = [
             check_exclusive_fields_constraint(
-                ['account', 'frozen_author', 'preprint_author']
+                'controlled_affiliation',
+                ['account', 'frozen_author', 'preprint_author'],
             )
         ]
         ordering = ['is_primary', '-pk']

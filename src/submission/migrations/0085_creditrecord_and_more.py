@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('submission', '0083_article_jats_article_type_override_and_more'),
+        ('submission', '0084_remove_frozenauthor_country_and_more'),
     ]
 
     operations = [
@@ -33,6 +33,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='creditrecord',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('author__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('author__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('author__isnull', True), ('frozen_author__isnull', True)), ('author__isnull', True), models.Q(('author__isnull', True), ('frozen_author__isnull', True)), models.Q(('author__isnull', True), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'), name='exclusive_fields_constraint'),
+            constraint=models.CheckConstraint(
+                check=models.Q(models.Q(('author__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('author__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('author__isnull', True), ('frozen_author__isnull', True)), ('author__isnull', True), models.Q(('author__isnull', True), ('frozen_author__isnull', True)), models.Q(('author__isnull', True), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'),
+                name='credit_record_author_frozen_author_preprint_author_exclusive_fields_constraint',
+            ),
         ),
     ]
