@@ -226,8 +226,8 @@
         </div>
 
         <div class="col m4">
-            <section aria-label="{% trans 'Article Information' %}">
-                <div class="card">
+            <div class="card">
+                <section aria-label="{% trans 'Article Information' %}">
                     <div class="card-content">
                         {% include "common/elements/altmetric_badges.html" with article=article %}
                         {% include "elements/journal/share.html" %}
@@ -479,10 +479,12 @@
                             {% endif %}
                         {% endif %}
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
+        </div>
+        <div class="col m4 toc-sticky">
             {% if article_content %}
-                <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
+                <div class="card hide-on-small-only" id="toc-card">
                     <section aria-labelledby="toc-title">
                         <div class="card-content" id="toc-section">
                             <h4 id="toc-title">
@@ -506,23 +508,7 @@
 
 {% block js %}
     <script src="{% static 'material/toc.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            $('.scrollspy').scrollSpy();
-        });
-        $(document).scroll(function () {
-            var infobar_y = document.querySelector('nav').offsetHeight
-                + document.querySelector('.card-image').offsetHeight
-                + document.querySelector('.m4').offsetHeight
-            var y = $(this).scrollTop();
-            if (y > infobar_y) {
-                $('#toc-card').fadeIn();
-            } else {
-                $('#toc-card').fadeOut();
-            }
 
-        });
-    </script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     <script>
         MathJax.Hub.Config({
