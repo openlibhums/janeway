@@ -3,6 +3,7 @@
 {% load foundation %}
 {% load press_url %}
 {% load securitytags %}
+{% load fqdn %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -27,12 +28,28 @@
         <aside class="box">
           <p> Note: This page lists all users with a role in
           <i>{{ request.journal.name }}</i>. If a broader search is needed,
-          try <a href="{{ request.press.url }}/user/all/">All Users
+          try <a href="{{ request.press.site_url }}/user/all/">All Users
           at the press level</a>.</p>
-          {% comment %} The above URL is hardcoded because there is no other
-          way to form a press URL on a journal page at the moment. {% endcomment %}
+        </aside>
+      {% elif request.press and user.is_staff %}
+        <aside class="box">
+          <p> Note: This page lists all users with a role in
+          {{ request.press.name }}. You can also manage users at the
+          journal level:
+          <ul>
+            {% for journal in request.press.journals %}
+              <li>
+                <a href="{{ journal.site_url }}/user/all/">
+                  {{ journal.name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
         </aside>
       {% endif %}
+      {% comment %} The above URLs are hardcoded because there is no other
+      way to form a press URL dynamically on a journal page at the moment,
+      or to form a journal URL dynamically on a press page.{% endcomment %}
     </div>
     <div class="box">
       <div class="title-area">
