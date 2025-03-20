@@ -257,7 +257,7 @@
                                             <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
                                         </a>
                                      {% endif %}
-                                     {% if journal_settings.general.use_credit and author.credits %}
+                                     {% if journal_settings.general.use_credit and author.credits.exists %}
                                        [<span class="credit">
                                          {% for credit in author.credits %}
                                            {{ credit }}{% if not forloop.last %}, {% endif %}
