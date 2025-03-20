@@ -14,6 +14,13 @@ class PressViewTestsWithData(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.press_manager = helpers.create_user(
+            username='rcuaekqhrswerhrttydo@example.org',
+        )
+        cls.press_manager.is_active = True
+        cls.press_manager.is_staff = True
+        cls.press_manager.save()
 
 
 class URLWithReturnTests(PressViewTestsWithData):
@@ -31,3 +38,50 @@ class URLWithReturnTests(PressViewTestsWithData):
         content = response.content.decode()
         self.assertNotIn('/login/?next=', content)
         self.assertNotIn('/register/step/1/?next=', content)
+
+    @override_settings(URL_CONFIG='domain')
+    def test_link_from_journal_users_to_all_users_domain(self):
+        self.client.force_login(self.press_manager)
+        self.journal_one.domain = 'one.example.org'
+        self.journal_one.save()
+        response = self.client.get(
+            '/user/all/',
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn(f'{self.press.domain}/user/all/', content)
+
+    @override_settings(URL_CONFIG='path')
+    def test_link_from_journal_users_to_all_users_path(self):
+        self.client.force_login(self.press_manager)
+        response = self.client.get(
+            '/user/all/',
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn(f'{self.press.domain}/user/all/', content)
+
+    @override_settings(URL_CONFIG='domain')
+    def test_link_from_all_users_to_journal_users_domain(self):
+        self.client.force_login(self.press_manager)
+        self.journal_one.domain = 'one.example.org'
+        self.journal_one.save()
+        response = self.client.get(
+            '/user/all/',
+            SERVER_NAME=self.press.domain,
+        )
+        content = response.content.decode()
+        self.assertIn(f'one.example.org/user/all/', content)
+
+    @override_settings(URL_CONFIG='path')
+    def test_link_from_all_users_to_journal_users_path(self):
+        self.client.force_login(self.press_manager)
+        response = self.client.get(
+            '/user/all/',
+            SERVER_NAME=self.press.domain,
+        )
+        content = response.content.decode()
+        self.assertIn(
+            f'{self.press.domain}/{self.journal_one.code}/user/all/',
+            content
+        )
