@@ -41,7 +41,7 @@
                     <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
                     <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
                     <p><strong>File</strong></p>
-                    <p>{% if version.file %}<a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
+                    <p>{% if version.file %}<a href="{% url 'repository_download_file' version.preprint.id version.file.pk %}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
                 </div>
             </div>
             <div class="large-12 columns">
