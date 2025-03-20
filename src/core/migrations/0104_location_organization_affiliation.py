@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             name='Organization',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ror_id', models.CharField(blank=True, help_text='Non-URI form of Research Organization Registry identifier', validators=[core.models.validate_ror_id], verbose_name='ROR')),
+                ('ror_id', models.CharField(blank=True, help_text='Non-URI form of Research Organization Registry identifier', max_length=10, validators=[core.models.validate_ror_id], verbose_name='ROR')),
                 ('ror_status', models.CharField(blank=True, choices=[('active', 'Active'), ('inactive', 'Inactive'), ('withdrawn', 'Withdrawn'), ('unknown', 'Unknown')], default='unknown', max_length=10)),
                 ('ror_record_timestamp', models.CharField(blank=True, help_text='The admin.last_modified.date string from ROR data', max_length=10)),
                 ('website', models.CharField(blank=True, max_length=2000)),

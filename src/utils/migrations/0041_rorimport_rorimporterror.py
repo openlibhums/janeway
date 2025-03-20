@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('started', models.DateTimeField(auto_now_add=True)),
                 ('stopped', models.DateTimeField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('is_ongoing', 'Ongoing'), ('is_unnecessary', 'Unnecessary'), ('is_successful', 'Successful'), ('is_failed', 'Failed')], default='is_ongoing')),
+                ('status', models.CharField(choices=[('is_ongoing', 'Ongoing'), ('is_unnecessary', 'Unnecessary'), ('is_successful', 'Successful'), ('is_failed', 'Failed')], default='is_ongoing', max_length=20)),
                 ('records', models.JSONField(default=dict)),
             ],
             options={
