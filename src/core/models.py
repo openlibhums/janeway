@@ -2063,6 +2063,7 @@ class Organization(models.Model):
 
     ror_id = models.CharField(
         blank=True,
+        max_length=10,
         validators=[validate_ror_id],
         verbose_name='ROR',
         help_text='Non-URI form of Research Organization Registry identifier',
