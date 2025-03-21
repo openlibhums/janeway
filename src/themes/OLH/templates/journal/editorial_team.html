@@ -15,9 +15,9 @@
     <section id="content">
         <div class="row column">
             {% if group_id %}
-                {# HeadingA11y #} <h1>{{ editorial_groups.0.name }}</h1>
+                <h1>{{ editorial_groups.0.name }}</h1>
             {% else %}
-                {# HeadingA11y #} <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
+                <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
             {% endif %}
             {% for group in editorial_groups %}
                 {% if not journal_settings.styling.hide_editorial_group_names %}

@@ -27,16 +27,16 @@
                     </ul>
                 </div>
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                {# HeadingA11y #} <h1>{% trans 'Pinned Articles' %}</h1>
+                    <h1>{% trans 'Pinned Articles' %}</h1>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}
                 {% endif %}
-                {# HeadingA11y #} <h1>{% trans "Articles" %}</h1>
+                <h1>{% trans "Articles" %}</h1>
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}
-                    {# HeadingA11y #} <h3>{% trans 'There are no articles published in this journal yet' %}.</h3>
+                    <h3>{% trans 'There are no articles published in this journal yet' %}.</h3>
                 {% endfor %}
 
                 <div class="pagination-block">
