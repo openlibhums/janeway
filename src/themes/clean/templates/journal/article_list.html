@@ -9,7 +9,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            {# HeadingA11y #} <h1>{% trans "Articles" %}</h1>
+            <h1>{% trans "Articles" %}</h1>
         </div>
         <div class="col-md-8">
             <section aria-label="{% trans 'Results' %}">
@@ -26,7 +26,7 @@
             <section aria-labelledby="search-title">
                 <div class="card">
                     <div class="card-block">
-                        {# HeadingA11y #} <h3 id="search-title">{% trans 'Search' %}</h3>
+                        <h2 id="search-title">{% trans 'Search' %}</h2>
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="form-group">

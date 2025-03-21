@@ -12,6 +12,6 @@
 </ul>
 
 {% for decade, issues in issues_by_decade.items %}
-    {# HeadingA11y #} <h2 id="decade-{{ decade }}">{{ decade }}</h2>
+    <h2 id="decade-{{ decade }}">{{ decade }}</h2>
     {% include "elements/journal/issue_list.html" with issues=issues %}
 {% endfor %}

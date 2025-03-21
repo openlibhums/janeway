@@ -8,7 +8,7 @@
     <section id="content">
         <div class="row">
             <div class="large-12 columns">
-                {# HeadingA11y #} <h1>{% trans 'Authors' %}</h1>
+                <h1>{% trans 'Authors' %}</h1>
             </div>
         </div>
     
@@ -28,7 +28,7 @@
 
                         {% endif %}
 
-                        <strong>{{ author.full_name }}</strong><br/>
+                        <h2>{{ author.full_name }}</h2>
                         <i>
                             <small>{{ author.affiliation }}</small>
                         </i>

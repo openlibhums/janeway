@@ -31,7 +31,7 @@
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        {# HeadingA11y #} <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                        <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
                             <p></p><strong>{% if article.frozen_authors.count > 1 %}
                                 {% trans "Authors" %}:
@@ -78,10 +78,10 @@
             <div id="article">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    {# HeadingA11y #} <h3>{{ article.title|safe }}</h3>
+                    <h1>{{ article.title|safe }}</h1>
                 {% endif %}
                 {% if article.abstract and article.abstract != '' %}
-                    {# HeadingA11y #} <h2>{% trans "Abstract" %}</h2>
+                    <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
                 {% if article.keywords and article.keywords.count > 0 %}
@@ -132,7 +132,7 @@
 
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
-                        {# HeadingA11y #} <h2>{% trans "Publisher Notes" %}</h2>
+                        <h2>{% trans "Publisher Notes" %}</h2>
                         <ul>
                             {% for note in article.publisher_notes.all %}
                                 <li>{{ note.text }}</li>
@@ -158,7 +158,7 @@
                 <div class="article-menu">
                     {% include "common/elements/altmetric_badges.html" with article=article %}
                     {% if journal_settings.article.disable_article_large_image %}
-                        {# HeadingA11y #} <h2>{% trans "Authors" %}</h2>
+                        <h2>{% trans "Authors" %}</h2>
                         <ul>
                         {% for author in article.frozen_authors.all %}
                             <li>
@@ -181,7 +181,7 @@
 
                     {% if article.is_published or proofing %}
                         {% include "elements/journal/share.html" %}
-                        {# HeadingA11y #} <h2>{% trans "Downloads" %}</h2>
+                        <h2>{% trans "Downloads" %}</h2>
                         {% if galleys %}
                             <ul>
                                 {% for galley in galleys %}
@@ -208,7 +208,7 @@
                         {% endif %}
                     {% endif %}
                     {% if article.supplementary_files.all %}
-                        {# HeadingA11y #} <h2>{% trans "Supplementary Files" %}</h2>
+                        <h2>{% trans "Supplementary Files" %}</h2>
                         <ul>
                             {% for file in article.supplementary_files.all %}
                                 <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
@@ -216,7 +216,7 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                    {# HeadingA11y #} <h2>{% trans "Information" %}</h2>
+                    <h2>{% trans "Information" %}</h2>
                     <ul>
                         {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                             <li>
@@ -264,20 +264,20 @@
                         {% endif %}
                     </ul>
                     {% if article.competing_interests %}
-                    {# HeadingA11y #} <h2>{% trans "Competing Interests" %}</h2>
+                    <h2>{% trans "Competing Interests" %}</h2>
                     <ul>
                         <li>{{ article.competing_interests|safe }}</li>
                     </ul>
                     {% endif %}
                     {% for field in article.custom_fields %}
-                    {# HeadingA11y #} <h2>{% trans field.field.name %}</h2>
+                    <h2>{% trans field.field.name %}</h2>
                     <p>{{ field.answer|safe }}</p>
                     {% endfor %}
                     {% if article.is_published or proofing %}
 
                         {% if journal_settings.general.open_peer_review %}
                             {% if article.public_reviews.count > 0 %}
-                                {# HeadingA11y #} <h2>{% trans "Open Peer Reviews" %}</h2>
+                                <h2>{% trans "Open Peer Reviews" %}</h2>
                                 <ul>
                                     {% for review in article.public_reviews %}
                                         <li><a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
@@ -287,7 +287,7 @@
                         {% endif %}
 
                         {% if not request.journal.disable_metrics_display %}
-                        {# HeadingA11y #} <h2>{% trans "Metrics" %}</h2>
+                        <h2>{% trans "Metrics" %}</h2>
                         <ul>
                             <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
                             {% if galleys %}
@@ -303,7 +303,7 @@
                                 <li>{% trans "Citations" %}: {{ article.citation_count }}</li>{% endif %}
                         </ul>
                         {% endif %}
-                        {# HeadingA11y #} <h2>{% trans "Citation" %}</h2>
+                        <h2>{% trans "Citation" %}</h2>
                         <div class="btn-group-vertical">
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-style Citation' %}</button>
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-style Citation' %}</button>
@@ -317,7 +317,7 @@
                             <br/>
                         </div>
                         {% if article.preprint and article.preprint.is_published %}
-                        {# HeadingA11y #} <h2>{{ article.preprint.repository.object_name }}</h2>
+                        <h2>{{ article.preprint.repository.object_name }}</h2>
                         <p>This article is linked to
                             a {{ article.preprint.repository.object_name }}
                             in {{ article.preprint.repository.name }}.</p>
@@ -325,7 +325,7 @@
                             <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
                         </p>
                         {% endif %}
-                        {# HeadingA11y #} <h2>{% trans 'File Checksums' %}</h2> (MD5)
+                        <h2>{% trans 'File Checksums' %}</h2> (MD5)
                         {% if galleys %}
                             <ul>
                                 {% for galley in galleys %}
@@ -343,7 +343,7 @@
             {% if article_content %}
                 <div class="sticky-top" id="toc-section">
                     <section aria-labelledby="toc-title">
-                        {# HeadingA11y #} <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                        <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
                         <ul id="toc" class="table-of-contents"></ul>
                     </section>
                 </div>

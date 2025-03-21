@@ -2,7 +2,7 @@
 {% load bootstrap4 %}
 {% load static %}
 
-{# HeadingA11y #} <h5>{% trans 'Core Data' %}</h5>
+<h5>{% trans 'Core Data' %}</h5>
 <div class="row">
     <div class="col-md-2">
         {% bootstrap_field form.salutation %}
@@ -35,7 +35,7 @@
     </div>
 </div>
 <hr />
-{# HeadingA11y #} <h5>{% trans 'Social Media and Accounts' %}</h5>
+<h5>{% trans 'Social Media and Accounts' %}</h5>
 <div class="row">
     <div class="col-md-4">
         {% bootstrap_field form.twitter %}
@@ -59,7 +59,7 @@
     </div>
 </div>
 <hr />
-{# HeadingA11y #} <h5>{% trans 'Biography and Signature' %}</h5>
+<h5>{% trans 'Biography and Signature' %}</h5>
 <div class="row">
     <div class="col-md-6">
         {% bootstrap_field form.biography %}
@@ -73,7 +73,7 @@
     </div>
 </div>
 
-{# HeadingA11y #} <h5>{% trans 'Profile Image' %}</h5>
+<h5>{% trans 'Profile Image' %}</h5>
 <div class="row">
     <div class="col-md-3">
         {% if user_to_edit.profile_image %}
@@ -89,7 +89,7 @@
 
 </div>
 <hr />
-{# HeadingA11y #} <h5>{% trans 'Options' %}</h5>
+<h5>{% trans 'Options' %}</h5>
 <div class="row">
     <div class="col-md-4">
         {% bootstrap_field form.enable_public_profile %}
