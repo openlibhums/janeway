@@ -13,15 +13,14 @@
                 <div class="card-image">
                     <img src="{{ news_item.best_image_url }}"
                         alt="{{ news_item.title|striptags|unescape }}"/>
-                    <span class="card-title news-card-title">{{ news_item.title }}</span>
+                    <h1 class="card-title news-card-title">{{ news_item.title }}</h1>
                 </div>
                 <div class="card-content">
-                    <h6><em>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</em>
-                    </h6>
+                    <p class="byline">{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}
                         <br />
-                        <h7>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
+                        <h2>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
                         <p>{% for tag in news_item.tags.all %}
                             <a href="{% url 'core_news_list_tag' tag.text %}"
                                class="button success tiny">{{ tag.text }}</a>

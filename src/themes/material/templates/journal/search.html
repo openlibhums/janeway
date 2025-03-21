@@ -12,55 +12,61 @@
         <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
     {% elif keyword %}
         <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
+    {% else %}
+        <h1>{% trans 'Search' %}</h1>
     {% endif %}
    
     <div class="row">
-        <div class="col m8">
-            <h2>{% trans "Articles" %}</h2>
-            {% for article in articles %}
-                {% include "elements/article_listing.html" with article=article %}
-                {% empty %}
-                <p>{% trans "No articles to display." %}</p>
-            {% endfor %}
+        <section aria-label="{% trans 'Search results'%}">
+            <div class="col m8">
+                <h2>{% trans "Articles" %}</h2>
+                {% for article in articles %}
+                    {% include "elements/article_listing.html" with article=article %}
+                    {% empty %}
+                    <p>{% trans "No articles to display." %}</p>
+                {% endfor %}
 
-        </div>
-        <div class="col m4">
-            <h2>{% trans "Searching" %}</h2>
-            <div class="card">
-                <div class="card-content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% if not keyword %}
-                            <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
-                        {% endif %}
-                        <div class="input-field">
-                        {% if not keyword %}
-                                {{ form.article_search.errors }}                                
-                                {{ form.article_search }}
-                            {% else %}
-                                You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
-                        {% endif %}
-                        </div>
-                        <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
-                        <div class="input-field">                                
-                                {{ form.sort.errors }}
-                                {{ form.sort }}
-                        </div>
-                        <div class="form-group">
-                            <label>{% trans "Keywords" %}
+            </div>
+        </section>
+        <section aria-label="{% trans 'Search criteria'%}">
+            <div class="col m4">
+                <h2>{% trans "Searching" %}</h2>
+                <div class="card">
+                    <div class="card-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {% if not keyword %}
+                                <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
+                            {% endif %}
+                            <div class="input-field">
+                            {% if not keyword %}
+                                    {{ form.article_search.errors }}                                
+                                    {{ form.article_search }}
+                                {% else %}
+                                    You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
+                            {% endif %}
+                            </div>
+                            <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
+                            <div class="input-field">                                
+                                    {{ form.sort.errors }}
+                                    {{ form.sort }}
+                            </div>
+                            <div class="form-group">
+                                <label>{% trans "Keywords" %}
 
-                                {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
+                                    {% for keyword in all_keywords %}
+                                        <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
 
-                            </label>
-                        </div>
-                        <div class="input-field">
-                            <button name="submit" class="btn">{% trans "Search" %}</button>
-                        </div>
-                    </form>
+                                </label>
+                            </div>
+                            <div class="input-field">
+                                <button name="submit" class="btn">{% trans "Search" %}</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 {% endblock %}

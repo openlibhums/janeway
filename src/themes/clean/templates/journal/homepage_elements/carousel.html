@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1 class="sr-only">{% trans 'Latest Articles & News' %}</h1>
+        <h2 class="sr-only">{% trans 'Latest Articles & News' %}</h2>
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
@@ -22,7 +22,7 @@
                              alt="{{ carousel_item.carousel_title|striptags }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                           <p>{{ carousel_item.carousel_subtitle|safe }}</p>
-                          <h2><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h2>
+                          <h3><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
                         </div>
                     </div>
                 {% endfor %}

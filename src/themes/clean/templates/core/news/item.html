@@ -15,11 +15,13 @@
             <hr/>
         </div>
         <div class="col-md-12">
-            <h6>{{ news_item.byline }} on {{ news_item.posted|date_human}}</h6>
+            <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
             <p>{{ news_item.body|safe }}</p>
             <br />
-            <h7>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
-            <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            {% if news_item.tags.all %}
+                <h2>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
+                <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            {% endif %}
             <a href="{% url 'core_news_list' %}">{% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}</a>
         </div>
     </div>

@@ -7,7 +7,7 @@
 
 {% block body %}
 
-    <h3>{% trans "Authors" %}</h3>
+    <h1>{% trans "Authors" %}</h1>
     <div class="row">
        
         {% for author in author_list %}
@@ -19,7 +19,7 @@
                          alt="Card image cap">
                     </div>
                     <div class="card-content" style="min-height: 190px;">
-                         <span class="card-title small-card-title">{{ author.full_name }}</span>
+                         <h2 class="card-title small-card-title">{{ author.full_name }}</h2>
                         <p>
                             <small>{{ author.affiliation }}</small>
                         </p>

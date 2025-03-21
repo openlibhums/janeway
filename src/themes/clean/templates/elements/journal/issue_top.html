@@ -5,12 +5,12 @@
         <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} Cover Image">
         <div class="card-img-overlay white-text">
             <div class="card-text">
-                <h4 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h4>
+                {# HeadingA11y Clash #} <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h2>
             </div>
         </div>
     </div>
 {% else %}
-    <h2 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
+    {# HeadingA11y Clash #} <h2 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
     {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
 {% endif %}
 

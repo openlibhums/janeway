@@ -1271,9 +1271,10 @@ button.list-group-item-danger.active:focus {
 #journal-title {
     padding: 0px;
     height:100%;
+    font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
     @include breakpoint(large down){
       max-width: 550px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.5vw;
       }
@@ -1281,7 +1282,7 @@ button.list-group-item-danger.active:focus {
     @include breakpoint(medium down){
       max-width:80%; // Avoid running over the search and burger menus
       padding-top: 0.7rem;
-      h1 {
+      p {
         font-size: 100%;
       }
     }
@@ -1290,14 +1291,14 @@ button.list-group-item-danger.active:focus {
     }
     @include breakpoint(xlarge){
       max-width: 800px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.6vw;
       }
     }
     @include breakpoint(xxlarge){
       max-width: 1000px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.70rem;
       }
@@ -1337,6 +1338,24 @@ button.list-group-item-danger.active:focus {
 
 .decade_list_item:hover {
   text-decoration: underline;
+}
+
+.byline{
+  font-size: 1.11111rem;
+  font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: inherit;
+  text-rendering: optimizeLegibility;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.profile-name{
+  font-family: "Merriweather", serif;
+  font-size: 98%;
+  font-weight: bold;
 }
 
 .section-link {

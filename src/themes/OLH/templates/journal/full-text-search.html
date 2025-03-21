@@ -12,9 +12,11 @@
 {% block body %}
 <section id="content">
     {% if search_term %}
-        <h5>Searching for: <i>{{ search_term }}</i></h5>
+        <h1>Searching for: <i>{{ search_term }}</i></h1>
     {% elif keyword %}
-        <h5>Keyword: <i>{{ keyword }}</i></h5>
+        <h1>Keyword: <i>{{ keyword }}</i></h1>
+    {% else %}
+        <h1>{% trans 'All Articles' %}></h1>
     {% endif %}
 
     <div class="row">

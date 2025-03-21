@@ -4,32 +4,36 @@
     <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content" data-sticky-on="large">
         <div class="section">
             {% if issue.galley %}
-            <h3>{% trans 'Downloads' %}</h3>
-            <p>
-                <a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}">
-                    <i aria-hidden="true"  class="fa fa-download">&nbsp</i>
-                    {% trans "Download Issue" %} (PDF)
-                </a>
-            </p>
+                <section aria-labelledby="downloads-title">
+                    <h2 id="downloads-title">{% trans 'Downloads' %}</h2>
+                    <p>
+                        <a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}">
+                            <i aria-hidden="true"  class="fa fa-download">&nbsp</i>
+                            {% trans "Download Issue" %} (PDF)
+                        </a>
+                    </p>
+                </section>
             {% endif %}
-            <h3>
-                {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}
-                {% else %} {% trans issue.issue_type.plural_name %}
-                {% endif %}
-            </h3>
-            <ul>
-                {% for issue in issues %}
-                    {% if issue.issue_type.code == 'issue' %}
-                        <li><a href="{% url 'journal_issue' issue.id %}" 
+            <section aria-labelledby="archive-title">
+                <h2 id="archive-title">
+                    {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}
+                    {% else %} {% trans issue.issue_type.plural_name %}
+                    {% endif %}
+                </h2>
+                <ul>
+                    {% for issue in issues %}
+                        {% if issue.issue_type.code == 'issue' %}
+                            <li><a href="{% url 'journal_issue' issue.id %}" 
                             aria-label='{{ issue.display_title_a11y }}'
                             >
                             {{ issue.display_title }} 
                         </a></li>
-                    {% else %}
-                        <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+                        {% else %}
+                            <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </section>
         </div>
     </div>
 </aside>

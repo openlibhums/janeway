@@ -53,14 +53,14 @@
             <div id="article">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h3>
+                    <h1>{{ article.title|safe }}</h1>
                 {% endif %}
                 {% if article.abstract and article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
                 {% if article.keywords and article.keywords.count > 0 %}
-                    <h3>{% trans "Keywords" %}:</h3>
+                    <h2>{% trans "Keywords" %}:</h2>
                     <ul class="list-inline">
                         {% for keyword in article.keywords.all %}
                             <li class="list-inline-item">
@@ -77,19 +77,19 @@
                     </ul>
                 {% endif %}
                 {% if article.is_published or proofing %}
-                    <p><strong>{% trans "How to Cite" %}:</strong>
+                    <h2>{% trans "How to Cite" %}:</h2>
                     <div id="article_how_to_cite">
-                        {{ article.how_to_cite|safe }} </p>
+                        <p>{{ article.how_to_cite|safe }} </p>
                     </div>
                 {% endif %}
                 {% if article.rights %}
-                    <p><strong>{% trans "Rights" %}:</strong>
-                        {{ article.rights | safe }} </p>
+                    <h2>{% trans "Rights" %}:</h2>
+                    <p>{{ article.rights | safe }} </p>
                 {% endif %}
                 {% if article.is_published or proofing %}
                     <div class="d-lg-none d-xl-none d-md-none">
-                        <p>
-                            <strong>{% trans 'Downloads' %}</strong><br/>
+                            <h2>{% trans 'Downloads' %}</h2>
+                            <p>
                             {% if galleys %}
                                 {% for galley in galleys %}
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>

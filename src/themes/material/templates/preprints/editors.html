@@ -7,12 +7,12 @@
 
 {% block body %}
 
-    <h4>{% trans "Subject Area Editors" %}</h4>
+    <h1>{% trans "Subject Area Editors" %}</h1>
     <div class="divider"></div>
     {% for subject in subjects %}
         <div class="row">
             <div class="col m12">
-                <h4>{{ subject.name }}</h4>
+                <h2>{{ subject.name }}</h2>
             </div>
             {% for editor in subject.editors.all %}
                 <div class="col s12 m4">

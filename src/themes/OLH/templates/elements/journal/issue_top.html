@@ -9,7 +9,7 @@
                         >
                     <div class="row column">
                         <figcaption class="orbit-caption">
-                            <h3 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h3>
+                            {# HeadingA11y Clash #} <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
                         </figcaption>
                     </div>
                 </li>
@@ -18,7 +18,7 @@
         <br/>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
-        <h1 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+        {# HeadingA11y Clash #} <h1 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% endif %}
 

@@ -20,44 +20,44 @@
     <div id="article_opener" class="row">
         <div class="col m12">
             <div class="card">
-            {% if not journal_settings.article.disable_article_large_image %}
-                <div class="card-image article-card">
+                {% if not journal_settings.article.disable_article_large_image %}
+                    <div class="card-image article-card">
                         <img class="orbit-image"
-                            {% if article.large_image_file.id %}
-                             src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                            {% elif article.issue.large_image %}
-                             src="{{ article.issue.large_image.url }}"
-                            {% elif journal.default_large_image %}
-                             src="{{ journal.default_large_image.url }}"
-                            {% else %}
-                             src=""
-                            {% endif %}
-                             alt="{{ article.title|striptags }}">
+                                {% if article.large_image_file.id %}
+                                src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                                {% elif article.issue.large_image %}
+                                src="{{ article.issue.large_image.url }}"
+                                {% elif journal.default_large_image %}
+                                src="{{ journal.default_large_image.url }}"
+                                {% else %}
+                                src=""
+                                {% endif %}
+                                alt="{{ article.title|striptags }}">
 
 
-                    <span class="card-title">
-                        <div class="carousel-text-wrapper hide-on-small-only">
-                        <small>
-                            {{ article.section.name }}
-                        </small>
-                        <br/>
-                        {{ article.title|safe }}
+                        <span class="card-title">
+                            <div class="carousel-text-wrapper hide-on-small-only">
+                                <small>
+                                    {{ article.section.name }}
+                                </small>
+                                <br/>
+                                <h1>{{ article.title|safe }}</h1>
                             </div>
-                    </span>
-                    <span class="card-title" style="font-size: 17px;">
-                        <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
-                        <small>
-                            {{ article.section.name }}
-
-                        <br/>
-                            {{ article.title|safe }}</small>
+                        </span>
+                        <span class="card-title" style="font-size: 17px;">
+                            <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
+                                <small>
+                                    {{ article.section.name }}
+                                    <br/>
+                                    <h1>{{ article.title|safe }}</h1>
+                                </small>
                             </div>
-                    </span>
+                        </span>
+                    </div>
+                {% endif %}
+                <div>
+
                 </div>
-        {% endif %}
-		<div>
-
-		</div>
             </div>
         </div>
 
@@ -157,51 +157,52 @@
                 {% if article.metrics and not request.journal.disable_metrics_display %}
                     <div class="col m12 l12 s12">
                         <div class="card">
+                            <h2 class="sr-only"> {% trans 'Metrics' %} </h2>
                             <div class="card-content center">
                                 <div class="alm">
-                                    <h5>
+                                    <p class="metrics">
                                         {{ article.metrics.views }}
-                                    </h5>
-                                    <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
+                                    </p>
+                                    <p><i aria-hidden="true" class="fa fa-eye"></i> {% trans "Views" %}</p>
                                 </div>
                                 {% if galleys %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="metrics">
                                             {{ article.metrics.downloads }}
-                                        </h5>
-                                        <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
+                                        </p>
+                                        <p><i aria-hidden="true" class="fa fa-download"></i> {% trans "Downloads" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="metrics">
                                             {{ article.metrics.alm.twitter }}
-                                        </h5>
+                                        </p>
                                         <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="metrics">
                                             {{ article.metrics.alm.wikipedia }}
-                                        </h5>
+                                        </p>
                                         <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="metrics">
                                             {{ article.metrics.alm.reddit }}
-                                        </h5>
+                                        </p>
                                         <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
 
                                 {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
-                                        <h5>
+                                        <p class="metrics">
                                             {{ article.citation_count }}
-                                        </h5>
+                                        </p>
                                         <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
@@ -237,13 +238,13 @@
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
-                            <h4>
+                            <h2>
                                 {% blocktrans count counter=article.frozen_authors.count %}
                                     Author
                                 {% plural %}
                                     Authors
                                 {% endblocktrans %}
-                            </h4>
+                            </h2>
                             <ul id="author-list">
                                 {% for author in article.frozen_authors.all %}
                                     <li>
@@ -264,9 +265,9 @@
                             <div class="divider"></div>
                         </div>
                         {% if article.is_published or proofing %}
-                            <h4>
+                            <h2>
                                 {% trans "Downloads" %}
-                            </h4>
+                            </h2>
                             {% if galleys %}
                                 <ul>
                                     {% for galley in galleys %}
@@ -300,7 +301,7 @@
                         </div>
                         {% if article.has_publication_details %}
                         <div class="section">
-                            <h4>{% trans "Publication details" %}</h4>
+                            <h2>{% trans "Publication details" %}</h2>
                             <table class="sidebar-table">
                                 {% if article.page_range %}
                                 <tr>
@@ -360,7 +361,7 @@
                         {% endif %}
 
                         {% if article.supplementary_files.all %}
-                            <h4>{% trans "Supplementary Files" %}</h4>
+                            <h2>{% trans "Supplementary Files" %}</h2>
 
                             <ul>
                                 {% for file in article.supplementary_files.all %}
@@ -374,15 +375,15 @@
                         {% endif %}
 
                         {% if journal_settings.general.submission_summary %}
-                            <h4>{% trans "Non Specialist Summary" %}</h4>
+                            <h2>{% trans "Non Specialist Summary" %}</h2>
                             <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
                         {% endif %}
-                        <h4>
+                        <h2>
                             {% trans "Licence" %}
-                        </h4>
+                        </h2>
                         <p>{{ article.license.name }} 
                             {% if article.license.url %}
                                 <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
@@ -396,9 +397,9 @@
                             <div class="divider"></div>
                         </div>
 
-                        <h4>
+                        <h2>
                             {% trans "Competing Interests" %}
-                        </h4>
+                        </h2>
                         <p>{{ article.competing_interests|safe }}</p>
                         {% endif %}
                         <div class="spacer">
@@ -407,7 +408,7 @@
 
                         {% with article.get_doi_url as doi_url %}
                         {% if doi_url %}
-                        <h4>{% trans "Identifiers" %}</h4>
+                        <h2>{% trans "Identifiers" %}</h2>
                         <ul>
                             <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                         </ul>
@@ -418,9 +419,9 @@
                         {% endwith %}
 
                         {% if article.peer_reviewed %}
-                            <h4>
+                            <h2>
                                 {% trans "Peer Review" %}
-                            </h4>
+                            </h2>
                             <p>
                                 <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
                                 {% trans "This article has been peer reviewed." %}
@@ -441,7 +442,7 @@
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
-                            <h4>{% trans field.field.name %}</h4>
+                            <h2>{% trans field.field.name %}</h2>
                             <p>{{ field.answer|safe }}</p>
                             {% endfor %}
                             <div class="spacer">
@@ -450,7 +451,7 @@
                         {% endif %}
 
                         {% if article.preprint and article.preprint.is_published %}
-                        <h4>{{ article.preprint.repository.object_name }}</h4>
+                        <h2>{{ article.preprint.repository.object_name }}</h2>
                         <p>This article is linked to
                             a {{ article.preprint.repository.object_name }}
                             in {{ article.preprint.repository.name }}.</p>
@@ -460,9 +461,9 @@
                         {% endif %}
 
                         {% if article.is_published or proofing %}
-                            <h4>
+                            <h2>
                                 {% trans "File Checksums" %} (MD5)
-                            </h4>
+                            </h2>
                             {% if galleys %}
                                 <ul>
                                     {% for galley in galleys %}
@@ -484,9 +485,9 @@
                 <div class="card hide-on-small-only" id="toc-card">
                     <section aria-labelledby="toc-title">
                         <div class="card-content" id="toc-section">
-                            <h4 id="toc-title">
+                            <h2 id="toc-title">
                                 {% trans "Table of Contents" %}
-                            </h4>
+                            </h2>
                             <ul id="toc" class="section table-of-contents">
                             </ul>
                         </div>
