@@ -14,6 +14,13 @@ class PressViewTestsWithData(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.press_manager = helpers.create_user(
+            username='rcuaekqhrswerhrttydo@example.org',
+        )
+        cls.press_manager.is_active = True
+        cls.press_manager.is_staff = True
+        cls.press_manager.save()
 
 
 class URLWithReturnTests(PressViewTestsWithData):
