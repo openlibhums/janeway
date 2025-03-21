@@ -11,7 +11,7 @@
 {% block body %}
     <div class="row">
         <div class="m12">
-            <h2>Journals</h2>
+            <h1>Journals</h1>
         </div>
         <div class="col l8 m10">
             {% for current_journal in journals %}
@@ -56,9 +56,11 @@
             {% endfor %}
         </div>
         <div class="col l4 m2">
-            <label>{% trans "Filter" %}
-                <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
-            </label>
+            <section aria-label="Filter">
+                <label>{% trans "Filter" %}
+                    <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
+                </label>
+            </section>
         </div>
     </div>
 

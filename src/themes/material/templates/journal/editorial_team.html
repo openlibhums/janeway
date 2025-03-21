@@ -25,7 +25,7 @@
                     <div class="card editorial-card eq-height-col">
                         {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" card_wrapper="True" %}
                         <div class="card-content" style="min-height: 190px;">
-                            <span class="card-title small-card-title">{{ member.user.full_name }}</span>
+                            <h3 class="card-title small-card-title">{{ member.user.full_name }}</h3>
                             <p>
                                 <small>{{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}</small>
                             </p>

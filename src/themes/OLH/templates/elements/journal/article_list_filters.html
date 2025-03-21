@@ -3,7 +3,7 @@
 
 {% if facet_form.fields %}
     <section aria-labelledby="filter-title" class="section">
-        <h3 id="filter-title">{% trans 'Filter' %}</h3>
+        <h2 id="filter-title">{% trans 'Filter' %}</h2>
         <form method="GET" id={{ facet_form.id }}>
             {{ facet_form|foundation }}
             <button action="" class="button" type="submit">{% trans 'Apply' %}</button>

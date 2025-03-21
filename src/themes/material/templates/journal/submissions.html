@@ -46,21 +46,21 @@
                     {% for item in submission_items %}
                         <div class="default-li">
                         {% if item.title == 'licences' %}
-                            <span class="card-title">
+                            <h2 class="card-title">
                                 {{ item.title|capfirst }}
-                            </span>
+                            </h2>
                             <p>{% trans "The following licences are allowed:" %}</p>
                             {% include "elements/license_block.html" %}
                         {% elif item.title == 'sections' %}
-                            <span class="card-title">
+                            <h2 class="card-title">
                                 {{ item.title|capfirst }}
-                            </span>
+                            </h2>
                             {% include "elements/sections_display.html" %}
                         {% else %}
                             {% if item.get_display_text %}
-                                <span class="card-title">
+                                <h2 class="card-title">
                                     {{ item.title|capfirst }}
-                                </span>
+                                </h2>
                                 {{ item.get_display_text|safe }}
                                 <div class="divider spacer"></div>
                             {% endif %}
@@ -76,7 +76,7 @@
             <div class="card submission-toc-card hide-on-small-only" id="toc-card">
                 <section aria-labelledby="toc-title">
                     <div class="card-content">
-                            <h4 id="toc-title">{% trans "Table of Contents" %}</h4>
+                            <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
 
                         <ul id="toc" class="section table-of-contents">
                         </ul>

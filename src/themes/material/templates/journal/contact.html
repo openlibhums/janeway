@@ -7,23 +7,24 @@
 {% block body %}
     <div class="row">
         <div class="col m5">
+            <h1 class="sr-only">{% trans 'Contact us' %}</h1>
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">
+                    <h2 class="card-title">
                         {% if request.journal %}
                             {% trans "Journal Representatives" %}
                         {% else %}
                             {% trans "Press Representatives" %}
                         {% endif %}
-                    </span>
+                    </h2>
                     {% for contact in contacts %}
-                        <h5>{{ contact.name }}</h5>
+                        <h3>{{ contact.name }}</h3>
                         <p>{{ contact.role }}</p>
                     {% endfor %}
                     {% if journal_settings.general.contact_info %}
-                        <span class="card-title">
+                        <h2 class="card-title">
                             {% trans 'Contact Information' %}
-                         </span>
+                        </h2>
                         {{ journal_settings.general.contact_info|safe }}
                     {% endif %}
                 </div>
@@ -33,9 +34,9 @@
         <div class="col l7 m7">
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">
+                    <h2 class="card-title">
                         {% trans "Contact" %}
-                    </span>
+                    </h2>
                     <form method="POST" novalidate>
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}
