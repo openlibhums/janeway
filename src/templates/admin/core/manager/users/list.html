@@ -27,8 +27,8 @@
       {% if request.journal and user.is_staff %}
         <aside class="box">
           <p> Note: This page lists all users with a role in
-          <i>{{ request.journal.name }}</i>. If a broader search is needed,
-          try <a href="{{ request.press.site_url }}/user/all/">All Users
+          <i>{{ request.journal.name }}</i>. If a broader searc,
+          try <a href="{% stateless_site_url request.press 'press_all_users' %}>All Users
           at the press level</a>.</p>
         </aside>
       {% elif request.press and user.is_staff %}
@@ -39,7 +39,7 @@
           <ul>
             {% for journal in request.press.journals %}
               <li>
-                <a href="{{ journal.site_url }}/user/all/">
+                <a href="{% stateless_site_url journal 'journal_users' %}">
                   {{ journal.name }}
                 </a>
               </li>
@@ -47,9 +47,6 @@
           </ul>
         </aside>
       {% endif %}
-      {% comment %} The above URLs are hardcoded because there is no other
-      way to form a press URL dynamically on a journal page at the moment,
-      or to form a journal URL dynamically on a press page.{% endcomment %}
     </div>
     <div class="box">
       <div class="title-area">
