@@ -12,9 +12,9 @@
 {% block body %}
 <section id="content">
     {% if search_term %}
-        <h5>Searching for: <i>{{ search_term }}</i></h5>
+        {# HeadingA11y #} <h5>Searching for: <i>{{ search_term }}</i></h5>
     {% elif keyword %}
-        <h5>Keyword: <i>{{ keyword }}</i></h5>
+        {# HeadingA11y #} <h5>Keyword: <i>{{ keyword }}</i></h5>
     {% endif %}
 
     <div class="row">

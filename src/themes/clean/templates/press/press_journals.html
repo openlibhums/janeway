@@ -7,7 +7,7 @@
 {% block body %}
 <div class="row">
     <div class="col-md-12">
-        <h1>{% trans 'Journals' %}</h1>
+        {# HeadingA11y #} <h1>{% trans 'Journals' %}</h1>
     </div>
     <div class="col-lg-8 col-md-10 journal-container">
         {% for current_journal in journals %}
@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-lg-9 col-md-8 journal-description-box">
                     <span class="d-none">{{ current_journal.name|lower }}</span>
-                    <h2 class="journal-name">{{ current_journal.name }}</h2>
+                    {# HeadingA11y #} <h2 class="journal-name">{{ current_journal.name }}</h2>
                     <span>{{ current_journal.description_for_press|safe }}</span>
                     <div class="journal-button-block">
                         {% if current_journal.is_remote %}

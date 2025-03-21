@@ -11,7 +11,7 @@
     <section id="content">
         <div class="row">
             <div class="large-12 columns">
-                <h1>{% trans issue_type.plural_name %}</h1>
+                {# HeadingA11y #} <h1>{% trans issue_type.plural_name %}</h1>
             </div>
             {% if request.journal.display_issues_grouped_by_decade %}
                 {% include "elements/journal/issue_list_by_decade.html" %}

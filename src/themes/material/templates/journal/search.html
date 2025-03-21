@@ -9,14 +9,14 @@
 {% block body %}
    
     {% if search_term %}
-        <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
+        {# HeadingA11y #} <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
     {% elif keyword %}
-        <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
+        {# HeadingA11y #} <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
     {% endif %}
    
     <div class="row">
         <div class="col m8">
-            <h2>{% trans "Articles" %}</h2>
+            {# HeadingA11y #} <h2>{% trans "Articles" %}</h2>
             {% for article in articles %}
                 {% include "elements/article_listing.html" with article=article %}
                 {% empty %}
@@ -25,7 +25,7 @@
 
         </div>
         <div class="col m4">
-            <h2>{% trans "Searching" %}</h2>
+            {# HeadingA11y #} <h2>{% trans "Searching" %}</h2>
             <div class="card">
                 <div class="card-content">
                     <form method="POST">

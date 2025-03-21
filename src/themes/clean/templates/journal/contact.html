@@ -7,18 +7,18 @@
 {% block body %}
     <div class="row">
         <div class="col-md-4 contact">
-            <h2 class="side-bar-title">{% trans "Journal Contacts" %}</h2>
+            {# HeadingA11y #} <h2 class="side-bar-title">{% trans "Journal Contacts" %}</h2>
             {% for contact in contacts %}
-                <h3 class="card-title editor-name">{{ contact.name }}</h3>
+                {# HeadingA11y #} <h3 class="card-title editor-name">{{ contact.name }}</h3>
                 <p>{{ contact.role }}</p>
             {% endfor %}
             {% if journal_settings.general.contact_info %}
-                <h2>{% trans 'Contact Information' %}</h2>
+                {# HeadingA11y #} <h2>{% trans 'Contact Information' %}</h2>
                 {{ journal_settings.general.contact_info|safe }}
             {% endif %}
         </div>
         <div class="col-md-8">
-            <h2>{% trans "Contact" %}</h2>
+            {# HeadingA11y #} <h2>{% trans "Contact" %}</h2>
             <form method="POST" novalidate>
                 {% include "elements/forms/errors.html" with form=contact_form %}
                 {% csrf_token %}

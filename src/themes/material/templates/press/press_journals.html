@@ -11,7 +11,7 @@
 {% block body %}
     <div class="row">
         <div class="m12">
-            <h2>Journals</h2>
+            {# HeadingA11y #} <h2>Journals</h2>
         </div>
         <div class="col l8 m10">
             {% for current_journal in journals %}
@@ -24,7 +24,7 @@
                     </div>
                     <div class="col l9 m8 journal-description-box">
                         <span class="hide">{{ current_journal.name|lower }}</span>
-                        <h2>{{ current_journal.name }}</h2>
+                        {# HeadingA11y #} <h2>{{ current_journal.name }}</h2>
                         <span>{{ current_journal.description_for_press|safe }}</span>
                         <div class="journal-button-block">
                             {% if current_journal.is_remote %}

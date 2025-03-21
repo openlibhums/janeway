@@ -42,8 +42,8 @@ $stat-font-size: 2.5rem !default;
   // Use to create a subheading under a main header
   // Make sure you pair the two elements in a <header> element, like this:
   // <header>
-  //   <h1>Heading</h1>
-  //   <h2>Subheading</h2>
+  //   {# HeadingA11y #} <h1>Heading</h1>
+  //   {# HeadingA11y #} <h2>Subheading</h2>
   // </header>
   .subheader {
     margin-top: $subheader-margin-top;

@@ -33,7 +33,7 @@
                                         </div>
                                         <div class="large-8 columns title-div" data-equalizer-watch>
                                             <div class="journal-description-box">
-                                            <h2>
+                                            {# HeadingA11y #} <h2>
                                                  {% if current_journal.is_remote %}
                                                 <a href="{{ current_journal.remote_view_url }}">
                                                 {% else %}
@@ -45,7 +45,7 @@
                                             <span class="hide">{{ current_journal.name|lower }}</span>
                                             {{ current_journal.description_for_press|safe }}
                                             {% with keywords=current_journal.keywords.all %}{% if keywords %}
-                                            <h6>{% trans 'Disciplines' %}</h6>
+                                            {# HeadingA11y #} <h6>{% trans 'Disciplines' %}</h6>
                                             {% for keyword in keywords %}
                                                 <a class="kbd" href="?filter={{ keyword.word }}"><span>{{ keyword.word }}</span></a>
                                             {% endfor %}

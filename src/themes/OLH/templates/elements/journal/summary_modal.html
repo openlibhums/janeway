@@ -1,6 +1,6 @@
 <div id="summarymodal" class="reveal" data-reveal aria-labelledby="summarymodal" aria-hidden="true"
      role="dialog">
-    <h2 id="summarutitle">{% trans 'Non Specialist Summary' %}</h2>
+    {# HeadingA11y #} <h2 id="summarutitle">{% trans 'Non Specialist Summary' %}</h2>
     {% if article.non_specialist_summary %}
         {{ article.non_specialist_summary|safe }}
     {% else %}

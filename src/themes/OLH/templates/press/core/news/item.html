@@ -21,7 +21,7 @@
                                  alt="{{ news_item.title | striptags| unescape }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
-                                <h3>{{ news_item.title }}</h3>
+                                {# HeadingA11y #} <h3>{{ news_item.title }}</h3>
                                 <p>Posted by {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</p>
                             </figcaption>
                         </div>
@@ -30,15 +30,15 @@
             </div>
                 <br />
             {% else %}
-                <h1>{{ news_item.title }}</h1>
-			    <h6>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</h6>
+                {# HeadingA11y #} <h1>{{ news_item.title }}</h1>
+			    {# HeadingA11y #} <h6>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</h6>
             {% endif %}
 			<div class="row">
                 <div class="large-9 columns">
                     {{ news_item.body|safe }}
                 </div>
                 <div class="large-3 columns">
-                    <h7>{% trans "Tags" %} <i aria-hidden="true"  class="fa fa-tags">&nbsp;</i></h7>
+                    {# HeadingA11y #} <h7>{% trans "Tags" %} <i aria-hidden="true"  class="fa fa-tags">&nbsp;</i></h7>
                      <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
                 </div>
             </div>

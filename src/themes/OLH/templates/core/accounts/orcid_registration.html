@@ -20,7 +20,7 @@
 {% block body %}
 
     <div class="row">
-        <h5>{% trans "Unregistered ORCiD" %}</h5>
+        {# HeadingA11y #} <h5>{% trans "Unregistered ORCiD" %}</h5>
         <p>{% trans "The ORCiD you logged in with is not currently linked with an account in our system. You can either register a new account, or login with an existing account to link your ORCiD for future use." %}</p>
 
         <div class="large-4 columns login">
@@ -29,7 +29,7 @@
                 {% csrf_token %}
                 <div class="callout">
                     <div class="row column log-in-form">
-                        <h5>{% trans "Login" %}</h5>
+                        {# HeadingA11y #} <h5>{% trans "Login" %}</h5>
                         <label>{% trans "Email" %}
                             <input name="user_name" type="text" placeholder="somebody@example.com">
                         </label>
@@ -49,7 +49,7 @@
 
                 <div class="callout">
                     <div class="row column log-in-form">
-                        <h5>{% trans "Register" %}</h5>
+                        {# HeadingA11y #} <h5>{% trans "Register" %}</h5>
                         <br />
                         <a href="{% url 'core_register' %}?token={{ token.token }}" class="button expanded">{% trans "Register" %}</a>
                     </div>

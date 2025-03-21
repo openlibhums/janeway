@@ -12,7 +12,7 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h1>{% trans "About" %} {{ request.repository.name }}</h1>
+                {# HeadingA11y #} <h1>{% trans "About" %} {{ request.repository.name }}</h1>
                 {{ request.repository.about|safe }}
             </div>
         </div>

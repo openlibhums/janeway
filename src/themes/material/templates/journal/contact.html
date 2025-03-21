@@ -17,7 +17,7 @@
                         {% endif %}
                     </span>
                     {% for contact in contacts %}
-                        <h5>{{ contact.name }}</h5>
+                        {# HeadingA11y #} <h5>{{ contact.name }}</h5>
                         <p>{{ contact.role }}</p>
                     {% endfor %}
                     {% if journal_settings.general.contact_info %}

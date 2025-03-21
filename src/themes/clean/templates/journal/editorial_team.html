@@ -6,7 +6,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
+            {# HeadingA11y #} <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
         {% if not journal_settings.styling.hide_editorial_group_names %}
         <div class="row">
             <div class="col-md-12">
-                <h2>{{ group.name }}</h2>
+                {# HeadingA11y #} <h2>{{ group.name }}</h2>
                 {% if group.description %}
                     <p>{{ group.description|safe }}</p>
                 {% endif %}
@@ -28,7 +28,7 @@
                     <div class="card full-width-card">
                         {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" %}
                         <div class="card-body">
-                            <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
+                            {# HeadingA11y #} <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
                             <p class="card-text">
                                 <small>
                                     {{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}

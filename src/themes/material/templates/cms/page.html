@@ -10,7 +10,7 @@
         <div class="col {% if page.display_toc %}m9 s12{% else %}m12{% endif %}">
             <div class="card">
                 <div id="cms-title" class="card-content">
-                    <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
+                    {# HeadingA11y #} <h1 class="no-bottom-margin">{{ page.display_name }}</h1>
                     <div class="divider spacer"></div>
                     <div id="main_article" class="default-li">{{ page.content|safe }}</div>
                 </div>
@@ -21,7 +21,7 @@
                 <div class="card" id="toc-card">
                     <section aria-labelledby="toc-title">
                         <div class="card-content">
-                            <h4 id="toc-title">
+                            {# HeadingA11y #} <h4 id="toc-title">
                                 {% trans "Table of Contents" %}
                             </h4>
                             <ul id="toc" class="section table-of-contents">

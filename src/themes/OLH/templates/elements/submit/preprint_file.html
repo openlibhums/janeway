@@ -3,7 +3,7 @@
 
 <div class="small reveal" id="{{ modaltype }}" data-reveal>
     <small>{% include "elements/forms/errors.html" with form=form %}</small>
-    <h5>{% trans "Add New File" %}</h5>
+    {# HeadingA11y #} <h5>{% trans "Add New File" %}</h5>
     {% if modaltype == 'data' %}
         <p>{% trans "Please supply any supporting information or data files." %}</p>
     {% else %}

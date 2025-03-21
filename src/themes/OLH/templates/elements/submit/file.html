@@ -3,7 +3,7 @@
 
 <div class="small reveal" id="{{ modaltype }}" data-reveal>
     <small>{% include "elements/forms/errors.html" with form=form %}</small>
-    <h5>{% trans "Add New File" %}</h5>
+    {# HeadingA11y #} <h5>{% trans "Add New File" %}</h5>
     {% if modaltype == 'data' %}
         <p>{% trans "Please supply any original figure files or supporting information. The journal urges you to submit this document to a repository such as Figshare so that a DOI can be assigned to it, but this is not required." %}</p>
     {% else %}

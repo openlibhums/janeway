@@ -19,7 +19,7 @@
                         </li>
                     </ul>
                 </aside>
-                <h1 id="articles-title">{% trans "Articles" %}</h1>
+                {# HeadingA11y #} <h1 id="articles-title">{% trans "Articles" %}</h1>
                 <section aria-label="{% trans 'Results' %}">
                     {% include "common/elements/sorting.html" with form_id=facet_form.id %}
                     {% for article in article_list %}

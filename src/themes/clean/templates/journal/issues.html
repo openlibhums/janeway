@@ -9,7 +9,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h1>{% trans issue_type.plural_name %}</h1>
+            {# HeadingA11y #} <h1>{% trans issue_type.plural_name %}</h1>
             {% if request.journal.current_issue %}
                 <p>{% trans 'The current issue is' %}: <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a></p>
             {% endif %}

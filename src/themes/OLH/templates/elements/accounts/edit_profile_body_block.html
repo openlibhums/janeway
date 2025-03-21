@@ -4,7 +4,7 @@
 <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns login">
             <div class="callout">
-                <h5>{% trans "Change Your Email Address" %}</h5>
+                {# HeadingA11y #} <h5>{% trans "Change Your Email Address" %}</h5>
                 {% blocktrans %}
                 <p>If you want to change your email address you may do so below, however, you will be logged out and your
                 account will be marked as inactive until you follow the instructions in the verification email. <strong>Note: </strong>
@@ -25,7 +25,7 @@
     <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns">
             <div class="callout">
-                <h5>{% trans "Register for Article Notifications" %}</h5>
+                {# HeadingA11y #} <h5>{% trans "Register for Article Notifications" %}</h5>
                 <form method="POST">
                     <p>
                         {% blocktrans %}Use the button below to register to receive notifications of new articles
@@ -49,7 +49,7 @@
     <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns login">
             <div class="callout">
-                <h5>{% trans "Update Password" %}</h5>
+                {# HeadingA11y #} <h5>{% trans "Update Password" %}</h5>
                 <p>{% trans "You can update your password by entering your existing password plus your new password." %}</p>
                 <form method="POST">
                     {% csrf_token %}

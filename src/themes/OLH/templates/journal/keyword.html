@@ -9,7 +9,7 @@
     <section id="content">
         <div class="row">
             <div class="large-8 columns border-right">
-                <h1>{% trans "Keyword" %}: {{ keyword.word }}</h1>
+                {# HeadingA11y #} <h1>{% trans "Keyword" %}: {{ keyword.word }}</h1>
                 <p>
                     <small><a href="{% url 'keywords' %}">{% trans 'Back to Keywords List' %}</a></small>
                 </p>

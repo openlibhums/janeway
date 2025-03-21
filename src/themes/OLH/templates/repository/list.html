@@ -14,7 +14,7 @@
         <div class="row">
             <div class="large-8 columns border-right">
                 <div class="large-12 columns">
-                    <h1>{{ request.repository.object_name_plural }}</h1>
+                    {# HeadingA11y #} <h1>{{ request.repository.object_name_plural }}</h1>
                     <p>
                         {% if search_term %}
                             Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
@@ -31,7 +31,7 @@
                            class="box-link"></a>
                         <div class="clearfix">
                             <div class="large-12s columns end">
-                                <h2>{{ preprint.title|safe }}</h2>
+                                {# HeadingA11y #} <h2>{{ preprint.title|safe }}</h2>
                                 <p>{{ preprint.display_authors_compact }}</p>
                                 <p><span class="date">
                                     <i aria-hidden="true" class="fa fa-calendar"></i>
@@ -76,7 +76,7 @@
                                        {% if search_term %}value="{{ search_term }}"{% endif %}>
                             </div>
                             <input type="submit" style="visibility: hidden;"/>
-                            <h5>{% trans "Searching by" %}:</h5>
+                            {# HeadingA11y #} <h5>{% trans "Searching by" %}:</h5>
                             <ul>
                                 <li>{% trans "Title" %}</li>
                                 <li>{% trans "Keywords" %}</li>
@@ -87,7 +87,7 @@
                     </div>
                     {% if subject %}
                         <div class="section">
-                            <h5>{{ subject.name }} {% trans "Editors" %}</h5>
+                            {# HeadingA11y #} <h5>{{ subject.name }} {% trans "Editors" %}</h5>
                             <ul>
                                 {% for editor in subject.editors.all %}
                                     <li>{{ editor.full_name }}</li>
@@ -98,7 +98,7 @@
 
                     {% if subjects %}
                         <div class="section">
-                        <h5>{% trans "Filter by Subject" %}</h5>
+                        {# HeadingA11y #} <h5>{% trans "Filter by Subject" %}</h5>
                         <ul>
                             {% for list_subject in subjects %}
                                 {% if not list_subject == subject %}<li><a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}

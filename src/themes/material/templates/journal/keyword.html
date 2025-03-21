@@ -5,7 +5,7 @@
 {% block title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
 
 {% block body %}
-    <h1>Keyword: {{ keyword.word }}</h1>
+    {# HeadingA11y #} <h1>Keyword: {{ keyword.word }}</h1>
     <p><small><a href="{% url 'keywords' %}">{% trans 'Back to Keywords List' %}</a></small></p>
     <p>{% trans "Articles that use this keyword are listed below." %}</p>
 

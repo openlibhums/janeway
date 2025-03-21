@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="large-8 columns">
                     <small class="uppercase">{{ article.section.name }}</small>
-                    <h2>{{ article.title|safe }}</h2>
+                    {# HeadingA11y #} <h2>{{ article.title|safe }}</h2>
                     <p>
                         <strong>{% if article.frozen_authors.count > 1 %}
                             {% trans "Authors" %}:
@@ -67,7 +67,7 @@
                         <div class="row column">
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
-                                <h3>{{ article.title|safe }}</h3>
+                                {# HeadingA11y #} <h3>{{ article.title|safe }}</h3>
                                 <p>
                                 <strong>{% if article.frozen_authors.count > 1 %}
                                     {% trans "Authors" %}:
@@ -177,7 +177,7 @@
                         <div id="article" class="large-10 columns">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    <h1>{{ article.title|safe }}</h1>
+                    {# HeadingA11y #} <h1>{{ article.title|safe }}</h1>
                     <div class="section show-for-small-only">
                         <strong>{% if article.frozen_authors.count > 1 %}
                             {% trans "Authors" %}
@@ -209,7 +209,7 @@
                 <hr/>
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
-                                <h3>{% trans "Abstract" %}</h3>
+                                {# HeadingA11y #} <h3>{% trans "Abstract" %}</h3>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
@@ -229,7 +229,7 @@
                             {% endif %}
                             {% if article.publisher_notes.all %}
                                 <div class="callout primary">
-                                    <h2>{% trans "Publisher Notes" %}</h2>
+                                    {# HeadingA11y #} <h2>{% trans "Publisher Notes" %}</h2>
                                     <ul>
                                         {% for note in article.publisher_notes.all %}
                                             <li>{{ note.text|safe }}</li>
@@ -347,7 +347,7 @@
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal_settings.article.disable_article_large_image %}
                                 <div class="section">
-                                    <h4>{% trans "Authors" %}</h4>
+                                    {# HeadingA11y #} <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
                                             <li>
@@ -376,7 +376,7 @@
                             {% include "elements/journal/share.html" %}
                             <div class="section">
                                 {% if article.is_published or proofing %}
-                                    <h3>{% trans "Downloads" %}</h3>
+                                    {# HeadingA11y #} <h3>{% trans "Downloads" %}</h3>
                                     {% if galleys %}
                                         <ul>
                                             {% for galley in galleys %}
@@ -410,7 +410,7 @@
                         {% with article.get_doi_url as doi_url %}
                         {% if doi_url %}
                          <div class="section">
-                             <h3>{% trans "Identifiers" %}</h3>
+                             {# HeadingA11y #} <h3>{% trans "Identifiers" %}</h3>
                              <ul>
                                  <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                              </ul>
@@ -420,7 +420,7 @@
 
                         {% if article.has_publication_details %}
                          <div class="section">
-                             <h3>{% trans "Publication details" %}</h3>
+                             {# HeadingA11y #} <h3>{% trans "Publication details" %}</h3>
                              <ul>
                                  {% if article.page_range %}
                                  <li>{% trans "Pages" %}: {{ article.page_range }}</li>
@@ -449,7 +449,7 @@
 
                         {% if article.supplementary_files.all %}
                             <div class="section">
-                                <h3>{% trans "Supplementary Files" %}</h3>
+                                {# HeadingA11y #} <h3>{% trans "Supplementary Files" %}</h3>
                                 <ul>
                                     {% for file in article.supplementary_files.all %}
                                         <li>
@@ -461,7 +461,7 @@
                         {% endif %}
                         {% if article.competing_interests %}
                          <div class="section">
-                             <h3>{% trans "Competing Interests" %}</h3>
+                             {# HeadingA11y #} <h3>{% trans "Competing Interests" %}</h3>
                              <ul>
                                  <li>{{ article.competing_interests|safe }}</li>
                              </ul>
@@ -470,7 +470,7 @@
 
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <div class="section hide-for-small-only">
-                                <h3>{% trans "Non Specialist Summary" %}</h3>
+                                {# HeadingA11y #} <h3>{% trans "Non Specialist Summary" %}</h3>
                                 <ul>
                                     <li><a href="#" data-open="summarymodal">{% trans 'View Summary' %}</a></li>
                                 </ul>
@@ -480,7 +480,7 @@
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">
                             <section aria-labelledby="toc-title">
-                                <h3 id="toc-title">{% trans "Jump to" %}</h3>
+                                {# HeadingA11y #} <h3 id="toc-title">{% trans "Jump to" %}</h3>
                                 <ul id="toc">
 
                                 </ul>
@@ -491,7 +491,7 @@
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">
-                            <h3>{% trans field.field.name %}</h3>
+                            {# HeadingA11y #} <h3>{% trans field.field.name %}</h3>
                             <ul>
                                 <li>{{ field.answer|safe }}</li>
                             </ul>
@@ -500,14 +500,14 @@
 
                         {% if article.preprint and article.preprint.is_published %}
                         <div class="section hide-for-small-only">
-                            <h3>{{ article.preprint.repository.object_name }}</h3>
+                            {# HeadingA11y #} <h3>{{ article.preprint.repository.object_name }}</h3>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
                             <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
                         </div>
                         {% endif %}
 
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "File Checksums" %} (MD5)</h3>
+                            {# HeadingA11y #} <h3>{% trans "File Checksums" %} (MD5)</h3>
                             {% if galleys %}
                                 <ul>
                                     {% for galley in galleys %}
@@ -524,7 +524,7 @@
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
-                                    <h3>{% trans "Peer Review" %}</h3>
+                                    {# HeadingA11y #} <h3>{% trans "Peer Review" %}</h3>
                                     <p>
                                         {% for review in article.public_reviews %}
                                             <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>

@@ -26,7 +26,7 @@
                 {% csrf_token %}
                 <div class="callout">
                     <div class="row column log-in-form">
-                        <h5>{% trans "Register for an account with" %} {{ request.press.name }}.</h5>
+                        {# HeadingA11y #} <h5>{% trans "Register for an account with" %} {{ request.press.name }}.</h5>
 
                         <p>{% trans "Password Rules" %}:</p>
                         <ul class="no-top-margin">
@@ -107,7 +107,7 @@
     </div>
 
     <div class="reveal" id="password-modal" data-reveal>
-        <h1>{% trans "Password Guide" %}</h1>
+        {# HeadingA11y #} <h1>{% trans "Password Guide" %}</h1>
         <p class="lead">{% trans "When it comes to passwords, length is better than complexity." %}</p>
         <p>{% trans "Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and uncomplicated password (our awesome moon base rocks)." %}</p>
         <p>{% trans "We recommend selecting a long, but easy to remember password such as our awesome moon base rocks which would take an estimated septillion years to crack as opposed to a complex one like Jfjfy&65^87 which would take just over 600 years on a standard computer." %}</p>

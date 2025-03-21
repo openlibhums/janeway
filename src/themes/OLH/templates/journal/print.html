@@ -10,7 +10,7 @@
 </head>
 <body>
 <p class="uppercase">{{ article.section.name }}</p>
-<h3>{{ article.title|safe }}</h3>
+{# HeadingA11y #} <h3>{{ article.title|safe }}</h3>
 <p><strong>
     {% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
     {% for author in article.frozen_authors.all %}
@@ -28,7 +28,7 @@
             </a></span></span>
     {% endfor %}
 
-<h2>{% trans "Abstract" %}</h2>
+{# HeadingA11y #} <h2>{% trans "Abstract" %}</h2>
 <p>{{ article.abstract | safe }}</p>
 {% if article.keywords %}
     <p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}

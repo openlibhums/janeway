@@ -6,7 +6,7 @@
 
 {% block body %}
     <div class="row">
-        <h1>{{ request.repository.name }} Subjects</h1>
+        {# HeadingA11y #} <h1>{{ request.repository.name }} Subjects</h1>
         <p>Select a subject to view {{ request.repository.object_name_plural }} in that subject.</p>
         <ul id="subjects" class="tree">
         {% include "common/repository/subject_tree.html" with subjects=top_level_subjects %}

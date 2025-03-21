@@ -8,7 +8,7 @@
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h1 class="no-bottom-margin">{{ journal_settings.styling.editorial_group_page_name }}</h1>
+            {# HeadingA11y #} <h1 class="no-bottom-margin">{{ journal_settings.styling.editorial_group_page_name }}</h1>
         </div>
     </div>
 
@@ -16,7 +16,7 @@
         <div class="row eq-height-row">
             {% if not journal_settings.styling.hide_editorial_group_names %}
             <div class="col m12 default-li">
-                <h2>{{ group.name }}</h2>
+                {# HeadingA11y #} <h2>{{ group.name }}</h2>
                 {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
             </div>
             {% endif %}

@@ -65,12 +65,12 @@
                     {% if journal_settings.article.disable_article_large_image %}
                         <span class="card-title">
                                 <small class="article_section">{{ article.section.name }}</small>
-                                <h1>{{ article.title|safe }}</h1>
+                                {# HeadingA11y #} <h1>{{ article.title|safe }}</h1>
 
                             </span>
                     {% endif %}
                     {% if article.abstract and article.abstract != '' %}
-                        <h2>{% trans "Abstract" %}</h2>
+                        {# HeadingA11y #} <h2>{% trans "Abstract" %}</h2>
                         <p>{{ article.abstract | safe }}</p>
                         <div class="spacer">
                             <div class="divider"></div>
@@ -78,7 +78,7 @@
                     {% endif %}
 
                     {% if article.keywords.count > 0 %}
-                        <h2>{% trans "Keywords" %}</h2>
+                        {# HeadingA11y #} <h2>{% trans "Keywords" %}</h2>
                         <p>{% for keyword in article.keywords.all %}
                             {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
@@ -88,7 +88,7 @@
                     {% endif %}
                     {% if article.is_published or proofing %}
                     {% if not journal_settings.article.suppress_how_to_cite %}
-                        <h2>{% trans "How to Cite" %}</h2>
+                        {# HeadingA11y #} <h2>{% trans "How to Cite" %}</h2>
                         <div id="article_how_to_cite">
                             {{ article.how_to_cite | safe }}
                         </div>
@@ -98,7 +98,7 @@
                     {% endif %}
                     {% endif %}
                     {% if article.rights %}
-                        <h2>{% trans "Rights" %}</h2>
+                        {# HeadingA11y #} <h2>{% trans "Rights" %}</h2>
                         {{ article.rights | safe }}
 
                         <div class="spacer">
@@ -107,7 +107,7 @@
                     {% endif %}
 
                     {% if article.publisher_notes.all %}
-                        <h2>{% trans "Publisher Notes" %}</h2>
+                        {# HeadingA11y #} <h2>{% trans "Publisher Notes" %}</h2>
                         <ul>
                             {% for note in article.publisher_notes.all %}
                                 <li>{{ note.text|safe }}</li>
@@ -120,7 +120,7 @@
 
                     {% if article.is_published or proofing %}
                         <div class="show-on-small hide-on-med-and-up">
-                            <h2>{% trans "Downloads" %}</h2>
+                            {# HeadingA11y #} <h2>{% trans "Downloads" %}</h2>
                             {% if galleys %}
                                 <p>
                                     {% for galley in galleys %}
@@ -157,14 +157,14 @@
                         <div class="card">
                             <div class="card-content center">
                                 <div class="alm">
-                                    <h5>
+                                    {# HeadingA11y #} <h5>
                                         {{ article.metrics.views }}
                                     </h5>
                                     <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
                                 {% if galleys %}
                                     <div class="alm">
-                                        <h5>
+                                        {# HeadingA11y #} <h5>
                                             {{ article.metrics.downloads }}
                                         </h5>
                                         <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
@@ -172,7 +172,7 @@
                                 {% endif %}
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
-                                        <h5>
+                                        {# HeadingA11y #} <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
                                         <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
@@ -180,7 +180,7 @@
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
                                     <div class="alm">
-                                        <h5>
+                                        {# HeadingA11y #} <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
                                         <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
@@ -188,7 +188,7 @@
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
                                     <div class="alm">
-                                        <h5>
+                                        {# HeadingA11y #} <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
                                         <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
@@ -197,7 +197,7 @@
 
                                 {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
-                                        <h5>
+                                        {# HeadingA11y #} <h5>
                                             {{ article.citation_count }}
                                         </h5>
                                         <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
@@ -235,7 +235,7 @@
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        <h4>
+                        {# HeadingA11y #} <h4>
                             {% trans "Authors" %}
                         </h4>
 
@@ -267,7 +267,7 @@
                             <div class="divider"></div>
                         </div>
                         {% if article.is_published or proofing %}
-                            <h4>
+                            {# HeadingA11y #} <h4>
                                 {% trans "Downloads" %}
                             </h4>
                             {% if galleys %}
@@ -303,7 +303,7 @@
                         </div>
                         {% if article.has_publication_details %}
                         <div class="section">
-                            <h4>{% trans "Publication details" %}</h4>
+                            {# HeadingA11y #} <h4>{% trans "Publication details" %}</h4>
                             <table class="sidebar-table">
                                 {% if article.page_range %}
                                 <tr>
@@ -363,7 +363,7 @@
                         {% endif %}
 
                         {% if article.supplementary_files.all %}
-                            <h4>{% trans "Supplementary Files" %}</h4>
+                            {# HeadingA11y #} <h4>{% trans "Supplementary Files" %}</h4>
 
                             <ul>
                                 {% for file in article.supplementary_files.all %}
@@ -377,13 +377,13 @@
                         {% endif %}
 
                         {% if journal_settings.general.submission_summary %}
-                            <h4>{% trans "Non Specialist Summary" %}</h4>
+                            {# HeadingA11y #} <h4>{% trans "Non Specialist Summary" %}</h4>
                             <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
                         {% endif %}
-                        <h4>
+                        {# HeadingA11y #} <h4>
                             {% trans "Licence" %}
                         </h4>
                         <p>{{ article.license.name }} 
@@ -399,7 +399,7 @@
                             <div class="divider"></div>
                         </div>
 
-                        <h4>
+                        {# HeadingA11y #} <h4>
                             {% trans "Competing Interests" %}
                         </h4>
                         <p>{{ article.competing_interests|safe }}</p>
@@ -410,7 +410,7 @@
 
                         {% with article.get_doi_url as doi_url %}
                         {% if doi_url %}
-                        <h4>{% trans "Identifiers" %}</h4>
+                        {# HeadingA11y #} <h4>{% trans "Identifiers" %}</h4>
                         <ul>
                             <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                         </ul>
@@ -421,7 +421,7 @@
                         {% endwith %}
 
                         {% if article.peer_reviewed %}
-                            <h4>
+                            {# HeadingA11y #} <h4>
                                 {% trans "Peer Review" %}
                             </h4>
                             <p>
@@ -444,7 +444,7 @@
                             <div class="spacer">
                                 <div class="divider"></div>
                             </div>
-                            <h4>{% trans field.field.name %}</h4>
+                            {# HeadingA11y #} <h4>{% trans field.field.name %}</h4>
                             <p>{{ field.answer|safe }}</p>
                             {% endfor %}
                             <div class="spacer">
@@ -453,7 +453,7 @@
                         {% endif %}
 
                         {% if article.preprint and article.preprint.is_published %}
-                        <h4>{{ article.preprint.repository.object_name }}</h4>
+                        {# HeadingA11y #} <h4>{{ article.preprint.repository.object_name }}</h4>
                         <p>This article is linked to
                             a {{ article.preprint.repository.object_name }}
                             in {{ article.preprint.repository.name }}.</p>
@@ -463,7 +463,7 @@
                         {% endif %}
 
                         {% if article.is_published or proofing %}
-                            <h4>
+                            {# HeadingA11y #} <h4>
                                 {% trans "File Checksums" %} (MD5)
                             </h4>
                             {% if galleys %}
@@ -487,7 +487,7 @@
                 <div class="card hide-on-small-only" id="toc-card">
                     <section aria-labelledby="toc-title">
                         <div class="card-content" id="toc-section">
-                            <h4 id="toc-title">
+                            {# HeadingA11y #} <h4 id="toc-title">
                                 {% trans "Table of Contents" %}
                             </h4>
                             <ul id="toc" class="section table-of-contents">

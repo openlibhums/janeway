@@ -12,7 +12,7 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h1 class="text-center">{{ request.repository.name }}</h1>
+                {# HeadingA11y #} <h1 class="text-center">{{ request.repository.name }}</h1>
             </div>
             <div class="large-6 columns end large-offset-3">
                 <div class="input-group">
@@ -35,14 +35,14 @@
 
             {% if preprints %}
             <div class="large-8 columns large-offset-2 end">
-                <h2 class="text-center">{% trans "Latest Preprints" %}</h2>
+                {# HeadingA11y #} <h2 class="text-center">{% trans "Latest Preprints" %}</h2>
                 {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
             </div>
             {% endif %}
 
             {% if subjects %}
                 <div class="large-8 columns large-offset-2 end">
-                    <h2 class="text-center">{% trans 'Filter by Subject' %}</h2>
+                    {# HeadingA11y #} <h2 class="text-center">{% trans 'Filter by Subject' %}</h2>
                     {% if subjects|length <= 5 %}
                         <div class="large-12 columns">
                             <div class="stacked button-group">

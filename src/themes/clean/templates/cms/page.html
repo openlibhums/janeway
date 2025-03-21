@@ -9,7 +9,7 @@
     <section id="content" aria-labelledby="cms-title">
         <div class="row">
             <div class="{% if page.display_toc %}col-md-8 col-sm-12{% else %}col-md-12{% endif %}">
-                <h1 id="cms-title">{{ page.display_name }}</h1>
+                {# HeadingA11y #} <h1 id="cms-title">{{ page.display_name }}</h1>
                 <hr/>
                 <div id="main_article">{{ page.content|safe }}</div>
             </div>
@@ -17,7 +17,7 @@
                 <div class="col-md-4 d-none d-sm-none d-md-block">
                     <section aria-labelledby="toc-title">
                         <div class="sticky-top">
-                            <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                            {# HeadingA11y #} <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
                             <ul id="toc" class="table-of-contents"></ul>
                         </div>
                     </section>

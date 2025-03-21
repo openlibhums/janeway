@@ -10,7 +10,7 @@
     {% endif %}
     <div class="row">
         <div class="col m12">
-            <h1>{% trans issue_type.plural_name %}</h1>
+            {# HeadingA11y #} <h1>{% trans issue_type.plural_name %}</h1>
         </div>
         <div class="col m12">
             {% if request.journal.display_issues_grouped_by_decade %}

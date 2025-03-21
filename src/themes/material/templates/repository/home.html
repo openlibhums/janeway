@@ -8,7 +8,7 @@
     <div class="row">
 
         <div class="col m12 spacer">
-            <h1 class="center">{{ request.repository.name }}</h1>
+            {# HeadingA11y #} <h1 class="center">{{ request.repository.name }}</h1>
         </div>
 
 
@@ -41,7 +41,7 @@
 
         {% if preprints %}
         <div class="col m12 spacer">
-            <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
+            {# HeadingA11y #} <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
         </div>
 
         {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}

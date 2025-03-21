@@ -3,7 +3,7 @@
 {% for preprint in preprints %}
     <div class="card">
         <div class="card-content">
-            <h2 class="listing-title no-padding-top">
+            {# HeadingA11y #} <h2 class="listing-title no-padding-top">
                 <a href="{% url 'repository_preprint' preprint.pk %}">
                     {{ preprint.title|safe }}
                 </a>

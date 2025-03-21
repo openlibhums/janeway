@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-block">
-                <h5 id="changeemail">{% trans 'Change Your Email Address' %}</h5>
+                {# HeadingA11y #} <h5 id="changeemail">{% trans 'Change Your Email Address' %}</h5>
                 <p>{% blocktrans %}If you want to change your email address you may do so
                     below, however, you will be logged out and
                     your account will be marked as inactive until you follow the
@@ -37,7 +37,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-block">
-                <h5>{% trans "Register for Article Notifications" %}</h5>
+                {# HeadingA11y #} <h5>{% trans "Register for Article Notifications" %}</h5>
                 <form method="POST">
                     <p>
                         {% blocktrans %}Use the button below to register to receive notifications of new articles
@@ -64,7 +64,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-block">
-                <h5>{% trans 'Update Password' %}</h5>
+                {# HeadingA11y #} <h5>{% trans 'Update Password' %}</h5>
                 <p>{% trans 'You can update your password by entering your existing password plus your new password' %}.</p>
                 <form method="POST">
                     {% csrf_token %}

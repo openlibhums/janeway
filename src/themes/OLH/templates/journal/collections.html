@@ -11,7 +11,7 @@
     <section id="content">
         <div class="row">
             <div class="large-12 columns">
-                <h1>{% trans issue_type.plural_name %}</h1>
+                {# HeadingA11y #} <h1>{% trans issue_type.plural_name %}</h1>
             </div>
             <div class="row" data-equalizer data-equalize-on="medium">
                 {% for collection in collections %}
@@ -28,7 +28,7 @@
                                 <p>{% trans 'Collection' %}<br/>
                                     <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>
                                 </p>
-                                <h2>{{ collection.issue_title }}</h2>
+                                {# HeadingA11y #} <h2>{{ collection.issue_title }}</h2>
                                 {% if collection.short_description %}
                                 <p>{{ collection.short_description|safe }}</p>
                                 {% else %}
