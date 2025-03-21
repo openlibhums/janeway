@@ -23,7 +23,7 @@
             <i aria-hidden="true" class="float-right fa fa-thumb-tack"></i>
             <span class="sr-only">{% trans 'Pinned' %}</span>
         {% endif %}
-            <h2>{{ article.title|safe }}
+            {# HeadingA11y Clash #} <h2>{{ article.title|safe }}
                 {% if article.is_remote %}
                     &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
                     <span class="sr-only">, {% trans 'externally hosted article' %}.</span>

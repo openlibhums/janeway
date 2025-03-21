@@ -9,8 +9,8 @@
 {% block body %}
     <section id="content" class="">
         <div class="row column ">
-            <h3 class="news-item-block">{{ journal_settings.news.news_title }}</h3>
-            {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
+            <h1 class="news-item-block">{{ journal_settings.news.news_title }}</h1>
+            {% if tag %}<h2>{% trans "Filtering tag" %}: {{ tag }}</h2>{% endif %}
             {% for item in news_items %}
                 <div class="news-item-block">
                     <div class="row">
@@ -22,8 +22,8 @@
                         </div>
                         {% endif %}
                         <div class="large-7 columns">
-                            <h4>{{ item.title|safe }}</h4>
-                            <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</h6>
+                            <h2>{{ item.title|safe }}</h2>
+                            <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                             <p>{{ item.body|truncatewords_html:50|safe}}</p>
                             <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                         </div>
@@ -32,7 +32,7 @@
 
                 </div>
                 {% empty %}
-                <h4>{% trans "This journal currently has no news items to display." %}</h4>
+                <h2>{% trans "This journal currently has no news items to display." %}</h2>
             {% endfor %}
         </div>
         <div class="pagination-block">

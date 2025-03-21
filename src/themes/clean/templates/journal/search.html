@@ -10,10 +10,12 @@
 
 {% block body %}
 
+    <h1>{% trans 'Article Search Results' %}</h1>
+
     {% if search_term %}
-        <h5>Searching for: <i>{{ search_term }}</i></h5>
+        <p>Searching for: <i>{{ search_term }}</i></p>
     {% elif keyword %}
-        <h5>Keyword: <i>{{ keyword }}</i></h5>
+        <p>Keyword: <i>{{ keyword }}</i></p>
     {% endif %}
 
 	<div class="row">

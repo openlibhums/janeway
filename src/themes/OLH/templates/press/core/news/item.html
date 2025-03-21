@@ -22,8 +22,8 @@
                                  alt="{{ news_item.title | striptags| unescape }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
-                                <h3>{{ news_item.title }}</h3>
-                                <p>Posted by {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
+                                <h1>{{ news_item.title }}</h1>
+                                <p class="byline">Posted by {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
                             </figcaption>
                         </div>
                     </li>
@@ -32,16 +32,18 @@
                 <br />
             {% else %}
                 <h1>{{ news_item.title }}</h1>
-			    <h6>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human}}</h6>
+			    <p class="byline">{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human}}</p>
             {% endif %}
 			<div class="row">
                 <div class="large-9 columns">
                     {{ news_item.body|safe }}
                 </div>
-                <div class="large-3 columns">
-                    <h7>{% trans "Tags" %} <i aria-hidden="true"  class="fa fa-tags">&nbsp;</i></h7>
-                     <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
-                </div>
+                {% if news_item.tags.all %}
+                    <div class="large-3 columns">
+                        <h2>{% trans "Tags" %} <i aria-hidden="true"  class="fa fa-tags">&nbsp;</i></h2>
+                        <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
+                    </div>
+                {% endif%}
             </div>
             <br />
 			<a href="{% url 'core_news_list' %}">{% trans "Back to News List" %}</a>

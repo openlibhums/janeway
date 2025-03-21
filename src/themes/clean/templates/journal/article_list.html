@@ -26,7 +26,7 @@
             <section aria-labelledby="search-title">
                 <div class="card">
                     <div class="card-block">
-                        <h3 id="search-title">{% trans 'Search' %}</h3>
+                        <h2 id="search-title">{% trans 'Search' %}</h2>
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="form-group">

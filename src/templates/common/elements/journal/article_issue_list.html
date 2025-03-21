@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% with issue_length=article.issues_list|length %}
-<h3>{% if issue_length > 1 %}{% trans 'Issues' %}{% else %}{% trans 'Issue' %}{% endif %}</h3>
+{# HeadingA11y Clash #} <h2>{% if issue_length > 1 %}{% trans 'Issues' %}{% else %}{% trans 'Issue' %}{% endif %}</h2>
 {% endwith %}
 <ul>
     {% if article.primary_issue %}

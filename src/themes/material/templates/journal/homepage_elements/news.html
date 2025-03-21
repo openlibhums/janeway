@@ -28,9 +28,9 @@
                     {% endif %}
                     <div class="card-content">
 
-                        <span class="card-title">{{ item.title|safe }}</span>
-                        <h6>{{ item.byline }} on
-                            {{ item.posted|date_human }}</h6>
+                        <h3 class="card-title">{{ item.title|safe }}</h3>
+                        <p class="byline">{{ item.byline }} on
+                            {{ item.posted|date_human }}</p>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
 
                     </div>

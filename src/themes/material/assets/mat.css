@@ -776,3 +776,16 @@ main {
 a {
     overflow-wrap: break-word;
 }
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
+
+.metrics {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 110%;
+}

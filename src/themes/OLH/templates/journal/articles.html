@@ -27,7 +27,7 @@
                     </ul>
                 </div>
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                <h1>{% trans 'Pinned Articles' %}</h1>
+                    <h1>{% trans 'Pinned Articles' %}</h1>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}

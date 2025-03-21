@@ -8,18 +8,18 @@
     <div class="row">
         <div class="col-md-12">
             <h1>{{ journal_settings.news.news_title }}</h1>
-            {% if tag %}<h3>Filtering tag: {{ tag }}</h3>{% endif %}
+            {% if tag %} <h2>Filtering tag: {{ tag }}</h2>{% endif %}
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h4>{{ item.title|safe }}</h4>
-                <h6>{{ item.byline }} on {{ item.posted|date_human }}</h6>
+                <h2>{{ item.title|safe }}</h2>
+                <p class="byline">{{ item.byline }} on {{ item.posted|date_human }}</p>
                 <p>{{ item.body|truncatewords_html:50|safe }}</p>
                 <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
                 <hr/>
             </div>
         {% empty %}
-            <h4>This journal currently has no {{ journal_settings.news.news_title }} items to display.</h4>
+            <h2> {% trans 'This journal currently has no {{ journal_settings.news.news_title }} items to display.' %}</h2>
         {% endfor %}
     </div>
     <div class="pagination-block">{{ page }}

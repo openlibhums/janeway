@@ -1,6 +1,7 @@
 {% load i18n %}
 
 {% if issue.large_image %}
+    <h1 class="sr-only">{{ issue.display_title }}</h1>
     <div class="card">
         <div class="card-image">
             <a href="{{ issue.url }}">

@@ -29,8 +29,8 @@
                     {% endif %}
 
                     <div class="content">
-                        <p>{{ article.author_list }}</p>
-                        <p><strong>{{ article.title|safe|truncatechars:200 }}</strong></p>
+                        <p class="byline">{{ article.author_list }}</p>
+                        <h3>{{ article.title|safe|truncatechars:200 }}</h3>
                     </div>
                 </div>
             </div>

@@ -8,14 +8,15 @@
 	<section id="content" class="no-padding">
 		<div class="row column">
             <div class="large-4 columns contact">
-                <h4>{% trans "Press Representatives" %}</h4>
+                <h1 class="sr-only">{% trans 'Contact us' %}</h1>
+                <h2>{% trans "Press Representatives" %}</h2>
                 {% for contact in contacts %}
-                <h5>{{ contact.name }}</h5>
+                <h3>{{ contact.name }}</h3>
                 <p>{{ contact.role }}</p>
                 {% endfor %}
             </div>
             <div class="large-8 columns">
-                <h4>{% trans "Contact" %}</h4>
+                <h2>{% trans "Contact" %}</h2>
                 <form method="POST" novalidate>
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}
