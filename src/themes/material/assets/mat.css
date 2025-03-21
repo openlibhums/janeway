@@ -754,3 +754,10 @@ main {
     padding: 0 10px;
     min-width: 40px;
 }
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
