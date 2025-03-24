@@ -1234,14 +1234,209 @@ class TestOrganizationModels(TestCase):
             ]
         )
 
-    def test_organization_deduplicate_to_ror_record(self):
-        self.organization_bbk_legacy.deduplicate_to_ror_record()
+class TestOrganizationManagers(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.country_gb = models.Country.objects.create(
+            code='GB',
+            name='United Kingdom',
+        )
+        cls.location_uk_legacy = models.Location.objects.create(
+            # Before integrating ROR we used country-wide locations
+            # with no geonames ID or coordinates
+            country=cls.country_gb,
+        )
+        cls.organization_turing_legacy = models.Organization.objects.create(
+            # Before integrating ROR we used institution names with no ROR IDs
+        )
+        cls.organization_turing_legacy.locations.add(cls.location_uk_legacy)
+        cls.name_turing_custom_legacy = models.OrganizationName.objects.create(
+            value='The Alan Turing Institute',
+            custom_label_for=cls.organization_turing_legacy,
+        )
+        cls.e_hobsbawm = helpers.create_user(
+            'dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        cls.affiliation_historian = models.ControlledAffiliation.objects.create(
+            account=cls.e_hobsbawm,
+            title='Historian',
+            organization=cls.organization_turing_legacy,
+        )
+
+        cls.ror_records = helpers.get_ror_records()
+
+    def test_location_bulk_create_from_ror(self):
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        for geonames_id in [2618425, 1835235, 2643743]:
+            self.assertTrue(
+                models.Location.objects.filter(geonames_id=geonames_id).exists()
+            )
+
+    def test_organization_bulk_create_from_ror(self):
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        for ror_id in ['00j1xwp39', '013yz9b19', '035dkdb55']:
+            self.assertTrue(
+                models.Organization.objects.filter(ror_id=ror_id).exists()
+            )
+
+    def test_organization_bulk_link_locations_from_ror_add(self):
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        self.assertTrue(
+            models.Organization.objects.filter(
+                ror_id='00j1xwp39',
+                locations__geonames_id=2618425,
+            ).exists()
+        )
+
+    def test_organization_bulk_link_locations_from_ror_remove(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+
+        # Effectively remove a location while adding another
+        self.ror_records[0]["locations"][0]["geonames_id"] = 123456789
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        self.assertFalse(
+            models.Organization.objects.filter(
+                ror_id='00j1xwp39',
+                locations__geonames_id=2618425,
+            ).exists()
+        )
+
+    def test_organization_name_bulk_create_from_ror(self):
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
+        for name in [
+            'Korea Institute of Fusion Energy',
+            'KFE',
+            'Copenhagen School of Design and Technology',
+            'KEA',
+            'The Alan Turing Institute',
+        ]:
+            self.assertTrue(
+                models.OrganizationName.objects.filter(value=name).exists()
+            )
+        self.assertTrue(
+            models.Organization.objects.filter(
+                ror_id='013yz9b19',
+                acronyms__value='KFE',
+            ).exists()
+        )
+
+    def test_location_bulk_update_from_ror_updates_existing_locations(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+
+        # Change one thing about the location but not its geonames_id
+        self.ror_records[0]["locations"][0]["geonames_details"]["name"] = "Copenhagen 2"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        self.assertEqual(
+            models.Location.objects.get(geonames_id=2618425).name,
+            "Copenhagen 2"
+        )
+
+    def test_location_bulk_update_from_ror_adds_new_locations(self):
+        """
+        A ROR record that has already been imported into
+        Janeway might contain a new location.
+        In this case Location.bulk_update_from_ror should delegate that
+        record to Location.bulk_create_from_ror.
+        """
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+
+        # Make the importer think it's a new location
+        self.ror_records[0]["locations"][0]["geonames_id"] = 123456789
+        self.ror_records[0]["locations"][0]["geonames_details"]["name"] = "Copenhagen 2"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        self.assertEqual(
+            models.Location.objects.get(geonames_id=2618425).name,
+            "Copenhagen"
+        )
+        self.assertEqual(
+            models.Location.objects.get(geonames_id=123456789).name,
+            "Copenhagen 2"
+        )
+
+    def test_organization_bulk_update_from_ror(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+
+        # Change one thing about the organization but not its ROR id
+        self.ror_records[0]["admin"]["last_modified"]["date"] = "2025-01-01"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_update_from_ror(self.ror_records)
+        self.assertEqual(
+            models.Organization.objects.get(ror_id='00j1xwp39').ror_record_timestamp,
+            "2025-01-01"
+        )
+
+    def test_organization_name_bulk_update_from_ror(self):
+        # Set up data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records,
+        )
+        models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
+
+        # Change one thing about the organization name but not its ROR id
+        self.ror_records[0]["names"][0]["value"] = "Copenhagen School of Design"
+
+        # Run test
+        models.Location.objects.bulk_update_from_ror(self.ror_records)
+        models.Organization.objects.bulk_update_from_ror(self.ror_records)
+        models.OrganizationName.objects.bulk_update_from_ror(self.ror_records)
+        organization = models.Organization.objects.get(ror_id='00j1xwp39')
+        self.assertEqual(
+            organization.ror_display.value,
+            "Copenhagen School of Design"
+        )
+
+    def test_organization_deduplicate_to_ror(self):
+        # Set up ROR data
+        models.Location.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_create_from_ror(self.ror_records)
+        models.Organization.objects.bulk_link_locations_from_ror(
+            self.ror_records
+        )
+        models.OrganizationName.objects.bulk_create_from_ror(self.ror_records)
+
+        # Run test
+        models.Organization.objects.all().deduplicate_to_ror()
         self.affiliation_historian.refresh_from_db()
         self.assertNotEqual(
             self.affiliation_historian.organization,
-            self.organization_bbk_legacy,
+            self.organization_turing_legacy,
         )
         self.assertEqual(
             self.affiliation_historian.organization,
-            self.organization_bbk,
+            models.Organization.objects.get(ror_id="035dkdb55"),
         )
