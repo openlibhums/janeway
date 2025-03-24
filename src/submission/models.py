@@ -2180,7 +2180,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        return self.affiliation
+        return self.primary_affiliation()
 
     @property
     def biography(self):
