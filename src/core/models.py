@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from decimal import Decimal
 import os
 import re
 import uuid
@@ -2045,6 +2044,95 @@ hijack_started.connect(log_hijack_started)
 hijack_ended.connect(log_hijack_ended)
 
 
+class OrganizationNameManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organization_names = []
+        logger.debug(f"Importing organization names")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            for name in record.get('names'):
+                kwargs = {}
+                kwargs['value'] = name.get('value', '')
+
+                if name.get('lang'):
+                    kwargs['language'] = name.get('language', '')
+
+                if 'ror_display' in name.get('types'):
+                    kwargs['ror_display_for'] = organization
+                if 'label' in name.get('types'):
+                    kwargs['label_for'] = organization
+                if 'alias' in name.get('types'):
+                    kwargs['alias_for'] = organization
+                if 'acronym' in name.get('types'):
+                    kwargs['acronym_for'] = organization
+                organization_names.append(OrganizationName(**kwargs))
+        return OrganizationName.objects.bulk_create(organization_names)
+
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Finds records where the names have changed,
+        deletes those names in Janeway,
+        and sends those records through OrganizationName.bulk_create_from_ror
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related(
+                "labels"
+            ).prefetch_related(
+                "aliases"
+            ).prefetch_related(
+                "acronyms"
+            )
+        }
+
+        ror_records_with_updated_names = []
+        org_name_pks_to_delete = set()
+        logger.debug(f"Updating names")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            # Note that this set does not need to include ror_display
+            # because all ror_display values are also labels in the
+            # ROR schema
+            janeway_names = set()
+            for name in organization.labels.all():
+                janeway_names.add(name)
+            for name in organization.aliases.all():
+                janeway_names.add(name)
+            for name in organization.acronyms.all():
+                janeway_names.add(name)
+
+            janeway_name_values = set([name.value for name in janeway_names])
+
+            ror_name_values = set([
+                name.get('value') for name in record.get('names', [])
+            ])
+
+            # Delete and recreate all authority-controlled names
+            # when the names differ between Janeway and ROR.
+            if janeway_name_values.difference(ror_name_values):
+                org_name_pks_to_delete.update(
+                    [name.pk for name in janeway_names]
+                )
+                ror_records_with_updated_names.append(record)
+
+        self.filter(pk__in=org_name_pks_to_delete).delete()
+
+        if ror_records_with_updated_names:
+            return self.bulk_create_from_ror(ror_records_with_updated_names)
+        else:
+            return []
+
+
 class OrganizationName(models.Model):
     value = models.CharField(
         max_length=1000,
@@ -2097,9 +2185,314 @@ class OrganizationName(models.Model):
         blank=True,
         choices=submission_models.LANGUAGE_CHOICES,
     )
+    objects = OrganizationNameManager()
 
     def __str__(self):
         return self.value
+
+
+class OrganizationQueryset(models.query.QuerySet):
+    def deduplicate_to_ror(self, limit=None):
+        """
+        Attempts to matching unstructured organization names to ROR names
+        and IDs, and then bulk update related affiliations.
+        Conservative, in that it only tolerates exact matches
+        between normalized (lowercased) strings, and does not
+        use country or other data to disambiguate globally ambigous names
+        like "Musuem of Modern Art".
+        This routine was about 33% effective in testing on live data.
+        """
+
+        # Identify names to deduplicate
+        uncontrolled_organizations = self.filter(
+            ror_id='',
+            custom_label__isnull=False,
+        ).prefetch_related(
+            'custom_label'
+        )
+        num_before = uncontrolled_organizations.count()
+        logger.debug(f"Trying to match {num_before} organization names to ROR data.")
+        if limit:
+            uncontrolled_organizations = uncontrolled_organizations[:limit]
+
+        # Create mapping from unique canonical names to org objects
+        orgs_by_name = {}
+        ambiguous_names_in_ror = set()
+        ambiguous_names_in_db = set()
+        labels = OrganizationName.objects.filter(
+            label_for__isnull=False
+        ).prefetch_related(
+            'ror_display_for'
+        ).prefetch_related(
+            'label_for'
+        )
+        for name in labels:
+            norm_name = name.value.lower()
+            org = name.ror_display_for or name.label_for
+            if norm_name in orgs_by_name:
+                ambiguous_names_in_ror.add(norm_name)
+            else:
+                orgs_by_name[norm_name] = org
+
+        for name in ambiguous_names_in_ror:
+            orgs_by_name.pop(name)
+
+        # Identify the affiliations to update
+        affils_by_org_id = {}
+        for affil in ControlledAffiliation.objects.filter(
+            organization__isnull=False
+        ).prefetch_related('organization'):
+            org_id = affil.organization.pk
+            if org_id not in affils_by_org_id:
+                affils_by_org_id[org_id] = set()
+            affils_by_org_id[org_id].add(affil)
+
+        affiliations_to_update = []
+        orgs_to_delete = set()
+        for old_org in uncontrolled_organizations:
+            norm_name = old_org.custom_label.value.lower()
+            if norm_name in orgs_by_name:
+                orgs_to_delete.add(old_org.pk)
+                new_org = orgs_by_name[norm_name]
+                for affil in affils_by_org_id[old_org.pk]:
+                    affil.organization = new_org
+                    affiliations_to_update.append(affil)
+            elif norm_name in ambiguous_names_in_ror:
+                ambiguous_names_in_db.add(norm_name)
+
+        # Run the update and delete operations
+        ControlledAffiliation.objects.bulk_update(affiliations_to_update, ['organization'], batch_size=3600)
+        Organization.objects.filter(pk__in=orgs_to_delete).delete()
+
+        # Report back to user
+        num_after = self.filter(
+            ror_id='',
+            custom_label__isnull=False,
+        ).count()
+        deduplicated = num_before - num_after
+        percent_matched = round(100 * deduplicated / num_before)
+        logger.debug(
+            f"Matched {deduplicated} "
+            f"organizations ({percent_matched}%) to ROR records."
+        )
+        logger.debug(
+            f"{num_after} uncontrolled organizations remain."
+        )
+        if ambiguous_names_in_db:
+            logger.debug(
+                f'Some ambiguous names ({len(ambiguous_names_in_db)}) could '
+                f'nearly be matched but were not globally unique. '
+            )
+            # logger.debug(f'Ambiguous names: {ambiguous_names_in_db}')
+
+        total_affils_with_org = ControlledAffiliation.objects.filter(
+            organization__isnull=False,
+        ).count()
+        affils_with_controlled_org = ControlledAffiliation.objects.filter(
+            models.Q(organization__isnull=False) & ~models.Q(organization__ror_id=''),
+        ).count()
+        ror_controlled_affils_percent = round(100 * affils_with_controlled_org / total_affils_with_org)
+        logger.debug(
+            f'{affils_with_controlled_org} ({ror_controlled_affils_percent}%) of the '
+            f'affiliations in this Janeway instance are now linked to ROR data.'
+        )
+
+
+class OrganizationManager(models.Manager):
+
+    def get_queryset(self):
+        return OrganizationQueryset(self.model)
+
+    def ror_ids_and_timestamps(self):
+        ror_ids_and_timestamps = {}
+        organizations = self.exclude(ror_id="")
+        for ror_id, ts in organizations.values_list("ror_id", "ror_record_timestamp"):
+            ror_ids_and_timestamps[ror_id] = ts
+        return ror_ids_and_timestamps
+
+    def bulk_link_locations_from_ror(self, ror_records):
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in Location.objects.filter(
+                geonames_id__isnull=False,
+            )
+        }
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related('locations')
+        }
+        organization_location_links = []
+        logger.debug(f"Linking locations")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            janeway_geonames_ids = set([
+                loc.geonames_id for loc in organization.locations.all()
+            ])
+            ror_geonames_ids = set([
+                loc.get('geonames_id') for loc in record.get('locations', [])
+            ])
+
+            # Unlink locations that have been removed from the record.
+            # Do this without a bulk operation because it is likely to be uncommon.
+            for geonames_id in janeway_geonames_ids - ror_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization.locations.remove(location)
+
+            # Link locations that have been added to the record.
+            for geonames_id in ror_geonames_ids - janeway_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization_location_links.append(
+                    Organization.locations.through(
+                        organization_id=organization.pk,
+                        location_id=location.pk,
+                    )
+                )
+
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links
+        )
+
+    def bulk_create_from_ror(self, ror_records):
+        new_organizations = []
+        logger.debug(
+            f"Importing organizations"
+        )
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            new_organizations.append(
+                Organization(
+                    ror_id=ror_id,
+                    ror_status=ror_status,
+                    ror_record_timestamp=last_modified.get("date", ""),
+                    website=website,
+                )
+            )
+        return self.bulk_create(new_organizations)
+
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates organizations from ROR records.
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organizations_to_update = []
+        fields_to_update = set()
+        logger.debug(
+            f"Updating organizations"
+        )
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            timestamp=last_modified.get("date", "")
+            if organization.ror_record_timestamp != timestamp:
+                organization.ror_record_timestamp = timestamp
+                fields_to_update.add('ror_record_timestamp')
+
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            if organization.website != website:
+                organization.website = website
+                fields_to_update.add('website')
+
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            if organization.ror_status != ror_status:
+                organization.ror_status = ror_status
+                fields_to_update.add('ror_status')
+
+            organizations_to_update.append(organization)
+
+        if organizations_to_update and fields_to_update:
+            return Organization.objects.bulk_update(
+                organizations_to_update,
+                fields_to_update,
+            )
+        else:
+            return []
+
+    def manage_ror_import(self, ror_import, limit=0):
+        """
+        Opens a previously downloaded data dump from
+        ROR's Zenodo endpoint, processes the records,
+        and records errors for exceptions raised during creation.
+        https://ror.readme.io/v2/docs/data-dump
+        """
+        logger.debug(f"Running ROR import with limit={limit}")
+        num_errors_before = RORImportError.objects.count()
+        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('v2.json'):
+                    string = zip_ref.read(file_info).decode()
+                    if limit:
+                        records = json.loads(string)[:limit]
+                    else:
+                        records = json.loads(string)
+                    break
+
+        new_records = ror_import.filter_new_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
+        if new_records:
+            try:
+                Location.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_link_locations_from_ror(new_records)
+                OrganizationName.objects.bulk_create_from_ror(new_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
+
+        # Update modified records
+        updated_records = ror_import.filter_updated_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
+        if updated_records:
+            try:
+                Location.objects.bulk_update_from_ror(updated_records)
+                Organization.objects.bulk_update_from_ror(updated_records)
+                Organization.objects.bulk_link_locations_from_ror(
+                    updated_records
+                )
+                OrganizationName.objects.bulk_update_from_ror(updated_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
+
+        if not new_records and not updated_records:
+            ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
+        else:
+            ror_import.status = ror_import.RORImportStatus.IS_SUCCESSFUL
+        ror_import.stopped = timezone.now()
+        ror_import.save()
+
+        num_errors_after = RORImportError.objects.count()
+        if num_errors_after > num_errors_before:
+            logger.warn(
+                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+            )
 
 
 def validate_ror_id(ror_id):
@@ -2121,7 +2514,7 @@ class Organization(models.Model):
         blank=True,
         max_length=10,
         validators=[validate_ror_id],
-        verbose_name='ROR',
+        verbose_name='ROR ID',
         help_text='Non-URI form of Research Organization Registry identifier',
     )
     ror_status = models.CharField(
@@ -2144,6 +2537,7 @@ class Organization(models.Model):
         blank=True,
         null=True,
     )
+    objects = OrganizationManager()
 
     class Meta:
         ordering = ['ror_display__value']
@@ -2291,133 +2685,6 @@ class Organization(models.Model):
             organization.locations.add(location)
 
         return organization, created
-
-    def deduplicate_to_ror_record(self):
-        """
-        Tries to merge with another organization that has ROR data,
-        if the custom label is an exact match with a preferred ROR label,
-        and if the country matches.
-        """
-        if self.ror_id:
-            logger.warning(
-                "Cannot deduplicate Organization {{self.id}}: ROR present"
-            )
-            return
-        if not self.custom_label:
-            logger.warning(
-                "Cannot deduplicate Organization {{self.id}}: No custom label"
-            )
-            return
-
-        if self.location:
-            matches = Organization.objects.filter(
-                labels__value=self.custom_label.value,
-                locations__country=self.location.country,
-            )
-        else:
-            matches = Organization.objects.filter(
-                labels=self.custom_label,
-            )
-        if matches.exists() and matches.count() == 1:
-            ControlledAffiliation.objects.filter(
-                organization=self,
-            ).update(
-                organization=matches.first(),
-            )
-            self.delete()
-
-    @classmethod
-    def create_from_ror_record(cls, record):
-        """
-        Creates one organization object in Janeway from a ROR JSON record,
-        using version 2 of the ROR Schema.
-        See https://ror.readme.io/v2/docs/data-structure
-        """
-        organization, created = cls.objects.get_or_create(
-            ror_id=os.path.split(record.get('id', ''))[-1],
-        )
-        organization.ror_status = record.get('status', cls.RORStatus.UNKNOWN)
-        last_modified = record.get("admin", {}).get("last_modified", {})
-        organization.ror_record_timestamp = last_modified.get("date", "")
-        for link in record.get('links', []):
-            if link.get('type') == 'website':
-                organization.website = link.get('value', '')
-                break
-        organization.save()
-
-        for name in record.get('names'):
-            kwargs = {}
-            kwargs['value'] = name.get('value', '')
-            lang_pt1 = name.get('lang', '')
-            if lang_pt1:
-                try:
-                    kwargs['language'] = Lang(lang_pt1).pt2t
-                except InvalidLanguageValue as e:
-                    logger.debug(e)
-            if 'ror_display' in name.get('types'):
-                kwargs['ror_display_for'] = organization
-            if 'label' in name.get('types'):
-                kwargs['label_for'] = organization
-            if 'alias' in name.get('types'):
-                kwargs['alias_for'] = organization
-            if 'acronym' in name.get('types'):
-                kwargs['acronym_for'] = organization
-            OrganizationName.objects.get_or_create(**kwargs)
-
-        for record_location in record.get('locations'):
-            geonames_id = record_location.get('geonames_id')
-            if geonames_id:
-                location, created = Location.objects.get_or_create(
-                    geonames_id=geonames_id,
-                )
-            else:
-                location = Location.objects.create()
-                created = True
-            if created:
-                details = record_location.get('geonames_details', {})
-                location.name = details.get('name', '')
-                country, created = Country.objects.get_or_create(
-                    code=details.get('country_code', ''),
-                )
-                location.country = country
-                location.save()
-            organization.locations.add(location)
-
-    @classmethod
-    def import_ror_batch(cls, ror_import, limit=0):
-        """
-        Opens a previously downloaded data dump from
-        ROR's Zenodo endpoint, processes the records,
-        and records errors for exceptions raised during creation.
-        https://ror.readme.io/v2/docs/data-dump
-        """
-        organizations = cls.objects.exclude(ror_id="")
-        num_errors_before = RORImportError.objects.count()
-        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
-            for file_info in zip_ref.infolist():
-                if file_info.filename.endswith('v2.json'):
-                    json_string = zip_ref.read(file_info).decode(encoding="utf-8")
-                    data = json.loads(json_string)
-                    data = ror_import.filter_new_records(data, organizations)
-                    if len(data) == 0:
-                        ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
-                    if limit:
-                        data = data[:limit]
-                    description = f"Importing {len(data)} ROR records"
-                    for item in tqdm.tqdm(data, desc=description):
-                        try:
-                            cls.create_from_ror_record(item)
-                        except Exception as error:
-                            message = f'{type(error)}: {error}\n{json.dumps(item)}'
-                            RORImportError.objects.create(
-                                ror_import=ror_import,
-                                message=message,
-                            )
-        num_errors_after = RORImportError.objects.count()
-        if num_errors_after > num_errors_before:
-            logger.warning(
-                f'ROR import errors logged: { num_errors_after - num_errors_before }'
-            )
 
 
 class ControlledAffiliation(models.Model):
@@ -2627,6 +2894,94 @@ class ControlledAffiliation(models.Model):
         super().save(*args, **kwargs)
 
 
+class LocationManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        """
+        Bulk creates location objects for which a matching Geonames ID
+        is not found in Janeway.
+        Guards against duplicate locations because the input
+        ror_records will only have been filtered
+        at the organization level, not the location level.
+        """
+        current_geonames_ids = set(
+            loc.geonames_id for loc in self.all() if loc.geonames_id
+        )
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        new_locations = []
+        logger.debug(
+            f"Importing locations"
+        )
+        for record in ror_records:
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if geonames_id and geonames_id not in current_geonames_ids:
+                    details = record_location.get('geonames_details', {})
+                    new_locations.append(
+                        Location(
+                            geonames_id=geonames_id,
+                            name=details.get('name', ''),
+                            country=countries_by_code.get(
+                                details.get('country_code', '')
+                            ),
+                        )
+                    )
+                    current_geonames_ids.add(geonames_id)
+        return Location.objects.bulk_create(new_locations)
+
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates location objects for which a matching Geonames ID
+        is found in Janeway.
+        Also handles new location objects by calling Location.bulk_create_from_ror;
+        this is needed when a ROR record has been modified by the addition of
+        new locations.
+        """
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in self.all() if loc.geonames_id
+        }
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        locations_to_update = []
+        ror_records_with_new_loc = []
+        fields_to_update = set()
+        logger.debug(
+            f"Updating locations"
+        )
+        for record in ror_records:
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if not geonames_id:
+                    break
+                if geonames_id in locations_by_geonames_id:
+                    details = record_location.get('geonames_details', {})
+                    location = locations_by_geonames_id[geonames_id]
+                    country = countries_by_code.get(
+                        details.get('country_code', '')
+                    )
+                    if location.name != details.get('name', ''):
+                        location.name = details.get('name', '')
+                        fields_to_update.add('name')
+                    if location.country != country:
+                        location.country = country
+                        fields_to_update.add('country')
+                    locations_to_update.append(location)
+                elif geonames_id not in locations_by_geonames_id:
+                    ror_records_with_new_loc.append(record)
+        if ror_records_with_new_loc:
+            Location.objects.bulk_create_from_ror(ror_records_with_new_loc)
+        if locations_to_update and fields_to_update:
+            return Location.objects.bulk_update(
+                locations_to_update,
+                fields_to_update,
+            )
+        else:
+            return []
+
+
 class Location(models.Model):
     name = models.CharField(
         max_length=200,
@@ -2643,6 +2998,7 @@ class Location(models.Model):
         blank=True,
         null=True,
     )
+    objects = LocationManager()
 
     def __str__(self):
         elements = [
