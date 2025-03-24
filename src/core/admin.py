@@ -403,10 +403,22 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('pk', 'ror_id', '_ror_display', '_custom_label',
                     'website', '_locations', 'ror_status')
     list_display_links = ('pk', 'ror_id')
-    list_filter = ('ror_status', 'locations__country')
+    list_filter = (
+        'ror_status',
+        admin_utils.ROROrgNameTypeFilter,
+        'locations__country',
+    )
     search_fields = ('pk', 'ror_display__value', 'custom_label__value', 'labels__value',
                      'aliases__value', 'acronyms__value', 'website', 'ror_id')
     raw_id_fields = ('locations', )
+
+    inlines = [
+        admin_utils.OrgRORDisplayInline,
+        admin_utils.OrgRORLabelInline,
+        admin_utils.OrgAliasInline,
+        admin_utils.OrgAcronymInline,
+        admin_utils.OrgCustomLabelInline,
+    ]
 
     def _ror_display(self, obj):
         return obj.ror_display if obj and obj.ror_display else ''
