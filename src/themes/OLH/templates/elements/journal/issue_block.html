@@ -2,16 +2,31 @@
 <div>
     {% regroup articles by section as grouped_articles %}
     {% for section, section_articles in grouped_articles %}
-        {# HeadingA11y Clash #} <h2 class="em">
-            {% if section.plural and section_articles|length >= 2 %}
-                {{ section.plural }}
-            {% else %}
-                {{ section.name }}
-            {% endif %}
-        </h2>
+        {% if level == "deep" %}
+            <h3 class="em">
+                {% if section.plural and section_articles|length >= 2 %}
+                    {{ section.plural }}
+                {% else %}
+                    {{ section.name }}
+                {% endif %}
+            </h3>
+        {% else %}
+            <h2 class="em">
+                {% if section.plural and section_articles|length >= 2 %}
+                    {{ section.plural }}
+                {% else %}
+                    {{ section.name }}
+                {% endif %}
+            </h2>
+        {% endif %}
+
         <hr>
         {% for article in section_articles %}
-            {% include "elements/journal/box_article.html" with article=article %}
+            {% if level == "deep" %}
+                {% include "elements/journal/box_article.html" with article=article level=level %}
+            {% else %}
+                {% include "elements/journal/box_article.html" with article=article level="shallow" %}
+            {% endif %}
         {% endfor %}
     {% endfor %}
 </div>

@@ -8,7 +8,11 @@
                          alt="{{ issue.display_title }}">
                     <div class="row column">
                         <figcaption class="orbit-caption">
-                            {# HeadingA11y Clash #} <h1>{{ issue.display_title }}</h1>
+                            {% if level == "deep" %}
+                                <h2>{{ issue.display_title }}</h2>
+                            {% else %}
+                                <h1>{{ issue.display_title }}</h1>
+                            {% endif %}
                         </figcaption>
                     </div>
                 </li>
@@ -17,7 +21,11 @@
         <br/>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
-        {# HeadingA11y Clash #} <h1 class="em">{{ issue.display_title }}</h1>
+        {% if level == "deep" %}
+            <h2 class="em">{{ issue.display_title }}</h2>
+        {% else %}
+            <h1 class="em">{{ issue.display_title }}</h1>
+        {% endif %}
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% endif %}
 
