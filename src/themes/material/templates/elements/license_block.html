@@ -6,7 +6,7 @@
                     {{ license }}
                     <i aria-hidden="true" class="fa fa-external-link">&nbsp;</i>
                 </a></strong>
-                <br/><span class="help-text">{{ license.text }}</span>
+                <br/><span class="help-text">{{ license.text|safe }}</span>
             </li>
         {% endif %}
     {% endfor %}
