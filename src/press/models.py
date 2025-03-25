@@ -11,7 +11,7 @@ import uuid
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
+from modeltranslation.utils import build_localized_fieldname
 from django.apps import apps
 
 from core import models as core_models
@@ -184,6 +184,37 @@ class Press(AbstractSiteModel):
         if filters:
             return journal_models.Journal.objects.filter(**filters)
         return journal_models.Journal.objects.all()
+
+    @property
+    def journals_by_sequence(self):
+        from journal import models as journal_models
+        return journal_models.Journal.objects.all().order_by('sequence')
+
+    @property
+    def journals_az(self):
+        """
+        Get the a queryset of journals, ordered A-Z by journal name.
+        Note that this does not support multilingual journal names:
+        more work is needed on django-modeltranslation to
+        support Django subqueries.
+        """
+        Journal = apps.get_model('journal', 'Journal')
+        localized_column = build_localized_fieldname(
+            "value",
+            settings.LANGUAGE_CODE
+        )
+        name = core_models.SettingValue.objects.filter(
+            journal=models.OuterRef("pk"),
+            setting__name="journal_name",
+        )
+        journals = Journal.objects.all().annotate(
+            journal_name=models.Subquery(
+                name.values_list(localized_column, flat=True)[:1],
+                output_field=models.CharField(),
+            )
+        )
+        ordered = journals.order_by('journal_name')
+        return ordered
 
     @staticmethod
     def users():
