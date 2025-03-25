@@ -4211,7 +4211,7 @@ class TestSecurity(TestCase):
         )
         pii_strings.append(article.correspondence_author.institution)
         pii_strings.append(article.correspondence_author.country)
-        return [string for string in pii_strings if string]
+        return [str(string) for string in pii_strings if string]
 
     @classmethod
     def setUpTestData(self):

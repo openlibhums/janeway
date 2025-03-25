@@ -476,7 +476,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def country(self):
         affil = self.primary_affiliation()
         organization = affil.organization if affil else None
-        return str(organization.country) if organization else None
+        return organization.country if organization else None
 
     @country.setter
     def country(self, value):
