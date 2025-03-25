@@ -245,6 +245,7 @@ class TestLogic(TestCase):
             'license': '',
             'first_page': self.article_published.first_page,
             'last_page': self.article_published.last_page,
+            'other_pages': None,
             'scheduled': True,
         }
 
@@ -270,6 +271,7 @@ class TestLogic(TestCase):
             ).first().url,
             'first_page': self.article_one.first_page,
             'last_page': self.article_one.last_page,
+            'other_pages': None,
             'scheduled': False,
         }
 

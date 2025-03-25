@@ -415,7 +415,9 @@ class TestTypesetting(TestCase):
             title="A Test Article",
             abstract="An abstract",
             stage=submission_models.STAGE_TYPESETTING_PLUGIN,
-            journal_id=self.journal_one.id
+            journal_id=self.journal_one.id,
+            first_page=28,
+            last_page=64,
         )
 
         self.private_file = core_models.File.objects.create(
@@ -458,7 +460,6 @@ class TestTypesetting(TestCase):
         self.test_file_name = 'test_galley.xml'
         self.test_file_path = os.path.join(
             settings.BASE_DIR,
-            'plugins',
             'typesetting',
             self.test_file_name,
         )

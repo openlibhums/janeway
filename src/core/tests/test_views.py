@@ -6,13 +6,13 @@ __maintainer__ = "Open Library of Humanities"
 from mock import patch
 from uuid import uuid4
 
+from django.urls.base import clear_script_prefix
 from django.test import Client, TestCase, override_settings
-
-from utils.testing import helpers
-from utils import orcid
 
 from core import models as core_models
 from core import views as core_views
+from utils import orcid
+from utils.testing import helpers
 
 
 class CoreViewTestsWithData(TestCase):
@@ -83,6 +83,7 @@ class CoreViewTestsWithData(TestCase):
         cls.core_login_with_next = '/login/?next=/target/page/%3Fa%3Db%26x%3Dy'
 
     def setUp(self):
+        clear_script_prefix()
         self.client = Client()
 
 
