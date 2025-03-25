@@ -263,8 +263,8 @@
                         </li>
                     {% endif %}
                     {% if article.license %}
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
-                                                 title="{{ article.license.text }}">{{ article.license.name }}</a></li>{% endif %}
+                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
+                                                 title="{{ article.license.text|safe }}">{{ article.license.name }}</a></li>{% endif %}
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>
                             <a href="#" data-toggle="modal"
@@ -397,4 +397,5 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "clean/js/tooltip-init.js" %}"></script>
 {% endblock js %}

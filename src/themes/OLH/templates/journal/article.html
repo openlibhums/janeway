@@ -323,7 +323,7 @@
                                         <div class="large-6 columns" data-equalizer-watch>
                                         {% endif %}
                                             <p>{% trans "License" %}</p>
-                                            <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><p>{{ article.license.name }}</p></a>
+                                            <a class="has-tip scroll-link" rel="license" data-allow-html="true" id="license" title="{{ article.license.text|safe }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><p>{{ article.license.name }}</p></a>
                                         </div>
                                     </div>
                                 </div>
