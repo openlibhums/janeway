@@ -24,7 +24,7 @@
                     <h2>{% trans "Publications" %}</h2>
                     <hr />
                     {% for article in user.published_articles %}
-                        {% include "elements/article_listing.html" with article=article %}
+                        {% include "elements/article_listing.html" with article=article level="deep" %}
                         <hr />
                     {% endfor %}
                 {% endif %}
