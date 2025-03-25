@@ -1,7 +1,11 @@
 {% load i18n %}
 
 {% if issue.large_image %}
-    <h1 class="sr-only">{{ issue.display_title }}</h1>
+    {% if level == "issuepage" %}
+        <h1 class="sr-only">{{ issue.display_title }}</h1>
+    {% else %}
+        <h2 class="sr-only">{{ issue.display_title }}</h2>
+    {% endif %}
     <div class="card">
         <div class="card-image">
             <a href="{{ issue.url }}">
@@ -24,7 +28,11 @@
         {% endif %}
     </div>
 {% else %}
-    <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+    {% if level == "issuepage" %}
+        <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+    {% else %}
+        <h2 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
+    {% endif %}
     {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
 {% endif %}
 
@@ -32,5 +40,5 @@
 <p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
 {% endif %}
 
-{% include "common/elements/guest_editors.html" %}
+{% include "common/elements/guest_editors.html" with level=level %}
 <br/>

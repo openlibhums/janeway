@@ -1,7 +1,11 @@
 {% if issue.editors.all %}
     <p>
     {% if small %}<small>{% endif %}
-        <h2>Editors: </h2>
+        {% if level == "issuepage" %}
+            <h2>Editors: </h2>
+        {% else %}
+            <h3>Editors: </h3>
+        {% endif %}
         {% for editor in issue.issueeditor_set.all %}{{ editor.account.full_name }} ({{ editor.role }}){% if not forloop.last %}, {% endif %}{% endfor %}
     {% if small %}</small>{% endif %}
     </p>

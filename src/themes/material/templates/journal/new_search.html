@@ -19,7 +19,7 @@
             <div class="col m8">
                 <h2>{% trans "Articles" %}</h2>
                 {% for article in articles %}
-                    {% include "elements/article_listing.html" with article=article %}
+                    {% include "elements/article_listing.html" with article=article level="deep" %}
                     {% empty %}
                     <p>{% trans "No articles to display." %}</p>
                 {% endfor %}
