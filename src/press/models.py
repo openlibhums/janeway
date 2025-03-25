@@ -186,11 +186,6 @@ class Press(AbstractSiteModel):
         return journal_models.Journal.objects.all()
 
     @property
-    def journals_by_sequence(self):
-        from journal import models as journal_models
-        return journal_models.Journal.objects.all().order_by('sequence')
-
-    @property
     def journals_az(self):
         """
         Get the a queryset of journals, ordered A-Z by journal name.
