@@ -6,8 +6,7 @@
 {% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
 {% block title %}
-  {{ article.title|striptags }} |
-  {{ journal_settings.general.journal_name|striptags }}
+  {% include "common/elements/journal/article_title.html" %}
 {% endblock %}
 
 {% block head %}

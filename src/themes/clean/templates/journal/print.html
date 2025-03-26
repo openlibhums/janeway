@@ -2,10 +2,10 @@
 {% load hooks %}
 {% load i18n %}
 <html>
-<title>{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }}
-    |{{ journal_settings.general.journal_name | striptags }} </title>
-
 <head>
+  <title>
+    {% include "common/elements/journal/article_title.html" %}
+  </title>
     {% include "elements/article_meta_tags.html" %}
 </head>
 <body>
