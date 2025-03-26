@@ -3,8 +3,10 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block title %}{{ article.frozen_authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
-    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+{% block title %}
+  {{ article.title | striptags }} |
+  {{ journal_settings.general.journal_name | striptags }}
+{% endblock %}
 
 {% block head %}
     <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />

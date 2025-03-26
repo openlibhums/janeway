@@ -5,8 +5,10 @@
 
 {% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
-{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
-    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+{% block title %}
+  {{ article.title|striptags }} |
+  {{ journal_settings.general.journal_name|striptags }}
+{% endblock %}
 
 {% block head %}
     <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
