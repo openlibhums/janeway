@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytz
 from django.utils import timezone
@@ -35,7 +35,14 @@ class TestFqdn(TestCase):
         self.assertEqual(url, f'http://{self.journal_two.press.domain}/{self.journal_two.code}/user/all/')
 
 
-@freeze_time("2025-03-26 12:00:00")
+ny_tz = pytz.timezone("America/New_York")
+frozen_dt = timezone.make_aware(
+    datetime(2025, 3, 26, 12, 0, 0),
+    timezone=ny_tz,
+)
+
+
+@freeze_time(frozen_dt)
 class TestOffsetDateTag(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -63,7 +70,7 @@ class TestOffsetDateTag(TestCase):
             days=2,
             input_type="datetime-local",
         )
-        expected = "2025-03-28T12:00"
+        expected = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
         self.assertEqual(result, expected)
 
     def test_offset_date_with_preferred_timezone_datetime(self):
@@ -71,13 +78,15 @@ class TestOffsetDateTag(TestCase):
         Test offset_date tag with a valid preferred timezone and datetime-local input.
         """
         context = {"request": self.request_tz}
-        # 12:00 UTC is 12:00 GMT in March (not in daylight saving yet)
+        london = pytz.timezone("Europe/London")
+        expected_due = timezone.now().astimezone(london) + timedelta(days=1)
+        expected = expected_due.strftime("%Y-%m-%dT%H:%M")
+
         result = dates.offset_date(
             context,
             days=1,
             input_type="datetime-local",
         )
-        expected = "2025-03-27T12:00"
         self.assertEqual(result, expected)
 
     def test_offset_date_with_invalid_timezone_datetime(self):
@@ -86,12 +95,13 @@ class TestOffsetDateTag(TestCase):
         Should fall back to default timezone.
         """
         context = {"request": self.request_bad_tz}
+        expected = (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+
         result = dates.offset_date(
             context,
             days=1,
             input_type="datetime-local",
         )
-        expected = "2025-03-27T12:00"
         self.assertEqual(result, expected)
 
     def test_offset_date_with_default_timezone_date(self):
@@ -99,10 +109,11 @@ class TestOffsetDateTag(TestCase):
         Test offset_date tag with default timezone and date input.
         """
         context = {"request": self.request_default}
+        expected = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+
         result = dates.offset_date(
             context,
             days=2,
             input_type="date",
         )
-        expected = "2025-03-28"
         self.assertEqual(result, expected)
