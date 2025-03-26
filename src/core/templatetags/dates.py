@@ -26,18 +26,19 @@ def offset_date(context, days=0, input_type="date"):
       value="{% offset_date days=3 input_type=input_type %}">
 
     See admin.core.widgets.soon_date_buttons for a use case.
-
     """
     request = context.get("request", None)
     now = timezone.now()
 
     if request and hasattr(request, "user"):
-        tz_name = request.user.preferred_timezone
-
+        tz_name = request.user.preferred_timezone  # always present, may be ''
         if tz_name:
             try:
                 tz = pytz.timezone(tz_name)
-                now = now.astimezone(tz)
+                if timezone.is_naive(now):
+                    now = timezone.make_aware(now, timezone=tz)
+                else:
+                    now = now.astimezone(tz)
             except pytz.UnknownTimeZoneError:
                 pass
 
