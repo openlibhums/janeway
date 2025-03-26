@@ -15,7 +15,7 @@ def offset_date(context, days=0, input_type="date"):
     with an offset of X days.
     :param context: template context, needed to access request.user
     :param days: number of days from now that the date should be set
-    :param input_type: 'date' or 'datetime-local'
+    :param input_type: date or datetime-local
 
     Usage:
 
