@@ -26,4 +26,8 @@ class Migration(migrations.Migration):
             model_name='account',
             name='institution',
         ),
+        migrations.RemoveField(
+            model_name='organization',
+            name='migration_id',
+        ),
     ]

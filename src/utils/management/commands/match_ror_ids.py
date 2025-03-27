@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from datetime import timedelta
+
 from utils.models import RORImport
-from core.models import ControlledAffiliation, Organization
+from core.models import Organization
 from utils.logger import get_logger
 from django.utils import timezone
-from datetime import timedelta
 
 
 logger = get_logger(__name__)
@@ -13,12 +14,18 @@ logger = get_logger(__name__)
 
 class Command(BaseCommand):
     """
-    Matches organization records with ROR data.
+    Matches organization names and countries with ROR data.
     """
 
     help = "Matches organization records with ROR data."
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--limit",
+            help="The cap on the number of organizations to deduplicate.",
+            default=0,
+            type=int,
+        )
         parser.add_argument(
             '--ignore_missing_import',
             help='Run the match even if no ROR import is found',
@@ -27,7 +34,7 @@ class Command(BaseCommand):
         return super().add_arguments(parser)
 
     def handle(self, *args, **options):
-
+        limit = options.get("limit", 0)
         ror_import = RORImport.objects.filter(
             started__gte=timezone.now() - timedelta(days=90)
         ).exists()
@@ -39,6 +46,4 @@ class Command(BaseCommand):
                 "or pass --ignore_missing_import."
             )
             return
-        uncontrolled_organizations = Organization.objects.filter(ror_id='')
-        for organization in uncontrolled_organizations:
-            organization.deduplicate_to_ror_record()
+        Organization.objects.all().deduplicate_to_ror(limit=limit)

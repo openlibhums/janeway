@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve, Andy Byers, Mauro Sanchez and Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck, University of London"
 
+from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
@@ -308,6 +309,58 @@ class ControlledAffiliationInline(admin.TabularInline):
     extra = 0
     fields = ('title', 'department', 'organization',
               'is_primary', 'start', 'end')
+    raw_id_fields = ('organization', )
+
+
+class OrgRORDisplayInline(admin.TabularInline):
+    model = core_models.OrganizationName
+    fk_name = 'ror_display_for'
+    verbose_name = "ROR display"
+    extra = 0
+    fields = ('value', 'language')
+    readonly_fields = ('value', 'language')
+    can_delete = False
+
+
+class OrgRORLabelInline(admin.TabularInline):
+    model = core_models.OrganizationName
+    fk_name = 'label_for'
+    verbose_name = "ROR label"
+    verbose_name_plural = "ROR labels"
+    extra = 0
+    fields = ('value', 'language')
+    readonly_fields = ('value', 'language')
+    can_delete = False
+
+
+class OrgAliasInline(admin.TabularInline):
+    model = core_models.OrganizationName
+    fk_name = 'alias_for'
+    verbose_name = "ROR alias"
+    verbose_name_plural = "ROR aliases"
+    extra = 0
+    fields = ('value', 'language')
+    readonly_fields = ('value', 'language')
+    can_delete = False
+
+
+class OrgAcronymInline(admin.TabularInline):
+    model = core_models.OrganizationName
+    fk_name = 'acronym_for'
+    verbose_name = "ROR acronym"
+    verbose_name_plural = "ROR acronyms"
+    extra = 0
+    fields = ('value', 'language')
+    readonly_fields = ('value', 'language')
+    can_delete = False
+
+
+class OrgCustomLabelInline(admin.TabularInline):
+    model = core_models.OrganizationName
+    fk_name = 'custom_label_for'
+    verbose_name = "Custom label"
+    extra = 0
+    fields = ('value', 'language')
 
 
 class JournalFilterBase(admin.SimpleListFilter):
@@ -477,3 +530,29 @@ class GenericRelationPreprintRepositoryFilter(admin.SimpleListFilter):
             object_id__in=[preprint.pk for preprint in preprints],
             content_type=content_type,
         )
+
+
+class ROROrgNameTypeFilter(admin.SimpleListFilter):
+    """
+    A filter for identifying the type of name
+    of OrganizationName objects, according to the ROR schema.
+    """
+
+    title = 'ROR name data'
+    parameter_name = 'ror_name_data'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('ror_display', 'Has ROR display'),
+            ('labels', 'Has ROR label'),
+            ('aliases', 'Has ROR alias'),
+            ('acronyms', 'Has ROR acronym'),
+            ('custom_label', 'Has Janeway custom label'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            return queryset.filter(~Q((value, None)))
+        else:
+            return queryset

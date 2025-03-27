@@ -1220,8 +1220,8 @@ class TestMigrationUtils(TestCase):
 
 class TestORCiDRecord(TestCase):
 
-    all_fields = {'orcid-identifier': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'preferences': {'locale': 'EN'}, 'history': {'creation-method': 'DIRECT', 'completion-date': None, 'submission-date': {'value': 1716899022299}, 'last-modified-date': {'value': 1717012729950}, 'claimed': True, 'source': None, 'deactivation-date': None, 'verified-email': True, 'verified-primary-email': True}, 'person': {'last-modified-date': {'value': 1717012710380}, 'name': {'created-date': {'value': 1716899022606}, 'last-modified-date': {'value': 1716931428927}, 'given-names': {'value': 'cdleschol'}, 'family-name': {'value': 'arship'}, 'credit-name': None, 'source': None, 'visibility': 'PUBLIC', 'path': '0000-0000-0000-0000'}, 'other-names': {'last-modified-date': None, 'other-name': [], 'path': '/0000-0000-0000-0000/other-names'}, 'biography': None, 'researcher-urls': {'last-modified-date': None, 'researcher-url': [], 'path': '/0000-0000-0000-0000/researcher-urls'}, 'emails': {'last-modified-date': {'value': 1717012710380}, 'email': [{'created-date': {'value': 1716899022599}, 'last-modified-date': {'value': 1717012710380}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'email': 'cdleschol@mailinator.com', 'path': None, 'visibility': 'PUBLIC', 'verified': True, 'primary': True, 'put-code': None}], 'path': '/0000-0000-0000-0000/email'}, 'addresses': {'last-modified-date': {'value': 1716931402191}, 'address': [{'created-date': {'value': 1716931402191}, 'last-modified-date': {'value': 1716931402191}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'country': {'value': 'US'}, 'visibility': 'PUBLIC', 'path': '/0000-0000-0000-0000/address/7884', 'put-code': 7884, 'display-index': 1}], 'path': '/0000-0000-0000-0000/address'}, 'keywords': {'last-modified-date': None, 'keyword': [], 'path': '/0000-0000-0000-0000/keywords'}, 'external-identifiers': {'last-modified-date': None, 'external-identifier': [], 'path': '/0000-0000-0000-0000/external-identifiers'}, 'path': '/0000-0000-0000-0000/person'}, 'activities-summary': {'last-modified-date': {'value': 1716931455651}, 'educations': {'last-modified-date': None, 'education-summary': [], 'path': '/0000-0000-0000-0000/educations'}, 'employments': {'last-modified-date': {'value': 1716931455651}, 'employment-summary': [{'created-date': {'value': 1716931455651}, 'last-modified-date': {'value': 1716931455651}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'department-name': None, 'role-title': None, 'start-date': None, 'end-date': None, 'organization': {'name': 'California Digital Library', 'address': {'city': 'Oakland', 'region': 'California', 'country': 'US'}, 'disambiguated-organization': {'disambiguated-organization-identifier': 'https://ror.org/03yrm5c26', 'disambiguation-source': 'ROR'}}, 'visibility': 'PUBLIC', 'put-code': 66225, 'path': '/0000-0000-0000-0000/employment/66225'}], 'path': '/0000-0000-0000-0000/employments'}, 'fundings': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/fundings'}, 'peer-reviews': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/peer-reviews'}, 'works': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/works'}, 'path': '/0000-0000-0000-0000/activities'}, 'path': '/0000-0000-0000-0000'}
-    min_fields = {'orcid-identifier': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'preferences': {'locale': 'EN'}, 'history': {'creation-method': 'DIRECT', 'completion-date': None, 'submission-date': {'value': 1716899022299}, 'last-modified-date': {'value': 1717012843372}, 'claimed': True, 'source': None, 'deactivation-date': None, 'verified-email': True, 'verified-primary-email': True}, 'person': {'last-modified-date': None, 'name': None, 'other-names': {'last-modified-date': None, 'other-name': [], 'path': '/0000-0000-0000-0000/other-names'}, 'biography': None, 'researcher-urls': {'last-modified-date': None, 'researcher-url': [], 'path': '/0000-0000-0000-0000/researcher-urls'}, 'emails': {'last-modified-date': None, 'email': [], 'path': '/0000-0000-0000-0000/email'}, 'addresses': {'last-modified-date': None, 'address': [], 'path': '/0000-0000-0000-0000/address'}, 'keywords': {'last-modified-date': None, 'keyword': [], 'path': '/0000-0000-0000-0000/keywords'}, 'external-identifiers': {'last-modified-date': None, 'external-identifier': [], 'path': '/0000-0000-0000-0000/external-identifiers'}, 'path': '/0000-0000-0000-0000/person'}, 'activities-summary': {'last-modified-date': None, 'educations': {'last-modified-date': None, 'education-summary': [], 'path': '/0000-0000-0000-0000/educations'}, 'employments': {'last-modified-date': None, 'employment-summary': [], 'path': '/0000-0000-0000-0000/employments'}, 'fundings': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/fundings'}, 'peer-reviews': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/peer-reviews'}, 'works': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/works'}, 'path': '/0000-0000-0000-0000/activities'}, 'path': '/0000-0000-0000-0000'}
+    all_fields = helpers.get_orcid_record_all_fields()
+    min_fields = helpers.get_orcid_record_min_fields()
 
     @mock.patch('utils.orcid.get_orcid_record', return_value=all_fields)
     def test_record_details_all(self, mock_record):
@@ -1337,3 +1337,38 @@ class URLLogicTests(TestCase):
         )
         expected = {'next': [self.next_url_raw], 'action':['register']}
         self.assertDictEqual(result, expected)
+
+
+class TestRORImport(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ror_records = helpers.get_ror_records()
+
+    def test_filter_new_records(self):
+        existing_rors = {
+            "00j1xwp39": "2013-12-10",
+        }
+        new_records = models.RORImport.filter_new_records(
+            self.ror_records,
+            existing_rors,
+        )
+        self.assertListEqual(
+            [os.path.split(record.get('id'))[-1] for record in new_records],
+            ["013yz9b19", "035dkdb55"]
+        )
+
+    def test_filter_updated_records(self):
+        existing_rors = {
+            "00j1xwp39": "2013-12-10",
+            "013yz9b19": "2024-12-10",
+            "035dkdb55": "2024-12-12",
+        }
+        updated_records = models.RORImport.filter_updated_records(
+            self.ror_records,
+            existing_rors,
+        )
+        self.assertListEqual(
+            [os.path.split(record.get('id'))[-1] for record in updated_records],
+            ["00j1xwp39", "013yz9b19"]
+        )
