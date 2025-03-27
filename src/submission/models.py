@@ -2087,13 +2087,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def country(self):
         affil = self.primary_affiliation()
         organization = affil.organization if affil else None
-        return str(organization.country) if organization else None
+        return organization.country if organization else None
 
     @country.setter
     def country(self, value):
         core_models.ControlledAffiliation.get_or_create_without_ror(
             country=value,
-            frozen_author=self
+            frozen_author=self,
         )
 
     def credits(self):
