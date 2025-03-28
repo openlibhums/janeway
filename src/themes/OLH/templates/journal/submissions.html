@@ -39,21 +39,21 @@
                     <a href="{% url 'submission_start' %}" class="button">{% trans 'Start Submission' %}</a>{% endif %}
                 </div>
                 {% endif %}
-                <hr />
+                <hr aria-hidden="true" />
 
                 {% for item in submission_items %}
                     {% if item.title == 'licences' %}
                         <h2>{% trans 'Licences' %}</h2>
                         <p>{% trans "The following licences are allowed:" %}</p>
                         {% include "elements/license_block.html" %}
-                        <hr />
+                        <hr aria-hidden="true" />
                     {% elif item.title == 'sections' %}
                         {% include "elements/section_block.html" %}
                     {% elif item.get_display_text %}
                         <h2>{{ item.title|capfirst }}</h2>
                         {{ item.get_display_text|safe }}
                     {% endif %}
-                    <hr />
+                    <hr aria-hidden="true" />
                 {% endfor %}
 
             </div>

@@ -21,7 +21,7 @@
 
     <div class="row">
         <div class="columns large-8">
-            <hr />
+            <hr aria-hidden="true" />
             {% for article in articles %}
                 {% include "elements/journal/box_article.html" with article=article %}
             {% empty %}

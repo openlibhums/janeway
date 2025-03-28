@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-md-12">
             <h1>{{ news_item.title|safe }}</h1>
-            <hr/>
+            <hr aria-hidden="true" />
         </div>
         <div class="col-md-12">
             <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
