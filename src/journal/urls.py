@@ -160,6 +160,11 @@ urlpatterns = [
         name='manage_archive',
     ),
     re_path(
+        r'^manage/archive/processed/$',
+        views.processed_article_archive,
+        name='manage_processed',
+    ),
+    re_path(
         r'^manage/archive/rejected-archived/$',
         views.rejected_archived_article_archive,
         name='manage_rejected_archived_archive',
