@@ -16,16 +16,16 @@
             <div class="col-md-9">
                 {% if user.biography %}
                     <h2>{% trans "Biography" %}</h2>
-                    <hr />
+                    <hr aria-hidden="true" />
                     {{ user.biography|safe }}
                     <br/><br/>
                 {% endif %}
                 {% if user.published_articles %}
                     <h2>{% trans "Publications" %}</h2>
-                    <hr />
+                    <hr aria-hidden="true" />
                     {% for article in user.published_articles %}
                         {% include "elements/article_listing.html" with article=article level="shallow" %}
-                        <hr />
+                        <hr aria-hidden="true" />
                     {% endfor %}
                 {% endif %}
             </div>
