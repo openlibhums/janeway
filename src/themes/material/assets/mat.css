@@ -293,9 +293,9 @@ a:hover .article-title {
     list-style-type: disc;
 }
 
-.toc-card {
-    position: fixed !important;
-    top: 1%;
+.toc-sticky{
+    position: sticky;
+    top: 0;
 }
 
 .wide-button {
@@ -759,4 +759,17 @@ main {
     height: 40px;
     padding: 0 10px;
     min-width: 40px;
+}
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
+
+.metrics {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 110%;
 }

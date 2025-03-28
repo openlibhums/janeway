@@ -1,9 +1,9 @@
 {% load static %}
 {% load i18n %}
 
-<section>
+<section aria-labelledby="featured-articles-title">
     <div class="row column text-center">
-        <h2 class="title">{% trans 'Featured Articles' %}</h2>
+        <h2 class="title" id="featured-articles-title">{% trans 'Featured Articles' %}</h2>
     </div>
     <div class="row" data-equalizer data-equalize-on="medium">
         {% for fa in featured_articles %}
@@ -29,8 +29,8 @@
                     {% endif %}
 
                     <div class="content">
-                        <p>{{ fa.article.author_list }}</p>
-                        <p><strong>{{ fa.article.title|safe|truncatechars:200 }}</strong></p>
+                        <p class="byline">{{ fa.article.author_list }}</p>
+                        <h3>{{ fa.article.title|safe|truncatechars:200 }}</h3>
                     </div>
                 </div>
             </div>
