@@ -20,7 +20,7 @@
             </h2>
         {% endif %}
 
-        <hr>
+        <hr aria-hidden="true" />
         {% for article in section_articles %}
             {% if level == "deep" %}
                 {% include "elements/journal/box_article.html" with article=article level=level %}
