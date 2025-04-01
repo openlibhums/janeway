@@ -2,6 +2,7 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title|striptags }}{% endblock title %}
 
@@ -28,7 +29,7 @@
                     {% if not news_item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
                         <h2 class="no-top-margin">{{ news_item.title|safe }}</h2>
                     {% endif %}
-                    <h6><em>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>
+                    <h6><em>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</em>
                     </h6>
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}

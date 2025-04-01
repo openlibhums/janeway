@@ -1,4 +1,5 @@
 {% load truncate %}
+{% load dates %}
 
 {% for preprint in preprints %}
     <div class="card">
@@ -10,7 +11,7 @@
             </h2>
             <p class="authors card-text">{{ preprint.display_authors_compact }}</p>
             <p class="info">
-                <strong>Published</strong>: {{ preprint.date_published|date:"Y-m-d" }}
+                <strong>Published</strong>: {{ preprint.date_published|date_human }}
                 <br />
                 {% if preprint.subject.exists %}<strong>Subjects</strong>: {% include "common/repository/subject_display.html" %}{% endif %}
             </p>

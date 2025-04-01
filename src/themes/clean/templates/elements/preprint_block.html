@@ -1,3 +1,4 @@
+{% load dates %}
 
 {% for preprint in preprints %}
 
@@ -15,7 +16,7 @@
                     <p>
                         <small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
                             <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
-                                <span role="time"> {{ preprint.date_published|date:"Y-m-d" }}</span>
+                                <span role="time"> {{ preprint.date_published|date_human }}</span>
                             </time>
                         </small>
                     </p>
