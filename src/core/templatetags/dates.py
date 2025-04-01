@@ -1,5 +1,5 @@
 from django import template
-from django.utils import timezone
+from django.utils import timezone, formats
 from django.utils.translation import gettext as _
 from datetime import datetime
 
@@ -32,8 +32,11 @@ def offset_date(days=0, input_type="date"):
 
 @register.filter(name='date_human', is_safe=True)
 def date_human(value):
-    """Convert a date to a human readable Day Month(text) Year format e.g. 3rd January 2025"""
+    """Convert a date to a human readable Day Month(text) Year format e.g. 3 January 2025"""
     if isinstance(value, datetime):
-        # Translators: this creates a human readable date e.g., "14 March 2024"
-        return _('%(day)s %(month)s %(year)s.') % {'day': value.strftime('%d'), 'month': value.strftime('%B'), 'year':value.strftime('%Y'), }
+        return formats.date_format(
+            value,
+            format="j F Y",
+            use_l10n=True,
+        )
     return value
