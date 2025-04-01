@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load dates %}
 
 
 <div class="card-panel">
@@ -29,7 +30,7 @@
                 <span class="date">
                     <i aria-hidden="true" class="fa fa-calendar"></i>
                     <time datetime='{{ article.date_published|date:"Y-m-d"}}'>
-                        <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                        <span role="time">{{ article.date_published|date_human }}</span>
                     </time>
                 </span>
 
