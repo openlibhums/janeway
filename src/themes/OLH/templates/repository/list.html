@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load truncate %}
+{% load dates %}
 
 
 {% block title %}{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}
@@ -36,7 +37,7 @@
                                 <p><span class="date">
                                     <i aria-hidden="true" class="fa fa-calendar"></i>
                                     <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
-                                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
+                                        <span role="time">{{ preprint.date_published|date_human }}</span>
                                     </time>&nbsp;&nbsp;
                                     <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
                                 <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>

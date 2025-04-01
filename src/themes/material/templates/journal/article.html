@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load files %}
+{% load dates %}
 
 {% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
@@ -345,20 +346,20 @@
                             {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                                 <tr>
                                     <th scope="row" >{% trans "Submitted on" %}</th>
-                                    <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
+                                    <td>{{ article.date_submitted|date_human }}</td>
                                 </tr>
                             {% endif %}
                             {% if journal_settings.article.display_date_accepted and article.date_accepted %}
                                 <tr>
                                     <th scope="row" >{% trans "Accepted on" %}</th>
-                                    <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
+                                    <td>{{ article.date_accepted|date_human }}</td>
                                 </tr>
                             {% endif %}
                             {% if article.date_published or proofing %}
                             <tr>
                                 <th scope="row" >{% trans "Published on" %}</th>
                                 <td id="article_date_published">
-                                    {{ article.date_published|date:"Y-m-d" }}
+                                    {{ article.date_published|date_human }}
                                 </td>
                             </tr>
                             {% endif %}
