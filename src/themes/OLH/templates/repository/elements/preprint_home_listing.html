@@ -1,3 +1,5 @@
+{% load dates %}
+
 <div class="row" data-equalizer data-equalize-on="medium">
     {% for preprint in preprints %}
         <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
@@ -7,7 +9,7 @@
                 <p><small>{{ preprint.display_authors_compact }}</small></p>
                 <p><small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
                     <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
-                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
+                        <span role="time">{{ preprint.date_published|date_human }}</span>
                     </time>
                 </small></p>
             </div>

@@ -2,6 +2,7 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load dates %}
 
 {% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
 {% block title %}{% trans issue_type.plural_name  %}{% endblock %}
@@ -26,7 +27,7 @@
                             >
                             <div class="content">
                                 <p>{% trans 'Collection' %}<br/>
-                                    <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>
+                                    <small>{% trans "Published" %}: {{ collection.date|date_human }}</small>
                                 </p>
                                 <h2>{{ collection.issue_title }}</h2>
                                 {% if collection.short_description %}

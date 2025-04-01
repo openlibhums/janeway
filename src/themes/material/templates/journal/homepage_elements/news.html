@@ -2,6 +2,7 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 <section>
     <div class="row">
@@ -29,7 +30,7 @@
 
                         <span class="card-title">{{ item.title|safe }}</span>
                         <h6>{{ item.byline }} on
-                            {{ item.posted|date:"Y-m-d" }}</h6>
+                            {{ item.posted|date_human }}</h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
 
                     </div>

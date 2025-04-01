@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{% trans "News" %}{% endblock title %}
 
@@ -18,7 +19,7 @@
                         <span class="card-title news-card-title">{{ item.title }}</span>
                     </div>
                     <div class="card-content">
-                        <h6><em>{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <h6><em>{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human }}</em></h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>
                     <div class="card-action">

@@ -2,6 +2,7 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}
   {% include "common/elements/journal/article_title.html" %}
@@ -187,17 +188,17 @@
                 <ul>
                     {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                         <li>
-                            {% trans "Submitted on" %} {{ article.date_submitted|date:"Y-m-d" }}
+                            {% trans "Submitted on" %} {{ article.date_submitted|date_human }}
                         </li>
                     {% endif %}
                     {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
                         <li>
-                            {% trans "Accepted on" %} {{ article.date_accepted|date:"Y-m-d" }}
+                            {% trans "Accepted on" %} {{ article.date_accepted|date_human }}
                         </li>
                     {% endif %}
                     {% if article.is_published or proofing %}
                         <li id="article_date_published">
-                            {% trans "Published on" %} {{ article.date_published|date:"Y-m-d" }}
+                            {% trans "Published on" %} {{ article.date_published|date_human }}
                         </li>
                     {% endif %}
                     {% if article.page_range %}

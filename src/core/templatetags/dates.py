@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytz
 from django import template
 from django.utils import timezone
-
+from datetime import datetime
 
 register = template.Library()
 
@@ -48,3 +48,10 @@ def offset_date(context, days=0, input_type="date"):
         return due.strftime("%Y-%m-%d")
     elif input_type == "datetime-local":
         return due.strftime("%Y-%m-%dT%H:%M")
+
+@register.filter(name='date_human', is_safe=True)
+def date_human(value):
+    """Convert a date to a human readable Day Month(text) Year format e.g. 3rd January 2025"""
+    if isinstance(value, datetime):
+        return value.strftime('%d %B %Y')  # e.g., "14 March 2024"
+    return value
