@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load foundation %}
+{% load dates %}
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
@@ -124,8 +125,8 @@
                     {% endif %}
                     <h2>{% trans "Metadata" %}</h2>
                     <ul>
-                        <li>{% trans "Published" %}: {{ preprint.date_published|date:"Y-m-d" }}</li>
-                        <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date:"Y-m-d" }}</li>
+                        <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
+                        <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
                           {% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
                                                      title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
@@ -144,7 +145,7 @@
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
                                 <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                 <span class="sr-only">{% trans 'Download' %}</span>
-                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}
                             </a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
