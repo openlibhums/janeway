@@ -1768,23 +1768,24 @@ def editorial_team(request):
         )
         edit_form = forms.GeneratedSettingForm(settings=settings)
         if request.POST:
-            edit_form = forms.GeneratedSettingForm(
-                request.POST,
-                settings=settings,
-            )
+            if 'save' in request.POST:
+                edit_form = forms.GeneratedSettingForm(
+                    request.POST,
+                    settings=settings,
+                )
 
-            if edit_form.is_valid():
-                edit_form.save(
-                    group=setting_group,
-                    journal=request.journal,
-                )
-                # clear cache to ensure changes display immediately
-                clear_cache()
-                return language_override_redirect(
-                    request,
-                    'core_editorial_team',
-                    kwargs={},
-                )
+                if edit_form.is_valid():
+                    edit_form.save(
+                        group=setting_group,
+                        journal=request.journal,
+                    )
+                    # clear cache to ensure changes display immediately
+                    clear_cache()
+                    return language_override_redirect(
+                        request,
+                        'core_editorial_team',
+                        kwargs={},
+                    )
 
         if 'delete' in request.POST:
             delete_id = request.POST.get('delete')
