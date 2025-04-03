@@ -207,7 +207,7 @@ LANGUAGE_CHOICES = (
     (u'den', u'Slave (Athapascan)'), (u'sla', u'Slavic languages'), (u'slk', u'Slovak'), (u'slv', u'Slovenian'),
     (u'sog', u'Sogdian'), (u'som', u'Somali'), (u'son', u'Songhai languages'), (u'snk', u'Soninke'),
     (u'wen', u'Sorbian languages'), (u'sot', u'Sotho, Southern'), (u'sai', u'South American Indian languages'),
-    (u'alt', u'Southern Altai'), (u'sma', u'Southern Sami'), (u'spa', u'Spanish; Castilian'), (u'srn', u'Sranan Tongo'),
+    (u'alt', u'Southern Altai'), (u'sma', u'Southern Sami'), (u'spa', u'Spanish'), (u'srn', u'Sranan Tongo'),
     (u'zgh', u'Standard Moroccan Tamazight'), (u'suk', u'Sukuma'), (u'sux', u'Sumerian'), (u'sun', u'Sundanese'),
     (u'sus', u'Susu'), (u'swa', u'Swahili'), (u'ssw', u'Swati'), (u'swe', u'Swedish'),
     (u'gsw', u'Swiss German; Alemannic; Alsatian'), (u'syr', u'Syriac'), (u'tgl', u'Tagalog'), (u'tah', u'Tahitian'),
