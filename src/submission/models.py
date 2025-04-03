@@ -1193,6 +1193,7 @@ class Article(AbstractLastModifiedModel):
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type,
                     identifier=identifier,
+                    article__journal=journal,
                 )[0].article
 
                 if not article.journal == journal:
