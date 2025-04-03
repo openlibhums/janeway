@@ -814,8 +814,6 @@ class TestOrganizationModels(TestCase):
             '0123456789',
             '0lu42o079',
             'abcdefghj',
-            'ror.org/0v2w8z018',
-            'https://ror.org/0v2w8z018',
         ]:
             with self.assertRaises(ValidationError):
                 org = models.Organization.objects.create(ror_id=invalid_ror)

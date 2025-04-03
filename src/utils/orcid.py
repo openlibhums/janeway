@@ -59,8 +59,7 @@ def build_redirect_uri(site):
     :site: Object implementing the AbstractSiteModel interface
     :return: (str) Redirect URI for ORCID requests
     """
-    request = logic.get_current_request()
-    return request.site_type.site_url(reverse("core_login_orcid"))
+    return site.site_url(reverse("core_login_orcid"))
 
 
 def get_orcid_record(orcid):
