@@ -448,6 +448,7 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
+                    {% hook 'article_sidebar' %}
 
                     {% if article.is_published or proofing %}
                         <h4>

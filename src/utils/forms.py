@@ -10,6 +10,7 @@ from django.forms import (
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 
 from modeltranslation import forms as mt_forms, translator
 from captcha.fields import ReCaptchaField
@@ -28,6 +29,12 @@ class JanewayTranslationModelForm(mt_forms.TranslationModelForm):
         super(JanewayTranslationModelForm, self).__init__(*args, **kwargs)
         opts = translator.translator.get_options_for_model(self._meta.model)
         self.translated_field_names = opts.get_field_names()
+
+        for field_name in self.translated_field_names:
+            if field_name in self.fields:
+                label = f"{self.fields[field_name].label} <small class='green'>[translatable]</small>"
+                self.fields[field_name].label = mark_safe(label)
+
 
 
 class FakeModelForm(ModelForm):
