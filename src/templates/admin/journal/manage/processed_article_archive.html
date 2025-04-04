@@ -1,0 +1,69 @@
+{% extends "admin/core/base.html" %}
+{% load securitytags %}
+{% load files %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Processed Articles{% endblock title %}
+{% block title-section %}Processed Articles{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Processed Articles</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <table class="small article_list scroll">
+                    <thead>
+                    <tr>
+                        <td>Section</td>
+                        <td>ID</td>
+                        <td>Title</td>
+                        <td>Date Submitted</td>
+                        <td>Date Published</td>
+                        <td>Status</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in published_articles %}
+
+                            <tr>
+                                <td>{{ article.section.name }}</td>
+                                <td>{{ article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                                <td> {{ article.date_submitted }}</td>
+                                <td> {{ article.date_published }}</td>
+                                <td> Published </td>
+                            </tr>
+                        
+                    {% endfor %}
+
+                    {% for article in articles_in_typesetting %}
+
+                        <tr>
+                            <td>{{ article.section.name }}</td>
+                            <td>{{ article.pk }}</td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                            <td> {{ article.date_submitted }}</td>
+                            <td></td>
+                            <td> in Typesetting </td>
+                        </tr>
+                    
+                {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".article_list" %}
+{% endblock %}

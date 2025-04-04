@@ -1790,6 +1790,31 @@ def published_article_archive(request):
         context,
     )
 
+@editor_user_required
+def processed_article_archive(request):
+    """
+    Allows the editor to view information about an article that has been published or is in typesetting.
+    :param request: request object
+    :return: contextualised django template
+    """
+
+    articles_in_typesetting = submission_models.Article.objects.filter(
+        journal=request.journal,
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
+    )
+
+    template = 'journal/manage/processed_article_archive.html'
+    context = {
+        'published_articles': request.journal.archive_published_articles(),
+        'articles_in_typesetting': articles_in_typesetting,
+    }
+
+    return render(
+        request,
+        template,
+        context,
+    )
+
 
 @editor_user_required
 def rejected_archived_article_archive(request):
