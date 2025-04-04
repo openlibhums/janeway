@@ -1,0 +1,95 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static %}
+
+{% block title %}Press Manager{% endblock %}
+{% block title-section %}Press Manager{% endblock %}
+
+{% block nav %}
+{% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+
+<section>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <div class="title-area">
+                    <h2>Articles Published in last 6 months, or currently in Typesetting</h2>
+                </div>
+                <table class="small article_list scroll">
+                    <thead>
+                    <tr>
+                        <td>Journal Code</td>
+                        <td>Journal</td>
+                        <td>Section</td>
+                        <td>ID</td>
+                        <td>Title</td>
+                        <td>Date Submitted</td>
+                        <td>Date Published</td>
+                        <td>Status</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in published_articles %}
+
+                            <tr>
+                                <td>{{ article.journal.code }}</td>
+                                <td>{{ article.journal.name }}</td>
+                                <td>{{ article.section.name }}</td>
+                                <td>{{ article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                                <td> {{ article.date_submitted }}</td>
+                                <td> {{ article.date_published }}</td>
+                                <td> Published </td>
+                            </tr>
+                        
+                    {% endfor %}
+
+                    {% for article in articles_in_typesetting %}
+
+                        <tr>
+                            <td>{{ article.journal.code }}</td>
+                            <td>{{ article.journal.name }}</td>
+                            <td>{{ article.section.name }}</td>
+                            <td>{{ article.pk }}</td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a></td>
+                            <td> {{ article.date_submitted }}</td>
+                            <td></td>
+                            <td> in Typesetting </td>
+                        </tr>
+                    
+                {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".article_list" %}
+
+
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'press_journal_order' %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+    <script type="text/javascript" src="{% static "admin/js/csrf.js" %}"></script>
+{% endblock js %}

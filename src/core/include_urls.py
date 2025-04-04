@@ -98,6 +98,9 @@ urlpatterns = [
     # Manager URLS
     re_path(r'^manager/$', core_views.manager_index, name='core_manager_index'),
 
+    # Processed Article URLS
+    re_path(r'^manager/processed$', press_views.processed_articles, name='press_processed_articles'),
+
     # Settings Management
     re_path(r'^manager/settings/$', core_views.settings_index, name='core_settings_index'),
     re_path(r'^manager/default_settings/$', core_views.default_settings_index, name='core_default_settings_index'),

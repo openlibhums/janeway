@@ -3,6 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -441,3 +444,33 @@ def edit_press_journal_description(request, journal_id):
 @method_decorator(staff_member_required, name='dispatch')
 class AllUsers(BaseUserList):
     pass
+
+
+@staff_member_required
+def processed_articles(request):
+    """
+    This view shows all articles that are in typesetting or have been published since start_date
+    :param request: django request
+    :return: contextualised template
+    """
+    start_date = datetime.now() - relativedelta(months=6)
+
+    articles_in_typesetting = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
+        journal__isnull=False,
+    )
+
+    published_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_PUBLISHED,
+        journal__isnull=False,
+        date_published__gte=start_date,
+    )
+
+    template = 'press/press_processed_articles.html'
+    context = {
+        'published_articles': published_articles,
+        'articles_in_typesetting': articles_in_typesetting,
+        'url_config': settings.URL_CONFIG,
+    }
+
+    return render(request, template, context)
