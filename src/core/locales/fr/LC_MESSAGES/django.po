@@ -488,7 +488,7 @@ msgstr "Article vedette"
 #, fuzzy
 #| msgid "Abstract"
 msgid "Search Abstract"
-msgstr "Abstrait"
+msgstr "Résumé"
 
 #: src/journal/forms.py:100
 #, fuzzy
@@ -2737,7 +2737,7 @@ msgstr ""
 #: src/themes/material/templates/preprints/article.html:43
 #: src/themes/material/templates/repository/preprint.html:157
 msgid "Abstract"
-msgstr "Abstrait"
+msgstr "Résumé"
 
 #: src/templates/admin/submission/submit_review.html:68
 msgid "Language"
@@ -2847,7 +2847,7 @@ msgstr "Renseignements sur l'article"
 #, fuzzy
 #| msgid "Issue"
 msgid "Issues"
-msgstr "Publication"
+msgstr "numéros"
 
 #: src/templates/common/elements/journal/article_issue_list.html:4
 #: src/themes/OLH/templates/403.html:4
@@ -2856,7 +2856,7 @@ msgstr "Publication"
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:8
 #: src/themes/material/templates/journal/issue.html:8
 msgid "Issue"
-msgstr "Publication"
+msgstr "numéro"
 
 #: src/templates/common/elements/journal/article_issue_list.html:10
 msgid "Primary: "
