@@ -5,7 +5,7 @@ Python Sphinx project for building the Janeway documentation
 
 ### Installing the dependencies
 After installing the dependencies for Janeway, install the requirements described under `requirements.txt`
-`pip install -r requirements.txt`
+`pip install -r requirements.txt -c constraints.txt`
 
 ### Editing the documentation:
 The documentation is written in [reStructuredText](https://docutils.sourceforge.io/rst.html) (rst). Edits can be made to any page under the `docs/source` directory.
