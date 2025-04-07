@@ -1,6 +1,7 @@
 {% spaceless %}<journal>{% endspaceless %}
             <journal_metadata>
                 <full_title>{{ crossref_issue.journal.title }}</full_title>
+                <abbrev_title>{{ crossref_issue.journal.code }}</abbrev_title>
                 {% if crossref_issue.journal.print_issn and crossref_issue.journal.print_issn != '0000-0000' %}
                 <issn media_type="print">{{ crossref_issue.journal.print_issn }}</issn>
                 {% endif %}
