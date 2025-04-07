@@ -22,6 +22,7 @@ class TestModelUtils(TestCase):
             press=cls.press,
             journal=cls.journal_one,
         )
+        cls.article = helpers.create_article(cls.journal_one)
 
     @override_settings(URL_CONFIG="path")
     def test_auth_success_url_with_next(self):
@@ -58,3 +59,18 @@ class TestModelUtils(TestCase):
             self.request.site_type.auth_success_url(),
             reverse('website_index'),
         )
+
+    @override_settings(BLEACH_STRIP_COMMENTS=True)
+    def test_janeway_bleach_field_save_idempotent(self):
+        """
+        With BLEACH_STRIP_COMMENTS=False, this would fail.
+        The comment would be kept, of course.
+        But also the &amp; would be turned into &amp;amp;amp;amp;amp;
+        and each save after that would add amp; two more times.
+        """
+        abstract_with_comment = 'My abstract<!-- &amp; -->'
+        abstract_without_comment = 'My abstract'
+        self.article.abstract = abstract_with_comment
+        self.article.save()
+        self.article.save()
+        self.assertEqual(self.article.abstract, abstract_without_comment)
