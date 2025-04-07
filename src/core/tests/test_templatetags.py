@@ -7,6 +7,11 @@ from freezegun import freeze_time
 
 from utils.testing import helpers
 from core.templatetags import fqdn, dates
+from django.test import TestCase, override_settings, RequestFactory
+from core.templatetags import fqdn, dates
+from datetime import datetime
+from django.utils.translation import activate
+from django.conf import settings
 
 class TestFqdn(TestCase):
 
