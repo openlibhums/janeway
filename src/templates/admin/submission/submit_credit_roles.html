@@ -1,0 +1,58 @@
+{% load static %}
+{% load i18n %}
+{% load next_url %}
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="author_pk" value="{{ author.pk }}">
+  <div class="flex direction-column row-gap-0-5">
+    <div class="flex direction-column gap-0-25 wrap">
+      {% for credit in credits %}
+        <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between max-w-24">
+          {{ credit }}
+          <div class="small button-group no-bottom-margin flex items-center">
+            <button
+              class="button hollow secondary no-bottom-margin"
+              name="remove_credit"
+              value="{{ credit.role }}"
+              type="submit">
+              <span class="fa fa-remove"></span>
+              Remove
+              <span class="sr-only">
+                {{ credit.get_role_display }}
+              </span>
+            </button>
+          </div>
+        </div>
+      {% empty %}
+        <div>
+          This author has no contributor roles.
+          <a
+            target="_blank"
+            href="https://credit.niso.org/contributor-roles-defined/">
+            Learn about CRediT roles.
+            <span class="sr-only">(opens in new tab)</span>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="bs-callout bs-callout-info flex direction-column gap-0-5">
+      <div>Add role:</div>
+      <div class="small button-group no-bottom-margin">
+        {% for radio in credit_form.role %}
+          {% if radio.data.value not in credits.values %}
+            <button
+              class="button hollow secondary"
+              name="add_credit"
+              value="{{ radio.data.value }}"
+              type="submit">
+              <span class="fa fa-plus"></span>
+              <span class="sr-only">Add</span>
+              {{ radio.choice_label }}
+            </button>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</form>

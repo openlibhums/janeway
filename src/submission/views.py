@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import json
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -11,11 +13,14 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, translation
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from core import files, models as core_models
+from core.views import GenericFacetedListView
+from core.forms import AccountAffiliationForm, ConfirmDeleteForm
 from repository import models as preprint_models
 from security.decorators import (
     article_edit_user_required,
@@ -27,8 +32,9 @@ from security.decorators import (
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
-from utils import setting_handler
+from utils import orcid, setting_handler
 from utils import shared as utils_shared
+from core.model_utils import generate_dummy_email
 from utils.decorators import GET_language_override
 from utils.shared import create_language_override_redirect
 
@@ -271,30 +277,15 @@ def submit_authors(request, article_id):
     )
 
     if article.current_step < 2 and not request.user.is_staff:
-        return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+        return redirect(
+            reverse('submit_info', kwargs={'article_id': article_id}
+        )
+    )
 
     form = forms.AuthorForm()
-    error, modal = None, None
-
-    if request.GET.get('add_self', None) == 'True':
-        new_author = logic.add_user_as_author(request.user, article)
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _('{author_name} added to the article.').format(
-                author_name=new_author.full_name(),
-            ),
-        )
-        return redirect(
-            reverse(
-                'submit_authors',
-                kwargs={'article_id': article_id},
-            )
-        )
 
     if request.POST and 'add_author' in request.POST:
         form = forms.AuthorForm(request.POST)
-        modal = 'author'
 
         email = request.POST.get("email")
         author = None
@@ -309,77 +300,104 @@ def submit_authors(request, article_id):
         else:
             messages.add_message(
                 request, messages.WARNING,
-                _('Errors found in the new author form'),
+                _('Could not add the author manually.'),
             )
 
         if author:
             logic.add_user_as_author(author, article)
             messages.add_message(
                 request, messages.SUCCESS,
-                _('{author_name} added to the article.').format(
-                    author_name=author.full_name(),
-                ),
+                _('%(author_name)s (%(email)s) added to the article.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
             )
-            return redirect(reverse(
-                'submit_authors', kwargs={'article_id': article_id}))
+        form = forms.AuthorForm()
 
     elif request.POST and 'search_authors' in request.POST:
-        search = request.POST.get('author_search_text', None)
+        search_term = request.POST.get('author_search_text')
+        logic.add_author_from_search(search_term, request, article)
 
-        if not search:
+    elif request.POST and 'corr_author' in request.POST:
+        author = get_object_or_404(
+            core_models.Account,
+            pk=request.POST.get('corr_author', None),
+        )
+        article.correspondence_author = author
+        article.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s (%(email)s) made correspondence author.')
+                % {
+                    "author_name": author.full_name(),
+                    "email": author.email
+                },
+        )
+
+    elif request.POST and 'add_credit' in request.POST:
+        author_pk = int(request.POST.get('author_pk'))
+        author = get_object_or_404(
+            core_models.Account,
+            pk=author_pk,
+        )
+        role_text = request.POST.get('add_credit', '')
+        if role_text:
+            record = author.add_credit(role_text, article)
             messages.add_message(
                 request,
-                messages.WARNING,
-                _('An empty search is not allowed.'),
+                messages.SUCCESS,
+                _('%(author_name)s given role %(role)s.')
+                    % {
+                        "author_name": author.full_name(),
+                        "role": record.get_role_display(),
+                    },
             )
-        else:
-            try:
-                search_author = core_models.Account.objects.get(
-                    Q(email=search) | Q(orcid=search)
-                )
-                logic.add_user_as_author(search_author, article)
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _('{author_name} added to the article.').format(
-                        author_name=search_author.full_name(),
-                    ),
-                )
-            except core_models.Account.DoesNotExist:
-                messages.add_message(
-                    request, messages.WARNING,
-                    _('No author found with those details.'),
-                )
 
-    elif request.POST and 'main-author' in request.POST:
-        correspondence_author = request.POST.get('main-author', None)
-
-        if correspondence_author == 'None':
+    elif request.POST and 'remove_credit' in request.POST:
+        author_pk = int(request.POST.get('author_pk'))
+        author = get_object_or_404(
+            core_models.Account,
+            pk=author_pk,
+        )
+        role_text = request.POST.get('remove_credit', '')
+        if role_text:
+            record = author.remove_credit(role_text, article)
             messages.add_message(
                 request,
-                messages.WARNING,
-                _('You must select a main author.'),
+                messages.SUCCESS,
+                _('%(author_name)s no longer has the role %(role)s.')
+                    % {
+                        "author_name": author.full_name(),
+                        "role": record.get_role_display(),
+                    },
             )
-        else:
-            author = core_models.Account.objects.get(pk=correspondence_author)
-            article.correspondence_author = author
-            article.current_step = 3
-            article.save()
 
-            return redirect(reverse(
-                'submit_files', kwargs={'article_id': article_id}))
-
-    elif request.POST and 'authors[]' in request.POST:
+    elif request.POST and 'change_order' in request.POST:
         logic.save_author_order(request, article)
 
-        return HttpResponse('Complete')
+    elif request.POST and 'save_continue' in request.POST:
+        article.current_step = 3
+        article.save()
 
-    template = 'admin/submission//submit_authors.html'
+        return redirect(
+            reverse(
+                'submit_files',
+                kwargs={'article_id': article_id}
+            )
+        )
+
+    authors = []
+    for author, credits in article.authors_and_credits().items():
+        credit_form = forms.CreditRecordForm(article=article, author=author)
+        authors.append((author, credits, credit_form))
+
+    template = 'admin/submission/submit_authors.html'
     context = {
-        'error': error,
         'article': article,
+        'authors': authors,
         'form': form,
-        'modal': modal,
     }
 
     return render(request, template, context)
@@ -506,11 +524,11 @@ def delete_author(request, article_id, author_id):
         core_models.Account,
         pk=author_id
     )
-
     article.authors.remove(author)
 
     if article.correspondence_author == author:
         article.correspondence_author = None
+        article.save()
 
     try:
         ordering = models.ArticleAuthorOrder.objects.get(
@@ -519,6 +537,18 @@ def delete_author(request, article_id, author_id):
         ).delete()
     except models.ArticleAuthorOrder.DoesNotExist:
         pass
+    messages.add_message(
+        request,
+        messages.INFO,
+        _('%(author_name)s (%(email)s) removed from the article.')
+            % {
+                "author_name": author.full_name(),
+                "email": author.email
+            },
+    )
+    if article.authors.exists() and not article.correspondence_author:
+        article.correspondence_author = article.articleauthororder_set.first().author
+        article.save()
 
     return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
@@ -621,13 +651,16 @@ def submit_files(request, article_id):
                     return redirect(reverse(
                         'submit_review', kwargs={'article_id': article_id}))
             else:
-                error = _("You must upload a manuscript file.")
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    _("You must upload a manuscript file.")
+                )
 
     template = "admin/submission/submit_files.html"
 
     context = {
         'article': article,
-        'error': error,
         'ms_form': ms_form,
         'data_form': data_form,
         'modal': modal,
@@ -800,7 +833,7 @@ def edit_metadata(request, article_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    _('Primary author set.')
+                    _('Correspondence author set.')
                 )
                 return redirect(reverse_url)
 
