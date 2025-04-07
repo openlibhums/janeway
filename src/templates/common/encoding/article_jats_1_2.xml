@@ -61,8 +61,26 @@
             {% endfor %}
             </contrib-group>
             {% for author in article.frozen_authors.all %}
-            <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
+                <aff id="aff-{{ forloop.counter }}">
+                    {% for affiliation in author.controlledaffiliation_set.all %}
+                        {% if affiliation.organization %}
+                            <institution-wrap>
+                                {% if affiliation.organization.ror_id %}
+                                    <institution-id institution-id-type="ROR">
+                                        {{ affiliation.organization.uri }}
+                                    </institution-id>
+                                {% endif %}
+                                {% if affiliation.organization.name %}
+                                    <institution>
+                                        {{ affiliation.organization.name }}
+                                    </institution>
+                                {% endif %}
+                            </institution-wrap>
+                        {% endif %}
+                    {% endfor %}
+                </aff>
             {% endfor %}
+
 
             {% if article.competing_interests or article.correspondence_author %}
             <author-notes>

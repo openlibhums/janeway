@@ -16,7 +16,7 @@
                     {% else %}
                     <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
                         <given_name>{{ author.given_names }}</given_name>
-                        <surname>{{ author.last_name }}</surname>
+                        <family_name>{{ author.last_name }}</family_name>
                         {% if author.institution %}
                         <affiliation>{{ author.affiliation }}</affiliation>
                         {% endif %}
