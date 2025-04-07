@@ -60,6 +60,7 @@ from copyediting import models as copyediting_models
 from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
+from utils.forms import clean_orcid_id
 from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
@@ -390,6 +391,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def string_id(self):
         return str(self.id)
 
+    @property
+    def real_email(self):
+        if not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email
+        else:
+            return ''
+
     def get_full_name(self):
         """Deprecated in 1.5.2"""
         return self.full_name()
@@ -692,9 +700,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         """
         Adds a CRediT role to the article for this user
         """
-        record, _ = (
-            submission_models.CreditRecord.objects.get_or_create(
-                article=article, author=self, role=credit_role_text)
+        record, _created = submission_models.CreditRecord.objects.get_or_create(
+            article=article,
+            author=self,
+            role=credit_role_text,
         )
 
         return record
@@ -710,6 +719,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 role=credit_role_text,
             )
             record.delete()
+            return record
         except submission_models.CreditRecord.DoesNotExist:
             pass
 
@@ -2654,13 +2664,21 @@ class Organization(models.Model):
                 # entered without a ROR for this
                 # account / frozen author / preprint author?
                 try:
-                    organization = cls.objects.get(
+                    # If there is no `institution`, this method is being used to update
+                    # the department or country in isolation, so we want the primary
+                    # affiliation's org regardless of what its custom label is.
+                    query = models.Q(
                         controlledaffiliation__is_primary=True,
                         controlledaffiliation__account=account,
                         controlledaffiliation__frozen_author=frozen_author,
                         controlledaffiliation__preprint_author=preprint_author,
                         ror_id__exact='',
                     )
+                    # If there is an institution name, we should only match organizations
+                    # with that as a custom label.
+                    if institution:
+                        query &= models.Q(custom_label__value=institution)
+                    organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Otherwise, create a new, disconnected record.
                     organization = cls.objects.create()
@@ -2757,7 +2775,7 @@ class ControlledAffiliation(models.Model):
                 ['account', 'frozen_author', 'preprint_author'],
             )
         ]
-        ordering = ['is_primary', '-pk']
+        ordering = ['-is_primary', '-pk']
 
     def title_department(self):
         elements = [
@@ -2836,10 +2854,12 @@ class ControlledAffiliation(models.Model):
         cls,
         institution='',
         department='',
+        title='',
         country='',
         account=None,
         frozen_author=None,
         preprint_author=None,
+        defaults=None,
     ):
         """
         Backwards-compatible API for setting affiliation from unstructured text.
@@ -2856,6 +2876,8 @@ class ControlledAffiliation(models.Model):
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
         :type preprint_author: repository.models.PreprintAuthor
+        :param defaults: default dict passed to ControlledAffiliation.get_or_create:
+        :type defaults: dict:
         """
         organization, _created = Organization.get_or_create_without_ror(
             institution=institution,
@@ -2864,12 +2886,16 @@ class ControlledAffiliation(models.Model):
             frozen_author=frozen_author,
             preprint_author=preprint_author,
         )
+        if not defaults:
+            defaults = {}
 
-        defaults = {
+        defaults.update({
             'organization': organization,
-        }
+        })
         if department:
             defaults['department'] = department
+        if title:
+            defaults['title'] = title
         kwargs = {
             'is_primary': True,
             'account': account,

@@ -78,12 +78,26 @@ def get_orcid_record(orcid):
     return None
 
 def get_affiliation(summary):
+    raise DeprecationWarning('Use get_affiliations instead.')
     if len(summary["employments"]["employment-summary"]):
         return summary["employments"]["employment-summary"][0]["organization"]
     elif len(summary["educations"]["education-summary"]):
         return summary["educations"]["education-summary"][0]["organization"]
     else:
         return None
+
+
+def get_affiliations(summary):
+    affils = []
+    affils.extend(
+        [affil for affil in summary["employments"]["employment-summary"]]
+    )
+    if not affils:
+        affils.extend(
+            [affil for affil in summary["educations"]["education-summary"]]
+        )
+    return affils
+
 
 def get_orcid_record_details(orcid):
     details = defaultdict(lambda: None)
@@ -106,10 +120,11 @@ def get_orcid_record_details(orcid):
             if name.get("given-names", None):
                 details["first_name"] = name["given-names"]["value"]
 
-        affiliation = get_affiliation(record["activities-summary"])
-        if affiliation:
-            details["affiliation"] = affiliation["name"]
-            details["country"] = affiliation["address"]["country"]
+        affiliations = get_affiliations(record["activities-summary"])
+        if affiliations:
+            details["affiliations"] = affiliations
+            details["affiliation"] = affiliations[0]["organization"]["name"]
+            details["country"] = affiliations[0]["organization"]["address"]["country"]
 
     return details
 

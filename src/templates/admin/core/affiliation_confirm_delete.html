@@ -1,6 +1,6 @@
 {% extends "admin/core/large_form.html" %}
 
-{% load i18n foundation %}
+{% load i18n foundation next_url %}
 
 {% block contextual_title %}
   {% blocktrans with organization=affiliation.organization.name %}
@@ -22,7 +22,7 @@
       </a>
     </li>
     <li>
-      <a href="{% url 'core_affiliation_update' affiliation.pk %}">
+      <a href="{% url_with_next 'core_affiliation_update' affiliation.pk %}">
         {% trans "Edit Affiliation" %}
       </a>
     </li>
@@ -53,8 +53,7 @@
           {% endblocktrans %}</p>
           {{ form }}
           {% include "elements/button_yes_delete.html" %}
-          {% url 'core_edit_profile' as go_back_url %}
-          {% include "elements/a_no_go_back.html" with href=go_back_url %}
+          {% include "elements/a_no_go_back.html" with href=request.GET.next %}
         </form>
       </section>
     </div>
