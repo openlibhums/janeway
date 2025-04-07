@@ -31,7 +31,7 @@
                         <h2>{% trans 'Basic Information' %}</h2>
                     </div>
                     <div class="content">
-                        {% include "elements/forms/errors.html" with form=form %}
+                        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
                         <div class="{% if request.journal.submissionconfiguration.subtitle %}large-6{% else %}large-12{% endif %} columns">
                             {{ form.title|foundation }}
                         </div>
@@ -133,3 +133,10 @@
         });
     </script>
 {% endblock %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

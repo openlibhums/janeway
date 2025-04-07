@@ -30,6 +30,7 @@ from submission import (
     logic,
     models,
 )
+from utils.forms import clean_orcid_id
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.shared import clear_cache
 from utils.testing import helpers
@@ -539,7 +540,7 @@ class SubmissionTests(TestCase):
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
     def test_url_based_orcid_cleaned(self):
-        clean_orcid = forms.utility_clean_orcid(
+        clean_orcid = clean_orcid_id(
             'https://orcid.org/0000-0003-2126-266X'
         )
         self.assertEqual(
@@ -549,7 +550,7 @@ class SubmissionTests(TestCase):
 
     def test_orcid_value_error_raised(self):
         with self.assertRaises(ValueError):
-            forms.utility_clean_orcid('Mauro-sfak-orci-dtst')
+            clean_orcid_id('Mauro-sfak-orci-dtst')
 
     def test_author_form_with_bad_orcid(self):
         form = forms.AuthorForm(

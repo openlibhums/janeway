@@ -3495,7 +3495,7 @@
     },
     {
         "value": {
-            "default": ""
+            "default": "on"
         },
         "setting": {
             "type": "boolean",

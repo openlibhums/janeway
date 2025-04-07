@@ -1,0 +1,71 @@
+{% load static %}
+{% load i18n %}
+
+<div data-options class="options callout secondary">
+  <div class="flex wrap gap-1 items-center">
+    <strong>
+      <span class="fa fa-envelope"></span>
+      {% trans "Correspondence author" %}
+    </strong>
+    {% if article.non_correspondence_authors %}
+      <div class="button-group no-bottom-margin">
+        <button
+          class="button hollow secondary">
+          <span class="fa fa-angle-up"></span>
+          <span class="fa fa-angle-down"></span>
+          Change <span class="sr-only">correspondence author</span>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+  <div data-options-pane class="options-pane padding-block-1">
+    <p class="max-w-48">The correspondence author can be any author who has a valid email
+    address, regardless of order. They will receive updates and requests
+    for work on the article during the review and publication process.</p>
+    <form method="POST">
+      {% csrf_token %}
+      <fieldset>
+        <legend>Select a new correspondence author:</legend>
+        {% for order in article.articleauthororder_set.all %}
+          {% if order.author != article.correspondence_author %}
+            <div>
+              <input
+                id="option_{{ order.author.pk }}"
+                name="corr_author"
+                type="radio"
+                value="{{ order.author.pk }}"
+                {% if not order.author.real_email %}
+                disabled
+                {% endif %}
+              >
+              <label for="option_{{ order.author.pk }}">
+                {{ order.author.full_name }}
+                {% if order.author.real_email %}
+                  ({{ order.author.real_email }})
+                {% else %}
+                  (no email address)
+                {% endif %}
+              </label>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<script type="module" defer>
+  let optionsElements = document.querySelectorAll('[data-options]');
+  for (let options of optionsElements) {
+    options.addEventListener('click', event => {
+      if (event.target.localName == 'button') {
+        options.classList.toggle('displayed');
+      }
+    });
+    options.addEventListener('change', event => {
+      if (event.target.localName == 'input') {
+        event.target.closest('form').submit();
+      }
+    });
+  }
+</script>
