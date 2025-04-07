@@ -1,0 +1,74 @@
+{% extends "admin/core/large_form.html" %}
+
+{% load i18n static foundation next_url %}
+
+{% block contextual_title %}
+  {% trans "Update affiliations from ORCiD" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Update affiliations from ORCiD" %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% if request.user == account %}
+    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+  {% endif %}
+  <li>
+    {% trans "Update affiliations from ORCiD" %}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="grid max-w-64">
+    <div class="rummage-portal">
+      {% include "admin/core/affiliation_summary.html" %}
+      <section class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2>
+            {% trans "Confirmation" %}
+          </h2>
+        </div>
+        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+        {% if account.affiliations.exists %}
+          <div class="bs-callout bs-callout-danger">
+            <h3 class="fs-3">Old affiliations to be removed:</h3>
+            <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+              {% for old_affil in account.affiliations %}
+                {% include "admin/core/affiliation_display.html" with affiliation=old_affil %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        {% if new_affils %}
+          <div class="bs-callout bs-callout-success">
+            <h3 class="fs-3">New affiliations to be added:</h3>
+            <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+              {% for new_affil in new_affils %}
+                {% include "admin/core/affiliation_display.html" with affiliation=new_affil %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          <p>{% blocktrans %}
+            Are you sure?
+          {% endblocktrans %}</p>
+          {{ form }}
+          <button
+            name="replace"
+            class="button no-bottom-margin"
+            type="submit">
+            <span class="fa fa-refresh"></span>
+            {% trans "Yes, continue" %}
+          </button>
+          {% include "elements/a_no_go_back.html" with href=request.GET.next %}
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock body %}

@@ -1,5 +1,5 @@
 {% extends "admin/core/large_form.html" %}
-{% load i18n foundation static %}
+{% load i18n foundation static next_url %}
 
 {% block css %}
   <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
@@ -126,15 +126,23 @@
           <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
             {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
             <div class="flex gap-0-5 items-center">
-              {% url 'core_affiliation_update' affiliation.pk as update_url %}
+              {% url_with_return 'core_affiliation_update' affiliation.pk as update_url %}
               {% include "elements/a_edit.html" with href=update_url size="small" %}
-              {% url 'core_affiliation_delete' affiliation.pk as delete_url %}
+              {% url_with_return 'core_affiliation_delete' affiliation.pk as delete_url %}
               {% include "elements/a_delete.html" with href=delete_url size="small" %}
             </div>
           </div>
         {% endfor %}
         <div>
-          {% url 'core_organization_search' as create_url %}
+          {% if request.user.orcid %}
+            <a
+              href="{% url_with_return 'core_affiliation_bulk_update_from_orcid' %}"
+              class="button secondary small hollow no-bottom-margin">
+              <span class="fa fa-refresh"></span>
+              {% trans "Update affiliations from ORCiD" %}
+            </a>
+          {% endif %}
+          {% url_with_return 'core_organization_search' as create_url %}
           {% trans "Add affiliation" as add_affiliation %}
           {% include "elements/a_create.html" with href=create_url size="small" label=add_affiliation %}
         </div>
