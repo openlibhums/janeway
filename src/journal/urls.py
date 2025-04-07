@@ -128,6 +128,8 @@ urlpatterns = [
         views.publish_article, name='publish_article'),
     re_path(r'^publish/article/(?P<article_id>\d+)/check/$',
         views.publish_article_check, name='publish_article_check'),
+    re_path(r'^preview/article/(?P<article_id>\d+)/jats/$',
+        views.view_jats_stub, name='view_jats_stub'),
 
     # Issues
     re_path(r'^manage/issues/$',

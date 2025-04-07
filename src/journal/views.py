@@ -1319,6 +1319,20 @@ def publish_article_check(request, article_id):
 
 
 @editor_user_required
+def view_jats_stub(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    context = {
+        'article': article,
+        'include_declaration': True,
+    }
+    template = 'common/encoding/article_jats_1_2.xml'
+    return render(request, template, context)
+
+@editor_user_required
 def manage_issues(request, issue_id=None, event=None):
     """
     Displays a list of Issue objects, allows them to be sorted and viewed.
