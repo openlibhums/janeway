@@ -14,7 +14,7 @@
   {% if request.user == account %}
     <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
     <li>
-      <a href="{% url 'core_organization_search' %}">
+      <a href="{% url_with_next 'core_organization_search' %}">
         {% trans "Add Affiliation" %}
       </a>
     </li>
@@ -38,8 +38,7 @@
           {% endfor %}
           {% include "admin/elements/forms/field.html" with field=form.value %}
           {% include "elements/button_save.html" %}
-          {% url 'core_edit_profile' as cancel_url %}
-          {% include "elements/a_cancel.html" with href=cancel_url %}
+          {% include "elements/a_cancel.html" with href=request.GET.next %}
         </form>
       </section>
     </div>

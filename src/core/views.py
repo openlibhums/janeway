@@ -49,6 +49,7 @@ from security.decorators import (
     user_can_edit_setting
 )
 from submission import models as submission_models
+from utils.forms import clean_orcid_id
 from review import models as review_models
 from copyediting import models as copyedit_models
 from production import models as production_models
@@ -424,8 +425,14 @@ def register(request, orcid_token=None):
                 new_user = form.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-                    if orcid_details.get("affiliation"):
-                        new_user.institution = orcid_details['affiliation']
+                    for orcid_affil in orcid_details.get("affiliations", []):
+                        orcid_affil_form = forms.OrcidAffiliationForm(
+                            orcid_affiliation=orcid_affil,
+                            tzinfo=new_author.preferred_timezone,
+                            data={'account': new_author}
+                        )
+                        if orcid_affil_form.is_valid():
+                            orcid_affil_form.save()
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
@@ -672,6 +679,78 @@ def public_profile(request, uuid):
         )
         context['staff_groups'] = user.staffgroupmember_set.all()
 
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_bulk_update_from_orcid(request):
+    """
+    Allows a user to update their own affiliations
+    from public ORCiD records.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    next_url = request.GET.get('next', '')
+    try:
+        cleaned_orcid = clean_orcid_id(request.user.orcid)
+    except ValueError:
+        cleaned_orcid = None
+    if not cleaned_orcid:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Your account does not have an ORCiD. "
+              "Please log in with ORCiD and try again."),
+        )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(reverse('core_edit_profile'))
+
+    orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
+    orcid_affils = orcid_details.get("affiliations", [])
+    if not orcid_affils:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("No affiliations were found on your public ORCiD record "
+              "for ID %(orcid_id)s. "
+              "Please update your affiliations on orcid.org and try again.")
+                % {'orcid_id': request.user.orcid },
+        )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(reverse('core_edit_profile'))
+
+    form = forms.ConfirmDeleteForm()
+    new_affils = []
+    for orcid_affil in orcid_affils:
+        orcid_affil_form = forms.OrcidAffiliationForm(
+            orcid_affil,
+            tzinfo=request.user.preferred_timezone,
+            data={"account": request.user},
+        )
+        if orcid_affil_form.is_valid():
+            new_affils.append(orcid_affil_form.save(commit=False))
+
+    if request.method == 'POST':
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            request.user.affiliations.delete()
+            for affil in new_affils:
+                affil.save()
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = "admin/core/affiliation_update_from_orcid.html"
+    context = {
+        'account': request.user,
+        'form': form,
+        'new_affils': new_affils,
+    }
     return render(request, template, context)
 
 
@@ -2921,6 +3000,7 @@ def organization_name_create(request):
     if they cannot find one in ROR data.
     """
 
+    next_url = request.GET.get('next', '')
     form = forms.OrganizationNameForm()
 
     if request.method == 'POST':
@@ -2937,8 +3017,9 @@ def organization_name_create(request):
                     % {"organization": organization_name},
             )
             return redirect(
-                reverse(
+                logic.reverse_with_next(
                     'core_affiliation_create',
+                    next_url,
                     kwargs={
                         'organization_id': organization.pk,
                     }
@@ -2958,7 +3039,7 @@ def organization_name_update(request, organization_name_id):
     Allows a user to update a custom organization name
     if it is tied to their account via an affiliation.
     """
-
+    next_url = request.GET.get('next', '')
     organization_name = get_object_or_404(
         core_models.OrganizationName,
         pk=organization_name_id,
@@ -2979,7 +3060,10 @@ def organization_name_update(request, organization_name_id):
                 _("Custom organization updated: %(organization)s")
                     % {"organization": organization},
             )
-            return redirect(reverse('core_edit_profile'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
 
     template = 'admin/core/organizationname_form.html'
     context = {
@@ -2995,6 +3079,7 @@ def affiliation_create(request, organization_id):
     Allows a user to create a new affiliation for themselves.
     """
 
+    next_url = request.GET.get('next', '')
     organization = get_object_or_404(
         core_models.Organization,
         pk=organization_id,
@@ -3018,7 +3103,10 @@ def affiliation_create(request, organization_id):
                 _("Affiliation created: %(affiliation)s")
                     % {"affiliation": affiliation},
             )
-            return redirect(reverse('core_edit_profile'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
 
     template = 'admin/core/affiliation_form.html'
     context = {
@@ -3034,7 +3122,7 @@ def affiliation_update(request, affiliation_id):
     """
     Allows a user to update one of their own affiliations.
     """
-
+    next_url = request.GET.get('next', '')
     affiliation = get_object_or_404(
         core_models.ControlledAffiliation,
         pk=affiliation_id,
@@ -3062,7 +3150,10 @@ def affiliation_update(request, affiliation_id):
                 _("Affiliation updated: %(affiliation)s")
                     % {"affiliation": affiliation},
             )
-            return redirect(reverse('core_edit_profile'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
 
     template = 'admin/core/affiliation_form.html'
     context = {
@@ -3080,6 +3171,7 @@ def affiliation_delete(request, affiliation_id):
     Allows a user to delete one of their own affiliations.
     """
 
+    next_url = request.GET.get('next', '')
     affiliation = get_object_or_404(
         core_models.ControlledAffiliation,
         pk=affiliation_id,
@@ -3097,7 +3189,10 @@ def affiliation_delete(request, affiliation_id):
                 _("Affiliation deleted: %(affiliation)s")
                     % {"affiliation": affiliation},
             )
-            return redirect(reverse('core_edit_profile'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
 
     template = 'admin/core/affiliation_confirm_delete.html'
     context = {

@@ -156,6 +156,11 @@ urlpatterns = [
         name='core_affiliation_update'
     ),
     re_path(
+        r'^profile/affiliation/update-from-orcid/$',
+        core_views.affiliation_bulk_update_from_orcid,
+        name='core_affiliation_bulk_update_from_orcid'
+    ),
+    re_path(
         r'^profile/affiliation/(?P<affiliation_id>\d+)/delete/$',
         core_views.affiliation_delete,
         name='core_affiliation_delete'
