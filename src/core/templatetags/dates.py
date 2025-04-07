@@ -59,4 +59,4 @@ def date_human(value):
             format="j F Y",
             use_l10n=True,
         )
-    return value
+    return ""
