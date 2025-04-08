@@ -219,14 +219,29 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             additional_fields = models.Field.objects.filter(journal=request.journal)
 
             for field in additional_fields:
-                answer = request.POST.get(field.name, None)
-                if answer:
+                posted_value = request.POST.get(field.name)
+
+                # Determine answer depending on field kind
+                if field.kind == 'check':
+                    answer = bool(posted_value)
+                else:
+                    answer = posted_value
+
+                # Check inputs should pass here so we can record them as False
+                if answer or field.kind == 'check':
                     try:
-                        field_answer = models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer = models.FieldAnswer.objects.get(
+                            article=article,
+                            field=field,
+                        )
                         field_answer.answer = answer
                         field_answer.save()
                     except models.FieldAnswer.DoesNotExist:
-                        field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
+                        models.FieldAnswer.objects.create(
+                            article=article,
+                            field=field,
+                            answer=answer,
+                        )
 
             if self.pop_disabled_fields:
                 request.journal.submissionconfiguration.handle_defaults(article)
