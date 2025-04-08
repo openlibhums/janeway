@@ -32,9 +32,8 @@ from security.decorators import (
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
-from utils import orcid, setting_handler
+from utils import setting_handler
 from utils import shared as utils_shared
-from core.model_utils import generate_dummy_email
 from utils.decorators import GET_language_override
 from utils.shared import create_language_override_redirect
 
