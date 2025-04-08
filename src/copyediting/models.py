@@ -71,7 +71,10 @@ class CopyeditAssignment(models.Model):
         ordering = ('assigned',)
 
     def __str__(self):
-        return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article)
+        return "Assignment of {0} to {1}".format(
+            self.copyeditor.full_name() if self.copyeditor else '',
+            self.article,
+        )
 
     def author_reviews(self):
         return AuthorReview.objects.filter(assignment=self).order_by('assigned')

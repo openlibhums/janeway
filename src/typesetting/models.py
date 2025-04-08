@@ -331,7 +331,7 @@ class GalleyProofing(models.Model):
     def __str__(self):
         return 'Proofing for Article {0} by {1}'.format(
             self.round.article.title,
-            self.proofreader.full_name(),
+            self.proofreader.full_name() if self.proofreader else '',
         )
 
     def assign(self, user=None, skip=False):
