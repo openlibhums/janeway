@@ -28,7 +28,7 @@
         <aside class="box">
           <p> Note: This page lists all users with a role in
           <i>{{ request.journal.name }}</i>. If a broader search is needed,
-          try <a href="{% stateless_site_url request.press 'press_all_users' %}>All Users
+          try <a href="{% stateless_site_url request.press 'press_all_users' %}">All Users
           at the press level</a>.</p>
         </aside>
       {% elif request.press and user.is_staff %}
