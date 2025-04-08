@@ -13,9 +13,10 @@ from django.contrib import messages
 from django.utils.translation import get_language, gettext_lazy as _
 
 from core.forms import OrcidAffiliationForm
+from core.model_utils import generate_dummy_email
 from core import files
 from core import models as core_models
-from utils import setting_handler
+from utils import orcid, setting_handler, shared as utils_shared
 from utils.forms import clean_orcid_id
 from submission import models
 from submission.forms import AuthorForm
