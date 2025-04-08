@@ -697,8 +697,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
     def test_organization_list_view_get(self):
         self.client.force_login(self.user)
         url = '/profile/organization/search/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/organization_list.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/organization_search.html'
+        self.assertTemplateUsed(response, template)
 
     def test_organization_list_view_post(self):
         self.client.force_login(self.user)
@@ -713,8 +714,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
     def test_organization_name_create_get(self):
         self.client.force_login(self.user)
         url = '/profile/organization_name/create/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/organization_name_create.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/organizationname_form.html'
+        self.assertTemplateUsed(response, template)
 
     def test_organization_name_create_post(self):
         self.client.force_login(self.user)
@@ -743,8 +745,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         )
         self.client.force_login(self.user)
         url = f'/profile/organization_name/{organization_name.pk}/update/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/affiliation_name_update.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/organizationname_form.html'
+        self.assertTemplateUsed(response, template)
 
     def test_organization_name_update_post(self):
         # Set up custom org with affiliation
@@ -775,8 +778,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         organization = core_models.Organization.objects.create()
         self.client.force_login(self.user)
         url = f'/profile/organization/{organization.pk}/affiliation/create/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/affiliation_create.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/affiliation_form.html'
+        self.assertTemplateUsed(response, template)
 
     def test_affiliation_create_post(self):
         organization = core_models.Organization.objects.create()
@@ -793,8 +797,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
     def test_affiliation_update_get(self):
         self.client.force_login(self.user)
         url = f'/profile/affiliation/{self.affiliation.pk}/update/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/affiliation_update.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/affiliation_form.html'
+        self.assertTemplateUsed(response, template)
 
     def test_affiliation_update_post(self):
         self.client.force_login(self.user)
@@ -812,8 +817,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
     def test_affiliation_delete_get(self):
         self.client.force_login(self.user)
         url = f'/profile/affiliation/{self.affiliation.pk}/delete/'
-        self.client.get(url, {})
-        self.assertTemplateUsed('admin/core/affiliation_confirm_delete.html')
+        response = self.client.get(url, {})
+        template = 'admin/core/affiliation_confirm_delete.html'
+        self.assertTemplateUsed(response, template)
 
     def test_affiliation_delete_post(self):
         self.client.force_login(self.user)
