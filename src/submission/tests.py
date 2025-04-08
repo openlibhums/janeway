@@ -52,21 +52,6 @@ class SubmissionTests(TestCase):
         if not self.journal_one.submissionconfiguration:
             self.fail('Journal does not have a submissionconfiguration object.')
 
-    @staticmethod
-    def create_journal():
-        """
-        Creates a dummy journal for testing
-        :return: a journal
-        """
-        update_xsl_files()
-        update_settings()
-        journal_one = journal_models.Journal(code="TST", domain="testserver")
-        journal_one.title = "Test Journal: A journal of tests"
-        journal_one.save()
-        update_issue_types(journal_one)
-
-        return journal_one
-
     @classmethod
     def create_authors(cls):
         author_1_data = {
@@ -117,10 +102,33 @@ class SubmissionTests(TestCase):
         Setup the test environment.
         :return: None
         """
-        cls.journal_one = cls.create_journal()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
         cls.editor = helpers.create_editor(cls.journal_one)
         cls.press = helpers.create_press()
         cls.create_sections()
+        cls.licence = helpers.create_licence(
+            journal=cls.journal_one,
+            name="Creative Commons Attribution",
+            short_name="CC BY",
+        )
+        cls.article = helpers.create_article(cls.journal_one)
+
+        cls.boolean_field = models.Field.objects.create(
+            journal=cls.journal_one,
+            name='test_boolean',
+            kind='check',
+            order=1,
+            help_text='Test boolean field',
+            required=False
+        )
+        cls.text_field = models.Field.objects.create(
+            journal=cls.journal_one,
+            name='test_text',
+            kind='text',
+            order=1,
+            help_text='Test text field',
+            required=False,
+        )
 
     def test_article_image_galley(self):
         article = models.Article.objects.create(
@@ -166,7 +174,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1, 2-4.
+        <i>Journal One</i> 1, 2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
@@ -764,6 +772,100 @@ class SubmissionTests(TestCase):
             self.section_2.display_name_public_submission(),
         )
 
+    def test_boolean_field_unchecked_sets_false(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
+        }
+
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
+
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
+        )
+
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
+
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.boolean_field,
+        )
+        self.assertEqual(field_answer.answer, '')
+
+    def test_boolean_field_unchecked_sets_true(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
+            'test_boolean': 'on'
+        }
+
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
+
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
+        )
+
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
+
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.boolean_field,
+        )
+        self.assertEqual(field_answer.answer, 'True')
+
+    def test_text_field_sets(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
+            'test_text': 'Sometimes first contact is last contact.'
+        }
+
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
+
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
+        )
+
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
+
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.text_field,
+        )
+        self.assertEqual(
+            field_answer.answer,
+            'Sometimes first contact is last contact.',
+        )
 
 class ArticleSearchTests(TransactionTestCase):
     roles_path = os.path.join(
