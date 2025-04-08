@@ -142,6 +142,9 @@
                     <tr>
                         <th></th>
                         <th>Name</th>
+                        {% if journal_settings.general.use_credit %}
+                            <th>CRediT</th>
+                        {% endif %}
                         <th>Email</th>
                         <th>Display Email Link?</th>
                         <th>Institution</th>
@@ -155,6 +158,17 @@
                         <tr id="authors-{{ f_author.pk }}">
                             <td><i class="fa fa-sort"></i></td>
                             <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
+                            {% if journal_settings.general.use_credit %}
+                                <td> 
+                                {% if f_author.credits.exists %}
+                                    <span class="credit">
+                                    {% for credit in f_author.credits %}
+                                        {{ credit }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                {% endif %}
+                                </td>
+                            {% endif %}
                             <td>{{ f_author.email|se_can_see_pii:article }}</td>
                             <td>{{ f_author.display_email|bool_fa }}</td>
                             <td>{{ f_author.institution|se_can_see_pii:article }}</td>
