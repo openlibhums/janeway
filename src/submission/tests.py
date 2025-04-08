@@ -831,7 +831,7 @@ class SubmissionTests(TestCase):
             article=self.article,
             field=self.boolean_field,
         )
-        self.assertEqual(field_answer.answer, 'True')
+        self.assertEqual(field_answer.answer, 'on')
 
     def test_text_field_sets(self):
         post_data = {

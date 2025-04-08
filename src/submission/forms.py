@@ -223,11 +223,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
                 # Determine answer depending on field kind
                 if field.kind == 'check':
-                    answer = bool(posted_value)
+                    # Keep 'on' if checked otherwise store an empty string
+                    answer = posted_value if posted_value is not None else ''
                 else:
                     answer = posted_value
 
-                # Check inputs should pass here so we can record them as False
+                # Checkbox type inputs should pass here so they are recorded
                 if answer or field.kind == 'check':
                     try:
                         field_answer = models.FieldAnswer.objects.get(
