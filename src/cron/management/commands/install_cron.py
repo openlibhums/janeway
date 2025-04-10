@@ -72,6 +72,18 @@ class Command(BaseCommand):
                 'task': 'send_publication_notifications',
                 'type': 'daily',
             },
+            {
+                'name': '{}_import_ror_data'.format(cwd),
+                'day': 3,
+                'task': 'import_ror_data',
+                'type': 'monthly',
+            },
+            {
+                'name': '{}_match_ror_ids'.format(cwd),
+                'day': 4,
+                'task': 'match_ror_ids',
+                'type': 'monthly',
+            },
         ]
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
@@ -107,7 +119,9 @@ class Command(BaseCommand):
 
                 cron_job = tab.new(command, comment=job['name'])
 
-                if job.get('type') == 'daily':
+                if job.get('type') == 'monthly':
+                    cron_job.setall('47 2 {} * *'.format(job['day']))
+                elif job.get('type') == 'daily':
                     cron_job.setall('0 {} * * *'.format(job['time']))
                 elif job.get('type') == 'hourly':
                     cron_job.setall('0 */{} * * *'.format(job['time']))
