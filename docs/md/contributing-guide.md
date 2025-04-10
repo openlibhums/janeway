@@ -23,7 +23,7 @@ Make your document easy to read by using contextual headings (levels h1-h6 using
 Use short paragraphs and consider using list markup where appropriate.
 
 > [!NOTE]
-> See also the Google guide sections on jargon, prescriptive documentation, and voice and tone.
+> See also the Google guide sections on [jargon](https://developers.google.com/style/jargon), [prescriptive documentation](https://developers.google.com/style/prescriptive-documentation), and [voice and tone](https://developers.google.com/style/tone).
 
 ## Audience
 
