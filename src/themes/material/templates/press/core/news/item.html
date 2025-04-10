@@ -2,6 +2,7 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
 
@@ -15,7 +16,7 @@
                     <span class="card-title news-card-title">{{ news_item.title }}</span>
                 </div>
                 <div class="card-content">
-                    <h6><em>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>
+                    <h6><em>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</em>
                     </h6>
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}

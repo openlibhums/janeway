@@ -2,6 +2,7 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
@@ -28,7 +29,7 @@
                         {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
                             <h2 class="no-top-margin">{{ item.title|safe }}</h2>
                         {% endif %}
-                        <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</em></h6>
                         <p>{{ item.body|truncatewords_html:50|safe }}</p>
                     </div>
                     <div class="card-action">
