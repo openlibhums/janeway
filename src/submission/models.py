@@ -2172,6 +2172,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
         return None
 
     @property
+    def real_email(self):
+        if not str(self.email).endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email or ''
+        else:
+            return ''
+
+    @property
     def orcid(self):
         if self.frozen_orcid:
             return self.frozen_orcid

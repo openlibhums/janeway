@@ -312,6 +312,10 @@ def save_author_order(request, article):
         if not c:
             author_order.order = i
             author_order.save()
+        models.FrozenAuthor.objects.filter(
+            article=article,
+            author__pk=author_pk,
+        ).update(order=i)
     sentences = {
         'first': _('%(author_name)s moved to the start.')
             % {'author_name': author.full_name()},
@@ -329,7 +333,8 @@ def save_author_order(request, article):
     )
 
 
-def add_author_from_search(search_term, request, article):
+def add_author_from_search(request, article):
+    search_term = request.POST.get('author_search_text')
     query = Q(email=search_term)
     try:
         cleaned_orcid = clean_orcid_id(search_term)
@@ -341,6 +346,7 @@ def add_author_from_search(search_term, request, article):
         new_author = core_models.Account.objects.get(query)
     except core_models.Account.DoesNotExist:
         new_author = None
+    added = False
 
     if cleaned_orcid:
         orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
@@ -384,6 +390,7 @@ def add_author_from_search(search_term, request, article):
     if new_author:
         if new_author not in article.authors.all():
             add_user_as_author(new_author, article)
+            added = True
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -426,3 +433,110 @@ def add_author_from_search(search_term, request, article):
                     _("Affiliation created: %(affiliation)s")
                         % {"affiliation": affiliation},
                 )
+
+    return new_author, added
+
+
+def add_author_from_manual_entry(request, article):
+    form = forms.AuthorForm(request.POST)
+
+    email = request.POST.get("email")
+    author = None
+    added = False
+    account_exists = logic.check_author_exists(email=email)
+    if account_exists:
+        author = core_models.Account.objects.get(email=email)
+    elif form.is_valid():
+        new_author = form.save(commit=False)
+        new_author.set_password(utils_shared.generate_password())
+        new_author.save()
+        author = new_author
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            _('Could not add the author manually.'),
+        )
+
+    if author:
+        if author in article.authors.all():
+            messages.add_message(
+                request, messages.SUCCESS,
+                _('%(author_name)s (%(email)s) is already an author.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+        else:
+            logic.add_user_as_author(author, article)
+            added = True
+            messages.add_message(
+                request, messages.SUCCESS,
+                _('%(author_name)s (%(email)s) added to the article.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+    return author, added
+
+
+def set_correspondence_author(request, article):
+    author = get_object_or_404(
+        core_models.Account,
+        pk=request.POST.get('corr_author', None),
+    )
+    article.correspondence_author = author
+    article.save()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s (%(email)s) made correspondence author.')
+            % {
+                "author_name": author.full_name(),
+                "email": author.email
+            },
+    )
+    return author
+
+
+def add_credit_role(request, article):
+    author_pk = int(request.POST.get('author_pk'))
+    author = get_object_or_404(
+        core_models.Account,
+        pk=author_pk,
+    )
+    role_text = request.POST.get('add_credit', '')
+    if role_text:
+        record = author.add_credit(role_text, article)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s given role %(role)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "role": record.get_role_display(),
+                },
+        )
+    return author
+
+
+def remove_credit_role(request, article):
+    author_pk = int(request.POST.get('author_pk'))
+    author = get_object_or_404(
+        core_models.Account,
+        pk=author_pk,
+    )
+    role_text = request.POST.get('remove_credit', '')
+    if role_text:
+        record = author.remove_credit(role_text, article)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s no longer has the role %(role)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "role": record.get_role_display(),
+                },
+        )
+    return author

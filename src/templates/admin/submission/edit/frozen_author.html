@@ -1,10 +1,33 @@
-{% comment %}
-  This template is deprecated. Use this one instead: admin/submission/edit/frozen_author.html
-{% endcomment %}
+{% extends "admin/core/base.html" %}
 
+{% load i18n %}
+{% load static %}
 {% load foundation %}
-<div class="reveal small" id="author" data-reveal data-animation-in="slide-in-up"
-     data-animation-out="slide-out-down">
+{% load next_url %}
+
+{% block title %}Add author - {{ article.title }}{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>Edit</li>
+  <li>
+    <a href="{{ article.current_workflow_element_url }}">
+      {{ article.safe_title }}
+    </a>
+  </li>
+  <li>
+    <a href="{% url_with_next 'edit_metadata' article.pk %}">Edit metadata</a>
+  </li>
+  <li>Add author</li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  Add author
+{% endblock title-section %}
+
+
+{% block body %}
+<div id="author">
     <div class="card">
         <div class="card-divider">
             <h4><i class="fa fa-user">&nbsp;</i>{% if frozen_author %}Edit {{ frozen_author.full_name }}{% else %}Add New Frozen Author{% endif %}</h4>
@@ -32,7 +55,5 @@
             </form>
         </div>
     </div>
-    <button class="close-button" data-close aria-label="Close reveal" type="button">
-        <span aria-hidden="true">&times;</span>
-    </button>
 </div>
+{% endblock body %}

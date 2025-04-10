@@ -118,8 +118,8 @@
       <div class="callout">
         <p>
           {% blocktrans with journal=request.journal.name press=request.press.name %}
-            Some authors may already be registered in <i>{{ journal }}</i>, {{
-            press }}, or the ORCiD registry. You can check by searching for
+            Some authors may already be registered in <i>{{ journal }}</i>,
+            {{ press }}, or the ORCiD registry. You can check by searching for
             their email or ORCiD ID. If a match is found, they will be added to
             the author list.
           {% endblocktrans %}

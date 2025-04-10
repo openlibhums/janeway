@@ -1,0 +1,291 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation static securitytags %}
+{% load i18n %}
+{% load next_url %}
+
+{% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>Edit</li>
+  <li>
+    <a href="{{ article.current_workflow_element_url }}">
+      {{ article.safe_title }}
+    </a>
+  </li>
+  <li>Edit Author Metadata</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+  {% can_see_pii_tag article as can_see_pii %}
+  <div class="row expanded">
+    <div class="large-12 columns">
+      <div class="box">
+        <div class="title-area">
+          <h2 id="edit-metadata-authors">
+            {% if article.frozen_authors.exists %}
+              {% trans "Frozen authors" %}
+            {% else %}
+              {% trans "Authors" %}
+            {% endif %}
+          </h2>
+        </div>
+        <div class="content">
+          <div class="list-group">
+            {% for frozen_author, credits, credit_form in frozen_authors %}
+              <section class="list-group-item" aria-describedby="author_{{ author.pk }}">
+                <div class="flex direction-column">
+                  {% if frozen_author.is_correspondence_author %}
+                    {% include "admin/submission/submit_correspondence_author.html" with article=article %}
+                  {% endif %}
+                  <div class="flex gap-2 direction-column-small">
+                    {% if frozen_authors|length > 1 %}
+                      <div class="stat">{{ forloop.counter }}</div>
+                    {% endif %}
+                    <div class="grow-1">
+                      <div class="list-group-item-heading flex wrap column-gap-2">
+                        <h2 id="author_{{ author.pk }}">
+                          {{ frozen_author.full_name|default:"[No name]"|se_can_see_pii:article }}
+                        </h2>
+                        <div class="button-group no-bottom-margin flex items-center">
+                          {% if can_see_pii %}
+                            <a
+                              href="{% url 'submission_edit_frozen_author' article.pk frozen_author.pk %}"
+                              class="button hollow secondary no-bottom-margin">
+                              <span class="fa fa-edit"></span>
+                              {% trans "Edit" %}
+                            </a>
+                          {% endif %}
+                          <a
+                            href="{% url_with_return 'delete_author' article.pk frozen_author.author.pk %}"
+                            class="button hollow secondary no-bottom-margin">
+                            <span class="fa fa-remove"></span>
+                            {% trans "Remove" %}
+                          </a>
+                        </div>
+                      </div>
+                      <dl>
+                        <div class="flex gap-4 wrap">
+                          {% include "admin/elements/layout/key_value_above.html" with key="Email" value=frozen_author.real_email|default:"No email address"|se_can_see_pii:article %}
+                          {% if frozen_author.display_email %}
+                            {% include "admin/elements/layout/key_value_above.html" with key="Display email link" value="Yes" %}
+                          {% else %}
+                            {% include "admin/elements/layout/key_value_above.html" with key="Display email link" value="No" %}
+                          {% endif %}
+                          {% include "admin/elements/layout/key_value_above.html" with key="ORCiD ID" value=frozen_author.orcid|default:"No ORCiD ID"|se_can_see_pii:article %}
+                        </div>
+                        <div class="key-value-pair key-above">
+                          <dt class="key">Affiliations</dt>
+                          <dd class="value">
+                            <div class="flex direction-column row-gap-0-5 max-w-44">
+                              {% if can_see_pii %}
+                                {% for affiliation in frozen_author.affiliations %}
+                                  {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
+                                {% empty %}
+                                  <div>No affiliations</div>
+                                {% endfor %}
+                              {% else %}
+                                <div>[Anonymised data]</div>
+                              {% endif %}
+                            </div>
+                          </dd>
+                        </div>
+                        {% if journal_settings.general.use_credit %}
+                          <div class="key-value-pair key-above">
+                            <dt class="key">Roles</dt>
+                            <dd class="value">
+                              <form method="POST">
+                                {% csrf_token %}
+                                <input
+                                  type="hidden"
+                                  name="frozen_author_id"
+                                  value="{{ frozen_author.pk }}">
+                                <div class="flex direction-column row-gap-0-5">
+                                  <div class="flex direction-column gap-0-25 wrap">
+                                    {% for credit in credits %}
+                                      <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between max-w-24">
+                                        {{ credit }}
+                                        <div class="small button-group no-bottom-margin flex items-center">
+                                          <button
+                                            class="button hollow secondary no-bottom-margin"
+                                            name="remove_credit"
+                                            value="{{ credit.role }}"
+                                            type="submit">
+                                            <span class="fa fa-remove"></span>
+                                            Remove
+                                            <span class="sr-only">
+                                              {{ credit.get_role_display }}
+                                            </span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    {% empty %}
+                                      <div>
+                                        This frozen author has no contributor roles.
+                                        <a
+                                          target="_blank"
+                                          href="https://credit.niso.org/contributor-roles-defined/">
+                                          Learn about CRediT roles.
+                                          <span class="sr-only">(opens in new tab)</span>
+                                        </a>
+                                      </div>
+                                    {% endfor %}
+                                  </div>
+                                  <div class="bs-callout bs-callout-info flex direction-column gap-0-5">
+                                    <div>Add role:</div>
+                                    <div class="small button-group no-bottom-margin">
+                                      {% for radio in credit_form.role %}
+                                        {% if radio.data.value not in credits.values %}
+                                          <button
+                                            class="button hollow secondary"
+                                            name="add_credit"
+                                            value="{{ radio.data.value }}"
+                                            type="submit">
+                                            <span class="fa fa-plus"></span>
+                                            <span class="sr-only">Add</span>
+                                            {{ radio.choice_label }}
+                                          </button>
+                                        {% endif %}
+                                      {% endfor %}
+                                    </div>
+                                  </div>
+                                </div>
+                              </form>
+                            </dd>
+                          </div>
+                        {% endif %}
+                      </dl>
+                    </div>
+                    {% if frozen_authors|length > 1 %}
+                      <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="author_pk" value="{{ frozen_author.author.pk }}">
+                        <div class="flex direction-column-large direction-row-mall column-gap-0-5">
+                          <button
+                            class="button secondary small hollow"
+                            name="change_order"
+                            value="first">
+                            <span class="fa fa-angle-double-up fa-lg"></span>
+                            <span class="sr-only">
+                              {% blocktrans with author_name=frozen_author.full_name|se_can_see_pii:article %}
+                                Move {{ author_name }} to top
+                              {% endblocktrans %}
+                            </span>
+                          </button>
+                          <button
+                            class="button secondary small hollow"
+                            name="change_order"
+                            value="up">
+                            <span class="fa fa-angle-up fa-lg"></span>
+                            <span class="sr-only">
+                              {% blocktrans with author_name=frozen_author.full_name|se_can_see_pii:article %}
+                                Move {{ author_name }} up
+                              {% endblocktrans %}
+                            </span>
+                          </button>
+                          <button
+                            class="button secondary small hollow"
+                            name="change_order"
+                            value="down">
+                            <span class="fa fa-angle-down fa-lg"></span>
+                            <span class="sr-only">
+                              {% blocktrans with author_name=frozen_author.full_name|se_can_see_pii:article %}
+                                Move {{ author_name }} down
+                              {% endblocktrans %}
+                            </span>
+                          </button>
+                          <button
+                            class="button secondary small hollow"
+                            name="change_order"
+                            value="last">
+                            <span class="fa fa-angle-double-down fa-lg"></span>
+                            <span class="sr-only">
+                              {% blocktrans with author_name=frozen_author.full_name|se_can_see_pii:article %}
+                                Move {{ author_name }} to end
+                              {% endblocktrans %}
+                            </span>
+                          </button>
+                        </div>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </section>
+            {% empty %}
+              <div class="list-group-item">This article has no authors.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row expanded">
+      <div class="large-6 columns">
+        <div class="box">
+          <div class="sr-only">
+            <h2>Add author from search</h2>
+          </div>
+          <p>
+            {% blocktrans with journal=request.journal.name press=request.press.name %}
+              Some authors may already be registered in <i>{{ journal }}</i>,
+              {{ press }}, or the ORCiD registry. You can check by searching for
+              their email or ORCiD ID. If a match is found, they will be added to
+              the author list.
+            {% endblocktrans %}
+          </p>
+          <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <label
+                for="author_search_text"
+                class="input-group-label">
+                Search
+              </label>
+              <input
+                id="author_search_text"
+                name="author_search_text"
+                class="input-group-field"
+                placeholder="e.g. 0000-0001-2345-6789"
+                type="search">
+            </div>
+            <div class="button-group">
+              <button type="submit" class="button" name="search_authors">
+                <span class="fa fa-search"></span>
+                {% trans "Add author from search" %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="large-6 columns">
+        <div class="box">
+          <div class="sr-only">
+            <h2>Add author manually</h2>
+          </div>
+          <p>If you cannot find the author in the search,
+          you can add them manually.</p>
+          <form method="POST">
+            {% csrf_token %}
+            <div class="flex wrap gap-1 items-end">
+              {% include "admin/elements/forms/field.html" with field=form.first_name %}
+              {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+              {% include "admin/elements/forms/field.html" with field=form.last_name %}
+            </div>
+            <div class="max-w-24">
+              {% include "admin/elements/forms/field.html" with field=form.email %}
+            </div>
+            <div class="flex wrap gap-1 items-end">
+              <div class="button-group">
+                <button
+                  name="add_author"
+                  class="button">
+                  <span class="fa fa-user-plus"></span>
+                  {% trans "Add author manually" %}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock body %}
