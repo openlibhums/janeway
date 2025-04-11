@@ -12,23 +12,29 @@ def update_setting_values(apps, schema_editor):
     SettingValue = apps.get_model("core", "SettingValue")
     setting_group, _ = SettingGroup.objects.get_or_create(
         name="article")
-    call_command('load_default_settings')
 
-    thumb_setting, c = Setting.objects.get_or_create(name="disable_article_thumbnails")
-    large_image_setting = Setting.objects.get(name="disable_article_large_image")
-
-    for journal in Journal.objects.filter(disable_article_images=True):
-        SettingValue.objects.get_or_create(
-            setting=thumb_setting,
-            value_en="on",
-            journal=journal,
+    try:
+        thumb_setting, c = Setting.objects.get(
+            name="disable_article_thumbnails"
         )
-        SettingValue.objects.get_or_create(
-            setting=large_image_setting,
-            value_en="on",
-            journal=journal,
+        large_image_setting = Setting.objects.get(
+            name="disable_article_large_image",
         )
 
+        for journal in Journal.objects.filter(disable_article_images=True):
+            SettingValue.objects.get_or_create(
+                setting=thumb_setting,
+                value_en="on",
+                journal=journal,
+            )
+            SettingValue.objects.get_or_create(
+                setting=large_image_setting,
+                value_en="on",
+                journal=journal,
+            )
+    except Setting.DoesNotExist:
+        # There is no setting to update.
+        pass
 
 class Migration(migrations.Migration):
 
