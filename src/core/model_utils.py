@@ -795,7 +795,9 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
         for field in fields:
             query_piece &= models.Q((f'{field}__isnull', True))
             main_query |= query_piece
-    name = f'{model_label}_{"_".join(list(fields))}_exclusive_fields_constraint'
+    fields_str = "_".join(list(fields))
+    # Our supported databases have a max length of 64 chars for constraints
+    name = f'exclusive_fields_{model_label}_{fields_str}'[:64]
     constraint = models.CheckConstraint(
         check=main_query,
         name=name,
