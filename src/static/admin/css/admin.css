@@ -968,3 +968,22 @@ ul.menu {
   grid-template-columns: min(calc(100vw - (2 * var(--small-inline-margin))), 56rem);
   justify-content: center;
 }
+
+.options.displayed .options-pane {
+  display: block;
+}
+.options.displayed .fa-angle-up {
+  display: inline;
+}
+.options.displayed .fa-angle-down {
+  display: none;
+}
+.options .options-pane {
+  display: none;
+}
+.options .fa-angle-down {
+  display: inline;
+}
+.options .fa-angle-up {
+  display: none;
+}

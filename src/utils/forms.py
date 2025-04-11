@@ -1,4 +1,6 @@
 import bleach
+import re
+
 from django.forms import (
     CharField,
     CheckboxInput,
@@ -152,3 +154,20 @@ def plain_text_validator(value):
         raise ValidationError(
             _("HTML is not allowed in this field")
         )
+
+
+def clean_orcid_id(orcid):
+    """
+    Utility function that cleans an ORCID ID.
+    """
+    if orcid:
+        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
+        result = orcid_regex.search(orcid)
+
+        if result:
+            return result.group(0)
+        else:
+            raise ValueError('ORCID is not valid.')
+
+    # ORCID is None.
+    return orcid

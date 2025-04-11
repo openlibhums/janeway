@@ -1,6 +1,6 @@
 {% extends "admin/core/large_form.html" %}
 
-{% load i18n static %}
+{% load i18n static next_url %}
 
 {% block contextual_title %}
   {% trans "Add Affiliation" %}
@@ -28,6 +28,7 @@
             <h2>{% trans "Search for organization" %}</h2>
           </div>
           <div class="input-group">
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
             <label
               for="{{ facet_form.q.id_for_label }}"
               class="input-group-label">
@@ -60,7 +61,7 @@
                 {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
               </div>
               <div>
-                {% url 'core_affiliation_create' organization.pk as create_url %}
+                {% url_with_next 'core_affiliation_create' organization.pk as create_url %}
                 {% trans "Add affiliation" as add_affiliation %}
                 {% include "elements/a_create.html" with href=create_url label=add_affiliation %}
               </div>
@@ -71,8 +72,8 @@
         {% endfor %}
         <div class="callout">
           <h3>Organization not found?</h3>
-          {% url 'core_organization_name_create' as create_url %}
-          {% trans "Create custom organization" as create_custom_organization %}
+          {% url_with_next 'core_organization_name_create' as create_url %}
+          {% trans "Create organization" as create_custom_organization %}
           {% include "elements/a_create.html" with href=create_url label=create_custom_organization %}
         </div>
         {% if organization_list %}

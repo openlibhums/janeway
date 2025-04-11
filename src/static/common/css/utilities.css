@@ -11,12 +11,36 @@
   &.space-between { justify-content: space-between; }
   &.items-start { align-items: flex-start; }
   &.items-center { align-items: center; }
+  &.items-end { align-items: flex-end; }
+  &.justify-end { justify-content: flex-end; }
 
   /* Flex direction */
   &.direction-row { flex-direction: row; }
   &.direction-column { flex-direction: column; }
 
   /* Responsive flex direction */
+
+  &.direction-column {
+    flex-direction: column;
+  }
+  @media (width <= 50rem) {
+    &.direction-row-small {
+      flex-direction: row;
+    }
+    &.direction-column-small {
+      flex-direction: column;
+    }
+  }
+  @media (width > 50rem) {
+    &.direction-row-large {
+      flex-direction: row;
+    }
+    &.direction-column-large {
+      flex-direction: column;
+    }
+  }
+
+  /* NOTE: Portrait-based and landscape-based flex directions are deprecated */
   @media (orientation: portrait) {
     &.portrait-row { flex-direction: row; }
     &.portrait-column { flex-direction: column; }
@@ -25,6 +49,8 @@
     &.landscape-row { flex-direction: row; }
     &.landscape-column { flex-direction: column; }
   }
+
+  .grow-1 { flex-grow: 1; }
 }
 
 /* Grid */
@@ -89,6 +115,7 @@
 .max-w-28 { max-width: 28rem; }
 .max-w-32 { max-width: 32rem; }
 .max-w-40 { max-width: 40rem; }
+.max-w-44 { max-width: 44rem; }
 .max-w-48 { max-width: 48rem; }
 .max-w-56 { max-width: 56rem; }
 .max-w-64 { max-width: 64rem; }

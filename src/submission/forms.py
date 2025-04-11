@@ -16,6 +16,7 @@ from utils.forms import (
     KeywordModelForm,
     JanewayTranslationModelForm,
     HTMLDateInput,
+    clean_orcid_id,
 )
 from utils import setting_handler
 
@@ -261,62 +262,31 @@ class EditArticleMetadata(ArticleInfo):
 
 
 class AuthorForm(forms.ModelForm):
+    """
+    A barebones form for submitting authors to enter
+    details for their co-authors.
+    """
 
     class Meta:
         model = core_models.Account
-        exclude = (
-            'date_joined',
-            'activation_code'
-            'date_confirmed'
-            'confirmation_code'
-            'reset_code'
-            'reset_code_validated'
-            'roles'
-            'interest'
-            'is_active'
-            'is_staff'
-            'is_admin'
-            'password',
-            'username',
-            'roles',
+        fields = (
+            'email',
+            # 'username',
+            # 'name_prefix',
+            'first_name',
+            'middle_name',
+            'last_name',
+            # 'salutation',
+            # 'suffix',
+            # 'biography',
+            # 'orcid',
+            # 'twitter',
+            # 'linkedin',
+            # 'website',
+            # 'github',
+            # 'signature',
+            # 'preferred_timezone',
         )
-
-        widgets = {
-            'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
-            'middle_name': forms.TextInput(attrs={'placeholder': _('Middle name')}),
-            'last_name': forms.TextInput(attrs={'placeholder': _('Last name')}),
-            'biography': forms.Textarea(
-                attrs={'placeholder': _('Enter biography here')}),
-            'institution': forms.TextInput(attrs={'placeholder': _('Institution')}),
-            'department': forms.TextInput(attrs={'placeholder': _('Department')}),
-            'twitter': forms.TextInput(attrs={'placeholder': _('Twitter handle')}),
-            'linkedin': forms.TextInput(attrs={'placeholder': _('LinkedIn profile')}),
-            'impactstory': forms.TextInput(attrs={'placeholder': _('ImpactStory profile')}),
-            'orcid': forms.TextInput(attrs={'placeholder': _('ORCID ID')}),
-            'email': forms.TextInput(attrs={'placeholder': _('Email address')}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(AuthorForm, self).__init__(*args, **kwargs)
-        self.fields['password'].required = False
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-
-    def clean_orcid(self):
-        orcid_string = self.cleaned_data.get('orcid')
-        try:
-            return utility_clean_orcid(orcid_string)
-        except ValueError:
-            self.add_error(
-                'orcid',
-                 'An ORCID must be entered in the pattern '
-                'https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000. You can find out '
-                'about valid ORCID patterns on the ORCID support site: '
-                'https://support.orcid.org/hc/en-us/articles/'
-                '360006897674-Structure-of-the-ORCID-Identifier',
-            )
-        return orcid_string
 
 
 class SubmissionCommentsForm(forms.ModelForm):
@@ -397,7 +367,7 @@ class EditFrozenAuthor(forms.ModelForm):
     def clean_frozen_orcid(self):
         orcid_string = self.cleaned_data.get('frozen_orcid')
         try:
-            return utility_clean_orcid(orcid_string)
+            return clean_orcid_id(orcid_string)
         except ValueError:
             self.add_error(
                 'frozen_orcid',
@@ -524,20 +494,8 @@ class ArticleFundingForm(forms.ModelForm):
 
 
 def utility_clean_orcid(orcid):
-    """
-    Utility function that cleans an ORCID ID.
-    """
-    if orcid:
-        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
-        result = orcid_regex.search(orcid)
-
-        if result:
-            return result.group(0)
-        else:
-            raise ValueError('ORCID is not valid.')
-
-    # ORCID is None.
-    return orcid
+    raise DeprecationWarning('Use utils.forms.clean_orcid_id')
+    return clean_orcid_id(orcid)
 
 
 class PubDateForm(forms.ModelForm):
@@ -554,3 +512,51 @@ class PubDateForm(forms.ModelForm):
             article.fixedpubcheckitems.save()
             article.save()
         return article
+
+
+class CreditRecordForm(forms.ModelForm):
+
+    def _remove_choices_when_roles_already_exist(self, credit_records):
+        credit_slugs = set(record.role for record in credit_records)
+        new_choices = []
+        for old_choice in self.fields['role'].choices:
+            if old_choice[0] not in credit_slugs:
+                new_choices.append(old_choice)
+        self.fields['role'].choices = new_choices
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.fields['role'].choices = self.fields['role'].choices[1:]
+
+        article = kwargs.get('article')
+        author = kwargs.get('author')
+        frozen_author = kwargs.get('frozen_author')
+        preprint_author = kwargs.get('preprint_author')
+        if article and author:
+            self._remove_choices_when_roles_already_exist(
+                models.CreditRecord.objects.filter(
+                    article=article,
+                    author=author,
+                )
+            )
+        elif article and frozen_author:
+            self._remove_choices_when_roles_already_exist(
+                models.CreditRecord.objects.filter(
+                    article=article,
+                    frozen_author=frozen_author,
+                )
+            )
+        elif article and preprint_author:
+            self._remove_choices_when_roles_already_exist(
+                models.CreditRecord.objects.filter(
+                    article=article,
+                    preprint_author=preprint_author,
+                )
+            )
+
+    class Meta:
+        model = models.CreditRecord
+        fields = ('role', )
+        widgets = {
+            'role': forms.widgets.RadioSelect,
+        }
