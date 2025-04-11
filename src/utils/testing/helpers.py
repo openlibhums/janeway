@@ -702,3 +702,13 @@ def create_setting(
         is_translatable=is_translatable,
         default_value=default_value,
     )
+
+
+def create_licence(journal, name, short_name, **kwargs):
+    return sm_models.Licence.objects.create(
+        journal=journal,
+        name=name,
+        short_name=short_name,
+        url='https://example.com',
+        **kwargs,
+    )
