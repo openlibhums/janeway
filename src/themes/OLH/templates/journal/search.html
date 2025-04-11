@@ -19,8 +19,10 @@
         <div class="row">
             {% if search_term %}
                 <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
-                {% elif keyword %}
+            {% elif keyword %}
                 <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
+            {% else %}
+                <h1>{% trans 'All Articles' %}</h1>
             {% endif %}
             <div class="hide-for-large columns">
                 {% include "elements/journal/search_form.html" %}
@@ -29,7 +31,7 @@
                 <h2>{% trans "Articles" %}</h2>
 
                 {% for article in articles %}
-                    {% include "elements/journal/box_article.html" with article=article %}
+                    {% include "elements/journal/box_article.html" with article=article level="shallow" %}
                 {% endfor %}
 
             </div>

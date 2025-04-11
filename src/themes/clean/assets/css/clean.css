@@ -478,3 +478,11 @@ header svg {
     list-style-type: none;
     padding-bottom: 8px;
 }
+
+.byline {
+    font-size: 1rem;
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+}

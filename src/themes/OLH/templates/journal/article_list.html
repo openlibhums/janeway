@@ -19,14 +19,16 @@
                         </li>
                     </ul>
                 </aside>
-                <h1>{% trans "Articles" %}</h1>
-                {% include "common/elements/sorting.html" with form_id=facet_form.id %}
-                {% for article in article_list %}
-                    {% include "elements/journal/box_article.html" with article=article %}
-                {% empty %}
-                    <strong>{% trans 'No articles to display.' %}</strong>
-                {% endfor %}
-                {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+                <h1 id="articles-title">{% trans "Articles" %}</h1>
+                <section aria-label="{% trans 'Results' %}">
+                    {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+                    {% for article in article_list %}
+                        {% include "elements/journal/box_article.html" with article=article %}
+                    {% empty %}
+                        <strong>{% trans 'No articles to display.' %}</strong>
+                    {% endfor %}
+                    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+                </section>
             </div>
             <aside class="large-4 columns show-for-large">
                 {% include "elements/journal/article_list_filters.html" %}
