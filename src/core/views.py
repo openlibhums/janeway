@@ -1445,23 +1445,12 @@ def user_history(request, user_id):
     template = 'core/manager/users/history.html'
     context = {
         'user': user,
-        'review_assignments': review_models.ReviewAssignment.objects.filter(
-            reviewer=user,
-            article__journal=request.journal,
-        ),
         'copyedit_assignments':
             copyedit_models.CopyeditAssignment.objects.filter(
                 copyeditor=user,
                 article__journal=request.journal,
             ),
         'log_entries': log_entries,
-        'submissions':
-            submission_models.Article.objects.filter(
-                authors=user,
-                journal=request.journal,
-            ).exclude(
-                stage=submission_models.STAGE_PUBLISHED,
-            ).order_by('-date_started'),
         'publications':
             submission_models.Article.objects.filter(
                 authors=user,
@@ -1469,9 +1458,20 @@ def user_history(request, user_id):
                 stage=submission_models.STAGE_PUBLISHED,
                 date_published__isnull=False,
             ).order_by('-date_published'),
+        'review_assignments': review_models.ReviewAssignment.objects.filter(
+            reviewer=user,
+            article__journal=request.journal,
+        ),
         'stages': {
             'STAGE_UNSUBMITTED': submission_models.STAGE_UNSUBMITTED,
         },
+        'submissions':
+            submission_models.Article.objects.filter(
+                authors=user,
+                journal=request.journal,
+            ).exclude(
+                stage=submission_models.STAGE_PUBLISHED,
+            ).order_by('-date_started'),
     }
 
     return render(request, template, context)
