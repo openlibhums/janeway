@@ -30,7 +30,7 @@ from django.db import(
     ProgrammingError,
     transaction,
 )
-
+from django.db.backends.utils import truncate_name
 from django.db.models import fields, Q, Manager
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
 from django.db.models.functions import Coalesce, Greatest
@@ -796,8 +796,10 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
             query_piece &= models.Q((f'{field}__isnull', True))
             main_query |= query_piece
     fields_str = "_".join(list(fields))
+
+    long_name = f'exclusive_fields_{model_label}_{fields_str}'
     # Our supported databases have a max length of 64 chars for constraints
-    name = f'exclusive_fields_{model_label}_{fields_str}'[:64]
+    name = truncate_name(long_name, length=64)
     constraint = models.CheckConstraint(
         check=main_query,
         name=name,
