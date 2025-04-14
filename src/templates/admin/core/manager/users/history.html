@@ -17,6 +17,68 @@
         <div class="row expanded">
             <div class="large-6 columns">
                 <div class="title-area">
+                    <h2>Submissions</h2>
+                </div>
+                <div class="content">
+                    <table class="scroll small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Article</th>
+                            <th>Stage</th>
+                            <th>Date Started</th>
+                            <th>Last Update</th>
+                        </tr>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>{{ submission.pk }}</td>
+                                {% if submission.stage == stages.STAGE_UNSUBMITTED %}
+                                    <td>{{ submission.safe_title }}</td>
+                                {% else %}
+                                    <td><a href="{% url 'manage_archive_article' submission.pk %}">{{ submission.safe_title }}</a></td>
+                                {% endif %}
+                                <td>{{ submission.stage }}</td>
+                                <td>{{ submission.date_started }}</td>
+                                <td>{{ submission.date_updated }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No submissions</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Publications</h2>
+                </div>
+                <div class="content">
+                    <table class="scroll small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Article</th>
+                            <th>Date Started</th>
+                            <th>Date Published</th>
+                        </tr>
+                        {% for publication in publications %}
+                            <tr>
+                                <td>{{ publication.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' publication.pk %}">{{ publication.safe_title }}</a></td>
+                                <td>{{ publication.date_started }}</td>
+                                <td>{{ publication.date_published }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No publications</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
                     <h2>Editorial Assignments</h2>
                 </div>
                 <div class="content">
