@@ -1455,6 +1455,23 @@ def user_history(request, user_id):
                 article__journal=request.journal,
             ),
         'log_entries': log_entries,
+        'submissions':
+            submission_models.Article.objects.filter(
+                authors=user,
+                journal=request.journal,
+            ).exclude(
+                stage=submission_models.STAGE_PUBLISHED,
+            ).order_by('-date_started'),
+        'publications':
+            submission_models.Article.objects.filter(
+                authors=user,
+                journal=request.journal,
+                stage=submission_models.STAGE_PUBLISHED,
+                date_published__isnull=False,
+            ).order_by('-date_published'),
+        'stages': {
+            'STAGE_UNSUBMITTED': submission_models.STAGE_UNSUBMITTED,
+        },
     }
 
     return render(request, template, context)
