@@ -24,6 +24,14 @@ class Events:
     # raised when an article is submitted
     ON_ARTICLE_SUBMITTED = 'on_article_submitted'
 
+    # kwargs: article, request, file_id, original_filename
+    # raised when an article file is deleted
+    ON_ARTICLE_FILE_DELETE = 'on_article_file_delete'
+
+    # kwargs: article, request, file, file_type
+    # raised when an article file is uploaded
+    ON_ARTICLE_FILE_UPLOAD = 'on_article_file_upload'
+
     # kwargs: editor_assignment, request, email_data, acknowledgement (true), skip (boolean)
     # raised when an editor is manually assigned to an article(or skip the acknowledgement)
     ON_EDITOR_MANUALLY_ASSIGNED = 'on_editor_manually_assigned'
