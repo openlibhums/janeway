@@ -883,10 +883,10 @@ ul.menu {
   display: grid;
   column-gap: 1rem;
   margin-block-end: 10rem;
-  @media (orientation: portrait) {
+  @media (width <= 50rem) {
     grid-template-columns: 100%;
   }
-  @media (orientation: landscape) {
+  @media (width > 50rem) {
     grid-template-columns: 20rem minmax(auto, 60rem);
   }
   h3 {
@@ -969,21 +969,41 @@ ul.menu {
   justify-content: center;
 }
 
-.options.displayed .options-pane {
-  display: block;
-}
-.options.displayed .fa-angle-up {
-  display: inline;
-}
-.options.displayed .fa-angle-down {
-  display: none;
-}
-.options .options-pane {
-  display: none;
-}
-.options .fa-angle-down {
-  display: inline;
-}
-.options .fa-angle-up {
-  display: none;
+/* Give me options */
+/* This component is CSS and JS only.
+ * The HTML must be rewritten each time it is used. */
+.give-me-options {
+  &.displayed .options-pane {
+    display: block;
+  }
+  &.displayed .fa-angle-up {
+    display: inline;
+  }
+  &.displayed .fa-angle-down {
+    display: none;
+  }
+  .options-pane {
+    display: none;
+  }
+  .fa-angle-down {
+    display: inline;
+  }
+  .fa-angle-up {
+    display: none;
+  }
+  .option,
+  .option label {
+    display: flex;
+    column-gap: 0.25rem;
+    align-items: center;
+  }
+  .option label {
+    font-size: var(--step-2);
+    margin-left: 0;
+  }
+  .option input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0.25rem;
+  }
 }

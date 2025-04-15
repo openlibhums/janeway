@@ -529,6 +529,8 @@ def edit_profile(request):
     user = request.user
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
+    next_url = request.GET.get('next', '')
+
     if request.journal:
         send_reader_notifications = setting_handler.get_setting(
             'notifications',
@@ -614,7 +616,10 @@ def edit_profile(request):
             if form.is_valid():
                 form.save()
                 messages.add_message(request, messages.SUCCESS, 'Profile updated.')
-                return redirect(reverse('core_edit_profile'))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('core_edit_profile'))
 
         elif 'edit_staff_member_info' in request.POST:
             form = press_forms.StaffGroupMemberForm(
@@ -625,7 +630,10 @@ def edit_profile(request):
             if form.is_valid():
                 form.save()
                 messages.add_message(request, messages.SUCCESS, 'Staff member info updated.')
-                return redirect(reverse('core_edit_profile'))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('core_edit_profile'))
 
         elif 'export' in request.POST:
             return logic.export_gdpr_user_profile(user)

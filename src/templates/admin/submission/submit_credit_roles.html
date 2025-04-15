@@ -1,6 +1,9 @@
 {% load static %}
 {% load i18n %}
 {% load next_url %}
+{% load uuid %}
+
+{% get_uuid4 as pid %}
 
 <form method="POST">
   {% csrf_token %}
@@ -17,7 +20,7 @@
               value="{{ credit.role }}"
               type="submit">
               <span class="fa fa-remove"></span>
-              Remove
+              Remove role
               <span class="sr-only">
                 {{ credit.get_role_display }}
               </span>
@@ -27,32 +30,53 @@
       {% empty %}
         <div>
           This author has no contributor roles.
+        </div>
+      {% endfor %}
+    </div>
+    <div
+      data-give-me-options-{{ pid }}
+      class="give-me-options bs-callout bs-callout-info flex direction-column gap-0-5">
+      <div class="button-group no-bottom-margin">
+        <button
+          class="button hollow secondary"
+          type="button"
+          aria-expanded="false"
+          aria-controls="options-pane-{{ pid }}">
+          <span class="fa fa-angle-up"></span>
+          <span class="fa fa-angle-down"></span>
+          Add role
+        </button>
+      </div>
+      <div id="options-pane-{{ pid }}" class="options-pane">
+        <fieldset class="padding-block-0-5">
+          <legend>Select a role:</legend>
+          <div class="auto-columns">
+            {% for radio in credit_form.role %}
+              <div class="option max-w-20">
+                <input
+                  id="{{ radio.id_for_label }}-{{ pid }}"
+                  name="add_credit"
+                  value="{{ radio.data.value }}"
+                  type="radio">
+                <label for="{{ radio.id_for_label }}-{{ pid }}">
+                  {{ radio.choice_label }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <div>
           <a
             target="_blank"
             href="https://credit.niso.org/contributor-roles-defined/">
             Learn about CRediT roles.
             <span class="sr-only">(opens in new tab)</span>
+            <span class="fa fa-external-link"></span>
           </a>
         </div>
-      {% endfor %}
-    </div>
-    <div class="bs-callout bs-callout-info flex direction-column gap-0-5">
-      <div>Add role:</div>
-      <div class="small button-group no-bottom-margin">
-        {% for radio in credit_form.role %}
-          {% if radio.data.value not in credits.values %}
-            <button
-              class="button hollow secondary"
-              name="add_credit"
-              value="{{ radio.data.value }}"
-              type="submit">
-              <span class="fa fa-plus"></span>
-              <span class="sr-only">Add</span>
-              {{ radio.choice_label }}
-            </button>
-          {% endif %}
-        {% endfor %}
       </div>
     </div>
   </div>
 </form>
+
+{% include "admin/elements/give_me_options_js.html" with pid=pid %}

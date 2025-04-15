@@ -47,20 +47,29 @@
                 {% endif %}
                 <div class="grow-1">
                   <div class="list-group-item-heading flex wrap column-gap-2">
-                    <h2 id="author_{{ author.pk }}">
+                    <h3 id="author_{{ author.pk }}">
                       {{ author.full_name|default:"[No name]" }}
-                    </h2>
+                    </h3>
                     <div class="button-group no-bottom-margin flex items-center">
+                      {% if author == request.user %}
+                        <a
+                          href="{% url_with_return 'core_edit_profile' %}"
+                          class="button secondary hollow no-bottom-margin">
+                          <span class="fa fa-edit"></span>
+                          {% trans "Edit my details" %}
+                        </a>
+                      {% endif %}
                       <a
                         href="{% url 'delete_author' article.pk author.pk %}"
                         class="button hollow secondary no-bottom-margin">
                         <span class="fa fa-remove"></span>
-                        {% trans "Remove" %}
+                        {% trans "Remove author" %}
                       </a>
+
                     </div>
                   </div>
                   <dl>
-                    <div class="flex gap-4 wrap">
+                    <div class="flex column-gap-4 wrap">
                       {% include "admin/elements/layout/key_value_above.html" with key="Email" value=author.real_email|default:"No email address" %}
                       {% include "admin/elements/layout/key_value_above.html" with key="ORCiD ID" value=author.orcid|default:"No ORCiD ID" %}
                     </div>
@@ -79,6 +88,31 @@
                       </div>
                     {% endif %}
                   </dl>
+                  {% if author != request.user %}
+                    <div class="bs-callout bs-callout-info">
+                      <p>
+                        {% blocktrans with journal=request.journal.name %}
+                          If this author's name, email, ORCiD, or affiliations need to be
+                          updated, please invite them to log into
+                          their account on the <i>{{ journal }}</i> website
+                          and edit their profile.
+                        {% endblocktrans %}
+                        {% if not author.is_active %}
+                          {% if author.orcid %}
+                            {% blocktrans %}
+                              Their account is not active yet, but they can activate it by
+                              selecting the ORCiD login option.
+                            {% endblocktrans %}
+                          {% else %}
+                            {% blocktrans %}
+                              Their account is not active yet, but they can activate it by
+                              resetting their password on the login page.
+                            {% endblocktrans %}
+                          {% endif %}
+                        {% endif %}
+                      </p>
+                    </div>
+                  {% endif %}
                 </div>
                 {% if authors|length > 1 %}
                   {% include "admin/submission/submit_author_order.html" with author=author %}
@@ -95,7 +129,7 @@
       <h2>{% trans "Add more authors" %}</h2>
     </div>
     {% if request.user not in article.authors.all %}
-      <div class="medium-6 large-4 columns">
+      <div class="large-12 columns">
         <div class="callout">
           <form method="POST">
             {% csrf_token %}
@@ -118,8 +152,8 @@
       <div class="callout">
         <p>
           {% blocktrans with journal=request.journal.name press=request.press.name %}
-            Some authors may already be registered in <i>{{ journal }}</i>, {{
-            press }}, or the ORCiD registry. You can check by searching for
+            Some authors may already be registered in <i>{{ journal }}</i>,
+            {{ press }}, or the ORCiD registry. You can check by searching for
             their email or ORCiD ID. If a match is found, they will be added to
             the author list.
           {% endblocktrans %}

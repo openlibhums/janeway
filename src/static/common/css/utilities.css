@@ -19,10 +19,6 @@
   &.direction-column { flex-direction: column; }
 
   /* Responsive flex direction */
-
-  &.direction-column {
-    flex-direction: column;
-  }
   @media (width <= 50rem) {
     &.direction-row-small {
       flex-direction: row;
@@ -105,6 +101,12 @@
 .column-gap-4 { column-gap: 4rem; }
 .column-gap-5 { column-gap: 5rem; }
 .column-gap-6 { column-gap: 6rem; }
+
+
+/* Create a simple non-grid column layout that fills down and then across. */
+.auto-columns {
+  columns: var(--auto-grid-min-size, 16rem) auto;
+}
 
 /* Width */
 .max-w-8 { max-width: 8rem; }

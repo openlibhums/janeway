@@ -1,0 +1,26 @@
+{% comment %}
+  Give me options
+  This component is CSS and JS only.
+  The HTML must be rewritten each time it is used.
+  pid - a unique id that allows the component to be re-used on the same page.
+{% endcomment %}
+
+<script type="module">
+  let giveMeOptions = document.querySelector(
+    '[data-give-me-options-{{ pid }}]'
+  );
+  giveMeOptions?.addEventListener('click', event => {
+    if (event.target.localName == 'button') {
+      giveMeOptions.classList.toggle('displayed');
+      event.target.setAttribute(
+        'aria-expanded',
+        giveMeOptions.classList.contains('displayed'),
+      );
+    }
+  });
+  giveMeOptions?.addEventListener('change', event => {
+    if (event.target.localName == 'input') {
+      event.target.closest('form').submit();
+    }
+  });
+</script>
