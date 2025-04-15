@@ -12,7 +12,11 @@
 
 {% block breadcrumbs %}
   {% if request.user == account %}
-    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+    <li>
+      <a href="{% url 'core_edit_profile' %}">
+        {% trans "Edit Profile" %}
+      </a>
+    </li>
   {% endif %}
   <li>
     {% trans "Update affiliations from ORCiD" %}
@@ -32,7 +36,9 @@
         {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
         {% if account.affiliations.exists %}
           <div class="bs-callout bs-callout-danger">
-            <h3 class="fs-3">Old affiliations to be removed:</h3>
+            <h3 class="fs-3">
+              {% trans "Old affiliations to be removed" %}
+            </h3>
             <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
               {% for old_affil in account.affiliations %}
                 {% include "admin/core/affiliation_display.html" with affiliation=old_affil %}
@@ -42,7 +48,9 @@
         {% endif %}
         {% if new_affils %}
           <div class="bs-callout bs-callout-success">
-            <h3 class="fs-3">New affiliations to be added:</h3>
+            <h3 class="fs-3">
+              {% trans "New affiliations to be added" %}
+            </h3>
             <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
               {% for new_affil in new_affils %}
                 {% include "admin/core/affiliation_display.html" with affiliation=new_affil %}
@@ -55,9 +63,7 @@
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
-          <p>{% blocktrans %}
-            Are you sure?
-          {% endblocktrans %}</p>
+          <p>{% trans "Are you sure?" %}</p>
           {{ form }}
           <button
             name="replace"
