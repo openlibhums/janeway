@@ -191,10 +191,13 @@ text field and text editor for each kind of text.
 There are four main field types, and there is a
 Janeway setting type for each one (`core.models.Setting`).
 
-| Display model | HTML            | No HTML           |
-| ------------- | --------------- | ----------------- |
-| Block         | Rich Text Field | Plain Text Field  |
-| Inline        | Mini HTML Field | Character Field   |
+=============   ===============   ================
+Display model   HTML              No HTML
+=============   ===============   ================
+Block           Rich Text Field   Plain Text Field
+Inline          Mini HTML Field   Character Field
+=============   ===============   ================
+
 
 Rich Text Fields
 ~~~~~~~~~~~~~~~~
