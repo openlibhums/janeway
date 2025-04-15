@@ -4,52 +4,8 @@
 
 <div class="flex direction-column row-gap-0-5 max-w-44">
   {% for affiliation in author.affiliations %}
-    <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
-      {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
-      {% if author == request.user %}
-        <div class="small button-group no-bottom-margin">
-          <a
-            href="{% url_with_return 'core_affiliation_update' affiliation.pk %}"
-            class="small button secondary hollow no-bottom-margin">
-            <span class="fa fa-edit"></span>
-            {% trans "Edit" %}
-          </a>
-          <a
-            href="{% url_with_return 'core_affiliation_delete' affiliation.pk %}"
-            class="small button secondary hollow no-bottom-margin">
-            <span class="fa fa-trash"></span>
-            {% trans "Delete" %}
-          </a>
-        </div>
-      {% endif %}
-    </div>
+    {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
   {% empty %}
     <div>This author has no affiliations.</div>
   {% endfor %}
-  <div class="bs-callout bs-callout-info">
-    {% if author == request.user %}
-      <div class="small button-group no-bottom-margin">
-        {% if request.user.orcid %}
-          <a
-            href="{% url_with_return 'core_affiliation_bulk_update_from_orcid' %}"
-            class="button secondary hollow">
-            <span class="fa fa-refresh"></span>
-            {% trans "Update affiliations from ORCiD" %}
-          </a>
-        {% endif %}
-        <a
-          href="{% url_with_return 'core_organization_search' %}"
-          class="button secondary hollow">
-          <span class="fa fa-plus"></span>
-          {% trans "Add affiliation manually" %}
-        </a>
-      </div>
-    {% else %}
-      <p>{% blocktrans with journal=request.journal.name %}
-      If this author's affiliations need to be
-      updated, please invite them to log into
-      their account on <i>{{ journal }}</i> and edit their profile.
-      {% endblocktrans %}</p>
-    {% endif %}
-  </div>
 </div>
