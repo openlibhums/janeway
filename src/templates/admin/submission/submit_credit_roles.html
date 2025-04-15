@@ -20,7 +20,7 @@
               value="{{ credit.role }}"
               type="submit">
               <span class="fa fa-remove"></span>
-              Remove role
+              {% trans "Remove role" %}
               <span class="sr-only">
                 {{ credit.get_role_display }}
               </span>
@@ -29,7 +29,7 @@
         </div>
       {% empty %}
         <div>
-          This author has no contributor roles.
+          {% trans "This author has no contributor roles." %}
         </div>
       {% endfor %}
     </div>
@@ -44,12 +44,12 @@
           aria-controls="options-pane-{{ pid }}">
           <span class="fa fa-angle-up"></span>
           <span class="fa fa-angle-down"></span>
-          Add role
+          {% trans "Add role" %}
         </button>
       </div>
       <div id="options-pane-{{ pid }}" class="options-pane">
         <fieldset class="padding-block-0-5">
-          <legend>Select a role:</legend>
+          <legend>{% trans "Select a role:" %}</legend>
           <div class="auto-columns">
             {% for radio in credit_form.role %}
               <div class="option max-w-20">
@@ -69,8 +69,8 @@
           <a
             target="_blank"
             href="https://credit.niso.org/contributor-roles-defined/">
-            Learn about CRediT roles.
-            <span class="sr-only">(opens in new tab)</span>
+            {% trans "Learn about CRediT roles." %}
+            <span class="sr-only">{% trans "(opens in new tab)" %}</span>
             <span class="fa fa-external-link"></span>
           </a>
         </div>

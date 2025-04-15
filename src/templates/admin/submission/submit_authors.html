@@ -28,9 +28,11 @@
       {% if authors|length > 1 %}
         <div class="flex">
           <div class="callout max-w-40">
-            <p>Authors can be moved up or down to set their order. This order
-            will be used for the display of author names when the article is
-            published.</p>
+            <p>{% blocktrans %}
+              Authors can be moved up or down to set their order. This order
+              will be used for the display of author names when the article is
+              published.
+            {% endblocktrans %}</p>
           </div>
         </div>
       {% endif %}
@@ -68,51 +70,66 @@
 
                     </div>
                   </div>
+                  {% if author != request.user %}
+                    <div class="bs-callout bs-callout-info">
+                      <p>
+                        {% blocktrans with journal=request.journal.name %}
+                          If this author's name, email, ORCiD, or affiliations need to be
+                          updated, please invite them to edit their profile on
+                          the <i>{{ journal }}</i> website.
+                        {% endblocktrans %}
+                      </p>
+                      {% if author.is_active %}
+                        <p>
+                          Their account is active, so they have logged in before.
+                        </p>
+                      {% elif author.orcid %}
+                        <p>
+                          {% blocktrans %}
+                            An account has been created using their ORCiD ID,
+                            so they should select the ORCiD login option.
+                          {% endblocktrans %}
+                        </p>
+                      {% else %}
+                        <p>
+                          {% blocktrans %}
+                            An account has been created for them, but it is
+                            not active yet. If they select the password
+                            reset option, they will be guided through the
+                            account activation steps.
+                          {% endblocktrans %}
+                        </p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
                   <dl>
                     <div class="flex column-gap-4 wrap">
-                      {% include "admin/elements/layout/key_value_above.html" with key="Email" value=author.real_email|default:"No email address" %}
-                      {% include "admin/elements/layout/key_value_above.html" with key="ORCiD ID" value=author.orcid|default:"No ORCiD ID" %}
+                      {% trans "Email" as email_key %}
+                      {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
+                      {% trans "ORCiD ID" as orcid_key %}
+                      {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCiD ID" %}
                     </div>
                     <div class="key-value-pair key-above">
-                      <dt class="key">Affiliations</dt>
+                      <dt class="key">{% trans "Affiliations" %}</dt>
                       <dd class="value">
-                        {% include "admin/submission/submit_affiliations.html" with author=author %}
+                        <div class="flex direction-column row-gap-0-5 max-w-44">
+                          {% for affiliation in author.affiliations %}
+                            {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
+                          {% empty %}
+                            <div>{% trans "This author has no affiliations." %}</div>
+                          {% endfor %}
+                        </div>
                       </dd>
                     </div>
                     {% if journal_settings.general.use_credit %}
                       <div class="key-value-pair key-above">
-                        <dt class="key">Roles</dt>
+                        <dt class="key">{% trans "Roles" %}</dt>
                         <dd class="value">
                           {% include "admin/submission/submit_credit_roles.html" with author=author credits=credits credit_form=credit_form %}
                         </dd>
                       </div>
                     {% endif %}
                   </dl>
-                  {% if author != request.user %}
-                    <div class="bs-callout bs-callout-info">
-                      <p>
-                        {% blocktrans with journal=request.journal.name %}
-                          If this author's name, email, ORCiD, or affiliations need to be
-                          updated, please invite them to log into
-                          their account on the <i>{{ journal }}</i> website
-                          and edit their profile.
-                        {% endblocktrans %}
-                        {% if not author.is_active %}
-                          {% if author.orcid %}
-                            {% blocktrans %}
-                              Their account is not active yet, but they can activate it by
-                              selecting the ORCiD login option.
-                            {% endblocktrans %}
-                          {% else %}
-                            {% blocktrans %}
-                              Their account is not active yet, but they can activate it by
-                              resetting their password on the login page.
-                            {% endblocktrans %}
-                          {% endif %}
-                        {% endif %}
-                      </p>
-                    </div>
-                  {% endif %}
                 </div>
                 {% if authors|length > 1 %}
                   {% include "admin/submission/submit_author_order.html" with author=author %}
@@ -121,7 +138,9 @@
             </div>
           </section>
         {% empty %}
-          <div class="list-group-item">This article has no authors.</div>
+          <div class="list-group-item">
+            {% trans "This article has no authors." %}
+          </div>
         {% endfor %}
       </div>
     </div>
@@ -133,7 +152,7 @@
         <div class="callout">
           <form method="POST">
             {% csrf_token %}
-            <p>Are you an author?</p>
+            <p>{% trans "Are you an author?" %}</p>
             <div class="button-group no-bottom-margin">
               <input
                 type="hidden"
@@ -164,7 +183,7 @@
             <label
               for="author_search_text"
               class="input-group-label">
-              Search
+              {% trans "Search" %}
             </label>
             <input
               id="author_search_text"
@@ -184,8 +203,10 @@
     </div>
     <div class="large-6 columns">
       <div class="callout">
-        <p>If you cannot find the author in the search,
-        you can add them manually.</p>
+        <p>{% blocktrans %}
+          If you cannot find the author in the search,
+          you can add them manually.
+        {% endblocktrans %}</p>
         <form method="POST">
           {% csrf_token %}
           <div class="flex wrap gap-1 items-end">

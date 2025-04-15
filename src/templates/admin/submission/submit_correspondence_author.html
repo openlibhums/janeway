@@ -18,19 +18,21 @@
           aria-controls="options-pane-{{ pid }}">
           <span class="fa fa-angle-up"></span>
           <span class="fa fa-angle-down"></span>
-          Change correspondence
+          {% trans "Change correspondence" %}
         </button>
       </div>
     {% endif %}
   </div>
   <div id="options-pane-{{ pid }}" class="options-pane padding-block-1">
-    <p class="max-w-48">The correspondence author can be any author who has a valid email
-    address, independent of order. They will receive updates and requests
-    for work on the article during the review and publication process.</p>
+    <p class="max-w-48">{% blocktrans %}
+      The correspondence author can be any author who has a valid email
+      address, independent of order. They will receive updates and requests
+      for work on the article during the review and publication process.
+    {% endblocktrans %}</p>
     <form method="POST">
       {% csrf_token %}
       <fieldset>
-        <legend>Select a new correspondence author:</legend>
+        <legend>{% trans "Select a new correspondence author:" %}</legend>
         {% for order in article.articleauthororder_set.all %}
           <div class="option">
             <input
@@ -48,9 +50,11 @@
             <label for="option_{{ order.author.pk }}">
               {{ order.author.full_name }}
               {% if order.author.real_email %}
-                ({{ order.author.real_email }})
+                {% blocktrans with email=order.author.real_email %}
+                  ({{ email }})
+                {% endblocktrans %}
               {% else %}
-                (no email address)
+                {% trans "(no email address)" %}
               {% endif %}
             </label>
           </div>

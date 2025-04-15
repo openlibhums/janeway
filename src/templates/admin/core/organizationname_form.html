@@ -12,7 +12,11 @@
 
 {% block breadcrumbs %}
   {% if request.user == account %}
-    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+    <li>
+      <a href="{% url 'core_edit_profile' %}">
+        {% trans "Edit Profile" %}
+      </a>
+    </li>
     <li>
       <a href="{% url_with_next 'core_organization_search' %}">
         {% trans "Add Affiliation" %}
