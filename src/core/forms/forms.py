@@ -1018,13 +1018,18 @@ class OrcidAffiliationForm(forms.ModelForm):
         if not data:
             data = MultiValueDict()
 
-        data['title'] = orcid_affiliation.get('role-title', '')
-        data['department'] = orcid_affiliation.get('department-name', '')
+        # The `get` methods below are used together with `or`
+        # defensively because of the data population in the API.
+        # It can have keys pointing to None values like:
+        # {"year": {"value": 2019}, "month": None}
+
+        data['title'] = orcid_affiliation.get('role-title', '') or ''
+        data['department'] = orcid_affiliation.get('department-name', '') or ''
 
         org = None
-        orcid_org = orcid_affiliation.get('organization', {})
-        disamb_org = orcid_org.get('disambiguated-organization', {})
-        disamb_id = disamb_org.get('disambiguated-organization-identifier', '')
+        orcid_org = orcid_affiliation.get('organization', {}) or {}
+        disamb_org = orcid_org.get('disambiguated-organization', {}) or {}
+        disamb_id = disamb_org.get('disambiguated-organization-identifier', '') or ''
         if disamb_id.startswith('https://ror.org/'):
             ror_id = os.path.split(disamb_id)[-1]
             try:
@@ -1032,9 +1037,10 @@ class OrcidAffiliationForm(forms.ModelForm):
             except models.Organization.DoesNotExist:
                 pass
         if not org:
+            address = orcid_org.get('address', {}) or {}
             org, _created = models.Organization.get_or_create_without_ror(
-                institution=orcid_org.get('name', ''),
-                country=orcid_org.get('address', {}).get('country', ''),
+                institution=orcid_org.get('name', '') or '',
+                country=address.get('country', '') or '',
                 account=data.get('account'),
                 frozen_author=data.get('frozen_author'),
                 preprint_author=data.get('preprint_author'),
@@ -1043,19 +1049,15 @@ class OrcidAffiliationForm(forms.ModelForm):
 
         if not tzinfo:
             tzinfo = timezone.get_current_timezone()
-        orcid_start = orcid_affiliation.get('start-date', {})
+        orcid_start = orcid_affiliation.get('start-date', {}) or {}
         if orcid_start:
-            # The `get` methods below are used together with `or`
-            # defensively because of the data population in the API.
-            # It can have keys pointing to None values like:
-            # {"year": {"value": 2019}, "month": None}
             data['start'] = timezone.datetime(
                 int((orcid_start.get('year', {}) or {}).get('value', 1)),
                 int((orcid_start.get('month', {}) or {}).get('value', 1)),
                 int((orcid_start.get('day', {}) or {}).get('value', 1)),
                 tzinfo=tzinfo,
             )
-        orcid_end = orcid_affiliation.get('end-date', {})
+        orcid_end = orcid_affiliation.get('end-date', {}) or {}
         if orcid_end:
             data['end'] = timezone.datetime(
                 int((orcid_end.get('year', {}) or {}).get('value', 1)),
