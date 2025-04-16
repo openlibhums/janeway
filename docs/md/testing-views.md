@@ -7,6 +7,24 @@ When writing tests for Janeway views, rely on the Django test client (`django.te
 
 Here are tips for avoiding common pitfalls and saving debugging time.
 
+## Setting up a user for login-protected views
+
+Use `force_login` to log the test user in before accessing a protected view.
+
+> [!NOTE]
+> The user must be active (`is_active=True`) for this to work.
+
+```py
+from django.test import TestCase
+
+class MyTest(TestCase):
+
+    def my_test(self):
+        user.is_active = True
+        user.save()
+        self.client.force_login(user)
+```
+
 ## Use domain mode explicitly
 
 To call the Django test client, you have to write out the URL. But in Janeway, URLs are interpreted differently based on the `URL_CONFIG` setting. `URL_CONFIG` can be set to `"path"` or `"domain"`. In most cases, it is best to set `"domain"` using a setting override in a decorator, so you do not have to write out the journal code or repository short name in the URL.
