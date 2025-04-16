@@ -2075,6 +2075,7 @@ class OrganizationNameManager(models.Manager):
                 organization_names.append(OrganizationName(**kwargs))
         return OrganizationName.objects.bulk_create(organization_names)
 
+    @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
         """
         Finds records where the names have changed,
@@ -2192,6 +2193,8 @@ class OrganizationName(models.Model):
 
 
 class OrganizationQueryset(models.query.QuerySet):
+
+    @transaction.atomic
     def deduplicate_to_ror(self, limit=None):
         """
         Attempts to matching unstructured organization names to ROR names
@@ -2377,6 +2380,7 @@ class OrganizationManager(models.Manager):
             )
         return self.bulk_create(new_organizations)
 
+    @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
         """
         Bulk updates organizations from ROR records.
@@ -2468,12 +2472,13 @@ class OrganizationManager(models.Manager):
         )
         if updated_records:
             try:
-                Location.objects.bulk_update_from_ror(updated_records)
-                Organization.objects.bulk_update_from_ror(updated_records)
-                Organization.objects.bulk_link_locations_from_ror(
-                    updated_records
-                )
-                OrganizationName.objects.bulk_update_from_ror(updated_records)
+                with transaction.atomic():
+                    Location.objects.bulk_update_from_ror(updated_records)
+                    Organization.objects.bulk_update_from_ror(updated_records)
+                    Organization.objects.bulk_link_locations_from_ror(
+                        updated_records
+                    )
+                    OrganizationName.objects.bulk_update_from_ror(updated_records)
             except Exception as error:
                 message = f'{type(error)}: {error}'
                 RORImportError.objects.create(
@@ -2931,6 +2936,7 @@ class LocationManager(models.Manager):
                     current_geonames_ids.add(geonames_id)
         return Location.objects.bulk_create(new_locations)
 
+    @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
         """
         Bulk updates location objects for which a matching Geonames ID

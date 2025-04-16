@@ -12,7 +12,7 @@ def create_locations(apps):
             name='',
             country__isnull=False,
             geonames_id__isnull=True,
-        )
+        ).prefetch_related('country')
     )
     countries_to_create = []
     for country in Country.objects.all():
