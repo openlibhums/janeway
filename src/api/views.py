@@ -497,7 +497,6 @@ class Identifiers(viewsets.ModelViewSet):
     def _get_repository_identifiers(self, preprint_id, preprint_version_id):
         queryset = identifier_models.Identifier.objects.filter(
             preprint_version__preprint__repository=self.request.repository,
-            preprint_version__preprint__date_published__lte=timezone.now(),
             enabled=True,
         )
         if preprint_id:
@@ -513,7 +512,6 @@ class Identifiers(viewsets.ModelViewSet):
     def _get_journal_identifiers(self, article_id):
         queryset = identifier_models.Identifier.objects.filter(
             article__journal=self.request.journal,
-            article__date_published__lte=timezone.now(),
             enabled=True,
         )
         if article_id:
