@@ -715,3 +715,5 @@ JATS_ARTICLE_TYPES = (
     ("translation", ("Translation")),
     ("other", "Other")
 )
+
+ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"

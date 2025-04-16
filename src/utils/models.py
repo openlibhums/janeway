@@ -458,7 +458,7 @@ class RORImport(models.Model):
         the import is marked as ongoing.
         """
         logger.debug("Checking for availability of new ROR data")
-        records_url = 'https://zenodo.org/api/communities/ror-data/records?sort=newest'
+        records_url = settings.ROR_RECORDS_FILE
         try:
             response = requests.get(records_url, timeout=settings.HTTP_TIMEOUT_SECONDS)
             response.raise_for_status()
