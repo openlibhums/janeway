@@ -17,16 +17,17 @@
             </div>
         </div>
         {% if page.display_toc %}
-            <div class="col m3 hide-on-small-and-down">
-                <div class="card toc-card" id="toc-card"
-                     style="display: none;">
-                    <div class="card-content">
-                        <h4>
-                            {% trans "Table of Contents" %}
-                        </h4>
-                        <ul id="toc" class="section table-of-contents">
-                        </ul>
-                    </div>
+            <div class="col m3 hide-on-small-and-down toc-sticky">
+                <div class="card" id="toc-card">
+                    <section aria-labelledby="toc-title">
+                        <div class="card-content">
+                            <h2 id="toc-title">
+                                {% trans "Table of Contents" %}
+                            </h2>
+                            <ul id="toc" class="section table-of-contents">
+                            </ul>
+                        </div>
+                    </section>
                 </div>
             </div>
         {% endif %}
@@ -35,19 +36,4 @@
 
 {% block js %}
     <script src="{% static 'material/toc.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            $('.scrollspy').scrollSpy();
-        });
-        $(document).scroll(function () {
-            var infobar_y = document.querySelector('nav').offsetHeight
-                + document.querySelector('.m3').offsetHeight
-            var y = $(this).scrollTop();
-            if (y > infobar_y) {
-                $('#toc-card').fadeIn();
-            } else {
-                $('#toc-card').fadeOut();
-            }
-        });
-    </script>
 {% endblock js %}

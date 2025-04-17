@@ -10,7 +10,7 @@
 </head>
 <body>
 <p class="uppercase">{{ article.section.name }}</p>
-<h3>{{ article.title|safe }}</h3>
+<h1>{{ article.title|safe }}</h1>
 <p><strong>
     {% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
     {% for author in article.frozen_authors.all %}
