@@ -6,13 +6,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import include, re_path, path
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.conf import settings
 from django.views.static import serve
 
 from press import views as press_views
 from core import error_views
 from utils.logger import get_logger
+from journal.views import view_jats_stub
 
 logger = get_logger(__name__)
 
@@ -34,6 +34,11 @@ try:
             re_path(r'^404/$', error_views.handler404),
             re_path(r'^500/$', error_views.handler500),
             path('__debug__/', include('debug_toolbar.urls')),
+            re_path(
+                r'^preview/article/(?P<article_id>\d+)/jats/$',
+                view_jats_stub,
+                name='view_jats_stub',
+            ),
         ]
 
         try:
