@@ -1,57 +1,92 @@
-            <conference_paper publication_type="full_text">
-                {# Order matters! conferences MUST send contributors before titles #}
-                {% if article.authors %}
-                <contributors>
-                {% for author in article.authors %}
-                    {% if author.is_corporate %}
-                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        {{ author.corporate_name }}
-                    </organization>
-                    {% else %}
-                    <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+{% spaceless %}<conference_paper publication_type="full_text">{% endspaceless %}
+
+            <contributors>
+                {% for author_bundle in article.object.frozen_authors_for_jats_contribs %}
+                    {% with author=author_bundle.author affiliations=author_bundle.affiliations %}
+                    <person_name
+                        contributor_role="author"
+                        sequence="{% if forloop.first %}first{% else %}additional{% endif %}">
                         <given_name>{{ author.given_names }}</given_name>
                         <surname>{{ author.last_name }}</surname>
-                        {% if author.institution %}
-                        <affiliation>{{ author.affiliation }}</affiliation>
+
+                        {% if affiliations %}
+                            <affiliations>
+                                {% for affil in affiliations %}
+                                    {% with org=affil.organization %}
+                                        <institution>
+                                            <institution_name>{{ org.name.value }}</institution_name>
+                                            {% if org.ror_id %}
+                                                <institution_id
+                                                        institution_id_type="ROR">
+                                                    https://ror.org/{{ org.ror_id }}</institution_id>
+                                            {% endif %}
+                                        </institution>
+                                    {% endwith %}
+                                {% endfor %}
+                            </affiliations>
                         {% endif %}
-                        {% if author.author.orcid %}
-                        <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+
+                        {% if author.orcid %}
+                            <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
                         {% endif %}
+
+                        {% for credit in article.creditrecord_set.all %}
+                            {% if credit.frozen_author == author and credit.role %}
+                            <contrib_role>
+                                <role_name>{{ credit.role|title }}</role_name>
+                                <role_identifier>{{ credit.uri }}/</role_identifier>
+                            </contrib_role>
+                            {% endif %}
+                        {% endfor %}
                     </person_name>
-                    {% endif %}
+                    {% endwith %}
                 {% endfor %}
-                </contributors>
-                {% endif %}
-                <titles>
-                    <title>{{ article.title }}</title>
-                </titles>
-                <publication_date media_type="online">
-                {% if article.date_published %}
-                    <month>{{ article.date_published.month }}</month>
-                    <day>{{ article.date_published.day }}</day>
-                    <year>{{ article.date_published.year }}</year>
-                {% else %}
-                    <month>{{ now.month }}</month>
-                    <day>{{ now.day }}</day>
-                    <year>{{ now.year }}</year>
-                {% endif %}
-                </publication_date>
-                {% if article.license %}
-                <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ article.license }}</ai:license_ref>
-                </ai:program>
-                {% endif %}
-                <doi_data>
-                    <doi>{{ article.doi }}</doi>
-                    <resource>{{ article.url }}</resource>
-                    <collection property="crawler-based">
-                        <item crawler="iParadigms">
-                        {% if article.pdf_url %}
-                            <resource>{{ article.pdf_url }}</resource>
-                        {% else %}
-                            <resource>{{ article.url }}</resource>
-                        {% endif %}
-                        </item>
-                    </collection>
-                </doi_data>
-            </conference_paper>
+            </contributors>
+
+            <titles>
+                <title>{{ article.title }}</title>
+            </titles>
+
+            {% if article.publication_date %}
+            <publication_date media_type="online">
+                <month>{{ article.publication_date|date:"m" }}</month>
+                <day>{{ article.publication_date|date:"d" }}</day>
+                <year>{{ article.publication_date|date:"Y" }}</year>
+            </publication_date>
+            {% endif %}
+
+            {% if first_page or last_page or other_pages %}
+                <pages>
+                    {% if first_page %}
+                        <first_page>{{ first_page }}</first_page>
+                    {% endif %}
+                    {% if last_page %}
+                        <last_page>{{ last_page }}</last_page>
+                    {% endif %}
+                    {% if other_pages %}
+                        <other_pages>{{ other_pages }}</other_pages>
+                    {% endif %}
+                </pages>
+            {% endif %}
+
+            <doi_data>
+                <doi>{{ article.doi }}</doi>
+                <resource>{{ article.url }}</resource>
+            </doi_data>
+
+            {% if article.funding_data.exists %}
+            <funding_group>
+                {% for funder in article.funding_data.all %}
+                <funding_reference>
+                    <funder_name>{{ funder.name }}</funder_name>
+                    {% if funder.fundref_id %}
+                    <funder_identifier>{{ funder.fundref_id }}</funder_identifier>
+                    {% endif %}
+                    {% if funder.funding_id %}
+                    <award_number>{{ funder.funding_id }}</award_number>
+                    {% endif %}
+                </funding_reference>
+                {% endfor %}
+            </funding_group>
+            {% endif %}
+        </conference_paper>

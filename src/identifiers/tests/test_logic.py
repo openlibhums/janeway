@@ -218,6 +218,7 @@ class TestLogic(TestCase):
     def test_create_crossref_journal_context(self):
         expected_data = {
             'title': 'Journal One',
+            'code': self.journal_one.code,
             'journal_issn': '1234-5678',
             'print_issn': '8765-4321',
             'press': self.journal_one.press
@@ -241,6 +242,8 @@ class TestLogic(TestCase):
             'doi': f'10.0000/TST.{self.article_published.id}',
             'id': self.article_published.id,
             'license': '',
+            'object': self.article_published,
+            'other_pages': None,
             'first_page': self.article_published.first_page,
             'last_page': self.article_published.last_page,
             'other_pages': None,
@@ -267,6 +270,8 @@ class TestLogic(TestCase):
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
+            'object': self.article_one,
+            'other_pages': None,
             'first_page': self.article_one.first_page,
             'last_page': self.article_one.last_page,
             'other_pages': None,
