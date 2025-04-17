@@ -1,88 +1,138 @@
-{% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
-                <titles>
-                    {% if article.scheduled %}
-                    <title>{{ article.title }}</title>
-                    {% else %}
-                    <title>Title Pending {{ article.id }}</title>
-                    {% endif %}
-                </titles>
-                {% if article.authors and article.scheduled %}
-                <contributors>
-                {% for author in article.authors %}
-                    {% if author.is_corporate %}
-                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        {{ author.corporate_name }}
-                    </organization>
-                    {% else %}
-                    <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+{% load settings %}{% spaceless %}<journal_article publication_type="full_text">{% endspaceless %}
+
+            <titles>
+                {% if article.scheduled %}
+                <title>{{ article.title }}</title>
+                {% else %}
+                <title>Title Pending {{ article.pk }}</title>
+                {% endif %}
+            </titles>
+
+            <contributors>
+                {% for author_bundle in article.object.frozen_authors_for_jats_contribs %}
+                    {% with author=author_bundle.author affiliations=author_bundle.affiliations %}
+                    <person_name
+                        contributor_role="author"
+                        sequence="{% if forloop.first %}first{% else %}additional{% endif %}">
                         <given_name>{{ author.given_names }}</given_name>
-                        <family_name>{{ author.last_name }}</family_name>
-                        {% if author.institution %}
-                        <affiliation>{{ author.affiliation }}</affiliation>
+                        <surname>{{ author.last_name }}</surname>
+
+                        {% if affiliations %}
+                            <affiliations>
+                                {% for affil in affiliations %}
+                                    {% with org=affil.organization %}
+                                        <institution>
+                                            <institution_name>{{ org.name.value }}</institution_name>
+                                            {% if org.ror_id %}
+                                                <institution_id
+                                                        institution_id_type="ROR">
+                                                    https://ror.org/{{ org.ror_id }}</institution_id>
+                                            {% endif %}
+                                        </institution>
+                                    {% endwith %}
+                                {% endfor %}
+                            </affiliations>
                         {% endif %}
+
                         {% if author.orcid %}
-                        <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+                            <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+                        {% endif %}
+
+                        {% if article.object.journal|setting:'use_credit' and author.credits.exists %}
+                            {% for credit in author.credits %}
+                                <contrib_role>
+                                    <role_name>{{ credit.role|title }}</role_name>
+                                    <role_identifier>{{ credit.uri }}/</role_identifier>
+                                </contrib_role>
+                            {% endfor %}
                         {% endif %}
                     </person_name>
-                    {% endif %}
+                    {% endwith %}
                 {% endfor %}
-                </contributors>
-                {% endif %}
-                {% if article.abstract  and article.scheduled %}
-                <jats:abstract><jats:p>{{ article.abstract }}</jats:p></jats:abstract>
-                {% endif %}
+            </contributors>
+
+            {% if article.abstract  and article.scheduled %}
+                <jats:abstract>
+                    <jats:p>{{ article.get_clean_abstract }}</jats:p>
+                </jats:abstract>
+            {% endif %}
+
+            {% if article.date_published %}
                 <publication_date media_type="online">
-                {% if article.date_published %}
-                    <month>{{ article.date_published.month }}</month>
-                    <day>{{ article.date_published.day }}</day>
-                    <year>{{ article.date_published.year }}</year>
-                {% else %}
-                    <month>{{ now.month }}</month>
-                    <day>{{ now.day }}</day>
-                    <year>{{ now.year|add:10 }}</year>
-                {% endif %}
+                    <month>{{ article.date_published|date:"m" }}</month>
+                    <day>{{ article.date_published|date:"d" }}</day>
+                    <year>{{ article.date_published|date:"Y" }}</year>
                 </publication_date>
-                {% if article.date_accepted %}
+            {% else %}
+                {% now "Y" as current_year %}
+                <publication_date media_type="online">
+                    <year>{{ current_year }}</year>
+                </publication_date>
+            {% endif %}
+
+            {% if article.date_accepted %}
                 <acceptance_date media_type="online">
                     <month>{{ article.date_accepted.month }}</month>
                     <day>{{ article.date_accepted.day }}</day>
                     <year>{{ article.date_accepted.year }}</year>
                 </acceptance_date>
-                {% endif %}
-                {% if first_page or last_page or other_pages %}
-                    <pages>
-                        {% if first_page %}
-                            <first_page>{{ first_page }}</first_page>
-                        {% endif %}
-                        {% if last_page %}
-                            <last_page>{{ last_page }}</last_page>
-                        {% endif %}
-                        {% if other_pages %}
-                            <other_pages>{{ other_pages }}</other_pages>
-                        {% endif %}
-                    </pages>
-                {% endif %}
-                {% if article.license %}
-                <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ article.license }}</ai:license_ref>
-                </ai:program>
-                {% endif %}
-                <doi_data>
-                    <doi>{{ article.doi }}</doi>
-                    <resource>{{ article.url }}</resource>
-                    {% if article.scheduled %}
+            {% endif %}
+            {% if first_page or last_page or other_pages %}
+                <pages>
+                    {% if first_page %}
+                        <first_page>{{ first_page }}</first_page>
+                    {% endif %}
+                    {% if last_page %}
+                        <last_page>{{ last_page }}</last_page>
+                    {% endif %}
+                    {% if other_pages %}
+                        <other_pages>{{ other_pages }}</other_pages>
+                    {% endif %}
+                </pages>
+            {% endif %}
+
+            <publisher_item>
+                <item_number item_number_type="article_number">{{ article.object.pk }}</item_number>
+            </publisher_item>
+
+            {% if article.object.funders.exists %}
+            <fr:program name="fundref">
+                {% for funder in article.object.funders.all %}
+                <fr:assertion name="fundgroup">
+                    <fr:assertion name="funder_name">{{ funder.name }}</fr:assertion>
+                    {% if funder.fundref_id %}
+                    <fr:assertion name="funder_identifier">{{ funder.fundref_id }}</fr:assertion>
+                    {% endif %}
+                    {% if funder.funding_id %}
+                    <fr:assertion name="award_number">{{ funder.funding_id }}</fr:assertion>
+                    {% endif %}
+                </fr:assertion>
+                {% endfor %}
+            </fr:program>
+            {% endif %}
+
+
+
+            <doi_data>
+                <doi>{{ article.doi }}</doi>
+                <resource>{{ article.url }}</resource>
+                {% if article.scheduled %}
                     <collection property="crawler-based">
-                        <item crawler="iParadigms">
-                        {% if article.pdf_url %}
-                            <resource>{{ article.pdf_url }}</resource>
-                        {% else %}
-                            <resource>{{ article.url }}</resource>
-                        {% endif %}
+                        <item crawler="similarity-check">
+                            {% if article.pdf_url %}
+                                <resource>{{ article.pdf_url }}</resource>
+                            {% else %}
+                                <resource>{{ article.url }}</resource>
+                            {% endif %}
                         </item>
                     </collection>
-                    {% endif %}
-                </doi_data>
-                {% if article.scheduled and article.citation_list %}
-                    {{ article.citation_list|safe }}
                 {% endif %}
-            </journal_article>
+            </doi_data>
+
+            {% if article.scheduled and article.citation_list %}
+                {{ article.citation_list|safe }}
+            {% else %}
+                <citation_list/>
+            {% endif %}
+
+        </journal_article>

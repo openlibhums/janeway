@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from attr.setters import frozen
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
@@ -11,9 +10,9 @@ import os
 from dateutil import parser as dateparser
 from itertools import chain
 import warnings
+from bleach import clean
 
 from django.apps import apps
-from django.db.models import SET_NULL
 from django.urls import reverse
 from django.db import (
     connection,
@@ -61,10 +60,10 @@ from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
 from utils.forms import plain_text_validator
+from utils import const as utils_const
 from journal import models as journal_models
 from review.const import (
     ReviewerDecisions as RD,
-    VisibilityOptions as VO,
 )
 
 logger = get_logger(__name__)
@@ -1699,6 +1698,44 @@ class Article(AbstractLastModifiedModel):
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
 
+    def frozen_authors_for_jats_contribs(self):
+        """
+        Returns a list of dicts, each representing a frozen author and all data
+        needed to render their full <contrib> block including affiliations.
+
+        Each dict contains:
+            - author: the FrozenAuthor object
+            - affiliations: list of valid affiliation objects (with organisation name)
+        """
+        authors = self.frozen_authors().prefetch_related(
+            'controlledaffiliation_set__organization__ror_display',
+            'controlledaffiliation_set__organization__custom_label',
+            'controlledaffiliation_set__organization__labels',
+        )
+
+        result = []
+
+        for author in authors:
+            valid_affiliations = []
+            for affiliation in author.controlledaffiliation_set.all():
+                org = affiliation.organization
+                if not org:
+                    continue
+                org_name_obj = org.name
+                if not org_name_obj:
+                    continue
+                name_value = org_name_obj.value
+                if not name_value or not name_value.strip():
+                    continue
+                valid_affiliations.append(affiliation)
+
+            result.append({
+                'author': author,
+                'affiliations': valid_affiliations,
+            })
+
+        return result
+
     def editor_override(self, editor):
         check = review_models.EditorOverride.objects.filter(article=self, editor=editor)
 
@@ -2006,6 +2043,23 @@ class Article(AbstractLastModifiedModel):
             article=self,
         ):
             return True
+
+    def get_clean_abstract(self):
+        """
+        Returns a JATS-safe abstract with only allowed inline tags and wrapped in <p>.
+        """
+        if not self.abstract:
+            return ""
+
+        # Clean the abstract bleach
+        cleaned = clean(
+            self.abstract,
+            tags=utils_const.get_jats_allowed_tags(),
+            attributes=utils_const.get_jats_allowed_attrs(),
+            strip=True,
+        ).strip()
+
+        return mark_safe(f"<p>{cleaned}</p>")
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
