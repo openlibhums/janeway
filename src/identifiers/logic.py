@@ -318,6 +318,7 @@ def create_crossref_journal_context(
         'journal_issn': ISSN_override or journal.issn,
         'print_issn': journal.print_issn,
         'press': journal.press,
+        'code': journal.code,
     }
     if journal.doi:
         journal_data["doi"] = journal.doi
@@ -343,6 +344,7 @@ def create_crossref_article_context(article, identifier=None):
         'last_page': article.last_page,
         'other_pages': article.page_numbers,
         'scheduled': article.scheduled_for_publication,
+        'object': article,
     }
 
     # append citations for i4oc compatibility
