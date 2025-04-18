@@ -200,3 +200,40 @@ class TestSubmitAuthors(TestCase):
         )
         self.article.refresh_from_db()
         self.assertEqual(self.article.current_step, 3)
+
+    @override_settings(URL_CONFIG='domain', DUMMY_EMAIL_DOMAIN='testing.example.org')
+    def test_delete_author_but_they_are_only_correspondence_author(self):
+        # Add a second author that does not have a real email address
+        self.eliot.email = 'notreal@testing.example.org'
+        self.eliot.save()
+        logic.add_user_as_author(self.eliot, self.article)
+
+        # Run test
+        self.client.force_login(self.kathleen)
+        post_data = {}
+        self.client.post(
+            f'/submit/{self.article.pk}/authors/{self.kathleen.pk}/delete/',
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertIn(self.kathleen, self.article.authors.all())
+        self.assertEqual(self.article.correspondence_author, self.kathleen)
+
+    @override_settings(URL_CONFIG='domain', DUMMY_EMAIL_DOMAIN='testing')
+    def test_delete_author(self):
+        # Add a second author and make them corr author
+        logic.add_user_as_author(self.eliot, self.article)
+        self.article.correspondence_author = self.eliot
+        self.article.save()
+
+        # Run test
+        self.client.force_login(self.kathleen)
+        post_data = {}
+        self.client.post(
+            f'/submit/{self.article.pk}/authors/{self.eliot.pk}/delete/',
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.article.refresh_from_db()
+        self.assertNotIn(self.eliot, self.article.authors.all())
+        self.assertEqual(self.article.correspondence_author, self.kathleen)

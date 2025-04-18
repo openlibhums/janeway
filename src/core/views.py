@@ -748,6 +748,11 @@ def affiliation_bulk_update_from_orcid(request):
             request.user.affiliations.delete()
             for affil in new_affils:
                 affil.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliations updated."),
+            )
             if next_url:
                 return redirect(next_url)
             else:
