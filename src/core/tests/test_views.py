@@ -60,6 +60,25 @@ class CoreViewTestsWithData(TestCase):
             account=cls.user,
             organization=cls.organization_bbk,
         )
+        cls.country_us = core_models.Country.objects.create(
+            code='US',
+            name='United States',
+        )
+        cls.location_oakland = core_models.Location.objects.create(
+            name='Oakland',
+            geonames_id=5378538,
+            country=cls.country_us,
+        )
+        cls.organization_cdl = core_models.Organization.objects.create(
+            ror_id='03yrm5c26',
+        )
+        cls.organization_cdl.locations.add(cls.location_oakland)
+        cls.name_cdl = core_models.OrganizationName.objects.create(
+            value='California Digital Library',
+            language='en',
+            ror_display_for=cls.organization_cdl,
+            label_for=cls.organization_cdl,
+        )
 
         # The raw unicode string of a 'next' URL
         cls.next_url_raw = '/target/page/?a=b&x=y'
@@ -829,3 +848,30 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         response = self.client.post(url, post_data, follow=True)
         with self.assertRaises(core_models.ControlledAffiliation.DoesNotExist):
             core_models.ControlledAffiliation.objects.get(pk=affil_id)
+
+    @patch('utils.orcid.get_orcid_record')
+    def test_affiliation_bulk_update_from_orcid_confirmed(self, get_orcid_record):
+        get_orcid_record.return_value = helpers.get_orcid_record_all_fields()
+        self.client.force_login(self.user)
+        get_data = {}
+        affil_id = self.affiliation.pk
+        url = f'/profile/affiliation/update-from-orcid/'
+        response = self.client.get(url, post_data)
+        self.assertEqual(
+            response.context['new_affils'][0].__str__(),
+            'California Digital Library, Oakland, United States'
+        )
+
+    @patch('utils.orcid.get_orcid_record')
+    def test_affiliation_bulk_update_from_orcid_confirmed(self, get_orcid_record):
+        get_orcid_record.return_value = helpers.get_orcid_record_all_fields()
+        self.client.force_login(self.user)
+        post_data = {}
+        affil_id = self.affiliation.pk
+        url = f'/profile/affiliation/update-from-orcid/'
+        self.client.post(url, post_data, follow=True)
+        self.user.refresh_from_db()
+        self.assertEqual(
+            self.user.primary_affiliation().__str__(),
+            'California Digital Library, Oakland, United States'
+        )

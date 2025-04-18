@@ -871,8 +871,8 @@ class Article(AbstractLastModifiedModel):
             for frozen_author in self.frozen_authors():
                 result[frozen_author] = frozen_author.credits()
         else:
-            for author in self.authors.all():
-                result[author] = author.credits(article=self)
+            for order in self.articleauthororder_set.all():
+                result[order.author] = order.author.credits(article=self)
         return result
 
     @property
@@ -2127,6 +2127,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 role=credit_role_text,
             )
             record.delete()
+            return record
         except CreditRecord.DoesNotExist:
             pass
 
