@@ -513,7 +513,7 @@ def delete_funder(request, article_id, funder_id):
 @login_required
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
-    """Allows submitting author to delete an author object."""
+    """Allows submitting author to remove an author from their article."""
     article = get_object_or_404(
         models.Article,
         pk=article_id,
@@ -523,12 +523,37 @@ def delete_author(request, article_id, author_id):
         core_models.Account,
         pk=author_id
     )
+    if author == article.correspondence_author:
+        possible_corr_authors = [
+            order.author for order in article.articleauthororder_set.exclude(
+                author__email__endswith=settings.DUMMY_EMAIL_DOMAIN,
+            ).exclude(
+                author__pk=author.pk,
+            )
+        ]
+        if possible_corr_authors:
+            article.correspondence_author = possible_corr_authors[0]
+            article.save()
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _('%(author_name)s (%(email)s) is the only possible '
+                  'correspondence author. Please add another author '
+                  'with an email address before removing %(author_name)s.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+            return redirect(
+                reverse(
+                    'submit_authors',
+                    kwargs={'article_id': article_id}
+                )
+            )
+
     article.authors.remove(author)
-
-    if article.correspondence_author == author:
-        article.correspondence_author = None
-        article.save()
-
     try:
         ordering = models.ArticleAuthorOrder.objects.get(
             article=article,
@@ -545,10 +570,6 @@ def delete_author(request, article_id, author_id):
                 "email": author.email
             },
     )
-    if article.authors.exists() and not article.correspondence_author:
-        article.correspondence_author = article.articleauthororder_set.first().author
-        article.save()
-
     return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
 
