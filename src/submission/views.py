@@ -26,6 +26,7 @@ from security.decorators import (
     article_edit_user_required,
     production_user_or_editor_required,
     editor_user_required,
+    editor_user_required_and_can_see_pii,
     submission_authorised,
     article_is_not_submitted,
     role_can_access,
@@ -284,97 +285,37 @@ def submit_authors(request, article_id):
     form = forms.AuthorForm()
 
     if request.POST and 'add_author' in request.POST:
-        form = forms.AuthorForm(request.POST)
-
-        email = request.POST.get("email")
-        author = None
-        author_exists = logic.check_author_exists(email=email)
-        if author_exists:
-            author = core_models.Account.objects.get(email=email)
-        elif form.is_valid():
-            new_author = form.save(commit=False)
-            new_author.set_password(utils_shared.generate_password())
-            new_author.save()
-            author = new_author
-        else:
-            messages.add_message(
-                request, messages.WARNING,
-                _('Could not add the author manually.'),
-            )
-
-        if author:
-            logic.add_user_as_author(author, article)
-            messages.add_message(
-                request, messages.SUCCESS,
-                _('%(author_name)s (%(email)s) added to the article.')
-                    % {
-                        "author_name": author.full_name(),
-                        "email": author.email
-                    },
-            )
-        form = forms.AuthorForm()
+        logic.add_author_from_manual_entry(request, article)
 
     elif request.POST and 'search_authors' in request.POST:
-        search_term = request.POST.get('author_search_text')
-        logic.add_author_from_search(search_term, request, article)
+        logic.add_author_from_search(request, article)
 
     elif request.POST and 'corr_author' in request.POST:
-        author = get_object_or_404(
-            core_models.Account,
-            pk=request.POST.get('corr_author', None),
-        )
-        article.correspondence_author = author
-        article.save()
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _('%(author_name)s (%(email)s) made correspondence author.')
-                % {
-                    "author_name": author.full_name(),
-                    "email": author.email
-                },
-        )
+        logic.set_correspondence_author(request, article)
 
-    elif request.POST and 'add_credit' in request.POST:
-        author_pk = int(request.POST.get('author_pk'))
+    elif request.POST and 'role' in request.POST:
         author = get_object_or_404(
             core_models.Account,
-            pk=author_pk,
+            pk=int(request.POST.get('author_pk')),
+            authors=article,
+            authors__journal=request.journal,
         )
-        role_text = request.POST.get('add_credit', '')
-        if role_text:
-            record = author.add_credit(role_text, article)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('%(author_name)s given role %(role)s.')
-                    % {
-                        "author_name": author.full_name(),
-                        "role": record.get_role_display(),
-                    },
-            )
-
-    elif request.POST and 'remove_credit' in request.POST:
-        author_pk = int(request.POST.get('author_pk'))
-        author = get_object_or_404(
-            core_models.Account,
-            pk=author_pk,
-        )
-        role_text = request.POST.get('remove_credit', '')
-        if role_text:
-            record = author.remove_credit(role_text, article)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('%(author_name)s no longer has the role %(role)s.')
-                    % {
-                        "author_name": author.full_name(),
-                        "role": record.get_role_display(),
-                    },
-            )
+        logic.add_credit_role(request, article, author=author)
 
     elif request.POST and 'change_order' in request.POST:
-        logic.save_author_order(request, article)
+        author = get_object_or_404(
+            core_models.Account,
+            pk=int(request.POST.get('obj_pk')),
+            authors=article,
+        )
+        change_order = request.POST.get('change_order')
+        changed = logic.save_author_order(author, change_order, article)
+        if changed:
+            logic.add_messages_for_author_order(
+                request,
+                author,
+                change_order
+            )
 
     elif request.POST and 'save_continue' in request.POST:
         article.current_step = 3
@@ -513,7 +454,10 @@ def delete_funder(request, article_id, funder_id):
 @login_required
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
-    """Allows submitting author to remove an author from their article."""
+    """
+    Allows the submitting author or editor
+    to remove an author from the article.
+    """
     article = get_object_or_404(
         models.Article,
         pk=article_id,
@@ -521,8 +465,10 @@ def delete_author(request, article_id, author_id):
     )
     author = get_object_or_404(
         core_models.Account,
-        pk=author_id
+        pk=author_id,
+        authors=article,
     )
+    next_url = request.GET.get('next', '')
     if author == article.correspondence_author:
         possible_corr_authors = [
             order.author for order in article.articleauthororder_set.exclude(
@@ -540,18 +486,21 @@ def delete_author(request, article_id, author_id):
                 messages.ERROR,
                 _('%(author_name)s (%(email)s) is the only possible '
                   'correspondence author. Please add another author '
-                  'with an email address before removing %(author_name)s.')
+                  'who has an email address before removing %(author_name)s.')
                     % {
                         "author_name": author.full_name(),
                         "email": author.email
                     },
             )
-            return redirect(
-                reverse(
-                    'submit_authors',
-                    kwargs={'article_id': article_id}
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
                 )
-            )
 
     article.authors.remove(author)
     try:
@@ -559,6 +508,9 @@ def delete_author(request, article_id, author_id):
             article=article,
             author=author,
         ).delete()
+        frozen_author = author.frozen_author(article)
+        if frozen_author:
+            frozen_author.delete()
     except models.ArticleAuthorOrder.DoesNotExist:
         pass
     messages.add_message(
@@ -570,7 +522,146 @@ def delete_author(request, article_id, author_id):
                 "email": author.email
             },
     )
-    return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(
+            reverse(
+                'submit_authors',
+                kwargs={'article_id': article_id}
+            )
+        )
+
+
+@login_required
+@article_edit_user_required
+def delete_frozen_author(request, article_id, frozen_author_id):
+    """
+    Allows the editor to remove a frozen author from the article.
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    frozen_author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=frozen_author_id,
+        article=article,
+        article__journal=request.journal,
+    )
+    next_url = request.GET.get('next', '')
+    if frozen_author.is_correspondence_author:
+        possible_corr_authors = [
+            order.author for order in article.articleauthororder_set.exclude(
+                author__email__endswith=settings.DUMMY_EMAIL_DOMAIN,
+            ).exclude(
+                author__pk=frozen_author.author.pk,
+            )
+        ]
+        if possible_corr_authors:
+            article.correspondence_author = possible_corr_authors[0]
+            article.save()
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _('%(author_name)s (%(email)s) is the only possible '
+                  'correspondence author. Please add another author '
+                  'who has an email address before removing %(author_name)s.')
+                    % {
+                        "author_name": frozen_author.full_name(),
+                        "email": frozen_author.email
+                    },
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    frozen_author.delete()
+    if frozen_author.author:
+        frozen_author.article.authors.remove(frozen_author.author)
+        models.ArticleAuthorOrder.objects.filter(
+            article=article,
+            author=frozen_author.author,
+        ).delete()
+
+    messages.add_message(
+        request,
+        messages.INFO,
+        _('%(author_name)s (%(email)s) removed from the article.')
+            % {
+                "author_name": frozen_author.full_name(),
+                "email": frozen_author.email
+            },
+    )
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(
+            reverse(
+                'submit_authors',
+                kwargs={'article_id': article_id}
+            )
+        )
+
+
+@login_required
+@article_edit_user_required
+def delete_credit(request, article_id, credit_id):
+    """
+    Allows the submitting author or editor
+    to remove a CRediT role from an author or frozen author.
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+
+    # The CreditRecord has an article field that should generally
+    # be populated if the record was created properly.
+    # But in case it is not, this view should still work by checking
+    # for article links via the author and frozen author.
+    # Otherwise editors would be unable to delete faulty records.
+    query = Q(pk=credit_id)
+    article_query = Q(article=article)
+    article_query |= Q(author__article=article)
+    article_query |= Q(frozen_author__article=article)
+    query &= article_query
+    record = get_object_or_404(
+        models.CreditRecord,
+        query,
+    )
+    next_url = request.GET.get('next', '')
+
+    author = record.author or record.frozen_author
+    role_display = record.get_role_display()
+    record.delete()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s no longer has the role %(role)s.')
+            % {
+                "author_name": author.full_name(),
+                "role": role_display,
+            },
+    )
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(
+            reverse(
+                'submit_authors',
+                kwargs={'article_id': article_id}
+            )
+        )
 
 
 @login_required
@@ -809,7 +900,9 @@ def edit_metadata(request, article_id):
             query_strings={'return': return_param}
         )
 
-        frozen_author, modal, author_form = None, None, forms.EditFrozenAuthor()
+        frozen_author = None
+        modal = None
+        author_form = forms.EditFrozenAuthor()
         if request.GET.get('author'):
             frozen_author, modal = logic.get_author(request, article)
             author_form = forms.EditFrozenAuthor(instance=frozen_author)
@@ -857,6 +950,7 @@ def edit_metadata(request, article_id):
                 )
                 return redirect(reverse_url)
 
+            # delete these branches?
             if 'author' in request.POST:
                 author_form = forms.EditFrozenAuthor(
                     request.POST,
@@ -907,8 +1001,166 @@ def edit_metadata(request, article_id):
     return render(request, template, context)
 
 
+@editor_user_required_and_can_see_pii
+def edit_author_metadata(request, article_id):
+    """
+    Allows editors to edit the author metadata for an article.
+    Updates author relationships and author order by re-using the
+    same logic that is behind the article submit steps.
+    Then it adds the needed frozen author logic on top.
+
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpRedirect or HttpResponse
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    form = forms.AuthorForm()
+
+    if request.POST and 'add_author' in request.POST:
+        author, added = logic.add_author_from_manual_entry(request, article)
+        if added:
+            author.snapshot_self(article)
+
+    elif request.POST and 'search_authors' in request.POST:
+        author, added = logic.add_author_from_search(request, article)
+        if added:
+            author.snapshot_self(article)
+
+    elif request.POST and 'corr_author' in request.POST:
+        # Make the change with the account
+        author = logic.set_correspondence_author(request, article)
+
+        # Display the email of the new corr author
+        frozen_author = author.frozen_author(article)
+        if frozen_author:
+            frozen_author.display_email = True
+            frozen_author.save()
+
+    elif request.POST and 'role' in request.POST:
+        frozen_author = get_object_or_404(
+            models.FrozenAuthor,
+            pk=int(request.POST.get('frozen_author_pk')),
+            article=article,
+            article__journal=request.journal,
+        )
+        logic.add_credit_role(request, article, frozen_author=frozen_author)
+
+    elif request.POST and 'change_order' in request.POST:
+        frozen_author = get_object_or_404(
+            models.FrozenAuthor,
+            pk=int(request.POST.get('frozen_author_pk')),
+            article=article,
+            article__journal=request.journal,
+        )
+        change_order = request.POST.get('change_order')
+        changed = logic.save_frozen_author_order(
+            frozen_author,
+            change_order,
+            article
+        )
+        if frozen_author.author:
+            logic.save_author_order(frozen_author.author, change_order, article)
+        if changed:
+            logic.add_messages_for_author_order(
+                request,
+                frozen_author,
+                change_order
+            )
+
+    frozen_authors = []
+    for frozen_author, credits in article.authors_and_credits().items():
+        credit_form = forms.CreditRecordForm(
+            article=article,
+            frozen_author=frozen_author,
+        )
+        frozen_authors.append((frozen_author, credits, credit_form))
+
+    template = 'admin/submission/edit/author_metadata.html'
+    context = {
+        'article': article,
+        'frozen_authors': frozen_authors,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def add_author_credit(request, article_id, frozen_author_id):
+    """
+    Add CRediT role for an author.
+    """
+    pass
+
+
+@production_user_or_editor_required
+def add_frozen_author_credit(request, article_id, frozen_author_id):
+    """
+    Add CRediT role for a frozen author.
+    Also updates any associated author.
+    """
+    pass
+
+
+@editor_user_required_and_can_see_pii
+def edit_frozen_author(request, article_id, frozen_author_id):
+    """
+    Allows editors to edit a frozen author after submission
+    :param request: request object
+    :param article_id: PK of an Article
+    :param frozen_author_id: PK of a FrozenAuthor
+    :return: contextualised django template
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    frozen_author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=frozen_author_id,
+        article=article,
+        article__journal=request.journal,
+    )
+    form = forms.EditFrozenAuthor(instance=frozen_author)
+    next_url = request.GET.get('next_url', '')
+
+    if request.method == "POST":
+        form = forms.EditFrozenAuthor(
+            request.POST,
+            instance=frozen_author,
+        )
+        if form.is_valid():
+            form.save()
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submission_edit_author_metadata',
+                        kwargs={
+                            'article_id': article.pk,
+                        }
+                    )
+                )
+
+    template = 'admin/submission/edit/frozen_author.html'
+    context = {
+        'article': article,
+        'frozen_author': frozen_author,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
 @production_user_or_editor_required
 def order_authors(request, article_id):
+    raise DeprecationWarning("Use edit_author_metadata instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
 
     if request.POST:

@@ -17,6 +17,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     HTMLDateInput,
     clean_orcid_id,
+    YesNoRadio,
 )
 from utils import setting_handler
 
@@ -322,12 +323,6 @@ class EditFrozenAuthor(forms.ModelForm):
                     "Currently linked to %s, leave blank to use this address"
                     "" % instance.author.email,
                 )
-                if instance.author.orcid:
-                    self.fields["frozen_orcid"].help_text += gettext(
-                        "If left blank, the account ORCiD will be used (%s)"
-                        "" % instance.author.orcid,
-                    )
-            del self.fields["is_corporate"]
             if instance.is_corporate:
                 del self.fields["name_prefix"]
                 del self.fields["first_name"]
@@ -349,6 +344,10 @@ class EditFrozenAuthor(forms.ModelForm):
             'frozen_orcid',
             'display_email',
         )
+        widgets = {
+            'is_corporate': YesNoRadio,
+            'display_email': YesNoRadio,
+        }
 
     def save(self, commit=True, *args, **kwargs):
         obj = super().save(*args, **kwargs)
@@ -516,6 +515,13 @@ class PubDateForm(forms.ModelForm):
 
 class CreditRecordForm(forms.ModelForm):
 
+    class Meta:
+        model = models.CreditRecord
+        fields = ('role', )
+        widgets = {
+            'role': forms.widgets.RadioSelect,
+        }
+
     def _remove_choices_when_roles_already_exist(self, credit_records):
         credit_slugs = set(record.role for record in credit_records)
         new_choices = []
@@ -525,13 +531,13 @@ class CreditRecordForm(forms.ModelForm):
         self.fields['role'].choices = new_choices
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
-        self.fields['role'].choices = self.fields['role'].choices[1:]
+        article = kwargs.pop('article', None)
+        author = kwargs.pop('author', None)
+        frozen_author = kwargs.pop('frozen_author', None)
+        preprint_author = kwargs.pop('preprint_author', None)
 
-        article = kwargs.get('article')
-        author = kwargs.get('author')
-        frozen_author = kwargs.get('frozen_author')
-        preprint_author = kwargs.get('preprint_author')
+        super().__init__(*args, **kwargs)
+        self.fields['role'].choices = self.fields['role'].choices[1:]
         if article and author:
             self._remove_choices_when_roles_already_exist(
                 models.CreditRecord.objects.filter(
@@ -553,10 +559,3 @@ class CreditRecordForm(forms.ModelForm):
                     preprint_author=preprint_author,
                 )
             )
-
-    class Meta:
-        model = models.CreditRecord
-        fields = ('role', )
-        widgets = {
-            'role': forms.widgets.RadioSelect,
-        }

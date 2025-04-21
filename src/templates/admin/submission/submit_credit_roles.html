@@ -7,24 +7,27 @@
 
 <form method="POST">
   {% csrf_token %}
-  <input type="hidden" name="author_pk" value="{{ author.pk }}">
+  {% if author %}
+    <input type="hidden" name="author_pk" value="{{ author.pk }}">
+  {% elif frozen_author %}
+    <input type="hidden" name="frozen_author_pk" value="{{ frozen_author.pk }}">
+  {% endif %}
   <div class="flex direction-column row-gap-0-5">
     <div class="flex direction-column gap-0-25 wrap">
       {% for credit in credits %}
         <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between max-w-24">
           {{ credit }}
           <div class="small button-group no-bottom-margin flex items-center">
-            <button
+            <a
+              href="{% url_with_return 'submission_delete_credit' article.pk credit.pk %}"
               class="button hollow secondary no-bottom-margin"
-              name="remove_credit"
-              value="{{ credit.role }}"
               type="submit">
               <span class="fa fa-remove"></span>
               {% trans "Remove role" %}
               <span class="sr-only">
                 {{ credit.get_role_display }}
               </span>
-            </button>
+            </a>
           </div>
         </div>
       {% empty %}
@@ -55,7 +58,7 @@
               <div class="option max-w-20">
                 <input
                   id="{{ radio.id_for_label }}-{{ pid }}"
-                  name="add_credit"
+                  name="role"
                   value="{{ radio.data.value }}"
                   type="radio">
                 <label for="{{ radio.id_for_label }}-{{ pid }}">

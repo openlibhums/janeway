@@ -1007,3 +1007,23 @@ ul.menu {
     margin: 0.25rem;
   }
 }
+
+/* Yes no radio */
+/* This component is CSS and Python only. To use it,
+ * assign utils.forms.YesNoRadio as the Python form widget. */
+.yes-no-radio {
+  display: flex;
+  gap: 1rem;
+  max-width: 16rem;
+  margin-bottom: 1rem;
+  label {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+  }
+}

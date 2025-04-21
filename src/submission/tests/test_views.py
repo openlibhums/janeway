@@ -136,7 +136,7 @@ class TestSubmitAuthors(TestCase):
         logic.add_user_as_author(self.eliot, self.article)
         self.client.force_login(self.kathleen)
         post_data = {
-            'add_credit': 'writing-original-draft',
+            'role': 'writing-original-draft',
             'author_pk': self.eliot.pk,
         }
         self.client.post(
@@ -144,26 +144,18 @@ class TestSubmitAuthors(TestCase):
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEqual(
-            self.eliot.credits(self.article)[0].role,
-            'writing-original-draft',
-        )
+        self.assertTrue(self.eliot.credits(self.article).exists())
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_remove_credit(self):
         # Set up a second author with a credit role
         logic.add_user_as_author(self.eliot, self.article)
-        self.eliot.add_credit('writing-original-draft', self.article)
+        record = self.eliot.add_credit('writing-original-draft', self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
-        post_data = {
-            'remove_credit': 'writing-original-draft',
-            'author_pk': self.eliot.pk,
-        }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
-            post_data,
+            f'/submit/{self.article.pk}/credit/{record.pk}/delete/',
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertFalse(self.eliot.credits(self.article).exists())

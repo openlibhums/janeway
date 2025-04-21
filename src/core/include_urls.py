@@ -156,6 +156,7 @@ urlpatterns = [
         name='core_affiliation_update'
     ),
     re_path(
+        # r'^profile/affiliation/update-from-orcid/(?P<orcid_id>([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1}))/$',
         r'^profile/affiliation/update-from-orcid/$',
         core_views.affiliation_bulk_update_from_orcid,
         name='core_affiliation_bulk_update_from_orcid'
@@ -254,7 +255,22 @@ urlpatterns = [
     # Cache
     re_path(r'^manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
 
-    re_path(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
+    # Edit metadata
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/metadata/$',
+        submission_views.edit_metadata,
+        name='edit_metadata',
+    ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/author-metadata/$',
+        submission_views.edit_author_metadata,
+        name='submission_edit_author_metadata',
+    ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/frozen-author/(?P<frozen_author_id>\d+)/$',
+        submission_views.edit_frozen_author,
+        name='submission_edit_frozen_author',
+    ),
     re_path(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
 
     # Public Profiles

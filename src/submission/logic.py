@@ -19,7 +19,7 @@ from core import models as core_models
 from utils import orcid, setting_handler, shared as utils_shared
 from utils.forms import clean_orcid_id
 from submission import models
-from submission.forms import AuthorForm
+from submission.forms import AuthorForm, CreditRecordForm
 
 
 def add_self_as_author(user, article):
@@ -281,45 +281,15 @@ def order_fields(request, fields):
         field.save()
 
 
-def save_author_order(request, article):
-    author_pk = int(request.POST.get('author_pk'))
-    author = get_object_or_404(
-        core_models.Account,
-        pk=author_pk,
-    )
-    change_order = request.POST.get('change_order')
-    author_pks = [
-        order.author.pk for order in article.articleauthororder_set.all()
-    ]
-    old_order = author_pks.index(author_pk)
-    new_orders = {
-        'first': 0,
-        'up': max(old_order - 1, 0),
-        'down': min(old_order + 1, len(author_pks) - 1),
-        'last': len(author_pks) - 1,
-    }
-    new_order = new_orders[change_order]
-    if old_order == new_order:
-        return
-    author_pks.pop(old_order)
-    author_pks.insert(new_order, author_pk)
-    for i, author_pk in enumerate(author_pks):
-        author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
-            article=article,
-            author__pk=author_pk,
-            defaults={'order': i}
-        )
-        if not c:
-            author_order.order = i
-            author_order.save()
+def add_messages_for_author_order(request, author, change_order):
     sentences = {
-        'first': _('%(author_name)s moved to the start.')
+        'first': _('%(author_name)s moved to the top.')
             % {'author_name': author.full_name()},
         'up':  _('%(author_name)s moved up.')
             % {'author_name': author.full_name()},
         'down':  _('%(author_name)s moved down.')
             % {'author_name': author.full_name()},
-        'last':  _('%(author_name)s moved to the end.')
+        'last':  _('%(author_name)s moved to the bottom.')
             % {'author_name': author.full_name()},
     }
     messages.add_message(
@@ -329,7 +299,53 @@ def save_author_order(request, article):
     )
 
 
-def add_author_from_search(search_term, request, article):
+def save_author_order(author, change_order, article):
+    all_authors = [
+        order.author for order in article.articleauthororder_set.all()
+    ]
+    old_order = all_authors.index(author)
+    new_orders = {
+        'first': 0,
+        'up': max(old_order - 1, 0),
+        'down': min(old_order + 1, len(all_authors) - 1),
+        'last': len(all_authors) - 1,
+    }
+    new_order = new_orders[change_order]
+    if old_order == new_order:
+        return False
+    all_authors.pop(old_order)
+    all_authors.insert(new_order, author)
+    for i, each_author in enumerate(all_authors):
+        models.ArticleAuthorOrder.objects.update_or_create(
+            article=article,
+            author=each_author,
+            defaults={'order': i},
+        )
+    return True
+
+
+def save_frozen_author_order(frozen_author, change_order, article):
+    all_frozen_authors = [fa for fa in article.frozen_authors()]
+    old_order = all_frozen_authors.index(frozen_author)
+    new_orders = {
+        'first': 0,
+        'up': max(old_order - 1, 0),
+        'down': min(old_order + 1, len(all_frozen_authors) - 1),
+        'last': len(all_frozen_authors) - 1,
+    }
+    new_order = new_orders[change_order]
+    if old_order == new_order:
+        return False
+    all_frozen_authors.pop(old_order)
+    all_frozen_authors.insert(new_order, frozen_author)
+    for i, each_frozen_author in enumerate(all_frozen_authors):
+        each_frozen_author.order = i
+        each_frozen_author.save()
+    return True
+
+
+def add_author_from_search(request, article):
+    search_term = request.POST.get('author_search_text')
     query = Q(email=search_term)
     try:
         cleaned_orcid = clean_orcid_id(search_term)
@@ -341,6 +357,7 @@ def add_author_from_search(search_term, request, article):
         new_author = core_models.Account.objects.get(query)
     except core_models.Account.DoesNotExist:
         new_author = None
+    added = False
 
     if cleaned_orcid:
         orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
@@ -384,6 +401,7 @@ def add_author_from_search(search_term, request, article):
     if new_author:
         if new_author not in article.authors.all():
             add_user_as_author(new_author, article)
+            added = True
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -426,3 +444,90 @@ def add_author_from_search(search_term, request, article):
                     _("Affiliation created: %(affiliation)s")
                         % {"affiliation": affiliation},
                 )
+
+    return new_author, added
+
+
+def add_author_from_manual_entry(request, article):
+    form = AuthorForm(request.POST)
+
+    email = request.POST.get("email")
+    author = None
+    added = False
+    account_exists = check_author_exists(email=email)
+    if account_exists:
+        author = core_models.Account.objects.get(email=email)
+    elif form.is_valid():
+        new_author = form.save(commit=False)
+        new_author.set_password(utils_shared.generate_password())
+        new_author.save()
+        author = new_author
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            _('Could not add the author manually.'),
+        )
+
+    if author:
+        if author in article.authors.all():
+            messages.add_message(
+                request, messages.SUCCESS,
+                _('%(author_name)s (%(email)s) is already an author.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+        else:
+            add_user_as_author(author, article)
+            added = True
+            messages.add_message(
+                request, messages.SUCCESS,
+                _('%(author_name)s (%(email)s) added to the article.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+    return author, added
+
+
+def set_correspondence_author(request, article):
+    author = get_object_or_404(
+        core_models.Account,
+        pk=request.POST.get('corr_author', None),
+        authors=article,
+        authors__journal=request.journal,
+    )
+    article.correspondence_author = author
+    article.save()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s (%(email)s) made correspondence author.')
+            % {
+                "author_name": author.full_name(),
+                "email": author.email
+            },
+    )
+    return author
+
+
+def add_credit_role(request, article, author=None, frozen_author=None):
+    form = CreditRecordForm(request.POST)
+    if form.is_valid() and (author or frozen_author):
+        record = form.save()
+        record.article = article
+        record.author = author
+        record.frozen_author = frozen_author
+        record.save()
+        name = author.full_name() if author else frozen_author.full_name()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s was given role %(role)s.')
+                % {
+                    "author_name": name,
+                    "role": record.get_role_display(),
+                },
+        )

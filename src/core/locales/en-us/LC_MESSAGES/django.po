@@ -716,9 +716,7 @@ msgid ""
 msgstr ""
 
 #: src/submission/models.py:1756
-msgid ""
-"If checked, this authors email address link will be displayed on the article "
-"page."
+msgid "Whether to display this author's email address on the article page."
 msgstr ""
 
 #: src/submission/models.py:2072

@@ -2,51 +2,53 @@
 
 <form method="POST">
   {% csrf_token %}
-  <input type="hidden" name="author_pk" value="{{ author.pk }}">
+  <input type="hidden" name="obj_pk" value="{{ obj.pk }}">
   <div class="flex direction-column-large direction-row-small column-gap-0-5">
-    <button
-      class="button secondary small hollow"
-      name="change_order"
-      value="first">
-      <span class="fa fa-angle-double-up fa-lg"></span>
-      <span class="sr-only">
-        {% blocktrans with author_name=author.full_name %}
-          Move {{ author_name }} to top
-        {% endblocktrans %}
-      </span>
-    </button>
-    <button
-      class="button secondary small hollow"
-      name="change_order"
-      value="up">
-      <span class="fa fa-angle-up fa-lg"></span>
-      <span class="sr-only">
-        {% blocktrans with author_name=author.full_name %}
-          Move {{ author_name }} up
-        {% endblocktrans %}
-      </span>
-    </button>
-    <button
-      class="button secondary small hollow"
-      name="change_order"
-      value="down">
-      <span class="fa fa-angle-down fa-lg"></span>
-      <span class="sr-only">
-        {% blocktrans with author_name=author.full_name %}
-          Move {{ author_name }} down
-        {% endblocktrans %}
-      </span>
-    </button>
-    <button
-      class="button secondary small hollow"
-      name="change_order"
-      value="last">
-      <span class="fa fa-angle-double-down fa-lg"></span>
-      <span class="sr-only">
-        {% blocktrans with author_name=author.full_name %}
-          Move {{ author_name }} to end
-        {% endblocktrans %}
-      </span>
-    </button>
+    {% with author_name=obj.full_name %}
+      <button
+        class="button secondary small hollow"
+        name="change_order"
+        value="first">
+        <span class="fa fa-angle-double-up fa-lg"></span>
+        <span class="sr-only">
+          {% blocktrans %}
+            Move {{ author_name }} to top
+          {% endblocktrans %}
+        </span>
+      </button>
+      <button
+        class="button secondary small hollow"
+        name="change_order"
+        value="up">
+        <span class="fa fa-angle-up fa-lg"></span>
+        <span class="sr-only">
+          {% blocktrans %}
+            Move {{ author_name }} up
+          {% endblocktrans %}
+        </span>
+      </button>
+      <button
+        class="button secondary small hollow"
+        name="change_order"
+        value="down">
+        <span class="fa fa-angle-down fa-lg"></span>
+        <span class="sr-only">
+          {% blocktrans %}
+            Move {{ author_name }} down
+          {% endblocktrans %}
+        </span>
+      </button>
+      <button
+        class="button secondary small hollow"
+        name="change_order"
+        value="last">
+        <span class="fa fa-angle-double-down fa-lg"></span>
+        <span class="sr-only">
+          {% blocktrans %}
+            Move {{ author_name }} to end
+          {% endblocktrans %}
+        </span>
+      </button>
+    {% endwith %}
   </div>
 </form>

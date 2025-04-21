@@ -2,17 +2,31 @@
 {% get_language_info_list for LANGUAGES as languages %}
 
 <div>
-  <label for="{{ field.id_for_label }}">
-    <strong>
-      {{ field.label }}
-      {% if field.field.required %}
-        <span aria-hidden="true">*</span>
+  {% if field.use_fieldset %}
+    <fieldset class="flex direction-column row-gap-0-5">
+  {% endif %}
+  {% if field.use_fieldset %}
+    <legend>
+      <strong>
+        {{ field.label }}
+        {% if field.field.required %}
+          <span aria-hidden="true">*</span>
+        {% endif %}
+      </strong>
+    </legend>
+  {% else %}
+    <label for="{{ field.id_for_label }}">
+      <strong>
+        {{ field.label }}
+        {% if field.field.required %}
+          <span aria-hidden="true">*</span>
+        {% endif %}
+      </strong>
+      {% if languages|length > 1 and field.name in edit_form.translatable_field_names %}
+        <small class="green">[{% trans 'translatable' %}]</small>
       {% endif %}
-    </strong>
-    {% if languages|length > 1 and field.name in edit_form.translatable_field_names %}
-      <small class="green">[{% trans 'translatable' %}]</small>
-    {% endif %}
-  </label>
+    </label>
+  {% endif %}
   {% for error in field.errors %}
     <div {% if field.errors %}class="error"{% endif %}>
       <span class="fa fa-warning"></span>
@@ -22,5 +36,8 @@
   {{ field }}
   {% if field.help_text %}
     <p class="help-text">{{ field.help_text|safe }}</p>
+  {% endif %}
+  {% if field.use_fieldset %}
+    </fieldset>
   {% endif %}
 </div>

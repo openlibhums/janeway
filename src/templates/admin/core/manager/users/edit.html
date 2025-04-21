@@ -1,8 +1,16 @@
 {% extends "admin/core/base.html" %}
 {% load static %}
 {% load foundation %}
+{% load next_url %}
 
-{% block title %}{{ active|capfirst }} Profile{% endblock title %}
+{% block title %}
+  {% if active == 'add' %}
+    Add new user
+  {% else %}
+    Edit user {{ user_to_edit.full_name }}
+  {% endif %}
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
 
 {% block css %}
   <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
@@ -12,67 +20,103 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_users' %}">Users</a></li>
-    <li>{% if active == 'add' %}Add User{% else %}Edit {{user_to_edit.full_name}} {% endif %}</li>
+    <li>{% if active == 'add' %}Add new user{% else %}Edit user {{ user_to_edit.full_name }}{% endif %}</li>
 {% endblock %}
 
-{% block title-section %}Users{% endblock %}
-{% block title-sub %}{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}{% endblock %}
+{% block title-section %}
+  <div class="text-align-center">
+    {% if active == 'add' %}
+      Add new user
+    {% else %}
+      Edit user {{ user_to_edit.full_name }}
+    {% endif %}
+  </div>
+{% endblock %}
 
 {% block body %}
-<div class="large-12 columns end">
-
-    <div class="box">
-        <div class="title-area">
-            <h2>{% if active == 'add' %}Add User{% else %}Edit {{user_to_edit.full_name}} ({{ registration_form.email.value }}) {% endif %}</h2>
+  <div class="large-form">
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "About user profiles" %}</h2>
+      </div>
+      {% if user_to_edit.frozenauthor_set.exists or user_to_edit.preprintauthor_set.exists %}
+        <p>You are editing a live user profile. {{ user_to_edit }}
+        also has frozen author records, which determine how their name
+        and other details appear alongside their articles. You can edit
+        frozen author records from the workflow page for the article.</p>
+      {% endif %}
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>Profile details</h2>
+      </div>
+      <div class="content">
+        {% include "elements/forms/errors.html" with form=user_form %}
+        {% include "elements/forms/errors.html" with form=registration_form %}
+        <form method="post" class="form" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% include "admin/elements/forms/messages_in_callout.html" %}
+          <div class="flex wrap column-gap-2">
+            {% include "admin/elements/forms/field.html" with field=registration_form.email %}
+            {% include "admin/elements/forms/field.html" with field=registration_form.is_active %}
+            {% if registration_form.is_staff %}
+              {% include "admin/elements/forms/field.html" with field=registration_form.is_staff %}
+            {% endif %}
+            {% if registration_form.is_admin %}
+              {% include "admin/elements/forms/field.html" with field=registration_form.is_admin %}
+            {% endif %}
+            {% if registration_form.is_superuser %}
+              {% include "admin/elements/forms/field.html" with field=registration_form.is_superuser %}
+            {% endif %}
+          </div>
+          {% if active == 'add' %}
+          <div class="row">
+            <div class="large-6 columns">
+              {{ registration_form.password_1|foundation }}
+            </div>
+            <div class="large-6 columns">
+              {{ registration_form.password_2|foundation }}
+            </div>
+          </div>
+          {% endif %}
+          {% include "admin/elements/forms/errors.html" with form=form %}
+          {% include "admin/elements/accounts/user_form.html" with form=form %}
+          {% include "elements/button_save.html" %}
+        </form>
+      </div>
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Affiliations" %}</h2>
+      </div>
+      <div class="flex direction-column gap-0-5 no-bottom-margin">
+        {% for affiliation in user_to_edit.affiliations %}
+          <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+            {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
+            <div class="flex gap-0-5 items-center">
+              {% url_with_return 'core_affiliation_update' affiliation.pk as update_url %}
+              {% include "elements/a_edit.html" with href=update_url size="small" %}
+              {% url_with_return 'core_affiliation_delete' affiliation.pk as delete_url %}
+              {% include "elements/a_delete.html" with href=delete_url size="small" %}
+            </div>
+          </div>
+        {% endfor %}
+        <div>
+          {% if user_to_edit.orcid %}
+            <a
+              href="{% url_with_return 'core_affiliation_bulk_update_from_orcid' %}"
+              class="button secondary small hollow no-bottom-margin">
+              <span class="fa fa-refresh"></span>
+              {% trans "Update affiliations from ORCiD" %}
+            </a>
+          {% endif %}
+          {% url_with_return 'core_organization_search' as create_url %}
+          {% trans "Add affiliation" as add_affiliation %}
+          {% include "elements/a_create.html" with href=create_url size="small" label=add_affiliation %}
         </div>
-
-        <div class="content">
-            {% include "elements/forms/errors.html" with form=user_form %}
-            {% include "elements/forms/errors.html" with form=registration_form %}
-            <form method="post" class="form" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row">
-                    <div class="large-4 columns">
-                        {{ registration_form.email|foundation }}
-                    </div>
-                    <div class="large-2 columns">
-                        {{ registration_form.is_active|foundation }}
-                    </div>
-                    <div class="large-2 columns">
-                        {{ registration_form.is_staff|foundation }}
-                    </div>
-                    <div class="large-2 columns">
-                        {{ registration_form.is_admin|foundation }}
-                    </div>
-                    <div class="large-2 columns">
-                        {{ registration_form.is_superuser|foundation }}
-                    </div>
-                </div>
-                {% if active == 'add' %}
-                <div class="row">
-                    <div class="large-6 columns">
-                        {{ registration_form.password_1|foundation }}
-                    </div>
-                    <div class="large-6 columns">
-                        {{ registration_form.password_2|foundation }}
-                    </div>
-                </div>
-                {% endif %}
-                {% include "admin/elements/forms/errors.html" with form=form %}
-                {% include "admin/elements/accounts/user_form.html" with form=form %}
-
-                <button name="register" id="register" type="submit" class="pull-right success button"
-                        style="width:150px;margin-left:15px;">
-                    <i class="fa fa-user"></i> {% if active == 'update' %}Update Profile{% else %}Save New User{% endif %}
-                </button>
-                <br/> <br/>
-            </form>
-        </div>
-    </div>
-
-
-</div>
-
+      </div>
+    </section>
+  </div>
 {% endblock %}
 
 {% block js %}

@@ -13,6 +13,16 @@ urlpatterns = [
     re_path(r'^(?P<article_id>\d+)/info/$', views.submit_info, name='submit_info'),
     re_path(r'^(?P<article_id>\d+)/authors/$', views.submit_authors, name='submit_authors'),
     re_path(r'^(?P<article_id>\d+)/authors/(?P<author_id>\d+)/delete/$', views.delete_author, name='delete_author'),
+    re_path(
+        r'^(?P<article_id>\d+)/frozen-author/(?P<frozen_author_id>\d+)/delete/$',
+        views.delete_frozen_author,
+        name='submission_delete_frozen_author',
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/credit/(?P<credit_id>\d+)/delete/$',
+        views.delete_credit,
+        name='submission_delete_credit',
+    ),
     re_path(r'^(?P<article_id>\d+)/files/$', views.submit_files, name='submit_files'),
     re_path(r'^(?P<article_id>\d+)/funding/$', views.submit_funding, name='submit_funding'),
     re_path(r'^submissions/$', views.submit_submissions, name='submission_submissions'),

@@ -1,0 +1,131 @@
+{% extends "admin/core/base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load foundation %}
+{% load next_url %}
+
+{% block title %}
+  Edit author {{ frozen_author }}
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>Edit</li>
+  <li>
+    <a href="{{ article.current_workflow_element_url }}">
+      {{ article.safe_title }}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'submission_edit_author_metadata' article.pk %}">
+      Edit Author Metadata
+    </a>
+  </li>
+  <li>
+    Edit author {{ frozen_author }}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  Edit author {{ frozen_author }}
+{% endblock title-section %}
+
+{% block title-sub %}
+  #{{ article.pk }}
+  / {{ article.correspondence_author.last_name }}
+  / {{ article.safe_title }}
+{% endblock title-sub %}
+
+{% block body %}
+  <div class="grid max-w-64 padding-inline-1 row-gap-0">
+    {% include "admin/elements/forms/messages_in_callout.html" %}
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "About frozen metadata" %}</h2>
+      </div>
+      {% if frozen_author %}<p>You are editing the frozen metadata record for this author, not their live user
+      profile.{% if frozen_author.author %} This frozen metadata record is linked to account ID
+      <a target="_blank" href="{% url_with_return 'core_user_edit' frozen_author.author.pk %}">
+        {{ frozen_author.author.pk }} - {{ frozen_author.author.full_name }}
+      </a>. If you wish to change the ORCID or email address associated
+      with this record we recommend doing so at the account level using the link.{% endif %}</p>{% endif %}
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Main metadata" %}</h2>
+      </div>
+      <div class="flex direction-column gap-0-5 no-bottom-margin">
+
+        <form method="POST">
+          {% csrf_token %}
+          <div class="grid auto">
+            {% if not frozen_author.is_corporate %}
+              {% include "admin/elements/forms/field.html" with field=form.first_name %}
+              {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+              {% include "admin/elements/forms/field.html" with field=form.last_name %}
+            {% endif %}
+          </div>
+          <div class="grid auto">
+            {% if not frozen_author.is_corporate %}
+              {% include "admin/elements/forms/field.html" with field=form.name_prefix %}
+              {% include "admin/elements/forms/field.html" with field=form.name_suffix %}
+            {% endif %}
+            {% include "admin/elements/forms/field.html" with field=form.is_corporate %}
+          </div>
+          {% include "admin/elements/forms/field.html" with field=form.frozen_biography %}
+          <div class="grid auto">
+            {% include "admin/elements/forms/field.html" with field=form.frozen_email %}
+            {% include "admin/elements/forms/field.html" with field=form.display_email %}
+            {% if not frozen_author.author  %}
+              {% include "admin/elements/forms/field.html" with field=form.frozen_orcid %}
+            {% endif %}
+            {% include "admin/elements/layout/key_value_above.html" with key="ORCiD" value=frozen_author.orcid %}
+          </div>
+          <div class="button-group">
+            {% include "admin/elements/button_save.html" %}
+          </div>
+        </form>
+      </div>
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Affiliations" %}</h2>
+      </div>
+      <div class="flex direction-column gap-0-5 no-bottom-margin">
+        {% for affiliation in frozen_author.affiliations %}
+          <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+            {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
+            <div class="flex gap-0-5 items-center">
+              {% url_with_return 'core_affiliation_update' affiliation.pk as update_url %}
+              {% include "elements/a_edit.html" with href=update_url size="small" %}
+              {% url_with_return 'core_affiliation_delete' affiliation.pk as delete_url %}
+              {% include "elements/a_delete.html" with href=delete_url size="small" %}
+            </div>
+          </div>
+        {% endfor %}
+        <div>
+          {% if frozen_author.orcid %}
+            <a
+              href="{% url_with_return 'core_affiliation_bulk_update_from_orcid' %}"
+              class="button secondary small hollow no-bottom-margin">
+              <span class="fa fa-refresh"></span>
+              {% trans "Update affiliations from ORCiD" %}
+            </a>
+          {% endif %}
+          {% url_with_return 'core_organization_search' as create_url %}
+          {% trans "Add affiliation" as add_affiliation %}
+          {% include "elements/a_create.html" with href=create_url size="small" label=add_affiliation %}
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock body %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

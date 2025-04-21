@@ -2754,7 +2754,7 @@ class ControlledAffiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Each account can have one primary affiliation",
+        help_text="Each user can have one primary affiliation",
     )
     start = models.DateField(
         blank=True,

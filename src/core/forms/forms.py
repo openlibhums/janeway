@@ -29,6 +29,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     CaptchaForm,
     HTMLDateInput,
+    YesNoRadio,
 )
 from utils.logger import get_logger
 from submission import models as submission_models
@@ -246,6 +247,7 @@ class EditAccountForm(forms.ModelForm):
         widgets = {
             'biography': TinyMCE(),
             'signature': TinyMCE(),
+            'enable_public_profile': YesNoRadio,
         }
 
     def save(self, commit=True):
@@ -274,6 +276,12 @@ class AdminUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
         fields = ('email', 'is_active', 'is_staff', 'is_admin', 'is_superuser')
+        widgets = {
+            'is_active': YesNoRadio,
+            'is_staff': YesNoRadio,
+            'is_admin': YesNoRadio,
+            'is_superuser': YesNoRadio,
+        }
 
     def __init__(self, *args, **kwargs):
         active = kwargs.pop('active', None)
@@ -968,6 +976,7 @@ class AccountAffiliationForm(forms.ModelForm):
         widgets = {
             'start': HTMLDateInput,
             'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
         }
 
     def __init__(self, *args, **kwargs):

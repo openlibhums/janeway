@@ -1,14 +1,18 @@
 {% extends "admin/core/base.html" %}}
 {% load foundation static bool_fa securitytags %}
+{% load i18n %}
 
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
-
 
 {% block breadcrumbs %}
     {{ block.super }}
     <li>Edit</li>
-    <li>{{ article.safe_title }}</li>
-    <li>Metadata</li>
+    <li>
+      <a href="{{ article.current_workflow_element_url }}">
+        {{ article.safe_title }}
+      </a>
+    </li>
+    <li>Edit Metadata</li>
 {% endblock breadcrumbs %}
 {% block head %}
     {{ block.super }}
@@ -17,7 +21,8 @@
 
 {% block body %}
     {% can_see_pii_tag article as can_see_pii %}
-    <div class="large-12 columns box">
+    <div class="large-12 columns">
+      <div class="box">
         <div class="row expanded">
             <form method="POST"{% if journal_settings.general.abstract_required %} novalidate{% endif %}>
                 <div class="title-area">
@@ -26,7 +31,7 @@
                 </div>
                 <div class="content">
                     {% include "elements/translations/form_tabs.html" with object=article %}
-                    {% include "elements/forms/errors.html" with form=info_form %}
+                    {% include "admin/elements/forms/messages_in_callout.html" %}
                     {% csrf_token %}
                     <div class="row expanded">
                         <div class="large-12 columns">
@@ -123,61 +128,6 @@
                         <button type="submit" name="metadata" class="small success button">Update Metadata</button>
                     </div>
                 </div>
-            </form>
-        </div>
-        <div class="title-area">
-            <h2 id="edit-metadata-authors">Authors</h2>
-            {% if frozen_author %}
-                <a href="{% url 'edit_metadata' article.pk %}?modal=author&return={{ return }}" class="button">Add Author</a>
-            {% else %}
-                <a href="#" class="button" data-open="author">Add Author</a>
-            {% endif %}
-
-        </div>
-        <div class="content">
-            <form method="POST">
-                {% csrf_token %}
-                <table class="small scroll">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Display Email Link?</th>
-                        <th>Institution</th>
-                        <th>Correspondence Author</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody id="sortable">
-                    {% for f_author in article.frozen_authors %}
-                        <tr id="authors-{{ f_author.pk }}">
-                            <td><i class="fa fa-sort"></i></td>
-                            <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
-                            <td>{{ f_author.email|se_can_see_pii:article }}</td>
-                            <td>{{ f_author.display_email|bool_fa }}</td>
-                            <td>{{ f_author.institution|se_can_see_pii:article }}</td>
-                            <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
-                                <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                            <td>{% if can_see_pii %}
-                              <a href="?author={{ f_author.pk }}&return={{ return }}"><i
-                                    class="fa fa-edit">&nbsp;</i>Edit</a>
-                              {% else %}
-                                Author data cannot be edited
-                              {% endif %}
-                            </td>
-                            <td>
-                                <form method="POST">{% csrf_token %}
-                                    <button type="submit" name="delete" value="{{ f_author.pk }}"><i
-                                            class="fa fa-trash">&nbsp;</i>Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
             </form>
         </div>
         <div class="title-area">
@@ -283,6 +233,7 @@
                 </div>
             </div>
         </div>
+      </div>
     </div>
     {% if can_see_pii %}
     {% include "admin/elements/submission/edit_author.html" %}
@@ -331,3 +282,10 @@
     </script>
     {% include 'admin/elements/fundref/fundref.html' %}
 {% endblock js %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

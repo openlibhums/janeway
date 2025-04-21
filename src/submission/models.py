@@ -2018,20 +2018,15 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     frozen_biography = JanewayBleachField(
         blank=True,
-        verbose_name=_('Frozen Biography'),
-        help_text=_("The author's biography at the time they published"
-                    " the linked article. For this article only, it overrides"
-                    " any main biography attached to the author's account."
-                    " If Frozen Biography is left blank, any main biography"
-                    " for the account will be populated instead."
-                   ),
+        verbose_name=_('Biography'),
     )
     order = models.PositiveIntegerField(default=1)
 
     is_corporate = models.BooleanField(
-            default=False,
-            help_text="If enabled, the institution and department fields will "
-                "be used as the author full name",
+        default=False,
+        help_text="Whether the author is an organization. "
+                  "The primary affiliation will be used as a name "
+                  "instead of the normal name fields.",
     )
     frozen_email = models.EmailField(
             blank=True,
@@ -2048,7 +2043,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     )
     display_email = models.BooleanField(
         default=False,
-        help_text=_("If checked, this authors email address link will be displayed on the article page.")
+        help_text=_("Whether to display this author's email address on the article page.")
     )
 
     objects = FrozenAuthorQueryset.as_manager()
@@ -2172,6 +2167,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
         return None
 
     @property
+    def real_email(self):
+        if not str(self.email).endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email or ''
+        else:
+            return ''
+
+    @property
     def orcid(self):
         if self.frozen_orcid:
             return self.frozen_orcid
@@ -2181,7 +2183,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        return self.primary_affiliation()
+        return self.primary_affiliation(as_object=False)
 
     @property
     def biography(self):

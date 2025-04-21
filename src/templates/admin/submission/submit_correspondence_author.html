@@ -1,4 +1,5 @@
 {% load static %}
+{% load securitytags %}
 {% load i18n %}
 {% load uuid %}
 
@@ -10,7 +11,7 @@
       <span class="fa fa-envelope"></span>
       {% trans "Correspondence author" %}
     </strong>
-    {% if article.non_correspondence_authors %}
+    {% if article.non_correspondence_authors.exists %}
       <div class="button-group no-bottom-margin">
         <button
           class="button hollow secondary"
@@ -48,9 +49,9 @@
               {% endif %}
             >
             <label for="option_{{ order.author.pk }}">
-              {{ order.author.full_name }}
+              {{ order.author.full_name|se_can_see_pii:article }}
               {% if order.author.real_email %}
-                {% blocktrans with email=order.author.real_email %}
+                {% blocktrans with email=order.author.real_email|se_can_see_pii:article %}
                   ({{ email }})
                 {% endblocktrans %}
               {% else %}

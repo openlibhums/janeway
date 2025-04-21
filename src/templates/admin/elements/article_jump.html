@@ -1,7 +1,10 @@
 {% load securitytags %}
+{% load next_url %}
 
 {% is_editor as editor %}
 {% is_section_editor as section_editor %}
+
+{% can_see_pii_tag article as can_see_pii %}
 
 {% if editor or section_editor %}
     <div class="small expanded button-group">
@@ -19,6 +22,13 @@
         <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
         <li><a href="{% url 'edit_metadata' article.pk %}?return={{ request.path }}">Edit Metadata</a></li>
+        {% if can_see_pii %}
+          <li>
+            <a href="{% url_with_return 'submission_edit_author_metadata' article.pk %}">
+              Edit Author Metadata
+            </a>
+          </li>
+        {% endif %}
         <li><a href="{% url 'article_identifiers' article.pk %}">Identifiers</a></li>
         <li><a href="{% url 'manage_archive_article' article.pk %}">Archive Page</a></li>
         <li><a href="{% url 'manage_article_workflow' article.pk %}" target="_blank">Manage Workflow Stage</a></li>

@@ -7,6 +7,7 @@ from django.forms import (
     ModelForm,
     DateInput,
     HiddenInput,
+    RadioSelect,
     Form,
 )
 from django.utils.translation import gettext_lazy as _
@@ -171,3 +172,27 @@ def clean_orcid_id(orcid):
 
     # ORCID is None.
     return orcid
+
+
+class YesNoRadio(RadioSelect):
+    """
+    A drop-in radio widget to use with BooleanField
+    when the user is meant to express a simple yes/no preference.
+    Displays compactly inline.
+    """
+    def __init__(self, attrs=None, choices=()):
+        yes_no_attrs = {
+            "class": "yes-no-radio"
+        }
+        if attrs:
+            yes_no_attrs.update(attrs)
+        yes_no_choices = [
+            (True, _('Yes')),
+            (False, _('No')),
+        ]
+        if choices:
+            raise ImproperlyConfigured(
+                'The YesNoRadio widget does not expect choices '
+                'from the initializer.'
+            )
+        super().__init__(attrs=yes_no_attrs, choices=yes_no_choices)

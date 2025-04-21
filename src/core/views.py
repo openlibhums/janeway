@@ -1386,7 +1386,7 @@ def add_user(request):
     """
     form = forms.EditAccountForm()
     registration_form = forms.AdminUserForm(active='add', request=request)
-    return_url = request.GET.get('return', None)
+    next_url = request.GET.get('next', '') or request.GET.get('return', '')
     role = request.GET.get('role', None)
 
     if request.POST:
@@ -1419,10 +1419,10 @@ def add_user(request):
                     'User created.'
                 )
 
-                if return_url:
-                    return redirect(return_url)
-
-                return redirect(reverse('core_manager_users'))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('core_manager_users'))
 
         else:
             # If the registration form is not valid,
@@ -1449,6 +1449,7 @@ def user_edit(request, user_id):
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user, request=request)
+    next_url = request.GET.get('next', '') or request.GET.get('return', '')
 
     if request.POST:
         form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -1459,12 +1460,10 @@ def user_edit(request, user_id):
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Profile updated.')
 
-            if request.GET.get('return'):
-                return redirect(
-                    request.GET.get('return')
-                )
-
-            return redirect(reverse('core_manager_users'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
     context = {
@@ -3097,9 +3096,15 @@ def affiliation_create(request, organization_id):
         core_models.Organization,
         pk=organization_id,
     )
+    user_has_affils = core_models.ControlledAffiliation.objects.filter(
+        account=request.user,
+    ).exists()
     form = forms.AccountAffiliationForm(
         account=request.user,
         organization=organization,
+        initial = {
+            'is_primary': not user_has_affils,
+        }
     )
 
     if request.method == 'POST':
