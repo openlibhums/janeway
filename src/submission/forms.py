@@ -263,29 +263,21 @@ class EditArticleMetadata(ArticleInfo):
 
 class AuthorForm(forms.ModelForm):
     """
-    A barebones form for submitting authors to enter
-    details for their co-authors.
+    A barebones account form that authors can use to create
+    accounts for their co-authors.
     """
 
     class Meta:
         model = core_models.Account
         fields = (
             'email',
-            # 'username',
             'name_prefix',
             'first_name',
             'middle_name',
             'last_name',
-            # 'salutation',
+            'salutation',
             'suffix',
             'biography',
-            # 'orcid',
-            # 'twitter',
-            # 'linkedin',
-            # 'website',
-            # 'github',
-            # 'signature',
-            # 'preferred_timezone',
         )
 
 
