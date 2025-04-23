@@ -34,7 +34,7 @@
                                 {% endfor %}
 
                             {% elif element.element_name == 'typesetting' %}
-                                {% for article in copyediting %}
+                                {% for article in typesetting %}
                                     {% include "typesetting/elements/card.html" with article=article type='typesetting' %}
                                 {% endfor %}
 
