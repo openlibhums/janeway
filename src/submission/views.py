@@ -282,6 +282,7 @@ def submit_authors(request, article_id):
     )
 
     form = forms.AuthorForm()
+    last_changed_author = None
 
     if request.POST and 'add_author' in request.POST:
         form = forms.AuthorForm(request.POST)
@@ -313,10 +314,12 @@ def submit_authors(request, article_id):
                     },
             )
         form = forms.AuthorForm()
+        last_changed_author = author
 
     elif request.POST and 'search_authors' in request.POST:
         search_term = request.POST.get('author_search_text')
-        logic.add_author_from_search(search_term, request, article)
+        author = logic.add_author_from_search(search_term, request, article)
+        last_changed_author = author
 
     elif request.POST and 'corr_author' in request.POST:
         author = get_object_or_404(
@@ -334,6 +337,7 @@ def submit_authors(request, article_id):
                     "email": author.email
                 },
         )
+        last_changed_author = author
 
     elif request.POST and 'add_credit' in request.POST:
         author_pk = int(request.POST.get('author_pk'))
@@ -353,6 +357,7 @@ def submit_authors(request, article_id):
                         "role": record.get_role_display(),
                     },
             )
+        last_changed_author = author
 
     elif request.POST and 'remove_credit' in request.POST:
         author_pk = int(request.POST.get('author_pk'))
@@ -372,9 +377,10 @@ def submit_authors(request, article_id):
                         "role": record.get_role_display(),
                     },
             )
+        last_changed_author = author
 
     elif request.POST and 'change_order' in request.POST:
-        logic.save_author_order(request, article)
+        last_changed_author = logic.save_author_order(request, article)
 
     elif request.POST and 'save_continue' in request.POST:
         article.current_step = 3
@@ -396,6 +402,7 @@ def submit_authors(request, article_id):
     context = {
         'article': article,
         'authors': authors,
+        'last_changed_author': last_changed_author,
         'form': form,
     }
 

@@ -9,9 +9,9 @@
   {% csrf_token %}
   <input type="hidden" name="author_pk" value="{{ author.pk }}">
   <div class="flex direction-column row-gap-0-5">
-    <div class="flex direction-column gap-0-25 wrap">
+    <div class="flex wrap gap-1">
       {% for credit in credits %}
-        <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between max-w-24">
+        <div class="flex wrap column-gap-0-5 row-gap-0-5 items-center space-between max-w-24">
           {{ credit }}
           <div class="small button-group no-bottom-margin flex items-center">
             <button
