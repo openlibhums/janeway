@@ -1010,7 +1010,7 @@ class OrcidAffiliationForm(forms.ModelForm):
     def __init__(
         self,
         orcid_affiliation,
-        tzinfo=None,
+        tzinfo=timezone.get_current_timezone(),
         data=None,
         *args,
         **kwargs,
@@ -1047,8 +1047,6 @@ class OrcidAffiliationForm(forms.ModelForm):
             )
         data['organization'] = org
 
-        if not tzinfo:
-            tzinfo = timezone.get_current_timezone()
         orcid_start = orcid_affiliation.get('start-date', {}) or {}
         if orcid_start:
             data['start'] = timezone.datetime(

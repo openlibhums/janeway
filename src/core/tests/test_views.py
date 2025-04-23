@@ -850,13 +850,13 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
             core_models.ControlledAffiliation.objects.get(pk=affil_id)
 
     @patch('utils.orcid.get_orcid_record')
-    def test_affiliation_bulk_update_from_orcid_confirmed(self, get_orcid_record):
+    def test_affiliation_bulk_update_from_orcid(self, get_orcid_record):
         get_orcid_record.return_value = helpers.get_orcid_record_all_fields()
         self.client.force_login(self.user)
         get_data = {}
         affil_id = self.affiliation.pk
         url = f'/profile/affiliation/update-from-orcid/'
-        response = self.client.get(url, post_data)
+        response = self.client.get(url, get_data)
         self.assertEqual(
             response.context['new_affils'][0].__str__(),
             'California Digital Library, Oakland, United States'
