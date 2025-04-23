@@ -308,6 +308,7 @@ BLEACH_ALLOWED_STYLES = get_allowed_css_styles()
 BLEACH_STRIP_TAGS = True
 
 # Strip comments, or leave them in.
+# WARNING: Allowing comments can re-introduce a bug: #4695
 BLEACH_STRIP_COMMENTS = True
 
 # Which widget to use for bleached HTML fields
