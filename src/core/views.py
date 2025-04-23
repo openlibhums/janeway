@@ -2038,6 +2038,10 @@ def kanban(request):
     proof_assigned_articles = submission_models.Article.objects.filter(
         pk__in=proofing_assigned,
     )
+    typesetting_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
+        journal=request.journal,
+    )
 
     prepub = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
@@ -2054,6 +2058,7 @@ def kanban(request):
         'production_assigned': assigned_articles,
         'proofing': proof_articles,
         'proofing_assigned': proof_assigned_articles,
+        'typesetting': typesetting_articles,
         'prepubs': prepub,
         'articles_in_workflow_plugins': articles_in_workflow_plugins,
         'workflow': request.journal.workflow()
