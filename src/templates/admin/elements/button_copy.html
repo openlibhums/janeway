@@ -20,7 +20,7 @@
       {{ label_copy }}
     </button>
   </div>
-  <script type="module">
+  <script defer type="module">
     const copyButton = document.querySelector("[data-copy-{{ pid }}]");
     copyButton.addEventListener('click', () => writeToClipboard("{{ text }}"));
     async function writeToClipboard(text) {

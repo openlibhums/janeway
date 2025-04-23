@@ -327,6 +327,7 @@ def save_author_order(request, article):
         messages.SUCCESS,
         sentences[change_order],
     )
+    return author
 
 
 def add_author_from_search(search_term, request, article):
@@ -426,3 +427,4 @@ def add_author_from_search(search_term, request, article):
                     _("Affiliation created: %(affiliation)s")
                         % {"affiliation": affiliation},
                 )
+    return new_author
