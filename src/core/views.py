@@ -157,7 +157,7 @@ def user_login(request):
 
 def user_login_orcid(request):
     """
-    Allow a user to log in with their ORCiD account
+    Allow a user to log in with their ORCID account
     or switch to registering if needed.
 
     :param request: HttpRequest object
@@ -165,7 +165,7 @@ def user_login_orcid(request):
     """
     # First figure out what the user is trying to do (action) and where they want to
     # be returned to in Janeway (next).
-    # This information may be encoded in a 'state' parameter that we get back from ORCiD
+    # This information may be encoded in a 'state' parameter that we get back from ORCID
     # or it may be in the generic request parameters.
     state_string = request.GET.get('state', '')
     state = orcid.decode_state(state_string)
@@ -179,7 +179,7 @@ def user_login_orcid(request):
     else:
         next_url = request.GET.get('next', '')
 
-    # If ORCiD is not enabled, redirect the user to the regular Janeway login page.
+    # If ORCID is not enabled, redirect the user to the regular Janeway login page.
     if not django_settings.ENABLE_ORCID:
         messages.add_message(
             request,
@@ -195,7 +195,7 @@ def user_login_orcid(request):
     # orcid.org, just from a Janeway link.
     # Send them to orcid.org to authenticate first.
     # Encode the next URL and the action via 'state',
-    # which the ORCiD auth system will pass back.
+    # which the ORCID auth system will pass back.
     orcid_code = request.GET.get('code', '')
     if not orcid_code:
         base = django_settings.ORCID_URL
@@ -218,7 +218,7 @@ def user_login_orcid(request):
         messages.add_message(
             request,
             messages.WARNING,
-            'Valid ORCiD not returned. '
+            'Valid ORCID not returned. '
             'Please try again, or log in with your username and password.'
         )
         return redirect(
@@ -250,9 +250,9 @@ def user_login_orcid(request):
                     )
 
         # If no account was found for login,
-        # then prepare an ORCiD token for registration.
+        # then prepare an ORCID token for registration.
         # Then send the user to a decision page that tells them
-        # the ORCiD login did not work and they will need to register.
+        # the ORCID login did not work and they will need to register.
         models.OrcidToken.objects.filter(orcid=orcid_id).delete()
         new_token = models.OrcidToken.objects.create(orcid=orcid_id)
         return redirect(
@@ -377,8 +377,8 @@ def register(request, orcid_token=None):
     If the user is registering on a journal we give them
     the Author role.
 
-    An ORCiD token is passed when the user arrives here after they
-    tried to log in with ORCiD, but Janeway said "No account found,
+    An ORCID token is passed when the user arrives here after they
+    tried to log in with ORCID, but Janeway said "No account found,
     would you like to register instead?"
 
     :param request: HttpRequest object
@@ -466,7 +466,7 @@ def register(request, orcid_token=None):
 def orcid_registration(request, token):
     """
     Users arrive at this view when they have tried to log in
-    via ORCiD, but no suitable Janeway account was found.
+    via ORCID, but no suitable Janeway account was found.
     The view suggests to them they might want to register a new
     account instead, and gives them options.
 
@@ -694,7 +694,7 @@ def public_profile(request, uuid):
 def affiliation_bulk_update_from_orcid(request):
     """
     Allows a user to update their own affiliations
-    from public ORCiD records.
+    from public ORCID records.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -707,8 +707,8 @@ def affiliation_bulk_update_from_orcid(request):
         messages.add_message(
             request,
             messages.WARNING,
-            _("Your account does not have an ORCiD. "
-              "Please log in with ORCiD and try again."),
+            _("Your account does not have an ORCID. "
+              "Please log in with ORCID and try again."),
         )
         if next_url:
             return redirect(next_url)
@@ -721,7 +721,7 @@ def affiliation_bulk_update_from_orcid(request):
         messages.add_message(
             request,
             messages.WARNING,
-            _("No affiliations were found on your public ORCiD record "
+            _("No affiliations were found on your public ORCID record "
               "for ID %(orcid_id)s. "
               "Please update your affiliations on orcid.org and try again.")
                 % {'orcid_id': request.user.orcid },

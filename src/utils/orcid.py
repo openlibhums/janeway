@@ -64,7 +64,7 @@ def build_redirect_uri(site):
 
 def get_orcid_record(orcid):
     try:
-        logger.info("Retrieving ORCiD profile for %s", orcid)
+        logger.info("Retrieving ORCID profile for %s", orcid)
         api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
         return api_client.read_record_public(orcid, 'record', search_token,)

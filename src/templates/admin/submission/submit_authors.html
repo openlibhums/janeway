@@ -187,8 +187,11 @@
         <p>
           {% blocktrans with journal=request.journal.name press=request.press.name %}
             Some authors may already be registered in <i>{{ journal }}</i>,
-            {{ press }}, or the ORCiD registry. You can check by searching for
-            their email or ORCiD ID. If a match is found, they will be added to
+            {{ press }}, or <a href="https://orcid.org/" target="_blank">
+              the ORCID registry
+            <span class="show-for-sr">(opens in new tab)</span></a>.
+            You can check by searching for
+            their email or ORCID. If a match is found, they will be added to
             the author list.
           {% endblocktrans %}
         </p>

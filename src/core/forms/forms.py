@@ -1000,7 +1000,7 @@ class AccountAffiliationForm(forms.ModelForm):
 class OrcidAffiliationForm(forms.ModelForm):
     """
     A form for creating ControlledAffiliation objects
-    from ORCiD data.
+    from ORCID data.
     """
 
     class Meta:
