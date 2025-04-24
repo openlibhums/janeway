@@ -13,6 +13,7 @@
     <section id="content" class="no-padding">
         <div class="row">
             <div class="large-8 columns">
+                <h1> {{ press.name }} {% trans 'Journals' %} </h1>
                 {% for current_journal in journals %}
                     {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
                     <div class="large-12 columns border-right border-bottom journal-div">
@@ -45,7 +46,7 @@
                                             <span class="hide">{{ current_journal.name|lower }}</span>
                                             {{ current_journal.description_for_press|safe }}
                                             {% with keywords=current_journal.keywords.all %}{% if keywords %}
-                                            <h6>{% trans 'Disciplines' %}</h6>
+                                            <h3>{% trans 'Disciplines' %}</h3>
                                             {% for keyword in keywords %}
                                                 <a class="kbd" href="?filter={{ keyword.word }}"><span>{{ keyword.word }}</span></a>
                                             {% endfor %}
@@ -87,6 +88,7 @@
                 {% endfor %}
             </div>
             <div class="large-4 columns">
+                <section aria-label="{% trans 'Filter' %}">
                 <div>
                     <form>
                         <div class="section">
@@ -96,6 +98,7 @@
                         </div>
                     </form>
                 </div>
+            </section>
             </div>
 
         </div>
