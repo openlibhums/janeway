@@ -9,23 +9,22 @@
   {% csrf_token %}
   <input type="hidden" name="author_pk" value="{{ author.pk }}">
   <div class="flex direction-column row-gap-0-5">
-    <div class="flex wrap gap-1">
+    <div class="button-group no-bottom-margin flex items-center">
       {% for credit in credits %}
-        <div class="flex wrap column-gap-0-5 row-gap-0-5 items-center space-between max-w-24">
-          {{ credit }}
-          <div class="small button-group no-bottom-margin flex items-center">
-            <button
-              class="button hollow secondary no-bottom-margin"
-              name="remove_credit"
-              value="{{ credit.role }}"
-              type="submit">
-              <span class="fa fa-remove"></span>
-              {% trans "Remove role" %}
-              <span class="sr-only">
-                {{ credit.get_role_display }}
-              </span>
-            </button>
-          </div>
+        <div class="shell-of-a-button no-bottom-margin flex items-center">
+          {{ credit.get_role_display }}
+          <button
+            class="button secondary hollow"
+            name="remove_credit"
+            value="{{ credit.role }}"
+            type="submit">
+            <span class="sr-only">
+              {% blocktrans with credit_role=credit.get_role_display %}
+                Remove {{ credit_role }}
+              {% endblocktrans %}
+            </span>
+            <span class="fa fa-remove"></span>
+          </button>
         </div>
       {% empty %}
         <div>

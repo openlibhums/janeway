@@ -1007,3 +1007,30 @@ ul.menu {
     margin: 0.25rem;
   }
 }
+
+/* Shell of a button */
+/* Allows you to create removable chips that look like
+ * hollow secondary buttons but do not act like buttons,
+ * since they are meant to have an X button (remove) inside them. */
+.shell-of-a-button {
+  border: 1px solid #1a2a57;
+  color: #1a2a57;
+  background-color: transparent;
+  vertical-align: middle;
+  padding-left: 1rem;
+  line-height: 1;
+  text-align: center;
+  margin-right: 1px;
+  .button.hollow.secondary {
+    border: none;
+  }
+}
+.button-group .shell-of-a-button {
+  margin: 0;
+  margin-right: 1px;
+  font-size: 0.9rem;
+  border-radius: 0;
+  &:last-child {
+    margin-right: 0;
+  }
+}
