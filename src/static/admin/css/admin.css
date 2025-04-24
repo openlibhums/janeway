@@ -1020,7 +1020,6 @@ ul.menu {
   padding-left: 1rem;
   line-height: 1;
   text-align: center;
-  margin-right: 1px;
   .button.hollow.secondary {
     border: none;
   }
@@ -1028,6 +1027,7 @@ ul.menu {
 .button-group .shell-of-a-button {
   margin: 0;
   margin-right: 1px;
+  margin-bottom: 1px;
   font-size: 0.9rem;
   border-radius: 0;
   &:last-child {
