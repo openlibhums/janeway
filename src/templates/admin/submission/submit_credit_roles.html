@@ -9,7 +9,7 @@
   {% csrf_token %}
   <input type="hidden" name="author_pk" value="{{ author.pk }}">
   <div class="flex direction-column row-gap-0-5">
-    <div class="button-group no-bottom-margin flex items-center">
+    <div class="button-group no-bottom-margin flex wrap items-center">
       {% for credit in credits %}
         <div class="shell-of-a-button no-bottom-margin flex items-center">
           {{ credit.get_role_display }}
