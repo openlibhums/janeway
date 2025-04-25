@@ -606,7 +606,6 @@ class Journal(AbstractSiteModel):
                 kind='textarea',
                 required=True,
                 order=1,
-                width='large-12 columns',
                 help_text=gettext('Please add as much detail as you can.'),
             )
 
