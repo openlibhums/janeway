@@ -6,7 +6,7 @@
 <article
         article-type="{{ article.jats_article_type|default:'research-article' }}"
         dtd-version="1.2"
-        xml:lang="en"
+        xml:lang="{{ article.iso639_1_lang_code }}"
         xmlns:mml="http://www.w3.org/1998/Math/MathML"
         xmlns:xlink="http://www.w3.org/1999/xlink"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
