@@ -725,7 +725,6 @@ class ReviewTests(TestCase):
             name='Review',
             kind='text',
             order=1,
-            width='full',
             required=True,
         )
         self.review_form.elements.add(self.review_form_element)
@@ -733,7 +732,6 @@ class ReviewTests(TestCase):
             name='Second Review Form Element',
             kind='text',
             order=2,
-            width='full',
             required=True,
         )
         self.review_form.elements.add(self.second_review_form_element)
