@@ -9,7 +9,6 @@ from utils.testing import helpers
 from core.templatetags import fqdn, dates
 from django.test import TestCase, override_settings, RequestFactory
 from core.templatetags import fqdn, dates
-from datetime import datetime
 from django.utils.translation import activate
 from django.conf import settings
 from django.template.exceptions import TemplateSyntaxError
@@ -128,6 +127,7 @@ class TestDateHuman(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """sets up and validates against language settings"""
         cls.test_dates = {
             'date':         datetime(2023, 12, 3),  # 3 December 2023
             'leap_year':    datetime(2024, 2, 29),  # 29 February 2024
@@ -162,6 +162,34 @@ class TestDateHuman(TestCase):
                 'es': "1 enero 2021",
             },
         }
+        
+        # Validate test data and collect mismatches between here and settings.LANGUAGES
+        cls.missing_languages = set()
+        for key in cls.test_dates:
+            for lang_code, language in settings.LANGUAGES:
+                if cls.expected_formats[key].get(lang_code) is None:
+                    cls.missing_languages.add((lang_code, language))
+            for lang_code in cls.expected_formats[key].keys():
+                if not any(lang == lang_code for lang, _ in settings.LANGUAGES):
+                    cls.missing_languages.add((lang_code, f"Unknown language ({lang_code})"))
+        
+        # Clean up expected_formats to remove invalid language data
+        cls.expected_formats = {
+            key: {lang: value for lang, value in formats.items() 
+                    if lang not in [l[0] for l in cls.missing_languages]}
+            for key, formats in cls.expected_formats.items()
+        }
+
+    def test_human_date_test_data(self):
+        """Reports on mismatches between test data and settings.LANGUAGES."""
+        self.assertTrue(not self.missing_languages,
+                        "Test data does not match settings.LANGUAGES. Missing test data for:" + 
+                        ", ".join(f"{lang} ({name})" for lang, name in self.missing_languages)
+                        )
+        self.assertTrue(self.expected_formats,
+                        "No valid test data, no languages being tested."
+                        )
+
 
     def test_non_dates(self):
         """Test date_human hides non-dates from user and raises a TemplateSyntax Error to ensure incorrect information is not displayed."""
@@ -187,20 +215,20 @@ class TestDateHuman(TestCase):
                 )
 
     def test_date_human_all_languages(self):
-        """Test date_human with all supported languages from settings"""
+        """Test date_human with all supported languages that have complete test data"""  
         for key, test_date in self.test_dates.items(): 
-            for lang_code, language in settings.LANGUAGES:
+            for lang_code, expected in self.expected_formats[key].items():
                 with self.subTest(date=key, code=lang_code):
                     activate(lang_code)
                     result = dates.date_human(test_date)
                     expected = self.expected_formats[key].get(lang_code)
                     self.assertEqual(result, expected, 
-                        f"Failed for {lang_code}:{language}.  Expected '{expected}', actual '{result}'."
+                        f"Failed for {lang_code}.  Expected '{expected}', actual '{result}'."
                     )
     
     def test_date_human_browser_languages(self):
-        """Test data_human uses application language regardless of browser language setting"""
-        supported_languages = [lang[0] for lang in settings.LANGUAGES]
+        """Test data_human uses application language regardless of browser language setting""" 
+        supported_languages = [lang[0] for lang in self.expected_formats]
         
         non_supported_languages = ['ja','en-nz','es-ni','ar-sa']
 
