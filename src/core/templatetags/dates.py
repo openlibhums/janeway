@@ -1,12 +1,14 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytz
 from django import template
+from django.template.exceptions import TemplateSyntaxError
 from django.utils import timezone, formats
 from django.utils.translation import gettext as _
-from datetime import datetime
+import logging
 
 register = template.Library()
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag(takes_context=True)
@@ -53,10 +55,16 @@ def offset_date(context, days=0, input_type="date"):
 @register.filter(name='date_human', is_safe=True)
 def date_human(value):
     """Convert a date to a human readable Day Month(text) Year format e.g. 3 January 2025"""
-    if isinstance(value, datetime):
+    if value == "":
+        logger.warning("date_human filter received no value - expected a datetime object")
+        return ""
+    elif isinstance(value, datetime):
         return formats.date_format(
             value,
             format="j F Y",
             use_l10n=True,
         )
-    return ""
+    else:
+        raise TemplateSyntaxError(
+            "The value filtered by `date_human` must be a `datetime.datetime`"
+        )
