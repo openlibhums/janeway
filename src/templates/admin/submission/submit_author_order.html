@@ -7,7 +7,7 @@
     <button
       class="button secondary small hollow"
       name="change_order"
-      value="first">
+      value="top">
       <span class="fa fa-angle-double-up fa-lg"></span>
       <span class="sr-only">
         {% blocktrans with author_name=author.full_name %}
@@ -40,11 +40,11 @@
     <button
       class="button secondary small hollow"
       name="change_order"
-      value="last">
+      value="bottom">
       <span class="fa fa-angle-double-down fa-lg"></span>
       <span class="sr-only">
         {% blocktrans with author_name=author.full_name %}
-          Move {{ author_name }} to end
+          Move {{ author_name }} to bottom
         {% endblocktrans %}
       </span>
     </button>

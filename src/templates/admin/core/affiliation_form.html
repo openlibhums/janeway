@@ -1,4 +1,4 @@
-{% extends "admin/core/large_form.html" %}
+{% extends "admin/elements/nitty_gritty.html" %}
 
 {% load i18n static foundation next_url %}
 
@@ -15,12 +15,8 @@
 {% endblock title-section %}
 
 {% block breadcrumbs %}
-  {% if request.user == account %}
-    <li>
-      <a href="{% url 'core_edit_profile' %}">
-        {% trans "Edit Profile" %}
-      </a>
-    </li>
+  {% if account and account == request.user %}
+    {% include "elements/breadcrumbs/edit_profile_base.html" %}
     {% if not affiliation %}
       <li>
         <a href="{% url_with_next 'core_organization_search' %}">
@@ -28,55 +24,66 @@
         </a>
       </li>
     {% endif %}
-    <li>{% blocktrans with organization=organization.name %}
-      Affiliation details for {{ organization }}
-    {% endblocktrans %}</li>
+  {% elif article and author %}
+    {% include "elements/breadcrumbs/submit_authors_base.html" %}
+    <li>
+      <a href="{% url_with_return 'submission_edit_author' article.pk author.pk %}">
+        {% blocktrans with author_name=author.full_name %}
+          Edit "{{ author_name }}"
+      {% endblocktrans %}
+      </a>
+    </li>
+    {% if not affiliation %}
+      <li>
+        <a href="{% url_with_next 'submission_organization_search' article.pk author.pk %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
   {% endif %}
+  <li>{% blocktrans with organization=organization.name %}
+    Affiliation details for {{ organization }}
+  {% endblocktrans %}</li>
 {% endblock breadcrumbs %}
 
-{% block body %}
-  <div class="grid max-w-64">
-    <div class="rummage-portal">
-      {% include "admin/core/affiliation_summary.html" %}
-      <section class="card padding-block-2 padding-inline-2">
-        <div class="title-area">
-          <h2>
-            {% trans "Affiliation details" %}
-          </h2>
+{% block nitty %}
+  {% include "admin/core/affiliation_summary.html" %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Affiliation details" %}
+{% endblock gritty_h2 %}
+
+{% block gritty_form %}
+  {% blocktrans with organization=organization.name %}
+    <p>Enter optional affiliation details, and select Save to create the affiliation.</p>
+  {% endblocktrans %}
+  {% if organization.custom_label %}
+    <div class="flex gap-1">
+      {% include "admin/elements/layout/key_value_above.html" with key="Custom organization" value=organization.custom_label %}
+      {% if affiliation %}
+        <div class="button-group small no-bottom-margin">
+          {% if account %}
+            {% url_with_next 'core_organization_name_update' organization.custom_label.pk as edit_url %}
+          {% elif article and author %}
+            {% url_with_next 'submission_organization_name_update' article.pk author.pk organization.custom_label.pk as edit_url %}
+          {% endif %}
+          {% include "elements/a_edit.html" with href=edit_url label="Edit custom name" %}
         </div>
-        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
-        {% blocktrans with organization=organization.name %}
-          <p>Enter optional affiliation details, and select Save to create the affiliation.</p>
-        {% endblocktrans %}
-        {% if organization.custom_label %}
-          <div class="flex gap-1">
-            {% include "admin/elements/layout/key_value_above.html" with key="Custom organization" value=organization.custom_label %}
-            {% if affiliation %}
-              <div>
-                {% url_with_next 'core_organization_name_update' organization.custom_label.pk as edit_url %}
-                {% include "elements/a_edit.html" with href=edit_url size="small" %}
-              </div>
-            {% endif %}
-          </div>
-        {% endif %}
-        <form method="post">
-          {% csrf_token %}
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
-          <div class="grid auto">
-            {% include "admin/elements/forms/field.html" with field=form.title %}
-            {% include "admin/elements/forms/field.html" with field=form.department %}
-          </div>
-          <div class="grid auto">
-            {% include "admin/elements/forms/field.html" with field=form.start %}
-            {% include "admin/elements/forms/field.html" with field=form.end %}
-            {% include "admin/elements/forms/field.html" with field=form.is_primary %}
-          </div>
-          {% include "elements/button_save.html" %}
-          {% include "elements/a_cancel.html" with href=request.GET.next %}
-        </form>
-      </section>
+      {% endif %}
     </div>
+  {% endif %}
+  <div class="grid auto row-gap-0">
+    {% include "admin/elements/forms/field.html" with field=form.title %}
+    {% include "admin/elements/forms/field.html" with field=form.department %}
   </div>
-{% endblock body %}
+  <div class="grid auto row-gap-0">
+    {% include "admin/elements/forms/field.html" with field=form.start %}
+    {% include "admin/elements/forms/field.html" with field=form.end %}
+    {% include "admin/elements/forms/field.html" with field=form.is_primary %}
+  </div>
+  <div class="button-group no-bottom-margin">
+    {% include "elements/button_save.html" %}
+    {% include "elements/a_cancel.html" with href=request.GET.next %}
+  </div>
+{% endblock gritty_form %}

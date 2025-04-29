@@ -121,32 +121,7 @@
       <div class="title-area">
         <h2>{% trans "Affiliations" %}</h2>
       </div>
-      <div class="flex direction-column gap-0-5 no-bottom-margin">
-        {% for affiliation in request.user.affiliations %}
-          <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
-            {% include "admin/core/affiliation_display.html" with affiliation=affiliation %}
-            <div class="flex gap-0-5 items-center">
-              {% url_with_next 'core_affiliation_update' affiliation.pk as update_url %}
-              {% include "elements/a_edit.html" with href=update_url size="small" %}
-              {% url_with_next 'core_affiliation_delete' affiliation.pk as delete_url %}
-              {% include "elements/a_delete.html" with href=delete_url size="small" %}
-            </div>
-          </div>
-        {% endfor %}
-        <div>
-          {% if request.user.orcid %}
-            <a
-              href="{% url_with_next 'core_affiliation_bulk_update_from_orcid' %}"
-              class="button secondary small hollow no-bottom-margin">
-              <span class="fa fa-refresh"></span>
-              {% trans "Update affiliations from ORCiD" %}
-            </a>
-          {% endif %}
-          {% url_with_next 'core_organization_search' as create_url %}
-          {% trans "Add affiliation" as add_affiliation %}
-          {% include "elements/a_create.html" with href=create_url size="small" label=add_affiliation %}
-        </div>
-      </div>
+      {% include "admin/core/affiliation_list_display_with_actions.html" with interface=account article=None %}
     </section>
     <section class="card padding-block-2 padding-inline-2">
       <div class="title-area">

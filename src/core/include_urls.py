@@ -129,7 +129,7 @@ urlpatterns = [
     re_path(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
     re_path(r'^manager/user/(?P<user_id>\d+)/history/$', core_views.user_history, name='core_user_history'),
 
-    ## Affiliations
+    # Affiliations
     re_path(
         r'^profile/organization/search/$',
         core_views.OrganizationListView.as_view(),
@@ -156,9 +156,9 @@ urlpatterns = [
         name='core_affiliation_update'
     ),
     re_path(
-        r'^profile/affiliation/update-from-orcid/$',
-        core_views.affiliation_bulk_update_from_orcid,
-        name='core_affiliation_bulk_update_from_orcid'
+        r'^profile/affiliation/update-from-orcid/(?P<how_many>primary|all)/$',
+        core_views.affiliation_update_from_orcid,
+        name='core_affiliation_update_from_orcid'
     ),
     re_path(
         r'^profile/affiliation/(?P<affiliation_id>\d+)/delete/$',

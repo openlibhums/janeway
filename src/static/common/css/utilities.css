@@ -16,6 +16,7 @@
 
   /* Flex direction */
   &.direction-row { flex-direction: row; }
+  &.direction-row-reverse { flex-direction: row-reverse; }
   &.direction-column { flex-direction: column; }
 
   /* Responsive flex direction */
@@ -59,6 +60,10 @@
   /* Create an automatically responsive grid with minimum item size */
   &.auto {
     grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size, 16rem), 1fr));
+  }
+  &.auto-flow-40 {
+    grid-template-columns: repeat(2, 40rem);
+    grid-auto-flow: row dense;
   }
 }
 
@@ -147,6 +152,11 @@
 .padding-block-2-5 { padding-block: 2.5rem; }
 .padding-block-3 { padding-block: 3rem; }
 .padding-block-4 { padding-block: 4rem; }
+
+/* Margin */
+.margin-block-end-10 {
+  margin-block-end: 10rem;
+}
 
 /* Font sizes */
 .fs-9 { font-size: var(--step-9); }

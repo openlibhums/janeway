@@ -29,6 +29,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     CaptchaForm,
     HTMLDateInput,
+    YesNoRadio,
 )
 from utils.logger import get_logger
 from submission import models as submission_models

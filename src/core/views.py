@@ -691,7 +691,7 @@ def public_profile(request, uuid):
 
 
 @login_required
-def affiliation_bulk_update_from_orcid(request):
+def affiliation_update_from_orcid(request, how_many='primary'):
     """
     Allows a user to update their own affiliations
     from public ORCID records.
@@ -733,6 +733,8 @@ def affiliation_bulk_update_from_orcid(request):
 
     form = forms.ConfirmDeleteForm()
     new_affils = []
+    if how_many == 'primary':
+        orcid_affils = orcid_affils[:1]
     for orcid_affil in orcid_affils:
         orcid_affil_form = forms.OrcidAffiliationForm(
             orcid_affil,
@@ -762,6 +764,7 @@ def affiliation_bulk_update_from_orcid(request):
     context = {
         'account': request.user,
         'form': form,
+        'old_affils': account.affiliations,
         'new_affils': new_affils,
     }
     return render(request, template, context)
@@ -3039,24 +3042,15 @@ def organization_name_create(request):
     form = forms.OrganizationNameForm()
 
     if request.method == 'POST':
-        form = forms.OrganizationNameForm(request.POST)
-        if form.is_valid():
-            organization_name = form.save()
-            organization = core_models.Organization.objects.create()
-            organization_name.custom_label_for = organization
-            organization_name.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _("Custom organization created: %(organization)s")
-                    % {"organization": organization_name},
-            )
+        organization_name = logic.create_organization_name(request)
+        org_name = create_organization_name(request)
+        if org_name:
             return redirect(
-                logic.reverse_with_next(
+                reverse_with_next(
                     'core_affiliation_create',
                     next_url,
                     kwargs={
-                        'organization_id': organization.pk,
+                        'organization_id': org_name.custom_label_for.pk,
                     }
                 )
             )
@@ -3235,5 +3229,6 @@ def affiliation_delete(request, affiliation_id):
         'form': form,
         'affiliation': affiliation,
         'organization': affiliation.organization,
+        'thing_to_delete': affiliation.organization.name,
     }
     return render(request, template, context)
