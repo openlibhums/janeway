@@ -2,7 +2,7 @@
   A hollow secondary-color button that lets users copy
   some plain text (like a link) to their clipboard.
   The icon and label change to show the text was copied.
-  text - plain text to copy
+  content - plain text to copy
   label_copy - label in original state
   label_copied - label in copied state
 {% endcomment %}
@@ -22,9 +22,9 @@
   </div>
   <script defer type="module">
     const copyButton = document.querySelector("[data-copy-{{ pid }}]");
-    copyButton.addEventListener('click', () => writeToClipboard("{{ text }}"));
-    async function writeToClipboard(text) {
-      await navigator.clipboard.writeText(text);
+    copyButton.addEventListener('click', () => writeToClipboard("{{ content }}"));
+    async function writeToClipboard(content) {
+      await navigator.clipboard.writeText(content);
       if (copyButton.innerHTML.includes("{{ label_copy }}")) {
         copyButton.innerHTML = `
           <span class="fa fa-check-circle"></span>

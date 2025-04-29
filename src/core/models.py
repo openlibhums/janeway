@@ -34,6 +34,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
+from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -629,26 +630,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
             affiliation.frozen_author = frozen_author
             affiliation.save()
 
-    def snapshot_credit(self, article, frozen_author):
-        """
-        Removes any old CRediT records from the frozen author,
-        then creates copies of author CRediT records for the frozen author.
-        """
-        CreditRecord.objects.filter(
-            article=article,
-            frozen_author=frozen_author,
-        ).delete()
-
-        for credit_record in CreditRecord.objects.filter(
-            article=article,
-            author=self,
-        ):
-            credit_record.pk = None
-            credit_record.author = None
-            credit_record.frozen_author = frozen_author
-            credit_record.save()
-
     def snapshot_self(self, article, force_update=True):
+        """
+        Create a submission.models.FrozenAuthor using the name fields
+        and other details from this Account.
+        article: submission.models.Article
+        force_update: whether to overwrite fields if a FrozenAuthor exists
+        """
         frozen_dict = {
             'name_prefix': self.name_prefix,
             'first_name': self.first_name,
@@ -656,72 +644,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'name_suffix': self.suffix,
             'display_email': True if self == article.correspondence_author else False,
+            'order': article.next_frozen_author_order(),
         }
+        frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
+            author=self,
+            article=article,
+            defaults=frozen_dict,
+        )
+        if created or force_update:
+            self.snapshot_affiliations(frozen_author)
 
-        frozen_author = self.frozen_author(article)
-
-        if frozen_author and force_update:
+        if not created and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
             frozen_author.save()
-            self.snapshot_affiliations(frozen_author)
-            self.snapshot_credit(article, frozen_author)
 
-        else:
-            try:
-                order_object = article.articleauthororder_set.get(author=self)
-            except submission_models.ArticleAuthorOrder.DoesNotExist:
-                order_integer = article.next_author_sort()
-                order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=self,
-                    defaults={'order': order_integer}
-                )
-
-            frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
-                author=self,
-                article=article,
-                defaults=dict(order=order_object.order, **frozen_dict)
-            )
-            if created:
-                self.snapshot_affiliations(frozen_author)
-            self.snapshot_credit(article, frozen_author)
-
-    def credits(self, article):
-        """
-        Returns the CRediT records for this user on a given article
-        """
-        return submission_models.CreditRecord.objects.filter(
-            article=article,
-            author=self,
-        )
-
-    def add_credit(self, credit_role_text, article):
-        """
-        Adds a CRediT role to the article for this user
-        """
-        record, _created = submission_models.CreditRecord.objects.get_or_create(
-            article=article,
-            author=self,
-            role=credit_role_text,
-        )
-
-        return record
-
-    def remove_credit(self, credit_role_text, article):
-        """
-        Removes a CRediT role from the article for this user
-        """
-        try:
-            record = submission_models.CreditRecord.objects.get(
-                article=article,
-                author=self,
-                role=credit_role_text,
-            )
-            record.delete()
-            return record
-        except submission_models.CreditRecord.DoesNotExist:
-            pass
+        return frozen_author
 
     def frozen_author(self, article):
         try:
@@ -2220,6 +2158,7 @@ class OrganizationQueryset(models.query.QuerySet):
         uncontrolled_organizations = self.filter(
             ror_id='',
             custom_label__isnull=False,
+            affiliation__isnull=False,
         ).prefetch_related(
             'custom_label'
         )
@@ -2555,7 +2494,6 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     class Meta:
-        ordering = ['ror_display__value']
         constraints = [
             models.UniqueConstraint(
                 fields=['ror_id'],
@@ -2775,7 +2713,7 @@ class ControlledAffiliation(models.Model):
                 ['account', 'frozen_author', 'preprint_author'],
             )
         ]
-        ordering = ['-is_primary', '-pk']
+        ordering = ['-is_primary', '-end', '-start', '-pk']
 
     def title_department(self):
         elements = [

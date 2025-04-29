@@ -1,3 +1,9 @@
+###################
+
+# These importers are deprecated. Use the Imports plugin instead.
+
+###################
+
 import hashlib
 import re
 import uuid
@@ -652,6 +658,7 @@ def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
 
 
 def create_article_with_review_content(article_dict, journal, auth_file, base_url):
+    raise DeprecationWarning("Use the imports plugin instead.")
     date_started = timezone.make_aware(dateparser.parse(article_dict.get('date_submitted')))
 
     # Create a base article

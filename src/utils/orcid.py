@@ -4,10 +4,12 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import re
 from urllib.parse import quote, unquote, urlencode, urlparse
 
 from collections import defaultdict
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.http import QueryDict
 import requests
@@ -158,3 +160,13 @@ def decode_state(encoded_state):
         like {'next':'a','action':'b'}
     """
     return QueryDict(encoded_state)
+
+
+COMPILED_ORCID_REGEX = re.compile(
+    r'([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})'
+)
+
+
+def validate_orcid(orcid):
+    if not COMPILED_ORCID_REGEX.match(orcid):
+        raise ValidationError(f'{orcid} is not a valid ORCID')

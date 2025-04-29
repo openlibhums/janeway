@@ -17,6 +17,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     HTMLDateInput,
     clean_orcid_id,
+    YesNoRadio,
 )
 from utils import setting_handler
 
@@ -305,27 +306,6 @@ class FileDetails(forms.ModelForm):
 
 
 class EditFrozenAuthor(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        instance = kwargs.pop("instance", None)
-        if instance:
-            if instance.author:
-                self.fields["frozen_email"].help_text += gettext(
-                    "Currently linked to %s, leave blank to use this address"
-                    "" % instance.author.email,
-                )
-                if instance.author.orcid:
-                    self.fields["frozen_orcid"].help_text += gettext(
-                        "If left blank, the account ORCiD will be used (%s)"
-                        "" % instance.author.orcid,
-                    )
-            del self.fields["is_corporate"]
-            if instance.is_corporate:
-                del self.fields["name_prefix"]
-                del self.fields["first_name"]
-                del self.fields["middle_name"]
-                del self.fields["last_name"]
-                del self.fields["name_suffix"]
 
     class Meta:
         model = models.FrozenAuthor
@@ -338,39 +318,19 @@ class EditFrozenAuthor(forms.ModelForm):
             'frozen_biography',
             'is_corporate',
             'frozen_email',
-            'frozen_orcid',
             'display_email',
         )
+        widgets = {
+            'is_corporate': YesNoRadio,
+            'display_email': YesNoRadio,
+        }
 
     def save(self, commit=True, *args, **kwargs):
-        obj = super().save(*args, **kwargs)
-        if commit is True and obj.frozen_email:
-            try:
-                # Associate with account if one exists
-                account = core_models.Account.objects.get(
-                    username=obj.frozen_email.lower())
-                obj.author = account
-                obj.frozen_email = ""  # linked account, don't store this value
-            except core_models.Account.DoesNotExist:
-                pass
+        obj = super().save(commit=False, *args, **kwargs)
+        if commit is True:
+            obj.associate_with_account()
             obj.save()
         return obj
-
-    def clean_frozen_orcid(self):
-        orcid_string = self.cleaned_data.get('frozen_orcid')
-        try:
-            return clean_orcid_id(orcid_string)
-        except ValueError:
-            self.add_error(
-                'frozen_orcid',
-                'An ORCID must be entered in the pattern '
-                'https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000. You can find out '
-                'about valid ORCID patterns on the ORCID support site: '
-                'https://support.orcid.org/hc/en-us/articles/'
-                '360006897674-Structure-of-the-ORCID-Identifier',
-            )
-        return orcid_string
 
 
 class IdentifierForm(forms.ModelForm):
@@ -517,32 +477,14 @@ class CreditRecordForm(forms.ModelForm):
         self.fields['role'].choices = new_choices
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        frozen_author = kwargs.pop('frozen_author', None)
+        super().__init__(*args, **kwargs)
         self.fields['role'].choices = self.fields['role'].choices[1:]
 
-        article = kwargs.get('article')
-        author = kwargs.get('author')
-        frozen_author = kwargs.get('frozen_author')
-        preprint_author = kwargs.get('preprint_author')
-        if article and author:
+        if frozen_author:
             self._remove_choices_when_roles_already_exist(
                 models.CreditRecord.objects.filter(
-                    article=article,
-                    author=author,
-                )
-            )
-        elif article and frozen_author:
-            self._remove_choices_when_roles_already_exist(
-                models.CreditRecord.objects.filter(
-                    article=article,
                     frozen_author=frozen_author,
-                )
-            )
-        elif article and preprint_author:
-            self._remove_choices_when_roles_already_exist(
-                models.CreditRecord.objects.filter(
-                    article=article,
-                    preprint_author=preprint_author,
                 )
             )
 
@@ -552,3 +494,46 @@ class CreditRecordForm(forms.ModelForm):
         widgets = {
             'role': forms.widgets.RadioSelect,
         }
+
+
+class AuthorAffiliationForm(forms.ModelForm):
+    """
+    A form for author affiliations.
+    Can be used by submitting authors during submission,
+    or editors during the subsequent workflow.
+    """
+
+    class Meta:
+        model = core_models.ControlledAffiliation
+        fields = ('title', 'department', 'is_primary', 'start', 'end')
+        widgets = {
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.frozen_author = kwargs.pop('frozen_author', None)
+        self.organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.instance:
+            query = Q(account=self.frozen_author, organization=self.organization)
+            for key, value in cleaned_data.items():
+                query &= Q((key, value))
+            if self._meta.model.objects.filter(query).exists():
+                self.add_error(
+                    None,
+                    "An affiliation with matching details already exists."
+                )
+        return cleaned_data
+
+    def save(self, commit=True):
+        affiliation = super().save(commit=False)
+        affiliation.frozen_author = self.frozen_author
+        affiliation.organization = self.organization
+        if commit:
+            affiliation.save()
+        return affiliation

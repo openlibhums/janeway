@@ -19,8 +19,14 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from core import files, models as core_models
+from core.logic import create_organization_name, reverse_with_next
 from core.views import GenericFacetedListView
-from core.forms import AccountAffiliationForm, ConfirmDeleteForm
+from core.forms import (
+    AccountAffiliationForm,
+    ConfirmDeleteForm,
+    OrcidAffiliationForm,
+    OrganizationNameForm,
+)
 from repository import models as preprint_models
 from security.decorators import (
     article_edit_user_required,
@@ -33,7 +39,8 @@ from security.decorators import (
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from utils import setting_handler
-from utils import shared as utils_shared
+from utils import shared as utils_shared, orcid
+from utils.forms import clean_orcid_id
 from utils.decorators import GET_language_override
 from utils.shared import create_language_override_redirect
 
@@ -73,7 +80,9 @@ def start(request, type=None):
                     'user_automatically_author',
                     request.journal,
             ).processed_value:
-                logic.add_user_as_author(request.user, new_article)
+                new_article.correspondence_author = request.user
+                new_article.save()
+                request.user.snapshot_self(new_article)
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_SUBMISSION_START,
@@ -281,22 +290,27 @@ def submit_authors(request, article_id):
         )
     )
 
-    form = forms.AuthorForm()
     last_changed_author = None
+    edit_author_form = None
 
     if request.POST and 'add_author' in request.POST:
-        form = forms.AuthorForm(request.POST)
+        new_author_form = forms.EditFrozenAuthor(request.POST)
 
-        email = request.POST.get("email")
-        author = None
-        author_exists = logic.check_author_exists(email=email)
-        if author_exists:
-            author = core_models.Account.objects.get(email=email)
-        elif form.is_valid():
-            new_author = form.save(commit=False)
-            new_author.set_password(utils_shared.generate_password())
-            new_author.save()
-            author = new_author
+        frozen_email = request.POST.get("frozen_email")
+        try:
+            author = models.FrozenAuthor.objects.get(
+                Q(article=article) &
+                (Q(frozen_email=frozen_email) |
+                Q(author__username__iexact=frozen_email))
+            )
+        except models.FrozenAuthor.DoesNotExist:
+            author = None
+
+        if not author and new_author_form.is_valid():
+            author = new_author_form.save(commit=False)
+            author.article = article
+            author.order = article.next_frozen_author_order()
+            author.save()
         else:
             messages.add_message(
                 request, messages.WARNING,
@@ -304,7 +318,6 @@ def submit_authors(request, article_id):
             )
 
         if author:
-            logic.add_user_as_author(author, article)
             messages.add_message(
                 request, messages.SUCCESS,
                 _('%(author_name)s (%(email)s) added to the article.')
@@ -313,7 +326,6 @@ def submit_authors(request, article_id):
                         "email": author.email
                     },
             )
-        form = forms.AuthorForm()
         last_changed_author = author
 
     elif request.POST and 'search_authors' in request.POST:
@@ -322,65 +334,26 @@ def submit_authors(request, article_id):
         last_changed_author = author
 
     elif request.POST and 'corr_author' in request.POST:
-        author = get_object_or_404(
+        account = get_object_or_404(
             core_models.Account,
             pk=request.POST.get('corr_author', None),
+            frozenauthor__article=article,
         )
-        article.correspondence_author = author
+        article.correspondence_author = account
         article.save()
         messages.add_message(
             request,
             messages.SUCCESS,
             _('%(author_name)s (%(email)s) made correspondence author.')
                 % {
-                    "author_name": author.full_name(),
-                    "email": author.email
+                    "author_name": account.full_name(),
+                    "email": account.email
                 },
         )
-        last_changed_author = author
-
-    elif request.POST and 'add_credit' in request.POST:
-        author_pk = int(request.POST.get('author_pk'))
-        author = get_object_or_404(
-            core_models.Account,
-            pk=author_pk,
-        )
-        role_text = request.POST.get('add_credit', '')
-        if role_text:
-            record = author.add_credit(role_text, article)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('%(author_name)s given role %(role)s.')
-                    % {
-                        "author_name": author.full_name(),
-                        "role": record.get_role_display(),
-                    },
-            )
-        last_changed_author = author
-
-    elif request.POST and 'remove_credit' in request.POST:
-        author_pk = int(request.POST.get('author_pk'))
-        author = get_object_or_404(
-            core_models.Account,
-            pk=author_pk,
-        )
-        role_text = request.POST.get('remove_credit', '')
-        if role_text:
-            record = author.remove_credit(role_text, article)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('%(author_name)s no longer has the role %(role)s.')
-                    % {
-                        "author_name": author.full_name(),
-                        "role": record.get_role_display(),
-                    },
-            )
-        last_changed_author = author
+        last_changed_author = account.frozen_author(article)
 
     elif request.POST and 'change_order' in request.POST:
-        last_changed_author = logic.save_author_order(request, article)
+        last_changed_author = logic.save_frozen_author_order(request, article)
 
     elif request.POST and 'save_continue' in request.POST:
         article.current_step = 3
@@ -393,17 +366,20 @@ def submit_authors(request, article_id):
             )
         )
 
+    new_author_form = forms.EditFrozenAuthor()
     authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = forms.CreditRecordForm(article=article, author=author)
-        authors.append((author, credits, credit_form))
-
+    for frozen_author, credits in article.authors_and_credits().items():
+        credit_form = forms.CreditRecordForm(
+            frozen_author=frozen_author,
+        )
+        authors.append((frozen_author, credits, credit_form))
     template = 'admin/submission/submit_authors.html'
     context = {
         'article': article,
         'authors': authors,
+        'edit_author_form': edit_author_form,
         'last_changed_author': last_changed_author,
-        'form': form,
+        'new_author_form': new_author_form,
     }
 
     return render(request, template, context)
@@ -521,6 +497,7 @@ def delete_funder(request, article_id, funder_id):
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
     """Allows submitting author to remove an author from their article."""
+    raise DeprecationWarning("Use delete_frozen_author instead.")
     article = get_object_or_404(
         models.Article,
         pk=article_id,
@@ -578,6 +555,90 @@ def delete_author(request, article_id, author_id):
             },
     )
     return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+
+
+@login_required
+@article_edit_user_required
+def delete_frozen_author(request, article_id, author_id):
+    """
+    Allows the article owner or editor to
+    remove a frozen author from the article.
+    """
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=author_id,
+        article=article,
+    )
+    form = ConfirmDeleteForm()
+
+    possible_corr_authors = models.FrozenAuthor.objects.filter(
+        article=article,
+        author__isnull=False,
+    ).exclude(
+        author__email__endswith=settings.DUMMY_EMAIL_DOMAIN,
+    ).exclude(
+        pk=author.pk,
+    )
+    if not possible_corr_authors.exists():
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _('%(author_name)s (%(email)s) is the only possible '
+              'correspondence author. Please add another author '
+              'who has a user account before removing %(author_name)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "email": author.email
+                },
+        )
+        return redirect(
+            reverse_with_next(
+                'submit_authors',
+                next_url,
+                kwargs={'article_id': article_id}
+            )
+        )
+
+    if request.method == 'POST':
+        form = ConfirmDeleteForm(request.POST)
+        if form.is_valid() and possible_corr_authors.exists():
+            if author.is_correspondence_author:
+                article.correspondence_author = possible_corr_authors.first().author
+                article.save()
+            author.delete()
+            messages.add_message(
+                request,
+                messages.INFO,
+                _('%(author_name)s (%(email)s) is no longer an author.')
+                    % {
+                        "author_name": author.full_name(),
+                        "email": author.email
+                    },
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = 'admin/submission/edit/author_confirm_delete.html'
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+        'thing_to_delete': author,
+    }
+    return render(request, template, context)
 
 
 @login_required
@@ -914,6 +975,125 @@ def edit_metadata(request, article_id):
     return render(request, template, context)
 
 
+@login_required
+@article_edit_user_required
+def edit_author(request, article_id, author_id):
+    """
+    Allows a submitting author to edit an author record
+    if they are the article owner or they are the author.
+    :param request: request object
+    :param article_id: PK of an Article
+    :param frozen_author_id: PK of a FrozenAuthor
+    :return: contextualised django template
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+    next_url = request.GET.get('next_url', '')
+    form = None
+    use_credit = setting_handler.get_setting(
+        "general",
+        "use_credit",
+        journal=request.journal,
+    ).processed_value
+    if use_credit:
+        credit_form = forms.CreditRecordForm(
+            frozen_author=author,
+        )
+    else:
+        credit_form = None
+
+    if request.method == 'POST' and 'edit_author' in request.POST:
+        form = forms.EditFrozenAuthor(instance=author)
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _('You are editing the name, bio, and identifiers for %(author_name)s. '
+              'Select "Save" when you are finished editing.')
+                % {
+                    "author_name": author.full_name(),
+                },
+        )
+        last_changed_author = author
+
+    elif request.method == 'POST' and 'save_author' in request.POST:
+        form = forms.EditFrozenAuthor(
+            request.POST,
+            instance=author,
+        )
+        if form.is_valid():
+            form.save()
+            form = None
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Name, bio, and identifiers saved.'),
+            )
+
+    elif request.method == 'POST' and 'add_credit' in request.POST:
+        author = get_object_or_404(
+            models.FrozenAuthor,
+            pk=int(request.POST.get('author_pk')),
+            article=article,
+        )
+        credit_form = forms.CreditRecordForm(request.POST)
+        if credit_form.is_valid() and author:
+            record = credit_form.save()
+            record.article = article
+            record.frozen_author = author
+            record.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('%(author_name)s now has role %(role)s.')
+                    % {
+                        "author_name": author.full_name(),
+                        "role": record.get_role_display(),
+                    },
+            )
+            credit_form = forms.CreditRecordForm(
+                frozen_author=author,
+            )
+
+    elif request.method == 'POST' and 'remove_credit' in request.POST:
+        record = get_object_or_404(
+            models.CreditRecord,
+            pk=int(request.POST.get('credit_pk')),
+            frozen_author__article=article,
+        )
+        author = record.frozen_author
+        role_display = record.get_role_display()
+        record.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s no longer has the role %(role)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "role": role_display,
+                },
+        )
+
+    template = 'admin/submission/edit/author.html'
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+        'credit_form': credit_form,
+    }
+
+    return render(request, template, context)
+
+
 @production_user_or_editor_required
 def order_authors(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
@@ -1101,4 +1281,457 @@ def configurator(request):
         'form': form,
     }
 
+    return render(request, template, context)
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationListView(GenericFacetedListView):
+    """
+    Allows a user to search for an organization to add
+    as an affiliation of a frozen author record.
+    """
+
+    model = core_models.Organization
+    template_name = 'admin/core/organization_search.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        article = get_object_or_404(
+            models.Article,
+            pk=int(self.kwargs.get('article_id')),
+            journal=self.request.journal,
+        )
+        author = get_object_or_404(
+            models.FrozenAuthor,
+            Q(pk=int(self.kwargs.get('author_id'))) &
+            Q(article=article) &
+            (Q(author=self.request.user) |
+            Q(article__owner=self.request.user))
+        )
+        context['article'] = article
+        context['author'] = author
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        # Exclude user-created organizations from search results
+        return queryset.exclude(custom_label__isnull=False)
+
+    def get_facets(self):
+        return {
+            'q': {
+                'type': 'search',
+                'field_label': 'Search',
+            },
+        }
+
+
+@login_required
+def organization_name_create(request, article_id, author_id):
+    """
+    Allows a user to create a custom organization name
+    if they cannot find one in ROR data.
+    """
+
+    next_url = request.GET.get('next', '')
+    form = OrganizationNameForm()
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+
+    if request.method == 'POST':
+        org_name = create_organization_name(request)
+        if org_name:
+            return redirect(
+                reverse_with_next(
+                    'submission_affiliation_create',
+                    next_url,
+                    kwargs={
+                        'article_id': article.pk,
+                        'author_id': author.pk,
+                        'organization_id': org_name.custom_label_for.pk,
+                    }
+                )
+            )
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+    }
+    template = 'admin/core/organizationname_form.html'
+    return render(request, template, context)
+
+
+@login_required
+@article_edit_user_required
+def organization_name_update(request, article_id, author_id, organization_name_id):
+    """
+    Allows a user to update a custom organization name
+    if it is affiliated with an author they can edit.
+    """
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+    organization_name = get_object_or_404(
+        core_models.OrganizationName,
+        pk=organization_name_id,
+        custom_label_for__controlledaffiliation__frozen_author=author,
+    )
+    form = OrganizationNameForm(instance=organization_name)
+
+    if request.method == 'POST':
+        form = OrganizationNameForm(
+            request.POST,
+            instance=organization_name,
+        )
+        if form.is_valid():
+            organization = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization updated: %(organization)s")
+                    % {"organization": organization},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = 'admin/core/organizationname_form.html'
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_create(request, article_id, author_id, organization_id):
+    """
+    Allows a user to create a new affiliation
+    for an author if they are the owner of the
+    author record or the associated account.
+    """
+
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+    organization = get_object_or_404(
+        core_models.Organization,
+        pk=organization_id,
+    )
+    form = forms.AuthorAffiliationForm(
+        frozen_author=author,
+        organization=organization,
+    )
+
+    if request.method == 'POST':
+        form = forms.AuthorAffiliationForm(
+            request.POST,
+            frozen_author=author,
+            organization=organization,
+        )
+        if form.is_valid():
+            affiliation = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation created: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'organization': organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+@article_edit_user_required
+def affiliation_update(request, article_id, author_id, affiliation_id):
+    """
+    Allows a user to update an affiliation for
+    an author they are the author, or if they own the article.
+    """
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        frozen_author=author,
+    )
+    form = forms.AuthorAffiliationForm(
+        instance=affiliation,
+        frozen_author=author,
+        organization=affiliation.organization,
+    )
+
+    if request.method == 'POST':
+        form = forms.AuthorAffiliationForm(
+            request.POST,
+            instance=affiliation,
+            frozen_author=author,
+            organization=affiliation.organization,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation updated: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+@article_edit_user_required
+def affiliation_delete(request, article_id, author_id, affiliation_id):
+    """
+    Allows a user to delete an author affiliation
+    if they are the author or they own the article.
+    """
+
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        Q(pk=author_id) &
+        Q(article=article) &
+        (Q(author=request.user) |
+        Q(article__owner=request.user))
+    )
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        frozen_author=author,
+    )
+    form = ConfirmDeleteForm()
+
+    if request.method == 'POST':
+        form = ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            affiliation.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation deleted: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = 'admin/core/affiliation_confirm_delete.html'
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+        'thing_to_delete': affiliation.organization.name,
+    }
+    return render(request, template, context)
+
+
+@login_required
+@article_edit_user_required
+def affiliation_update_from_orcid(
+    request,
+    article_id,
+    author_id,
+    how_many='primary',
+):
+    """
+    Allows a user to update the affiliations
+    from public ORCID records for an author record they own.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    next_url = request.GET.get('next', '')
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=author_id,
+        article=article,
+        article__owner=request.user,
+    )
+    try:
+        cleaned_orcid = clean_orcid_id(author.frozen_orcid)
+    except ValueError:
+        cleaned_orcid = None
+    if not cleaned_orcid:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("%(author_name)s (%(email)s) does not have an ORCID. Please re-add them "
+              "by searching for their ORCID and try again.")
+                % {
+                    "author_name": author.full_name(),
+                    "email": author.email
+                },
+            )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(
+                reverse(
+                    'submit_authors',
+                    kwargs={'article_id': article_id}
+                )
+            )
+
+    orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
+    orcid_affils = orcid_details.get("affiliations", [])
+    if not orcid_affils:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("No affiliations were found on your public ORCID record "
+              "for ID %(orcid_id)s. "
+              "Please update your affiliations on orcid.org and try again.")
+                % {'orcid_id': request.user.orcid },
+        )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(
+                reverse(
+                    'submit_authors',
+                    kwargs={'article_id': article_id}
+                )
+            )
+
+    form = ConfirmDeleteForm()
+    new_affils = []
+    if how_many == 'primary':
+        orcid_affils = orcid_affils[:1]
+    for orcid_affil in orcid_affils:
+        orcid_affil_form = OrcidAffiliationForm(
+            orcid_affil,
+            tzinfo=request.user.preferred_timezone,
+            data={"frozen_author": author},
+        )
+        if orcid_affil_form.is_valid():
+            new_affils.append(orcid_affil_form.save(commit=False))
+
+    if request.method == 'POST':
+        form = ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            request.user.affiliations.delete()
+            for affil in new_affils:
+                affil.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliations updated."),
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+    template = "admin/core/affiliation_update_from_orcid.html"
+    context = {
+        'article': article,
+        'author': author,
+        'form': form,
+        'old_affils': author.affiliations,
+        'new_affils': new_affils,
+    }
     return render(request, template, context)

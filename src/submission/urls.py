@@ -13,6 +13,54 @@ urlpatterns = [
     re_path(r'^(?P<article_id>\d+)/info/$', views.submit_info, name='submit_info'),
     re_path(r'^(?P<article_id>\d+)/authors/$', views.submit_authors, name='submit_authors'),
     re_path(r'^(?P<article_id>\d+)/authors/(?P<author_id>\d+)/delete/$', views.delete_author, name='delete_author'),
+    re_path(
+        r'^(?P<article_id>\d+)/authors/(?P<author_id>\d+)/edit/$',
+        views.edit_author,
+        name='submission_edit_author',
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/delete/$',
+        views.delete_frozen_author,
+        name='submission_delete_frozen_author',
+    ),
+
+    # Affiliations
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/organization/search/$',
+        views.OrganizationListView.as_view(),
+        name='submission_organization_search'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/organization_name/create/$',
+        views.organization_name_create,
+        name='submission_organization_name_create'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/organization_name/(?P<organization_name_id>\d+)/update/$',
+        views.organization_name_update,
+        name='submission_organization_name_update'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/organization/(?P<organization_id>\d+)/affiliation/create/$',
+        views.affiliation_create,
+        name='submission_affiliation_create'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/update/$',
+        views.affiliation_update,
+        name='submission_affiliation_update'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/affiliation/update-from-orcid/(?P<how_many>primary|all)/$',
+        views.affiliation_update_from_orcid,
+        name='submission_affiliation_update_from_orcid'
+    ),
+    re_path(
+        r'^(?P<article_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/delete/$',
+        views.affiliation_delete,
+        name='submission_affiliation_delete'
+    ),
+
     re_path(r'^(?P<article_id>\d+)/files/$', views.submit_files, name='submit_files'),
     re_path(r'^(?P<article_id>\d+)/funding/$', views.submit_funding, name='submit_funding'),
     re_path(r'^submissions/$', views.submit_submissions, name='submission_submissions'),

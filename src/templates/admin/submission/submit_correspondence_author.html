@@ -5,61 +5,76 @@
 {% get_uuid4 as pid %}
 
 <div data-give-me-options-{{ pid }} class="give-me-options callout secondary">
-  <div class="flex wrap gap-1 items-center">
+  <div class="flex wrap gap-1 items-center space-between">
     <strong>
       <span class="fa fa-envelope"></span>
       {% trans "Correspondence author" %}
     </strong>
-    {% if article.non_correspondence_authors %}
-      <div class="button-group no-bottom-margin">
-        <button
-          class="button hollow secondary"
-          aria-expanded="false"
-          aria-controls="options-pane-{{ pid }}">
-          <span class="fa fa-angle-up"></span>
-          <span class="fa fa-angle-down"></span>
-          {% trans "Change correspondence" %}
-        </button>
-      </div>
-    {% endif %}
+    <div class="button-group no-bottom-margin">
+      <button
+        data-give-me
+        class="button hollow secondary"
+        aria-expanded="false"
+        aria-controls="options-pane-{{ pid }}">
+        <span class="fa fa-angle-up"></span>
+        <span class="fa fa-angle-down"></span>
+        {% trans "Change correspondence" %}
+      </button>
+    </div>
   </div>
   <div id="options-pane-{{ pid }}" class="options-pane padding-block-1">
     <p class="max-w-48">{% blocktrans %}
-      The correspondence author can be any author who has a valid email
-      address, independent of order. They will receive updates and requests
+      The correspondence author can be any author who has a user account,
+      independent of order. They will receive updates and requests
       for work on the article during the review and publication process.
     {% endblocktrans %}</p>
     <form method="POST">
       {% csrf_token %}
-      <fieldset>
-        <legend>{% trans "Select a new correspondence author:" %}</legend>
-        {% for order in article.articleauthororder_set.all %}
-          <div class="option">
-            <input
-              id="option_{{ order.author.pk }}"
-              name="corr_author"
-              type="radio"
-              {% if order.author == article.correspondence_author %}
-                checked
-              {% endif %}
-              value="{{ order.author.pk }}"
-              {% if not order.author.real_email %}
-                disabled
-              {% endif %}
-            >
-            <label for="option_{{ order.author.pk }}">
-              {{ order.author.full_name }}
-              {% if order.author.real_email %}
-                {% blocktrans with email=order.author.real_email %}
-                  ({{ email }})
-                {% endblocktrans %}
-              {% else %}
-                {% trans "(no email address)" %}
-              {% endif %}
-            </label>
-          </div>
-        {% endfor %}
-      </fieldset>
+      {% if article.non_correspondence_authors %}
+        <fieldset>
+          <legend>{% trans "Select a new correspondence author:" %}</legend>
+          {% for possible_corr_author in article.author_accounts.all %}
+            <div class="option">
+              <input
+                id="option_{{ possible_corr_author.pk }}"
+                name="corr_author"
+                type="radio"
+                {% if possible_corr_author == article.correspondence_author %}
+                  checked
+                {% endif %}
+                value="{{ possible_corr_author.pk }}"
+                {% if not possible_corr_author.real_email %}
+                  disabled
+                {% endif %}
+              >
+              <label for="option_{{ possible_corr_author.pk }}">
+                {{ possible_corr_author.full_name }}
+                {% if possible_corr_author.real_email %}
+                  {% blocktrans with email=possible_corr_author.real_email %}
+                    ({{ email }})
+                  {% endblocktrans %}
+                {% else %}
+                  {% trans "(no email address)" %}
+                {% endif %}
+              </label>
+            </div>
+          {% endfor %}
+        </fieldset>
+      {% else %}
+        <p class="max-w-48">{% blocktrans %}
+          The correspondence author on this article cannot be changed,
+          because are no other authors with user accounts.
+          Please invite a co-author to register for an account.
+        {% endblocktrans %}</p>
+        {% site_url "core_register" as content %}
+        {% trans "Copy link to share" as label_copy %}
+        {% trans "Link copied" as label_copied %}
+        {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied %}
+        <p>{% blocktrans %}
+          After they have made their account, remove and re-add
+          them to the author list via the search.
+        {% endblocktrans %}</p>
+      {% endif %}
     </form>
   </div>
 </div>

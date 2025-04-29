@@ -1,0 +1,65 @@
+{% extends "admin/core/flat_base.html" %}
+
+{% load i18n foundation next_url uuid %}
+
+
+{% block contextual_title %}{% endblock contextual_title %}
+
+{% block title-section %}{% endblock title-section %}
+
+{% block breadcrumbs %}{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="nitty-gritty">
+    <div class="flex direction-column">
+      {% get_uuid4 as pid %}
+      <section
+        aria-labelledby="{{ pid }}"
+        class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2 id="{{ pid }}">
+            {% block nitty_h2 %}
+              {% trans "Summary" %}
+            {% endblock nitty_h2 %}
+          </h2>
+        </div>
+        {% block nitty %}
+        {% endblock nitty %}
+      </section>
+    </div>
+    <div class="flex direction-column">
+      {% get_uuid4 as pid %}
+      <section
+        aria-labelledby="{{ pid }}"
+        class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2 id="{{ pid }}">
+            {% block gritty_h2 %}
+            {% endblock gritty_h2 %}
+          </h2>
+        </div>
+        {% block gritty %}
+          {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+          <form method="post" id="{{ form.id }}">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
+            {% block gritty_form %}
+              <div class="bs-callout bs-callout-warning">
+                <p>{% blocktrans %}
+                  Are you sure you want to delete "{{ thing_to_delete }}"?
+                {% endblocktrans %}</p>
+                {{ form }}
+                <div class="button-group no-bottom-margin">
+                  {% include "elements/button_yes_delete.html" %}
+                  {% include "elements/a_no_go_back.html" with href=request.GET.next %}
+                </div>
+              </div>
+            {% endblock gritty_form %}
+          </form>
+        {% endblock gritty %}
+      </section>
+    </div>
+  </div>
+{% endblock body %}

@@ -10,7 +10,7 @@
     '[data-give-me-options-{{ pid }}]'
   );
   giveMeOptions?.addEventListener('click', event => {
-    if (event.target.localName == 'button') {
+    if ('giveMe' in event.target.dataset) {
       giveMeOptions.classList.toggle('displayed');
       event.target.setAttribute(
         'aria-expanded',

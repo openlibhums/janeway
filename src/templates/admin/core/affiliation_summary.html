@@ -1,16 +1,16 @@
-<div>
-  <div class="card padding-block-2 padding-inline-2">
-    <div class="title-area">
-      <h2>{% trans "Summary" %}</h2>
-    </div>
-    {% include "admin/elements/layout/key_value_above.html" with key="Account name" value=account %}
-    {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
-    {% if organization %}
-      {% include "admin/elements/layout/key_value_above.html" with key="Organization" value=organization %}
-    {% endif %}
-    {% if article %}
-      {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
-      {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.title %}
-    {% endif %}
-  </div>
-</div>
+{% if account %}
+  {% include "admin/elements/layout/key_value_above.html" with key="User" value=account.full_name %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
+  {% include "admin/elements/layout/key_value_above.html" with key="ORCID" value=account.orcid %}
+{% elif author %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Author" value=author.full_name %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Email" value=author.email %}
+  {% include "admin/elements/layout/key_value_above.html" with key="ORCID" value=author.orcid %}
+{% endif %}
+{% if organization %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Organization" value=organization %}
+{% endif %}
+{% if article %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.title %}
+{% endif %}
