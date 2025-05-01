@@ -192,27 +192,33 @@ class TestDateHuman(TestCase):
 
 
     def test_non_dates(self):
-        """Test date_human hides non-dates from user and raises a TemplateSyntax Error to ensure incorrect information is not displayed."""
-        # test the empty string
-        result = dates.date_human("")
-        self.assertEqual(result, "")
-
-        # test other non-dates
+        """Test date_human hides input errors except when settings.DEBUG=True."""
+        
         test_non_dates = {
-            'string':               "2023,12,3",                    # string
-            'int':                  134567,                         # integer
-            'zero':                 0,                              # zero
-            'none':                  None,                         # none
+            'empty_string':         "",
+            'string':               "2023,12,3",
+            'int':                  134567,
+            'zero':                 0,
+            'none':                 None,
         }
-        for key, test_non_date in test_non_dates.items():
-            with self.subTest(non_date=key):
-                with self.assertRaises(TemplateSyntaxError) as context:
-                    dates.date_human(test_non_date)
-                self.assertEqual(
-                    str(context.exception),
-                    "The value filtered by `date_human` must be a `datetime.datetime`",
-                    f"Failed for non-existent date '{key}'. Expected TemplateSyntaxError."
-                )
+        with override_settings(DEBUG=True):
+            for key, test_non_date in test_non_dates.items():
+                with self.subTest(non_date=key, debug=True):
+                    if settings.DEBUG:
+                        with self.assertRaises(TemplateSyntaxError) as context:
+                            dates.date_human(test_non_date)
+                        self.assertEqual(
+                            str(context.exception),
+                            "The value filtered by `date_human` must be a `datetime.datetime`",
+                            f"Failed for non-existent date '{key}'. Expected TemplateSyntaxError."
+                        )
+        with override_settings(DEBUG=False):
+            for key, test_non_date in test_non_dates.items():
+                with self.subTest(non_date=key, debug=False):
+                    result = dates.date_human(test_non_date)
+                    self.assertEqual(result, "", 
+                        f"Failed for {key}.  Expected hidden error (i.e. empty string), actual '{result}'."
+                    )
 
     def test_date_human_all_languages(self):
         """Test date_human with all supported languages that have complete test data"""  
