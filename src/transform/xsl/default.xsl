@@ -495,7 +495,7 @@
               <xsl:apply-templates/>
             <xsl:for-each select="//xref[@rid=$fn-id]">
               <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
-              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}"> ⮭</a>
+              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}" aria-label="reference to {$fn-id} in text" role="doc-backlink"> ---^ </a>
             </xsl:for-each>
           </li>
     </xsl:template>
@@ -5067,7 +5067,7 @@
             <!-- Output -->
             <li id="fn{$fnnumfull}">
                 <xsl:apply-templates/>
-              <a href="#fnLink{$fnnumfull}" > ⮭</a>
+              <a href="#fnLink{$fnnumfull}" aria-label="reference to {$fnnumfull} in text" role="doc-backlink"> ---^ </a>
             </li>
           </xsl:for-each>
           <!-- END model for each footnote -->
