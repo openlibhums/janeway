@@ -171,6 +171,9 @@
     <table class="scroll small" id="unassigned">
         <tr>
             <th>Name</th>
+            {% if journal_settings.general.use_credit %}
+                <th>CRediT</th>
+            {% endif %}
             <th>Email</th>
             <th>Display Email Link?</th>
             <th>Primary?</th>
@@ -178,6 +181,17 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
+                {% if journal_settings.general.use_credit %}
+                    <td> 
+                    {% if f_author.credits.exists %}
+                        <span class="credit">
+                        {% for credit in f_author.credits %}
+                            {{ credit }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        </span>
+                    {% endif %}
+                    </td>
+                {% endif %}
                 <td>
                     {% if f_author.author.email %}{{ f_author.author.email|se_can_see_pii:article }}
                       {% if can_see_pii %}

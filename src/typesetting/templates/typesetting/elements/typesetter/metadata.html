@@ -97,6 +97,9 @@
     <table class="small scroll" id="unassigned">
         <tr>
             <th>Name</th>
+            {% if journal_settings.general.use_credit %}
+                <th>CRediT</th>
+            {% endif %}
             <th>Email</th>
             <th>Institution</th>
             <th>Country</th>
@@ -105,6 +108,17 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
+                {% if journal_settings.general.use_credit %}
+                    <td> 
+                    {% if f_author.credits.exists %}
+                        <span class="credit">
+                        {% for credit in f_author.credits %}
+                            {{ credit }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        </span>
+                    {% endif %}
+                    </td>
+                {% endif %}
                 <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
                 <td>{% if f_author.department %}{{ f_author.department }}, {% endif %}{{ f_author.institution }}</td>
                 <td>{{ f_author.country }}</td>
