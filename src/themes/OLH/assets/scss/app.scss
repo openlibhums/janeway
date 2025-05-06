@@ -1373,4 +1373,8 @@ button.list-group-item-danger.active:focus {
 
 .back-links-list li:not(:last-child)::after {
   content: " ";
+}.red.req {
+  border: none;
+  color: red;
+  font-size: 150%;
 }
