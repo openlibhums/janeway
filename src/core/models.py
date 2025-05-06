@@ -278,6 +278,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Last name'),
         validators=[plain_text_validator],
     )
+    display_initials = models.CharField(
+        max_length=6,
+        blank=True,
+        verbose_name=_("Display initials"),
+        validators=[plain_text_validator],
+        help_text=_("Use this field to override the default initials generated from the "
+                    "user's full name."),
+    )
 
     # activation_code is deprecated
     activation_code = models.CharField(max_length=100, null=True, blank=True)
@@ -418,6 +426,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return u"%s %s" % (self.first_name, self.last_name)
 
     def initials(self):
+        if self.display_initials:
+            return self.display_initials
         if self.first_name and self.last_name:
             if self.middle_name:
                 return u"%s%s%s" % (self.first_name[:1], self.middle_name[:1], self.last_name[:1])
