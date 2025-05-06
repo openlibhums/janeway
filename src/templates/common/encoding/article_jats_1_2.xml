@@ -3,6 +3,7 @@
             "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20120330//EN"
             "http://jats.nlm.nih.gov/publishing/1.2/JATS-journalpublishing1.dtd">
 {% endif %}
+{% if validation_error %}<!-- {{ validation_error }} -->{% endif %}
 <article
         article-type="{{ article.jats_article_type|default:'research-article' }}"
         dtd-version="1.2"

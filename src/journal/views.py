@@ -1335,7 +1335,9 @@ def view_jats_stub(request, article_id):
     context = {
         'article': article,
         'include_declaration': True,
+        'validation_error': None,
     }
+
     xml_output = render_to_string(
         'common/encoding/article_jats_1_2.xml',
         context,
@@ -1343,10 +1345,14 @@ def view_jats_stub(request, article_id):
     valid, error_message = xml_validation.validate_jats_with_remote_dtd(xml_output)
 
     if not valid:
-        error_comment = f"<!-- JATS Validation Error: {error_message} -->\n"
-        xml_output = xml_output + error_comment
+        context['validation_error'] = f"JATS Validation Error: {error_message}"
+        xml_output = render_to_string(
+            'common/encoding/article_jats_1_2.xml',
+            context,
+        )
 
     return HttpResponse(xml_output, content_type="application/xml")
+
 
 @editor_user_required
 def manage_issues(request, issue_id=None, event=None):
