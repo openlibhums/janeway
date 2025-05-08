@@ -21,7 +21,7 @@ def update_inprogress_article_authors(apps, schema_editor):
             article=article, author__id=models.OuterRef("id")
         ).values_list("order"))
         accounts = article.authors.annotate(order=subq).order_by("order")
-        for order, account in enumerate(accounts):#
+        for order, account in enumerate(accounts):
             if order == 0 and not article.correspondence_author:
                 article.correspondence_author = account
                 article.save()
