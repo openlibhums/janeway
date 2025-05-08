@@ -20,8 +20,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('last_modified', models.DateTimeField(auto_now=True)),
                 ('role', models.CharField(blank=True, choices=[('conceptualization', 'Conceptualization'), ('data-curation', 'Data Curation'), ('formal-analysis', 'Formal Analysis'), ('funding-acquisition', 'Funding Acquisition'), ('investigation', 'Investigation'), ('methodology', 'Methodology'), ('project-administration', 'Project Administration'), ('resources', 'Resources'), ('software', 'Software'), ('supervision', 'Supervision'), ('validation', 'Validation'), ('visualization', 'Visualization'), ('writing-original-draft', 'Writing - Original Draft'), ('writing-review-editing', 'Writing - Review & Editing')], max_length=100, null=True)),
-                ('article', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.article')),
-                ('author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
                 ('frozen_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.frozenauthor')),
                 ('preprint_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintauthor')),
             ],
@@ -34,8 +32,8 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name='creditrecord',
             constraint=models.CheckConstraint(
-                check=models.Q(models.Q(('author__isnull', False), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), models.Q(('frozen_author__isnull', False), ('author__isnull', True), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('author__isnull', True), ('frozen_author__isnull', True)), ('author__isnull', True), models.Q(('author__isnull', True), ('frozen_author__isnull', True)), models.Q(('author__isnull', True), ('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'),
-                name='exclusive_fields_credit_record_author_frozen_author_preprintb7fd',
+                check=models.Q(models.Q(('frozen_author__isnull', False), ('preprint_author__isnull', True)), models.Q(('preprint_author__isnull', False), ('frozen_author__isnull', True)), ('frozen_author__isnull', True), models.Q(('frozen_author__isnull', True), ('preprint_author__isnull', True)), _connector='OR'),
+                name='exclusive_fields_credit_record_frozen_author_preprint_author',
             ),
         ),
     ]

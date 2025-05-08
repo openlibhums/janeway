@@ -753,6 +753,7 @@ class Preprint(models.Model):
 
             # copy authors to submission
             for preprint_author in self.preprintauthor_set.all():
+                # TODO: Remove the use of ArticleAuthorOrder here.
                 submission_models.ArticleAuthorOrder.objects.get_or_create(
                     article=article,
                     author=preprint_author.account,
