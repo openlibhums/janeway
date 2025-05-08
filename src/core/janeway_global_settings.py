@@ -683,6 +683,9 @@ TINYMCE_DEFAULT_CONFIG = {
     **TINYMCE_CLIPBOARD_CLEANER,
 }
 
+# Enable hierarchical structure for keywords during submission.
+ENABLE_HIERARCHICAL_KEYWORDS = False
+
 JATS_ARTICLE_TYPES = (
     ("abstract", ("Abstract")),
     ("addendum", ("Addendum")),
