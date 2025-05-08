@@ -175,14 +175,17 @@ class PreprintViewSet(viewsets.ModelViewSet):
         preprints = repository_models.Preprint.objects.filter(
             repository=self.request.repository,
         )
+
         search_term = self.request.query_params.get('search')
         stage = self.request.query_params.get('stage')
-        subject = self.request.query_params.get('subject')
+        subjects = self.request.query_params.getlist('subject')
 
         if search_term:
             split_search_term = search_term.split(' ')
-            lower_split_search_term = [term.lower() for term in
-                                       split_search_term]
+            lower_split_search_term = [
+                term.lower()
+                for term in split_search_term
+            ]
 
             # Initial filter on Title, Abstract and Keywords.
             preprint_search = preprints.filter(
@@ -194,7 +197,7 @@ class PreprintViewSet(viewsets.ModelViewSet):
             from_author = repository_models.PreprintAuthor.objects.annotate(
                 lower_first_name=Lower('account__first_name'),
                 lower_middle_name=Lower('account__middle_name'),
-                lower_last_name=Lower('account__last_name')
+                lower_last_name=Lower('account__last_name'),
             ).filter(
                 Q(lower_first_name__in=lower_split_search_term) |
                 Q(lower_middle_name__in=lower_split_search_term) |
@@ -203,17 +206,17 @@ class PreprintViewSet(viewsets.ModelViewSet):
             )
 
             preprints_from_author = [
-                pa.preprint for pa in
-                repository_models.PreprintAuthor.objects.filter(
+                pa.preprint
+                for pa in repository_models.PreprintAuthor.objects.filter(
                     pk__in=from_author,
                     preprint__date_published__lte=timezone.now(),
                 )
             ]
 
-            preprint_pks = list(preprint.pk for preprint in
-                                set(list(
-                                    preprint_search) + preprints_from_author)
-                                )
+            preprint_pks = list({
+                preprint.pk
+                for preprint in list(preprint_search) + preprints_from_author
+            })
 
             preprints = repository_models.Preprint.objects.filter(
                 pk__in=preprint_pks,
@@ -224,9 +227,9 @@ class PreprintViewSet(viewsets.ModelViewSet):
                 stage=stage,
             )
 
-        if subject:
+        if subjects:
             preprints = preprints.filter(
-                subject__name=subject,
+                subject__name__in=subjects,
             )
 
         return preprints
@@ -240,10 +243,20 @@ class PublishedPreprintViewSet(PreprintViewSet):
 
     def get_queryset(self):
         preprints = super().get_queryset()
+
+        subjects = self.request.query_params.getlist('subject')
+
+        filters = {
+            'date_published__isnull': False,
+            'stage': repository_models.STAGE_PREPRINT_PUBLISHED,
+            'repository': self.request.repository,
+        }
+
+        if subjects:
+            filters['subject__name__in'] = subjects
+
         return preprints.filter(
-            date_published__isnull=False,
-            stage=repository_models.STAGE_PREPRINT_PUBLISHED,
-            repository=self.request.repository,
+            **filters,
         ).order_by(
             '-date_published',
             'title',
