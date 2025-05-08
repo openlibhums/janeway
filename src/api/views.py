@@ -191,7 +191,7 @@ class PreprintViewSet(viewsets.ModelViewSet):
             preprint_search = preprints.filter(
                 Q(title__icontains=search_term) |
                 Q(abstract__icontains=search_term) |
-                Q(keywords__word__in=split_search_term)
+                Q(keywords__word=search_term)
             )
 
             from_author = repository_models.PreprintAuthor.objects.annotate(
