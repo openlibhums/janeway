@@ -103,22 +103,22 @@
                         <th>Email</th>
                         <th>Primary?</th>
                     </tr>
-                    {% for order in article.articleauthororder_set.all %}
+                    {% for author in article.frozenauthor_set.all %}
                         <tr>
-                            <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
+                            <td>{{ author.full_name|se_can_see_pii:article }}</td>
                             {% if journal_settings.general.use_credit %}
-                                <td> 
-                                {% if f_author.credits.exists %}
+                                <td>
                                     <span class="credit">
-                                    {% for credit in f_author.credits %}
+                                    {% for credit in author.credits %}
                                         {{ credit }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                      --
                                     {% endfor %}
                                     </span>
-                                {% endif %}
                                 </td>
                             {% endif %}
-                            <td>{{ order.author.email|se_can_see_pii:article }}</td>
-                            <td>{% if order.author == article.correspondence_author %}
+                            <td>{{ author.email|se_can_see_pii:article }}</td>
+                            <td>{% if author.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
                         </tr>

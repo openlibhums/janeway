@@ -109,14 +109,14 @@
             <tr>
                 <td>{{ f_author.full_name }}</td>
                 {% if journal_settings.general.use_credit %}
-                    <td> 
-                    {% if f_author.credits.exists %}
+                    <td>
                         <span class="credit">
                         {% for credit in f_author.credits %}
                             {{ credit }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                          --
                         {% endfor %}
                         </span>
-                    {% endif %}
                     </td>
                 {% endif %}
                 <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
