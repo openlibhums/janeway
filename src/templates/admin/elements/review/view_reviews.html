@@ -1,10 +1,18 @@
+{% regroup reviews by review_round.round_number as reviews_by_round %}
+
 <p>Please click 'View Review' below to view the peer review report.</p>
 
+{% for round in reviews_by_round %}
+<p><strong>Round {{ round.grouper }}</strong></p>
+
 <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
-    {% for review in reviews %}
+    {% for review in round.list %}
     <li class="accordion-item" data-accordion-item>
-        <a href="#" class="accordion-title">View Review #{{ review.pk }}{% if reviewer_names %} - {{ review.reviewer.full_name }}{% endif %}</a>
+        <a href="#" class="accordion-title">
+            View Review #{{ review.pk }}{% if reviewer_names %} - {{ review.reviewer.full_name }}{% endif %}
+        </a>
         <div class="accordion-content" data-tab-content>
+
             {% if journal_settings.general.enable_peer_review_data_on_review_page %}
             <h5>Details</h5>
             <table class="small scroll">
@@ -16,14 +24,31 @@
                 </tr>
                 <tr>
                     <td>{{ review.date_requested|date:"Y-m-d" }}</td>
-                    <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
-                        {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
-                        {% elif review.date_declined %}Declined {{ review.date_declined|date:"Y-m-d" }}
-                        {% else %}Awaiting acknowledgement{% endif %}
+                    <td>
+                        {% if review.decision == 'withdrawn' %}
+                            Withdrawn {{ review.date_complete|date:"Y-m-d" }}
+                        {% elif review.date_accepted %}
+                            Accepted {{ review.date_accepted|date:"Y-m-d" }}
+                        {% elif review.date_declined %}
+                            Declined {{ review.date_declined|date:"Y-m-d" }}
+                        {% else %}
+                            Awaiting acknowledgement
+                        {% endif %}
                     </td>
-                    <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}--{% endif %}
+                    <td>
+                        {% if review.decision %}
+                            {{ review.get_decision_display|capfirst }}
+                        {% else %}
+                            --
+                        {% endif %}
                     </td>
-                    <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
+                    <td>
+                        {% if review.date_complete %}
+                            {{ review.date_complete }}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
             {% endif %}
@@ -34,38 +59,59 @@
                     {% if answer.author_can_see %}
                     <div class="{{ answer.element.width }}">
                         <div class="callout">
-                            <b>{{ answer.element.name }}</b>
-                            <br/>
+                            <b>{{ answer.element.name }}</b><br/>
                             {% if answer.edited_answer %}
-                            {{ answer.edited_answer|safe|linebreaksbr }}
+                                {{ answer.edited_answer|safe|linebreaksbr }}
                             {% else %}
-                            {{ answer.answer|safe|linebreaksbr }}
+                                {{ answer.answer|safe|linebreaksbr }}
                             {% endif %}
-                            <br/>
                         </div>
                     </div>
                     {% endif %}
                 {% endfor %}
-                {% if review.review_file and review.for_author_consumption and review.display_review_file %}
-                <div class="large-12 columns">
-                    <h6>Review File</h6>
-                    <a href="?file_id={{ review.review_file.id }}"><i
-                            class="fa fa-download">&nbsp;</i>{{ review.review_file.original_filename }}</a>
-                </div>
-                {% endif %}
-                {% if journal_settings.general.display_completed_reviews_in_additional_rounds or shared_reviews %}
-                    {% if review.review_file %}
-                        <div class="large-12 columns">
-                            <p><strong>Review File</strong></p>
-                            <p><a href="{% url 'reviewer_shared_review_download' review.article.pk review.pk %}">
+
+                {% if revision_request %}
+                    {% if review.review_file and review.for_author_consumption and review.display_review_file %}
+                    <div class="large-12 columns">
+                        <p><strong>Review File</strong></p>
+                        <p>
+                            <a href="?file_id={{ review.review_file.id }}">
                                 <span class="fa fa-download">&nbsp;</span>{{ review.review_file.original_filename }}
-                            </a></p>
-                        </div>
+                            </a>
+                        </p>
+                    </div>
                     {% endif %}
                 {% endif %}
 
+                {% if shared_reviews %}
+                    {% if review.review_file and review.for_author_consumption and review.display_review_file %}
+                    <div class="large-12 columns">
+                        <p><strong>Review File</strong></p>
+                        <p>
+                            <a href="{% url 'reviewer_shared_review_download' review.article.pk review.pk %}">
+                                <span class="fa fa-download">&nbsp;</span>{{ review.review_file.original_filename }}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                {% if editor_view %}
+                    {% if review.review_file and review.for_author_consumption and review.display_review_file %}
+                    <div class="large-12 columns">
+                        <p><strong>Review File</strong></p>
+                        <p>
+                            <a href="{% url 'editor_file_download' review.article.id review.review_file.id %}">
+                                <span class="fa fa-download">&nbsp;</span>{{ review.review_file.original_filename }}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                {% endif %}
             </div>
+
         </div>
     </li>
     {% endfor %}
 </ul>
+{% endfor %}
