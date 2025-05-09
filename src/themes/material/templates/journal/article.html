@@ -90,10 +90,7 @@
                     {% endif %}
                     {% if article.is_published or proofing %}
                     {% if not journal_settings.article.suppress_how_to_cite %}
-                        <h2>{% trans "How to Cite" %}</h2>
-                        <div id="article_how_to_cite">
-                            {{ article.how_to_cite | safe }}
-                        </div>
+                        {% include "elements/journal/cite.html" %}
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
