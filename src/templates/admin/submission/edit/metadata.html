@@ -159,14 +159,14 @@
                             <td><i class="fa fa-sort"></i></td>
                             <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
                             {% if journal_settings.general.use_credit %}
-                                <td> 
-                                {% if f_author.credits.exists %}
+                                <td>
                                     <span class="credit">
                                     {% for credit in f_author.credits %}
                                         {{ credit }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                      --
                                     {% endfor %}
                                     </span>
-                                {% endif %}
                                 </td>
                             {% endif %}
                             <td>{{ f_author.email|se_can_see_pii:article }}</td>
