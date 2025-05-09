@@ -176,12 +176,9 @@
                                 {% include "elements/journal/article_keywords.html" with keywords=article.keywords  %}
                             {% endif %}
                             {% if article.is_published or proofing %}
-                            {% if not journal_settings.article.suppress_how_to_cite %}
-                            <h2>{% trans "How to Cite" %}:</h2>
-                            <p id="article_how_to_cite">
-                                {{ article.how_to_cite|safe }}
-                            </p>
-                            {% endif %}
+                                {% if not journal_settings.article.suppress_how_to_cite %}
+                                    {% include "elements/journal/cite.html" %}
+                                {% endif %}
                             {% endif %}
                             {% if article.rights %}
                             <p><strong>{% trans "Rights" %}:</strong>
