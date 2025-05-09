@@ -262,8 +262,6 @@
                                        [<span class="credit">
                                          {% for credit in author.credits %}
                                            {{ credit }}{% if not forloop.last %}, {% endif %}
-                                         {% empty %}
-                                           --
                                          {% endfor %}
                                        </span>]
                                      {% endif %}
