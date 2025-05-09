@@ -373,6 +373,7 @@ class GeneratedForm(forms.Form):
                 self.fields[str(element.pk)] = forms.BooleanField(
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=element.required if fields_required else False)
+                self.fields[str(element.pk)].label_suffix = ''
 
             self.fields[str(element.pk)].help_text = element.help_text
             self.fields[str(element.pk)].label = element.name
