@@ -23,6 +23,8 @@
 {% endif %}
 
 {% if issue.journal.display_issue_doi and issue.doi_url %}
-<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
+    <p>
+        {% include "elements/doi_display.html" with doi=issue.doi_url title=issue.display_title %}
+    </p>
 {% endif %}
 <br/>
