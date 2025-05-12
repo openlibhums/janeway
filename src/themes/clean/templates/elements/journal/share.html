@@ -13,10 +13,10 @@
       <button
               class="btn btn-primary"
               type="button"
-              onclick="copyToClipboard('share-link')"
+              onclick="copyToClipboard('share-link', event, '{% trans 'Copied' %}' )"
               aria-label="{% trans 'Copy Share Link' %}"
       >
-        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;{% trans "Copy" %}
+        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
       </button>
     </div>
   </div>

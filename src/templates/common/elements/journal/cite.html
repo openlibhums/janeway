@@ -6,10 +6,10 @@
         <span id="cite-content"> {{ cite }}</span>
         <button class="button" 
             type="button"
-            onclick="copyToClipboard('cite-content')"
+            onclick="copyToClipboard('cite-content', event, '{% trans 'Copied' %}' )"
             aria-label="{% trans 'Copy formatted citation' %}"
             >
-            <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;{% trans "Copy" %}
+            <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
         </button>
     </div>
   </div>

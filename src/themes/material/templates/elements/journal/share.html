@@ -10,10 +10,10 @@
     >
     <button class="btn btn-small waves-effect waves-light teal darken-1 share-button"
             type="button"
-            onclick="copyToClipboard('share-link')"
+            onclick="copyToClipboard('share-link', event, '{% trans 'Copied' %}' )"
             aria-label="{% trans 'Copy Share Link' %}"
-    >
-      <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;Copy
+      >
+      <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
     </button>
   </div>
 {% endwith %}
