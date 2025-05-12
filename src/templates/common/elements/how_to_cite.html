@@ -3,5 +3,5 @@
     {{ year_str }} “{{ title }}”,
     {{ journal_str|safe }} {{ issue_str }}{% if pages_str %},{% else %}.{% endif %}
     {{ pages_str|safe }}
-    {{ doi_str|safe }}
+    {% include "elements/doi_display.html" with doi=doi_id title=title %}
 </p>

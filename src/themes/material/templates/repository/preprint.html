@@ -32,7 +32,8 @@
                 <p class="preprint-text">
                     This is a {{ request.repository.object_name }} and has not been peer reviewed.
                     {% if preprint.doi %}
-                        The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                        The published version of this {{ request.repository.object_name }} is available: 
+                        {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
                     {% elif preprint.article %}
                         A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
@@ -164,8 +165,8 @@
                     </div>
 
                     {% if preprint.preprint_doi %}
-                    <h2>DOI</h2>
-                    <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                        <h2>DOI</h2>
+                        <p>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</p>
                     {% endif %}
 
                     {% if preprint.subject.all %}

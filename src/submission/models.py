@@ -1364,15 +1364,10 @@ class Article(AbstractLastModifiedModel):
             if self.article_number:
                 issue_str += ": {}".format(self.article_number)
 
-        doi_str = ""
         pages_str = ""
         if self.page_range:
             pages_str = " {0}.".format(self.page_range)
-        doi = self.get_doi()
-        if doi:
-            doi_str = (
-                'doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a>'.format(doi)
-            )
+        doi_id = self.get_doi()
 
         context = {
             "author_str": author_str,
@@ -1380,7 +1375,7 @@ class Article(AbstractLastModifiedModel):
             "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
-            "doi_str": doi_str,
+            "doi_id": doi_id,
             "pages_str": pages_str,
         }
         return render_to_string(template, context)

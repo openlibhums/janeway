@@ -15,7 +15,9 @@
                 {{ article.issue.volume }}
             {% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
-            {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}
+            {% if article.identifier.id_type == 'doi' %}
+                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+            {% endif %}
         </p>
             <button class="button" 
                 type="button"
@@ -44,7 +46,9 @@
                 {{ article.issue.volume }}
             {% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
-            {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}
+            {% if article.identifier.id_type == 'doi' %}
+                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+            {% endif %}
         </p>
         <button class="button" 
             type="button"
@@ -75,7 +79,9 @@
             {% elif article.issue and article.issue.volume %}
                 {{ article.issue.volume }}{% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
-            {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}
+            {% if article.identifier.id_type == 'doi' %}
+                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+            {% endif %}
         </p>
         <button class="button" 
             type="button"
