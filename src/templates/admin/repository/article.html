@@ -44,11 +44,19 @@
                         <th>Published DOI</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{% if preprint.preprint_doi %}
-                            <a target="_blank" href="https://doi.org/{{ preprint.preprint_doi }}">
-                            {{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
-                        <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">
-                            {{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
+                        <td colspan="2">
+                            {% if preprint.preprint_doi %}
+                                {% include "common/elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}
+                            {% else %}
+                                pending
+                            {% endif %}
+                        </td>
+                        <td>{% if preprint.doi %}
+                                {% include "common/elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
+                            {% else %}
+                                No Published DOI
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <th colspan="3">
