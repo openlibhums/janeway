@@ -431,7 +431,7 @@
                         {% if doi_url %}
                         <h2>{% trans "Identifiers" %}</h2>
                         <ul>
-                            <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                            <li>{% include "elements/doi_display.html" with doi=doi_url title=article.title %}</li>
                         </ul>
                         <div class="spacer">
                             <div class="divider"></div>
