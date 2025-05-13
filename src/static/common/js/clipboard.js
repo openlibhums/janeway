@@ -10,12 +10,21 @@ function copyToClipboard(elementId, event, activatedText) {
 
     // nb. share links are from inputs which are value, but how-to-cite is html that needs to be rich text
     const content = element.tagName === 'INPUT' ? element.value : element.innerHTML;
+    
+    // Get plain text and clean up whitespace
+    let plainText = element.tagName === 'INPUT' ? element.value : element.textContent;
+    plainText = plainText
+        .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+        .replace(/\n\s*\n/g, '\n')  // Replace multiple newlines with single newline
+        .trim();  // Remove leading/trailing whitespace
 
-    const blob = new Blob([content], { type: 'text/html' });
+    // Create a single ClipboardItem with both formats
     const clipboardItem = new ClipboardItem({
-        'text/html': blob
+        'text/plain': new Blob([plainText], { type: 'text/plain' }),
+        'text/html': new Blob([content], { type: 'text/html' })
     });
 
+    // Write to clipboard
     navigator.clipboard.write([clipboardItem])
         .then(() => {
             // Change button text to "Copied" for 5 seconds
